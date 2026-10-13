@@ -1,0 +1,10 @@
+# Never commit credentials: the backend uses its Cloud Run service account (ADC)
+*-key.json
+*credentials*.json
+service-account*.json
+.env
+.env.*
+
+# Build output
+*.exe
+backend/backend
