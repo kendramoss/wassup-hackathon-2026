@@ -1,58 +1,137 @@
 # wassup-hackathon-2026
 
-Monorepo for the hackathon.
+Hello-world AI agent for the hackathon: a Next.js page with a text box, talking to a Go agent (Google ADK) that uses Gemini on Vertex AI and has one tool, `get_time`.
 
-| Path        | What                                                                   | Cloud Run service |
-|-------------|------------------------------------------------------------------------|-------------------|
-| `backend/`  | Go hello-world agent (ADK Go) using Gemini on Vertex AI, with one `get_time` tool | `backend`         |
-| `frontend/` | Next.js page with a text box; `/api/chat` proxies to the backend        | `frontend`        |
+**Live:** https://frontend-88903435351.us-central1.run.app
 
-GCP project: `wassup-hackathon-2026`. Region: `us-central1`.
-The backend runs as `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User).
-**No JSON keys:** locally, use `gcloud auth application-default login`.
+## How it works
 
-## Backend
-
-The backend is **private**: only the `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` service account can invoke it, and `/api/chat` attaches an ID token when running on Cloud Run.
-
-`POST /chat` takes `{"message": "...", "session_id": "optional"}` and returns `{"reply", "session_id", "tool_calls"}`. `GET /healthz` is the liveness check (Cloud Run reserves paths ending in `z`, so it's only reachable locally).
-
-| Env var                 | Default            |
-|-------------------------|--------------------|
-| `GOOGLE_CLOUD_PROJECT`  | (required)         |
-| `GOOGLE_CLOUD_LOCATION` | `global` (Vertex location; `gemini-3.8-flash` isn't served from `us-central1`) |
-| `GEMINI_MODEL`          | `gemini-3.8-flash` |
-| `PORT`                  | `8080`             |
-
-Run locally:
-
-```sh
-cd backend
-GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 go run .
-curl -X POST localhost:8080/chat -d '{"message":"what time is it in Singapore?"}'
+```
+browser ──► frontend (Next.js, public) ──► backend (Go, private) ──► Gemini on Vertex AI
+              POST /api/chat                 POST /chat                (location: global)
+              adds an ID token               ADK agent + get_time tool
 ```
 
-## Frontend
+1. The page sends your message to the frontend's `/api/chat` route.
+2. The route forwards it to the backend. On Cloud Run it first gets an ID token for the `frontend@` service account from the metadata server, because the backend only accepts calls from that account.
+3. The backend's ADK agent sends the message to Gemini. If you ask about the time, Gemini calls `get_time`, the Go code answers, and Gemini writes the reply.
+4. The reply comes back as `{reply, session_id, tool_calls}`. The page sends `session_id` with the next message so the agent remembers the conversation.
 
-Run locally:
+| Path        | What                                     | Cloud Run service | Runs as                                                  |
+|-------------|------------------------------------------|-------------------|----------------------------------------------------------|
+| `backend/`  | Go agent (ADK Go), `get_time` tool        | `backend` (private) | `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User) |
+| `frontend/` | Next.js page; `/api/chat` proxies to the backend | `frontend` (public) | `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` (Cloud Run Invoker on `backend` only) |
 
-```sh
-cd frontend
-BACKEND_URL=http://localhost:8080 npm run dev
-```
+GCP project `wassup-hackathon-2026`, Cloud Run region `us-central1`. **No JSON keys** anywhere: Cloud Run uses the service accounts above, and locally you use your own Google login.
 
 ## Deploy
 
-Use bash (PowerShell splits the commas in `--set-env-vars`).
+Run from the repo root. Each deploy uploads the folder, builds it with its `Dockerfile` in Cloud Build, and rolls out a new revision (3–5 minutes). The URLs don't change. Only redeploy the side you changed.
 
-```sh
-gcloud run deploy backend --source backend --region us-central1   --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com   --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global   --no-allow-unauthenticated
+### PowerShell
 
-gcloud run deploy frontend --source frontend --region us-central1   --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com   --set-env-vars BACKEND_URL=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')   --allow-unauthenticated
+```powershell
+cd C:\Users\kendr\hackathon\aiBuilder_Oct2026
+
+gcloud run deploy backend --source backend --region us-central1 --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global" --no-allow-unauthenticated --max-instances 3
+
+gcloud run deploy frontend --source frontend --region us-central1 --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "BACKEND_URL=https://backend-88903435351.us-central1.run.app" --allow-unauthenticated --max-instances 3
 ```
 
-To call the backend directly:
+Keep the quotes around the `--set-env-vars` value: without them PowerShell splits it at the comma and the backend gets a broken project ID.
+
+### Bash
 
 ```sh
-curl -X POST https://backend-88903435351.us-central1.run.app/chat   -H "Authorization: Bearer $(gcloud auth print-identity-token)"   -d '{"message":"what time is it in Singapore?"}'
+gcloud run deploy backend --source backend --region us-central1 \
+  --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com \
+  --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global \
+  --no-allow-unauthenticated --max-instances 3
+
+gcloud run deploy frontend --source frontend --region us-central1 \
+  --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com \
+  --set-env-vars BACKEND_URL=https://backend-88903435351.us-central1.run.app \
+  --allow-unauthenticated --max-instances 3
 ```
+
+`--max-instances 3` caps how far each service scales, which caps how fast the public page can spend credits.
+
+### Check it
+
+PowerShell:
+
+```powershell
+# Through the public frontend
+Invoke-RestMethod -Method Post https://frontend-88903435351.us-central1.run.app/api/chat -ContentType 'application/json' -Body '{"message":"what time is it in Tokyo?"}'
+
+# Backend directly (needs your identity token; without one you get 403)
+$t = gcloud auth print-identity-token
+Invoke-RestMethod -Method Post https://backend-88903435351.us-central1.run.app/chat -Headers @{Authorization="Bearer $t"} -ContentType 'application/json' -Body '{"message":"hi"}'
+
+# Backend logs
+gcloud logging read 'resource.labels.service_name="backend"' --limit 20 --format='value(textPayload)'
+```
+
+Bash:
+
+```sh
+curl -X POST https://frontend-88903435351.us-central1.run.app/api/chat \
+  -H 'Content-Type: application/json' -d '{"message":"what time is it in Tokyo?"}'
+
+curl -X POST https://backend-88903435351.us-central1.run.app/chat \
+  -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+  -H 'Content-Type: application/json' -d '{"message":"hi"}'
+```
+
+A good reply has `"tool_calls":["get_time"]`.
+
+## Run locally
+
+One-time: `gcloud auth application-default login` (the backend uses your login to call Vertex AI).
+
+PowerShell, in two terminals:
+
+```powershell
+cd backend; $env:GOOGLE_CLOUD_PROJECT="wassup-hackathon-2026"; go run .
+cd frontend; $env:BACKEND_URL="http://localhost:8080"; npm run dev
+```
+
+Bash:
+
+```sh
+cd backend && GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 go run .
+cd frontend && BACKEND_URL=http://localhost:8080 npm run dev
+```
+
+Open http://localhost:3000. Locally the frontend calls the backend without a token.
+
+Tests and checks:
+
+```sh
+cd backend && go test ./... && go vet ./...
+cd frontend && npm run lint && npx tsc --noEmit
+```
+
+## Backend API
+
+| Endpoint      | What |
+|---------------|------|
+| `POST /chat`  | `{"message": "...", "session_id": "optional"}` → `{"reply", "session_id", "tool_calls"}`. Message max 2000 characters; `session_id` must be one the backend returned. |
+| `GET /health` | Liveness check, returns `ok`. |
+
+| Env var                 | Default            | Notes |
+|-------------------------|--------------------|-------|
+| `GOOGLE_CLOUD_PROJECT`  | (required)         | |
+| `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. `gemini-3.8-flash` isn't served from `us-central1`. |
+| `GEMINI_MODEL`          | `gemini-3.8-flash` | |
+| `PORT`                  | `8080`             | Set by Cloud Run. |
+
+The frontend reads `BACKEND_URL` (required).
+
+## Gotchas
+
+- **PowerShell and commas:** quote `--set-env-vars` values, or use Bash.
+- **`404` on Vertex:** the model isn't available in that location. Use `GOOGLE_CLOUD_LOCATION=global`.
+- **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
+- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh.
+- **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.
