@@ -1,11 +1,9 @@
-# Checks for both services. Runs on PRs and on pushes to branches other than
-# main; on main, deploy.yml calls this workflow before deploying.
+# Checks for both services. Runs on PRs; on main, deploy.yml calls this
+# workflow before deploying.
 name: CI
 
 on:
   pull_request:
-  push:
-    branches-ignore: [main]
   workflow_call:
 
 permissions:

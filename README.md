@@ -26,7 +26,7 @@ GCP project `wassup-hackathon-2026`, Cloud Run region `us-central1`. **No JSON k
 
 ## CI/CD
 
-- **CI** (`.github/workflows/ci.yml`) runs on every PR and branch push: `gofmt`, `go vet` and `go test` for the backend; `eslint` and `next build` (which type-checks) for the frontend. Each side only runs when its folder changed. `ci-ok` is the single check to require before merging.
+- **CI** (`.github/workflows/ci.yml`) runs on every PR: `gofmt`, `go vet` and `go test` for the backend; `eslint` and `next build` (which type-checks) for the frontend. Each side only runs when its folder changed. `ci-ok` is the single check to require before merging.
 - **Deploy** (`.github/workflows/deploy.yml`) runs on every push to `main`: CI first, then it deploys whichever service changed (backend before frontend), then sends "what time is it in Tokyo?" through the live site and fails unless the reply used `get_time`. Re-deploy everything by hand from **Actions → Deploy → Run workflow**.
 - Deploys authenticate with **Workload Identity Federation**, so there are no keys or GitHub secrets. Only pushes to `main` of this repo can get a token, and they act as `github-deployer@`, which can build and deploy but can't change who is allowed to call a service. One-time setup: `bash scripts/setup-github-deploy.sh`.
 
