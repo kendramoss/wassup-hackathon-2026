@@ -15,6 +15,7 @@
 //	POST /v1/cases/{id}/export   draft ruling request
 //	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
 //	GET  /v1/eval/summary        results-page numbers
+//	GET  /v1/demos[/{id}]        demo cases for the UI
 package main
 
 import (
@@ -33,6 +34,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
@@ -144,7 +146,12 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	ds, err := demos.Load()
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
 	return httpapi.Deps{
+		Demos:         ds,
 		Engine:        eng,
 		Router:        router.New(model, cfg.RouterModel, 2000),
 		Planner:       planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),

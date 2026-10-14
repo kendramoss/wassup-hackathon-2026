@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
@@ -81,7 +82,7 @@ func newHarness(t *testing.T, regime string) harness {
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
-		FastPathConf: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
+		Demos: mustDemos(t), FastPathConf: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
 	})
 	return hs
 }
@@ -246,5 +247,43 @@ func TestBodyLimit(t *testing.T) {
 	code, _ := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"`+string(big)+`"}`)
 	if code != 400 {
 		t.Errorf("oversized body status %d", code)
+	}
+}
+
+func mustDemos(t *testing.T) []demos.Demo {
+	t.Helper()
+	ds, err := demos.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ds
+}
+
+func TestDemoFlowThroughTheAPI(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	code, list := hs.do(t, "GET", "/v1/demos", "")
+	if code != 200 || len(list["demos"].([]any)) != 4 {
+		t.Fatalf("list demos %d: %v", code, list)
+	}
+	req := httptest.NewRequest("GET", "/v1/demos/heatgun-2022", nil)
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	var d demos.Demo
+	if err := json.Unmarshal(rec.Body.Bytes(), &d); err != nil || d.ID != "heatgun-2022" {
+		t.Fatalf("get demo: %v %s", err, rec.Body.String())
+	}
+	code, out := hs.do(t, "POST", "/v1/cases/predict", string(d.Predict))
+	if code != 201 {
+		t.Fatalf("predict from demo: %d %v", code, out)
+	}
+	if !strings.HasPrefix(hs.engine.last.Facts, "In your letter dated October 25, 2022") {
+		t.Errorf("engine should read CBP's facts text, got %.60q", hs.engine.last.Facts)
+	}
+	code, pl := hs.do(t, "POST", "/v1/cases/"+out["id"].(string)+"/plan", string(d.Plan))
+	if code != 200 || hs.planner.got.ActualChange == nil || hs.planner.got.Product.Name == "" {
+		t.Errorf("plan from demo: %d %v %+v", code, pl, hs.planner.got.ActualChange)
+	}
+	if code, _ := hs.do(t, "GET", "/v1/demos/nope", ""); code != 404 {
+		t.Errorf("missing demo status %d", code)
 	}
 }

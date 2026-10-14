@@ -110,6 +110,53 @@ paths:
               schema: { $ref: "#/components/schemas/Ruling" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/demos:
+    get:
+      summary: Demo cases for the UI's "load demo" button
+      responses:
+        "200":
+          description: Demo list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, example: heatgun-2022 }
+                        title: { type: string }
+                        description: { type: string }
+                        cbp_held: { type: string, example: "China (N328954)" }
+                        has_plan: { type: boolean }
+  /v1/demos/{id}:
+    get:
+      summary: One demo with ready request bodies for predict and plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Demo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  order: { type: integer }
+                  title: { type: string }
+                  description: { type: string }
+                  source: { type: string }
+                  cbp_held: { type: string }
+                  notes: { type: string }
+                  predict: { $ref: "#/components/schemas/PredictRequest" }
+                  plan: { oneOf: [{ $ref: "#/components/schemas/PlanRequest" }, { type: "null" }] }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
@@ -185,7 +232,7 @@ components:
         operations: { type: array, items: { $ref: "#/components/schemas/Operation" } }
     PredictRequest:
       type: object
-      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required.
+      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this).
       required: [date]
       properties:
         date: { type: string, format: date, description: Case date; only CBP rulings dated strictly before it are used }
@@ -250,6 +297,14 @@ components:
             duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
             duty_rates_note: { type: string }
             group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } } }
+        actual_change:
+          type: object
+          description: For backtests, the real change and CBP's ruling on it; the result compares it with the best plan.
+          properties:
+            _source: { type: string }
+            moved_to: { type: string }
+            moved_to_thailand: { type: array, items: { type: string } }
+            still_from_china: { type: array, items: { type: string } }
     Verdict:
       type: object
       properties:

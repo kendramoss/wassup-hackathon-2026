@@ -1,0 +1,208 @@
+{
+  "id": "heatgun-2022",
+  "title": "Heat gun, 2022 setup (Kobalt 12.5-amp)",
+  "description": "Assembled in Thailand with a Thai housing and heating element; motor, fan, PCBA, switch and cord from China. CBP held China in 2022 (N328954) and Thailand in 2026 after the motor, PCBA and fan moved (N357771).",
+  "source": "CBP rulings N328954 (15 Nov 2022) and N357771 (29 Jan 2026), rulings.cbp.gov",
+  "predict": {
+    "date": "2026-01-14",
+    "facts": "In your letter dated October 25, 2022, you requested a country of origin ruling determination on a heat gun.\n\nThe item under consideration is the Kobalt 12.5-amp heat gun, model number 5208257, which features two fan speeds, a variable temperature control dial, and is rated at 1500 watts. The main components of the heat gun include a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch, and power cord. The heat gun is designed to deliver hot air and can be used for various heating applications including heat shrinking, stripping paint, bending plastic, as well as general drying and thawing.\n\nEach heat gun is assembled in Thailand using 24 components sourced from China and Thailand. The main housing, front cover, and heating element are produced in Thailand. The remaining components are sourced from China, and include the PCBA, motor, fan, switch, power cord, wiring, knob, back cover, motor support, support ring, heat insulator, and fasteners.\n\nThe final assembly of the heat gun begins with press fitting the fan to the motor spindle and attaching the fan cover using screws. Next, the wiring is prepared, which includes crimping plugs to the wires on the heating element, adding heat shrink tubing, soldering wires to the switch, and plugging wires from the heating element into the switch and the PCBA. A worker fastens the PCBA to the main housing, assembles the temperature knob, connects the PCBA to the motor, and adds the back cover and motor support. To complete the assembly, the power cord is secured using a cord clamp, the switch slider is added, and the main housing is closed using screws. Each heat gun is tested before it is labeled and packaged.\n\nWith regard to your request for the appropriate country of origin of the heat gun,",
+    "product": {
+      "name": "Kobalt 12.5-amp heat gun, model 5208257",
+      "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+      "plants": [
+        {
+          "id": "th",
+          "name": "Rayong plant",
+          "country": "Thailand",
+          "capabilities": [
+            "motor_fan_assembly",
+            "pcba",
+            "heating_element",
+            "housing_moulding",
+            "switch_cord_minor_parts",
+            "final_assembly"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China suppliers",
+          "country": "China",
+          "capabilities": [
+            "motor_fan_assembly",
+            "pcba",
+            "heating_element",
+            "housing_moulding",
+            "switch_cord_minor_parts"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "main housing",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "housing_moulding"
+        },
+        {
+          "name": "front cover",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "housing_moulding"
+        },
+        {
+          "name": "heating element",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "heating_element"
+        },
+        {
+          "name": "electric motor",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "motor_fan_assembly"
+        },
+        {
+          "name": "fan",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "motor_fan_assembly"
+        },
+        {
+          "name": "motor support",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "motor_fan_assembly"
+        },
+        {
+          "name": "printed circuit board assembly (PCBA)",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "pcba"
+        },
+        {
+          "name": "switch",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        },
+        {
+          "name": "power cord",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        },
+        {
+          "name": "wiring",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        },
+        {
+          "name": "knob",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        },
+        {
+          "name": "back cover",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        },
+        {
+          "name": "support ring, heat insulator and fasteners",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "switch_cord_minor_parts"
+        }
+      ],
+      "operations": [
+        {
+          "name": "press fit the fan to the motor spindle and attach the fan cover",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack",
+          "plant": "th",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "motorised_tools_small_appliances",
+    "exclude_rulings": [
+      "N328954",
+      "N357771"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N328954"
+    }
+  },
+  "plan": {
+    "target": "Thailand",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 2000000,
+      "duty_rates": {
+        "China": 0.417,
+        "Thailand": 0.167
+      },
+      "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
+      "group_costs": {
+        "motor_fan_assembly": {
+          "cn": 300000,
+          "th": 420000
+        },
+        "pcba": {
+          "cn": 150000,
+          "th": 210000
+        },
+        "heating_element": {
+          "cn": 60000,
+          "th": 80000
+        },
+        "housing_moulding": {
+          "cn": 90000,
+          "th": 110000
+        },
+        "switch_cord_minor_parts": {
+          "cn": 70000,
+          "th": 105000
+        }
+      }
+    },
+    "actual_change": {
+      "_source": "CBP ruling N357771 (29 Jan 2026): CBP held Thailand",
+      "moved_to_thailand": [
+        "electric motor",
+        "fan",
+        "printed circuit board assembly (PCBA)",
+        "knob",
+        "power cord",
+        "back cover",
+        "outer shells"
+      ],
+      "still_from_china": [
+        "switch",
+        "terminal blocks",
+        "wires",
+        "fasteners"
+      ],
+      "moved_to": "Thailand"
+    }
+  },
+  "notes": "Prediction uses CBP's own 2022 facts text; the plan search uses the structured product. Precedents and evidence are limited to rulings dated before 14 Jan 2026 (request date of N357771); both heat-gun rulings are excluded.",
+  "cbp_held": "China (N328954)",
+  "order": 1
+}

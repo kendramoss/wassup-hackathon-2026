@@ -84,10 +84,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 4),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:           e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:             e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:               e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch:       strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		LabelsPath:     e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:       e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:         e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch: strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
 	}
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)

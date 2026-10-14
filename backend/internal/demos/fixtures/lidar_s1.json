@@ -1,0 +1,123 @@
+{
+  "id": "lidar-s1",
+  "title": "LiDAR module, all core PCBAs made in Thailand (Hesai OT128)",
+  "description": "A move that does not change origin: moving only the RX/TX boards to Vietnam keeps Thailand; CBP held Vietnam only when all four core PCBAs were made there (N359371, N363700).",
+  "source": "CBP rulings N359371 (25 Mar 2026) and N363700 (7 Aug 2026), rulings.cbp.gov",
+  "predict": {
+    "date": "2026-03-03",
+    "product": {
+      "name": "Hesai OT128 LiDAR module",
+      "description": "A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply).",
+      "plants": [
+        {
+          "id": "th",
+          "name": "Thailand plant",
+          "country": "Thailand",
+          "capabilities": [
+            "main_boards",
+            "rx_tx_boards",
+            "final_assembly"
+          ]
+        },
+        {
+          "id": "vn",
+          "name": "Vietnam SMT plant",
+          "country": "Vietnam",
+          "capabilities": [
+            "main_boards",
+            "rx_tx_boards"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China suppliers",
+          "country": "China",
+          "capabilities": [
+            "main_boards",
+            "rx_tx_boards"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "Top Main Board (TMB) PCBA",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "main_boards"
+        },
+        {
+          "name": "Bottom Main Board (BMB) PCBA",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "main_boards"
+        },
+        {
+          "name": "receiver (RX) PCBA",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "rx_tx_boards"
+        },
+        {
+          "name": "transmitter (TX) PCBA",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "rx_tx_boards"
+        },
+        {
+          "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+          "made_in": "China",
+          "group": "bought_in"
+        }
+      ],
+      "operations": [
+        {
+          "name": "assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "cure, calibrate, test and inspect 100% of modules",
+          "plant": "th",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "lidar_modules",
+    "exclude_rulings": [
+      "N359371",
+      "N363700"
+    ],
+    "current_origin": {
+      "country": "Thailand",
+      "ruling": "N359371 (scenario I)"
+    }
+  },
+  "plan": {
+    "target": "Vietnam",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 5000000,
+      "duty_rates": {
+        "Thailand": 0.1,
+        "Vietnam": 0.05,
+        "China": 0.35
+      },
+      "duty_rates_note": "Illustrative placeholder, not a real rate.",
+      "group_costs": {
+        "main_boards": {
+          "th": 400000,
+          "vn": 380000,
+          "cn": 330000
+        },
+        "rx_tx_boards": {
+          "th": 300000,
+          "vn": 290000,
+          "cn": 250000
+        }
+      }
+    }
+  },
+  "notes": "Demonstration only: the verifier prompt was written after seeing the LiDAR flip results, so this case cannot test it.",
+  "cbp_held": "Thailand (N359371, scenario I)",
+  "order": 2
+}

@@ -32,6 +32,8 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
 		mux.HandleFunc("GET /v1/rulings/{id}", a.ruling)
 		mux.HandleFunc("GET /v1/eval/summary", a.evalSummary)
+		mux.HandleFunc("GET /v1/demos", a.listDemos)
+		mux.HandleFunc("GET /v1/demos/{id}", a.getDemo)
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {

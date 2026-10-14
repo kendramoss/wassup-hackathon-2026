@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
@@ -56,6 +57,7 @@ type Deps struct {
 	Cases         store.Cases
 	Templates     map[string]planner.Template
 	Summary       func() (evalsummary.Summary, error)
+	Demos         []demos.Demo
 	FastPathConf  float64
 	Provider      string
 	EngineModel   string
@@ -218,8 +220,9 @@ func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
 }
 
 type planRequest struct {
-	Target    string            `json:"target"`
-	Economics planner.Economics `json:"economics"`
+	Target       string                `json:"target"`
+	Economics    planner.Economics     `json:"economics"`
+	ActualChange *planner.ActualChange `json:"actual_change"`
 }
 
 func (a *api) plan(w http.ResponseWriter, r *http.Request) {
@@ -245,6 +248,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	res, err := a.d.Planner.Plan(r.Context(), planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: in.Economics, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
+		ActualChange: in.ActualChange,
 	})
 	if err != nil {
 		a.fail(w, r, err)
@@ -341,6 +345,20 @@ func (a *api) evalSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, s)
+}
+
+func (a *api) listDemos(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]any{"demos": demos.Summaries(a.d.Demos)})
+}
+
+func (a *api) getDemo(w http.ResponseWriter, r *http.Request) {
+	for _, d := range a.d.Demos {
+		if d.ID == r.PathValue("id") {
+			writeJSON(w, http.StatusOK, d)
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "not_found", "no such demo", nil)
 }
 
 func (a *api) families() string {
