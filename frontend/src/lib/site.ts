@@ -14,9 +14,9 @@ export const site = {
 
   // "Try it" prompts on the landing page and the empty chat.
   examples: [
+    "What's deployed right now?",
+    "When did the backend last change, and did its build pass?",
     "What time is it in Tokyo?",
-    "Compare the time in London and New York",
-    "Is it night in Sydney right now?",
   ],
 
   // What Gemini decides vs. what is plain code (Technical Merit, 40%).
