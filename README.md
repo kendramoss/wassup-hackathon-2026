@@ -134,8 +134,8 @@ cd frontend && npm run lint && npx tsc --noEmit
 | Env var                 | Default            | Notes |
 |-------------------------|--------------------|-------|
 | `GOOGLE_CLOUD_PROJECT`  | (required)         | |
-| `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. `gemini-3.8-flash` isn't served from `us-central1`. |
-| `GEMINI_MODEL`          | `gemini-3.8-flash` | |
+| `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. Gemini 3.x flash models aren't served from `us-central1`. |
+| `GEMINI_MODEL`          | `gemini-3.5-flash` | `gemini-3.8-flash` works but was heavily queued on 2026-10-14 (3–74 s per call vs 1–2 s). |
 | `PORT`                  | `8080`             | Set by Cloud Run. |
 
 The frontend reads `BACKEND_URL` (required).
@@ -144,6 +144,7 @@ The frontend reads `BACKEND_URL` (required).
 
 - **PowerShell and commas:** quote `--set-env-vars` values, or use Bash.
 - **`404` on Vertex:** the model isn't available in that location. Use `GOOGLE_CLOUD_LOCATION=global`.
+- **Slow replies:** check model latency before blaming the code. Time a direct Vertex call; switching `GEMINI_MODEL` needs no code change (`--update-env-vars GEMINI_MODEL=...`).
 - **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
 - **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](../../issues/2)).
 - **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.
