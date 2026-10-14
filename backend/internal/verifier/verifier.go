@@ -60,13 +60,34 @@ type Task struct {
 	Before time.Time
 	// Exclude lists rulings the agent may not see (the case's own rulings).
 	Exclude []string
+	// KnownOriginA, when set, is CBP's holding for variant A (e.g. from the
+	// user's own ruling). It is stated in the task, as in the research flip
+	// setting "A's ruling known"; prompt version becomes verifier-v1+known-a.
+	KnownOriginA string
+	KnownRulingA string
 }
 
 // UserMessage renders the task as flip_case() in agent_search.py does.
 func (t Task) UserMessage() string {
-	return "Two variants of the same product differ in where some component is made or some operation is performed. " +
+	msg := "Two variants of the same product differ in where some component is made or some operation is performed. " +
 		"Determine CBP's origin for each and whether the change alters origin.\n\n" +
 		"VARIANT A FACTS:\n" + corpus.Truncate(t.FactsA, 7000) + "\n\nVARIANT B FACTS:\n" + corpus.Truncate(t.FactsB, 7000)
+	if t.KnownOriginA != "" {
+		msg += "\n\nCBP has already ruled on variant A: origin " + t.KnownOriginA
+		if t.KnownRulingA != "" {
+			msg += " (" + t.KnownRulingA + "; that ruling is not available to you)"
+		}
+		msg += "."
+	}
+	return msg
+}
+
+// promptVersion is the version recorded for a task.
+func (t Task) promptVersion() string {
+	if t.KnownOriginA != "" {
+		return PromptVersion + "+known-a"
+	}
+	return PromptVersion
 }
 
 // Step is one tool call the agent made.
@@ -277,7 +298,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		SupportingRuling: keep(ans.SupportingRuling),
 		CounterRuling:    keep(ans.CounterRuling),
 		Reasoning:        ans.Reasoning,
-		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: PromptVersion,
+		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: t.promptVersion(),
 			InputTokens: m.usage.InputTokens, OutputTokens: m.usage.OutputTokens},
 	}
 	if ans.Confidence != nil {

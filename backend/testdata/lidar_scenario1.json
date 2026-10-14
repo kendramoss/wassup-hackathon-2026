@@ -106,5 +106,9 @@
   "exclude_rulings": [
     "N359371",
     "N363700"
-  ]
+  ],
+  "current_origin": {
+    "country": "Thailand",
+    "ruling": "N359371 (scenario I)"
+  }
 }

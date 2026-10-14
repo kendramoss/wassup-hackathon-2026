@@ -153,3 +153,36 @@ func TestPlanUnknownFamily(t *testing.T) {
 		t.Fatal("want ErrUnknownFamily")
 	}
 }
+
+func TestPlanUsesKnownCurrentOrigin(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	tmpls, _ := LoadTemplates()
+	// An engine that thinks everything is Thai: without the known origin no
+	// move would be a change.
+	e := &thaiEngine{}
+	v := &fakeVerifier{supported: true, confidence: 0.97}
+	res, err := New(tmpls, e, v, Options{PlanConfidence: 0.95, Concurrency: 2}).Plan(context.Background(), r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.CurrentOrigin == nil || res.CurrentOrigin.Country != "China" || res.Baseline.Prediction.Origin != "Thailand" {
+		t.Errorf("current origin %+v, engine baseline %s", res.CurrentOrigin, res.Baseline.Prediction.Origin)
+	}
+	if !strings.Contains(res.Rejected[0].RejectionReason, "CBP held China (N328954); engine predicts Thailand") {
+		t.Errorf("baseline reason = %q", res.Rejected[0].RejectionReason)
+	}
+	for _, tk := range v.tasks {
+		if tk.KnownOriginA != "China" || tk.KnownRulingA != "N328954" {
+			t.Errorf("verifier task missing known origin: %+v", tk)
+		}
+	}
+	if len(res.Plans) == 0 || res.Plans[0].DutyEffectYear != 500000 {
+		t.Errorf("economics should start from the known China origin: %+v", res.Plans)
+	}
+}
+
+type thaiEngine struct{}
+
+func (thaiEngine) Predict(context.Context, domain.Case) (engine.Result, error) {
+	return engine.Result{Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.8}}, nil
+}

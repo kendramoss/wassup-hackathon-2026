@@ -59,3 +59,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D16 — Facts renderer matches CBP's restatement style (changed after the first heat-gun run)
 - First version rendered processing detail for every group. On the 2022 heat gun the engine then predicted Thailand (0.78), though on CBP's own 2022 facts it predicts China (0.78) and CBP held China. The renderer now lists components by country, adds processing detail only for the groups a plan moves (as CBP did in N357771), and the final assembly.
 - Consequence: the heat-gun acceptance run is a demo check on a renderer adjusted after seeing that fixture, not an unbiased evaluation. Unbiased planner evaluation needs fresh rulings (finals work).
+
+## D17 — Plans start from CBP's holding on the current setup when the user has one
+- Even with the corrected renderer, the engine called the 2022 heat gun Thai (0.78; CBP held China; on CBP's own facts the engine says China at 0.78 — a borderline case). With the wrong starting origin the verifier saw no change and rejected every move.
+- A plan request may carry `current_origin` (country + ruling). It sets the starting origin for economics and is stated to the verifier ("CBP has already ruled on variant A: origin China"), the research "A's ruling known" setting (85.5% on 76 pairs). The engine's own baseline prediction is still shown next to CBP's holding. Verifier prompt version `verifier-v1+known-a` when used; dev-evaluated in both modes.

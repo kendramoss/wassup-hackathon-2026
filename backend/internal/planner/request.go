@@ -21,9 +21,19 @@ type Request struct {
 	// Exclude lists rulings that describe this very case (e.g. its own
 	// earlier ruling); they are never used as precedent or evidence.
 	Exclude []string `json:"exclude_rulings,omitempty"`
+	// CurrentOrigin, when known from a CBP ruling on the current setup, is used
+	// as the starting origin (economics, verifier task) instead of the
+	// engine's prediction; the engine's prediction is still reported.
+	CurrentOrigin *KnownOrigin `json:"current_origin,omitempty"`
 	// ActualChange, when known (backtests), is what the manufacturer really
 	// did; the result compares it with the best plan.
 	ActualChange *ActualChange `json:"actual_change,omitempty"`
+}
+
+// KnownOrigin is CBP's holding for the current setup.
+type KnownOrigin struct {
+	Country string `json:"country"`
+	Ruling  string `json:"ruling,omitempty"`
 }
 
 // ActualChange records a real production change and CBP's ruling on it.

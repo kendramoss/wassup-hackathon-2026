@@ -190,5 +190,9 @@
   "exclude_rulings": [
     "N328954",
     "N357771"
-  ]
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N328954"
+  }
 }

@@ -51,17 +51,20 @@ func New(templates map[string]Template, e Predictor, v Checker, opts Options) *P
 
 // Result is a full plan search.
 type Result struct {
-	CaseID       string            `json:"case_id"`
-	Target       string            `json:"target"`
-	Family       string            `json:"family"`
-	Baseline     domain.Plan       `json:"baseline"`
-	Plans        []domain.Plan     `json:"plans"`    // shown: precedent-supported, best-ranked first
-	Rejected     []domain.Plan     `json:"rejected"` // greyed out, with the reason
-	Backtest     *Backtest         `json:"backtest,omitempty"`
-	Stats        Stats             `json:"stats"`
-	Illustrative bool              `json:"economics_illustrative"`
-	DutyNote     string            `json:"duty_rates_note,omitempty"`
-	Templates    map[string]string `json:"template_versions"`
+	CaseID   string      `json:"case_id"`
+	Target   string      `json:"target"`
+	Family   string      `json:"family"`
+	Baseline domain.Plan `json:"baseline"`
+	// CurrentOrigin is CBP's holding for the current setup when the user gave
+	// it; Baseline.Prediction is the engine's own view, shown alongside.
+	CurrentOrigin *KnownOrigin      `json:"current_origin,omitempty"`
+	Plans         []domain.Plan     `json:"plans"`    // shown: precedent-supported, best-ranked first
+	Rejected      []domain.Plan     `json:"rejected"` // greyed out, with the reason
+	Backtest      *Backtest         `json:"backtest,omitempty"`
+	Stats         Stats             `json:"stats"`
+	Illustrative  bool              `json:"economics_illustrative"`
+	DutyNote      string            `json:"duty_rates_note,omitempty"`
+	Templates     map[string]string `json:"template_versions"`
 }
 
 // Backtest compares the best plan with a real change.
@@ -126,6 +129,11 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 	addEngine(base.Usage)
 	res.Baseline = domain.Plan{Move: domain.Move{}, Description: Describe(req.Product, tm, nil), VariantFacts: baseFacts, Prediction: base.Prediction}
 	baseOrigin := base.Prediction.Origin
+	var knownA, knownRuling string
+	if k := req.CurrentOrigin; k != nil && k.Country != "" {
+		baseOrigin, knownA, knownRuling = domain.NormalizeCountry(k.Country), domain.NormalizeCountry(k.Country), k.Ruling
+		res.CurrentOrigin = &KnownOrigin{Country: knownA, Ruling: knownRuling}
+	}
 
 	moves := Enumerate(req.Product, tm, target)
 	res.Stats.MovesSearched = len(moves)
@@ -155,7 +163,8 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 				plans[i] = pl
 				return
 			}
-			vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time, Exclude: req.Exclude})
+			vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time,
+				Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
 			mu.Lock()
 			res.Stats.VerifierRuns++
 			res.Stats.VerifierModel += vr.ModelCalls
@@ -198,9 +207,12 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 	sort.SliceStable(res.Rejected, func(i, j int) bool {
 		return res.Rejected[i].Verdict != nil && res.Rejected[j].Verdict == nil
 	})
-	if base.Prediction.Origin != target {
+	if baseOrigin != target {
 		b := res.Baseline
 		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", base.Prediction.Origin)
+		if knownA != "" {
+			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, base.Prediction.Origin)
+		}
 		res.Rejected = append([]domain.Plan{b}, res.Rejected...)
 	}
 	if req.ActualChange != nil {
