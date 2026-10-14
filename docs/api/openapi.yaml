@@ -1,0 +1,327 @@
+openapi: 3.1.0
+info:
+  title: Origin Proof API
+  version: 1.0.0
+  description: |
+    Predicts the country of origin U.S. Customs (CBP) would likely assign under the
+    substantial-transformation test, citing only earlier CBP rulings, and searches
+    production plans (operation-group moves) for a target origin. Plans are
+    "precedent-supported" at most — never approved or guaranteed.
+
+    Every successful response carries `model_ids`, `prompt_versions`, `llm_provider`
+    and the `disclaimer`. Errors use `{code, message, details}`.
+servers:
+  - url: http://localhost:8080
+    description: Local (`make run`)
+paths:
+  /health:
+    get:
+      summary: Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  llm_provider: { type: string }
+                  version: { type: string }
+  /v1/cases/predict:
+    post:
+      summary: Predict origin for a case (creates the case)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PredictRequest" }
+      responses:
+        "201":
+          description: Case created with its prediction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}:
+    get:
+      summary: Fetch a case with its prediction and latest plan
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/plan:
+    post:
+      summary: Search plans for a target origin (needs a structured product and a family)
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlanRequest" }
+      responses:
+        "200":
+          description: Plan search result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlanResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/export:
+    post:
+      summary: Draft a CBP ruling request for the case (Markdown)
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan_index:
+                  type: integer
+                  description: Index into the latest plan's shown plans; omit to draft for the current setup.
+      responses:
+        "200":
+          description: Draft
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExportResponse" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/rulings/{id}:
+    get:
+      summary: A CBP ruling's text (proxied from rulings.cbp.gov) with its public link
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[NH][0-9]{6}$", example: N357771 }
+      responses:
+        "200":
+          description: Ruling
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Ruling" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/eval/summary:
+    get:
+      summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EvalSummary" }
+components:
+  parameters:
+    CaseID:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal]
+        message: { type: string }
+        details: {}
+    Meta:
+      type: object
+      required: [model_ids, prompt_versions, llm_provider, disclaimer]
+      properties:
+        model_ids: { type: object, additionalProperties: { type: string }, example: { engine: gemini-4-argon, router: gemini-3.8-flash } }
+        prompt_versions: { type: object, additionalProperties: { type: string }, example: { engine: engine-v1, router: router-v2 } }
+        llm_provider: { type: string, enum: [vertex, litellm, fake], description: "litellm results are labelled proxy, development only" }
+        disclaimer: { type: string, example: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling." }
+    Plant:
+      type: object
+      required: [id, country]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        country: { type: string }
+        capabilities: { type: array, items: { type: string }, description: Operation groups this plant can perform }
+    Component:
+      type: object
+      required: [name, made_in]
+      properties:
+        name: { type: string }
+        made_in: { type: string }
+        plant: { type: string, description: Plant ID when made at one of the product's own plants }
+        group: { type: string, description: Operation group that produces it }
+    Operation:
+      type: object
+      required: [name, plant]
+      properties:
+        name: { type: string }
+        plant: { type: string }
+        group: { type: string }
+    Product:
+      type: object
+      required: [name, components]
+      properties:
+        name: { type: string }
+        family: { type: string }
+        description: { type: string }
+        plants: { type: array, items: { $ref: "#/components/schemas/Plant" } }
+        components: { type: array, items: { $ref: "#/components/schemas/Component" } }
+        operations: { type: array, items: { $ref: "#/components/schemas/Operation" } }
+    PredictRequest:
+      type: object
+      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required.
+      required: [date]
+      properties:
+        date: { type: string, format: date, description: Case date; only CBP rulings dated strictly before it are used }
+        facts: { type: string, maxLength: 12000 }
+        product: { $ref: "#/components/schemas/Product" }
+        family: { type: string, example: motorised_tools_small_appliances }
+        exclude_rulings: { type: array, items: { type: string }, description: Rulings about this very case, never used as precedent }
+        current_origin:
+          type: object
+          description: CBP's holding on the current setup, if the user has one
+          properties:
+            country: { type: string }
+            ruling: { type: string }
+    Prediction:
+      type: object
+      properties:
+        origin_country: { type: string }
+        key_factors: { type: array, items: { type: string } }
+        decisive_step: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        reasoning: { type: string }
+        cited_rulings: { type: array, items: { type: string }, description: Earlier rulings the model named (only rulings it was shown) }
+        precedents: { type: array, items: { type: string }, description: All earlier rulings shown to the model }
+    Triage:
+      type: object
+      properties:
+        route: { type: string, enum: [auto, needs_review] }
+        reason: { type: string }
+    RouterLabel:
+      type: object
+      properties:
+        route: { type: string }
+        subfamily: { type: string }
+        regime: { type: string, enum: [substantial_transformation, textile_102_21, usmca_part102, pharma_api, unclear] }
+        reason: { type: string }
+    CaseResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            id: { type: string }
+            date: { type: string, format: date }
+            facts: { type: string, description: The facts the engine read (rendered from the product when one was given) }
+            product: { $ref: "#/components/schemas/Product" }
+            family: { type: string }
+            prediction: { $ref: "#/components/schemas/Prediction" }
+            triage: { $ref: "#/components/schemas/Triage" }
+            router: { $ref: "#/components/schemas/RouterLabel" }
+            plan: { $ref: "#/components/schemas/PlanResult" }
+            created_at: { type: string, format: date-time }
+    PlanRequest:
+      type: object
+      required: [target]
+      properties:
+        target: { type: string, example: Thailand }
+        economics:
+          type: object
+          description: User inputs, illustrative — editable
+          properties:
+            illustrative: { type: boolean }
+            annual_import_value_usd: { type: number }
+            duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
+            duty_rates_note: { type: string }
+            group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } } }
+    Verdict:
+      type: object
+      properties:
+        precedent_supported: { type: boolean }
+        supporting_ruling: { type: string }
+        counter_ruling: { type: string }
+        confidence: { type: number }
+        reasoning: { type: string }
+    Plan:
+      type: object
+      properties:
+        move: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
+        description: { type: string }
+        prediction: { $ref: "#/components/schemas/Prediction" }
+        verdict: { $ref: "#/components/schemas/Verdict" }
+        duty_effect_per_year: { type: number }
+        added_cost_per_year: { type: number }
+        net_per_year: { type: number }
+        shown: { type: boolean }
+        rejection_reason: { type: string }
+    PlanResult:
+      type: object
+      properties:
+        target: { type: string }
+        current_origin: { type: object, properties: { country: { type: string }, ruling: { type: string } } }
+        baseline: { $ref: "#/components/schemas/Plan" }
+        plans: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Precedent-supported, verifier confidence >= 0.95; best-ranked within the searched moves and your cost inputs first" }
+        rejected: { type: array, items: { $ref: "#/components/schemas/Plan" } }
+        backtest: { type: object }
+        stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
+        economics_illustrative: { type: boolean }
+        duty_rates_note: { type: string }
+    PlanResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            case_id: { type: string }
+            plan: { $ref: "#/components/schemas/PlanResult" }
+    ExportResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            case_id: { type: string }
+            format: { type: string, enum: [markdown] }
+            content: { type: string }
+    Ruling:
+      type: object
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        subject: { type: string }
+        text: { type: string }
+        url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
+    EvalSummary:
+      type: object
+      description: Every number with its split, n, CI and source; proxy runs are flagged.
+      properties:
+        generated_at: { type: string }
+        status: { type: string, description: e.g. "proxy, development only" until the Vertex re-run }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              label: { type: string }
+              value: { type: number }
+              ci_low: { type: number }
+              ci_high: { type: number }
+              n: { type: integer }
+              split: { type: string }
+              development_only: { type: boolean }
+              source: { type: string }

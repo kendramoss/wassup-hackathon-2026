@@ -225,7 +225,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 }
 
 func (p *Planner) caseFor(req Request, key, facts string) domain.Case {
-	return domain.Case{ID: req.CaseID + "/" + key, Date: req.Date.Time, Facts: facts}
+	return domain.Case{ID: req.CaseID + "/" + key, Date: req.Date.Time, Facts: facts, Exclude: req.Exclude}
 }
 
 // economics returns the annual duty effect of the origin change and the

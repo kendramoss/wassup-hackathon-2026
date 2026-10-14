@@ -140,10 +140,14 @@ func (idx *BM25) Search(query string, k int, allow func(domain.Ruling) bool) []H
 	return hits
 }
 
-// PrecedentFilter allows only rulings strictly earlier than the case and not
-// the case itself.
+// PrecedentFilter allows only rulings strictly earlier than the case, never
+// the case itself and never a ruling the case excludes.
 func PrecedentFilter(c domain.Case) func(domain.Ruling) bool {
-	return func(r domain.Ruling) bool { return r.UsableAsPrecedentFor(c.ID, c.Date) }
+	excluded := map[string]bool{}
+	for _, id := range c.Exclude {
+		excluded[id] = true
+	}
+	return func(r domain.Ruling) bool { return r.UsableAsPrecedentFor(c.ID, c.Date) && !excluded[r.ID] }
 }
 
 var _ Retriever = (*BM25)(nil)

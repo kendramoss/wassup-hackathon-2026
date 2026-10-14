@@ -119,6 +119,9 @@ type Case struct {
 	Date    time.Time `json:"date"`
 	Facts   string    `json:"facts"`
 	Product *Product  `json:"product,omitempty"`
+	// Exclude lists rulings about this very case (e.g. its own earlier
+	// ruling); they are never used as precedent.
+	Exclude []string `json:"exclude_rulings,omitempty"`
 }
 
 // MaxFactsRunes caps free-text facts so one request can't send an unbounded

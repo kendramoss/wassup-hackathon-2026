@@ -73,3 +73,13 @@ func TestTiesBreakByHigherIndex(t *testing.T) {
 		t.Errorf("tie order = %v, want [N3 N2 N1] (Python reverse sort)", ids)
 	}
 }
+
+func TestSearchHonoursExcludeList(t *testing.T) {
+	idx := NewBM25(sample(), facts)
+	c := domain.Case{ID: "X", Date: day("2030-01-01"), Exclude: []string{"N100001"}}
+	for _, h := range idx.Search("heat gun", 5, PrecedentFilter(c)) {
+		if h.Ruling.ID == "N100001" {
+			t.Fatal("excluded ruling retrieved")
+		}
+	}
+}
