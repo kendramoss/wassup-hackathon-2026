@@ -17,3 +17,6 @@ fmt:
 
 run: ## local server on :8080
 	cd $(GO_DIR) && go run ./cmd/server
+
+smoke: ## one live engine-model call (needs LLM_PROVIDER and its credentials in the env)
+	cd $(GO_DIR) && go run ./cmd/server -smoke
