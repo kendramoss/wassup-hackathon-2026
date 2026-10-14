@@ -68,6 +68,9 @@ jobs:
           --service-account "agent-backend@$PROJECT.iam.gserviceaccount.com"
           --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global"
           --max-instances 3
+      # A --no-traffic preview deploy pins traffic to one revision; make sure
+      # this deploy goes live anyway.
+      - run: gcloud run services update-traffic backend --project "$PROJECT" --region "$REGION" --to-latest --quiet
 
   frontend:
     needs: [ci, changes, backend]
@@ -93,6 +96,9 @@ jobs:
           --service-account "frontend@$PROJECT.iam.gserviceaccount.com"
           --set-env-vars "BACKEND_URL=$BACKEND_URL"
           --max-instances 3
+      # A --no-traffic preview deploy pins traffic to one revision; make sure
+      # this deploy goes live anyway.
+      - run: gcloud run services update-traffic frontend --project "$PROJECT" --region "$REGION" --to-latest --quiet
 
   # End to end through the public site: Gemini must answer and call get_time.
   smoke-test:
