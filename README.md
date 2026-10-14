@@ -2,7 +2,7 @@
 
 Hello-world AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI and has one tool, `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
 
-**Live:** https://frontend-88903435351.us-central1.run.app
+Find the live URL with `gcloud run services describe frontend --region us-central1 --format='value(status.url)'`.
 
 ## How it works
 
@@ -34,16 +34,15 @@ So the normal flow is: branch → PR (CI runs) → merge → live in a few minut
 
 ## Deploy
 
-Run from the repo root. Each deploy uploads the folder, builds it with its `Dockerfile` in Cloud Build, and rolls out a new revision (3–5 minutes). The URLs don't change. Only redeploy the side you changed.
+Run from the repo root, with `gcloud` pointed at the project (`gcloud config set project wassup-hackathon-2026`). Each deploy uploads the folder, builds it with its `Dockerfile` in Cloud Build, and rolls out a new revision (3–5 minutes). The URLs don't change. Only redeploy the side you changed.
 
 ### PowerShell
 
 ```powershell
-cd C:\Users\kendr\hackathon\aiBuilder_Oct2026
-
 gcloud run deploy backend --source backend --region us-central1 --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global" --no-allow-unauthenticated --max-instances 3
 
-gcloud run deploy frontend --source frontend --region us-central1 --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "BACKEND_URL=https://backend-88903435351.us-central1.run.app" --allow-unauthenticated --max-instances 3
+$backend = gcloud run services describe backend --region us-central1 --format='value(status.url)'
+gcloud run deploy frontend --source frontend --region us-central1 --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "BACKEND_URL=$backend" --allow-unauthenticated --max-instances 3
 ```
 
 Keep the quotes around the `--set-env-vars` value: without them PowerShell splits it at the comma and the backend gets a broken project ID.
@@ -56,9 +55,10 @@ gcloud run deploy backend --source backend --region us-central1 \
   --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global \
   --no-allow-unauthenticated --max-instances 3
 
+BACKEND=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')
 gcloud run deploy frontend --source frontend --region us-central1 \
   --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com \
-  --set-env-vars BACKEND_URL=https://backend-88903435351.us-central1.run.app \
+  --set-env-vars BACKEND_URL=$BACKEND \
   --allow-unauthenticated --max-instances 3
 ```
 
@@ -66,19 +66,22 @@ gcloud run deploy frontend --source frontend --region us-central1 \
 
 ### Cost guard
 
-Budget **wassup-hackathon-2026 usage** on the *Wassup hackathon* billing account: RM100/month for this project, counting usage *before* credits so it warns while credits are being used. Billing admins get emails at 50%, 90% and 100% of actual spend, and when forecast spend hits 100%. It only alerts; it doesn't stop anything. Change it under **Billing → Budgets & alerts** in the console. Per-user rate limiting is still open ([#3](https://github.com/kendramoss/wassup-hackathon-2026/issues/3)).
+A billing budget on this project emails billing admins as spend approaches its limit. It counts usage *before* credits, so it warns while credits are being used. It only alerts; it doesn't stop anything. See or change it under **Billing → Budgets & alerts** in the console. Per-user rate limiting is still open ([#3](../../issues/3)).
 
 ### Check it
 
 PowerShell:
 
 ```powershell
+$frontend = gcloud run services describe frontend --region us-central1 --format='value(status.url)'
+$backend = gcloud run services describe backend --region us-central1 --format='value(status.url)'
+
 # Through the public frontend
-Invoke-RestMethod -Method Post https://frontend-88903435351.us-central1.run.app/api/chat -ContentType 'application/json' -Body '{"message":"what time is it in Tokyo?"}'
+Invoke-RestMethod -Method Post "$frontend/api/chat" -ContentType 'application/json' -Body '{"message":"what time is it in Tokyo?"}'
 
 # Backend directly (needs your identity token; without one you get 403)
 $t = gcloud auth print-identity-token
-Invoke-RestMethod -Method Post https://backend-88903435351.us-central1.run.app/chat -Headers @{Authorization="Bearer $t"} -ContentType 'application/json' -Body '{"message":"hi"}'
+Invoke-RestMethod -Method Post "$backend/chat" -Headers @{Authorization="Bearer $t"} -ContentType 'application/json' -Body '{"message":"hi"}'
 
 # Backend logs
 gcloud logging read 'resource.labels.service_name="backend"' --limit 20 --format='value(textPayload)'
@@ -87,10 +90,13 @@ gcloud logging read 'resource.labels.service_name="backend"' --limit 20 --format
 Bash:
 
 ```sh
-curl -X POST https://frontend-88903435351.us-central1.run.app/api/chat \
+FRONTEND=$(gcloud run services describe frontend --region us-central1 --format='value(status.url)')
+BACKEND=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')
+
+curl -X POST $FRONTEND/api/chat \
   -H 'Content-Type: application/json' -d '{"message":"what time is it in Tokyo?"}'
 
-curl -X POST https://backend-88903435351.us-central1.run.app/chat \
+curl -X POST $BACKEND/chat \
   -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
   -H 'Content-Type: application/json' -d '{"message":"hi"}'
 ```
@@ -155,5 +161,6 @@ The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: th
 - **Slow replies:** check model latency before blaming the code. Time a direct Vertex call; switching `GEMINI_MODEL` needs no code change (`--update-env-vars GEMINI_MODEL=...`).
 - **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
 - **Streaming and ADK v1.8.0:** a streamed Gemini 3 reply is saved with an empty "thought signature" part that Vertex rejects on the next turn (400 INVALID_ARGUMENT). `dropEmptyParts` in `backend/main.go` strips it before each model call; remove it once ADK fixes this.
-- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](https://github.com/kendramoss/wassup-hackathon-2026/issues/2)).
+- **Previews pin traffic.** `gcloud run deploy ... --no-traffic --tag preview` gives a private test URL, but it also pins live traffic to the current revision, so later deploys don't go live. The Deploy workflow switches traffic back to the latest revision after every deploy; by hand, run `gcloud run services update-traffic <service> --region us-central1 --to-latest --remove-tags preview`.
+- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](../../issues/2)).
 - **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.
