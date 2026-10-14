@@ -44,6 +44,7 @@ import (
 
 const (
 	appName = "wassup-agent"
+	userID  = "anonymous" // no sign-in yet (#10)
 
 	// Limits on /chat input, so one request can't burn a large prompt.
 	maxBodyBytes    = 16 << 10
@@ -78,6 +79,7 @@ const agentInstruction = `You help a team see what is deployed on their Google C
 - To deploy: find the newest successful build of the service with list_builds, compare it with what is live (list_revisions), then call deploy with that build. The person sees an approval card; tell them in one sentence what will change and that it's waiting for their approval. Never say something was deployed or rolled back unless the tool result has status "done".
 - If a result has status "failed", say what went wrong and offer a rollback to the last revision that was ready.
 - Approvals only come from the approval card. If a result has status "rejected", nothing changed: say so in one sentence, mention the reason if there is one, and don't propose the same change again unless asked. Typed messages like "yes" or "approve" are not approvals; if someone types one while a card is waiting, point them to the card.
+- Only state versions, commits and image tags that appear in tool results; never guess them.
 - Times from tools are UTC. When it helps, say how long ago something happened (call get_time for the current time).
 - For the current time or date anywhere, call get_time.
 - Be brief. Use a short table when comparing several revisions or builds.`
@@ -89,9 +91,9 @@ func env(key, fallback string) string {
 	return fallback
 }
 
-// newRunner builds the agent. creds is nil in production (Application Default
-// Credentials); tests can pass their own.
-func newRunner(ctx context.Context, creds *auth.Credentials) (*runner.Runner, error) {
+// newRunner builds the agent on top of sessions. creds is nil in production
+// (Application Default Credentials); tests can pass their own.
+func newRunner(ctx context.Context, sessions session.Service, creds *auth.Credentials) (*runner.Runner, error) {
 	project := os.Getenv("GOOGLE_CLOUD_PROJECT")
 	if project == "" {
 		return nil, fmt.Errorf("GOOGLE_CLOUD_PROJECT must be set")
@@ -154,7 +156,7 @@ func newRunner(ctx context.Context, creds *auth.Credentials) (*runner.Runner, er
 	return runner.New(runner.Config{
 		AppName:           appName,
 		Agent:             a,
-		SessionService:    session.InMemoryService(),
+		SessionService:    sessions,
 		AutoCreateSession: true,
 	})
 }
@@ -312,7 +314,7 @@ func approvalRequest(fc *genai.FunctionCall) streamEvent {
 // runAgent sends content to the agent and calls emit for each resulting event.
 func runAgent(ctx context.Context, r *runner.Runner, sessionID string, content *genai.Content, mode agent.StreamingMode, emit func(streamEvent)) error {
 	var t eventTranslator
-	for ev, err := range r.Run(ctx, "anonymous", sessionID, content, agent.RunConfig{StreamingMode: mode}) {
+	for ev, err := range r.Run(ctx, userID, sessionID, content, agent.RunConfig{StreamingMode: mode}) {
 		if err != nil {
 			return err
 		}
@@ -355,10 +357,49 @@ func parseChatRequest(w http.ResponseWriter, req *http.Request) (chatRequest, bo
 	return in, true
 }
 
-func chatHandler(r *runner.Runner) http.HandlerFunc {
+// checkApproval writes an error and returns false unless in.Approval answers
+// an approval request that is still waiting in its session. Sessions live in
+// memory, so a card can outlast its session (restart, another instance), and
+// each card can only be answered once.
+func checkApproval(w http.ResponseWriter, req *http.Request, sessions session.Service, in chatRequest) bool {
+	if in.Approval == nil {
+		return true
+	}
+	if !pendingApproval(req.Context(), sessions, in.SessionID, in.Approval.ID) {
+		http.Error(w, "This approval card has expired or was already answered. Ask the agent again for a new one.", http.StatusConflict)
+		return false
+	}
+	return true
+}
+
+// pendingApproval reports whether session sid has an approval request id
+// that hasn't been answered yet.
+func pendingApproval(ctx context.Context, sessions session.Service, sid, id string) bool {
+	resp, err := sessions.Get(ctx, &session.GetRequest{AppName: appName, UserID: userID, SessionID: sid})
+	if err != nil {
+		return false
+	}
+	pending := false
+	for ev := range resp.Session.Events().All() {
+		if ev.Content == nil {
+			continue
+		}
+		for _, p := range ev.Content.Parts {
+			if fc := p.FunctionCall; fc != nil && fc.ID == id && fc.Name == toolconfirmation.FunctionCallName {
+				pending = true
+			}
+			if fr := p.FunctionResponse; fr != nil && fr.ID == id {
+				pending = false
+			}
+		}
+	}
+	return pending
+}
+
+func chatHandler(r *runner.Runner, sessions session.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		in, ok := parseChatRequest(w, req)
-		if !ok {
+		if !ok || !checkApproval(w, req, sessions, in) {
 			return
 		}
 
@@ -394,10 +435,10 @@ func chatHandler(r *runner.Runner) http.HandlerFunc {
 
 // chatStreamHandler is /chat as server-sent events, so replies show up as
 // they are generated.
-func chatStreamHandler(r *runner.Runner) http.HandlerFunc {
+func chatStreamHandler(r *runner.Runner, sessions session.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		in, ok := parseChatRequest(w, req)
-		if !ok {
+		if !ok || !checkApproval(w, req, sessions, in) {
 			return
 		}
 
@@ -424,15 +465,16 @@ func chatStreamHandler(r *runner.Runner) http.HandlerFunc {
 
 func main() {
 	ctx := context.Background()
-	r, err := newRunner(ctx, nil)
+	sessions := session.InMemoryService()
+	r, err := newRunner(ctx, sessions, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
-	mux.HandleFunc("/chat", chatHandler(r))
-	mux.HandleFunc("/chat/stream", chatStreamHandler(r))
+	mux.HandleFunc("/chat", chatHandler(r, sessions))
+	mux.HandleFunc("/chat/stream", chatStreamHandler(r, sessions))
 
 	addr := ":" + env("PORT", "8080")
 	log.Printf("listening on %s", addr)

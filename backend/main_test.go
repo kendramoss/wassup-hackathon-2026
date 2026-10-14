@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -39,7 +40,7 @@ func TestGetTime(t *testing.T) {
 const sid = "6f1c7a8e-2b1d-4c55-9a7e-1f0a3e9d2c11"
 
 func TestChatHandlerRejectsBadInput(t *testing.T) {
-	h := chatHandler(nil)
+	h := chatHandler(nil, nil)
 	tests := []struct {
 		name, method, body string
 		want               int
@@ -67,7 +68,7 @@ func TestChatHandlerRejectsBadInput(t *testing.T) {
 
 func TestChatStreamHandlerRejectsBadInput(t *testing.T) {
 	w := httptest.NewRecorder()
-	chatStreamHandler(nil)(w, httptest.NewRequest(http.MethodPost, "/chat/stream", strings.NewReader(`{"message":""}`)))
+	chatStreamHandler(nil, nil)(w, httptest.NewRequest(http.MethodPost, "/chat/stream", strings.NewReader(`{"message":""}`)))
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("status = %d, want 400", w.Code)
 	}
@@ -168,5 +169,48 @@ func TestApprovalRequestEvent(t *testing.T) {
 	e := got[0]
 	if e.Type != "approval_request" || e.ID != "adk-1" || e.Name != "deploy" || e.Args["service"] != "demo-app" || e.Text != "Deploy build abc to demo-app" {
 		t.Errorf("event = %+v", e)
+	}
+}
+
+func TestPendingApproval(t *testing.T) {
+	ctx := context.Background()
+	sessions := session.InMemoryService()
+	created, err := sessions.Create(ctx, &session.CreateRequest{AppName: appName, UserID: userID, SessionID: sid})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := session.NewEvent("inv1")
+	request.Author = "deploy_agent"
+	request.Content = &genai.Content{Role: genai.RoleModel, Parts: []*genai.Part{{FunctionCall: &genai.FunctionCall{ID: "adk-1", Name: toolconfirmation.FunctionCallName}}}}
+	if err := sessions.AppendEvent(ctx, created.Session, request); err != nil {
+		t.Fatal(err)
+	}
+
+	if !pendingApproval(ctx, sessions, sid, "adk-1") {
+		t.Error("adk-1: want pending")
+	}
+	if pendingApproval(ctx, sessions, sid, "adk-2") {
+		t.Error("unknown id: want not pending")
+	}
+	if pendingApproval(ctx, sessions, "6f1c7a8e-2b1d-4c55-9a7e-000000000000", "adk-1") {
+		t.Error("unknown session (e.g. after a restart): want not pending")
+	}
+
+	answer := session.NewEvent("inv2")
+	answer.Author = "user"
+	answer.Content = chatRequest{Approval: &approval{ID: "adk-1", Approved: true}, SessionID: sid}.content()
+	if err := sessions.AppendEvent(ctx, created.Session, answer); err != nil {
+		t.Fatal(err)
+	}
+	if pendingApproval(ctx, sessions, sid, "adk-1") {
+		t.Error("answered: want not pending")
+	}
+
+	// The handler turns a stale approval into a 409 before the agent runs.
+	w := httptest.NewRecorder()
+	body := `{"approval":{"id":"adk-1","approved":true},"session_id":"` + sid + `"}`
+	chatStreamHandler(nil, sessions)(w, httptest.NewRequest(http.MethodPost, "/chat/stream", strings.NewReader(body)))
+	if w.Code != http.StatusConflict {
+		t.Errorf("stale approval: status = %d, want 409", w.Code)
 	}
 }

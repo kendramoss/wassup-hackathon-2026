@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { streamChat, type Approval, type StreamEvent } from "@/lib/chat-stream";
 import { site } from "@/lib/site";
-import { AlertCircle, ArrowUp, Check, Copy, Plus, Retry, Stop, X } from "../icons";
+import { AlertCircle, ArrowUp, Check, Copy, Plus, Retry, Spinner, Stop, X } from "../icons";
 import { SiteHeader } from "../site-header";
 import { Markdown } from "./markdown";
 import { ToolCall, type ToolPart } from "./tool-call";
@@ -27,7 +27,7 @@ type StreamBody = Parameters<typeof streamChat>[0];
 type Status = "streaming" | "done" | "stopped" | "error";
 type Message =
   | { id: string; role: "user"; text: string }
-  | { id: string; role: "assistant"; parts: Part[]; status: Status; error?: string };
+  | { id: string; role: "assistant"; parts: Part[]; status: Status; error?: string; working?: string };
 
 // Applies one stream event to an assistant message's parts.
 function applyEvent(parts: Part[], e: StreamEvent): Part[] {
@@ -88,14 +88,15 @@ export function Chat() {
   }, []);
 
   // Streams one agent turn into a new assistant message. userText, when set,
-  // is shown as the user's message first (approvals don't add one).
+  // is shown as the user's message first (approvals don't add one); working
+  // is shown until the first event arrives.
   const run = useCallback(
-    async (body: StreamBody, userText?: string) => {
+    async (body: StreamBody, { userText, working }: { userText?: string; working?: string } = {}) => {
       const assistantId = newId();
       setMessages((ms) => [
         ...ms,
         ...(userText ? [{ id: newId(), role: "user" as const, text: userText }] : []),
-        { id: assistantId, role: "assistant", parts: [], status: "streaming" },
+        { id: assistantId, role: "assistant", parts: [], status: "streaming", working },
       ]);
       setBusy(true);
       setAnnouncement("Agent is replying");
@@ -146,7 +147,7 @@ export function Chat() {
       const message = text.trim();
       if (!message || busy) return;
       setInput("");
-      run({ message, session_id: sessionId }, message);
+      run({ message, session_id: sessionId }, { userText: message });
     },
     [busy, run, sessionId],
   );
@@ -155,6 +156,9 @@ export function Chat() {
   const decide = (approval: Approval) => {
     if (!sessionId || busy) return;
     const decision = approval.approved ? ("approved" as const) : ("rejected" as const);
+    const card = messages
+      .flatMap((m) => (m.role === "assistant" ? m.parts : []))
+      .find((p): p is ApprovalPart => p.kind === "approval" && p.id === approval.id);
     setMessages((ms) =>
       ms.map((m) =>
         m.role === "assistant"
@@ -167,7 +171,10 @@ export function Chat() {
           : m,
       ),
     );
-    run({ approval, session_id: sessionId });
+    run(
+      { approval, session_id: sessionId },
+      { working: approval.approved ? `Approved. ${card?.summary ?? "Making the change"}` : undefined },
+    );
   };
 
   // Removes a failed reply and its question, then asks again.
@@ -244,7 +251,7 @@ export function Chat() {
             <EmptyState onPick={send} />
           ) : (
             <ol className="flex flex-col gap-6" aria-label="Conversation">
-              {messages.map((m) =>
+              {messages.map((m, i) =>
                 m.role === "user" ? (
                   <li key={m.id} className="flex justify-end">
                     <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-subtle px-4 py-2.5 leading-relaxed">
@@ -254,7 +261,12 @@ export function Chat() {
                   </li>
                 ) : (
                   <li key={m.id}>
-                    <AssistantMessage message={m} onRetry={() => retry(m.id)} onDecide={decide} busy={busy} />
+                    <AssistantMessage
+                      message={m}
+                      onRetry={messages[i - 1]?.role === "user" ? () => retry(m.id) : undefined}
+                      onDecide={decide}
+                      busy={busy}
+                    />
                   </li>
                 ),
               )}
@@ -364,18 +376,26 @@ function AssistantMessage({
   busy,
 }: {
   message: Extract<Message, { role: "assistant" }>;
-  onRetry: () => void;
+  onRetry?: () => void;
   onDecide: (a: Approval) => void;
   busy: boolean;
 }) {
-  const { parts, status, error } = message;
+  const { parts, status, error, working } = message;
   const text = replyText(parts);
   const waiting = status === "streaming" && parts.length === 0;
 
   return (
     <div className="flex flex-col gap-3">
       <span className="sr-only">{site.name}: </span>
-      {waiting && <TypingIndicator />}
+      {waiting &&
+        (working ? (
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <Spinner className="shrink-0" />
+            {working}…
+          </p>
+        ) : (
+          <TypingIndicator />
+        ))}
       {parts.map((p, i) =>
         p.kind === "tool" ? (
           <ToolCall key={i} tool={p} running={status === "streaming"} />
@@ -389,14 +409,16 @@ function AssistantMessage({
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-danger/40 px-3 py-2 text-sm text-danger">
           <AlertCircle className="shrink-0" />
           <span className="flex-1">{error || "Something went wrong."}</span>
-          <button
-            type="button"
-            onClick={onRetry}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium hover:bg-subtle"
-          >
-            <Retry />
-            Retry
-          </button>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium hover:bg-subtle"
+            >
+              <Retry />
+              Retry
+            </button>
+          )}
         </div>
       )}
       {status === "stopped" && <p className="text-sm text-muted">Stopped</p>}
