@@ -2,7 +2,7 @@
 //
 // Endpoints:
 //
-//	GET  /healthz  liveness check
+//	GET  /health   liveness check (not /healthz: Cloud Run reserves paths ending in "z")
 //	POST /chat     {"message": "...", "session_id": "optional"} -> {"reply", "session_id", "tool_calls"}
 package main
 
@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 	_ "time/tzdata" // embed tz database; distroless images have none
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"google.golang.org/genai"
@@ -29,7 +30,13 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 )
 
-const appName = "wassup-agent"
+const (
+	appName = "wassup-agent"
+
+	// Limits on /chat input, so one request can't burn a large prompt.
+	maxBodyBytes    = 16 << 10
+	maxMessageRunes = 2000
+)
 
 type getTimeArgs struct {
 	Timezone string `json:"timezone,omitempty" jsonschema:"IANA timezone name, e.g. Asia/Singapore. Defaults to UTC."`
@@ -119,12 +126,21 @@ func chatHandler(r *runner.Runner) http.HandlerFunc {
 			return
 		}
 		var in chatRequest
-		if err := json.NewDecoder(req.Body).Decode(&in); err != nil || strings.TrimSpace(in.Message) == "" {
+		body := http.MaxBytesReader(w, req.Body, maxBodyBytes)
+		if err := json.NewDecoder(body).Decode(&in); err != nil || strings.TrimSpace(in.Message) == "" {
 			http.Error(w, `body must be JSON {"message": "..."}`, http.StatusBadRequest)
 			return
 		}
+		if utf8.RuneCountInString(in.Message) > maxMessageRunes {
+			http.Error(w, fmt.Sprintf("message is longer than %d characters", maxMessageRunes), http.StatusRequestEntityTooLarge)
+			return
+		}
+		// Session IDs are issued by this server; reject anything that isn't one.
 		if in.SessionID == "" {
 			in.SessionID = uuid.NewString()
+		} else if _, err := uuid.Parse(in.SessionID); err != nil {
+			http.Error(w, "session_id must be a UUID returned by a previous /chat call", http.StatusBadRequest)
+			return
 		}
 
 		out := chatResponse{SessionID: in.SessionID, ToolCalls: []string{}}
@@ -163,10 +179,11 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
 	mux.HandleFunc("/chat", chatHandler(r))
 
 	addr := ":" + env("PORT", "8080")
 	log.Printf("listening on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, mux))
+	srv := &http.Server{Addr: addr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
+	log.Fatal(srv.ListenAndServe())
 }

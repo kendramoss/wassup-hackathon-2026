@@ -26,10 +26,11 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, session_id: sessionId }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
       setResult(data);
       setSessionId(data.session_id);
+      setMessage("");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -45,16 +46,17 @@ export default function Home() {
           className="flex-1 rounded border px-3 py-2"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          maxLength={2000}
           placeholder="Try: what time is it in Singapore?"
         />
         <button
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded bg-foreground px-4 py-2 text-background disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "…" : "Send"}
         </button>
       </form>
-      {error && <p className="text-red-600">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400">{error}</p>}
       {result && (
         <div className="rounded border p-4">
           <p className="whitespace-pre-wrap">{result.reply}</p>

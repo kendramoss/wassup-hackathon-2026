@@ -6,26 +6,31 @@ export async function POST(request: Request) {
     return Response.json({ error: "BACKEND_URL is not set" }, { status: 500 });
   }
 
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  // On Cloud Run (K_SERVICE is set) the backend is private: authenticate with
-  // an ID token for this service's identity. Locally, call it as-is.
-  if (process.env.K_SERVICE) {
-    headers.Authorization = `Bearer ${await idToken(backendUrl)}`;
-  }
+  try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    // On Cloud Run (K_SERVICE is set) the backend is private: authenticate with
+    // an ID token for this service's identity. Locally, call it as-is.
+    if (process.env.K_SERVICE) {
+      headers.Authorization = `Bearer ${await idToken(backendUrl)}`;
+    }
 
-  const res = await fetch(`${backendUrl}/chat`, {
-    method: "POST",
-    headers,
-    body: await request.text(),
-  });
+    const res = await fetch(`${backendUrl}/chat`, {
+      method: "POST",
+      headers,
+      body: await request.text(),
+    });
 
-  if (!res.ok) {
-    return Response.json(
-      { error: `backend returned ${res.status}: ${await res.text()}` },
-      { status: 502 },
-    );
+    if (!res.ok) {
+      // Pass the backend's client errors (bad input) through; anything else is
+      // the backend failing, which is a bad gateway from the browser's view.
+      const status = res.status >= 400 && res.status < 500 ? res.status : 502;
+      return Response.json({ error: (await res.text()).trim() }, { status });
+    }
+    return Response.json(await res.json());
+  } catch (err) {
+    console.error("chat proxy:", err);
+    return Response.json({ error: "could not reach the backend" }, { status: 502 });
   }
-  return Response.json(await res.json());
 }
 
 // Fetches a Google-signed ID token for audience from the metadata server.
