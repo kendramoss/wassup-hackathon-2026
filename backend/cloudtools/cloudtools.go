@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"regexp"
 	"sort"
 	"strings"
@@ -35,11 +36,16 @@ type Client struct {
 	// DeployTargets are the services deploy and rollback may change. Empty
 	// means the agent can only look.
 	DeployTargets []string
+	// HealthPath is checked on a new revision before it gets traffic. The
+	// revision must answer it without authentication.
+	HealthPath string
 
-	project, region string
-	run             *run.Service
-	builds          *cloudbuild.Service
-	pollInterval    time.Duration
+	project, region  string
+	run              *run.Service
+	builds           *cloudbuild.Service
+	pollInterval     time.Duration
+	http             *http.Client
+	healthRetryDelay time.Duration
 }
 
 // New creates a Client. opts are passed to both API clients (tests use them
@@ -53,7 +59,13 @@ func New(ctx context.Context, project, region string, opts ...option.ClientOptio
 	if err != nil {
 		return nil, fmt.Errorf("cloud build client: %w", err)
 	}
-	return &Client{project: project, region: region, run: r, builds: b, pollInterval: 3 * time.Second}, nil
+	return &Client{
+		HealthPath: "/health",
+		project:    project, region: region, run: r, builds: b,
+		pollInterval:     3 * time.Second,
+		http:             &http.Client{Timeout: 10 * time.Second},
+		healthRetryDelay: 5 * time.Second,
+	}, nil
 }
 
 func (c *Client) parent() string {
