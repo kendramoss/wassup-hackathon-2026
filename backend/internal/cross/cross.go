@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -32,10 +34,26 @@ func (r Ruling) Date() (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05", r.RulingDate)
 }
 
-// Client reads rulings from CROSS. Search (with a toDate filter) is added for
-// the verifier in Gate C.
+// Client reads rulings from CROSS.
 type Client interface {
 	Ruling(ctx context.Context, id string) (Ruling, error)
+	// Search returns up to pageSize rulings matching term, newest first. When
+	// toDate is set, only rulings dated on or before it are returned (CROSS's
+	// toDate is inclusive; checked live 15 Oct 2026).
+	Search(ctx context.Context, term string, toDate time.Time, pageSize int) ([]SearchHit, error)
+}
+
+// SearchHit is one CROSS search result.
+type SearchHit struct {
+	RulingNumber string `json:"rulingNumber"`
+	RulingDate   string `json:"rulingDate"`
+	Subject      string `json:"subject"`
+	Collection   string `json:"collection"`
+}
+
+// Date parses RulingDate.
+func (h SearchHit) Date() (time.Time, error) {
+	return time.Parse("2006-01-02T15:04:05", h.RulingDate)
 }
 
 // ErrNotFound means CROSS has no ruling with that number.
@@ -82,6 +100,38 @@ func (c *HTTPClient) Ruling(ctx context.Context, id string) (Ruling, error) {
 		return Ruling{}, fmt.Errorf("%w: %s", ErrNotFound, id)
 	}
 	return r, nil
+}
+
+// Search implements Client via GET /api/search.
+func (c *HTTPClient) Search(ctx context.Context, term string, toDate time.Time, pageSize int) ([]SearchHit, error) {
+	q := url.Values{
+		"term": {term}, "collection": {"ALL"}, "commodityGrouping": {"ALL"},
+		"pageSize": {strconv.Itoa(pageSize)}, "page": {"1"}, "sortBy": {"RELEVANCE"},
+	}
+	if !toDate.IsZero() {
+		q.Set("toDate", toDate.Format("2006-01-02"))
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/api/search?"+q.Encode(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("cross: search %q: %w", term, err)
+	}
+	req.Header.Set("User-Agent", c.UserAgent)
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("cross: search %q: %w", term, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 300))
+		return nil, fmt.Errorf("cross: search %q: HTTP %d: %s", term, resp.StatusCode, b)
+	}
+	var out struct {
+		Rulings []SearchHit `json:"rulings"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, fmt.Errorf("cross: search %q: decode: %w", term, err)
+	}
+	return out.Rulings, nil
 }
 
 var _ Client = (*HTTPClient)(nil)
