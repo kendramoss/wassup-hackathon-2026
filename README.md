@@ -56,6 +56,10 @@ gcloud run deploy frontend --source frontend --region us-central1 \
 
 `--max-instances 3` caps how far each service scales, which caps how fast the public page can spend credits.
 
+### Cost guard
+
+Budget **wassup-hackathon-2026 usage** on the *Wassup hackathon* billing account: RM100/month for this project, counting usage *before* credits so it warns while credits are being used. Billing admins get emails at 50%, 90% and 100% of actual spend, and when forecast spend hits 100%. It only alerts; it doesn't stop anything. Change it under **Billing → Budgets & alerts** in the console. Per-user rate limiting is still open ([#3](https://github.com/kendramoss/wassup-hackathon-2026/issues/3)).
+
 ### Check it
 
 PowerShell:
@@ -133,5 +137,5 @@ The frontend reads `BACKEND_URL` (required).
 - **PowerShell and commas:** quote `--set-env-vars` values, or use Bash.
 - **`404` on Vertex:** the model isn't available in that location. Use `GOOGLE_CLOUD_LOCATION=global`.
 - **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
-- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh.
+- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](https://github.com/kendramoss/wassup-hackathon-2026/issues/2)).
 - **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.
