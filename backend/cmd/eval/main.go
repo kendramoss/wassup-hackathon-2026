@@ -418,6 +418,7 @@ func scope(args []string) error {
 	splitName := fl.String("split", "", "instead of a date window, label every ruling of this split (dev only)")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	outPath := fl.String("out", "", "write one JSONL line per ruling: ruling, gold regime, router label")
+	confirmFinal := fl.Bool("confirm-final", false, "label the held-out final split once with the frozen router")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
@@ -427,8 +428,8 @@ func scope(args []string) error {
 	}
 	var only map[string]bool
 	if *splitName != "" {
-		if *splitName == "final" {
-			return errors.New("scope: tune the router on dev only; label final once with the frozen router (eval run -router)")
+		if *splitName == "final" && !*confirmFinal {
+			return errors.New("scope: tune the router on dev only; label final once with the frozen router (-confirm-final)")
 		}
 		sp, err := corpus.LoadSplits(*splitsPath)
 		if err != nil {
@@ -523,6 +524,22 @@ func scope(args []string) error {
 		}(it)
 	}
 	wg.Wait()
+	if *splitName != "" {
+		f, err := os.OpenFile("../eval/results/RUNLOG.jsonl", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+		if err != nil {
+			return err
+		}
+		outN := 0
+		for _, t := range res {
+			outN += t.out
+		}
+		b, _ := json.Marshal(map[string]any{"time": time.Now().Format(time.RFC3339), "run": "scope-" + *splitName + "-" + router.PromptVersion,
+			"split": *splitName, "held_out": *splitName == "final", "labelled": len(items), "out_of_scope": outN,
+			"router_model": cfg.RouterModel, "llm_provider": cfg.LLMProvider, "prompt_version": router.PromptVersion,
+			"git_revision": revision(), "interrupted": ctx.Err() != nil})
+		_, _ = f.Write(append(b, '\n'))
+		f.Close()
+	}
 	fmt.Printf("## Router scope check (%s to %s, up to %d per gold regime; router %s via %s)\n\n", *from, *to, *perRegime, cfg.RouterModel, cfg.LLMProvider)
 	fmt.Println("| Gold regime (labels) | n | routed out of scope | router regime labels | errors |\n|---|---:|---|---|---:|")
 	var names []string
