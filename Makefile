@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: test lint fmt run smoke verify-data
+.PHONY: test lint fmt run smoke verify-data eval-dev eval-test
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -23,3 +23,9 @@ smoke: ## one live engine-model call (needs LLM_PROVIDER and its credentials in 
 
 verify-data: ## check committed eval data against eval/SHA256SUMS
 	cd eval && shasum -a 256 -c SHA256SUMS
+
+eval-dev: ## engine + router on the dev split (469); needs LLM_PROVIDER and credentials
+	cd $(GO_DIR) && go run ./cmd/eval run -split dev -router
+
+eval-test: ## held-out split (377): run once per frozen config; never tune on it
+	cd $(GO_DIR) && go run ./cmd/eval run -split final -router -confirm-final
