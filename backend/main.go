@@ -1,4 +1,5 @@
-// Command backend serves a hello-world ADK agent backed by Gemini on Vertex AI.
+// Command backend serves an ADK agent, backed by Gemini on Vertex AI, that
+// reports what's deployed on Cloud Run (see package cloudtools).
 //
 // Endpoints:
 //
@@ -31,6 +32,8 @@ import (
 	"google.golang.org/adk/session"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/cloudtools"
 )
 
 const (
@@ -62,6 +65,14 @@ func getTime(_ agent.ToolContext, args getTimeArgs) (getTimeResult, error) {
 	return getTimeResult{Timezone: tz, Time: time.Now().In(loc).Format(time.RFC3339)}, nil
 }
 
+const agentInstruction = `You help a team see what is deployed on their Google Cloud Run services and how it got there.
+
+- For anything about services, revisions, traffic, builds or deploys, call the tools instead of guessing, and answer from their results. Use list_services first when you need service names.
+- You can only look, not change anything: you can't deploy, roll back or change traffic yet. Say so if asked.
+- Times from tools are UTC. When it helps, say how long ago something happened (call get_time for the current time).
+- For the current time or date anywhere, call get_time.
+- Be brief. Use a short table when comparing several revisions or builds.`
+
 func env(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
@@ -92,12 +103,21 @@ func newRunner(ctx context.Context) (*runner.Runner, error) {
 		return nil, fmt.Errorf("create get_time tool: %w", err)
 	}
 
+	cloud, err := cloudtools.New(ctx, project, env("CLOUD_RUN_REGION", "us-central1"))
+	if err != nil {
+		return nil, err
+	}
+	cloudTools, err := cloud.Tools()
+	if err != nil {
+		return nil, fmt.Errorf("create cloud tools: %w", err)
+	}
+
 	a, err := llmagent.New(llmagent.Config{
-		Name:        "hello_agent",
+		Name:        "deploy_agent",
 		Model:       llm,
-		Description: "Hello-world agent that can tell the time.",
-		Instruction: "You are a friendly assistant. When the user asks about the current time or date, always call the get_time tool rather than guessing.",
-		Tools:       []tool.Tool{getTimeTool},
+		Description: "Agent that reports what's deployed on Cloud Run and how it was built.",
+		Instruction: agentInstruction,
+		Tools:       append([]tool.Tool{getTimeTool}, cloudTools...),
 		BeforeModelCallbacks: []llmagent.BeforeModelCallback{
 			func(_ agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 				req.Contents = dropEmptyParts(req.Contents)

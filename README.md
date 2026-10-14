@@ -1,6 +1,6 @@
 # wassup-hackathon-2026
 
-Hello-world AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI and has one tool, `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
+AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), plus `get_time`. So far it can only look; deploying and rolling back come next. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
 
 Find the live URL with `gcloud run services describe frontend --region us-central1 --format='value(status.url)'`.
 
@@ -19,7 +19,7 @@ browser ──► frontend (Next.js, public) ──► backend (Go, private) ─
 
 | Path        | What                                     | Cloud Run service | Runs as                                                  |
 |-------------|------------------------------------------|-------------------|----------------------------------------------------------|
-| `backend/`  | Go agent (ADK Go), `get_time` tool        | `backend` (private) | `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User) |
+| `backend/`  | Go agent (ADK Go); Cloud Run and Cloud Build tools in `backend/cloudtools` | `backend` (private) | `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User, Cloud Run Viewer, Cloud Build Viewer) |
 | `frontend/` | Next.js: landing page `/`, chat app `/chat`; `/api/chat*` proxy to the backend | `frontend` (public) | `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` (Cloud Run Invoker on `backend` only) |
 
 GCP project `wassup-hackathon-2026`, Cloud Run region `us-central1`. **No JSON keys** anywhere: Cloud Run uses the service accounts above, and locally you use your own Google login.
@@ -143,6 +143,7 @@ cd frontend && npm run lint && npx tsc --noEmit
 | `GOOGLE_CLOUD_PROJECT`  | (required)         | |
 | `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. Gemini 3.x flash models aren't served from `us-central1`. |
 | `GEMINI_MODEL`          | `gemini-3.5-flash` | `gemini-3.8-flash` works but was heavily queued on 2026-10-14 (3–74 s per call vs 1–2 s). |
+| `CLOUD_RUN_REGION`      | `us-central1`      | Region the Cloud Run and Cloud Build tools look at. |
 | `PORT`                  | `8080`             | Set by Cloud Run. |
 
 The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: the backend's service URL, needed only when `BACKEND_URL` is a revision tag URL such as `https://preview---backend-...run.app`, because Cloud Run only accepts ID tokens for the service URL).
