@@ -13,12 +13,14 @@ The backend runs as `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com
 
 ## Backend
 
-`POST /chat` takes `{"message": "...", "session_id": "optional"}` and returns `{"reply", "session_id", "tool_calls"}`. `GET /healthz` is the liveness check.
+The backend is **private**: only the `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` service account can invoke it, and `/api/chat` attaches an ID token when running on Cloud Run.
+
+`POST /chat` takes `{"message": "...", "session_id": "optional"}` and returns `{"reply", "session_id", "tool_calls"}`. `GET /healthz` is the liveness check (Cloud Run reserves paths ending in `z`, so it's only reachable locally).
 
 | Env var                 | Default            |
 |-------------------------|--------------------|
 | `GOOGLE_CLOUD_PROJECT`  | (required)         |
-| `GOOGLE_CLOUD_LOCATION` | `us-central1`      |
+| `GOOGLE_CLOUD_LOCATION` | `global` (Vertex location; `gemini-3.8-flash` isn't served from `us-central1`) |
 | `GEMINI_MODEL`          | `gemini-3.8-flash` |
 | `PORT`                  | `8080`             |
 
@@ -41,13 +43,16 @@ BACKEND_URL=http://localhost:8080 npm run dev
 
 ## Deploy
 
-```sh
-gcloud run deploy backend --source backend --region us-central1 \
-  --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=us-central1 \
-  --allow-unauthenticated
+Use bash (PowerShell splits the commas in `--set-env-vars`).
 
-gcloud run deploy frontend --source frontend --region us-central1 \
-  --set-env-vars BACKEND_URL=$(gcloud run services describe backend --region us-central1 --format='value(status.url)') \
-  --allow-unauthenticated
+```sh
+gcloud run deploy backend --source backend --region us-central1   --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com   --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global   --no-allow-unauthenticated
+
+gcloud run deploy frontend --source frontend --region us-central1   --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com   --set-env-vars BACKEND_URL=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')   --allow-unauthenticated
+```
+
+To call the backend directly:
+
+```sh
+curl -X POST <backend-url>/chat   -H "Authorization: Bearer $(gcloud auth print-identity-token)"   -d '{"message":"what time is it in Singapore?"}'
 ```
