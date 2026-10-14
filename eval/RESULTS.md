@@ -26,8 +26,17 @@ All runs are listed in `results/RUNLOG.jsonl`; per-case rows are in `results/*.j
 | 0.80–0.90 | 27 | 17 | 63.0% (44.2–78.5) |
 | < 0.80 | 8 | 4 | 50.0% (21.5–78.5) |
 
-## Fast path (triage)
-Rule: auto-accept when engine confidence ≥ 0.95 **and** the router says the case is in scope (docs/DECISIONS.md D7). Router labels for dev are measured below; router labels for final are pending the frozen router (one run).
+## Fast path (triage) — router-v2 (gemini-3.8-flash), proxy
+Rule: auto-accept when engine confidence ≥ 0.95 **and** the router says the case is in scope (docs/DECISIONS.md D7). Router-v2 was tuned on dev only, then frozen and run once on final.
+
+| Split | Router out of scope (all cases are substantial transformation) | Fast path coverage | Fast path accuracy (95% CI) |
+|---|---|---:|---|
+| dev | 7 / 469 (1.5%) | 334 / 469 = 71.2% | 95.8% (93.1–97.5) |
+| final (held out) | 10 / 377 (2.7%) | 265 / 377 = 70.3% | **97.7% (95.1–99.0)** |
+
+Without the router (confidence ≥ 0.95 alone), final covers 71.9% at 97.8%. The research brief's "65% at 98.0%" came from a different routed pipeline and does not describe this rule.
+
+**Scope recall (dev window Jul–Dec 2025, up to 40 per gold regime):** routed out of scope — Part 102 tariff-shift 36/40 (90%), pharma API 35/36 (97%), substantial transformation 2/40. Full table: `results/scope-window-dev-router-v2.md`.
 
 ## Not yet measured
 - Official Vertex AI numbers (blocked on GCP access).
