@@ -118,3 +118,10 @@ jobs:
           done
           echo "::error::Smoke test failed: no reply with a get_time tool call"
           exit 1
+      - name: Stream through the frontend
+        run: |
+          events=$(curl -sSN --max-time 90 -X POST "$FRONTEND_URL/api/chat/stream"             -H 'Content-Type: application/json'             -d '{"message":"what time is it in Tokyo?"}')
+          echo "$events"
+          for want in '"type":"tool_call"' '"type":"tool_result"' '"type":"text"' '"type":"done"'; do
+            echo "$events" | grep -q "$want" || { echo "::error::Stream missing $want"; exit 1; }
+          done
