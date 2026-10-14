@@ -5,6 +5,10 @@
 //	    case to eval/results/, append the run to eval/results/RUNLOG.jsonl and
 //	    print a Markdown summary. The held-out split needs -confirm-final:
 //	    never tune prompts, thresholds or retrieval on it.
+//	eval scope  [-from 2025-07-01] [-to 2025-12-31] [-per-regime 40]
+//	    Run the router on labelled rulings of every regime in a date window
+//	    (dev window by default) and report how often each regime is routed
+//	    out of scope. Checks the scope guard; never touches the final split.
 //	eval report -in FILE [-in FILE ...]
 //	    Print the Markdown summary of existing result files.
 //
@@ -24,6 +28,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"sync"
 	"syscall"
@@ -56,6 +61,8 @@ func main() {
 		err = run(os.Args[2:])
 	case "report":
 		err = report(os.Args[2:])
+	case "scope":
+		err = scope(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -370,4 +377,95 @@ func report(args []string) error {
 		fmt.Println(evalkit.Markdown(strings.TrimSuffix(filepath.Base(p), ".jsonl"), split, evalkit.Summarize(rows)))
 	}
 	return nil
+}
+
+func scope(args []string) error {
+	fl := flag.NewFlagSet("scope", flag.ExitOnError)
+	from := fl.String("from", "2025-07-01", "first ruling date (inclusive)")
+	to := fl.String("to", "2025-12-31", "last ruling date (inclusive)")
+	perRegime := fl.Int("per-regime", 40, "max rulings per gold regime (first in file order)")
+	workers := fl.Int("workers", 8, "concurrent model calls")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
+	_ = fl.Parse(args)
+	if *to >= "2026-01-01" {
+		return errors.New("scope: the window must end before 2026 (the final split)")
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	model, err := newModel(ctx, cfg, logger)
+	if err != nil {
+		return err
+	}
+	rt := router.New(model, cfg.RouterModel, 2000)
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	type item struct{ id, regime, facts string }
+	count := map[string]int{}
+	var items []item
+	for _, l := range labels {
+		if l.Date < *from || l.Date > *to || count[l.Regime] >= *perRegime {
+			continue
+		}
+		b, err := os.ReadFile(filepath.Join(*factsDir, l.Ruling+".txt"))
+		if err != nil {
+			continue
+		}
+		count[l.Regime]++
+		items = append(items, item{l.Ruling, l.Regime, string(b)})
+	}
+	type tally struct {
+		n, out, errs int
+		labels       map[string]int
+	}
+	res := map[string]*tally{}
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, *workers)
+	for _, it := range items {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(it item) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			l, err := rt.Classify(ctx, it.facts)
+			mu.Lock()
+			defer mu.Unlock()
+			t := res[it.regime]
+			if t == nil {
+				t = &tally{labels: map[string]int{}}
+				res[it.regime] = t
+			}
+			t.n++
+			if err != nil {
+				t.errs++
+				return
+			}
+			t.labels[l.Regime]++
+			if in, _ := l.Scope(); !in {
+				t.out++
+			}
+		}(it)
+	}
+	wg.Wait()
+	fmt.Printf("## Router scope check (%s to %s, up to %d per gold regime; router %s via %s)\n\n", *from, *to, *perRegime, cfg.RouterModel, cfg.LLMProvider)
+	fmt.Println("| Gold regime (labels) | n | routed out of scope | router regime labels | errors |\n|---|---:|---|---|---:|")
+	var names []string
+	for k := range res {
+		names = append(names, k)
+	}
+	slices.Sort(names)
+	for _, k := range names {
+		t := res[k]
+		p, lo, hi := evalkit.Wilson(t.out, t.n-t.errs)
+		fmt.Printf("| %s | %d | %d (%.0f%%, %.0f–%.0f) | %v | %d |\n", k, t.n, t.out, 100*p, 100*lo, 100*hi, t.labels, t.errs)
+	}
+	return ctx.Err()
 }
