@@ -63,3 +63,11 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D17 — Plans start from CBP's holding on the current setup when the user has one
 - Even with the corrected renderer, the engine called the 2022 heat gun Thai (0.78; CBP held China; on CBP's own facts the engine says China at 0.78 — a borderline case). With the wrong starting origin the verifier saw no change and rejected every move.
 - A plan request may carry `current_origin` (country + ruling). It sets the starting origin for economics and is stated to the verifier ("CBP has already ruled on variant A: origin China"), the research "A's ruling known" setting (85.5% on 76 pairs). The engine's own baseline prediction is still shown next to CBP's holding. Verifier prompt version `verifier-v1+known-a` when used; dev-evaluated in both modes.
+
+## D18 — Gate D runs on an in-memory store; corpus deployment is an open decision
+- `store.Cases` has an in-memory implementation; Firestore drops in behind the same interface once the GCP project is available (SETUP-GCP.md). Cases are lost on restart and not shared between instances until then.
+- The server needs the facts corpus (12 MB derived from public CBP rulings) at startup. The deploy builds from `backend/` only and respects `.gitignore`, so the corpus is not in the image. Options for the humans: (a) upload to the GCS bucket and load at startup (needs GCP access); (b) commit the facts files under `backend/data/` (derived public-domain text; the build prompt only rules out committing the 27 MB raw texts); (c) fetch from CROSS at startup (~50 min, not viable). Recommendation: (b) for the hackathon, (a) after.
+- Verifier evidence in production comes from live CROSS search with `toDate` (VERIFIER_SEARCH=cross); eval and the demo checks use the local corpus for reproducibility.
+
+## D19 — Duty rates are inputs, not a package
+- The build plan listed a `duty` package. Rates are product- and date-specific and the demo needs one sourced product; they are carried as request inputs (`economics.duty_rates` + a source note) and the demo fixture cites `docs/DUTY-SOURCES.md`. A dated HTS lookup can be added behind an interface later.

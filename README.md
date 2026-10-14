@@ -1,176 +1,108 @@
-# wassup-hackathon-2026
+# Origin Proof
 
-AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), and it can `deploy` a build and `rollback` to an earlier revision, but only on the demo app and only after a person clicks **Approve** on the card it shows in the chat. A deploy starts the new revision with no traffic, checks its `/health` on a tagged URL, and only then sends it traffic; if the check fails it rolls back by itself, so users never see the bad version. Plus `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
+**Plan the production change before you build it.** Origin Proof predicts the country of origin U.S. Customs and Border Protection (CBP) would likely assign to a manufactured product, citing only earlier CBP rulings, and searches where operations could be performed for plans that would reach a target origin. Each plan is checked against precedent and shown only if it is **precedent-supported**.
 
-Find the live URL with `gcloud run services describe frontend --region us-central1 --format='value(status.url)'`.
+> Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.
+
+Google Cloud AI Builder Cup 2026 (JAPAC), theme: Manufacturing.
+
+## The problem
+
+When a manufacturer moves production out of China, CBP decides the product's origin with the *substantial-transformation* test, and origin decides whether China-specific duties apply. For our demo product (a heat gun, HTS 8419.89.95) that is about a 25-point difference in ad-valorem duty, China vs Thailand origin ([docs/DUTY-SOURCES.md](docs/DUTY-SOURCES.md); exposure is product-specific). Today a factory finds out by paying advisers and waiting for CBP: CBP estimates 20 hours of preparation per ruling request (90 FR 54349, all ruling subjects), and our count of 247 CBP origin rulings on Asian goods in 2025–26 shows a median of 21 days to answer.
+
+The user is the industrialisation or trade-compliance lead at a China-plus-one contract manufacturer (Thailand, Vietnam, Malaysia, Korea, Taiwan).
 
 ## How it works
 
 ```
-browser ──► frontend (Next.js, public) ──► backend (Go, private) ──► Gemini on Vertex AI
-              POST /api/chat/stream          POST /chat/stream         (location: global)
-              adds an ID token               ADK agent + get_time tool
+frontend (Next.js, Cloud Run)  ──HTTP/JSON──►  backend (Go, Cloud Run)
+                                                 ├─ router    Gemini 3.8 Flash: product family + origin-regime check
+                                                 ├─ engine    Gemini 4 Argon + 5 earlier CBP rulings (BM25, dated strictly before the case)
+                                                 │            → origin, key factors, confidence, cited rulings
+                                                 ├─ triage    confidence ≥ 0.95 and in scope → auto; otherwise needs expert review
+                                                 ├─ planner   single/double moves of operation groups to capable plants
+                                                 │            → render variant facts → engine → keep moves that reach the target
+                                                 ├─ verifier  ADK Go agent (Argon) + search_rulings / read_ruling tools
+                                                 │            → precedent-supported only if an earlier ruling held the same kind of change decisive
+                                                 └─ export    draft ruling request for a broker to file
+eval (Go CLI) → engine / router / verifier on frozen splits → eval/results/*.jsonl, eval/RESULTS.md
 ```
 
-1. The chat page (`/chat`) sends your message to the frontend's `/api/chat/stream` route.
-2. The route forwards it to the backend. On Cloud Run it first gets an ID token for the `frontend@` service account from the metadata server, because the backend only accepts calls from that account.
-3. The backend's ADK agent sends the message to Gemini. If you ask about the time, Gemini calls `get_time`, the Go code answers, and Gemini writes the reply.
-4. The reply streams back as server-sent events (tool calls, tool results, text as it's written). The page sends the `session_id` from the first event with the next message so the agent remembers the conversation.
+1. **Predict.** Paste a CBP-style description or enter the bill of materials (components, where each is made, operations by plant). The engine reads it with the five most similar CBP rulings dated before the case and returns origin, key factors, confidence and the rulings it relied on. The router labels the origin regime: textile (19 CFR 102.21), USMCA/Part 102 and pharmaceutical-ingredient cases go to expert review.
+2. **Plan.** Pick a target origin. The planner moves *operation groups* (e.g. motor-fan assembly = stamp laminations, wind rotor, build stator, fit fan; PCBA SMT; housing moulding) to plants that can perform them, one or two groups at a time, and asks the engine about each variant.
+3. **Verify.** For variants predicted to reach the target, an ADK agent searches and reads earlier CBP rulings and answers "precedent-supported" only when it finds one where CBP treated the same kind of change as decisive; it also returns a counter-ruling where a similar change did not work. Only precedent-supported plans with verifier confidence ≥ 0.95 are shown; the rest are returned greyed out with the reason.
+4. **Rank and export.** Plans are ranked by duty effect minus added cost — best-ranked within the searched moves and your cost inputs (illustrative — editable). The chosen plan exports as a draft CBP ruling request.
 
-| Path        | What                                     | Cloud Run service | Runs as                                                  |
-|-------------|------------------------------------------|-------------------|----------------------------------------------------------|
-| `backend/`  | Go agent (ADK Go); Cloud Run and Cloud Build tools in `backend/cloudtools` | `backend` (private) | `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User, Cloud Run Viewer, Cloud Build Viewer) |
-| `frontend/` | Next.js: landing page `/`, chat app `/chat`; `/api/chat*` proxy to the backend | `frontend` (public) | `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` (Cloud Run Invoker on `backend` only) |
-| `demo/`     | Sample app the agent deploys and rolls back: a page showing its version, and `/health` | `demo-app` (public) | `demo-app@wassup-hackathon-2026.iam.gserviceaccount.com` (no roles) |
+Model choices are measured: Argon and Flash are equally accurate with precedents, Argon is faster (research p95 5 s vs 18 s). Every response and eval row records the provider, model IDs and prompt versions.
 
-`agent-backend@` can only change `demo-app` (Cloud Run Developer on that one service, and permission to run it as `demo-app@`). The agent's `deploy` and `rollback` tools refuse any other service too (`DEPLOY_TARGETS`).
+## Results
 
-GCP project `wassup-hackathon-2026`, Cloud Run region `us-central1`. **No JSON keys** anywhere: Cloud Run uses the service accounts above, and locally you use your own Google login.
+Data: 2,790 CBP rulings (2023-01 to 2026-09, rulings.cbp.gov, public domain). Labels are CBP's own stated holdings. Held-out test: 377 rulings dated Jan–Sep 2026 (355 regex-labelled, 22 hand-labelled), never used to develop prompts; precedents are restricted to rulings dated before each case (model pre-training exposure not excluded).
 
-## CI/CD
+| Method (held-out, n = 377) | Accuracy (95% CI) |
+|---|---|
+| Majority country (Vietnam) | 12.2% (9.3–15.9) |
+| Last country mentioned in facts | 39.8% (35.0–44.8) |
+| Final-assembly country | 40.6% (35.8–45.6) |
+| Most-mentioned country (best simple baseline) | 60.5% (55.5–65.3) |
+| **Origin Proof engine (Gemini 4 Argon + dated precedents), Vertex AI** | *pending the Vertex AI re-run* |
+| Fast path (confidence ≥ 0.95 and in scope), Vertex AI | *pending* |
 
-- **CI** (`.github/workflows/ci.yml`) runs on every PR: `gofmt`, `go vet` and `go test` for the backend; `eslint` and `next build` (which type-checks) for the frontend. Each side only runs when its folder changed. `ci-ok` is the single check to require before merging.
-- **Deploy** (`.github/workflows/deploy.yml`) runs on every push to `main`: CI first, then it deploys whichever service changed (backend before frontend), then sends "what time is it in Tokyo?" through the live site and fails unless the reply used `get_time`. Changes to `demo/` are only **built** (image `demo-app:<commit>`), never deployed: deploying is the agent's job. Re-deploy everything by hand from **Actions → Deploy → Run workflow**.
-- Deploys authenticate with **Workload Identity Federation**, so there are no keys or GitHub secrets. Only pushes to `main` of this repo can get a token, and they act as `github-deployer@`, which can build and deploy but can't change who is allowed to call a service. One-time setup: `bash scripts/setup-github-deploy.sh`.
+Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
 
-So the normal flow is: branch → PR (CI runs) → merge → live in a few minutes. The manual commands below still work for one-off deploys.
+### Negative results (kept on purpose)
+- **One shared playbook** of legal guidance lowered accuracy versus the plain engine.
+- **Routed specialists** overfit: dev 91.9% → held-out 88.3%, below the single engine; adjudication mostly overruled a correct generalist. The router is kept only as a triage label and never overrides the engine.
+- **Agentic search** did not improve single-product origin (dev 89.8% vs 90.2%) at 3–4× the cost; it is used only to verify moves.
+- **Change detection** from scratch over-predicts changes (specificity 38% on held-out pairs), the costly error for a planner.
 
-## Deploy
+## Limitations
+- The planner — the distinctive part — is the least validated. The verifier has no held-out test yet (its prompt was written after seeing the held-out flip failures; a clean test needs CBP rulings published after 25 Sep 2026). Demo fixtures were adjusted during development; they are demonstrations, not evaluations.
+- Inputs in the benchmark are CBP's restatements of each request, not raw manufacturer BOMs.
+- Labels come from one extraction pipeline plus a second extractor and a 30-item audit, not an expert panel.
+- Origin prediction covers the substantial-transformation regime only. The planner covers one family (motorised tools and small appliances); a second template (LiDAR modules) shows the extension path.
+- Plans model duty effect and user-entered cost only — not feasibility, tooling, capacity or transition costs. Duty rates for the demo are sourced and dated; classification is inferred and should be confirmed by a broker.
+- Precedent support is not a ruling. Plans go to a broker or counsel and, if needed, to CBP.
 
-Run from the repo root, with `gcloud` pointed at the project (`gcloud config set project wassup-hackathon-2026`). Each deploy uploads the folder, builds it with its `Dockerfile` in Cloud Build, and rolls out a new revision (3–5 minutes). The URLs don't change. Only redeploy the side you changed.
-
-### PowerShell
-
-```powershell
-gcloud run deploy backend --source backend --region us-central1 --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global" --no-allow-unauthenticated --max-instances 3
-
-$backend = gcloud run services describe backend --region us-central1 --format='value(status.url)'
-gcloud run deploy frontend --source frontend --region us-central1 --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com --set-env-vars "BACKEND_URL=$backend" --allow-unauthenticated --max-instances 3
-```
-
-Keep the quotes around the `--set-env-vars` value: without them PowerShell splits it at the comma and the backend gets a broken project ID.
-
-### Bash
-
-```sh
-gcloud run deploy backend --source backend --region us-central1 \
-  --service-account agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026,GOOGLE_CLOUD_LOCATION=global \
-  --no-allow-unauthenticated --max-instances 3
-
-BACKEND=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')
-gcloud run deploy frontend --source frontend --region us-central1 \
-  --service-account frontend@wassup-hackathon-2026.iam.gserviceaccount.com \
-  --set-env-vars BACKEND_URL=$BACKEND \
-  --allow-unauthenticated --max-instances 3
-```
-
-`--max-instances 3` caps how far each service scales, which caps how fast the public page can spend credits.
-
-### Cost guard
-
-A billing budget on this project emails billing admins as spend approaches its limit. It counts usage *before* credits, so it warns while credits are being used. It only alerts; it doesn't stop anything. See or change it under **Billing → Budgets & alerts** in the console. Per-user rate limiting is still open ([#3](../../issues/3)).
-
-### Check it
-
-PowerShell:
-
-```powershell
-$frontend = gcloud run services describe frontend --region us-central1 --format='value(status.url)'
-$backend = gcloud run services describe backend --region us-central1 --format='value(status.url)'
-
-# Through the public frontend
-Invoke-RestMethod -Method Post "$frontend/api/chat" -ContentType 'application/json' -Body '{"message":"what time is it in Tokyo?"}'
-
-# Backend directly (needs your identity token; without one you get 403)
-$t = gcloud auth print-identity-token
-Invoke-RestMethod -Method Post "$backend/chat" -Headers @{Authorization="Bearer $t"} -ContentType 'application/json' -Body '{"message":"hi"}'
-
-# Backend logs
-gcloud logging read 'resource.labels.service_name="backend"' --limit 20 --format='value(textPayload)'
-```
-
-Bash:
-
-```sh
-FRONTEND=$(gcloud run services describe frontend --region us-central1 --format='value(status.url)')
-BACKEND=$(gcloud run services describe backend --region us-central1 --format='value(status.url)')
-
-curl -X POST $FRONTEND/api/chat \
-  -H 'Content-Type: application/json' -d '{"message":"what time is it in Tokyo?"}'
-
-curl -X POST $BACKEND/chat \
-  -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
-  -H 'Content-Type: application/json' -d '{"message":"hi"}'
-```
-
-A good reply has `"tool_calls":["get_time"]`.
+## Competitors (credited)
+Altana does agentic origin determination from BOM and value-chain data, with CBP-ruling checks, human review and sourcing scenarios. Trademo markets BOM-driven origin with continuous monitoring. KYG, SAP GTS, Descartes and Thomson Reuters cover origin and FTA analysis. Kinaxis, Coupa and Optilogic optimise production placement against tariffs without substantial-transformation logic. Our angle: automatic search over *where operations are performed*, with CBP-precedent origin as the objective and every plan checked against accepting and rejecting rulings. We found no documentation of that combination — not proof it doesn't exist.
 
 ## Run locally
 
-One-time: `gcloud auth application-default login` (the backend uses your login to call Vertex AI).
+Requirements: Go 1.27, `make`. The corpus (≈40 MB of public CBP rulings) is fetched once and never committed.
 
-PowerShell, in two terminals:
-
-```powershell
-cd backend; $env:GOOGLE_CLOUD_PROJECT="wassup-hackathon-2026"; go run .
-cd frontend; $env:BACKEND_URL="http://localhost:8080"; npm run dev
+```bash
+cd backend && go run ./cmd/corpus fetch && go run ./cmd/corpus build && cd ..   # ~50 min at 1 request/s
+make test lint verify-data                                                        # offline
 ```
 
-Bash:
+Model access is configured by environment only:
 
-```sh
-cd backend && GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 go run .
-cd frontend && BACKEND_URL=http://localhost:8080 npm run dev
+| Provider | Use | Env |
+|---|---|---|
+| `vertex` | deployment and official numbers | `LLM_PROVIDER=vertex GOOGLE_CLOUD_PROJECT=… GOOGLE_CLOUD_LOCATION=global` + `gcloud auth application-default login` |
+| `litellm` | local development only (refuses to start on Cloud Run) | `LLM_PROVIDER=litellm LITELLM_BASE_URL=… LITELLM_API_KEY=…` (never in files, CI or logs) |
+| `fake` | offline tests | `LLM_PROVIDER=fake` |
+
+```bash
+make run          # API on :8080 (POST /v1/cases/predict, …; contract in docs/api/openapi.yaml)
+make smoke        # one live model call
+make eval-report  # summaries of the committed eval runs, no model calls
 ```
 
-Open http://localhost:3000. Locally the frontend calls the backend without a token.
+Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confirm-final`; never tune on it), `scope`, `flips`, `plan -fixture testdata/heatgun_2022.json`, `predict`, `summary`, `report`. Every run is appended to `eval/results/RUNLOG.jsonl`.
 
-Tests and checks:
+## Repository
 
-```sh
-cd backend && go test ./... && go vet ./...
-cd frontend && npm run lint && npx tsc --noEmit
-```
+| Path | What |
+|---|---|
+| `backend/` | Go API and CLIs. Packages: `domain`, `config`, `llm` (LiteLLM, Vertex, fake), `corpus`, `retrieval`, `engine`, `router`, `triage`, `planner` (+ `templates/`), `verifier` (ADK), `cross`, `export`, `store`, `httpapi`, `evalkit`, `evalsummary` |
+| `frontend/` | Next.js app (being rebuilt for Origin Proof) |
+| `eval/` | Splits, labels, flip pairs (sha256-pinned), result files, `RESULTS.md` |
+| `docs/` | `ARCHITECTURE.md`, `DECISIONS.md`, `PROMPTS.md`, `api/openapi.yaml`, `DUTY-SOURCES.md`, `NUMBERS.md`, `SETUP-GCP.md` |
 
-## Backend API
+## Deploy
 
-| Endpoint      | What |
-|---------------|------|
-| `POST /chat`  | `{"message": "...", "session_id": "optional"}` → `{"reply", "session_id", "tool_calls", "tools", "approvals"}`. `tool_calls` is tool names; `tools` adds each call's `args` and `result`; `approvals` lists changes waiting for a person. Message max 2000 characters; `session_id` must be one the backend returned. To answer an approval, send `{"approval": {"id": "...", "approved": true, "reason": "optional"}, "session_id": "..."}` instead of a message. |
-| `POST /chat/stream` | Same request; the reply as server-sent events, each `data: {"type": ...}`: `session` (with `session_id`), then any of `text` (a delta to append), `tool_call`, `tool_result`, `approval_request` (`id` to answer, `name`/`args` of the waiting call, `text` summary), then `done` or `error`. |
-| `GET /health` | Liveness check, returns `ok`. |
+CI (`.github/workflows/ci.yml`) runs gofmt, build, vet, staticcheck and tests on every PR. Pushing to `main` deploys changed services to Cloud Run (`deploy.yml`, keyless via Workload Identity Federation) with `LLM_PROVIDER=vertex`. Before the first Origin Proof deploy: run [docs/SETUP-GCP.md](docs/SETUP-GCP.md), and make the corpus available to the service (see `docs/DECISIONS.md`).
 
-| Env var                 | Default            | Notes |
-|-------------------------|--------------------|-------|
-| `GOOGLE_CLOUD_PROJECT`  | (required)         | |
-| `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. Gemini 3.x flash models aren't served from `us-central1`. |
-| `GEMINI_MODEL`          | `gemini-3.5-flash` | `gemini-3.8-flash` works but was heavily queued on 2026-10-14 (3–74 s per call vs 1–2 s). |
-| `CLOUD_RUN_REGION`      | `us-central1`      | Region the Cloud Run and Cloud Build tools look at. |
-| `DEPLOY_TARGETS`        | `demo-app`         | Services `deploy` and `rollback` may change (comma-separated). Empty: the agent can only look. |
-
-To show the automatic rollback, set `healthy = false` in `demo/main.go` and push: the build succeeds, and when the agent deploys it, the health check fails and traffic stays where it was.
-| `PORT`                  | `8080`             | Set by Cloud Run. |
-
-The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: the backend's service URL, needed only when `BACKEND_URL` is a revision tag URL such as `https://preview---backend-...run.app`, because Cloud Run only accepts ID tokens for the service URL).
-
-## Frontend
-
-- **Copy:** every word on the landing page and the example prompts live in `frontend/src/lib/site.ts`. Rewrite that file when the idea is settled; the layout doesn't need to change.
-- **Design:** colours are tokens in `frontend/src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--subtle`, `--border`, `--accent`, ...), defined once for light and once for dark. Components use them as Tailwind colours (`bg-subtle`, `text-muted`, `border-border`), never raw colours. One accent colour, no gradients, icons only where they label an action or a status (`frontend/src/components/icons.tsx`).
-- **Theme:** follows the system; the header button cycles System, Light, Dark and remembers the choice.
-- **Checking UI changes:** with `npm run dev` running, `npm run ui-check` (in `frontend/`) saves screenshots of `/` and `/chat` in light/dark and desktop/mobile to `frontend/.ui-check/`, and fails on axe violations, console errors or horizontal scroll. It uses your installed Chrome or Edge.
-- **Claude Code:** `.claude/skills/frontend-ui` holds the design rules and check loop, `.claude/skills/ui-review` reviews code against detailed interface rules, and `.claude/settings.json` turns on Anthropic's `frontend-design` plugin.
-- **Accessibility:** skip link, labelled controls, visible focus rings, screen-reader announcement when a reply finishes, `prefers-reduced-motion` respected. Checked with axe-core: no violations on `/` and `/chat` in either theme.
-
-## Gotchas
-
-- **PowerShell and commas:** quote `--set-env-vars` values, or use Bash.
-- **`404` on Vertex:** the model isn't available in that location. Use `GOOGLE_CLOUD_LOCATION=global`.
-- **Slow replies:** check model latency before blaming the code. Time a direct Vertex call; switching `GEMINI_MODEL` needs no code change (`--update-env-vars GEMINI_MODEL=...`).
-- **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
-- **Streaming and ADK v1.8.0:** a streamed Gemini 3 reply is saved with an empty "thought signature" part that Vertex rejects on the next turn (400 INVALID_ARGUMENT). `dropEmptyParts` in `backend/main.go` strips it before each model call; remove it once ADK fixes this.
-- **Previews pin traffic.** `gcloud run deploy ... --no-traffic --tag preview` gives a private test URL, but it also pins live traffic to the current revision, so later deploys don't go live. The Deploy workflow switches traffic back to the latest revision after every deploy; by hand, run `gcloud run services update-traffic <service> --region us-central1 --to-latest --remove-tags preview`.
-- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](../../issues/2)). That includes approvals: one that lands on another instance has nothing to approve.
-- **Anyone on the public chat can click Approve** until Google sign-in ([#10](../../issues/10)) exists. That's why the agent can only change `demo-app`.
-- **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.
+Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).

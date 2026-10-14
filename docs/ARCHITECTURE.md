@@ -27,8 +27,14 @@ eval (Go CLI) → engine/verifier on frozen splits → eval/results/*.jsonl + ev
 | `internal/engine` | Gate B | engine-v1 prompt, prediction, cited-ruling extraction |
 | `internal/router`, `internal/triage` | Gate B | family + regime label (Flash); auto vs needs_review |
 | `internal/evalkit`, `cmd/eval` | Gate B | eval rows, Wilson CIs, bins, cost; run / report / scope |
-| `planner`, `verifier`, `cross`, `duty` | Gate C | |
-| `export`, `store`, remaining endpoints | Gate D | |
+| `internal/planner` | Gate C | templates (one JSON file per product family), facts renderer, move enumeration, plan search, economics, backtest |
+| `internal/verifier` | Gate C | ADK Go agent + `Searcher` (local corpus or live CROSS with toDate); adapter runs ADK on `llm.Model` |
+| `internal/store` | Gate D | `Cases` interface; in-memory now, Firestore later |
+| `internal/export` | Gate D | Markdown draft ruling request |
+| `internal/evalsummary` | Gate D | results-page numbers (generated, embedded) |
+| `internal/httpapi` endpoints | Gate D | `/v1/...` per `docs/api/openapi.yaml` |
+
+Duty rates are request inputs (per-origin ad-valorem rates with a source note) rather than a `duty` package: the demo rates are sourced in `docs/DUTY-SOURCES.md`, everything else is user-entered.
 
 Business packages depend only on `domain` and interfaces (`llm.Model`, `retrieval.Retriever`, `cross.Client`, `store.*`).
 
