@@ -23,7 +23,10 @@ type Prediction struct {
 	DecisiveStep string   `json:"decisive_step"`
 	Confidence   float64  `json:"confidence"`
 	Reasoning    string   `json:"reasoning"`
+	// CitedRulings are the precedents the model named in its reasoning, in
+	// retrieval order; Precedents are all rulings shown to it.
 	CitedRulings []string `json:"cited_rulings"`
+	Precedents   []string `json:"precedents"`
 	Trace        Trace    `json:"trace"`
 }
 
