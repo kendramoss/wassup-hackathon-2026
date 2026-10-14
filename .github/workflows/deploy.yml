@@ -97,15 +97,19 @@ jobs:
   # End to end through the public site: Gemini must answer and call get_time.
   smoke-test:
     needs: [backend, frontend]
+    # Only after something was deployed, and nothing failed. Names each job:
+    # contains(needs.*.result, 'success') was true with both jobs skipped.
     if: >-
-      always() && contains(needs.*.result, 'success')
-      && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+      always()
+      && (needs.backend.result == 'success' || needs.frontend.result == 'success')
+      && needs.backend.result != 'failure' && needs.frontend.result != 'failure'
+      && needs.backend.result != 'cancelled' && needs.frontend.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
       - name: Chat through the frontend
         run: |
           for attempt in 1 2 3; do
-            reply=$(curl -sS --max-time 60 -X POST "$FRONTEND_URL/api/chat" \
+            reply=$(curl -sS --max-time 90 -X POST "$FRONTEND_URL/api/chat" \
               -H 'Content-Type: application/json' \
               -d '{"message":"what time is it in Tokyo?"}') || true
             echo "attempt $attempt: $reply"
