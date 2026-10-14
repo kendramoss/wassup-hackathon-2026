@@ -152,6 +152,8 @@ The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: th
 - **Copy:** every word on the landing page and the example prompts live in `frontend/src/lib/site.ts`. Rewrite that file when the idea is settled; the layout doesn't need to change.
 - **Design:** colours are tokens in `frontend/src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--subtle`, `--border`, `--accent`, ...), defined once for light and once for dark. Components use them as Tailwind colours (`bg-subtle`, `text-muted`, `border-border`), never raw colours. One accent colour, no gradients, icons only where they label an action or a status (`frontend/src/components/icons.tsx`).
 - **Theme:** follows the system; the header button cycles System, Light, Dark and remembers the choice.
+- **Checking UI changes:** with `npm run dev` running, `npm run ui-check` (in `frontend/`) saves screenshots of `/` and `/chat` in light/dark and desktop/mobile to `frontend/.ui-check/`, and fails on axe violations, console errors or horizontal scroll. It uses your installed Chrome or Edge.
+- **Claude Code:** `.claude/skills/frontend-ui` holds the design rules and check loop, `.claude/skills/ui-review` reviews code against detailed interface rules, and `.claude/settings.json` turns on Anthropic's `frontend-design` plugin.
 - **Accessibility:** skip link, labelled controls, visible focus rings, screen-reader announcement when a reply finishes, `prefers-reduced-motion` respected. Checked with axe-core: no violations on `/` and `/chat` in either theme.
 
 ## Gotchas
