@@ -1,0 +1,250 @@
+package httpapi
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+)
+
+type fakeEngine struct {
+	err  error
+	conf float64
+	last domain.Case
+}
+
+func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, error) {
+	f.last = c
+	if f.err != nil {
+		return engine.Result{}, f.err
+	}
+	return engine.Result{Prediction: domain.Prediction{Origin: "China", Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}}}, nil
+}
+
+type fakeRouter struct{ regime string }
+
+func (f fakeRouter) Classify(context.Context, string) (router.Label, error) {
+	return router.Label{Route: "assembly", Subfamily: "motorised", Regime: f.regime, Reason: "r"}, nil
+}
+
+type fakePlanner struct{ got planner.Request }
+
+func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
+	f.got = r
+	v := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.96}
+	return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}}}, nil
+}
+
+type fakeRulings struct{ calls int }
+
+func (f *fakeRulings) Ruling(_ context.Context, id string) (cross.Ruling, error) {
+	f.calls++
+	if id == "N000001" {
+		return cross.Ruling{}, cross.ErrNotFound
+	}
+	return cross.Ruling{RulingNumber: id, Subject: "heat gun", RulingDate: "2026-01-29T00:00:00", Text: "Dear ..."}, nil
+}
+
+type harness struct {
+	h       http.Handler
+	engine  *fakeEngine
+	planner *fakePlanner
+	rulings *fakeRulings
+}
+
+func newHarness(t *testing.T, regime string) harness {
+	t.Helper()
+	tm, err := planner.LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}}
+	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, Deps{
+		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
+		Summary: func() (evalsummary.Summary, error) {
+			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
+		},
+		FastPathConf: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
+	})
+	return hs
+}
+
+func (hs harness) do(t *testing.T, method, path, body string) (int, map[string]any) {
+	t.Helper()
+	req := httptest.NewRequest(method, path, strings.NewReader(body))
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	var out map[string]any
+	_ = json.Unmarshal(rec.Body.Bytes(), &out)
+	return rec.Code, out
+}
+
+func heatGunBody(t *testing.T) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "..", "testdata", "heatgun_2022.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fx map[string]any
+	_ = json.Unmarshal(b, &fx)
+	body, _ := json.Marshal(map[string]any{"date": fx["date"], "product": fx["product"], "family": fx["family"],
+		"exclude_rulings": fx["exclude_rulings"], "current_origin": fx["current_origin"]})
+	return string(body)
+}
+
+func TestPredictFromProductThenPlanThenExport(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	code, out := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	if code != http.StatusCreated {
+		t.Fatalf("predict status %d: %v", code, out)
+	}
+	for _, k := range []string{"model_ids", "prompt_versions", "llm_provider", "disclaimer"} {
+		if out[k] == nil {
+			t.Errorf("response missing %s", k)
+		}
+	}
+	if out["disclaimer"] != domain.Disclaimer {
+		t.Errorf("disclaimer = %v", out["disclaimer"])
+	}
+	if tr := out["triage"].(map[string]any); tr["route"] != "auto" {
+		t.Errorf("triage = %v", tr)
+	}
+	if !strings.Contains(hs.engine.last.Facts, "assembled in Thailand") || len(hs.engine.last.Exclude) != 2 {
+		t.Errorf("engine got facts %q exclude %v", hs.engine.last.Facts, hs.engine.last.Exclude)
+	}
+	id := out["id"].(string)
+
+	code, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if code != http.StatusOK || got["id"] != id {
+		t.Fatalf("get case %d: %v", code, got)
+	}
+
+	code, pl := hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","economics":{"illustrative":true,"annual_import_value_usd":2000000,"duty_rates":{"China":0.417,"Thailand":0.167}}}`)
+	if code != http.StatusOK || pl["plan"] == nil {
+		t.Fatalf("plan %d: %v", code, pl)
+	}
+	if hs.planner.got.CurrentOrigin == nil || hs.planner.got.CurrentOrigin.Ruling != "N328954" || hs.planner.got.Target != "Thailand" {
+		t.Errorf("planner request = %+v", hs.planner.got)
+	}
+
+	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":0}`)
+	if code != http.StatusOK {
+		t.Fatalf("export %d: %v", code, ex)
+	}
+	md := ex["content"].(string)
+	if !strings.Contains(md, "make Motor-fan assembly and PCBA (SMT) in Thailand") || !strings.Contains(md, "N347421") || !strings.Contains(md, "China (N328954)") {
+		t.Errorf("export content:\n%s", md)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":5}`); code != http.StatusBadRequest {
+		t.Errorf("bad plan index status %d", code)
+	}
+	if code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", ""); code != http.StatusOK || !strings.Contains(ex["content"].(string), "Requester's position") {
+		t.Errorf("export without body: %d", code)
+	}
+}
+
+func TestPredictOutOfScopeGoesToReview(t *testing.T) {
+	hs := newHarness(t, "textile_102_21")
+	code, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-02-01","facts":"A knit sweater is knit in China and sewn in Vietnam."}`)
+	if code != http.StatusCreated {
+		t.Fatalf("status %d: %v", code, out)
+	}
+	tr := out["triage"].(map[string]any)
+	if tr["route"] != "needs_review" || !strings.Contains(tr["reason"].(string), "102.21") {
+		t.Errorf("triage = %v", tr)
+	}
+}
+
+func TestErrors(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	tests := []struct {
+		name, method, path, body string
+		status                   int
+		code                     string
+	}{
+		{"no date", "POST", "/v1/cases/predict", `{"facts":"x"}`, 400, "invalid_input"},
+		{"bad date", "POST", "/v1/cases/predict", `{"date":"15/10/2026","facts":"x"}`, 400, "invalid_input"},
+		{"unknown field", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x","bogus":1}`, 400, "invalid_input"},
+		{"facts too long", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"` + strings.Repeat("a", 12001) + `"}`, 400, "invalid_input"},
+		{"unknown family", "POST", "/v1/cases/predict", `{"date":"2026-01-01","family":"spaceships","product":{"name":"x","components":[{"name":"a","made_in":"China"}]}}`, 400, "invalid_input"},
+		{"bad exclude id", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x","exclude_rulings":["abc"]}`, 400, "invalid_input"},
+		{"missing case", "GET", "/v1/cases/nope", "", 404, "not_found"},
+		{"plan missing case", "POST", "/v1/cases/nope/plan", `{"target":"Thailand"}`, 404, "not_found"},
+		{"bad ruling id", "GET", "/v1/rulings/abc", "", 400, "invalid_input"},
+		{"unknown ruling", "GET", "/v1/rulings/N000001", "", 404, "not_found"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			code, out := hs.do(t, tt.method, tt.path, tt.body)
+			if code != tt.status || out["code"] != tt.code {
+				t.Errorf("got %d %v, want %d %s", code, out, tt.status, tt.code)
+			}
+		})
+	}
+	// Plan on a facts-only case is rejected.
+	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	if code, e := hs.do(t, "POST", "/v1/cases/"+out["id"].(string)+"/plan", `{"target":"Thailand"}`); code != 400 || !strings.Contains(e["message"].(string), "structured product") {
+		t.Errorf("plan on facts-only case: %d %v", code, e)
+	}
+}
+
+func TestModelErrorsMapTo502(t *testing.T) {
+	for _, tt := range []struct {
+		err  error
+		code string
+	}{{llm.ErrUnavailable, "model_unavailable"}, {&llm.APIError{StatusCode: 503}, "model_unavailable"}, {llm.ErrBadResponse, "model_bad_response"}} {
+		hs := newHarness(t, "substantial_transformation")
+		hs.engine.err = tt.err
+		code, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+		if code != http.StatusBadGateway || out["code"] != tt.code {
+			t.Errorf("%v: got %d %v", tt.err, code, out)
+		}
+	}
+}
+
+func TestRulingIsProxiedAndCached(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for i := 0; i < 2; i++ {
+		code, out := hs.do(t, "GET", "/v1/rulings/N357771", "")
+		if code != 200 || out["url"] != "https://rulings.cbp.gov/ruling/N357771" || out["date"] != "2026-01-29" {
+			t.Fatalf("ruling %d: %v", code, out)
+		}
+	}
+	if hs.rulings.calls != 1 {
+		t.Errorf("CROSS calls = %d, want 1 (cached)", hs.rulings.calls)
+	}
+}
+
+func TestEvalSummary(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	code, out := hs.do(t, "GET", "/v1/eval/summary", "")
+	if code != 200 || out["status"] != "proxy, development only" {
+		t.Fatalf("summary %d: %v", code, out)
+	}
+}
+
+func TestBodyLimit(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	big := bytes.Repeat([]byte("a"), maxBody+10)
+	code, _ := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"`+string(big)+`"}`)
+	if code != 400 {
+		t.Errorf("oversized body status %d", code)
+	}
+}

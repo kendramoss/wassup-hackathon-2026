@@ -16,9 +16,23 @@ type Info struct {
 	Version  string `json:"version,omitempty"`
 }
 
-// NewHandler returns the API's root handler.
-func NewHandler(logger *slog.Logger, info Info) http.Handler {
+// NewHandler returns the API's root handler. With deps.Engine nil only
+// /health is served (useful for smoke tests).
+func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux := http.NewServeMux()
+	if len(deps) > 0 && deps[0].Engine != nil {
+		d := deps[0]
+		if d.Logger == nil {
+			d.Logger = logger
+		}
+		a := &api{d: d, rulingMemo: map[string]rulingDTO{}}
+		mux.HandleFunc("POST /v1/cases/predict", a.predict)
+		mux.HandleFunc("GET /v1/cases/{id}", a.getCase)
+		mux.HandleFunc("POST /v1/cases/{id}/plan", a.plan)
+		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
+		mux.HandleFunc("GET /v1/rulings/{id}", a.ruling)
+		mux.HandleFunc("GET /v1/eval/summary", a.evalSummary)
+	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "llm_provider": info.Provider, "version": info.Version})
