@@ -29,8 +29,9 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D7 — Triage rule (human decision, 15 Oct)
 - Fast path = engine confidence ≥ 0.95 **and** in scope. Scenario cases are **not** excluded. The matching research statistic is "confidence ≥ 0.95 covers 72.4% at 97.8%" (held-out, n=273 of 377); the routed-pipeline "65% at 98.0%" describes a different rule and must not be shown for this one.
 
-## D8 — Duty rates are a placeholder until sourced
-- The planner's duty table starts with a dated placeholder labelled "illustrative" (human decision, 15 Oct). Replace with a sourced HTS/Section 301 rate before any duty number is presented as real.
+## D8 — Duty rates: sourced for the heat gun, illustrative elsewhere
+- Heat gun: China ~41.7% vs Thailand ~16.7% ad valorem (HTS 8419.89.95, classification inferred and unverified for this model; Section 301 List 2 25% is the gap). Sources, dates and caveats in `docs/DUTY-SOURCES.md` (checked 15 Oct 2026). Show the source next to any duty number.
+- Other fixtures (LiDAR) keep illustrative placeholder rates; annual volume and group costs are always user inputs labelled "illustrative — editable".
 
 ## D9 — CI smoke test without calling the private backend
 - The backend accepts only `frontend@`; the CI deployer can't mint a token for it. The deploy smoke test checks the backend's latest revision is Ready and serving all traffic (startup config validation makes a bad config fail here) and that the frontend returns 200. Becomes an end-to-end predict call once the frontend proxies it.
