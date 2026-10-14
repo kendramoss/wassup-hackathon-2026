@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/option"
@@ -31,9 +32,14 @@ var serviceName = regexp.MustCompile(`^[a-z][a-z0-9-]{0,48}$`)
 // Client calls the Cloud Run Admin and Cloud Build APIs for one project and
 // region.
 type Client struct {
+	// DeployTargets are the services deploy and rollback may change. Empty
+	// means the agent can only look.
+	DeployTargets []string
+
 	project, region string
 	run             *run.Service
 	builds          *cloudbuild.Service
+	pollInterval    time.Duration
 }
 
 // New creates a Client. opts are passed to both API clients (tests use them
@@ -47,7 +53,7 @@ func New(ctx context.Context, project, region string, opts ...option.ClientOptio
 	if err != nil {
 		return nil, fmt.Errorf("cloud build client: %w", err)
 	}
-	return &Client{project: project, region: region, run: r, builds: b}, nil
+	return &Client{project: project, region: region, run: r, builds: b, pollInterval: 3 * time.Second}, nil
 }
 
 func (c *Client) parent() string {

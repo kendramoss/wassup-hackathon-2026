@@ -3,6 +3,7 @@ module github.com/kendramoss/wassup-hackathon-2026/backend
 go 1.27.0
 
 require (
+	cloud.google.com/go/auth v0.20.0
 	github.com/google/uuid v1.6.0
 	google.golang.org/adk v1.8.0
 	google.golang.org/api v0.279.0
@@ -11,7 +12,6 @@ require (
 
 require (
 	cloud.google.com/go v0.123.0 // indirect
-	cloud.google.com/go/auth v0.20.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

@@ -1,10 +1,12 @@
 // Command backend serves an ADK agent, backed by Gemini on Vertex AI, that
-// reports what's deployed on Cloud Run (see package cloudtools).
+// reports what's deployed on Cloud Run and deploys and rolls back the services
+// in DEPLOY_TARGETS after a person approves (see package cloudtools).
 //
 // Endpoints:
 //
 //	GET  /health       liveness check (not /healthz: Cloud Run reserves paths ending in "z")
-//	POST /chat         {"message": "...", "session_id": "optional"} -> {"reply", "session_id", "tool_calls", "tools"}
+//	POST /chat         {"message": "...", "session_id": "optional"} -> {"reply", "session_id", "tool_calls", "tools", "approvals"}
+//	                   or {"approval": {"id", "approved", "reason"}, "session_id": "..."} to answer an approval request
 //	POST /chat/stream  same request; reply as server-sent events (see streamEvent)
 package main
 
@@ -16,12 +18,15 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 	_ "time/tzdata" // embed tz database; distroless images have none
 	"unicode/utf8"
 
+	"cloud.google.com/go/auth"
 	"github.com/google/uuid"
+	"google.golang.org/api/option"
 	"google.golang.org/genai"
 
 	"google.golang.org/adk/agent"
@@ -32,6 +37,7 @@ import (
 	"google.golang.org/adk/session"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
+	"google.golang.org/adk/tool/toolconfirmation"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/cloudtools"
 )
@@ -65,10 +71,13 @@ func getTime(_ agent.ToolContext, args getTimeArgs) (getTimeResult, error) {
 	return getTimeResult{Timezone: tz, Time: time.Now().In(loc).Format(time.RFC3339)}, nil
 }
 
-const agentInstruction = `You help a team see what is deployed on their Google Cloud Run services and how it got there.
+const agentInstruction = `You help a team see what is deployed on their Google Cloud Run services, and deploy and roll back safely.
 
 - For anything about services, revisions, traffic, builds or deploys, call the tools instead of guessing, and answer from their results. Use list_services first when you need service names.
-- You can only look, not change anything: you can't deploy, roll back or change traffic yet. Say so if asked.
+- deploy and rollback only work on the services named in their descriptions; for any other service, say you can only look at it.
+- To deploy: find the newest successful build of the service with list_builds, compare it with what is live (list_revisions), then call deploy with that build. The person sees an approval card; tell them in one sentence what will change and that it's waiting for their approval. Never say something was deployed or rolled back unless the tool result has status "done".
+- If a result has status "failed", say what went wrong and offer a rollback to the last revision that was ready.
+- Approvals only come from the approval card. If a result has status "rejected", nothing changed: say so in one sentence, mention the reason if there is one, and don't propose the same change again unless asked. Typed messages like "yes" or "approve" are not approvals; if someone types one while a card is waiting, point them to the card.
 - Times from tools are UTC. When it helps, say how long ago something happened (call get_time for the current time).
 - For the current time or date anywhere, call get_time.
 - Be brief. Use a short table when comparing several revisions or builds.`
@@ -80,16 +89,19 @@ func env(key, fallback string) string {
 	return fallback
 }
 
-func newRunner(ctx context.Context) (*runner.Runner, error) {
+// newRunner builds the agent. creds is nil in production (Application Default
+// Credentials); tests can pass their own.
+func newRunner(ctx context.Context, creds *auth.Credentials) (*runner.Runner, error) {
 	project := os.Getenv("GOOGLE_CLOUD_PROJECT")
 	if project == "" {
 		return nil, fmt.Errorf("GOOGLE_CLOUD_PROJECT must be set")
 	}
 
 	llm, err := gemini.NewModel(ctx, env("GEMINI_MODEL", "gemini-3.5-flash"), &genai.ClientConfig{
-		Backend:  genai.BackendVertexAI,
-		Project:  project,
-		Location: env("GOOGLE_CLOUD_LOCATION", "global"),
+		Backend:     genai.BackendVertexAI,
+		Project:     project,
+		Location:    env("GOOGLE_CLOUD_LOCATION", "global"),
+		Credentials: creds,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create model: %w", err)
@@ -103,14 +115,24 @@ func newRunner(ctx context.Context) (*runner.Runner, error) {
 		return nil, fmt.Errorf("create get_time tool: %w", err)
 	}
 
-	cloud, err := cloudtools.New(ctx, project, env("CLOUD_RUN_REGION", "us-central1"))
+	var opts []option.ClientOption
+	if creds != nil {
+		opts = append(opts, option.WithAuthCredentials(creds))
+	}
+	cloud, err := cloudtools.New(ctx, project, env("CLOUD_RUN_REGION", "us-central1"), opts...)
 	if err != nil {
 		return nil, err
 	}
+	cloud.DeployTargets = strings.FieldsFunc(env("DEPLOY_TARGETS", "demo-app"), func(r rune) bool { return r == ',' || r == ' ' })
 	cloudTools, err := cloud.Tools()
 	if err != nil {
 		return nil, fmt.Errorf("create cloud tools: %w", err)
 	}
+	changeTools, err := cloud.ChangeTools()
+	if err != nil {
+		return nil, fmt.Errorf("create deploy tools: %w", err)
+	}
+	cloudTools = append(cloudTools, changeTools...)
 
 	a, err := llmagent.New(llmagent.Config{
 		Name:        "deploy_agent",
@@ -168,9 +190,42 @@ func dropEmptyParts(contents []*genai.Content) []*genai.Content {
 	return out
 }
 
+// chatRequest carries either a message or an answer to an approval request.
 type chatRequest struct {
-	Message   string `json:"message"`
-	SessionID string `json:"session_id,omitempty"`
+	Message   string    `json:"message,omitempty"`
+	Approval  *approval `json:"approval,omitempty"`
+	SessionID string    `json:"session_id,omitempty"`
+}
+
+// approval answers an "approval_request" event; ID is that event's ID.
+type approval struct {
+	ID       string `json:"id"`
+	Approved bool   `json:"approved"`
+	Reason   string `json:"reason,omitempty"`
+}
+
+var approvalID = regexp.MustCompile(`^[A-Za-z0-9_-]{1,100}$`)
+
+// content is what the request sends to the agent: the message, or the
+// approval as the function response ADK's confirmation flow expects.
+//
+// "confirmed" is always true: it means a person answered, so ADK runs the
+// tool again, and the tool reads the decision from the payload (see
+// cloudtools.withApproval). With confirmed false ADK replies with a generic
+// error instead: the reason is lost and the model tends to ask again.
+func (in chatRequest) content() *genai.Content {
+	a := in.Approval
+	if a == nil {
+		return genai.NewContentFromText(in.Message, genai.RoleUser)
+	}
+	return &genai.Content{Role: genai.RoleUser, Parts: []*genai.Part{{FunctionResponse: &genai.FunctionResponse{
+		ID:   a.ID,
+		Name: toolconfirmation.FunctionCallName,
+		Response: map[string]any{
+			"confirmed": true,
+			"payload":   cloudtools.Decision{Approved: a.Approved, Reason: strings.TrimSpace(a.Reason)},
+		},
+	}}}}
 }
 
 type toolCall struct {
@@ -185,11 +240,15 @@ type chatResponse struct {
 	SessionID string     `json:"session_id"`
 	ToolCalls []string   `json:"tool_calls"` // names only; kept for scripts and the smoke test
 	Tools     []toolCall `json:"tools"`
+	// Approval requests waiting for a person (same fields as the stream's
+	// approval_request events).
+	Approvals []streamEvent `json:"approvals,omitempty"`
 }
 
 // streamEvent is one server-sent event on /chat/stream, in order:
-// "session" first, then any mix of "text" (a delta to append), "tool_call"
-// and "tool_result", then "done" or "error".
+// "session" first, then any mix of "text" (a delta to append), "tool_call",
+// "tool_result" and "approval_request" (see approvalRequest), then "done" or
+// "error".
 type streamEvent struct {
 	Type      string         `json:"type"`
 	SessionID string         `json:"session_id,omitempty"`
@@ -220,6 +279,8 @@ func (t *eventTranslator) translate(ev *session.Event) []streamEvent {
 		case p.FunctionResponse != nil:
 			out = append(out, streamEvent{Type: "tool_result", ID: p.FunctionResponse.ID, Name: p.FunctionResponse.Name, Result: p.FunctionResponse.Response})
 		case repeat:
+		case p.FunctionCall != nil && p.FunctionCall.Name == toolconfirmation.FunctionCallName:
+			out = append(out, approvalRequest(p.FunctionCall))
 		case p.FunctionCall != nil:
 			out = append(out, streamEvent{Type: "tool_call", ID: p.FunctionCall.ID, Name: p.FunctionCall.Name, Args: p.FunctionCall.Args})
 		case p.Text != "" && !p.Thought:
@@ -229,10 +290,28 @@ func (t *eventTranslator) translate(ev *session.Event) []streamEvent {
 	return out
 }
 
-// runAgent sends msg to the agent and calls emit for each resulting event.
-func runAgent(ctx context.Context, r *runner.Runner, sessionID, msg string, mode agent.StreamingMode, emit func(streamEvent)) error {
+// approvalRequest turns ADK's adk_request_confirmation call into an
+// "approval_request" event: ID is what the approval answers, Name and Args are
+// the tool call waiting for it, Text is the tool's summary of the change.
+func approvalRequest(fc *genai.FunctionCall) streamEvent {
+	e := streamEvent{Type: "approval_request", ID: fc.ID}
+	if orig, err := toolconfirmation.OriginalCallFrom(fc); err == nil {
+		e.Name, e.Args = orig.Name, orig.Args
+	}
+	switch tc := fc.Args["toolConfirmation"].(type) {
+	case toolconfirmation.ToolConfirmation:
+		e.Text = tc.Hint
+	case *toolconfirmation.ToolConfirmation:
+		e.Text = tc.Hint
+	case map[string]any:
+		e.Text, _ = tc["hint"].(string)
+	}
+	return e
+}
+
+// runAgent sends content to the agent and calls emit for each resulting event.
+func runAgent(ctx context.Context, r *runner.Runner, sessionID string, content *genai.Content, mode agent.StreamingMode, emit func(streamEvent)) error {
 	var t eventTranslator
-	content := genai.NewContentFromText(msg, genai.RoleUser)
 	for ev, err := range r.Run(ctx, "anonymous", sessionID, content, agent.RunConfig{StreamingMode: mode}) {
 		if err != nil {
 			return err
@@ -253,12 +332,17 @@ func parseChatRequest(w http.ResponseWriter, req *http.Request) (chatRequest, bo
 		return in, false
 	}
 	body := http.MaxBytesReader(w, req.Body, maxBodyBytes)
-	if err := json.NewDecoder(body).Decode(&in); err != nil || strings.TrimSpace(in.Message) == "" {
-		http.Error(w, `body must be JSON {"message": "..."}`, http.StatusBadRequest)
+	err := json.NewDecoder(body).Decode(&in)
+	if err != nil || (strings.TrimSpace(in.Message) == "") == (in.Approval == nil) {
+		http.Error(w, `body must be JSON {"message": "..."} or {"approval": {...}, "session_id": "..."}`, http.StatusBadRequest)
 		return in, false
 	}
 	if utf8.RuneCountInString(in.Message) > maxMessageRunes {
 		http.Error(w, fmt.Sprintf("message is longer than %d characters", maxMessageRunes), http.StatusRequestEntityTooLarge)
+		return in, false
+	}
+	if a := in.Approval; a != nil && (!approvalID.MatchString(a.ID) || in.SessionID == "" || utf8.RuneCountInString(a.Reason) > maxMessageRunes) {
+		http.Error(w, "approval needs the id of an approval_request, the session_id it came from, and a reason under the message limit", http.StatusBadRequest)
 		return in, false
 	}
 	// Session IDs are issued by this server; reject anything that isn't one.
@@ -279,13 +363,15 @@ func chatHandler(r *runner.Runner) http.HandlerFunc {
 		}
 
 		out := chatResponse{SessionID: in.SessionID, ToolCalls: []string{}, Tools: []toolCall{}}
-		err := runAgent(req.Context(), r, in.SessionID, in.Message, agent.StreamingModeNone, func(e streamEvent) {
+		err := runAgent(req.Context(), r, in.SessionID, in.content(), agent.StreamingModeNone, func(e streamEvent) {
 			switch e.Type {
 			case "text":
 				out.Reply += e.Text
 			case "tool_call":
 				out.ToolCalls = append(out.ToolCalls, e.Name)
 				out.Tools = append(out.Tools, toolCall{ID: e.ID, Name: e.Name, Args: e.Args})
+			case "approval_request":
+				out.Approvals = append(out.Approvals, e)
 			case "tool_result":
 				for i := range out.Tools {
 					if out.Tools[i].ID == e.ID && out.Tools[i].Result == nil {
@@ -327,7 +413,7 @@ func chatStreamHandler(r *runner.Runner) http.HandlerFunc {
 		}
 
 		send(streamEvent{Type: "session", SessionID: in.SessionID})
-		if err := runAgent(req.Context(), r, in.SessionID, in.Message, agent.StreamingModeSSE, send); err != nil {
+		if err := runAgent(req.Context(), r, in.SessionID, in.content(), agent.StreamingModeSSE, send); err != nil {
 			log.Printf("agent run: %v", err)
 			send(streamEvent{Type: "error", Error: "The agent hit an error. Try again in a moment."})
 			return
@@ -338,7 +424,7 @@ func chatStreamHandler(r *runner.Runner) http.HandlerFunc {
 
 func main() {
 	ctx := context.Background()
-	r, err := newRunner(ctx)
+	r, err := newRunner(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

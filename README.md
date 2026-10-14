@@ -1,6 +1,6 @@
 # wassup-hackathon-2026
 
-AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), plus `get_time`. So far it can only look; deploying and rolling back come next. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
+AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), and it can `deploy` a build and `rollback` to an earlier revision, but only on the demo app and only after a person clicks **Approve** on the card it shows in the chat. Plus `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
 
 Find the live URL with `gcloud run services describe frontend --region us-central1 --format='value(status.url)'`.
 
@@ -21,13 +21,16 @@ browser ──► frontend (Next.js, public) ──► backend (Go, private) ─
 |-------------|------------------------------------------|-------------------|----------------------------------------------------------|
 | `backend/`  | Go agent (ADK Go); Cloud Run and Cloud Build tools in `backend/cloudtools` | `backend` (private) | `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` (Vertex AI User, Cloud Run Viewer, Cloud Build Viewer) |
 | `frontend/` | Next.js: landing page `/`, chat app `/chat`; `/api/chat*` proxy to the backend | `frontend` (public) | `frontend@wassup-hackathon-2026.iam.gserviceaccount.com` (Cloud Run Invoker on `backend` only) |
+| `demo/`     | Sample app the agent deploys and rolls back: a page showing its version, and `/health` | `demo-app` (public) | `demo-app@wassup-hackathon-2026.iam.gserviceaccount.com` (no roles) |
+
+`agent-backend@` can only change `demo-app` (Cloud Run Developer on that one service, and permission to run it as `demo-app@`). The agent's `deploy` and `rollback` tools refuse any other service too (`DEPLOY_TARGETS`).
 
 GCP project `wassup-hackathon-2026`, Cloud Run region `us-central1`. **No JSON keys** anywhere: Cloud Run uses the service accounts above, and locally you use your own Google login.
 
 ## CI/CD
 
 - **CI** (`.github/workflows/ci.yml`) runs on every PR: `gofmt`, `go vet` and `go test` for the backend; `eslint` and `next build` (which type-checks) for the frontend. Each side only runs when its folder changed. `ci-ok` is the single check to require before merging.
-- **Deploy** (`.github/workflows/deploy.yml`) runs on every push to `main`: CI first, then it deploys whichever service changed (backend before frontend), then sends "what time is it in Tokyo?" through the live site and fails unless the reply used `get_time`. Re-deploy everything by hand from **Actions → Deploy → Run workflow**.
+- **Deploy** (`.github/workflows/deploy.yml`) runs on every push to `main`: CI first, then it deploys whichever service changed (backend before frontend), then sends "what time is it in Tokyo?" through the live site and fails unless the reply used `get_time`. Changes to `demo/` are only **built** (image `demo-app:<commit>`), never deployed: deploying is the agent's job. Re-deploy everything by hand from **Actions → Deploy → Run workflow**.
 - Deploys authenticate with **Workload Identity Federation**, so there are no keys or GitHub secrets. Only pushes to `main` of this repo can get a token, and they act as `github-deployer@`, which can build and deploy but can't change who is allowed to call a service. One-time setup: `bash scripts/setup-github-deploy.sh`.
 
 So the normal flow is: branch → PR (CI runs) → merge → live in a few minutes. The manual commands below still work for one-off deploys.
@@ -134,8 +137,8 @@ cd frontend && npm run lint && npx tsc --noEmit
 
 | Endpoint      | What |
 |---------------|------|
-| `POST /chat`  | `{"message": "...", "session_id": "optional"}` → `{"reply", "session_id", "tool_calls", "tools"}`. `tool_calls` is tool names; `tools` adds each call's `args` and `result`. Message max 2000 characters; `session_id` must be one the backend returned. |
-| `POST /chat/stream` | Same request; the reply as server-sent events, each `data: {"type": ...}`: `session` (with `session_id`), then any of `text` (a delta to append), `tool_call`, `tool_result`, then `done` or `error`. |
+| `POST /chat`  | `{"message": "...", "session_id": "optional"}` → `{"reply", "session_id", "tool_calls", "tools", "approvals"}`. `tool_calls` is tool names; `tools` adds each call's `args` and `result`; `approvals` lists changes waiting for a person. Message max 2000 characters; `session_id` must be one the backend returned. To answer an approval, send `{"approval": {"id": "...", "approved": true, "reason": "optional"}, "session_id": "..."}` instead of a message. |
+| `POST /chat/stream` | Same request; the reply as server-sent events, each `data: {"type": ...}`: `session` (with `session_id`), then any of `text` (a delta to append), `tool_call`, `tool_result`, `approval_request` (`id` to answer, `name`/`args` of the waiting call, `text` summary), then `done` or `error`. |
 | `GET /health` | Liveness check, returns `ok`. |
 
 | Env var                 | Default            | Notes |
@@ -144,6 +147,7 @@ cd frontend && npm run lint && npx tsc --noEmit
 | `GOOGLE_CLOUD_LOCATION` | `global`           | Vertex AI location. Gemini 3.x flash models aren't served from `us-central1`. |
 | `GEMINI_MODEL`          | `gemini-3.5-flash` | `gemini-3.8-flash` works but was heavily queued on 2026-10-14 (3–74 s per call vs 1–2 s). |
 | `CLOUD_RUN_REGION`      | `us-central1`      | Region the Cloud Run and Cloud Build tools look at. |
+| `DEPLOY_TARGETS`        | `demo-app`         | Services `deploy` and `rollback` may change (comma-separated). Empty: the agent can only look. |
 | `PORT`                  | `8080`             | Set by Cloud Run. |
 
 The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: the backend's service URL, needed only when `BACKEND_URL` is a revision tag URL such as `https://preview---backend-...run.app`, because Cloud Run only accepts ID tokens for the service URL).
@@ -165,5 +169,6 @@ The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: th
 - **Paths ending in `z`** (like `/healthz`) are reserved by Cloud Run and return 404, which is why the health check is `/health`.
 - **Streaming and ADK v1.8.0:** a streamed Gemini 3 reply is saved with an empty "thought signature" part that Vertex rejects on the next turn (400 INVALID_ARGUMENT). `dropEmptyParts` in `backend/main.go` strips it before each model call; remove it once ADK fixes this.
 - **Previews pin traffic.** `gcloud run deploy ... --no-traffic --tag preview` gives a private test URL, but it also pins live traffic to the current revision, so later deploys don't go live. The Deploy workflow switches traffic back to the latest revision after every deploy; by hand, run `gcloud run services update-traffic <service> --region us-central1 --to-latest --remove-tags preview`.
-- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](../../issues/2)).
+- **Conversation memory is in-memory** on each backend instance. It's lost when the instance restarts, and a follow-up that lands on a different instance starts fresh ([#2](../../issues/2)). That includes approvals: one that lands on another instance has nothing to approve.
+- **Anyone on the public chat can click Approve** until Google sign-in ([#10](../../issues/10)) exists. That's why the agent can only change `demo-app`.
 - **`frontend/AGENTS.md`** is rewritten by `next dev`; commit it as is.

@@ -98,3 +98,9 @@ export const Spinner = (p: SVGProps<SVGSVGElement>) => (
     <path d="M21 12a9 9 0 1 1-6.2-8.6" />
   </Icon>
 );
+
+export const X = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </Icon>
+);
