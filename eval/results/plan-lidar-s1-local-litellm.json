@@ -1,0 +1,259 @@
+{
+  "case_id": "lidar-s1",
+  "target": "Vietnam",
+  "family": "lidar_modules",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Hesai OT128 LiDAR module. A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply). The Hesai OT128 LiDAR module is assembled in Thailand using components sourced from Thailand and China.\n\nThe Top Main Board (TMB) PCBA, Bottom Main Board (BMB) PCBA, receiver (RX) PCBA and transmitter (TX) PCBA are produced in Thailand. The lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components are sourced from China. \n\nFinal assembly in Thailand: assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations; cure, calibrate, test and inspect 100% of modules.\n",
+    "prediction": {
+      "origin_country": "Thailand",
+      "key_factors": [
+        "The four Printed Circuit Board Assemblies (Top Main Board, Bottom Main Board, RX, and TX PCBAs)"
+      ],
+      "decisive_step": "Manufacturing of the four critical PCBAs and the complex final assembly, calibration, and testing of the LiDAR module in Thailand",
+      "confidence": 0.95,
+      "reasoning": "Consistent with CBP precedent (e.g., H338116, N350800), the country of origin of electronic sensing and communication devices is generally conferred where the primary PCBAs are manufactured via SMT, as they impart the essential character. Here, all four critical PCBAs (Top Main, Bottom Main, RX, and TX) are produced in Thailand, and are subsequently integrated with Chinese-origin electro-optical and mechanical components through complex assembly, bonding, calibration, and testing in Thailand, resulting in a substantial transformation in Thailand.",
+      "cited_rulings": [
+        "N350800",
+        "H338116"
+      ],
+      "precedents": [
+        "N350800",
+        "H332752",
+        "H338116",
+        "N329847",
+        "N345644"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2635,
+        "output_tokens": 248,
+        "latency_ms": 5525
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Thailand",
+    "ruling": "N359371 (scenario I)"
+  },
+  "plans": null,
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Hesai OT128 LiDAR module. A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply). The Hesai OT128 LiDAR module is assembled in Thailand using components sourced from Thailand and China.\n\nThe Top Main Board (TMB) PCBA, Bottom Main Board (BMB) PCBA, receiver (RX) PCBA and transmitter (TX) PCBA are produced in Thailand. The lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components are sourced from China. \n\nFinal assembly in Thailand: assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations; cure, calibrate, test and inspect 100% of modules.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The four Printed Circuit Board Assemblies (Top Main Board, Bottom Main Board, RX, and TX PCBAs)"
+        ],
+        "decisive_step": "Manufacturing of the four critical PCBAs and the complex final assembly, calibration, and testing of the LiDAR module in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent (e.g., H338116, N350800), the country of origin of electronic sensing and communication devices is generally conferred where the primary PCBAs are manufactured via SMT, as they impart the essential character. Here, all four critical PCBAs (Top Main, Bottom Main, RX, and TX) are produced in Thailand, and are subsequently integrated with Chinese-origin electro-optical and mechanical components through complex assembly, bonding, calibration, and testing in Thailand, resulting in a substantial transformation in Thailand.",
+        "cited_rulings": [
+          "N350800",
+          "H338116"
+        ],
+        "precedents": [
+          "N350800",
+          "H332752",
+          "H338116",
+          "N329847",
+          "N345644"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2635,
+          "output_tokens": 248,
+          "latency_ms": 5525
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Thailand (N359371 (scenario I)); engine predicts Thailand"
+    },
+    {
+      "move": [
+        {
+          "group": "main_boards",
+          "to_plant": "vn"
+        },
+        {
+          "group": "rx_tx_boards",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Main boards (TMB and BMB PCBAs) and RX and TX PCBAs in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Hesai OT128 LiDAR module. A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply). The Hesai OT128 LiDAR module is assembled in Thailand using components sourced from Vietnam and China.\n\nThe Top Main Board (TMB) PCBA, Bottom Main Board (BMB) PCBA, receiver (RX) PCBA and transmitter (TX) PCBA are produced in Vietnam. The lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components are sourced from China. \n\nIn Vietnam, the Top Main Board (TMB) PCBA and Bottom Main Board (BMB) PCBA will be produced in-house: SMT assembly of the Top Main Board (TMB) PCBA and the Bottom Main Board (BMB) PCBA.\n\nIn Vietnam, the receiver (RX) PCBA and transmitter (TX) PCBA will be produced in-house: SMT assembly of the receiver (RX) PCBA and the transmitter (TX) PCBA.\n\nFinal assembly in Thailand: assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations; cure, calibrate, test and inspect 100% of modules.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The four Printed Circuit Board Assemblies (Top Main Board, Bottom Main Board, RX, and TX PCBAs)"
+        ],
+        "decisive_step": "Surface Mount Technology (SMT) assembly of the four critical PCBAs in Vietnam",
+        "confidence": 0.9,
+        "reasoning": "Consistent with H338116 and H332752, the PCBAs (Top Main Board, Bottom Main Board, RX, and TX boards) impart the essential character of the LiDAR sensor by controlling laser emission, signal reception, and 3D mapping calculations. The SMT manufacturing of these four critical PCBAs in Vietnam constitutes a substantial transformation. The final assembly in Thailand—bonding, fastening, calibrating, and testing pre-made subassemblies and Chinese housing/optical components—does not substantially transform the Vietnamese PCBAs.",
+        "cited_rulings": [
+          "H332752",
+          "H338116"
+        ],
+        "precedents": [
+          "N350800",
+          "H332752",
+          "H338116",
+          "N329847",
+          "N355175"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2796,
+          "output_tokens": 224,
+          "latency_ms": 4936
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N339727",
+        "confidence": 0.92,
+        "reasoning": "In electronic optical/sensor devices (like the cameras in N339727 and IR sensors in N353913), CBP holds that the PCBAs produced via complex SMT impart the critical electrical and functional character of the finished device. In Variant A, all four PCBAs (TMB, BMB, RX, and TX) are produced via SMT in Thailand and assembled there, making Thailand the country of origin. In Variant B, SMT production of all four PCBAs moves to Vietnam, while only final assembly, bonding, fastening, calibration, and testing occur in Thailand. Under N339727, final assembly and testing in Thailand do not substantially transform the Vietnamese PCBAs, shifting origin to Vietnam.",
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v1+known-a",
+          "input_tokens": 9403,
+          "output_tokens": 760,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 250000,
+      "added_cost_per_year": -30000,
+      "net_per_year": 280000,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.92 is below 0.95"
+    },
+    {
+      "move": [
+        {
+          "group": "main_boards",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Main boards (TMB and BMB PCBAs) in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Hesai OT128 LiDAR module. A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply). The Hesai OT128 LiDAR module is assembled in Thailand using components sourced from Vietnam, Thailand and China.\n\nThe Top Main Board (TMB) PCBA and Bottom Main Board (BMB) PCBA are produced in Vietnam. The receiver (RX) PCBA and transmitter (TX) PCBA are produced in Thailand. The lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components are sourced from China. \n\nIn Vietnam, the Top Main Board (TMB) PCBA and Bottom Main Board (BMB) PCBA will be produced in-house: SMT assembly of the Top Main Board (TMB) PCBA and the Bottom Main Board (BMB) PCBA.\n\nFinal assembly in Thailand: assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations; cure, calibrate, test and inspect 100% of modules.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The receiver (RX) and transmitter (TX) PCBAs along with final opto-mechanical assembly and calibration"
+        ],
+        "decisive_step": "SMT production of RX/TX PCBAs and final complex assembly, bonding, curing, and calibration of the LiDAR module in Thailand",
+        "confidence": 0.78,
+        "reasoning": "In Thailand, the critical receiver (RX) and transmitter (TX) PCBAs are manufactured, and combined with Vietnamese main PCBAs (TMB/BMB) and Chinese optical/mechanical components through complex automated bonding, fastening, curing, and calibration. Consistent with N350800 and N355175, the combination of critical PCBA manufacturing (RX/TX boards that manage laser emission and detection) and complex final opto-mechanical assembly and calibration in Thailand substantially transforms the disparate components into a functional LiDAR sensor.",
+        "cited_rulings": [
+          "N350800",
+          "N355175"
+        ],
+        "precedents": [
+          "N350800",
+          "H332752",
+          "H338116",
+          "N329847",
+          "N355175"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2759,
+          "output_tokens": 245,
+          "latency_ms": 5688
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -20000,
+      "net_per_year": 20000,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Thailand, not Vietnam"
+    },
+    {
+      "move": [
+        {
+          "group": "rx_tx_boards",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make RX and TX PCBAs in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Hesai OT128 LiDAR module. A 360-degree automotive LiDAR sensor that measures distances with laser beams and creates 3-dimensional maps for autonomous driving and logistics. It is composed of a top cover, cover lens, lens housing (opto-mechanical unit with RX module, TX module, lenses and top main board) and base (with the bottom main board, motor and wireless power supply). The Hesai OT128 LiDAR module is assembled in Thailand using components sourced from Thailand, Vietnam and China.\n\nThe Top Main Board (TMB) PCBA and Bottom Main Board (BMB) PCBA are produced in Thailand. The receiver (RX) PCBA and transmitter (TX) PCBA are sourced from Vietnam. The lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components are sourced from China. \n\nIn Vietnam, the receiver (RX) PCBA and transmitter (TX) PCBA will be produced in-house: SMT assembly of the receiver (RX) PCBA and the transmitter (TX) PCBA.\n\nFinal assembly in Thailand: assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations; cure, calibrate, test and inspect 100% of modules.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Top Main Board (TMB) and Bottom Main Board (BMB) PCBAs, combined with complex opto-mechanical final assembly"
+        ],
+        "decisive_step": "Production of the TMB and BMB PCBAs and complex final assembly, bonding, curing, and calibration of the LiDAR module in Thailand",
+        "confidence": 0.9,
+        "reasoning": "Consistent with H338116 and N355175, CBP generally holds that the country where the primary PCBAs are manufactured via SMT and integrated into the final device confers origin. In Thailand, the Top and Bottom Main Board PCBAs are produced, and the Chinese optical/mechanical components and Vietnamese RX/TX PCBAs are integrated into the opto-mechanical unit and base through automated bonding, fastening, curing, and calibration. This combination of main board production and complex assembly substantially transforms the components into a LiDAR module.",
+        "cited_rulings": [
+          "H338116",
+          "N355175"
+        ],
+        "precedents": [
+          "N350800",
+          "H332752",
+          "H338116",
+          "N329847",
+          "N355175"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2747,
+          "output_tokens": 270,
+          "latency_ms": 5399
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -10000,
+      "net_per_year": 10000,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Thailand, not Vietnam"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 1,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20340,
+    "output_tokens": 1747,
+    "engine_input_tokens": 10937,
+    "engine_output_tokens": 987,
+    "verifier_input_tokens": 9403,
+    "verifier_output_tokens": 760,
+    "wall_seconds": 28.271528209
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a real rate.",
+  "template_versions": {
+    "lidar_modules": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.05815,
+  "cost_usd_list": 0.1163,
+  "git_revision": "3898ba993bc8197c3dac3b7da032916c83e57918",
+  "time": "2026-10-15T02:22:14+08:00"
+}

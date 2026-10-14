@@ -14,6 +14,10 @@
 //	    the result to eval/results/plan-<case>-<provider>.json.
 //	eval predict -facts FILE -date YYYY-MM-DD [-id ID]
 //	    One engine prediction on a facts file (debugging and spot checks).
+//	eval flips  [-known-a] [-workers 6]
+//	    Run the verifier on the development flip pairs (CBP natural
+//	    experiments dated before 2026; the 2026 items are spent) and report
+//	    precision, recall and specificity. Development-only by construction.
 //	eval report -in FILE [-in FILE ...]
 //	    Print the Markdown summary of existing result files.
 //
@@ -76,6 +80,8 @@ func main() {
 		err = planCmd(os.Args[2:])
 	case "predict":
 		err = predictCmd(os.Args[2:])
+	case "flips":
+		err = flipsCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -733,5 +739,199 @@ func predictCmd(args []string) error {
 	}
 	b, _ := json.MarshalIndent(map[string]any{"prediction": res.Prediction, "flip": res.Flip}, "", "  ")
 	fmt.Println(string(b))
+	return nil
+}
+
+type flipItem struct {
+	ID            string   `json:"id"`
+	Rulings       []string `json:"rulings"`
+	Date          string   `json:"date"`
+	Difference    string   `json:"difference"`
+	OriginChanged bool     `json:"origin_changed"`
+	VariantA      struct {
+		Facts  string `json:"facts"`
+		Origin string `json:"origin"`
+	} `json:"variant_a"`
+	VariantB struct {
+		Facts  string `json:"facts"`
+		Origin string `json:"origin"`
+	} `json:"variant_b"`
+}
+
+func flipsCmd(args []string) error {
+	fl := flag.NewFlagSet("flips", flag.ExitOnError)
+	knownA := fl.Bool("known-a", false, "state CBP's origin for variant A in the task (verifier-v1+known-a)")
+	workers := fl.Int("workers", 6, "concurrent verifier runs")
+	limit := fl.Int("limit", 0, "first N items only")
+	flipsPath := fl.String("flips", "../eval/data/flips.jsonl", "flip pairs")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
+	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
+	resultsDir := fl.String("results", "../eval/results", "results directory")
+	_ = fl.Parse(args)
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	model, err := newModel(ctx, cfg, slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})))
+	if err != nil {
+		return err
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	dates := map[string]string{}
+	for _, l := range labels {
+		dates[l.Ruling] = l.Date
+	}
+	searcher, err := verifier.NewLocal(labels, *factsDir, *rawDir)
+	if err != nil {
+		return err
+	}
+	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+
+	f, err := os.Open(*flipsPath)
+	if err != nil {
+		return err
+	}
+	var items []flipItem
+	sc := bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 1<<20), 16<<20)
+	for sc.Scan() {
+		var it flipItem
+		if err := json.Unmarshal(sc.Bytes(), &it); err != nil {
+			f.Close()
+			return err
+		}
+		if it.Date < "2026-01-01" { // DEV ONLY: the 2026 flip items are spent
+			items = append(items, it)
+		}
+	}
+	f.Close()
+	if *limit > 0 && *limit < len(items) {
+		items = items[:*limit]
+	}
+	mode := "unknown-a"
+	if *knownA {
+		mode = "known-a"
+	}
+	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-dev-verifier-%s-%s.jsonl", mode, cfg.LLMProvider))
+	out, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	type row struct {
+		ID                 string   `json:"id"`
+		OriginChanged      bool     `json:"origin_changed"`
+		ChangesOrigin      bool     `json:"pred_changes_origin"`
+		PrecedentSupported bool     `json:"precedent_supported"`
+		Supporting         string   `json:"supporting_ruling"`
+		Counter            string   `json:"counter_ruling"`
+		Dropped            []string `json:"dropped_unseen_rulings,omitempty"`
+		OriginBOK          bool     `json:"origin_b_ok"`
+		Confidence         float64  `json:"confidence"`
+		ToolCalls          int      `json:"tool_calls"`
+		ModelCalls         int      `json:"model_calls"`
+		CostUSD            float64  `json:"cost_usd"`
+		Error              string   `json:"error,omitempty"`
+		Mode               string   `json:"mode"`
+		ModelID            string   `json:"model_id"`
+		Provider           string   `json:"llm_provider"`
+	}
+	var mu sync.Mutex
+	var rows []row
+	sem := make(chan struct{}, *workers)
+	var wg sync.WaitGroup
+	for _, it := range items {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(it flipItem) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			before := it.Date
+			for _, r := range it.Rulings {
+				if d, ok := dates[r]; ok && d < before {
+					before = d
+				}
+			}
+			bt, _ := time.Parse(time.DateOnly, before)
+			task := verifier.Task{FactsA: it.VariantA.Facts, FactsB: it.VariantB.Facts, Before: bt, Exclude: it.Rulings}
+			if *knownA {
+				task.KnownOriginA = it.VariantA.Origin
+			}
+			res, err := ver.Verify(ctx, task)
+			rw := row{ID: it.ID, OriginChanged: it.OriginChanged, Mode: mode, ModelID: cfg.VerifierModel, Provider: cfg.LLMProvider}
+			if err != nil {
+				rw.Error = err.Error()
+			} else {
+				v := res.Verdict
+				rw.ChangesOrigin, rw.PrecedentSupported = res.ChangesOrigin, v.PrecedentSupported
+				rw.Supporting, rw.Counter, rw.Dropped, rw.Confidence = v.SupportingRuling, v.CounterRuling, res.Dropped, v.Confidence
+				for _, o := range strings.Split(it.VariantB.Origin, "|") {
+					if domain.NormalizeCountry(strings.TrimSpace(o)) == res.OriginB {
+						rw.OriginBOK = true
+					}
+				}
+				rw.ToolCalls, rw.ModelCalls = len(res.Steps), res.ModelCalls
+				rw.CostUSD = evalkit.Cost(evalkit.PromoPrices, cfg.VerifierModel, res.Usage.InputTokens, res.Usage.OutputTokens)
+			}
+			b, _ := json.Marshal(rw)
+			mu.Lock()
+			defer mu.Unlock()
+			rows = append(rows, rw)
+			_, _ = out.Write(append(b, '\n'))
+		}(it)
+	}
+	wg.Wait()
+
+	var tp, fp, fn, tn, stp, sfp, errs int
+	var cost float64
+	for _, r := range rows {
+		if r.Error != "" {
+			errs++
+			continue
+		}
+		cost += r.CostUSD
+		switch {
+		case r.ChangesOrigin && r.OriginChanged:
+			tp++
+		case r.ChangesOrigin && !r.OriginChanged:
+			fp++
+		case !r.ChangesOrigin && r.OriginChanged:
+			fn++
+		default:
+			tn++
+		}
+		if r.PrecedentSupported {
+			if r.OriginChanged {
+				stp++
+			} else {
+				sfp++
+			}
+		}
+	}
+	fmtP := func(k, n int) string {
+		p, lo, hi := evalkit.Wilson(k, n)
+		return fmt.Sprintf("%d/%d = %.0f%% (%.0f–%.0f)", k, n, 100*p, 100*lo, 100*hi)
+	}
+	fmt.Printf("## Verifier on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", mode, cfg.LLMProvider)
+	if cfg.LLMProvider == config.ProviderLiteLLM {
+		fmt.Println("**Proxy, development only.**")
+	}
+	n := len(rows) - errs
+	fmt.Printf("- Items: %d (pre-2026; %d failed runs)\n", len(rows), errs)
+	fmt.Printf("- Precision when it says the move changes origin: %s\n", fmtP(tp, tp+fp))
+	fmt.Printf("- Recall (real changes caught): %s\n", fmtP(tp, tp+fn))
+	fmt.Printf("- Specificity (no-change pairs correctly rejected): %s\n", fmtP(tn, tn+fp))
+	fmt.Printf("- Precedent-supported (change + cited supporting ruling it actually read): correct %s\n", fmtP(stp, stp+sfp))
+	if n > 0 {
+		fmt.Printf("- Cost per verification: $%.3f (promo)\n", cost/float64(n))
+	}
+	fmt.Println("- Saved:", outPath)
 	return nil
 }
