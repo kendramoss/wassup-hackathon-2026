@@ -41,3 +41,13 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 
 ## D11 — Facts splitter port is byte-identical
 - `corpus.SplitFacts` reproduces split_facts.py on all 2,790 rulings (`go run ./cmd/corpus compare`), with character offsets handled as runes.
+
+## D12 — Router regime label (new prompt section), dev-validated
+- ROUTER.md has no regime check, so router-v1 added a regime label (textile 102.21, USMCA/Part 102, pharma API, substantial transformation, unclear). v1 over-triggered on any Canada/Mexico/USMCA mention (3 of the first 35 dev cases, all decided by CBP under substantial transformation); v2 narrows the USMCA definition. Only dev data was used.
+- Measured by `eval scope` on dev: false out-of-scope rate on substantial-transformation rulings, and recall on labelled Part 102 / pharma-API rulings from Jul–Dec 2025. Labels have no separate textile regime (textile rulings fall under part102_tariff_shift).
+
+## D13 — Router runs separately from the engine in eval
+- With the router in the loop a dev run took ~45 min (Flash calls are slow through the proxy). The engine run and the router labelling now run separately; `eval report -scope` joins router labels to engine rows to compute the fast path. In the product both run per request.
+
+## D14 — Cited rulings are only rulings shown to the model
+- `cited_rulings` = precedents named in the model's reasoning/decisive step/key factor, in retrieval order; ruling numbers the model mentions that it was not shown are dropped. All shown precedents are returned separately as `precedents`.

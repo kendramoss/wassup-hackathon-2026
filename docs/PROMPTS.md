@@ -4,6 +4,11 @@ Each prompt is a Go constant with a version string recorded in every output and 
 
 | Prompt | Version | Package | Source | Status |
 |---|---|---|---|---|
-| Engine (origin) | engine-v1 | `engine` | `experiments/origin-proof/predict.py` → `SYSTEM` | Gate B |
-| Router (family) | router-v1 | `router` | `experiments/origin-proof/skill/specialists/ROUTER.md` | Gate B |
+| Engine (origin) | engine-v1 | `engine` | `experiments/origin-proof/predict.py` → `SYSTEM`, verbatim; user message rendering byte-identical to predict.py (checked on N357771) | Gate B, done |
+| Router (family + regime) | router-v2 | `router` | `experiments/origin-proof/skill/specialists/ROUTER.md` verbatim + a new regime section (v1 → v2: USMCA label narrowed after 3/35 dev false positives) | Gate B, done |
 | Verifier (move) | verifier-v1 | `verifier` | `experiments/origin-proof/agent_search.py` → `PRINCIPLES`, `FLIP_FINAL` | Gate C |
+
+## Change rules
+- A prompt change bumps its version constant; every output and eval row records it.
+- Prompts are only changed because of `dev` results. The `final` split is scored once per frozen version (`eval run -confirm-final`), and every run is appended to `eval/results/RUNLOG.jsonl`.
+- engine-v1 returns one `essential_character`, mapped to `key_factors[0]`. A multi-factor engine-v2 is adopted only if it matches v1 on `dev` within noise.
