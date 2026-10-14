@@ -95,12 +95,15 @@ func (v Verdict) Validate() error {
 // Plan is one evaluated move: the variant's predicted origin, its precedent
 // verdict and its economics. Costs are user inputs and illustrative.
 type Plan struct {
-	Move            Move       `json:"move"`
-	VariantFacts    string     `json:"variant_facts"`
-	Prediction      Prediction `json:"prediction"`
-	Verdict         *Verdict   `json:"verdict,omitempty"`
-	DutyEffectYear  float64    `json:"duty_effect_per_year"`
-	AddedCostYear   float64    `json:"added_cost_per_year"`
-	Shown           bool       `json:"shown"`
-	RejectionReason string     `json:"rejection_reason,omitempty"`
+	Move           Move       `json:"move"`
+	Description    string     `json:"description"`
+	VariantFacts   string     `json:"variant_facts"`
+	Prediction     Prediction `json:"prediction"`
+	Verdict        *Verdict   `json:"verdict,omitempty"`
+	DutyEffectYear float64    `json:"duty_effect_per_year"`
+	AddedCostYear  float64    `json:"added_cost_per_year"`
+	// NetYear is duty effect minus added cost, the ranking key.
+	NetYear         float64 `json:"net_per_year"`
+	Shown           bool    `json:"shown"`
+	RejectionReason string  `json:"rejection_reason,omitempty"`
 }

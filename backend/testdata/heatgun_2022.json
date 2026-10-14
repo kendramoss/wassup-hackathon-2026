@@ -184,6 +184,11 @@
       "terminal blocks",
       "wires",
       "fasteners"
-    ]
-  }
+    ],
+    "moved_to": "Thailand"
+  },
+  "exclude_rulings": [
+    "N328954",
+    "N357771"
+  ]
 }

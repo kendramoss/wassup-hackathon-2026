@@ -18,6 +18,20 @@ type Request struct {
 	Target    string         `json:"target"`
 	Product   domain.Product `json:"product"`
 	Economics Economics      `json:"economics"`
+	// Exclude lists rulings that describe this very case (e.g. its own
+	// earlier ruling); they are never used as precedent or evidence.
+	Exclude []string `json:"exclude_rulings,omitempty"`
+	// ActualChange, when known (backtests), is what the manufacturer really
+	// did; the result compares it with the best plan.
+	ActualChange *ActualChange `json:"actual_change,omitempty"`
+}
+
+// ActualChange records a real production change and CBP's ruling on it.
+type ActualChange struct {
+	Source          string   `json:"_source"`
+	MovedTo         string   `json:"moved_to,omitempty"`
+	MovedComponents []string `json:"moved_to_thailand,omitempty"`
+	StillImported   []string `json:"still_from_china,omitempty"`
 }
 
 // Economics are user inputs. Defaults in fixtures are illustrative and must be
