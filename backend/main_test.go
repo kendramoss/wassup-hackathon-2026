@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"google.golang.org/adk/session"
+	"google.golang.org/adk/tool/toolconfirmation"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/cloudtools"
 	"google.golang.org/genai"
 )
 
@@ -33,6 +36,8 @@ func TestGetTime(t *testing.T) {
 }
 
 // These requests are all rejected before the agent runs, so no runner is needed.
+const sid = "6f1c7a8e-2b1d-4c55-9a7e-1f0a3e9d2c11"
+
 func TestChatHandlerRejectsBadInput(t *testing.T) {
 	h := chatHandler(nil)
 	tests := []struct {
@@ -45,6 +50,9 @@ func TestChatHandlerRejectsBadInput(t *testing.T) {
 		{"long message", http.MethodPost, `{"message":"` + strings.Repeat("a", maxMessageRunes+1) + `"}`, http.StatusRequestEntityTooLarge},
 		{"huge body", http.MethodPost, `{"message":"` + strings.Repeat("a", maxBodyBytes) + `"}`, http.StatusBadRequest},
 		{"bad session id", http.MethodPost, `{"message":"hi","session_id":"../../etc"}`, http.StatusBadRequest},
+		{"message and approval", http.MethodPost, `{"message":"hi","approval":{"id":"adk-1","approved":true},"session_id":"` + sid + `"}`, http.StatusBadRequest},
+		{"approval without session", http.MethodPost, `{"approval":{"id":"adk-1","approved":true}}`, http.StatusBadRequest},
+		{"approval with bad id", http.MethodPost, `{"approval":{"id":"a b","approved":true},"session_id":"` + sid + `"}`, http.StatusBadRequest},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -124,5 +132,41 @@ func TestDropEmptyParts(t *testing.T) {
 	}
 	if len(stored.Parts) != 2 {
 		t.Error("input content was modified")
+	}
+}
+
+func TestApprovalContent(t *testing.T) {
+	in := chatRequest{Approval: &approval{ID: "adk-1", Approved: false, Reason: "not now"}, SessionID: sid}
+	parts := in.content().Parts
+	if len(parts) != 1 || parts[0].FunctionResponse == nil {
+		t.Fatalf("parts = %+v, want one function response", parts)
+	}
+	fr := parts[0].FunctionResponse
+	if fr.ID != "adk-1" || fr.Name != toolconfirmation.FunctionCallName || fr.Response["confirmed"] != true {
+		t.Errorf("function response = %+v", fr)
+	}
+	if got := fr.Response["payload"]; got != (cloudtools.Decision{Approved: false, Reason: "not now"}) {
+		t.Errorf("payload = %+v", got)
+	}
+}
+
+func TestApprovalRequestEvent(t *testing.T) {
+	ev := &session.Event{}
+	ev.Content = &genai.Content{Role: genai.RoleModel, Parts: []*genai.Part{{FunctionCall: &genai.FunctionCall{
+		ID:   "adk-1",
+		Name: toolconfirmation.FunctionCallName,
+		Args: map[string]any{
+			"originalFunctionCall": &genai.FunctionCall{ID: "c1", Name: "deploy", Args: map[string]any{"service": "demo-app"}},
+			"toolConfirmation":     toolconfirmation.ToolConfirmation{Hint: "Deploy build abc to demo-app"},
+		},
+	}}}}
+	var tr eventTranslator
+	got := tr.translate(ev)
+	if len(got) != 1 {
+		t.Fatalf("got %d events, want 1", len(got))
+	}
+	e := got[0]
+	if e.Type != "approval_request" || e.ID != "adk-1" || e.Name != "deploy" || e.Args["service"] != "demo-app" || e.Text != "Deploy build abc to demo-app" {
+		t.Errorf("event = %+v", e)
 	}
 }

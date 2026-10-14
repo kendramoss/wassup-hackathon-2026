@@ -1,5 +1,6 @@
 # On every push to main: run CI, deploy whichever service changed to Cloud Run,
-# then smoke-test the live site. Auth is keyless (Workload Identity Federation);
+# then smoke-test the live site. demo/ is only built, never deployed here:
+# deploying it is the agent's job. Auth is keyless (Workload Identity Federation);
 # one-time GCP setup is scripts/setup-github-deploy.sh.
 name: Deploy
 
@@ -34,6 +35,7 @@ jobs:
     outputs:
       backend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.backend == 'true' }}
       frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend == 'true' }}
+      demo: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.demo == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - id: filter
@@ -44,6 +46,8 @@ jobs:
               - 'backend/**'
             frontend:
               - 'frontend/**'
+            demo:
+              - 'demo/**'
 
   # Deploy flags mirror the README, minus --allow-unauthenticated /
   # --no-allow-unauthenticated: the deployer can't change IAM, and leaving the
@@ -99,6 +103,39 @@ jobs:
       # A --no-traffic preview deploy pins traffic to one revision; make sure
       # this deploy goes live anyway.
       - run: gcloud run services update-traffic frontend --project "$PROJECT" --region "$REGION" --to-latest --quiet
+
+  # Builds the demo app's image, tagged with the commit, for the agent to
+  # deploy. --async and polling instead of streaming logs: streaming needs
+  # project-wide log access the deployer doesn't have.
+  demo:
+    needs: [ci, changes]
+    if: needs.changes.outputs.demo == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Build demo-app image
+        run: |
+          version="${GITHUB_SHA::7}"
+          echo "$version" > demo/VERSION
+          id=$(gcloud builds submit demo --project "$PROJECT" --region "$REGION" --async             --tag "$REGION-docker.pkg.dev/$PROJECT/cloud-run-source-deploy/demo-app:$version"             --gcs-source-staging-dir "gs://run-sources-$PROJECT-$REGION/demo-app"             --format='value(id)')
+          echo "Build $id for demo-app:$version"
+          for _ in $(seq 1 60); do
+            status=$(gcloud builds describe "$id" --project "$PROJECT" --region "$REGION" --format='value(status)')
+            case "$status" in
+              SUCCESS) echo "Built demo-app:$version"; exit 0 ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) echo "::error::Build $id: $status"; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Build $id still $status after 10 minutes"; exit 1
 
   # End to end through the public site: Gemini must answer and call get_time.
   smoke-test:

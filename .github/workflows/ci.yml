@@ -1,4 +1,4 @@
-# Checks for both services. Runs on PRs; on main, deploy.yml calls this
+# Checks for the backend, frontend and demo app. Runs on PRs; on main, deploy.yml calls this
 # workflow before deploying.
 name: CI
 
@@ -16,6 +16,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      demo: ${{ steps.filter.outputs.demo }}
     steps:
       - uses: actions/checkout@v7
       - id: filter
@@ -27,6 +28,9 @@ jobs:
               - '.github/workflows/**'
             frontend:
               - 'frontend/**'
+              - '.github/workflows/**'
+            demo:
+              - 'demo/**'
               - '.github/workflows/**'
 
   backend:
@@ -42,6 +46,29 @@ jobs:
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Run gofmt -w on:"; echo "$unformatted"; exit 1
+          fi
+      - run: go vet ./...
+      - run: go test ./...
+
+  # The sample service the agent deploys (deploy.yml only builds its image).
+  demo:
+    needs: changes
+    if: needs.changes.outputs.demo == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: demo/go.mod
+          cache: false
       - name: gofmt
         run: |
           unformatted=$(gofmt -l .)
@@ -75,7 +102,7 @@ jobs:
   # Single check to require in branch protection: passes when every job that
   # needed to run passed (skipped jobs count as passing).
   ci-ok:
-    needs: [changes, backend, frontend]
+    needs: [changes, backend, frontend, demo]
     if: always()
     runs-on: ubuntu-latest
     steps:

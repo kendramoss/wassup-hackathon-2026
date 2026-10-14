@@ -1,9 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { streamChat, type StreamEvent } from "@/lib/chat-stream";
+import { streamChat, type Approval, type StreamEvent } from "@/lib/chat-stream";
 import { site } from "@/lib/site";
-import { AlertCircle, ArrowUp, Check, Copy, Plus, Retry, Stop } from "../icons";
+import { AlertCircle, ArrowUp, Check, Copy, Plus, Retry, Stop, X } from "../icons";
 import { SiteHeader } from "../site-header";
 import { Markdown } from "./markdown";
 import { ToolCall, type ToolPart } from "./tool-call";
@@ -11,7 +12,18 @@ import { ToolCall, type ToolPart } from "./tool-call";
 const MAX_CHARS = 2000; // backend limit (maxMessageRunes)
 
 type TextPart = { kind: "text"; text: string };
-type Part = TextPart | ToolPart;
+// A change the agent wants to make (deploy, rollback), waiting for a person.
+type ApprovalPart = {
+  kind: "approval";
+  id: string;
+  name?: string;
+  args?: Record<string, unknown>;
+  summary?: string;
+  decision?: "approved" | "rejected";
+  reason?: string;
+};
+type Part = TextPart | ToolPart | ApprovalPart;
+type StreamBody = Parameters<typeof streamChat>[0];
 type Status = "streaming" | "done" | "stopped" | "error";
 type Message =
   | { id: string; role: "user"; text: string }
@@ -27,11 +39,15 @@ function applyEvent(parts: Part[], e: StreamEvent): Part[] {
     }
     case "tool_call":
       return [...parts, { kind: "tool", id: e.id, name: e.name, args: e.args }];
+    case "approval_request":
+      return [...parts, { kind: "approval", id: e.id, name: e.name, args: e.args, summary: e.text }];
     case "tool_result": {
       const i = parts.findIndex(
         (p) => p.kind === "tool" && p.result === undefined && (e.id ? p.id === e.id : p.name === e.name),
       );
-      if (i === -1) return parts;
+      // No matching call in this reply: a tool that ran after its approval
+      // card was answered. Show it with its result.
+      if (i === -1) return [...parts, { kind: "tool", id: e.id, name: e.name, result: e.result ?? {} }];
       return parts.map((p, j) => (j === i ? { ...(p as ToolPart), result: e.result ?? {} } : p));
     }
     default:
@@ -44,6 +60,15 @@ const replyText = (parts: Part[]) =>
     .filter((p): p is TextPart => p.kind === "text")
     .map((p) => p.text)
     .join("\n\n");
+
+// Cache Components keeps pages alive (hidden) after you navigate away, so
+// /chat would come back with the last conversation and a landing-page prompt
+// (?q=) wouldn't be sent. Keying on bfcacheId starts a fresh chat on every
+// link or push to /chat, and still restores it on browser back/forward.
+export function FreshChat() {
+  const { bfcacheId } = useRouter();
+  return <Chat key={bfcacheId} />;
+}
 
 export function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -62,17 +87,16 @@ export function Chat() {
     setMessages((ms) => ms.map((m) => (m.id === id && m.role === "assistant" ? fn(m) : m)));
   }, []);
 
-  const send = useCallback(
-    async (text: string) => {
-      const message = text.trim();
-      if (!message || busy) return;
+  // Streams one agent turn into a new assistant message. userText, when set,
+  // is shown as the user's message first (approvals don't add one).
+  const run = useCallback(
+    async (body: StreamBody, userText?: string) => {
       const assistantId = newId();
       setMessages((ms) => [
         ...ms,
-        { id: newId(), role: "user", text: message },
+        ...(userText ? [{ id: newId(), role: "user" as const, text: userText }] : []),
         { id: assistantId, role: "assistant", parts: [], status: "streaming" },
       ]);
-      setInput("");
       setBusy(true);
       setAnnouncement("Agent is replying");
       stickToBottom.current = true;
@@ -82,11 +106,12 @@ export function Chat() {
       let finalParts: Part[] = [];
       try {
         await streamChat(
-          { message, session_id: sessionId },
+          body,
           (e) => {
             if (e.type === "session") setSessionId(e.session_id);
             else if (e.type === "error") throw new Error(e.error);
             else {
+              if (e.type === "approval_request") setAnnouncement(`Approval needed: ${e.text ?? e.name}`);
               finalParts = applyEvent(finalParts, e);
               const parts = finalParts;
               updateAssistant(assistantId, (m) => ({ ...m, parts }));
@@ -95,7 +120,9 @@ export function Chat() {
           controller.signal,
         );
         updateAssistant(assistantId, (m) => ({ ...m, status: "done" }));
-        setAnnouncement(replyText(finalParts) || "Agent replied");
+        if (!finalParts.some((p) => p.kind === "approval" && !p.decision)) {
+          setAnnouncement(replyText(finalParts) || "Agent replied");
+        }
       } catch (err) {
         if (controller.signal.aborted) {
           updateAssistant(assistantId, (m) => ({ ...m, status: "stopped" }));
@@ -111,8 +138,37 @@ export function Chat() {
         inputRef.current?.focus();
       }
     },
-    [busy, sessionId, updateAssistant],
+    [updateAssistant],
   );
+
+  const send = useCallback(
+    (text: string) => {
+      const message = text.trim();
+      if (!message || busy) return;
+      setInput("");
+      run({ message, session_id: sessionId }, message);
+    },
+    [busy, run, sessionId],
+  );
+
+  // Answers an approval card: marks it decided and lets the agent continue.
+  const decide = (approval: Approval) => {
+    if (!sessionId || busy) return;
+    const decision = approval.approved ? ("approved" as const) : ("rejected" as const);
+    setMessages((ms) =>
+      ms.map((m) =>
+        m.role === "assistant"
+          ? {
+              ...m,
+              parts: m.parts.map((p) =>
+                p.kind === "approval" && p.id === approval.id ? { ...p, decision, reason: approval.reason } : p,
+              ),
+            }
+          : m,
+      ),
+    );
+    run({ approval, session_id: sessionId });
+  };
 
   // Removes a failed reply and its question, then asks again.
   const retry = (assistantId: string) => {
@@ -198,7 +254,7 @@ export function Chat() {
                   </li>
                 ) : (
                   <li key={m.id}>
-                    <AssistantMessage message={m} onRetry={() => retry(m.id)} />
+                    <AssistantMessage message={m} onRetry={() => retry(m.id)} onDecide={decide} busy={busy} />
                   </li>
                 ),
               )}
@@ -304,9 +360,13 @@ function EmptyState({ onPick }: { onPick: (text: string) => void }) {
 function AssistantMessage({
   message,
   onRetry,
+  onDecide,
+  busy,
 }: {
   message: Extract<Message, { role: "assistant" }>;
   onRetry: () => void;
+  onDecide: (a: Approval) => void;
+  busy: boolean;
 }) {
   const { parts, status, error } = message;
   const text = replyText(parts);
@@ -319,6 +379,8 @@ function AssistantMessage({
       {parts.map((p, i) =>
         p.kind === "tool" ? (
           <ToolCall key={i} tool={p} running={status === "streaming"} />
+        ) : p.kind === "approval" ? (
+          <ApprovalCard key={p.id} part={p} disabled={busy} onDecide={onDecide} />
         ) : (
           <Markdown key={i}>{p.text}</Markdown>
         ),
@@ -340,6 +402,103 @@ function AssistantMessage({
       {status === "stopped" && <p className="text-sm text-muted">Stopped</p>}
       {status === "done" && text && <CopyButton text={text} />}
     </div>
+  );
+}
+
+function ApprovalCard({
+  part,
+  disabled,
+  onDecide,
+}: {
+  part: ApprovalPart;
+  disabled: boolean;
+  onDecide: (a: Approval) => void;
+}) {
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState("");
+  const reasonId = `reason-${part.id}`;
+  const details = Object.entries(part.args ?? {});
+
+  return (
+    <section
+      aria-label={part.decision ? `Change ${part.decision}` : "Approval needed"}
+      className={`rounded-lg border p-4 text-sm ${part.decision ? "border-border" : "border-accent"}`}
+    >
+      <p className="font-medium">{part.summary || `Run ${part.name}`}</p>
+      {details.length > 0 && (
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 font-mono text-xs text-muted">
+          {details.map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt>{k}</dt>
+              <dd className="min-w-0 break-all">{typeof v === "string" ? v : JSON.stringify(v)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {part.decision ? (
+        <p className="mt-3 flex items-center gap-1.5 text-muted">
+          {part.decision === "approved" ? <Check className="text-success" /> : <X />}
+          {part.decision === "approved" ? "Approved" : "Rejected"}
+          {part.reason ? `: ${part.reason}` : ""}
+        </p>
+      ) : rejecting ? (
+        <form
+          className="mt-3 flex flex-wrap items-end gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onDecide({ id: part.id, approved: false, reason: reason.trim() || undefined });
+          }}
+        >
+          <div className="flex min-w-48 flex-1 flex-col gap-1">
+            <label htmlFor={reasonId} className="text-xs text-muted">
+              Reason (optional, the agent sees it)
+            </label>
+            <input
+              id={reasonId}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={500}
+              autoComplete="off"
+              className="h-9 rounded-md border border-border bg-bg px-2 focus-visible:border-accent focus-visible:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={disabled}
+            className="h-9 rounded-md border border-danger/60 px-3 font-medium text-danger hover:bg-subtle disabled:opacity-40"
+          >
+            Reject change
+          </button>
+          <button
+            type="button"
+            onClick={() => setRejecting(false)}
+            className="h-9 rounded-md px-3 text-muted hover:bg-subtle hover:text-fg"
+          >
+            Cancel
+          </button>
+        </form>
+      ) : (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => onDecide({ id: part.id, approved: true })}
+            className="h-9 rounded-md bg-accent px-4 font-medium text-accent-fg disabled:opacity-40"
+          >
+            Approve
+          </button>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => setRejecting(true)}
+            className="h-9 rounded-md border border-border px-4 hover:bg-subtle disabled:opacity-40"
+          >
+            Reject
+          </button>
+        </div>
+      )}
+    </section>
   );
 }
 

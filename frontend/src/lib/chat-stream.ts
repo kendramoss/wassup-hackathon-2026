@@ -4,13 +4,17 @@ export type StreamEvent =
   | { type: "text"; text: string }
   | { type: "tool_call"; id?: string; name: string; args?: Record<string, unknown> }
   | { type: "tool_result"; id?: string; name: string; result?: Record<string, unknown> }
+  // A tool call (name, args) waiting for a person; answer with an Approval.
+  | { type: "approval_request"; id: string; name?: string; args?: Record<string, unknown>; text?: string }
   | { type: "done" }
   | { type: "error"; error: string };
 
-// Sends a message and calls onEvent for each server-sent event until the
-// stream ends. Throws on HTTP errors with the server's error message.
+export type Approval = { id: string; approved: boolean; reason?: string };
+
+// Sends a message (or an answer to an approval request) and calls onEvent
+// for each server-sent event until the stream ends. Throws on HTTP errors with the server's error message.
 export async function streamChat(
-  body: { message: string; session_id?: string },
+  body: { message: string; session_id?: string } | { approval: Approval; session_id: string },
   onEvent: (e: StreamEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
