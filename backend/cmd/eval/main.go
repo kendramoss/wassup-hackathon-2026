@@ -18,6 +18,9 @@
 //	    Run the verifier on the development flip pairs (CBP natural
 //	    experiments dated before 2026; the 2026 items are spent) and report
 //	    precision, recall and specificity. Development-only by construction.
+//	eval summary [-out internal/evalsummary/summary.json]
+//	    Build the results-page numbers from the committed result files (plus
+//	    the research baselines, with their source) for GET /v1/eval/summary.
 //	eval report -in FILE [-in FILE ...]
 //	    Print the Markdown summary of existing result files.
 //
@@ -50,6 +53,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
@@ -82,6 +86,8 @@ func main() {
 		err = predictCmd(os.Args[2:])
 	case "flips":
 		err = flipsCmd(os.Args[2:])
+	case "summary":
+		err = summaryCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -933,5 +939,146 @@ func flipsCmd(args []string) error {
 		fmt.Printf("- Cost per verification: $%.3f (promo)\n", cost/float64(n))
 	}
 	fmt.Println("- Saved:", outPath)
+	return nil
+}
+
+func summaryCmd(args []string) error {
+	fl := flag.NewFlagSet("summary", flag.ExitOnError)
+	resultsDir := fl.String("results", "../eval/results", "results directory")
+	outPath := fl.String("out", "internal/evalsummary/summary.json", "output file (embedded in the server)")
+	_ = fl.Parse(args)
+	type item = evalsummary.Item
+	var items []item
+	pct := func(k, n int) (float64, float64, float64) { return evalkit.Wilson(k, n) }
+	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
+
+	addRun := func(file, split, prefix, label string, scopeFile string) error {
+		rows, err := readRows(filepath.Join(*resultsDir, file), nil)
+		if err != nil {
+			return err
+		}
+		if scopeFile != "" {
+			sc, err := readScope(filepath.Join(*resultsDir, scopeFile))
+			if err != nil {
+				return err
+			}
+			for i := range rows {
+				in, ok := sc[rows[i].Ruling]
+				if !ok {
+					in = true
+				}
+				rows[i].InScope = in
+				rows[i].TriageRoute = "needs_review"
+				if in && rows[i].Error == "" && rows[i].Confidence >= 0.95 {
+					rows[i].TriageRoute = "auto"
+				}
+			}
+		}
+		s := evalkit.Summarize(rows)
+		src := "eval/results/" + file
+		items = append(items, item{Key: prefix + "_accuracy", Label: label + " accuracy", Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: split, Source: src})
+		p, lo, hi := pct(s.AtLeast95.K, s.AtLeast95.N)
+		items = append(items, item{Key: prefix + "_conf95_accuracy", Label: label + ": accuracy when confidence ≥ 0.95", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: split, Source: src})
+		items = append(items, item{Key: prefix + "_conf95_coverage", Label: label + ": share of cases with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: split, Source: src})
+		if scopeFile != "" {
+			p, lo, hi := pct(s.FastK, s.FastN)
+			items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + ": fast path (confidence ≥ 0.95 and in scope) accuracy", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: src + " + eval/results/" + scopeFile})
+			items = append(items, item{Key: prefix + "_fastpath_coverage", Label: label + ": fast path coverage", Value: r4(float64(s.FastN) / float64(s.N)), N: s.N, Split: split, Source: src + " + eval/results/" + scopeFile})
+		}
+		items = append(items, item{Key: prefix + "_cost_per_case_usd", Label: label + ": cost per prediction (USD, promo price)", Value: r4(s.CostPerCase), N: s.N, Split: split, Source: src})
+		items = append(items, item{Key: prefix + "_latency_p50_s", Label: label + ": latency p50 (s, via proxy)", Value: float64(s.LatencyP50) / 1000, Split: split, Source: src})
+		items = append(items, item{Key: prefix + "_latency_p95_s", Label: label + ": latency p95 (s, via proxy)", Value: float64(s.P95) / 1000, Split: split, Source: src})
+		return nil
+	}
+	if err := addRun("final-gemini-4-argon-prec-engine-v1-litellm.jsonl", "final", "final", "Held-out (377 rulings, Jan–Sep 2026)", "scope-final-router-v2.jsonl"); err != nil {
+		return err
+	}
+	if err := addRun("dev-gemini-4-argon-prec-engine-v1-litellm.jsonl", "dev", "dev", "Development (469 rulings, Jul–Dec 2025)", "scope-dev-router-v2.jsonl"); err != nil {
+		return err
+	}
+	for i := range items {
+		if items[i].Split == "dev" {
+			items[i].DevelopmentOnly = true
+		}
+	}
+	const v2 = "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+	items = append(items,
+		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},
+		item{Key: "baseline_most_mentioned", Label: "Baseline: most-mentioned country", Value: 0.605, CILow: 0.555, CIHigh: 0.653, N: 377, Split: "final", Source: v2},
+		item{Key: "baseline_final_assembly", Label: "Baseline: final-assembly country", Value: 0.406, CILow: 0.358, CIHigh: 0.456, N: 377, Split: "final", Source: v2},
+		item{Key: "baseline_last_mentioned", Label: "Baseline: last country mentioned", Value: 0.398, CILow: 0.350, CIHigh: 0.448, N: 377, Split: "final", Source: v2},
+		item{Key: "baseline_majority", Label: "Baseline: majority country (Vietnam)", Value: 0.122, CILow: 0.093, CIHigh: 0.159, N: 377, Split: "final", Source: v2},
+		item{Key: "research_argon_facts_only", Label: "Research: Gemini 4 Argon, facts only (no precedents)", Value: 0.859, CILow: 0.821, CIHigh: 0.891, N: 377, Split: "final", Source: v2},
+		item{Key: "change_detection_heldout", Label: "Change detection from scratch, held-out 2026 pairs (weak)", Value: 15.0 / 22, CILow: 0.47, CIHigh: 0.84, N: 22, Split: "final", Source: v2},
+		item{Key: "change_detection_always_change_baseline", Label: "Baseline: always predict a change (same 22 pairs)", Value: 14.0 / 22, N: 22, Split: "final", Source: v2},
+		item{Key: "change_detection_balanced_accuracy", Label: "Change detection balanced accuracy (same 22 pairs)", Value: 0.616, N: 22, Split: "final", Source: v2},
+	)
+	for _, mode := range []string{"unknown-a", "known-a"} {
+		f, err := os.Open(filepath.Join(*resultsDir, "flips-dev-verifier-"+mode+"-litellm.jsonl"))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip verifier %s: %v\n", mode, err)
+			continue
+		}
+		var tp, fp, fn, tn int
+		var cost float64
+		sc := bufio.NewScanner(f)
+		for sc.Scan() {
+			var r struct {
+				OriginChanged bool    `json:"origin_changed"`
+				Changes       bool    `json:"pred_changes_origin"`
+				Error         string  `json:"error"`
+				Cost          float64 `json:"cost_usd"`
+			}
+			if json.Unmarshal(sc.Bytes(), &r) != nil || r.Error != "" {
+				continue
+			}
+			cost += r.Cost
+			switch {
+			case r.Changes && r.OriginChanged:
+				tp++
+			case r.Changes:
+				fp++
+			case r.OriginChanged:
+				fn++
+			default:
+				tn++
+			}
+		}
+		f.Close()
+		src := "eval/results/flips-dev-verifier-" + mode + "-litellm.jsonl"
+		lbl := "Move verifier (development set"
+		if mode == "known-a" {
+			lbl += ", CBP origin of current setup given"
+		}
+		lbl += ")"
+		p, lo, hi := pct(tp, tp+fp)
+		items = append(items, item{Key: "verifier_" + mode + "_precision", Label: lbl + ": correct when it says a move changes origin", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: tp + fp, Split: "dev", DevelopmentOnly: true, Source: src})
+		p, lo, hi = pct(tp, tp+fn)
+		items = append(items, item{Key: "verifier_" + mode + "_recall", Label: lbl + ": real changes caught", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: tp + fn, Split: "dev", DevelopmentOnly: true, Source: src})
+		p, lo, hi = pct(tn, tn+fp)
+		items = append(items, item{Key: "verifier_" + mode + "_specificity", Label: lbl + ": no-change moves rejected", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: tn + fp, Split: "dev", DevelopmentOnly: true, Source: src})
+		if n := tp + fp + fn + tn; n > 0 {
+			items = append(items, item{Key: "verifier_" + mode + "_cost_usd", Label: lbl + ": cost per check (USD, promo)", Value: r4(cost / float64(n)), N: n, Split: "dev", DevelopmentOnly: true, Source: src})
+		}
+	}
+	if b, err := os.ReadFile(filepath.Join(*resultsDir, "plan-heatgun-2022-local-litellm.json")); err == nil {
+		var p struct {
+			Cost  float64       `json:"cost_usd_promo"`
+			Stats planner.Stats `json:"stats"`
+		}
+		if json.Unmarshal(b, &p) == nil {
+			src := "eval/results/plan-heatgun-2022-local-litellm.json"
+			items = append(items,
+				item{Key: "plan_heatgun_cost_usd", Label: "Full plan, heat gun demo: cost (USD, promo)", Value: r4(p.Cost), Split: "demo", DevelopmentOnly: true, Source: src},
+				item{Key: "plan_heatgun_wall_s", Label: "Full plan, heat gun demo: wall time (s, via proxy)", Value: float64(int(p.Stats.WallSeconds + 0.5)), Split: "demo", DevelopmentOnly: true, Source: src})
+		}
+	}
+	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
+		Status: "proxy, development only: produced through the LiteLLM proxy; official numbers come from the Vertex AI re-run", Items: items}
+	b, _ := json.MarshalIndent(out, "", "  ")
+	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "summary: %d items -> %s\n", len(items), *outPath)
 	return nil
 }

@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report
+.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -33,3 +33,6 @@ eval-test: ## held-out split (377): run once per frozen config; never tune on it
 eval-report: ## summaries of the committed runs, fast path joined with router-v2 labels (no model calls)
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-dev-router-v2.jsonl
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-final-router-v2.jsonl
+
+eval-summary: ## regenerate the numbers served by GET /v1/eval/summary (embedded in the server)
+	cd $(GO_DIR) && go run ./cmd/eval summary
