@@ -203,7 +203,7 @@ func run(args []string) error {
 		return err
 	}
 	s := evalkit.Summarize(rows)
-	if err := appendRunLog(*resultsDir, name, *split, cfg, s, time.Since(start), len(cases), *limit); err != nil {
+	if err := appendRunLog(*resultsDir, name, *split, cfg, s, time.Since(start), len(cases), *limit, ctx.Err() != nil); err != nil {
 		return err
 	}
 	fmt.Println(evalkit.Markdown(name, *split, s))
@@ -313,7 +313,7 @@ func readRows(path string, ids []string) ([]evalkit.Row, error) {
 }
 
 // appendRunLog records every run (dev and held-out) in RUNLOG.jsonl.
-func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary, wall time.Duration, n, limit int) error {
+func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary, wall time.Duration, n, limit int, interrupted bool) error {
 	f, err := os.OpenFile(filepath.Join(dir, "RUNLOG.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
@@ -326,7 +326,7 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 		"fast_path_coverage": s.FastN, "fast_path_correct": s.FastK,
 		"llm_provider": cfg.LLMProvider, "engine_model": cfg.EngineModel, "router_model": cfg.RouterModel,
 		"prompt_version": engine.PromptVersion, "k": cfg.PrecedentK, "fast_path_threshold": cfg.FastPathConfidence,
-		"git_revision": revision(), "wall_s": int(wall.Seconds()),
+		"git_revision": revision(), "wall_s": int(wall.Seconds()), "interrupted": interrupted,
 		"cost_per_case_usd": s.CostPerCase, "latency_p50_ms": s.LatencyP50, "latency_p95_ms": s.P95,
 	}
 	b, _ := json.Marshal(entry)
@@ -361,7 +361,16 @@ func report(args []string) error {
 	fl := flag.NewFlagSet("report", flag.ExitOnError)
 	var in stringList
 	fl.Var(&in, "in", "result file (repeatable)")
+	scopeFile := fl.String("scope", "", "router label file from eval scope -out; recomputes in-scope and the fast path")
+	threshold := fl.Float64("threshold", 0.95, "fast-path confidence threshold used with -scope")
 	_ = fl.Parse(args)
+	var scopeOf map[string]bool
+	if *scopeFile != "" {
+		var err error
+		if scopeOf, err = readScope(*scopeFile); err != nil {
+			return err
+		}
+	}
 	if len(in) == 0 {
 		return errors.New("report: -in is required")
 	}
@@ -374,6 +383,19 @@ func report(args []string) error {
 		if len(rows) > 0 {
 			split = rows[0].Split
 		}
+		if scopeOf != nil {
+			for i := range rows {
+				inScope, ok := scopeOf[rows[i].Ruling]
+				if !ok {
+					inScope = true // no label: the router is not consulted
+				}
+				rows[i].InScope = inScope
+				rows[i].TriageRoute = "needs_review"
+				if inScope && rows[i].Error == "" && rows[i].Confidence >= *threshold {
+					rows[i].TriageRoute = "auto"
+				}
+			}
+		}
 		fmt.Println(evalkit.Markdown(strings.TrimSuffix(filepath.Base(p), ".jsonl"), split, evalkit.Summarize(rows)))
 	}
 	return nil
@@ -384,12 +406,34 @@ func scope(args []string) error {
 	from := fl.String("from", "2025-07-01", "first ruling date (inclusive)")
 	to := fl.String("to", "2025-12-31", "last ruling date (inclusive)")
 	perRegime := fl.Int("per-regime", 40, "max rulings per gold regime (first in file order)")
+	splitName := fl.String("split", "", "instead of a date window, label every ruling of this split (dev only)")
+	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
+	outPath := fl.String("out", "", "write one JSONL line per ruling: ruling, gold regime, router label")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	_ = fl.Parse(args)
 	if *to >= "2026-01-01" {
 		return errors.New("scope: the window must end before 2026 (the final split)")
+	}
+	var only map[string]bool
+	if *splitName != "" {
+		if *splitName == "final" {
+			return errors.New("scope: tune the router on dev only; label final once with the frozen router (eval run -router)")
+		}
+		sp, err := corpus.LoadSplits(*splitsPath)
+		if err != nil {
+			return err
+		}
+		ids, err := sp.IDs(*splitName)
+		if err != nil {
+			return err
+		}
+		only = map[string]bool{}
+		for _, id := range ids {
+			only[id] = true
+		}
+		*perRegime = 1 << 30
 	}
 	cfg, err := config.Load()
 	if err != nil {
@@ -411,7 +455,10 @@ func scope(args []string) error {
 	count := map[string]int{}
 	var items []item
 	for _, l := range labels {
-		if l.Date < *from || l.Date > *to || count[l.Regime] >= *perRegime {
+		if only != nil && !only[l.Ruling] {
+			continue
+		}
+		if only == nil && (l.Date < *from || l.Date > *to || count[l.Regime] >= *perRegime) {
 			continue
 		}
 		b, err := os.ReadFile(filepath.Join(*factsDir, l.Ruling+".txt"))
@@ -426,6 +473,13 @@ func scope(args []string) error {
 		labels       map[string]int
 	}
 	res := map[string]*tally{}
+	var outF *os.File
+	if *outPath != "" {
+		if outF, err = os.Create(*outPath); err != nil {
+			return err
+		}
+		defer outF.Close()
+	}
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, *workers)
@@ -449,8 +503,13 @@ func scope(args []string) error {
 				return
 			}
 			t.labels[l.Regime]++
-			if in, _ := l.Scope(); !in {
+			in, _ := l.Scope()
+			if !in {
 				t.out++
+			}
+			if outF != nil {
+				b, _ := json.Marshal(map[string]any{"ruling": it.id, "gold_regime": it.regime, "in_scope": in, "router": l})
+				_, _ = outF.Write(append(b, '\n'))
 			}
 		}(it)
 	}
@@ -468,4 +527,26 @@ func scope(args []string) error {
 		fmt.Printf("| %s | %d | %d (%.0f%%, %.0f–%.0f) | %v | %d |\n", k, t.n, t.out, 100*p, 100*lo, 100*hi, t.labels, t.errs)
 	}
 	return ctx.Err()
+}
+
+func readScope(path string) (map[string]bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	out := map[string]bool{}
+	sc := bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 1<<20), 16<<20)
+	for sc.Scan() {
+		var r struct {
+			Ruling  string `json:"ruling"`
+			InScope bool   `json:"in_scope"`
+		}
+		if err := json.Unmarshal(sc.Bytes(), &r); err != nil {
+			return nil, fmt.Errorf("%s: %w", path, err)
+		}
+		out[r.Ruling] = r.InScope
+	}
+	return out, sc.Err()
 }

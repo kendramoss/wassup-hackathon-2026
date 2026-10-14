@@ -12,7 +12,7 @@ import (
 )
 
 // PromptVersion is recorded with every route.
-const PromptVersion = "router-v1"
+const PromptVersion = "router-v2"
 
 // routerMD is skill/specialists/ROUTER.md from
 // hackathon-research/experiments/origin-proof, verbatim.
@@ -30,12 +30,15 @@ const routerMD = "# Router\n\n" +
 	"- If unsure between commodity and assembly, ask: are discrete parts joined? If yes, choose assembly.\n\n" +
 	"Subfamily (set \"other\" unless route is assembly): electronics (PCBA, sensors, chargers, devices), motorised (motors, pumps, compressors, appliances, HVAC, vehicles), metal_tools_parts (hand tools, blades, forgings, castings, auto parts), battery_solar, filters, furniture_fixtures (furniture, blinds, faucets, locks, lighting), medical, apparel_textile_goods (bags, footwear, plush toys, sewn goods), other.\n"
 
-// regimeAddendum is new in router-v1 (not in the research prompt): the regime
-// label used by the scope guard. Validated on the dev split only.
+// regimeAddendum is new (not in the research prompt): the regime label used
+// by the scope guard. router-v1 marked rulings that merely mention Canada,
+// Mexico or USMCA as usmca_part102 (3 of the first 35 dev cases, all decided
+// by CBP under substantial transformation); router-v2 narrows that label.
+// Tuned and validated on the dev window only.
 const regimeAddendum = `
-Also return "regime": the origin rule the request falls under.
-- textile_102_21: textile or apparel products (yarn, fabric, knit or woven garments, home textiles and bedding, sewn textile articles) whose origin follows the textile rules of 19 CFR 102.21.
-- usmca_part102: the request asks about USMCA or NAFTA treatment, or about the Part 102 tariff-shift rules used for goods of Canada, Mexico or the United States.
+Also return "regime": the origin rule CBP will apply to the question asked.
+- textile_102_21: the product is a textile or apparel good (yarn, fabric, knit or woven garments, home textiles and bedding, sewn textile articles), whose origin follows the textile rules of 19 CFR 102.21.
+- usmca_part102: the request asks whether the good qualifies for USMCA or NAFTA preference, or asks for marking of a good of Canada or Mexico under the Part 102 tariff-shift rules. Do NOT choose this just because a component, plant or the requester is in Canada, Mexico or the United States, or because USMCA is mentioned in passing; if the question is origin for Section 301 duties, marking of a non-USMCA good, government procurement (Trade Agreements Act) or substantial transformation, choose substantial_transformation.
 - pharma_api: a drug, vitamin or supplement where the question turns on where the active pharmaceutical ingredient is made or processed.
 - substantial_transformation: anything else.
 - unclear: you cannot tell from the facts.
