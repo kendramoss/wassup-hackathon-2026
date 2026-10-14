@@ -67,6 +67,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D18 — Gate D runs on an in-memory store; corpus deployment is an open decision
 - `store.Cases` has an in-memory implementation; Firestore drops in behind the same interface once the GCP project is available (SETUP-GCP.md). Cases are lost on restart and not shared between instances until then.
 - The server needs the facts corpus (12 MB derived from public CBP rulings) at startup. The deploy builds from `backend/` only and respects `.gitignore`, so the corpus is not in the image. Options for the humans: (a) upload to the GCS bucket and load at startup (needs GCP access); (b) commit the facts files under `backend/data/` (derived public-domain text; the build prompt only rules out committing the 27 MB raw texts); (c) fetch from CROSS at startup (~50 min, not viable). Recommendation: (b) for the hackathon, (a) after.
+- **Decided (human, 16 Oct): (b).** `backend/data/` holds `labels.jsonl` and the 2,790 facts files (13 MB); the Dockerfile copies them to `/data` and the server's defaults (`data/labels.jsonl`, `data/facts`) resolve from `backend/` locally and from `/` in the image. `make verify-data` checks the copy.
 - Verifier evidence in production comes from live CROSS search with `toDate` (VERIFIER_SEARCH=cross); eval and the demo checks use the local corpus for reproducibility.
 
 ## D19 — Duty rates are inputs, not a package

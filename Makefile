@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary
+.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -21,8 +21,15 @@ run: ## local server on :8080
 smoke: ## one live engine-model call (needs LLM_PROVIDER and its credentials in the env)
 	cd $(GO_DIR) && go run ./cmd/server -smoke
 
-verify-data: ## check committed eval data against eval/SHA256SUMS
+verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS
+	cmp eval/data/labels.jsonl backend/data/labels.jsonl
+	@if [ -d data/corpus/facts ]; then diff -rq data/corpus/facts backend/data/facts --exclude=split_meta.jsonl && echo "bundled facts match data/corpus/facts"; fi
+
+bundle-corpus: ## copy labels and the built facts corpus into backend/data (baked into the image)
+	mkdir -p backend/data/facts
+	cp eval/data/labels.jsonl backend/data/labels.jsonl
+	cp data/corpus/facts/*.txt backend/data/facts/
 
 eval-dev: ## engine on the dev split (469; resumes, so a finished run just re-prints its summary)
 	cd $(GO_DIR) && go run ./cmd/eval run -split dev

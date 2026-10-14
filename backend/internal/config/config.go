@@ -83,8 +83,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 4),
-		LabelsPath:           e.str("LABELS_PATH", "../eval/data/labels.jsonl"),
-		FactsDir:             e.str("CORPUS_FACTS_DIR", "../data/corpus/facts"),
+		// Defaults resolve both from backend/ (local) and from / in the image.
+		LabelsPath:           e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:             e.str("CORPUS_FACTS_DIR", "data/facts"),
 		RawDir:               e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
 		VerifierSearch:       strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
 	}
