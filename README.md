@@ -1,6 +1,6 @@
 # wassup-hackathon-2026
 
-AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), and it can `deploy` a build and `rollback` to an earlier revision, but only on the demo app and only after a person clicks **Approve** on the card it shows in the chat. Plus `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
+AI agent for the hackathon: a Next.js chat app talking to a Go agent (Google ADK) that uses Gemini on Vertex AI. Its tools read what's deployed on Cloud Run and how it was built (`list_services`, `list_revisions`, `list_builds`, `get_build`), and it can `deploy` a build and `rollback` to an earlier revision, but only on the demo app and only after a person clicks **Approve** on the card it shows in the chat. A deploy starts the new revision with no traffic, checks its `/health` on a tagged URL, and only then sends it traffic; if the check fails it rolls back by itself, so users never see the bad version. Plus `get_time`. Replies stream in as they're generated, and every tool call is shown with its arguments and result.
 
 Find the live URL with `gcloud run services describe frontend --region us-central1 --format='value(status.url)'`.
 
@@ -148,6 +148,8 @@ cd frontend && npm run lint && npx tsc --noEmit
 | `GEMINI_MODEL`          | `gemini-3.5-flash` | `gemini-3.8-flash` works but was heavily queued on 2026-10-14 (3–74 s per call vs 1–2 s). |
 | `CLOUD_RUN_REGION`      | `us-central1`      | Region the Cloud Run and Cloud Build tools look at. |
 | `DEPLOY_TARGETS`        | `demo-app`         | Services `deploy` and `rollback` may change (comma-separated). Empty: the agent can only look. |
+
+To show the automatic rollback, set `healthy = false` in `demo/main.go` and push: the build succeeds, and when the agent deploys it, the health check fails and traffic stays where it was.
 | `PORT`                  | `8080`             | Set by Cloud Run. |
 
 The frontend reads `BACKEND_URL` (required) and `BACKEND_AUDIENCE` (optional: the backend's service URL, needed only when `BACKEND_URL` is a revision tag URL such as `https://preview---backend-...run.app`, because Cloud Run only accepts ID tokens for the service URL).

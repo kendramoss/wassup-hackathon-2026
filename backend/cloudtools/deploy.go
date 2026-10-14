@@ -3,6 +3,8 @@ package cloudtools
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"regexp"
 	"slices"
 	"strings"
@@ -20,7 +22,10 @@ import (
 // approve before they change anything (ADK tool confirmation: the chat shows
 // an Approve / Reject card, and the tool runs again with the decision).
 
-const operationTimeout = 4 * time.Minute
+const (
+	operationTimeout = 4 * time.Minute
+	healthAttempts   = 3
+)
 
 var revisionName = regexp.MustCompile(`^[a-z][a-z0-9-]{0,62}$`)
 
@@ -33,7 +38,8 @@ func (c *Client) ChangeTools() ([]tool.Tool, error) {
 	targets := strings.Join(c.DeployTargets, ", ")
 	deploy, err := functiontool.New(functiontool.Config{
 		Name: "deploy",
-		Description: "Deploys the image a successful Cloud Build produced to a Cloud Run service and sends all traffic to it. " +
+		Description: "Deploys the image a successful Cloud Build produced to a Cloud Run service: starts it with no traffic, checks its health, " +
+			"then sends it all traffic, or rolls back automatically (status rolled_back) if the health check fails. " +
 			"A person must approve first: calling this shows them an approval card and returns status awaiting_approval; " +
 			"it runs when they approve. Services it may deploy to: " + targets + ".",
 	}, withApproval(c.planDeploy, c.applyDeploy))
@@ -52,7 +58,8 @@ func (c *Client) ChangeTools() ([]tool.Tool, error) {
 }
 
 // ChangeResult is what deploy and rollback return. Status is one of
-// awaiting_approval, rejected, done or failed.
+// awaiting_approval, rejected, done, failed, or rolled_back (deploy only: the
+// new revision failed its health check and never got traffic).
 type ChangeResult struct {
 	Status   string    `json:"status"`
 	Service  string    `json:"service"`
@@ -61,6 +68,7 @@ type ChangeResult struct {
 	Image    string    `json:"image,omitempty"`
 	Problem  string    `json:"problem,omitempty"`
 	Reason   string    `json:"reason,omitempty"` // why the person rejected it
+	Steps    []string  `json:"steps,omitempty"`  // what deploy did, in order
 	Traffic  []traffic `json:"traffic,omitempty"`
 }
 
@@ -175,11 +183,19 @@ func (c *Client) planDeploy(ctx context.Context, args DeployArgs) (deployPlan, C
 	if tag != "" && tag != "latest" {
 		summary += fmt.Sprintf(" (version %s)", tag)
 	}
-	summary += fmt.Sprintf(" to %s and send it all traffic", args.Service)
+	summary += fmt.Sprintf(" to %s; it gets traffic only if its health check passes", args.Service)
 	return deployPlan{service: args.Service, image: image},
 		ChangeResult{Service: args.Service, Summary: summary, Image: image}, nil
 }
 
+// applyDeploy rolls the build out so that a bad version never gets user
+// traffic:
+//
+//  1. create a revision with the new image and no traffic (what's live keeps
+//     serving);
+//  2. give it a tag, so it has its own URL, and check HealthPath there;
+//  3. healthy: send it all traffic. Unhealthy: remove the tag and report
+//     rolled_back; users never saw it.
 func (c *Client) applyDeploy(ctx context.Context, p deployPlan, res ChangeResult) (ChangeResult, error) {
 	svc, err := c.run.Projects.Locations.Services.Get(c.serviceName(p.service)).Context(ctx).Do()
 	if err != nil {
@@ -188,10 +204,148 @@ func (c *Client) applyDeploy(ctx context.Context, p deployPlan, res ChangeResult
 	if svc.Template == nil || len(svc.Template.Containers) != 1 {
 		return ChangeResult{}, fmt.Errorf("service %s must have exactly one container", p.service)
 	}
+	serving := pinTraffic(svc)
+	live := servingNames(serving)
+
+	// 1. New revision, no traffic.
 	svc.Template.Containers[0].Image = p.image
 	svc.Template.Revision = "" // let Cloud Run name the new revision
-	svc.Traffic = []*run.GoogleCloudRunV2TrafficTarget{{Type: "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST", Percent: 100}}
-	return c.update(ctx, svc, res)
+	svc.Traffic = serving
+	svc, problem, err := c.save(ctx, svc)
+	if err != nil {
+		return ChangeResult{}, err
+	}
+	res.Revision = lastPart(svc.LatestCreatedRevision)
+	if problem == "" {
+		// The revision's own status: the service's LatestReadyRevision isn't
+		// updated for a revision that has no traffic.
+		problem, err = c.revisionProblem(ctx, svc.LatestCreatedRevision)
+		if err != nil {
+			return ChangeResult{}, err
+		}
+	}
+	if problem != "" {
+		res.Status, res.Problem = "failed", problem
+		res.Steps = append(res.Steps, fmt.Sprintf("Started revision %s with no traffic: it failed to start", res.Revision),
+			fmt.Sprintf("Traffic stayed on %s", live))
+		res.Traffic = trafficOf(svc)
+		return res, nil
+	}
+	res.Steps = append(res.Steps, fmt.Sprintf("Started revision %s with no traffic; %s kept serving", res.Revision, live))
+
+	// 2. Tag it and check its health on the tag URL.
+	svc.Traffic = append(serving, &run.GoogleCloudRunV2TrafficTarget{
+		Type: "TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION", Revision: res.Revision, Percent: 0, Tag: candidateTag,
+	})
+	if svc, problem, err = c.save(ctx, svc); err != nil {
+		return ChangeResult{}, err
+	}
+	healthy, detail := false, problem
+	if problem == "" {
+		healthy, detail = c.checkHealth(ctx, tagURL(svc, candidateTag))
+	}
+	res.Steps = append(res.Steps, fmt.Sprintf("Health check %s on %s: %s", c.HealthPath, res.Revision, detail))
+
+	// 3. Promote, or drop the tag and leave traffic where it was.
+	if !healthy {
+		svc.Traffic = serving
+		if svc, problem, err = c.save(ctx, svc); err != nil {
+			return ChangeResult{}, err
+		}
+		res.Status, res.Problem = "rolled_back", "health check failed: "+detail
+		res.Steps = append(res.Steps, fmt.Sprintf("Rolled back: traffic stayed on %s; %s never got any", live, res.Revision))
+		if problem != "" {
+			res.Steps = append(res.Steps, "Removing the health-check tag failed: "+problem)
+		}
+		res.Traffic = trafficOf(svc)
+		return res, nil
+	}
+	// By name, not "latest": Cloud Run resolves latest to LatestReadyRevision,
+	// which hasn't moved to a revision that had no traffic.
+	svc.Traffic = []*run.GoogleCloudRunV2TrafficTarget{{Type: "TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION", Revision: res.Revision, Percent: 100}}
+	if svc, problem, err = c.save(ctx, svc); err != nil {
+		return ChangeResult{}, err
+	}
+	res.Traffic = trafficOf(svc)
+	if problem != "" {
+		res.Status, res.Problem = "failed", "healthy, but switching traffic failed: "+problem
+		return res, nil
+	}
+	res.Status = "done"
+	res.Steps = append(res.Steps, fmt.Sprintf("Sent all traffic to %s", res.Revision))
+	return res, nil
+}
+
+const candidateTag = "candidate"
+
+// pinTraffic returns svc's current traffic as explicit revisions (resolving
+// "latest", dropping tags and 0% targets), so creating a new revision
+// doesn't move it.
+func pinTraffic(svc *run.GoogleCloudRunV2Service) []*run.GoogleCloudRunV2TrafficTarget {
+	var out []*run.GoogleCloudRunV2TrafficTarget
+	for _, t := range trafficOf(svc) {
+		if t.Percent > 0 && t.Revision != "" {
+			out = append(out, &run.GoogleCloudRunV2TrafficTarget{Type: "TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION", Revision: t.Revision, Percent: t.Percent})
+		}
+	}
+	if len(out) == 0 && svc.LatestReadyRevision != "" {
+		out = append(out, &run.GoogleCloudRunV2TrafficTarget{Type: "TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION", Revision: lastPart(svc.LatestReadyRevision), Percent: 100})
+	}
+	return out
+}
+
+func servingNames(ts []*run.GoogleCloudRunV2TrafficTarget) string {
+	var names []string
+	for _, t := range ts {
+		names = append(names, t.Revision)
+	}
+	if len(names) == 0 {
+		return "nothing"
+	}
+	return strings.Join(names, ", ")
+}
+
+func tagURL(svc *run.GoogleCloudRunV2Service, tag string) string {
+	for _, t := range svc.TrafficStatuses {
+		if t.Tag == tag {
+			return t.Uri
+		}
+	}
+	return ""
+}
+
+// checkHealth GETs HealthPath on baseURL a few times, until it answers 2xx.
+// It returns whether it did and a short description of the last answer.
+func (c *Client) checkHealth(ctx context.Context, baseURL string) (bool, string) {
+	if baseURL == "" {
+		return false, "the new revision has no URL to check"
+	}
+	detail := ""
+	for attempt := range healthAttempts {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return false, detail
+			case <-time.After(c.healthRetryDelay):
+			}
+		}
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+c.HealthPath, nil)
+		if err != nil {
+			return false, err.Error()
+		}
+		resp, err := c.http.Do(req)
+		if err != nil {
+			detail = "no answer (" + err.Error() + ")"
+			continue
+		}
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 200))
+		resp.Body.Close()
+		detail = fmt.Sprintf("HTTP %d %s", resp.StatusCode, strings.TrimSpace(string(body)))
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			return true, detail
+		}
+	}
+	return false, detail
 }
 
 type RollbackArgs struct {
@@ -229,44 +383,70 @@ func (c *Client) applyRollback(ctx context.Context, args RollbackArgs, res Chang
 	return c.update(ctx, svc, res)
 }
 
-// update saves svc, waits for Cloud Run to finish, and reports the result.
-// If a new revision fails to start, Cloud Run keeps serving the old one;
-// that is reported as failed with the reason.
+// update saves a traffic change (rollback) and reports the result.
 func (c *Client) update(ctx context.Context, svc *run.GoogleCloudRunV2Service, res ChangeResult) (ChangeResult, error) {
+	after, problem, err := c.save(ctx, svc)
+	if err != nil {
+		return ChangeResult{}, err
+	}
+	res.Status, res.Problem = "done", problem
+	if problem != "" {
+		res.Status = "failed"
+	}
+	res.Traffic = trafficOf(after)
+	return res, nil
+}
+
+// revisionProblem returns why revision (a full resource name) isn't ready,
+// or "" if it is.
+func (c *Client) revisionProblem(ctx context.Context, revision string) (string, error) {
+	rev, err := c.run.Projects.Locations.Services.Revisions.Get(revision).Context(ctx).Do()
+	if err != nil {
+		return "", fmt.Errorf("get revision %s: %w", lastPart(revision), err)
+	}
+	for _, cond := range rev.Conditions {
+		if cond.Type == "Ready" && cond.State != "CONDITION_SUCCEEDED" {
+			if cond.Message != "" {
+				return "the new revision didn't start: " + cond.Message, nil
+			}
+			return "the new revision didn't start", nil
+		}
+	}
+	if !conditionReady(rev.Conditions) {
+		return "the new revision didn't start", nil
+	}
+	return "", nil
+}
+
+// save patches svc, waits for Cloud Run to finish, and returns the service
+// as it is afterwards. problem is set when Cloud Run reports the change
+// failed; err when the API calls themselves fail.
+func (c *Client) save(ctx context.Context, svc *run.GoogleCloudRunV2Service) (after *run.GoogleCloudRunV2Service, problem string, err error) {
+	service := lastPart(svc.Name)
 	op, err := c.run.Projects.Locations.Services.Patch(svc.Name, svc).Context(ctx).Do()
 	if err != nil {
-		return ChangeResult{}, fmt.Errorf("update service %s: %w", res.Service, err)
+		return nil, "", fmt.Errorf("update service %s: %w", service, err)
 	}
 	ctx, cancel := context.WithTimeout(ctx, operationTimeout)
 	defer cancel()
 	for !op.Done {
 		select {
 		case <-ctx.Done():
-			return ChangeResult{}, fmt.Errorf("update of %s still running after %s; check list_services", res.Service, operationTimeout)
+			return nil, "", fmt.Errorf("update of %s still running after %s; check list_services", service, operationTimeout)
 		case <-time.After(c.pollInterval):
 		}
 		if op, err = c.run.Projects.Locations.Operations.Get(op.Name).Context(ctx).Do(); err != nil {
-			return ChangeResult{}, fmt.Errorf("check update of %s: %w", res.Service, err)
+			return nil, "", fmt.Errorf("check update of %s: %w", service, err)
 		}
 	}
-
-	res.Status = "done"
 	if op.Error != nil {
-		res.Status, res.Problem = "failed", op.Error.Message
+		problem = op.Error.Message
 	}
-	after, err := c.run.Projects.Locations.Services.Get(svc.Name).Context(ctx).Do()
+	after, err = c.run.Projects.Locations.Services.Get(svc.Name).Context(ctx).Do()
 	if err != nil {
-		return ChangeResult{}, fmt.Errorf("get service %s: %w", res.Service, err)
+		return nil, "", fmt.Errorf("get service %s: %w", service, err)
 	}
-	if res.Revision == "" {
-		res.Revision = lastPart(after.LatestCreatedRevision)
-	}
-	res.Traffic = trafficOf(after)
-	if res.Status == "done" && after.LatestReadyRevision != after.LatestCreatedRevision {
-		res.Status = "failed"
-		res.Problem = "new revision didn't become ready; the previous revision is still serving"
-	}
-	return res, nil
+	return after, problem, nil
 }
 
 func conditionReady(conds []*run.GoogleCloudRunV2Condition) bool {
