@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime/debug"
@@ -353,6 +354,14 @@ func revision() string {
 			}
 			return rev
 		}
+	}
+	// go run does not embed VCS info; ask git directly.
+	if out, err := exec.Command("git", "rev-parse", "HEAD").Output(); err == nil {
+		rev := strings.TrimSpace(string(out))
+		if st, err := exec.Command("git", "status", "--porcelain", "--untracked-files=no", "--", ".").Output(); err == nil && len(strings.TrimSpace(string(st))) > 0 {
+			rev += "-dirty"
+		}
+		return rev
 	}
 	return "unknown"
 }
