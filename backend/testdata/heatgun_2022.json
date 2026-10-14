@@ -1,0 +1,54 @@
+{
+  "_source": "CBP ruling N328954 (15 Nov 2022), Kobalt 12.5-amp heat gun, model 5208257. Planning date 2026-01-14 = request date of N357771, so only rulings before it are precedent.",
+  "case_id": "heatgun-2022",
+  "date": "2026-01-14",
+  "family": "motorised_tools_small_appliances",
+  "target": "Thailand",
+  "product": {
+    "name": "Kobalt 12.5-amp heat gun, model 5208257",
+    "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+    "plants": [
+      {"id": "th", "name": "Rayong plant", "country": "Thailand", "capabilities": ["motor_fan_assembly", "pcba", "heating_element", "housing_moulding", "switch_cord_minor_parts", "final_assembly"]},
+      {"id": "cn", "name": "China suppliers", "country": "China", "capabilities": ["motor_fan_assembly", "pcba", "heating_element", "housing_moulding", "switch_cord_minor_parts"]}
+    ],
+    "components": [
+      {"name": "main housing", "made_in": "Thailand", "plant": "th", "group": "housing_moulding"},
+      {"name": "front cover", "made_in": "Thailand", "plant": "th", "group": "housing_moulding"},
+      {"name": "heating element", "made_in": "Thailand", "plant": "th", "group": "heating_element"},
+      {"name": "electric motor", "made_in": "China", "plant": "cn", "group": "motor_fan_assembly"},
+      {"name": "fan", "made_in": "China", "plant": "cn", "group": "motor_fan_assembly"},
+      {"name": "motor support", "made_in": "China", "plant": "cn", "group": "motor_fan_assembly"},
+      {"name": "printed circuit board assembly (PCBA)", "made_in": "China", "plant": "cn", "group": "pcba"},
+      {"name": "switch", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"},
+      {"name": "power cord", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"},
+      {"name": "wiring", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"},
+      {"name": "knob", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"},
+      {"name": "back cover", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"},
+      {"name": "support ring, heat insulator and fasteners", "made_in": "China", "plant": "cn", "group": "switch_cord_minor_parts"}
+    ],
+    "operations": [
+      {"name": "press fit the fan to the motor spindle and attach the fan cover", "plant": "th", "group": "final_assembly"},
+      {"name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA", "plant": "th", "group": "final_assembly"},
+      {"name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support", "plant": "th", "group": "final_assembly"},
+      {"name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack", "plant": "th", "group": "final_assembly"}
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 2000000,
+    "duty_rates": {"China": 0.25, "Thailand": 0.0},
+    "duty_rates_note": "Illustrative placeholder until docs/DUTY-SOURCES.md is sourced; not a real rate.",
+    "group_costs": {
+      "motor_fan_assembly": {"cn": 300000, "th": 420000},
+      "pcba": {"cn": 150000, "th": 210000},
+      "heating_element": {"cn": 60000, "th": 80000},
+      "housing_moulding": {"cn": 90000, "th": 110000},
+      "switch_cord_minor_parts": {"cn": 70000, "th": 105000}
+    }
+  },
+  "actual_change": {
+    "_source": "CBP ruling N357771 (29 Jan 2026): CBP held Thailand",
+    "moved_to_thailand": ["electric motor", "fan", "printed circuit board assembly (PCBA)", "knob", "power cord", "back cover", "outer shells"],
+    "still_from_china": ["switch", "terminal blocks", "wires", "fasteners"]
+  }
+}

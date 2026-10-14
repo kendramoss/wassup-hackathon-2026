@@ -1,0 +1,44 @@
+{
+  "family": "motorised_tools_small_appliances",
+  "version": "1",
+  "name": "Motorised tools & small appliances",
+  "note": "Operation groups move between plants together. Costs are illustrative defaults; users edit them.",
+  "groups": [
+    {
+      "id": "motor_fan_assembly",
+      "name": "Motor-fan assembly",
+      "operations": ["stamp rotor laminations from silicon steel", "stack laminations and wind the rotor", "build the stator", "assemble the motor", "press-fit the fan to the motor spindle"],
+      "movable": true
+    },
+    {
+      "id": "pcba",
+      "name": "PCBA (SMT)",
+      "operations": ["SMT placement and reflow of the printed circuit board assembly", "test the PCBA"],
+      "movable": true
+    },
+    {
+      "id": "heating_element",
+      "name": "Heating element",
+      "operations": ["wind resistance wire around a core fitted with ceramic pipes", "insert the core into a mica-insulated metal tube", "solder the safety fuse"],
+      "movable": true
+    },
+    {
+      "id": "housing_moulding",
+      "name": "Housing moulding",
+      "operations": ["injection-mould the housing shells and covers"],
+      "movable": true
+    },
+    {
+      "id": "switch_cord_minor_parts",
+      "name": "Switch, cord and minor parts",
+      "operations": ["make the switch, power cord, wiring, supports and fasteners"],
+      "movable": true
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": ["connect wiring, mount the PCBA and motor, close the housing", "test, label and pack"],
+      "movable": false
+    }
+  ]
+}

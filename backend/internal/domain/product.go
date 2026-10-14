@@ -10,6 +10,19 @@ type Plant struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Country string `json:"country"`
+	// Capabilities lists the operation groups this plant can perform (the
+	// plant capability matrix). Empty means it can only keep what it does now.
+	Capabilities []string `json:"capabilities,omitempty"`
+}
+
+// Can reports whether the plant can perform an operation group.
+func (p Plant) Can(group string) bool {
+	for _, g := range p.Capabilities {
+		if g == group {
+			return true
+		}
+	}
+	return false
 }
 
 // Component is a part of the product, made (or bought) in a country.
