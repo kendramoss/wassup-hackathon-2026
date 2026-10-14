@@ -11,7 +11,7 @@ export class BackendError extends Error {
 
 // Backend statuses that describe the user's request; their message is shown
 // as-is. Anything else (auth failures, crashes) is our problem, not theirs.
-const userErrors = new Set([400, 413, 429]);
+const userErrors = new Set([400, 409, 413, 429]);
 
 // POSTs body to path on the backend. On Cloud Run (K_SERVICE is set) the
 // backend is private, so this authenticates with an ID token for this
