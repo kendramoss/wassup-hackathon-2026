@@ -23,8 +23,8 @@ func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, e
 	f.cases = append(f.cases, c)
 	f.mu.Unlock()
 	origin := "China"
-	if strings.Contains(c.Facts, "Motor-fan assembly (electric motor, fan and motor support), performed in Thailand") &&
-		strings.Contains(c.Facts, "PCBA (SMT) (printed circuit board assembly (PCBA)), performed in Thailand") {
+	if strings.Contains(c.Facts, "In Thailand, the electric motor, fan and motor support will be produced in-house") &&
+		strings.Contains(c.Facts, "In Thailand, the printed circuit board assembly (PCBA) will be produced in-house") {
 		origin = "Thailand"
 	}
 	return engine.Result{Prediction: domain.Prediction{Origin: origin, Confidence: 0.97, CitedRulings: []string{"N340000"}},

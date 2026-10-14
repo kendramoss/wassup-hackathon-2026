@@ -140,7 +140,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			variant := Apply(req.Product, m)
-			facts := Render(variant, tm)
+			facts := Render(variant, tm, groupsOf(m)...)
 			r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
 			if err != nil {
 				errs[i] = fmt.Errorf("planner: move %s: %w", m.Key(), err)
@@ -262,4 +262,12 @@ func backtest(req Request, plans []domain.Plan) *Backtest {
 		}
 	}
 	return bt
+}
+
+func groupsOf(m domain.Move) []string {
+	out := make([]string, len(m))
+	for i, gm := range m {
+		out[i] = gm.Group
+	}
+	return out
 }

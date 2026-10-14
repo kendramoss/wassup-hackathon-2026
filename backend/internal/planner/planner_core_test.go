@@ -100,8 +100,12 @@ func TestRenderGolden(t *testing.T) {
 		"heatgun_2022":       r.Product,
 		"heatgun_motor_pcba": Apply(r.Product, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}}),
 	} {
-		got := Render(p, tm)
-		if Render(p, tm) != got {
+		detail := []string{}
+		if name == "heatgun_motor_pcba" {
+			detail = []string{"motor_fan_assembly", "pcba"}
+		}
+		got := Render(p, tm, detail...)
+		if Render(p, tm, detail...) != got {
 			t.Fatal("Render is not deterministic")
 		}
 		golden := filepath.Join("testdata", name+".golden")
@@ -119,8 +123,8 @@ func TestRenderGolden(t *testing.T) {
 			t.Errorf("%s render changed; run with -update if intended:\n%s", name, got)
 		}
 	}
-	moved := Render(Apply(r.Product, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}), tm)
-	if !strings.Contains(moved, "Motor-fan assembly (electric motor, fan and motor support), performed in Thailand: stamp rotor laminations") {
+	moved := Render(Apply(r.Product, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}), tm, "motor_fan_assembly")
+	if !strings.Contains(moved, "In Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations") {
 		t.Errorf("moved render missing motor operations:\n%s", moved)
 	}
 }

@@ -52,3 +52,10 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 
 ## D14 — Cited rulings are only rulings shown to the model
 - `cited_rulings` = precedents named in the model's reasoning/decisive step/key factor, in retrieval order; ruling numbers the model mentions that it was not shown are dropped. All shown precedents are returned separately as `precedents`.
+
+## D15 — Planner moves operation groups; families are template files
+- `planner/templates/*.json` define each family's operation groups (motorised tools & small appliances; LiDAR modules as a second family). Plants carry a capability matrix. The planner enumerates single and double group moves to capable plants in the target country; final assembly is not movable.
+
+## D16 — Facts renderer matches CBP's restatement style (changed after the first heat-gun run)
+- First version rendered processing detail for every group. On the 2022 heat gun the engine then predicted Thailand (0.78), though on CBP's own 2022 facts it predicts China (0.78) and CBP held China. The renderer now lists components by country, adds processing detail only for the groups a plan moves (as CBP did in N357771), and the final assembly.
+- Consequence: the heat-gun acceptance run is a demo check on a renderer adjusted after seeing that fixture, not an unbiased evaluation. Unbiased planner evaluation needs fresh rulings (finals work).

@@ -8,10 +8,16 @@ import (
 )
 
 // Render writes a product's facts in the style of a CBP ruling request, so the
-// engine reads plans the way it reads real cases. Output depends only on the
-// product and template (deterministic): groups in template order, components
-// in product order.
-func Render(p domain.Product, t Template) string {
+// engine reads plans the way it reads real cases: which components are
+// produced in which country, processing detail only for the operation groups
+// in detail (the groups a plan moves; CBP restates the new in-house work in
+// that detail, e.g. N357771), and the final assembly. Output depends only on
+// its inputs: groups in template order, components in product order.
+//
+// The first heat-gun run rendered processing detail for every group, which
+// made the engine call the 2022 setup Thai (CBP held China); see
+// docs/DECISIONS.md D16.
+func Render(p domain.Product, t Template, detail ...string) string {
 	var b strings.Builder
 	final := finalAssemblyCountry(p, t)
 	fmt.Fprintf(&b, "The merchandise under consideration is a %s.", p.Name)
@@ -31,23 +37,35 @@ func Render(p domain.Product, t Template) string {
 		}
 		byCountry[c.MadeIn] = append(byCountry[c.MadeIn], c.Name)
 	}
-	for _, country := range order {
-		fmt.Fprintf(&b, "The following components are produced in %s: %s. ", country, joinAnd(byCountry[country]))
+	for i, country := range order {
+		verb := "are produced in"
+		if i > 0 {
+			verb = "are sourced from"
+		}
+		if country == final {
+			verb = "are produced in"
+		}
+		fmt.Fprintf(&b, "The %s %s %s. ", joinAnd(byCountry[country]), verb, country)
 	}
-	b.WriteString("\n\n")
 
-	// Processing per operation group, in template order.
+	// Processing detail for the groups in detail, in template order.
+	want := map[string]bool{}
+	for _, d := range detail {
+		want[d] = true
+	}
 	for _, g := range t.Groups {
-		plant, ok := groupPlant(p, g.ID)
-		if !ok || g.ID == "final_assembly" {
+		if !want[g.ID] || g.ID == "final_assembly" {
 			continue
 		}
-		comps := groupComponents(p, g.ID)
-		subject := g.Name
-		if len(comps) > 0 {
-			subject = fmt.Sprintf("%s (%s)", g.Name, joinAnd(comps))
+		plant, ok := groupPlant(p, g.ID)
+		if !ok {
+			continue
 		}
-		fmt.Fprintf(&b, "%s, performed in %s: %s. ", subject, plant.Country, joinOps(g.Operations))
+		subject := strings.ToLower(g.Name[:1]) + g.Name[1:]
+		if comps := groupComponents(p, g.ID); len(comps) > 0 {
+			subject = joinAnd(comps)
+		}
+		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s.", plant.Country, subject, joinOps(g.Operations))
 	}
 	if g, ok := t.Group("final_assembly"); ok && final != "" {
 		ops := g.Operations

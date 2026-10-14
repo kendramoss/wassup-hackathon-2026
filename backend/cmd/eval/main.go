@@ -9,6 +9,11 @@
 //	    Run the router on labelled rulings of every regime in a date window
 //	    (dev window by default) and report how often each regime is routed
 //	    out of scope. Checks the scope guard; never touches the final split.
+//	eval plan   -fixture FILE [-search local|cross]
+//	    Run the planner end to end on a fixture (engine + verifier) and save
+//	    the result to eval/results/plan-<case>-<provider>.json.
+//	eval predict -facts FILE -date YYYY-MM-DD [-id ID]
+//	    One engine prediction on a facts file (debugging and spot checks).
 //	eval report -in FILE [-in FILE ...]
 //	    Print the Markdown summary of existing result files.
 //
@@ -37,13 +42,16 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
 type stringList []string
@@ -64,6 +72,10 @@ func main() {
 		err = report(os.Args[2:])
 	case "scope":
 		err = scope(os.Args[2:])
+	case "plan":
+		err = planCmd(os.Args[2:])
+	case "predict":
+		err = predictCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -575,4 +587,151 @@ func readScope(path string) (map[string]bool, error) {
 		out[r.Ruling] = r.InScope
 	}
 	return out, sc.Err()
+}
+
+func planCmd(args []string) error {
+	fl := flag.NewFlagSet("plan", flag.ExitOnError)
+	fixture := fl.String("fixture", "testdata/heatgun_2022.json", "plan request fixture")
+	searchMode := fl.String("search", "local", "verifier evidence: local (corpus, reproducible) or cross (live CROSS with toDate)")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
+	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
+	resultsDir := fl.String("results", "../eval/results", "results directory")
+	_ = fl.Parse(args)
+
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	model, err := newModel(ctx, cfg, logger)
+	if err != nil {
+		return err
+	}
+	req, err := planner.LoadRequest(*fixture)
+	if err != nil {
+		return err
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	store, err := corpus.Load(labels, *factsDir)
+	if err != nil {
+		return err
+	}
+	eng := engine.New(model, retrieval.NewBM25(store.Rulings(), engine.PrecedentText),
+		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
+	var searcher verifier.Searcher
+	switch *searchMode {
+	case "local":
+		if searcher, err = verifier.NewLocal(labels, *factsDir, *rawDir); err != nil {
+			return err
+		}
+	case "cross":
+		searcher = verifier.CROSS{Client: cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")}
+	default:
+		return fmt.Errorf("-search must be local or cross")
+	}
+	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	tmpls, err := planner.LoadTemplates()
+	if err != nil {
+		return err
+	}
+	pl := planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency})
+	res, err := pl.Plan(ctx, req)
+	if err != nil {
+		return err
+	}
+	cost := evalkit.Cost(evalkit.PromoPrices, cfg.EngineModel, res.Stats.EngineInTok, res.Stats.EngineOutTok) +
+		evalkit.Cost(evalkit.PromoPrices, cfg.VerifierModel, res.Stats.VerifierInTok, res.Stats.VerifierOutTok)
+	costList := evalkit.Cost(evalkit.ListPrices, cfg.EngineModel, res.Stats.EngineInTok, res.Stats.EngineOutTok) +
+		evalkit.Cost(evalkit.ListPrices, cfg.VerifierModel, res.Stats.VerifierInTok, res.Stats.VerifierOutTok)
+	out := struct {
+		planner.Result
+		Provider    string  `json:"llm_provider"`
+		Search      string  `json:"verifier_search"`
+		CostUSD     float64 `json:"cost_usd_promo"`
+		CostUSDList float64 `json:"cost_usd_list"`
+		Revision    string  `json:"git_revision"`
+		Time        string  `json:"time"`
+	}{res, cfg.LLMProvider, *searchMode, cost, costList, revision(), time.Now().Format(time.RFC3339)}
+	path := filepath.Join(*resultsDir, fmt.Sprintf("plan-%s-%s-%s.json", req.CaseID, *searchMode, cfg.LLMProvider))
+	b, _ := json.MarshalIndent(out, "", "  ")
+	if err := os.WriteFile(path, b, 0o644); err != nil {
+		return err
+	}
+	fmt.Printf("## Plan %s → %s (%s, verifier search %s)\n\n", req.CaseID, res.Target, cfg.LLMProvider, *searchMode)
+	if cfg.LLMProvider == config.ProviderLiteLLM {
+		fmt.Println("**Proxy, development only.**")
+	}
+	b0 := res.Baseline.Prediction
+	fmt.Printf("- Current setup: engine predicts **%s** (confidence %.2f), cited %v\n", b0.Origin, b0.Confidence, b0.CitedRulings)
+	fmt.Printf("- Shown (precedent-supported, verifier confidence ≥ %.2f):\n", cfg.PlanConfidence)
+	for _, p := range res.Plans {
+		fmt.Printf("  - ✓ %s — engine %s %.2f; supporting %s, counter %s, verifier conf %.2f; duty effect $%.0f/yr, added cost $%.0f/yr (illustrative)\n",
+			p.Description, p.Prediction.Origin, p.Prediction.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling, p.Verdict.Confidence, p.DutyEffectYear, p.AddedCostYear)
+	}
+	fmt.Println("- Rejected:")
+	for _, p := range res.Rejected {
+		extra := ""
+		if p.Verdict != nil {
+			extra = fmt.Sprintf(" (verifier: supported=%t conf %.2f, supporting %q, counter %q)", p.Verdict.PrecedentSupported, p.Verdict.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling)
+		}
+		fmt.Printf("  - ✗ %s — %s%s\n", p.Description, p.RejectionReason, extra)
+	}
+	if res.Backtest != nil {
+		fmt.Printf("- Backtest vs %s: plan moved %v; actual change also moved %v\n", res.Backtest.Source, res.Backtest.MovedByPlan, res.Backtest.NotMovedByPlan)
+	}
+	s := res.Stats
+	fmt.Printf("- Full-plan cost: %d moves, %d engine calls, %d verifier runs (%d model calls, %d tool calls), %d in / %d out tokens, $%.3f promo / $%.3f list, %.0f s wall\n",
+		s.MovesSearched, s.EngineCalls, s.VerifierRuns, s.VerifierModel, s.ToolCalls, s.InputTokens, s.OutputTokens, cost, costList, s.WallSeconds)
+	fmt.Println("- Saved:", path)
+	return nil
+}
+
+func predictCmd(args []string) error {
+	fl := flag.NewFlagSet("predict", flag.ExitOnError)
+	factsPath := fl.String("facts", "", "facts text file")
+	dateStr := fl.String("date", "", "case date (YYYY-MM-DD); precedents are strictly earlier")
+	id := fl.String("id", "adhoc", "case ID (excluded from its own precedents)")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	factsDir := fl.String("corpus", "../data/corpus/facts", "facts directory of the precedent corpus")
+	_ = fl.Parse(args)
+	date, err := time.Parse(time.DateOnly, *dateStr)
+	if err != nil {
+		return fmt.Errorf("-date: %w", err)
+	}
+	facts, err := os.ReadFile(*factsPath)
+	if err != nil {
+		return err
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	ctx := context.Background()
+	model, err := newModel(ctx, cfg, slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})))
+	if err != nil {
+		return err
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	store, err := corpus.Load(labels, *factsDir)
+	if err != nil {
+		return err
+	}
+	eng := engine.New(model, retrieval.NewBM25(store.Rulings(), engine.PrecedentText),
+		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
+	res, err := eng.Predict(ctx, domain.Case{ID: *id, Date: date, Facts: string(facts)})
+	if err != nil {
+		return err
+	}
+	b, _ := json.MarshalIndent(map[string]any{"prediction": res.Prediction, "flip": res.Flip}, "", "  ")
+	fmt.Println(string(b))
+	return nil
 }
