@@ -276,6 +276,9 @@ func TestDemoFlowThroughTheAPI(t *testing.T) {
 	if code != 201 {
 		t.Fatalf("predict from demo: %d %v", code, out)
 	}
+	if !strings.HasSuffix(hs.engine.last.Facts, "of the heat gun,\n") || strings.HasSuffix(hs.engine.last.Facts, "\n\n") {
+		t.Errorf("pasted facts should end with one newline like the benchmark corpus: %q", hs.engine.last.Facts[len(hs.engine.last.Facts)-20:])
+	}
 	if !strings.HasPrefix(hs.engine.last.Facts, "In your letter dated October 25, 2022") {
 		t.Errorf("engine should read CBP's facts text, got %.60q", hs.engine.last.Facts)
 	}

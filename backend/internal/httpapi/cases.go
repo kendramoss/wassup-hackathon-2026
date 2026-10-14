@@ -158,6 +158,11 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	// Feed facts in the format the engine was benchmarked on: corpus facts
+	// files (and rendered products) end with one newline (D20).
+	if facts != "" && !strings.HasSuffix(facts, "\n") {
+		facts += "\n"
+	}
 	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
 	if err := c.Validate(); err != nil {
 		a.fail(w, r, err)

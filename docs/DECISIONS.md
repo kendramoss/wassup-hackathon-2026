@@ -72,3 +72,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 
 ## D19 — Duty rates are inputs, not a package
 - The build plan listed a `duty` package. Rates are product- and date-specific and the demo needs one sourced product; they are carried as request inputs (`economics.duty_rates` + a source note) and the demo fixture cites `docs/DUTY-SOURCES.md`. A dated HTS lookup can be added behind an interface later.
+
+## D20 — Pasted facts are normalised to the benchmark format; the heat-gun prediction is borderline
+- Corpus facts files, and therefore every benchmarked prompt, end with one newline. The API now appends it to pasted facts. Found because the heat-gun demo (CBP's own 2022 facts text) flipped with it: without the newline Thailand 5/5 runs (0.78); with it China 4/5 (0.75–0.85), Thailand 1/5. CBP held China.
+- The change restores the evaluated input format; it was not chosen per case. The heat-gun current setup stays a borderline case for the engine: always below the 0.95 fast path (routed to expert review), and the demo should present it that way. Measured 16 Oct, gemini-4-argon via LiteLLM (proxy).

@@ -110,6 +110,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 	}
 	target := domain.NormalizeCountry(req.Target)
 	res := Result{CaseID: req.CaseID, Target: target, Family: req.Family,
+		Plans: []domain.Plan{}, Rejected: []domain.Plan{},
 		Illustrative: req.Economics.Illustrative, DutyNote: req.Economics.DutyRatesNote,
 		Templates: map[string]string{tm.Family: tm.Version}}
 	var mu sync.Mutex
