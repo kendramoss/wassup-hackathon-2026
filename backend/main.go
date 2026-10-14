@@ -72,7 +72,7 @@ func newRunner(ctx context.Context) (*runner.Runner, error) {
 		return nil, fmt.Errorf("GOOGLE_CLOUD_PROJECT must be set")
 	}
 
-	model, err := gemini.NewModel(ctx, env("GEMINI_MODEL", "gemini-3.8-flash"), &genai.ClientConfig{
+	model, err := gemini.NewModel(ctx, env("GEMINI_MODEL", "gemini-3.5-flash"), &genai.ClientConfig{
 		Backend:  genai.BackendVertexAI,
 		Project:  project,
 		Location: env("GOOGLE_CLOUD_LOCATION", "global"),
