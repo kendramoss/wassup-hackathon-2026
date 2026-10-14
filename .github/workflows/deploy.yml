@@ -70,7 +70,7 @@ jobs:
           gcloud run deploy backend --source backend
           --project "$PROJECT" --region "$REGION" --quiet
           --service-account "agent-backend@$PROJECT.iam.gserviceaccount.com"
-          --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global"
+          --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global,LLM_PROVIDER=vertex"
           --max-instances 3
       # A --no-traffic preview deploy pins traffic to one revision; make sure
       # this deploy goes live anyway.
@@ -137,7 +137,11 @@ jobs:
           done
           echo "::error::Build $id still $status after 10 minutes"; exit 1
 
-  # End to end through the public site: Gemini must answer and call get_time.
+  # The backend is private (only frontend@ may call it), so check that its new
+  # revision started and is serving: config validation runs at startup and a
+  # bad config (e.g. LLM_PROVIDER=litellm on Cloud Run) fails the revision.
+  # Then check the public frontend answers. Replace with an end-to-end
+  # /v1/cases/predict call once the frontend proxies it (Gate D).
   smoke-test:
     needs: [backend, frontend]
     # Only after something was deployed, and nothing failed. Names each job:
@@ -148,23 +152,27 @@ jobs:
       && needs.backend.result != 'failure' && needs.frontend.result != 'failure'
       && needs.backend.result != 'cancelled' && needs.frontend.result != 'cancelled'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Chat through the frontend
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Backend revision is ready and serving all traffic
         run: |
-          for attempt in 1 2 3; do
-            reply=$(curl -sS --max-time 90 -X POST "$FRONTEND_URL/api/chat" \
-              -H 'Content-Type: application/json' \
-              -d '{"message":"what time is it in Tokyo?"}') || true
-            echo "attempt $attempt: $reply"
-            if echo "$reply" | grep -q '"tool_calls":\["get_time"\]'; then exit 0; fi
-            sleep 10
-          done
-          echo "::error::Smoke test failed: no reply with a get_time tool call"
-          exit 1
-      - name: Stream through the frontend
+          ready=$(gcloud run services describe backend --project "$PROJECT" --region "$REGION" \
+            --format='value(status.conditions[0].status)')
+          latest=$(gcloud run services describe backend --project "$PROJECT" --region "$REGION" \
+            --format='value(status.latestReadyRevisionName)')
+          serving=$(gcloud run services describe backend --project "$PROJECT" --region "$REGION" \
+            --format='value(status.traffic[0].revisionName)')
+          echo "ready=$ready latest=$latest serving=$serving"
+          [ "$ready" = "True" ] && [ "$latest" = "$serving" ] || { echo "::error::backend not ready on its latest revision"; exit 1; }
+      - name: Frontend answers
         run: |
-          events=$(curl -sSN --max-time 90 -X POST "$FRONTEND_URL/api/chat/stream"             -H 'Content-Type: application/json'             -d '{"message":"what time is it in Tokyo?"}')
-          echo "$events"
-          for want in '"type":"tool_call"' '"type":"tool_result"' '"type":"text"' '"type":"done"'; do
-            echo "$events" | grep -q "$want" || { echo "::error::Stream missing $want"; exit 1; }
-          done
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 60 "$FRONTEND_URL/")
+          echo "frontend / -> $code"
+          [ "$code" = "200" ] || { echo "::error::frontend returned $code"; exit 1; }
