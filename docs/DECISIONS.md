@@ -34,3 +34,10 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 
 ## D9 — CI smoke test without calling the private backend
 - The backend accepts only `frontend@`; the CI deployer can't mint a token for it. The deploy smoke test checks the backend's latest revision is Ready and serving all traffic (startup config validation makes a bad config fail here) and that the frontend returns 200. Becomes an end-to-end predict call once the frontend proxies it.
+
+## D10 — BM25 ported exactly, including IDF over the whole corpus
+- `retrieval.BM25` mirrors predict.py: tokens `[a-z]{3,}` minus a stop list, first 3,000 characters of facts, k1 1.5, b 0.75, de-duplicated query terms, ties broken by higher corpus index. IDF and average length are computed over the whole corpus (including rulings later than a case); only the candidate set is date-filtered. That leaks term statistics, not text or holdings, and is kept so precedents match the research run.
+- Parity on the 377 held-out cases (opt-in `TestResearchParity`): 369 identical precedent lists, 6 same set in another order, 2 with a different 5th precedent. Cause: the labels file gained manual labels after the research run, shifting corpus statistics.
+
+## D11 — Facts splitter port is byte-identical
+- `corpus.SplitFacts` reproduces split_facts.py on all 2,790 rulings (`go run ./cmd/corpus compare`), with character offsets handled as runes.
