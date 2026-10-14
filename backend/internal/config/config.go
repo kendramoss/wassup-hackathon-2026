@@ -49,6 +49,13 @@ type Config struct {
 	PlanConfidence       float64
 	VerifierMaxToolCalls int
 	PlannerConcurrency   int
+
+	// Corpus. The engine's precedent pool is labels + facts files; the
+	// verifier searches the local corpus or live CROSS.
+	LabelsPath     string
+	FactsDir       string
+	RawDir         string
+	VerifierSearch string // local | cross
 }
 
 // Load reads the configuration from the process environment.
@@ -76,6 +83,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 4),
+		LabelsPath:           e.str("LABELS_PATH", "../eval/data/labels.jsonl"),
+		FactsDir:             e.str("CORPUS_FACTS_DIR", "../data/corpus/facts"),
+		RawDir:               e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:       strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
 	}
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
@@ -125,6 +136,9 @@ func (c Config) validate() error {
 			bad("%s must be positive, got %d", name, v)
 		}
 	}
+	if c.VerifierSearch != "local" && c.VerifierSearch != "cross" {
+		bad("VERIFIER_SEARCH must be local or cross, got %q", c.VerifierSearch)
+	}
 	if c.LLMMaxRetries < 0 {
 		bad("LLM_MAX_RETRIES must not be negative, got %d", c.LLMMaxRetries)
 	}
@@ -137,9 +151,9 @@ func (c Config) validate() error {
 // String renders the config for startup logs. The LiteLLM key and base URL are
 // never included.
 func (c Config) String() string {
-	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t",
+	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun, c.VerifierSearch, c.FactsDir)
 }
 
 // env parses typed values and collects parse errors.

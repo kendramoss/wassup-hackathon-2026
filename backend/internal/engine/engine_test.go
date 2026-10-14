@@ -155,3 +155,15 @@ func TestPredictWithoutRetrieverIsFactsOnly(t *testing.T) {
 		t.Fatalf("facts-only failed: %+v %v", res, err)
 	}
 }
+
+func TestPredictListsAreNeverNil(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"","confidence":0.8,"reasoning":"no citations"}`)
+	res, err := New(f, nil, Options{Model: "m"}).Predict(context.Background(), domain.Case{ID: "X", Date: day("2026-01-01"), Facts: "f"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := res.Prediction
+	if p.KeyFactors == nil || p.CitedRulings == nil || p.Precedents == nil {
+		t.Errorf("nil lists: %+v", p)
+	}
+}

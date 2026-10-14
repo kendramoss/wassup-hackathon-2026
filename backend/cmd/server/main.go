@@ -6,9 +6,15 @@
 //	-smoke  make one live call to the engine model and print provider, model,
 //	        tokens and latency as JSON, then exit
 //
-// Endpoints so far:
+// Endpoints (contract: docs/api/openapi.yaml):
 //
-//	GET /health  liveness check (not /healthz: Cloud Run reserves paths ending in "z")
+//	GET  /health                 liveness (not /healthz: Cloud Run reserves paths ending in "z")
+//	POST /v1/cases/predict       origin prediction
+//	GET  /v1/cases/{id}          a case
+//	POST /v1/cases/{id}/plan     plan search
+//	POST /v1/cases/{id}/export   draft ruling request
+//	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
+//	GET  /v1/eval/summary        results-page numbers
 package main
 
 import (
@@ -25,8 +31,17 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
 func main() {
@@ -58,9 +73,13 @@ func run(logger *slog.Logger, smoke bool) error {
 		return runSmoke(ctx, model, cfg)
 	}
 
+	deps, err := newDeps(cfg, model, logger)
+	if err != nil {
+		return err
+	}
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}),
+		Handler:           httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	go func() {
@@ -95,6 +114,51 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 		return nil, fmt.Errorf("unknown LLM provider %q", cfg.LLMProvider)
 	}
 	return llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, time.Second), logger), nil
+}
+
+// newDeps loads the corpus and builds engine, router, verifier and planner.
+func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.Deps, error) {
+	labels, err := corpus.LoadLabels(cfg.LabelsPath)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	pool, err := corpus.Load(labels, cfg.FactsDir)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	if pool.Len() == 0 {
+		return httpapi.Deps{}, fmt.Errorf("corpus: no precedent facts in %s (run: go run ./cmd/corpus fetch && go run ./cmd/corpus build)", cfg.FactsDir)
+	}
+	logger.Info("corpus loaded", "precedents", pool.Len(), "facts_dir", cfg.FactsDir)
+	eng := engine.New(model, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
+		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
+	crossClient := cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")
+	var searcher verifier.Searcher = verifier.CROSS{Client: crossClient}
+	if cfg.VerifierSearch == "local" {
+		if searcher, err = verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir); err != nil {
+			return httpapi.Deps{}, err
+		}
+	}
+	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	tmpls, err := planner.LoadTemplates()
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	return httpapi.Deps{
+		Engine:        eng,
+		Router:        router.New(model, cfg.RouterModel, 2000),
+		Planner:       planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Rulings:       crossClient,
+		Cases:         store.NewMemory(),
+		Templates:     tmpls,
+		Summary:       evalsummary.Load,
+		FastPathConf:  cfg.FastPathConfidence,
+		Provider:      model.Provider(),
+		EngineModel:   cfg.EngineModel,
+		RouterModel:   cfg.RouterModel,
+		VerifierModel: cfg.VerifierModel,
+		Logger:        logger,
+	}, nil
 }
 
 // smokeSchema is a minimal origin answer, enough to prove JSON-schema output

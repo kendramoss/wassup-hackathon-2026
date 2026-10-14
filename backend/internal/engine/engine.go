@@ -83,11 +83,12 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 	if err := resp.DecodeJSON(&a); err != nil {
 		return Result{}, fmt.Errorf("engine: predict %s: %w", c.ID, err)
 	}
-	ids := make([]string, len(precedents))
+	ids := make([]string, len(precedents)) // never nil: APIs return [] not null
 	for i, p := range precedents {
 		ids[i] = p.ID
 	}
 	pred := domain.Prediction{
+		KeyFactors:   []string{},
 		Origin:       domain.NormalizeCountry(a.Origin),
 		DecisiveStep: a.DecisiveStep,
 		Reasoning:    a.Reasoning,
@@ -125,11 +126,11 @@ var rulingRef = regexp.MustCompile(`\b[NH][0-9]{6}\b`)
 // numbers that were not shown to the model are ignored, so a hallucinated
 // number never reaches the user.
 func citedIn(text string, shown []string) []string {
+	out := []string{}
 	named := map[string]bool{}
 	for _, id := range rulingRef.FindAllString(text, -1) {
 		named[id] = true
 	}
-	var out []string
 	for _, id := range shown {
 		if named[id] {
 			out = append(out, id)

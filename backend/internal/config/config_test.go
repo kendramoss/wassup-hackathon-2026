@@ -48,6 +48,7 @@ func TestValidation(t *testing.T) {
 		{"zero k", merge(litellmEnv(), map[string]string{"PRECEDENT_K": "0"}), "PRECEDENT_K must be positive"},
 		{"threshold above 1", merge(litellmEnv(), map[string]string{"FAST_PATH_CONFIDENCE": "1.5"}), "FAST_PATH_CONFIDENCE must be in (0, 1]"},
 		{"bad duration", merge(litellmEnv(), map[string]string{"LLM_TIMEOUT": "90"}), "not a duration"},
+		{"bad verifier search", merge(litellmEnv(), map[string]string{"VERIFIER_SEARCH": "google"}), "VERIFIER_SEARCH must be local or cross"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
