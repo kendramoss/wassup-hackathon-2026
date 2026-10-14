@@ -1,0 +1,116 @@
+# On every push to main: run CI, deploy whichever service changed to Cloud Run,
+# then smoke-test the live site. Auth is keyless (Workload Identity Federation);
+# one-time GCP setup is scripts/setup-github-deploy.sh.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # manual run deploys both services
+
+# Never run two deploys at once; queue them instead of cancelling.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  PROJECT: wassup-hackathon-2026
+  REGION: us-central1
+  WIF_PROVIDER: projects/88903435351/locations/global/workloadIdentityPools/github/providers/github-actions
+  DEPLOYER: github-deployer@wassup-hackathon-2026.iam.gserviceaccount.com
+  BACKEND_URL: https://backend-88903435351.us-central1.run.app
+  FRONTEND_URL: https://frontend-88903435351.us-central1.run.app
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.backend == 'true' }}
+      frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend == 'true' }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  # Deploy flags mirror the README, minus --allow-unauthenticated /
+  # --no-allow-unauthenticated: the deployer can't change IAM, and leaving the
+  # flag out keeps each service's existing access.
+  backend:
+    needs: [ci, changes]
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - run: >-
+          gcloud run deploy backend --source backend
+          --project "$PROJECT" --region "$REGION" --quiet
+          --service-account "agent-backend@$PROJECT.iam.gserviceaccount.com"
+          --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global"
+          --max-instances 3
+
+  frontend:
+    needs: [ci, changes, backend]
+    # Run even when the backend deploy was skipped, but not when it failed.
+    if: >-
+      always() && needs.ci.result == 'success'
+      && needs.changes.outputs.frontend == 'true'
+      && (needs.backend.result == 'success' || needs.backend.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - run: >-
+          gcloud run deploy frontend --source frontend
+          --project "$PROJECT" --region "$REGION" --quiet
+          --service-account "frontend@$PROJECT.iam.gserviceaccount.com"
+          --set-env-vars "BACKEND_URL=$BACKEND_URL"
+          --max-instances 3
+
+  # End to end through the public site: Gemini must answer and call get_time.
+  smoke-test:
+    needs: [backend, frontend]
+    if: >-
+      always() && contains(needs.*.result, 'success')
+      && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chat through the frontend
+        run: |
+          for attempt in 1 2 3; do
+            reply=$(curl -sS --max-time 60 -X POST "$FRONTEND_URL/api/chat" \
+              -H 'Content-Type: application/json' \
+              -d '{"message":"what time is it in Tokyo?"}') || true
+            echo "attempt $attempt: $reply"
+            if echo "$reply" | grep -q '"tool_calls":\["get_time"\]'; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::Smoke test failed: no reply with a get_time tool call"
+          exit 1
