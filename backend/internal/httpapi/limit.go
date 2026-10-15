@@ -33,6 +33,7 @@ type class int
 const (
 	light class = iota
 	heavy
+	bulk // batch triage: the heavy bucket per client, MaxBatch from the global bucket
 )
 
 type limiter struct {
@@ -83,8 +84,11 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 	l.mu.Unlock()
 
 	b, weight := cb.light, 1
-	if c == heavy {
+	switch c {
+	case heavy:
 		b, weight = cb.heavy, HeavyWeight
+	case bulk:
+		b, weight = cb.heavy, MaxBatch
 	}
 	rc := b.ReserveN(now, 1)
 	if !rc.OK() || rc.DelayFrom(now) > 0 {

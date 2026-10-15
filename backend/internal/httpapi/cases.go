@@ -89,6 +89,8 @@ type Deps struct {
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
+	// Checks run on GET /health?deep=1 (store write, model call).
+	Checks []HealthCheck
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -174,25 +176,32 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	sc, err := a.createCase(r, in, start)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusCreated, a.caseFields(sc))
+}
+
+// createCase validates a predict request, analyses it and saves the case.
+func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (store.Case, error) {
 	facts := strings.TrimSpace(in.Facts)
 	if in.Product != nil {
 		if err := in.Product.Validate(); err != nil {
-			a.fail(w, r, err)
-			return
+			return store.Case{}, err
 		}
 		if facts == "" {
 			tm, ok := a.d.Templates[in.Family]
 			if !ok {
-				a.fail(w, r, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families()))
-				return
+				return store.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
 			}
 			facts = planner.Render(*in.Product, tm)
 		}
 	}
 	for _, id := range in.Exclude {
 		if !domain.ValidRulingID(id) {
-			a.fail(w, r, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id))
-			return
+			return store.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
 		}
 	}
 	// Feed facts in the format the engine was benchmarked on: corpus facts
@@ -202,29 +211,24 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	}
 	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
 	if err := c.Validate(); err != nil {
-		a.fail(w, r, err)
-		return
+		return store.Case{}, err
 	}
-
-	now := time.Now().UTC()
 	if in.Economics != nil {
 		if err := validateEconomics(*in.Economics); err != nil {
-			a.fail(w, r, err)
-			return
+			return store.Case{}, err
 		}
 	}
+	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
 		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics}
 	if err := a.analyse(r, &sc, c); err != nil {
-		a.fail(w, r, err)
-		return
+		return store.Case{}, err
 	}
 	sc.Record(predictionEvent("predicted", sc, start))
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
-		a.fail(w, r, err)
-		return
+		return store.Case{}, err
 	}
-	a.respond(w, http.StatusCreated, a.caseFields(sc))
+	return sc, nil
 }
 
 // classify runs router and engine concurrently and decides triage. The router
@@ -493,6 +497,9 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	rows := make([]caseSummary, 0, len(cs))
 	for _, c := range cs {
+		if c.ID == HealthProbeID {
+			continue
+		}
 		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
 		if c.Watch != nil {
 			row.Watch = &c.Watch.Status

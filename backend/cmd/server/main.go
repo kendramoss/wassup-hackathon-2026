@@ -190,6 +190,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Logger:         logger,
 		Limits:         httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin},
 		AdminToken:     cfg.AdminToken,
+		Checks:         []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }
 

@@ -36,7 +36,9 @@ The precedent check is not repeatable from run to run (D31, D33): the heat gun's
 7. **Draft for broker.** The letter, with the below-bar banner if it applies. Print or download.
 8. **Accuracy.** The results page: overall and fast-path accuracy with CIs, labelled official (Vertex) or proxy.
 
-Side stories if time allows: LiDAR (second product family), BOM import (`backend/testdata/heatgun_bom.csv`), compare target countries (all below the bar in the last run, D36), ruling watch.
+Before recording, `curl <API>/health?deep=1` must say `"status":"ok"` (store write and model call, D47).
+
+Side stories if time allows: portfolio triage (`backend/testdata/portfolio_sample.csv`: 2 auto, 1 needs info, 2 review including an out-of-scope textile, D47), LiDAR (second product family), BOM import (`backend/testdata/heatgun_bom.csv`), compare target countries (all below the bar in the last run, D36), ruling watch.
 
 ## 4. Seeded outcomes (LiteLLM proxy, 16 Oct, run 1, fresh cache; replace with the recording-day run)
 

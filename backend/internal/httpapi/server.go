@@ -20,16 +20,18 @@ type Info struct {
 // /health is served (useful for smoke tests).
 func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux := http.NewServeMux()
+	var a *api
 	if len(deps) > 0 && deps[0].Engine != nil {
 		d := deps[0]
 		if d.Logger == nil {
 			d.Logger = logger
 		}
-		a := &api{d: d, rulingMemo: map[string]rulingDTO{}}
+		a = &api{d: d, rulingMemo: map[string]rulingDTO{}}
 		if d.Limits != (Limits{}) {
 			a.limiter = newLimiter(d.Limits)
 		}
 		mux.HandleFunc("POST /v1/cases/predict", a.limit(light, a.predict))
+		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
 		mux.HandleFunc("GET /v1/cases", a.listCases)
 		mux.HandleFunc("POST /v1/products/import", a.importProduct)
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
@@ -51,9 +53,13 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("GET /v1/demos/{id}", a.getDemo)
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "llm_provider": info.Provider, "version": info.Version})
-	})
+	if a != nil {
+		mux.HandleFunc("GET /health", a.health(info))
+	} else {
+		mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
+			writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "llm_provider": info.Provider, "version": info.Version})
+		})
+	}
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, http.StatusNotFound, "not_found", "no such endpoint", nil)
 	})

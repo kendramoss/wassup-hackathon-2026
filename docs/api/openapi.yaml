@@ -24,17 +24,21 @@ paths:
   /health:
     get:
       summary: Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
+      description: With deep=1 it also writes, reads and deletes a probe case and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
+      parameters:
+        - { name: deep, in: query, required: false, schema: { type: string, enum: ["1"] } }
       responses:
         "200":
           description: OK
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  status: { type: string, example: ok }
-                  llm_provider: { type: string }
-                  version: { type: string }
+              schema: { $ref: "#/components/schemas/Health" }
+        "429": { $ref: "#/components/responses/Error" }
+        "503":
+          description: A dependency check failed (deep=1)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
   /v1/cases/predict:
     post:
       summary: Predict origin for a case (creates the case)
@@ -52,6 +56,70 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/batch:
+    post:
+      summary: Triage a portfolio (up to 20 products) in one call
+      description: |
+        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [facts]
+                    properties:
+                      name: { type: string }
+                      facts: { type: string }
+                      date: { type: string, format: date, description: Default today }
+          multipart/form-data:
+            schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
+      responses:
+        "200":
+          description: One row per product, in order, and counts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Meta"
+                  - type: object
+                    required: [rows, summary]
+                    properties:
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [name, out_of_scope, error]
+                          properties:
+                            name: { type: string, description: The given name, or the first words of the facts }
+                            case_id: { type: string }
+                            predicted_origin: { type: string }
+                            confidence: { type: number }
+                            triage_route: { type: string, enum: [auto, needs_review, needs_info] }
+                            out_of_scope: { type: boolean }
+                            reason: { type: string, description: triage.reason }
+                            cost_usd: { type: number }
+                            error: { type: [string, "null"], description: null when the product was analysed }
+                      summary:
+                        type: object
+                        properties:
+                          total: { type: integer }
+                          auto: { type: integer }
+                          needs_review: { type: integer }
+                          needs_info: { type: integer }
+                          out_of_scope: { type: integer, description: Included in needs_review }
+                          failed: { type: integer }
+                          cost_usd: { type: number }
+                          latency_ms: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/cases:
     get:
       summary: List all cases, pinned (seeded demos) first, then most recently updated
@@ -515,6 +583,21 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        llm_provider: { type: string }
+        version: { type: string }
+        checks:
+          type: object
+          description: deep=1 only; keys case_store and model
+          additionalProperties:
+            type: object
+            properties:
+              ok: { type: boolean }
+              latency_ms: { type: integer }
+              error: { type: string, example: "rpc error: code = PermissionDenied desc = Missing or insufficient permissions." }
     CaseSummary:
       type: object
       required: [id, product_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count, pinned]

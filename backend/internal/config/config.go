@@ -192,8 +192,8 @@ func (c Config) validate() error {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}
 	}
-	if c.RateGlobalPerMin > 0 && c.RateGlobalPerMin < 5 { // one heavy request takes 5 (httpapi.HeavyWeight)
-		bad("RATE_GLOBAL_PER_MIN must be 0 (off) or at least 5, got %d", c.RateGlobalPerMin)
+	if c.RateGlobalPerMin > 0 && c.RateGlobalPerMin < 20 { // one batch request takes 20 (httpapi.MaxBatch)
+		bad("RATE_GLOBAL_PER_MIN must be 0 (off) or at least 20, got %d", c.RateGlobalPerMin)
 	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
