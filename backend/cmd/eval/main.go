@@ -1045,6 +1045,59 @@ func flipsCmd(args []string) error {
 	return nil
 }
 
+// summaryStatusProxy is the results-page status while the headline numbers
+// still come from the LiteLLM proxy.
+const summaryStatusProxy = "proxy, development only: produced through the LiteLLM proxy; official numbers come from the Vertex AI re-run"
+
+// summaryRun is the engine result file and router scope file for one split.
+// Official is true when both are the Vertex AI run.
+type summaryRun struct {
+	File, ScopeFile string
+	Official        bool
+}
+
+// selectSummaryRun prefers the Vertex AI engine and scope files when both
+// exist, and otherwise the LiteLLM proxy files. A Vertex engine file is never
+// paired with proxy router labels.
+func selectSummaryRun(resultsDir, split string) (summaryRun, error) {
+	vertexEngine := split + "-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+	proxyEngine := split + "-gemini-4-argon-prec-engine-v1-litellm.jsonl"
+	vertexScope := "scope-" + split + "-router-v2-vertex.jsonl"
+	proxyScope := "scope-" + split + "-router-v2.jsonl"
+	if fileExists(filepath.Join(resultsDir, vertexEngine)) {
+		if !fileExists(filepath.Join(resultsDir, vertexScope)) {
+			return summaryRun{}, fmt.Errorf("%s: %s exists but %s does not; refusing to pair Vertex predictions with proxy router labels", split, vertexEngine, vertexScope)
+		}
+		return summaryRun{File: vertexEngine, ScopeFile: vertexScope, Official: true}, nil
+	}
+	if !fileExists(filepath.Join(resultsDir, proxyEngine)) {
+		return summaryRun{}, fmt.Errorf("%s: neither %s nor %s", split, vertexEngine, proxyEngine)
+	}
+	if !fileExists(filepath.Join(resultsDir, proxyScope)) {
+		return summaryRun{}, fmt.Errorf("%s: missing %s", split, proxyScope)
+	}
+	return summaryRun{File: proxyEngine, ScopeFile: proxyScope}, nil
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+// summaryStatus labels the payload. Held-out Vertex numbers are official.
+// Development-split rows stay the development set. Verifier and plan figures
+// are still proxy until those runs are repeated on Vertex.
+func summaryStatus(finalOfficial, devOfficial bool) string {
+	if !finalOfficial {
+		return summaryStatusProxy
+	}
+	dev := "Development-split engine numbers are the development set on Vertex AI."
+	if !devOfficial {
+		dev = "Development-split engine numbers are still proxy, development only."
+	}
+	return "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). " + dev + " Verifier and heat-gun plan figures remain proxy, development only."
+}
+
 func summaryCmd(args []string) error {
 	fl := flag.NewFlagSet("summary", flag.ExitOnError)
 	resultsDir := fl.String("results", "../eval/results", "results directory")
@@ -1055,48 +1108,58 @@ func summaryCmd(args []string) error {
 	pct := func(k, n int) (float64, float64, float64) { return evalkit.Wilson(k, n) }
 	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
 
-	addRun := func(file, split, prefix, label string, scopeFile string) error {
-		rows, err := readRows(filepath.Join(*resultsDir, file), nil)
+	finalRun, err := selectSummaryRun(*resultsDir, "final")
+	if err != nil {
+		return err
+	}
+	devRun, err := selectSummaryRun(*resultsDir, "dev")
+	if err != nil {
+		return err
+	}
+
+	addRun := func(run summaryRun, split, prefix, label string) error {
+		rows, err := readRows(filepath.Join(*resultsDir, run.File), nil)
 		if err != nil {
 			return err
 		}
-		if scopeFile != "" {
-			sc, err := readScope(filepath.Join(*resultsDir, scopeFile))
-			if err != nil {
-				return err
+		sc, err := readScope(filepath.Join(*resultsDir, run.ScopeFile))
+		if err != nil {
+			return err
+		}
+		for i := range rows {
+			in, ok := sc[rows[i].Ruling]
+			if !ok {
+				in = true
 			}
-			for i := range rows {
-				in, ok := sc[rows[i].Ruling]
-				if !ok {
-					in = true
-				}
-				rows[i].InScope = in
-				rows[i].TriageRoute = "needs_review"
-				if in && rows[i].Error == "" && rows[i].Confidence >= config.DefaultFastPath {
-					rows[i].TriageRoute = "auto"
-				}
+			rows[i].InScope = in
+			rows[i].TriageRoute = "needs_review"
+			if in && rows[i].Error == "" && rows[i].Confidence >= config.DefaultFastPath {
+				rows[i].TriageRoute = "auto"
 			}
 		}
 		s := evalkit.Summarize(rows)
-		src := "eval/results/" + file
+		src := "eval/results/" + run.File
+		scopeSrc := src + " + eval/results/" + run.ScopeFile
+		via := "via proxy"
+		if run.Official {
+			via = "Vertex AI"
+		}
 		items = append(items, item{Key: prefix + "_accuracy", Label: label + " accuracy", Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: split, Source: src})
 		p, lo, hi := pct(s.AtLeast95.K, s.AtLeast95.N)
 		items = append(items, item{Key: prefix + "_conf95_accuracy", Label: label + ": accuracy when confidence ≥ 0.95", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: split, Source: src})
 		items = append(items, item{Key: prefix + "_conf95_coverage", Label: label + ": share of cases with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: split, Source: src})
-		if scopeFile != "" {
-			p, lo, hi := pct(s.FastK, s.FastN)
-			items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: src + " + eval/results/" + scopeFile})
-			items = append(items, item{Key: prefix + "_fastpath_coverage", Label: label + ": fast path coverage", Value: r4(float64(s.FastN) / float64(s.N)), N: s.N, Split: split, Source: src + " + eval/results/" + scopeFile})
-		}
+		p, lo, hi = pct(s.FastK, s.FastN)
+		items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: scopeSrc})
+		items = append(items, item{Key: prefix + "_fastpath_coverage", Label: label + ": fast path coverage", Value: r4(float64(s.FastN) / float64(s.N)), N: s.N, Split: split, Source: scopeSrc})
 		items = append(items, item{Key: prefix + "_cost_per_case_usd", Label: label + ": cost per prediction (USD, promo price)", Value: r4(s.CostPerCase), N: s.N, Split: split, Source: src})
-		items = append(items, item{Key: prefix + "_latency_p50_s", Label: label + ": latency p50 (s, via proxy)", Value: float64(s.LatencyP50) / 1000, Split: split, Source: src})
-		items = append(items, item{Key: prefix + "_latency_p95_s", Label: label + ": latency p95 (s, via proxy)", Value: float64(s.P95) / 1000, Split: split, Source: src})
+		items = append(items, item{Key: prefix + "_latency_p50_s", Label: label + ": latency p50 (s, " + via + ")", Value: float64(s.LatencyP50) / 1000, Split: split, Source: src})
+		items = append(items, item{Key: prefix + "_latency_p95_s", Label: label + ": latency p95 (s, " + via + ")", Value: float64(s.P95) / 1000, Split: split, Source: src})
 		return nil
 	}
-	if err := addRun("final-gemini-4-argon-prec-engine-v1-litellm.jsonl", "final", "final", "Held-out (377 rulings, Jan–Sep 2026)", "scope-final-router-v2.jsonl"); err != nil {
+	if err := addRun(finalRun, "final", "final", "Held-out (377 rulings, Jan–Sep 2026)"); err != nil {
 		return err
 	}
-	if err := addRun("dev-gemini-4-argon-prec-engine-v1-litellm.jsonl", "dev", "dev", "Development (469 rulings, Jul–Dec 2025)", "scope-dev-router-v2.jsonl"); err != nil {
+	if err := addRun(devRun, "dev", "dev", "Development (469 rulings, Jul–Dec 2025)"); err != nil {
 		return err
 	}
 	for i := range items {
@@ -1177,7 +1240,7 @@ func summaryCmd(args []string) error {
 		}
 	}
 	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
-		Status: "proxy, development only: produced through the LiteLLM proxy; official numbers come from the Vertex AI re-run", Items: items}
+		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items}
 	b, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
 		return err
