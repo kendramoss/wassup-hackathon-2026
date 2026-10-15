@@ -53,7 +53,11 @@ type Config struct {
 	FastPathConfidence   float64
 	PlanConfidence       float64
 	VerifierMaxToolCalls int
-	PlannerConcurrency   int
+	// VerifierVotes runs the precedent check this many times and keeps the
+	// majority; 1 (default) disables voting: 3 votes doubled plan-search time
+	// without making verdicts repeatable (D33).
+	VerifierVotes      int
+	PlannerConcurrency int
 
 	// Corpus. The engine's precedent pool is labels + facts files; the
 	// verifier searches the local corpus or live CROSS.
@@ -61,11 +65,11 @@ type Config struct {
 	FactsDir       string
 	RawDir         string
 	VerifierSearch string // local | cross
-	// CasesDir, when set, persists cases as JSON files there; empty keeps
-	// them in memory.
+	// CasesDir persists cases as JSON files there; CASES_DIR=off keeps them
+	// in memory.
 	CasesDir string
 	// VerifierCacheDir, when set, stores verifier verdicts so repeated plan
-	// searches give the same verdicts (D31); set it empty to disable.
+	// searches give the same verdicts (D31); VERIFIER_CACHE_DIR=off disables it.
 	VerifierCacheDir string
 }
 
@@ -93,14 +97,15 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
 		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
+		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
 		LabelsPath:       e.str("LABELS_PATH", "data/labels.jsonl"),
 		FactsDir:         e.str("CORPUS_FACTS_DIR", "data/facts"),
 		RawDir:           e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
 		VerifierSearch:   strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
-		CasesDir:         e.str("CASES_DIR", "../data/cases"),
-		VerifierCacheDir: e.str("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		CasesDir:         e.dir("CASES_DIR", "../data/cases"),
+		VerifierCacheDir: e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
 	}
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
@@ -143,7 +148,7 @@ func (c Config) validate() error {
 			bad("%s must be in (0, 1], got %v", name, v)
 		}
 	}
-	positive := map[string]int{"PRECEDENT_K": c.PrecedentK, "VERIFIER_MAX_TOOL_CALLS": c.VerifierMaxToolCalls,
+	positive := map[string]int{"PRECEDENT_K": c.PrecedentK, "VERIFIER_MAX_TOOL_CALLS": c.VerifierMaxToolCalls, "VERIFIER_VOTES": c.VerifierVotes,
 		"PLANNER_CONCURRENCY": c.PlannerConcurrency, "LLM_MAX_OUTPUT_TOKENS": c.MaxOutputTokens}
 	for name, v := range positive {
 		if v <= 0 {
@@ -181,6 +186,15 @@ func (e *env) str(key, def string) string {
 		return v
 	}
 	return def
+}
+
+// dir is a directory setting: unset or empty means def, "off" disables it
+// (returns "").
+func (e *env) dir(key, def string) string {
+	if v := e.str(key, def); !strings.EqualFold(v, "off") {
+		return v
+	}
+	return ""
 }
 
 func (e *env) integer(key string, def int) int {

@@ -27,8 +27,13 @@ func TestDefaults(t *testing.T) {
 	if c.LiteLLMBaseURL != "https://proxy.example" {
 		t.Errorf("trailing slash not trimmed: %q", c.LiteLLMBaseURL)
 	}
-	if c.CasesDir != "../data/cases" || c.VerifierCacheDir != "../data/verifier-cache" || c.PlannerConcurrency != 8 {
-		t.Errorf("cases/cache/concurrency defaults = %q %q %d", c.CasesDir, c.VerifierCacheDir, c.PlannerConcurrency)
+	if c.CasesDir != "../data/cases" || c.VerifierCacheDir != "../data/verifier-cache" || c.PlannerConcurrency != 8 || c.VerifierVotes != 1 {
+		t.Errorf("cases/cache/concurrency/votes defaults = %q %q %d %d", c.CasesDir, c.VerifierCacheDir, c.PlannerConcurrency, c.VerifierVotes)
+	}
+	env := litellmEnv()
+	env["CASES_DIR"], env["VERIFIER_CACHE_DIR"] = "off", "OFF"
+	if off, err := FromEnv(getenv(env)); err != nil || off.CasesDir != "" || off.VerifierCacheDir != "" {
+		t.Errorf("off not honoured: %q %q %v", off.CasesDir, off.VerifierCacheDir, err)
 	}
 }
 

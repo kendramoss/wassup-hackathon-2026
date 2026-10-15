@@ -145,6 +145,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		}
 	}
 	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	ver = verifier.NewMajority(ver, cfg.VerifierVotes) // the cache below stores the majority verdict
 	if cfg.VerifierCacheDir != "" {
 		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
 		if err != nil {

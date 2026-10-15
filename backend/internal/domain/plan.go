@@ -73,7 +73,10 @@ type Verdict struct {
 	CounterRuling      string  `json:"counter_ruling,omitempty"`
 	Confidence         float64 `json:"confidence"`
 	Reasoning          string  `json:"reasoning"`
-	Trace              Trace   `json:"trace"`
+	// Agreement, when the check ran several times, is how many runs gave this
+	// answer, e.g. "3/3".
+	Agreement string `json:"agreement,omitempty"`
+	Trace     Trace  `json:"trace"`
 }
 
 // Validate checks confidence is in range and that a supported verdict cites

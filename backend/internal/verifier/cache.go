@@ -32,6 +32,9 @@ type Cache struct {
 // NewCache wraps inner with an on-disk cache in dir, keyed by the task, the
 // verifier model and PromptVersion.
 func NewCache(inner Checker, dir, model string) (*Cache, error) {
+	if m, ok := inner.(*Majority); ok {
+		model = fmt.Sprintf("%s×%d", model, m.n) // a single-run verdict is not reused for a majority
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("verifier: cache dir: %w", err)
 	}
