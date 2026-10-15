@@ -28,6 +28,13 @@ const (
 	ProviderFake    = "fake"
 )
 
+// Case store names for CASES_STORE.
+const (
+	CasesFirestore = "firestore"
+	CasesFile      = "file"
+	CasesMemory    = "memory"
+)
+
 // Config is the validated runtime configuration. Secret fields are excluded
 // from String so the config can be logged.
 type Config struct {
@@ -69,6 +76,11 @@ type Config struct {
 	FactsDir       string
 	RawDir         string
 	VerifierSearch string // local | cross
+	// CasesStore is where cases live: firestore (default on Cloud Run, D25),
+	// file (default locally) or memory.
+	CasesStore string
+	// FirestoreDatabase is the Firestore database ID for CASES_STORE=firestore.
+	FirestoreDatabase string
 	// CasesDir persists cases as JSON files there; CASES_DIR=off keeps them
 	// in memory.
 	CasesDir string
@@ -104,13 +116,19 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:       e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:         e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:           e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch:   strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
-		CasesDir:         e.dir("CASES_DIR", "../data/cases"),
-		VerifierCacheDir: e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		LabelsPath:        e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:          e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:            e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:    strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		CasesDir:          e.dir("CASES_DIR", "../data/cases"),
+		FirestoreDatabase: e.str("FIRESTORE_DATABASE", "(default)"),
+		VerifierCacheDir:  e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
 	}
+	defStore := CasesFile
+	if c.OnCloudRun {
+		defStore = CasesFirestore // local disk is lost on restart there
+	}
+	c.CasesStore = strings.ToLower(e.str("CASES_STORE", defStore))
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
@@ -159,6 +177,15 @@ func (c Config) validate() error {
 			bad("%s must be positive, got %d", name, v)
 		}
 	}
+	switch c.CasesStore {
+	case CasesFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when CASES_STORE=firestore")
+		}
+	case CasesFile, CasesMemory:
+	default:
+		bad("CASES_STORE must be firestore, file or memory, got %q", c.CasesStore)
+	}
 	if c.VerifierSearch != "local" && c.VerifierSearch != "cross" {
 		bad("VERIFIER_SEARCH must be local or cross, got %q", c.VerifierSearch)
 	}
@@ -174,9 +201,9 @@ func (c Config) validate() error {
 // String renders the config for startup logs. The LiteLLM key and base URL are
 // never included.
 func (c Config) String() string {
-	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s",
+	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s cases=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun, c.VerifierSearch, c.FactsDir)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore)
 }
 
 // env parses typed values and collects parse errors.

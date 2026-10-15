@@ -56,6 +56,8 @@ func TestValidation(t *testing.T) {
 		{"zero k", merge(litellmEnv(), map[string]string{"PRECEDENT_K": "0"}), "PRECEDENT_K must be positive"},
 		{"threshold above 1", merge(litellmEnv(), map[string]string{"FAST_PATH_CONFIDENCE": "1.5"}), "FAST_PATH_CONFIDENCE must be in (0, 1]"},
 		{"bad duration", merge(litellmEnv(), map[string]string{"LLM_TIMEOUT": "90"}), "not a duration"},
+		{"firestore needs project", merge(litellmEnv(), map[string]string{"CASES_STORE": "firestore"}), "GOOGLE_CLOUD_PROJECT is required when CASES_STORE=firestore"},
+		{"unknown cases store", merge(litellmEnv(), map[string]string{"CASES_STORE": "redis"}), "CASES_STORE must be firestore, file or memory"},
 		{"bad verifier search", merge(litellmEnv(), map[string]string{"VERIFIER_SEARCH": "google"}), "VERIFIER_SEARCH must be local or cross"},
 	}
 	for _, tt := range tests {
@@ -94,4 +96,15 @@ func merge(a, b map[string]string) map[string]string {
 		out[k] = v
 	}
 	return out
+}
+
+func TestCasesStoreDefaults(t *testing.T) {
+	local, err := FromEnv(getenv(litellmEnv()))
+	if err != nil || local.CasesStore != CasesFile || local.FirestoreDatabase != "(default)" {
+		t.Errorf("local default = %q %q %v", local.CasesStore, local.FirestoreDatabase, err)
+	}
+	run, err := FromEnv(getenv(map[string]string{"LLM_PROVIDER": "vertex", "GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}))
+	if err != nil || run.CasesStore != CasesFirestore {
+		t.Errorf("Cloud Run default = %q %v", run.CasesStore, err)
+	}
 }

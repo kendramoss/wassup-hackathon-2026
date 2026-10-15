@@ -93,7 +93,7 @@ Model access is configured by environment only:
 | `fake` | offline tests | `LLM_PROVIDER=fake` |
 
 ```bash
-make run          # API on :8080; cases saved under data/cases (CASES_DIR); contract in docs/api/openapi.yaml
+make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
 make smoke        # one live model call
 make eval-report  # summaries of the committed eval runs, no model calls
 ```
@@ -113,6 +113,6 @@ Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confir
 
 ## Deploy
 
-CI (`.github/workflows/ci.yml`) runs gofmt, build, vet, staticcheck and tests on every PR. Pushing to `main` deploys changed services to Cloud Run (`deploy.yml`, keyless via Workload Identity Federation) with `LLM_PROVIDER=vertex`. Before the first Origin Proof deploy: run [docs/SETUP-GCP.md](docs/SETUP-GCP.md), and make the corpus available to the service (see `docs/DECISIONS.md`).
+CI (`.github/workflows/ci.yml`) runs gofmt, build, vet, staticcheck and tests on every PR. Pushing to `main` deploys changed services to Cloud Run (`deploy.yml`, keyless via Workload Identity Federation) with `LLM_PROVIDER=vertex`. Before the first Origin Proof deploy: finish [docs/SETUP-GCP.md](docs/SETUP-GCP.md). Cases are stored in Firestore on Cloud Run; the corpus is baked into the image and copied to the corpus bucket (D37).
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).

@@ -1,5 +1,7 @@
 # One-time GCP setup (run by a project owner)
 
+Status (15 Oct): steps 1–3 are done and the corpus is uploaded (`make upload-corpus`). Steps 4–5 (IAM) still need the owner.
+
 Project `wassup-hackathon-2026`, region `us-central1`. The API runs as `agent-backend@`.
 
 ```bash

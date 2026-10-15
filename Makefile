@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus
+.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus upload-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -30,6 +30,10 @@ bundle-corpus: ## copy labels and the built facts corpus into backend/data (bake
 	mkdir -p backend/data/facts
 	cp eval/data/labels.jsonl backend/data/labels.jsonl
 	cp data/corpus/facts/*.txt backend/data/facts/
+
+CORPUS_BUCKET ?= gs://wassup-hackathon-2026-origin-proof-corpus
+upload-corpus: ## copy the bundled corpus (labels + facts) to the corpus bucket (docs/SETUP-GCP.md)
+	gcloud storage rsync --recursive --delete-unmatched-destination-objects backend/data $(CORPUS_BUCKET)/bundled
 
 eval-dev: ## engine on the dev split (469; resumes, so a finished run just re-prints its summary)
 	cd $(GO_DIR) && go run ./cmd/eval run -split dev

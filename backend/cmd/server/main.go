@@ -159,14 +159,9 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
-	var cases store.Cases = store.NewMemory()
-	if cfg.CasesDir != "" {
-		fc, err := store.NewFile(cfg.CasesDir)
-		if err != nil {
-			return httpapi.Deps{}, err
-		}
-		cases = fc
-		logger.Info("cases persisted", "dir", cfg.CasesDir)
+	cases, err := newCases(context.Background(), cfg, logger)
+	if err != nil {
+		return httpapi.Deps{}, err
 	}
 	ds, err := demos.Load()
 	if err != nil {
@@ -192,6 +187,27 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		VerifierModel:  cfg.VerifierModel,
 		Logger:         logger,
 	}, nil
+}
+
+// newCases builds the configured case store.
+func newCases(ctx context.Context, cfg config.Config, logger *slog.Logger) (store.Cases, error) {
+	switch {
+	case cfg.CasesStore == config.CasesFirestore:
+		fs, err := store.NewFirestore(ctx, cfg.GCPProject, cfg.FirestoreDatabase)
+		if err != nil {
+			return nil, err
+		}
+		logger.Info("cases persisted in Firestore", "project", cfg.GCPProject, "database", cfg.FirestoreDatabase)
+		return fs, nil
+	case cfg.CasesStore == config.CasesFile && cfg.CasesDir != "":
+		fc, err := store.NewFile(cfg.CasesDir)
+		if err != nil {
+			return nil, err
+		}
+		logger.Info("cases persisted", "dir", cfg.CasesDir)
+		return fc, nil
+	}
+	return store.NewMemory(), nil
 }
 
 // smokeSchema is a minimal origin answer, enough to prove JSON-schema output
