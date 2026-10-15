@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 2 · b · steps with a progress bar</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+.steps{display:flex;gap:0;padding:0 40px;height:52px;align-items:center;border-bottom:1px solid var(--line);font-size:14px}
+.st{display:flex;align-items:center;gap:8px;color:var(--faint)}.st .d{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-family:var(--mono)}
+.st.done{color:var(--dim)}.st.done .d{background:var(--ok);border-color:var(--ok);color:#fff}
+.st.on{color:var(--ink);font-weight:600}.st.on .d{border-color:var(--ink);background:var(--ink);color:#fff}
+.sep{flex:0 0 56px;height:1px;background:var(--line);margin:0 14px}
+.case{margin-left:auto;font-size:13px;color:var(--dim)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:56px;max-width:1240px;margin:0 auto;padding:44px 40px 120px}
+aside{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:22px 22px 18px;display:flex;flex-direction:column;gap:26px;align-self:start}
+.foot{position:fixed;left:0;right:0;bottom:0;height:68px;border-top:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 40px;gap:14px}
+.foot .r{margin-left:auto;display:flex;gap:10px;align-items:center}
+</style></head><body>
+<div class="bar"><span class="mark">Origin <i>Proof</i></span><nav><span class="on">Cases</span><span>How accurate is it?</span></nav><span class="right">Not a ruling. Confirm with a licensed customs broker.</span></div>
+<div class="steps">
+<span class="st done"><span class="d">✓</span>Product</span><span class="sep"></span>
+<span class="st on"><span class="d">2</span>Origin</span><span class="sep"></span>
+<span class="st"><span class="d">3</span>Plan</span><span class="sep"></span>
+<span class="st"><span class="d">4</span>Draft for broker</span>
+<span class="case">Kobalt 12.5-amp heat gun · 14 Jan 2026</span></div>
+<main><section><div class="eyebrow">Likely origin · CBP substantial-transformation test</div>
+<div class="verdict">China<small>Confidence 0.85 · below the 0.95 fast path</small></div>
+<div class="chips"><span class="chip ask">Needs expert review</span><span class="chip">Current setup: CBP held China, N328954</span></div>
+<p class="lead">Decisive step: Manufacturing of the motor, fan, PCBA, and majority of functional components in China.</p><div style="margin-top:30px"><div class="ask-box">
+<h3>CBP would likely ask about this</h3>
+<p class="why">Closest earlier ruling: <span class="mono">N346397</span>, an air fryer. Answering adds these facts to the case and runs the analysis again. Your broker will want them either way.</p><div class="q"><label>How is the heating element manufactured in Thailand (e.g., formed and wound from raw wire and insulating materials, or assembled from pre-made Chinese subcomponents), and where are its raw materials sourced?</label><div class="field">Type your answer</div></div><div class="q"><label>How are the main housing and front cover produced in Thailand (e.g., injection molded from raw plastic resin), and what is the country of origin of the resin?</label><div class="field">Type your answer</div></div><div class="q"><label>What is the relative cost or value share of the Thai-produced heating element and housing compared to the Chinese-sourced motor, fan, and PCBA?</label><div class="field">Type your answer</div></div><div class="actions"><span class="btn">Add answers and re-run</span><span class="fine">About 10 seconds</span></div>
+</div></div></section>
+<aside><div class="ev"><h4>Key factors</h4><ul><li>Motor, fan, PCBA, and electrical components</li></ul></div> <div class="ev"><h4>Earlier CBP rulings read</h4><ul><li class="rul"><span>Air fryer <i class="dim" style="font-style:normal">· held Vietnam</i></span><b>N346397</b></li><li class="rul"><span>Air fryer <i class="dim" style="font-style:normal">· held Vietnam</i></span><b>N346398</b></li><li class="rul"><span>Commercial food warmer <i class="dim" style="font-style:normal">· held China</i> <span class="chip" style="font-size:11px;padding:1px 7px">cited</span></span><b>N348083</b></li><li class="rul"><span>Fans <i class="dim" style="font-style:normal">· held Thailand</i></span><b>N351782</b></li><li class="rul"><span>Refrigerant recovery unit <i class="dim" style="font-style:normal">· held China</i> <span class="chip" style="font-size:11px;padding:1px 7px">cited</span></span><b>N351922</b></li></ul>
+<span class="more">Read the reasoning →</span></div><p class="notice">Generated by AI from earlier CBP rulings. Not a ruling.</p></aside></main>
+<div class="foot"><span class="btn ghost">← Edit product</span><div class="r"><span class="btn ghost">Plan anyway</span><span class="btn off">Plan a move to Thailand →</span></div></div>
+</body></html>
