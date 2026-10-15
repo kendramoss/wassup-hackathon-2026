@@ -37,7 +37,7 @@ func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, e
 	if f.err != nil {
 		return engine.Result{}, f.err
 	}
-	return engine.Result{Prediction: domain.Prediction{Origin: "China", Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}}}, nil
+	return engine.Result{Prediction: domain.Prediction{Origin: "China", Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"}}}, nil
 }
 
 type fakeRouter struct{ regime string }
@@ -68,7 +68,9 @@ func (f *fakeClarifier) Review(_ context.Context, facts string, _ domain.Predict
 
 type fakePrecedents struct{}
 
-func (fakePrecedents) Get(id string) (domain.Ruling, bool) { return domain.Ruling{ID: id}, true }
+func (fakePrecedents) Get(id string) (domain.Ruling, bool) {
+	return domain.Ruling{ID: id, Date: time.Date(2025, 3, 25, 0, 0, 0, 0, time.UTC), Subject: "Air fryer", Origin: "Vietnam"}, true
+}
 
 type fakeRulings struct{ calls int }
 
@@ -138,6 +140,13 @@ func TestPredictFromProductThenPlanThenExport(t *testing.T) {
 		if out[k] == nil {
 			t.Errorf("response missing %s", k)
 		}
+	}
+	refs, _ := out["precedents_detail"].([]any)
+	if len(refs) != len(out["prediction"].(map[string]any)["precedents"].([]any)) || len(refs) == 0 {
+		t.Fatalf("precedents_detail = %v", out["precedents_detail"])
+	}
+	if ref := refs[0].(map[string]any); ref["origin"] != "Vietnam" || ref["date"] != "2025-03-25" || ref["subject"] != "Air fryer" || ref["url"] == "" {
+		t.Errorf("precedent ref = %v", ref)
 	}
 	if out["disclaimer"] != domain.Disclaimer {
 		t.Errorf("disclaimer = %v", out["disclaimer"])
@@ -242,7 +251,7 @@ func TestRulingIsProxiedAndCached(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
 	for i := 0; i < 2; i++ {
 		code, out := hs.do(t, "GET", "/v1/rulings/N357771", "")
-		if code != 200 || out["url"] != "https://rulings.cbp.gov/ruling/N357771" || out["date"] != "2026-01-29" {
+		if code != 200 || out["url"] != "https://rulings.cbp.gov/ruling/N357771" || out["date"] != "2026-01-29" || out["origin"] != "Vietnam" {
 			t.Fatalf("ruling %d: %v", code, out)
 		}
 	}

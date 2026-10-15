@@ -193,7 +193,7 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusCreated, caseFields(sc))
+	a.respond(w, http.StatusCreated, a.caseFields(sc))
 }
 
 // analyse runs router and engine (concurrently), triage and, below the fast
@@ -304,15 +304,46 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, caseFields(sc))
+	a.respond(w, http.StatusOK, a.caseFields(sc))
 }
 
-func caseFields(c store.Case) map[string]any {
+// precedentRef is one earlier ruling the engine was shown, with CBP's held
+// origin (null when the ruling has no single held origin).
+type precedentRef struct {
+	ID      string  `json:"id"`
+	Date    string  `json:"date"`
+	Subject string  `json:"subject"`
+	Origin  *string `json:"origin"`
+	URL     string  `json:"url"`
+}
+
+func (a *api) precedentRefs(ids []string) []precedentRef {
+	out := make([]precedentRef, 0, len(ids))
+	for _, id := range ids {
+		ref := precedentRef{ID: id, URL: domain.RulingURL(id)}
+		if a.d.Precedents != nil {
+			if p, ok := a.d.Precedents.Get(id); ok {
+				ref.Date, ref.Subject, ref.Origin = p.Date.Format(time.DateOnly), p.Subject, nonEmpty(p.Origin)
+			}
+		}
+		out = append(out, ref)
+	}
+	return out
+}
+
+func nonEmpty(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
+}
+
+func (a *api) caseFields(c store.Case) map[string]any {
 	return map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
-		"updated_at": c.UpdatedAt, "step": c.Step(),
+		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 	}
 }
 
@@ -366,7 +397,7 @@ func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, caseFields(c))
+	a.respond(w, http.StatusOK, a.caseFields(c))
 }
 
 type planRequest struct {
@@ -459,11 +490,12 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 }
 
 type rulingDTO struct {
-	ID      string `json:"id"`
-	Date    string `json:"date"`
-	Subject string `json:"subject"`
-	Text    string `json:"text"`
-	URL     string `json:"url"`
+	ID      string  `json:"id"`
+	Date    string  `json:"date"`
+	Subject string  `json:"subject"`
+	Text    string  `json:"text"`
+	URL     string  `json:"url"`
+	Origin  *string `json:"origin"` // CBP's held origin; null when no single origin
 }
 
 func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
@@ -486,6 +518,11 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 			date = d.Format(time.DateOnly)
 		}
 		dto = rulingDTO{ID: cr.RulingNumber, Date: date, Subject: cr.Subject, Text: cr.Text, URL: domain.RulingURL(id)}
+		if a.d.Precedents != nil {
+			if p, ok := a.d.Precedents.Get(id); ok {
+				dto.Origin = nonEmpty(p.Origin)
+			}
+		}
 		a.rulingMu.Lock()
 		if len(a.rulingMemo) < 500 {
 			a.rulingMemo[id] = dto

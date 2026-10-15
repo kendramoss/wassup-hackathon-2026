@@ -345,6 +345,10 @@ components:
             created_at: { type: string, format: date-time }
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
+            precedents_detail:
+              type: array
+              description: The earlier rulings in prediction.precedents, in the same order, with CBP's held origin
+              items: { $ref: "#/components/schemas/PrecedentRef" }
     Clarify:
       type: object
       description: Only for in-scope cases below the 0.95 fast path. Never changes the predicted origin.
@@ -445,6 +449,16 @@ components:
         subject: { type: string }
         text: { type: string }
         url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
+        origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
+    PrecedentRef:
+      type: object
+      required: [id, date, subject, origin, url]
+      properties:
+        id: { type: string }
+        date: { type: string, format: date, description: "empty if the ruling is not in the precedent pool" }
+        subject: { type: string }
+        origin: { type: [string, "null"], description: "CBP's held origin; null when no single held origin" }
+        url: { type: string }
     EvalSummary:
       type: object
       description: Every number with its split, n, CI and source; proxy runs are flagged.
