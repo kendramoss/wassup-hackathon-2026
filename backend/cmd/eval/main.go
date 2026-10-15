@@ -21,7 +21,11 @@
 //	eval summary [-out internal/evalsummary/summary.json]
 //	    Build the results-page numbers from the committed result files (plus
 //	    the research baselines, with their source) for GET /v1/eval/summary.
-//	eval report -in FILE [-in FILE ...]
+//	eval multiscenario [-out ../eval/data/multi_scenario.json]
+//	    Flag split rulings whose holding gives different origins for different
+//	    scenarios (a mechanical rule over CBP's analysis text, applied to every
+//	    item); report -exclude uses the list to score with and without them.
+//	eval report -in FILE [-in FILE ...] [-exclude FILE]
 //	    Print the Markdown summary of existing result files.
 //
 // Model and provider come from the same environment as the server
@@ -40,6 +44,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"runtime/debug"
 	"slices"
 	"strings"
@@ -88,6 +93,8 @@ func main() {
 		err = flipsCmd(os.Args[2:])
 	case "summary":
 		err = summaryCmd(os.Args[2:])
+	case "multiscenario":
+		err = multiScenarioCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -395,6 +402,7 @@ func report(args []string) error {
 	var in stringList
 	fl.Var(&in, "in", "result file (repeatable)")
 	scopeFile := fl.String("scope", "", "router label file from eval scope -out; recomputes in-scope and the fast path")
+	excludeFile := fl.String("exclude", "", "JSON object keyed by ruling (eval multiscenario output): score without these rulings")
 	threshold := fl.Float64("threshold", 0.95, "fast-path confidence threshold used with -scope")
 	_ = fl.Parse(args)
 	var scopeOf map[string]bool
@@ -415,6 +423,24 @@ func report(args []string) error {
 		split := ""
 		if len(rows) > 0 {
 			split = rows[0].Split
+		}
+		if *excludeFile != "" {
+			b, err := os.ReadFile(*excludeFile)
+			if err != nil {
+				return err
+			}
+			var ex map[string]any
+			if err := json.Unmarshal(b, &ex); err != nil {
+				return err
+			}
+			kept := rows[:0]
+			for _, r := range rows {
+				if _, skip := ex[r.Ruling]; !skip {
+					kept = append(kept, r)
+				}
+			}
+			fmt.Fprintf(os.Stderr, "report: excluded %d multi-scenario rulings\n", len(rows)-len(kept))
+			rows = kept
 		}
 		if scopeOf != nil {
 			for i := range rows {
@@ -1080,5 +1106,71 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	fmt.Fprintf(os.Stderr, "summary: %d items -> %s\n", len(items), *outPath)
+	return nil
+}
+
+var (
+	scenarioSentence = regexp.MustCompile(`(?i)scenario|configuration|option [12AB]|process [12AB]`)
+	originWord       = regexp.MustCompile(`(?i)origin`)
+	heldCountry      = regexp.MustCompile(`\b(?:is|be|are|remains)\s+(?:the\s+)?(China|Thailand|Vietnam|Malaysia|Taiwan|South Korea|Korea|Indonesia|Cambodia|India|Mexico|Japan|Germany|United States|Philippines|Canada|Italy|Turkey|Bangladesh|Sri Lanka|Hong Kong|Singapore|Israel|Spain|France|Poland|Brazil|Laos|Pakistan|United Kingdom|Ireland|Peru|Chile|Costa Rica|Netherlands|Switzerland|Sweden|Austria|Belgium|Czech Republic|Hungary|Romania|Egypt|Morocco|Tunisia|Jordan|United Arab Emirates|Australia|Colombia|Ecuador|Guatemala|Honduras|Dominican Republic|Myanmar|Nepal)\b`)
+	sentenceEnd      = regexp.MustCompile(`\.\s`)
+)
+
+func multiScenarioCmd(args []string) error {
+	fl := flag.NewFlagSet("multiscenario", flag.ExitOnError)
+	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
+	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
+	outPath := fl.String("out", "../eval/data/multi_scenario.json", "output")
+	_ = fl.Parse(args)
+	sp, err := corpus.LoadSplits(*splitsPath)
+	if err != nil {
+		return err
+	}
+	out := map[string]map[string]any{}
+	for _, split := range []string{"dev", "final"} {
+		ids, _ := sp.IDs(split)
+		for _, id := range ids {
+			b, err := os.ReadFile(filepath.Join(*rawDir, id+".json"))
+			if err != nil {
+				return err
+			}
+			var r cross.Ruling
+			if err := json.Unmarshal(b, &r); err != nil {
+				return err
+			}
+			_, meta := corpus.SplitFacts(r.Text)
+			t := []rune(strings.Join(strings.Fields(r.Text), " "))
+			rest := ""
+			if meta.End < len(t) {
+				rest = string(t[meta.End:])
+			}
+			held := map[string]bool{}
+			for _, s := range sentenceEnd.Split(rest, -1) {
+				if !scenarioSentence.MatchString(s) || !originWord.MatchString(s) {
+					continue
+				}
+				for _, m := range heldCountry.FindAllStringSubmatch(s, -1) {
+					c := m[1]
+					if c == "Korea" {
+						c = "South Korea"
+					}
+					held[c] = true
+				}
+			}
+			if len(held) >= 2 {
+				var cs []string
+				for c := range held {
+					cs = append(cs, c)
+				}
+				slices.Sort(cs)
+				out[id] = map[string]any{"split": split, "held": cs}
+			}
+		}
+	}
+	b, _ := json.MarshalIndent(out, "", "  ")
+	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "multiscenario: %d rulings flagged -> %s\n", len(out), *outPath)
 	return nil
 }
