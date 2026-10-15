@@ -113,3 +113,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - rules-v1 (three short statements of CBP practice, appended to engine-v1) moved dev from 90.9% to 91.1%: 10 fixed, 9 broken, p = 1.0. The rules fixed 2 of the 5 targets and broke cases where CBP weighed other facts. Kept behind the eval flag `-rules`; the product prompt stays engine-v1. No held-out run.
 - Conclusion with D22–D26: prompt-level changes do not move accuracy; the remaining confident errors need either examples of CBP's reasoning in training (fine-tuning on Vertex, finals) or human review, which the confidence bar already routes.
 
+## D28 — CBP reasoning with each precedent: no gain, not adopted (15 Oct)
+- Showing CBP's application paragraph under each precedent (reasoning-v1) moved dev from 90.9% to 91.4%: 7 fixed, 5 broken, p = 0.77, +13% cost. None of the 9 reviewed confident errors changed.
+- With D22–D27, every in-context change tried (more votes, better retrieval, same-family precedents, written rules, precedent reasoning) lands within ±0.5 points on dev. The engine's remaining confident errors are stable judgments that context does not move. Next lever: fine-tuning on Vertex (blocked on GCP setup), with the train split only. Kept behind the eval flag `-reasoning`; the product is unchanged.
+

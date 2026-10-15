@@ -27,6 +27,9 @@ type Options struct {
 	// Rules, when set, are appended to the system prompt (eval experiments).
 	Rules        string
 	RulesVersion string
+	// PrecedentReasoning adds each precedent's CBP reasoning (Ruling.Reasoning)
+	// to the user message (eval experiments).
+	PrecedentReasoning bool
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -166,10 +169,14 @@ func (e *Engine) system() string {
 }
 
 func (e *Engine) promptVersion() string {
-	if e.opts.Rules == "" {
-		return PromptVersion
+	v := PromptVersion
+	if e.opts.Rules != "" {
+		v += "+" + e.opts.RulesVersion
 	}
-	return PromptVersion + "+" + e.opts.RulesVersion
+	if e.opts.PrecedentReasoning {
+		v += "+" + ReasoningVersion
+	}
+	return v
 }
 
 // ask makes one model call with the given precedents in the given order.
@@ -177,7 +184,7 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 	resp, err := e.model.Generate(ctx, llm.Request{
 		Model:           e.opts.Model,
 		System:          e.system(),
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: RenderUser(c.Facts, precedents)}},
+		Messages:        []llm.Message{{Role: llm.RoleUser, Content: renderUser(c.Facts, precedents, e.opts.PrecedentReasoning)}},
 		JSONSchema:      Schema,
 		SchemaName:      "origin_prediction",
 		MaxOutputTokens: e.opts.MaxOutputTokens,

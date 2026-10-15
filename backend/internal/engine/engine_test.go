@@ -253,3 +253,10 @@ func TestRulesAppendToSystemAndVersion(t *testing.T) {
 		t.Errorf("system/version = %q / %q", f.Calls()[0].System[len(f.Calls()[0].System)-20:], res.Prediction.Trace.PromptVersion)
 	}
 }
+
+func TestPrecedentReasoningInUserMessage(t *testing.T) {
+	ps := []domain.Ruling{{ID: "N100001", Date: day("2025-01-01"), Facts: "f", Holding: "h", Reasoning: "CBP weighed the motor."}}
+	if strings.Contains(RenderUser("x", ps), "CBP REASONING") || !strings.Contains(renderUser("x", ps, true), "CBP REASONING: CBP weighed the motor.") {
+		t.Error("reasoning shown only when enabled")
+	}
+}

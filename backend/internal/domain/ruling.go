@@ -25,6 +25,9 @@ type Ruling struct {
 	Facts   string    `json:"facts"`
 	Holding string    `json:"holding,omitempty"`
 	Origin  string    `json:"origin,omitempty"`
+	// Reasoning is CBP's application of the test to the facts (eval
+	// experiments; empty unless the corpus attached it).
+	Reasoning string `json:"reasoning,omitempty"`
 }
 
 // Validate checks the ruling has a valid ID and a date.

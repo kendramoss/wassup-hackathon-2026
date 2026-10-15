@@ -52,6 +52,13 @@ var Schema = map[string]any{
 // "prec" condition: precedent blocks (facts truncated to 1,500 characters,
 // holding to 600), then the case facts truncated to 12,000 characters.
 func RenderUser(facts string, precedents []domain.Ruling) string {
+	return renderUser(facts, precedents, false)
+}
+
+// ReasoningVersion names the precedent-reasoning variant of the user message.
+const ReasoningVersion = "reasoning-v1"
+
+func renderUser(facts string, precedents []domain.Ruling, withReasoning bool) string {
 	user := "FACTS (ruling request, analysis removed):\n" + corpus.Truncate(facts, FactsRunes)
 	if len(precedents) == 0 {
 		return user
@@ -62,6 +69,9 @@ func RenderUser(facts string, precedents []domain.Ruling) string {
 			p.ID, p.Date.Format("2006-01-02"),
 			corpus.Truncate(p.Facts, PrecedentFactsRunes),
 			corpus.Truncate(p.Holding, corpus.PoolHoldingRunes))
+		if withReasoning && p.Reasoning != "" {
+			blocks[i] += "\nCBP REASONING: " + p.Reasoning
+		}
 	}
 	return "EARLIER CBP RULINGS (precedent; may or may not be on point):\n\n" + strings.Join(blocks, "\n\n") +
 		"\n\n---\n" + user + "\n\nIf you rely on a precedent, name its ruling number in reasoning."

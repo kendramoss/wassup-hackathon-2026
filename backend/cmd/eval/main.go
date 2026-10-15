@@ -138,6 +138,8 @@ func run(args []string) error {
 	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
+	useReasoning := fl.Bool("reasoning", false, "show each precedent's CBP reasoning (reasoning-v1; needs -raw)")
+	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score the held-out final split")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
@@ -187,6 +189,13 @@ func run(args []string) error {
 		cases = cases[:*limit]
 	}
 
+	if *useReasoning { // before the retriever copies the rulings
+		n, err := store.AttachReasoning(*rawDir)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stderr, "reasoning attached to %d of %d precedents\n", n, store.Len())
+	}
 	model, err := newModel(ctx, cfg, logger)
 	if err != nil {
 		return err
@@ -220,9 +229,13 @@ func run(args []string) error {
 	}
 	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
 		Votes: *votes, VoteBelow: *voteBelow})
-	if *useRules {
-		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
-			Votes: *votes, VoteBelow: *voteBelow, Rules: engine.Rules, RulesVersion: engine.RulesVersion})
+	if *useRules || *useReasoning {
+		opts := engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			Votes: *votes, VoteBelow: *voteBelow, PrecedentReasoning: *useReasoning}
+		if *useRules {
+			opts.Rules, opts.RulesVersion = engine.Rules, engine.RulesVersion
+		}
+		eng = engine.New(model, retr, opts)
 	}
 	var rt *router.Router
 	if *useRouter {
@@ -238,6 +251,9 @@ func run(args []string) error {
 	}
 	if *useRules {
 		name += "-" + engine.RulesVersion
+	}
+	if *useReasoning {
+		name += "-" + engine.ReasoningVersion
 	}
 	if *useRouter {
 		name += "-router"

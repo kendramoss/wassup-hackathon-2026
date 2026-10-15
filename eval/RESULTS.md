@@ -88,6 +88,18 @@ Paired against the engine-v1 BM25 dev run (90.0%, 422/469). Exact McNemar on dis
 - The breaks are the rules applied where CBP did not: blending of Chinese ingredients in Australia ("no new compound") where CBP held Australia; tissue rolls cut to a toilet-seat shape ("generic material formed") where CBP held Indonesia; carbide-tipped tools and strut assemblies ("functional component") where CBP weighed other factors. The same pattern as the shared-playbook negative result: general rules trade one set of errors for another.
 - No held-out run: no dev gain. Rows: `eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-rules-v1.jsonl`. Cost ≈ $3.90 (promo).
 
+## CBP reasoning shown with each precedent (15 Oct) — dev only, proxy; not adopted
+
+`run -split dev -reasoning` adds, under each of the 5 precedents, up to 900 characters of CBP's own application of the test (`corpus.Reasoning`: the sentences leading to the ruling's last conclusion before the HOLDING section, legal standard and citations removed; attached for 2,537 of 2,553 precedents). Facts, holding and retrieval unchanged.
+
+| Dev (n = 463 after adjustments) | accuracy (95% CI) | fast path (≥ 0.95, in scope) | cost per case |
+|---|---|---|---|
+| engine-v1 | 90.9% (88.0–93.2) | 336 cases, 96.4% | $0.0084 |
+| engine-v1 + reasoning-v1 | 91.4% (88.4–93.6) | 346 cases, 96.2% | $0.0095 |
+
+- 7 fixed, 5 broken (exact McNemar p = 0.77). None of the 9 confident errors reviewed for D27 changed: the engine kept the same answer at the same or higher confidence.
+- No held-out run: no dev gain. Rows: `eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl`. Cost ≈ $4.50 (promo).
+
 ## Planner and verifier (Gate C) — proxy, development only
 
 ### Move verifier on development flip pairs (54 CBP natural experiments dated before 2026; 46 changed, 8 unchanged)
