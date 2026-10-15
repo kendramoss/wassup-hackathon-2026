@@ -110,6 +110,7 @@ type Stats struct {
 	MovesSearched  int     `json:"moves_searched"`
 	EngineCalls    int     `json:"engine_calls"`
 	VerifierRuns   int     `json:"verifier_runs"`
+	VerifierCached int     `json:"verifier_cached"` // verdicts reused from the verifier cache
 	VerifierModel  int     `json:"verifier_model_calls"`
 	ToolCalls      int     `json:"verifier_tool_calls"`
 	InputTokens    int     `json:"input_tokens"`
@@ -252,6 +253,9 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 				Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
 			mu.Lock()
 			res.Stats.VerifierRuns++
+			if vr.Cached {
+				res.Stats.VerifierCached++
+			}
 			res.Stats.VerifierModel += vr.ModelCalls
 			res.Stats.ToolCalls += len(vr.Steps)
 			res.Stats.VerifierInTok += vr.Usage.InputTokens

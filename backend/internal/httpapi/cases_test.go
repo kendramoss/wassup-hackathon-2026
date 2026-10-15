@@ -73,8 +73,14 @@ func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, p
 func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
 	f.got = r
 	v := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.96}
+	below := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.92}
 	return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
-		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}}}, nil
+		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}},
+		Rejected: []domain.Plan{
+			{Move: domain.Move{{Group: "pcba", ToPlant: "th"}}, Description: "Make PCBA in Thailand", VariantFacts: "pcba facts",
+				Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.96}, Verdict: below, RejectionKind: domain.RejectBelowConfidence},
+			{Move: domain.Move{{Group: "switch", ToPlant: "th"}}, Description: "Make switch in Thailand", RejectionKind: domain.RejectNoPrecedent},
+		}}, nil
 }
 
 type fakeClarifier struct {
@@ -128,7 +134,7 @@ func newHarness(t *testing.T, regime string) harness {
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
-		Demos: mustDemos(t), FastPathConf: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
+		Demos: mustDemos(t), FastPathConf: 0.95, PlanConfidence: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
 	})
 	return hs
 }
@@ -509,5 +515,32 @@ func TestPlanStreamsProgressThenResult(t *testing.T) {
 	_, got := hs.do(t, "GET", "/v1/cases/"+c["id"].(string), "")
 	if got["step"] != "plan" {
 		t.Errorf("streamed plan not stored: step %v", got["step"])
+	}
+}
+
+func TestExportBelowBarPlanByMoveKey(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`); code != 400 {
+		t.Errorf("export before plan search: %d", code)
+	}
+	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
+	md, _ := ex["content"].(string)
+	if code != 200 || !strings.Contains(md, "rated this change 0.92, under its 0.95 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
+		t.Fatalf("below-bar export %d:\n%s", code, md)
+	}
+	for body, want := range map[string]int{
+		`{"move_key":"switch@th"}`:              400, // no supporting precedent
+		`{"move_key":"pcba@cn"}`:                400, // not searched
+		`{"move_key":"pcba@th","plan_index":0}`: 400,
+	} {
+		if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", body); code != want {
+			t.Errorf("export %s: %d, want %d", body, code, want)
+		}
+	}
+	if _, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":0}`); strings.Contains(ex["content"].(string), "Below the confidence bar") {
+		t.Error("shown plan draft carries the below-bar notice")
 	}
 }

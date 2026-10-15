@@ -110,13 +110,17 @@ paths:
               properties:
                 plan_index:
                   type: integer
-                  description: Index into the latest plan's shown plans; omit to draft for the current setup.
+                  description: Index into the latest plan's shown plans; omit both fields to draft for the current setup.
+                move_key:
+                  type: string
+                  description: "Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index."
       responses:
         "200":
           description: Draft
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ExportResponse" }
+        "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/answers:
     post:

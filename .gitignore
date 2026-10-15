@@ -16,3 +16,4 @@ backend/backend
 data/corpus/
 backend/server
 data/cases/
+data/verifier-cache/

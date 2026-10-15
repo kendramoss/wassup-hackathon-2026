@@ -45,3 +45,13 @@ func TestListPhrase(t *testing.T) {
 		}
 	}
 }
+
+func TestBelowBarNotice(t *testing.T) {
+	md := Markdown(Input{ProductName: "x", Facts: "f", Requested: "Thailand", BelowBar: &BelowBar{Confidence: 0.92, Bar: 0.95}})
+	if !strings.Contains(md, "**Below the confidence bar:** Origin Proof's precedent check rated this change 0.92, under its 0.95 bar.") {
+		t.Errorf("draft = %s", md)
+	}
+	if strings.Contains(Markdown(Input{ProductName: "x", Facts: "f"}), "Below the confidence bar") {
+		t.Error("notice shown without BelowBar")
+	}
+}

@@ -144,7 +144,15 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 			return httpapi.Deps{}, err
 		}
 	}
-	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	if cfg.VerifierCacheDir != "" {
+		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		ver = vc
+		logger.Info("verifier verdicts cached", "dir", cfg.VerifierCacheDir)
+	}
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -163,22 +171,23 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		return httpapi.Deps{}, err
 	}
 	return httpapi.Deps{
-		Demos:         ds,
-		Engine:        eng,
-		Router:        router.New(model, cfg.RouterModel, 2000),
-		Clarifier:     clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:    pool,
-		Planner:       planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
-		Rulings:       crossClient,
-		Cases:         cases,
-		Templates:     tmpls,
-		Summary:       evalsummary.Load,
-		FastPathConf:  cfg.FastPathConfidence,
-		Provider:      model.Provider(),
-		EngineModel:   cfg.EngineModel,
-		RouterModel:   cfg.RouterModel,
-		VerifierModel: cfg.VerifierModel,
-		Logger:        logger,
+		Demos:          ds,
+		Engine:         eng,
+		Router:         router.New(model, cfg.RouterModel, 2000),
+		Clarifier:      clarify.New(model, cfg.EngineModel, 3000),
+		Precedents:     pool,
+		Planner:        planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Rulings:        crossClient,
+		Cases:          cases,
+		Templates:      tmpls,
+		Summary:        evalsummary.Load,
+		FastPathConf:   cfg.FastPathConfidence,
+		PlanConfidence: cfg.PlanConfidence,
+		Provider:       model.Provider(),
+		EngineModel:    cfg.EngineModel,
+		RouterModel:    cfg.RouterModel,
+		VerifierModel:  cfg.VerifierModel,
+		Logger:         logger,
 	}, nil
 }
 

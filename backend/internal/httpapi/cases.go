@@ -63,22 +63,24 @@ type RulingSource interface {
 // Deps are the API's collaborators. Router and Planner may be nil (the
 // endpoints then degrade: no scope label / 503 for plans).
 type Deps struct {
-	Engine        Predictor
-	Router        Router
-	Planner       Planner
-	Clarifier     Clarifier
-	Precedents    PrecedentStore
-	Rulings       RulingSource
-	Cases         store.Cases
-	Templates     map[string]planner.Template
-	Summary       func() (evalsummary.Summary, error)
-	Demos         []demos.Demo
-	FastPathConf  float64
-	Provider      string
-	EngineModel   string
-	RouterModel   string
-	VerifierModel string
-	Logger        *slog.Logger
+	Engine       Predictor
+	Router       Router
+	Planner      Planner
+	Clarifier    Clarifier
+	Precedents   PrecedentStore
+	Rulings      RulingSource
+	Cases        store.Cases
+	Templates    map[string]planner.Template
+	Summary      func() (evalsummary.Summary, error)
+	Demos        []demos.Demo
+	FastPathConf float64
+	// PlanConfidence is the verifier bar for shown plans (named in below-bar drafts).
+	PlanConfidence float64
+	Provider       string
+	EngineModel    string
+	RouterModel    string
+	VerifierModel  string
+	Logger         *slog.Logger
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -561,6 +563,9 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 
 type exportRequest struct {
 	PlanIndex *int `json:"plan_index"`
+	// MoveKey picks a plan by move, among shown plans or rejected plans whose
+	// precedent check was below the bar.
+	MoveKey string `json:"move_key"`
 }
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
@@ -584,15 +589,33 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
-	if in.PlanIndex != nil {
+	if in.PlanIndex != nil && in.MoveKey != "" {
+		a.fail(w, r, fmt.Errorf("%w: give plan_index or move_key, not both", domain.ErrInvalid))
+		return
+	}
+	var chosen *domain.Plan
+	switch {
+	case in.PlanIndex != nil:
 		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
 			a.fail(w, r, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan", domain.ErrInvalid, *in.PlanIndex))
 			return
 		}
-		p := c.Plan.Plans[*in.PlanIndex]
+		chosen = &c.Plan.Plans[*in.PlanIndex]
+	case in.MoveKey != "":
+		p, err := draftablePlan(c.Plan, in.MoveKey)
+		if err != nil {
+			a.fail(w, r, err)
+			return
+		}
+		chosen = p
+	}
+	if p := chosen; p != nil {
 		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
 		if p.Verdict != nil {
 			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
+			if p.RejectionKind == domain.RejectBelowConfidence {
+				ex.BelowBar = &export.BelowBar{Confidence: p.Verdict.Confidence, Bar: a.d.PlanConfidence}
+			}
 		}
 	}
 	content := export.Markdown(ex)
@@ -603,6 +626,30 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+}
+
+// draftablePlan finds a plan by move key: any shown plan, or a rejected plan
+// whose precedent check found support but scored below the bar.
+func draftablePlan(res *planner.Result, key string) (*domain.Plan, error) {
+	if res == nil {
+		return nil, fmt.Errorf("%w: move_key %q: run a plan search first", domain.ErrInvalid, key)
+	}
+	for i := range res.Plans {
+		if res.Plans[i].Move.Key() == key {
+			return &res.Plans[i], nil
+		}
+	}
+	for i := range res.Rejected {
+		p := &res.Rejected[i]
+		if p.Move.Key() != key || key == "" {
+			continue
+		}
+		if p.RejectionKind != domain.RejectBelowConfidence {
+			return nil, fmt.Errorf("%w: move_key %q was rejected (%s); only shown plans or plans below the confidence bar can be drafted", domain.ErrInvalid, key, p.RejectionKind)
+		}
+		return p, nil
+	}
+	return nil, fmt.Errorf("%w: move_key %q is not in the last plan search", domain.ErrInvalid, key)
 }
 
 type rulingDTO struct {

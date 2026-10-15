@@ -108,6 +108,8 @@ type Result struct {
 	// Dropped lists rulings the agent named that it never saw in a tool
 	// result; they are removed from the verdict.
 	Dropped []string
+	// Cached is true when the verdict came from Cache, not a fresh run.
+	Cached bool
 }
 
 // Options configures the verifier.
