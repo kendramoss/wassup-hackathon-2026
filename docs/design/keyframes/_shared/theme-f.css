@@ -1,0 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+/* F · Dark reading room (after Claude, Gemini, Adaline dark): charcoal page, light serif verdict, mint for supported, amber for look again */
+:root{--paper:#181817;--sheet:#212120;--ink:#ecebe6;--dim:#a8a59d;--faint:#7d7a73;--line:#34332f;--wash:#2a2a28;
+--ok:#7cc8a4;--ok-wash:#1f3329;--ask:#efb257;--ask-wash:#352a18;--ask-line:#5c4720;--ask-bar:#e0a040;
+--serif:"Source Serif 4",Georgia,serif;--sans:"Inter",sans-serif;--mono:"IBM Plex Mono",monospace;--r:8px}
+.btn{background:var(--ink)!important;color:#141413!important;border-color:var(--ink)!important}
+.btn.ghost{background:transparent!important;color:var(--ink)!important;border-color:var(--line)!important}
+.btn.off{background:var(--wash)!important;color:var(--faint)!important;border-color:var(--line)!important}
+.st.on .d{background:var(--ink)!important;border-color:var(--ink)!important;color:#141413!important}
+.st.done .d{color:#141413!important}
+.q .field{background:var(--paper)!important}

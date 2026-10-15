@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><style>@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");</style><meta charset="utf-8"><title>Step 3 · f · tokens</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style><style>/* inlined from _shared/theme-f.css */
+/* F · Dark reading room (after Claude, Gemini, Adaline dark): charcoal page, light serif verdict, mint for supported, amber for look again */
+:root{--paper:#181817;--sheet:#212120;--ink:#ecebe6;--dim:#a8a59d;--faint:#7d7a73;--line:#34332f;--wash:#2a2a28;
+--ok:#7cc8a4;--ok-wash:#1f3329;--ask:#efb257;--ask-wash:#352a18;--ask-line:#5c4720;--ask-bar:#e0a040;
+--serif:"Source Serif 4",Georgia,serif;--sans:"Inter",sans-serif;--mono:"IBM Plex Mono",monospace;--r:8px}
+.btn{background:var(--ink)!important;color:#141413!important;border-color:var(--ink)!important}
+.btn.ghost{background:transparent!important;color:var(--ink)!important;border-color:var(--line)!important}
+.btn.off{background:var(--wash)!important;color:var(--faint)!important;border-color:var(--line)!important}
+.st.on .d{background:var(--ink)!important;border-color:var(--ink)!important;color:#141413!important}
+.st.done .d{color:#141413!important}
+.q .field{background:var(--paper)!important}
+
+</style>
+<style>main{max-width:1240px;margin:0 auto;padding:48px 40px}h1{font-family:var(--serif);font-size:40px;font-weight:600;letter-spacing:-.02em}
+.cols3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:48px;margin-top:36px}
+h2x{display:block}.h{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:14px;font-family:var(--sans)}
+.sw{display:grid;grid-template-columns:36px 1fr;column-gap:12px;align-items:center;margin-bottom:12px;font-size:14px}.chipc{grid-row:span 2;width:36px;height:36px;border-radius:var(--r)}.sw span{font-size:12px;color:var(--dim)}
+.ts div{margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:12px}.ts small{display:block;font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:2px}
+.sp{display:flex;align-items:end;gap:10px;margin-top:6px}.sp div{background:var(--ok);opacity:.85}.sp span{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.spl{display:flex;gap:14px;margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.demo{margin-top:22px;display:flex;flex-direction:column;gap:12px}</style></head><body>
+<main><div class="eyebrow">Step 3 · direction F</div><h1>Dark reading room</h1><p class="lead" style="font-size:17px">After Claude, Gemini and Adaline in dark mode: charcoal page, light serif verdict, mint for supported, amber for look again. Source Serif 4, Inter, IBM Plex Mono.</p>
+<div class="cols3">
+<div><div class="h">Colour</div><div class="sw"><div class="chipc" style="background:#ecebe6"></div><b>Text</b><span class="mono">#ecebe6 · 14.9:1 on paper · AA</span></div><div class="sw"><div class="chipc" style="background:#a8a59d"></div><b>Secondary text</b><span class="mono">#a8a59d · 7.2:1 on paper · AA</span></div><div class="sw"><div class="chipc" style="background:#7d7a73"></div><b>Placeholder</b><span class="mono">#7d7a73 · 4.1:1 on paper · AA large</span></div><div class="sw"><div class="chipc" style="background:#7cc8a4"></div><b>Accent · supported, links</b><span class="mono">#7cc8a4 · 9.0:1 on paper · AA</span></div><div class="sw"><div class="chipc" style="background:#efb257"></div><b>Look again · review, questions</b><span class="mono">#efb257 · 9.5:1 on paper · AA</span></div><div class="sw"><div class="chipc" style="background:#34332f"></div><b>Hairlines</b><span class="mono">#34332f · 1.4:1 on paper · border only</span></div><div class="sw"><div class="chipc" style="background:#181817;border:1px solid #34332f"></div><b>Paper (page)</b><span class="mono">#181817</span></div><div class="sw"><div class="chipc" style="background:#212120;border:1px solid #34332f"></div><b>Sheet (cards)</b><span class="mono">#212120</span></div><div class="sw"><div class="chipc" style="background:#2a2a28;border:1px solid #34332f"></div><b>Wash (hover, selected)</b><span class="mono">#2a2a28</span></div><div class="sw"><div class="chipc" style="background:#1f3329;border:1px solid #34332f"></div><b>Accent wash</b><span class="mono">#1f3329</span></div><div class="sw"><div class="chipc" style="background:#352a18;border:1px solid #34332f"></div><b>Look-again wash</b><span class="mono">#352a18</span></div></div>
+<div class="ts"><div class="h">Type scale</div>
+<div><span class="verdict" style="font-size:64px">China</span><small>Verdict · 64/66</small></div>
+<div><span style="font-family:var(--serif);font-size:28px;font-weight:600">Kobalt 12.5-amp heat gun</span><small>Page title · 28/34</small></div>
+<div><span style="font-family:var(--serif);font-size:21px;font-weight:600">CBP would likely ask about this</span><small>Section · 21/28</small></div>
+<div><span class="lead" style="margin:0;font-size:19px">Decisive step: manufacturing of the motor and fan.</span><small>Lead · 19/28</small></div>
+<div><span style="font-size:15px">Answering adds these facts to the case.</span><small>Body · 15/22</small></div>
+<div><span class="eyebrow">Key factors</span><small>Label · 12/16, caps</small></div>
+<div><span class="mono" style="font-size:14px">N346397 · 0.85 · $2,000,000</span><small>Numbers and ruling IDs · mono 13–14</small></div></div>
+<div><div class="h">Spacing · 4 px base</div>
+<div class="sp"><div style="width:4px;height:4px"></div><div style="width:8px;height:8px"></div><div style="width:12px;height:12px"></div><div style="width:16px;height:16px"></div><div style="width:24px;height:24px"></div><div style="width:32px;height:32px"></div><div style="width:48px;height:48px"></div><div style="width:64px;height:64px"></div></div>
+<div class="spl"><span>4</span><span>8</span><span>12</span><span>16</span><span>24</span><span>32</span><span>48</span><span>64</span></div>
+<p class="fine" style="margin-top:10px">Inside cards 16–24, between sections 32–48, page edge 40. Corner radius 8px. No shadows except menus: borders do the work (document, not dashboard).</p>
+<div class="h" style="margin-top:30px">Status</div>
+<div class="demo"><div class="chips" style="margin:0"><span class="chip ok">Auto-accepted</span><span class="chip ask">Needs expert review</span><span class="chip">Draft</span></div>
+<div style="display:flex;gap:10px"><span class="btn">Add answers and re-run</span><span class="btn ghost">Plan anyway</span></div>
+<span class="more">Read the reasoning →</span></div></div>
+</div></main></body></html>
