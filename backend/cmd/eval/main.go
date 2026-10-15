@@ -25,6 +25,9 @@
 //	    Flag split rulings whose holding gives different origins for different
 //	    scenarios (a mechanical rule over CBP's analysis text, applied to every
 //	    item); report -exclude uses the list to score with and without them.
+//	eval compare -a BASE -b VARIANT [-exclude FILE]
+//	    Paired comparison on shared rulings: fixed / broken counts and an exact
+//	    McNemar test.
 //	eval report -in FILE [-in FILE ...] [-exclude FILE]
 //	    Print the Markdown summary of existing result files.
 //
@@ -40,6 +43,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"math"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -95,6 +99,8 @@ func main() {
 		err = summaryCmd(os.Args[2:])
 	case "multiscenario":
 		err = multiScenarioCmd(os.Args[2:])
+	case "compare":
+		err = compareCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -1220,4 +1226,77 @@ func newEmbedder(ctx context.Context, cfg config.Config) (llm.Embedder, error) {
 		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 	}
 	return nil, fmt.Errorf("no embedder for provider %q", cfg.LLMProvider)
+}
+
+func compareCmd(args []string) error {
+	fl := flag.NewFlagSet("compare", flag.ExitOnError)
+	a := fl.String("a", "", "baseline result file")
+	b := fl.String("b", "", "variant result file")
+	excludeFile := fl.String("exclude", "", "rulings to leave out (eval multiscenario output)")
+	_ = fl.Parse(args)
+	ra, err := readRows(*a, nil)
+	if err != nil {
+		return err
+	}
+	rb, err := readRows(*b, nil)
+	if err != nil {
+		return err
+	}
+	skip := map[string]any{}
+	if *excludeFile != "" {
+		if bs, err := os.ReadFile(*excludeFile); err == nil {
+			_ = json.Unmarshal(bs, &skip)
+		}
+	}
+	ok := func(r evalkit.Row) bool { return r.Correct && r.Error == "" }
+	byID := map[string]evalkit.Row{}
+	for _, r := range ra {
+		byID[r.Ruling] = r
+	}
+	var n, ka, kb, fixed, broken int
+	for _, y := range rb {
+		x, found := byID[y.Ruling]
+		if _, s := skip[y.Ruling]; !found || s {
+			continue
+		}
+		n++
+		if ok(x) {
+			ka++
+		}
+		if ok(y) {
+			kb++
+		}
+		switch {
+		case ok(y) && !ok(x):
+			fixed++
+		case ok(x) && !ok(y):
+			broken++
+		}
+	}
+	pa, la, ha := evalkit.Wilson(ka, n)
+	pb, lb, hb := evalkit.Wilson(kb, n)
+	fmt.Printf("n=%d | A %.1f%% (%.1f–%.1f) | B %.1f%% (%.1f–%.1f) | B fixed %d, broke %d | exact McNemar p=%.3f\n",
+		n, 100*pa, 100*la, 100*ha, 100*pb, 100*lb, 100*hb, fixed, broken, mcnemarExact(fixed, broken))
+	return nil
+}
+
+// mcnemarExact is the two-sided exact binomial test on discordant pairs.
+func mcnemarExact(b, c int) float64 {
+	n := b + c
+	if n == 0 {
+		return 1
+	}
+	k := min(b, c)
+	var tail float64
+	for i := 0; i <= k; i++ {
+		tail += math.Exp(lchoose(n, i) - float64(n)*math.Ln2)
+	}
+	return math.Min(1, 2*tail)
+}
+
+func lchoose(n, k int) float64 {
+	a, _ := math.Lgamma(float64(n + 1))
+	b, _ := math.Lgamma(float64(k + 1))
+	c, _ := math.Lgamma(float64(n - k + 1))
+	return a - b - c
 }
