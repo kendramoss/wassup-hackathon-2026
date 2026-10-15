@@ -64,7 +64,11 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 	}
 	var precedents []domain.Ruling
 	if e.retr != nil && e.opts.K > 0 {
-		for _, h := range e.retr.Search(c.Facts, e.opts.K, retrieval.PrecedentFilter(c)) {
+		hits, err := e.retr.Search(ctx, c.Facts, e.opts.K, retrieval.PrecedentFilter(c))
+		if err != nil {
+			return Result{}, fmt.Errorf("engine: predict %s: retrieve: %w", c.ID, err)
+		}
+		for _, h := range hits {
 			precedents = append(precedents, h.Ruling)
 		}
 	}

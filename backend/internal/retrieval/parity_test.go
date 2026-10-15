@@ -56,7 +56,7 @@ func TestResearchParity(t *testing.T) {
 			continue
 		}
 		date, _ := time.Parse(time.DateOnly, row.Date)
-		hits := idx.Search(r.Facts, 5, PrecedentFilter(domain.Case{ID: row.Ruling, Date: date}))
+		hits := idx.Top(r.Facts, 5, PrecedentFilter(domain.Case{ID: row.Ruling, Date: date}))
 		got := make([]string, len(hits))
 		for i, h := range hits {
 			got[i] = h.Ruling.ID

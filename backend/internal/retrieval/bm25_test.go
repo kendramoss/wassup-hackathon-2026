@@ -33,7 +33,7 @@ func TestTokens(t *testing.T) {
 func TestSearchRanksAndFiltersByDate(t *testing.T) {
 	idx := NewBM25(sample(), facts)
 	c := domain.Case{ID: "N357771", Date: day("2026-01-14")}
-	hits := idx.Search("heat gun with Chinese motor and heating element", 3, PrecedentFilter(c))
+	hits := idx.Top("heat gun with Chinese motor and heating element", 3, PrecedentFilter(c))
 	if len(hits) != 3 {
 		t.Fatalf("hits = %d", len(hits))
 	}
@@ -55,7 +55,7 @@ func TestSearchRanksAndFiltersByDate(t *testing.T) {
 func TestSearchExcludesTheCaseItself(t *testing.T) {
 	idx := NewBM25(sample(), facts)
 	c := domain.Case{ID: "N100001", Date: day("2030-01-01")}
-	for _, h := range idx.Search("heat gun", 5, PrecedentFilter(c)) {
+	for _, h := range idx.Top("heat gun", 5, PrecedentFilter(c)) {
 		if h.Ruling.ID == "N100001" {
 			t.Fatal("case retrieved as its own precedent")
 		}
@@ -66,7 +66,7 @@ func TestTiesBreakByHigherIndex(t *testing.T) {
 	rs := []domain.Ruling{{ID: "N1"}, {ID: "N2"}, {ID: "N3"}}
 	idx := NewBM25(rs, func(domain.Ruling) string { return "" })
 	var ids []string
-	for _, h := range idx.Search("anything", 3, func(domain.Ruling) bool { return true }) {
+	for _, h := range idx.Top("anything", 3, func(domain.Ruling) bool { return true }) {
 		ids = append(ids, h.Ruling.ID)
 	}
 	if !reflect.DeepEqual(ids, []string{"N3", "N2", "N1"}) {
@@ -77,7 +77,7 @@ func TestTiesBreakByHigherIndex(t *testing.T) {
 func TestSearchHonoursExcludeList(t *testing.T) {
 	idx := NewBM25(sample(), facts)
 	c := domain.Case{ID: "X", Date: day("2030-01-01"), Exclude: []string{"N100001"}}
-	for _, h := range idx.Search("heat gun", 5, PrecedentFilter(c)) {
+	for _, h := range idx.Top("heat gun", 5, PrecedentFilter(c)) {
 		if h.Ruling.ID == "N100001" {
 			t.Fatal("excluded ruling retrieved")
 		}

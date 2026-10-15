@@ -82,7 +82,7 @@ func NewLocal(labels []corpus.Label, factsDir, rawDir string) (*Local, error) {
 // Search implements Searcher.
 func (l *Local) Search(_ context.Context, query string, before time.Time, exclude map[string]bool) ([]Hit, error) {
 	var out []Hit
-	for _, h := range l.bm.Search(query, SearchHits, func(r domain.Ruling) bool { return r.Date.Before(before) && !exclude[r.ID] }) {
+	for _, h := range l.bm.Top(query, SearchHits, func(r domain.Ruling) bool { return r.Date.Before(before) && !exclude[r.ID] }) {
 		out = append(out, Hit{ID: h.Ruling.ID, Date: h.Ruling.Date, Subject: h.Ruling.Subject, Origin: h.Ruling.Origin})
 	}
 	return out, nil

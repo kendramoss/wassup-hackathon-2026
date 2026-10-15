@@ -1,6 +1,7 @@
 package retrieval
 
 import (
+	"context"
 	"math"
 	"regexp"
 	"sort"
@@ -12,7 +13,7 @@ import (
 // Retriever returns up to k rulings most similar to query among those for
 // which allow returns true, best first.
 type Retriever interface {
-	Search(query string, k int, allow func(domain.Ruling) bool) []Hit
+	Search(ctx context.Context, query string, k int, allow func(domain.Ruling) bool) ([]Hit, error)
 }
 
 // Hit is one retrieved ruling and its score.
@@ -96,7 +97,12 @@ func NewBM25(rulings []domain.Ruling, text func(domain.Ruling) string) *BM25 {
 }
 
 // Search implements Retriever.
-func (idx *BM25) Search(query string, k int, allow func(domain.Ruling) bool) []Hit {
+func (idx *BM25) Search(_ context.Context, query string, k int, allow func(domain.Ruling) bool) ([]Hit, error) {
+	return idx.Top(query, k, allow), nil
+}
+
+// Top returns the k best BM25 hits (no error path; used by Hybrid).
+func (idx *BM25) Top(query string, k int, allow func(domain.Ruling) bool) []Hit {
 	seen := map[string]bool{}
 	var terms []string
 	for _, t := range Tokens(query) {

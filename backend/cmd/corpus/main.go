@@ -7,6 +7,9 @@
 //	corpus build   [-raw DIR] [-facts DIR]
 //	    Split each ruling into its facts section (corpus.SplitFacts) and write
 //	    DIR/<id>.txt plus DIR/split_meta.jsonl.
+//	corpus embed   [-facts DIR] [-out FILE] [-dims 768]
+//	    Embed the facts of every labelled ruling (gemini-embedding-001 via the
+//	    configured LLM provider) into a vector index for hybrid retrieval.
 //	corpus compare -a DIR -b DIR
 //	    Compare two facts directories (port check against the research split).
 //
@@ -27,8 +30,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
 
 const userAgent = "origin-proof (Google Cloud AI Builder Cup 2026 prototype)"
@@ -46,6 +52,8 @@ func main() {
 		err = build(os.Args[2:])
 	case "compare":
 		err = compare(os.Args[2:])
+	case "embed":
+		err = embed(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -228,4 +236,78 @@ func firstDiff(a, b string) int {
 		}
 	}
 	return n
+}
+
+func embed(args []string) error {
+	fl := flag.NewFlagSet("embed", flag.ExitOnError)
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
+	out := fl.String("out", "../data/corpus/embeddings-768.bin", "output index")
+	model := fl.String("model", "gemini-embedding-001", "embedding model")
+	dims := fl.Int("dims", 768, "output dimensions")
+	batch := fl.Int("batch", 50, "texts per request")
+	_ = fl.Parse(args)
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	var emb llm.Embedder
+	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		emb = llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
+	case config.ProviderVertex:
+		v, err := llm.NewVertex(context.Background(), llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
+		if err != nil {
+			return err
+		}
+		emb = v
+	default:
+		return fmt.Errorf("embed needs litellm or vertex, got %q", cfg.LLMProvider)
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	type item struct{ id, text string }
+	var items []item
+	for _, l := range labels {
+		b, err := os.ReadFile(filepath.Join(*factsDir, l.Ruling+".txt"))
+		if err != nil {
+			continue
+		}
+		items = append(items, item{l.Ruling, retrieval.EmbedText(string(b))})
+	}
+	idx := retrieval.NewVectors(*model, *dims)
+	tokens := 0
+	for i := 0; i < len(items); i += *batch {
+		end := min(i+*batch, len(items))
+		texts := make([]string, end-i)
+		for j := range texts {
+			texts[j] = items[i+j].text
+		}
+		var vecs [][]float32
+		var u llm.Usage
+		for attempt := 0; ; attempt++ {
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+			vecs, u, err = emb.Embed(ctx, *model, texts, *dims)
+			cancel()
+			if err == nil || attempt == 3 {
+				break
+			}
+			time.Sleep(time.Duration(5*(attempt+1)) * time.Second)
+		}
+		if err != nil {
+			return fmt.Errorf("embed batch at %d: %w", i, err)
+		}
+		tokens += u.InputTokens
+		for j, v := range vecs {
+			idx.Add(items[i+j].id, retrieval.TextHash(items[i+j].text), v)
+		}
+		fmt.Fprintf(os.Stderr, "embedded %d/%d\n", end, len(items))
+	}
+	if err := idx.Save(*out); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "embed: %d vectors (%d dims, %d input tokens) -> %s\n", idx.Len(), *dims, tokens, *out)
+	return nil
 }

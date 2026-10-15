@@ -25,6 +25,8 @@ type Row struct {
 	Provider      string   `json:"llm_provider"`
 	ModelID       string   `json:"model_id"`
 	PromptVersion string   `json:"prompt_version"`
+	Retrieval     string   `json:"retrieval,omitempty"` // bm25 (default), hybrid, vector
+	Votes         int      `json:"votes,omitempty"`     // model calls voted on (0/1 = single call)
 	InputTokens   int      `json:"input_tokens"`
 	OutputTokens  int      `json:"output_tokens"`
 	LatencyMS     int64    `json:"latency_ms"`

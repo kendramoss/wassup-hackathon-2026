@@ -111,6 +111,9 @@ func run(args []string) error {
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
 	cond := fl.String("cond", "prec", "prec (with precedents) or zero (facts only)")
+	retrievalMode := fl.String("retrieval", "bm25", "bm25, hybrid (BM25 candidates re-ranked by embeddings) or vector")
+	candidates := fl.Int("candidates", 30, "BM25 candidates re-ranked in hybrid mode")
+	vectorsPath := fl.String("vectors", "../data/corpus/embeddings-768.bin", "embedding index (go run ./cmd/corpus embed)")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score the held-out final split")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
@@ -166,7 +169,30 @@ func run(args []string) error {
 	}
 	var retr retrieval.Retriever
 	if *cond == "prec" {
-		retr = retrieval.NewBM25(store.Rulings(), engine.PrecedentText)
+		bm := retrieval.NewBM25(store.Rulings(), engine.PrecedentText)
+		retr = bm
+		switch *retrievalMode {
+		case "bm25":
+		case "hybrid", "vector":
+			vecs, err := retrieval.LoadVectors(*vectorsPath)
+			if err != nil {
+				return err
+			}
+			emb, ok := model.(llm.Embedder)
+			if !ok {
+				emb, err = newEmbedder(ctx, cfg)
+				if err != nil {
+					return err
+				}
+			}
+			n := *candidates
+			if *retrievalMode == "vector" {
+				n = 0
+			}
+			retr = &retrieval.Hybrid{BM25: bm, Vectors: vecs, Embedder: emb, Candidates: n}
+		default:
+			return fmt.Errorf("-retrieval must be bm25, hybrid or vector")
+		}
 	}
 	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
 	var rt *router.Router
@@ -175,6 +201,9 @@ func run(args []string) error {
 	}
 
 	name := fmt.Sprintf("%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.PromptVersion, cfg.LLMProvider)
+	if *retrievalMode != "bm25" {
+		name = fmt.Sprintf("%s-%s-%s%d-%s-%s", *split, cfg.EngineModel, *retrievalMode, *candidates, engine.PromptVersion, cfg.LLMProvider)
+	}
 	if *useRouter {
 		name += "-router"
 	}
@@ -215,6 +244,7 @@ func run(args []string) error {
 			defer wg.Done()
 			defer func() { <-sem }()
 			row := evaluate(ctx, eng, rt, cfg, store, c, *split)
+			row.Retrieval = *retrievalMode
 			if ctx.Err() != nil && row.Error != "" {
 				return // interrupted: leave the case for the next run
 			}
@@ -1173,4 +1203,14 @@ func multiScenarioCmd(args []string) error {
 	}
 	fmt.Fprintf(os.Stderr, "multiscenario: %d rulings flagged -> %s\n", len(out), *outPath)
 	return nil
+}
+
+func newEmbedder(ctx context.Context, cfg config.Config) (llm.Embedder, error) {
+	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		return llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout), nil
+	case config.ProviderVertex:
+		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
+	}
+	return nil, fmt.Errorf("no embedder for provider %q", cfg.LLMProvider)
 }
