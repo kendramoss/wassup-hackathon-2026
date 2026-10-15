@@ -74,7 +74,7 @@ func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, p
 func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
 	f.got = r
 	v := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.96}
-	below := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.92}
+	below := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.88}
 	return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
 		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}},
 		Rejected: []domain.Plan{
@@ -135,7 +135,7 @@ func newHarness(t *testing.T, regime string) harness {
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
-		Demos: mustDemos(t), FastPathConf: 0.95, PlanConfidence: 0.95, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
+		Demos: mustDemos(t), FastPathConf: 0.92, PlanConfidence: 0.92, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
 	})
 	return hs
 }
@@ -529,7 +529,7 @@ func TestExportBelowBarPlanByMoveKey(t *testing.T) {
 	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
 	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
 	md, _ := ex["content"].(string)
-	if code != 200 || !strings.Contains(md, "rated this change 0.92, under its 0.95 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
+	if code != 200 || !strings.Contains(md, "rated this change 0.88, under its 0.92 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
 		t.Fatalf("below-bar export %d:\n%s", code, md)
 	}
 	for body, want := range map[string]int{

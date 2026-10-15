@@ -120,7 +120,7 @@ const (
 	// RejectCurrentSetup is the current setup, listed for comparison.
 	RejectCurrentSetup RejectionKind = "current_setup"
 	// RejectBelowConfidence is precedent-supported, but the verifier's
-	// confidence is below the display bar (0.95).
+	// confidence is below the display bar (PLAN_CONFIDENCE, 0.92).
 	RejectBelowConfidence RejectionKind = "below_confidence_bar"
 	// RejectNoPrecedent means no earlier ruling held this kind of change decisive.
 	RejectNoPrecedent RejectionKind = "no_supporting_precedent"

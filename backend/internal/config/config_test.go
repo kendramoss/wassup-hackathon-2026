@@ -20,7 +20,7 @@ func TestDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if c.LLMProvider != ProviderLiteLLM || c.EngineModel != "gemini-4-argon" || c.RouterModel != "gemini-3.8-flash" ||
-		c.PrecedentK != 5 || c.FastPathConfidence != 0.92 || c.VerifierMaxToolCalls != 6 ||
+		c.PrecedentK != 5 || c.FastPathConfidence != 0.92 || c.PlanConfidence != 0.92 || c.VerifierMaxToolCalls != 6 ||
 		c.LLMTimeout != 90*time.Second || c.GCPLocation != "global" || c.Port != "8080" {
 		t.Errorf("unexpected defaults: %+v", c)
 	}

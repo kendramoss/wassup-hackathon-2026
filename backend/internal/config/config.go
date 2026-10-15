@@ -17,6 +17,10 @@ import (
 // and held-out (96.7%, 80%) through the proxy (D32).
 const DefaultFastPath = 0.92
 
+// DefaultPlanBar is the verifier confidence a precedent-supported plan needs
+// to be shown; it matches the auto-accept bar (D35).
+const DefaultPlanBar = 0.92
+
 // Provider names for LLM_PROVIDER.
 const (
 	ProviderLiteLLM = "litellm"
@@ -95,7 +99,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		MaxOutputTokens:      e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
 		PrecedentK:           e.integer("PRECEDENT_K", 5),
 		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
-		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
+		PlanConfidence:       e.float("PLAN_CONFIDENCE", DefaultPlanBar),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
