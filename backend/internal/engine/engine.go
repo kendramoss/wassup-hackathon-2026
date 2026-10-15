@@ -24,6 +24,9 @@ type Options struct {
 	// temperature 0, and returns the majority origin (D22).
 	Votes     int
 	VoteBelow float64
+	// Rules, when set, are appended to the system prompt (eval experiments).
+	Rules        string
+	RulesVersion string
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -155,11 +158,25 @@ func (e *Engine) vote(ctx context.Context, c domain.Case, precedents []domain.Ru
 	return best, nil
 }
 
+func (e *Engine) system() string {
+	if e.opts.Rules == "" {
+		return System
+	}
+	return System + "\n\n" + e.opts.Rules
+}
+
+func (e *Engine) promptVersion() string {
+	if e.opts.Rules == "" {
+		return PromptVersion
+	}
+	return PromptVersion + "+" + e.opts.RulesVersion
+}
+
 // ask makes one model call with the given precedents in the given order.
 func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Ruling) (Result, error) {
 	resp, err := e.model.Generate(ctx, llm.Request{
 		Model:           e.opts.Model,
-		System:          System,
+		System:          e.system(),
 		Messages:        []llm.Message{{Role: llm.RoleUser, Content: RenderUser(c.Facts, precedents)}},
 		JSONSchema:      Schema,
 		SchemaName:      "origin_prediction",
@@ -187,7 +204,7 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		Trace: domain.Trace{
 			Provider:      resp.Provider,
 			ModelID:       resp.ModelID,
-			PromptVersion: PromptVersion,
+			PromptVersion: e.promptVersion(),
 			InputTokens:   resp.Usage.InputTokens,
 			OutputTokens:  resp.Usage.OutputTokens,
 			LatencyMS:     resp.Latency.Milliseconds(),

@@ -137,6 +137,7 @@ func run(args []string) error {
 	vectorsPath := fl.String("vectors", "../data/corpus/embeddings-768.bin", "embedding index (go run ./cmd/corpus embed)")
 	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
+	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score the held-out final split")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
@@ -219,6 +220,10 @@ func run(args []string) error {
 	}
 	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
 		Votes: *votes, VoteBelow: *voteBelow})
+	if *useRules {
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			Votes: *votes, VoteBelow: *voteBelow, Rules: engine.Rules, RulesVersion: engine.RulesVersion})
+	}
 	var rt *router.Router
 	if *useRouter {
 		rt = router.New(model, cfg.RouterModel, 2000)
@@ -230,6 +235,9 @@ func run(args []string) error {
 	}
 	if *votes > 1 {
 		name += fmt.Sprintf("-vote%d", *votes)
+	}
+	if *useRules {
+		name += "-" + engine.RulesVersion
 	}
 	if *useRouter {
 		name += "-router"
@@ -324,7 +332,7 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 	row.Pred, row.Correct = p.Origin, p.Origin == row.Gold
 	row.Confidence, row.KeyFactors, row.DecisiveStep = p.Confidence, p.KeyFactors, p.DecisiveStep
 	row.Flip, row.Reasoning, row.Precedents, row.Cited = res.Flip, p.Reasoning, p.Precedents, p.CitedRulings
-	row.Provider, row.ModelID = p.Trace.Provider, p.Trace.ModelID
+	row.Provider, row.ModelID, row.PromptVersion = p.Trace.Provider, p.Trace.ModelID, p.Trace.PromptVersion
 	row.InputTokens, row.OutputTokens, row.LatencyMS = p.Trace.InputTokens, p.Trace.OutputTokens, p.Trace.LatencyMS
 	row.Votes = res.Votes
 	row.CostUSD = evalkit.Cost(evalkit.PromoPrices, cfg.EngineModel, row.InputTokens, row.OutputTokens)

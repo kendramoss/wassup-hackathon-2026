@@ -241,3 +241,15 @@ func TestVotingConfidenceIsNotInflated(t *testing.T) {
 		t.Errorf("unanimous low-confidence vote: %+v", res.Prediction)
 	}
 }
+
+func TestRulesAppendToSystemAndVersion(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"China","essential_character":"motor","decisive_step":"x","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	eng := New(f, nil, Options{Model: "m", Rules: "RULES TEXT", RulesVersion: "rules-v1"})
+	res, err := eng.Predict(context.Background(), domain.Case{ID: "N1", Date: time.Now(), Facts: "facts"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(f.Calls()[0].System, "\n\nRULES TEXT") || res.Prediction.Trace.PromptVersion != PromptVersion+"+rules-v1" {
+		t.Errorf("system/version = %q / %q", f.Calls()[0].System[len(f.Calls()[0].System)-20:], res.Prediction.Trace.PromptVersion)
+	}
+}

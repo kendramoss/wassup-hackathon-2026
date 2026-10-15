@@ -75,6 +75,19 @@ Paired against the engine-v1 BM25 dev run (90.0%, 422/469). Exact McNemar on dis
 - 23 of 33 answers were "Not stated.": for most split cases the file holds no extra fact for the requester to give. Tiny sample, wide CIs; the direction is negative in both variants. Torn cases are rare (14 of 117 low-confidence dev cases).
 - Rows: `eval/results/torn-scan-dev-vote5-litellm.jsonl` (117-case scan), `torn-dev-clarify-v1-requester-v1-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answered-only-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answers-v2-litellm.jsonl`. Cost ≈ $11.70 (promo).
 
+## Written rules for the confident errors (15 Oct) — dev only, proxy; not adopted
+
+`run -split dev -rules` appends rules-v1 (`engine.Rules`: three statements of CBP practice on chemical/mineral processing, blanks and preforms, and essential character in assemblies) to engine-v1's system prompt. Same retrieval, single call.
+
+| Dev (n = 463 after adjustments) | accuracy (95% CI) | fast path (≥ 0.95, in scope) |
+|---|---|---|
+| engine-v1 | 90.9% (88.0–93.2) | 336 cases, 96.4% |
+| engine-v1 + rules-v1 | 91.1% (88.2–93.4) | 341 cases, 96.5% |
+
+- 10 fixed, 9 broken (exact McNemar p = 1.0). Of the 5 confident judgment errors the rules targeted, 2 were fixed (borax hydration, wheel preform), both now below the 0.95 bar.
+- The breaks are the rules applied where CBP did not: blending of Chinese ingredients in Australia ("no new compound") where CBP held Australia; tissue rolls cut to a toilet-seat shape ("generic material formed") where CBP held Indonesia; carbide-tipped tools and strut assemblies ("functional component") where CBP weighed other factors. The same pattern as the shared-playbook negative result: general rules trade one set of errors for another.
+- No held-out run: no dev gain. Rows: `eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-rules-v1.jsonl`. Cost ≈ $3.90 (promo).
+
 ## Planner and verifier (Gate C) — proxy, development only
 
 ### Move verifier on development flip pairs (54 CBP natural experiments dated before 2026; 46 changed, 8 unchanged)

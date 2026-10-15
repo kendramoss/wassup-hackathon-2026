@@ -107,3 +107,9 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - Product changes: `POST /v1/cases/{id}/answers` keeps "unknown"/"not stated" answers on the case but does not add them to the facts, and refuses a set with no factual answer. Clarify stays broker-facing help (D24); a re-analysis after answers is not claimed to be more CBP-like. Not adopted: re-voting after answers as a confidence signal.
 - Follow-up (answers-v2, adopted): `clarify.AppendAnswers` removes hedge sentences from answers and adds a header telling the engine the answers weigh the same as the facts and that unaddressed points are not evidence for any country. On the same 14 cases: 7/14 agree with CBP (0 fixed, 1 broken, vs 1/4 and 0/3 before). The remaining break is a judgment error on factual answers, not a format effect. The engine system prompt (engine-v1) is unchanged, so cases without answers are unaffected. Responses record `prompt_versions.answers`.
 - Not tested: answers from real requesters with new facts, which the benchmark cannot supply.
+
+## D27 — Written CBP rules for the confident errors: no gain, not adopted (15 Oct)
+- The 12 high-confidence dev errors (96.4% accuracy at ≥ 0.95) split into about 5 real judgment errors (chemical change, preforms, essential character), 4 cases where CBP departed from a closely matching earlier ruling, and 3 scoring or label issues.
+- rules-v1 (three short statements of CBP practice, appended to engine-v1) moved dev from 90.9% to 91.1%: 10 fixed, 9 broken, p = 1.0. The rules fixed 2 of the 5 targets and broke cases where CBP weighed other facts. Kept behind the eval flag `-rules`; the product prompt stays engine-v1. No held-out run.
+- Conclusion with D22–D26: prompt-level changes do not move accuracy; the remaining confident errors need either examples of CBP's reasoning in training (fine-tuning on Vertex, finals) or human review, which the confidence bar already routes.
+
