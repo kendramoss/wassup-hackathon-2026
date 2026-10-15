@@ -61,10 +61,13 @@ func (f fakeRouter) Classify(context.Context, string) (router.Label, error) {
 type fakePlanner struct{ got planner.Request }
 
 func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, progress func(planner.Event)) (planner.Result, error) {
-	progress(planner.Event{Kind: "started", Total: 2})
-	progress(planner.Event{Kind: "predicted", Move: "pcba@th", Origin: "Thailand", Total: 2})
-	progress(planner.Event{Kind: "done", Done: 2, Total: 2})
-	return f.Plan(ctx, r)
+	progress(planner.Event{Kind: planner.EventStarted, Target: r.Target, Moves: []planner.MoveRef{{Key: "pcba@th"}}, Total: 1})
+	progress(planner.Event{Kind: planner.EventMoveStarted, Move: "pcba@th", Total: 1})
+	time.Sleep(30 * time.Millisecond) // lets a keep-alive through
+	progress(planner.Event{Kind: planner.EventMoveDone, Move: "pcba@th", Plan: &domain.Plan{Description: "PCBA in Thailand"}, Done: 1, Total: 1})
+	res, err := f.Plan(ctx, r)
+	progress(planner.Event{Kind: planner.EventDone, Result: &res, Done: 1, Total: 1})
+	return res, err
 }
 
 func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
@@ -476,6 +479,8 @@ func TestWatchRechecksWithNewerRulings(t *testing.T) {
 }
 
 func TestPlanStreamsProgressThenResult(t *testing.T) {
+	keepAlive = 10 * time.Millisecond
+	t.Cleanup(func() { keepAlive = 10 * time.Second })
 	hs := newHarness(t, "substantial_transformation")
 	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
 	req := httptest.NewRequest("POST", "/v1/cases/"+c["id"].(string)+"/plan", strings.NewReader(`{"target":"Thailand"}`))
@@ -486,9 +491,17 @@ func TestPlanStreamsProgressThenResult(t *testing.T) {
 	if rec.Code != 200 || rec.Header().Get("Content-Type") != "text/event-stream" {
 		t.Fatalf("status %d type %q", rec.Code, rec.Header().Get("Content-Type"))
 	}
-	if strings.Count(body, "event: progress\n") != 3 || !strings.Contains(body, "event: result\ndata: {") ||
-		strings.Index(body, "event: result") < strings.LastIndex(body, "event: progress") {
-		t.Errorf("stream = %s", body)
+	order := []string{"event: start\n", "event: move_started\n", ": keep-alive\n", "event: move_done\n", "event: done\n"}
+	at := 0
+	for _, o := range order {
+		i := strings.Index(body[at:], o)
+		if i < 0 {
+			t.Fatalf("stream missing %q after offset %d:\n%s", o, at, body)
+		}
+		at += i
+	}
+	if !strings.Contains(body, `"moves":[{"key":"pcba@th"`) || !strings.Contains(body, `"plan":{"move"`) {
+		t.Errorf("stream payloads = %s", body)
 	}
 	if !strings.Contains(body, `"plans":[`) || !strings.Contains(body, `"case_id"`) {
 		t.Errorf("result event lacks the plan: %s", body)

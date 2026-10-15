@@ -75,7 +75,12 @@ paths:
       summary: Search plans for a target origin (needs a structured product and a family)
       description: |
         Send `Accept: text/event-stream` to receive the search as server-sent events instead of one JSON response:
-        `event: progress` with a PlanEvent per step, then exactly one `event: result` (the same body as the 200 JSON response) or one `event: error` ({code, message}).
+        - `start` {target, moves: [MoveRef], total}: every move to be searched, so each row can be drawn as queued.
+        - `baseline` {plan: Plan}: the current setup, any time before `done`.
+        - `move_started` {key, done, total}: work began on that move.
+        - `move_done` {key, plan: Plan, done, total}: one per move, with economics, shown, rejection_kind and verdict filled in.
+        - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
+        - `: keep-alive` comment lines every 10 s.
         Input errors (400/404) are returned as normal JSON responses before the stream starts.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
@@ -538,19 +543,13 @@ components:
         text: { type: string }
         url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
         origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
-    PlanEvent:
+    MoveRef:
       type: object
-      required: [kind, done, total]
+      required: [key, description, move]
       properties:
-        kind: { type: string, enum: [started, baseline, predicted, verifying, verified, done] }
-        move: { type: string, description: "move key, e.g. motor_fan_assembly@th+pcba@th" }
+        key: { type: string, example: motor_fan_assembly@th+pcba@th }
         description: { type: string }
-        origin: { type: string, description: "predicted origin (baseline, predicted)" }
-        outcome:
-          type: string
-          description: "verified: shown | below_confidence_bar | no_supporting_precedent | check_failed; predicted: engine_other_origin when the move misses the target (that move is then finished)"
-        done: { type: integer, description: moves finished }
-        total: { type: integer, description: moves searched }
+        move: { type: object, description: "same shape as Plan.move" }
     PrecedentRef:
       type: object
       required: [id, date, subject, origin, url]

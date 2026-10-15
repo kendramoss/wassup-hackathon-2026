@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -492,9 +493,14 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
 }
 
-// planStream runs the plan search as server-sent events: "progress" events
-// (planner.Event) while it runs, then one "result" event with the same body as
-// the JSON response, or one "error" event ({code, message}).
+// keepAlive is how often an idle plan stream sends an SSE comment, so proxies
+// and Cloud Run keep the connection open.
+var keepAlive = 10 * time.Second
+
+// planStream runs the plan search as server-sent events: start {target,
+// moves}, baseline {plan}, move_started {key}, move_done {key, plan}, then
+// done (the same body as the JSON response) or error {code, message,
+// retryable}. Comments (": keep-alive") are sent every keepAlive.
 func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request) {
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(time.Time{}) // the search outlives the server's default write timeout
@@ -503,26 +509,54 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	w.Header().Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
 	var mu sync.Mutex
-	send := func(event string, v any) {
-		b, _ := json.Marshal(v)
+	write := func(chunk string) {
 		mu.Lock()
 		defer mu.Unlock()
-		fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, b)
+		_, _ = io.WriteString(w, chunk)
 		_ = rc.Flush()
 	}
-	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) { send("progress", e) })
+	send := func(event string, v any) {
+		b, _ := json.Marshal(v)
+		write("event: " + event + "\ndata: " + string(b) + "\n\n")
+	}
+	stop := make(chan struct{})
+	defer close(stop)
+	go func() {
+		t := time.NewTicker(keepAlive)
+		defer t.Stop()
+		for {
+			select {
+			case <-t.C:
+				write(": keep-alive\n\n")
+			case <-stop:
+				return
+			}
+		}
+	}()
+	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) {
+		switch e.Kind {
+		case planner.EventStarted:
+			send("start", map[string]any{"target": e.Target, "moves": e.Moves, "total": e.Total})
+		case planner.EventBaseline:
+			send("baseline", map[string]any{"plan": e.Plan})
+		case planner.EventMoveStarted:
+			send("move_started", map[string]any{"key": e.Move, "done": e.Done, "total": e.Total})
+		case planner.EventMoveDone:
+			send("move_done", map[string]any{"key": e.Move, "plan": e.Plan, "done": e.Done, "total": e.Total})
+		}
+	})
 	if err == nil {
 		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 		err = a.d.Cases.Put(r.Context(), c)
 	}
 	if err != nil {
-		_, code, msg := a.errorFor(r, err)
-		send("error", ErrorBody{Code: code, Message: msg})
+		status, code, msg := a.errorFor(r, err)
+		send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
 		return
 	}
 	out := a.meta()
 	out["case_id"], out["plan"] = c.ID, res
-	send("result", out)
+	send("done", out)
 }
 
 type exportRequest struct {

@@ -33,15 +33,33 @@ type Options struct {
 	Concurrency int
 }
 
+// Event kinds, in order: started, baseline (any time before done),
+// move_started and move_done once per move, done.
+const (
+	EventStarted     = "started"
+	EventBaseline    = "baseline"
+	EventMoveStarted = "move_started"
+	EventMoveDone    = "move_done"
+	EventDone        = "done"
+)
+
 // Event is one step of a plan search, for progress display.
 type Event struct {
-	Kind        string `json:"kind"` // started | baseline | predicted | verifying | verified | done
-	Move        string `json:"move,omitempty"`
-	Description string `json:"description,omitempty"`
-	Origin      string `json:"origin,omitempty"`  // predicted origin (baseline, predicted)
-	Outcome     string `json:"outcome,omitempty"` // verified: shown | below_confidence_bar | no_supporting_precedent | check_failed; predicted: engine_other_origin when it misses the target
-	Done        int    `json:"done"`              // moves finished
-	Total       int    `json:"total"`             // moves searched
+	Kind   string       `json:"kind"`
+	Target string       `json:"target,omitempty"` // started
+	Moves  []MoveRef    `json:"moves,omitempty"`  // started: every move to be searched
+	Move   string       `json:"key,omitempty"`    // move_started, move_done
+	Plan   *domain.Plan `json:"plan,omitempty"`   // baseline, move_done (economics filled in)
+	Result *Result      `json:"result,omitempty"` // done
+	Done   int          `json:"done"`             // moves finished
+	Total  int          `json:"total"`            // moves searched
+}
+
+// MoveRef names a move before it is searched.
+type MoveRef struct {
+	Key         string      `json:"key"`
+	Description string      `json:"description"`
+	Move        domain.Move `json:"move"`
 }
 
 // Planner searches operation-group moves.
@@ -148,14 +166,12 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			progress(e)
 		}
 	}
-	finish := func(e Event) {
-		mu.Lock()
-		defer mu.Unlock()
-		done++
-		emit(e)
+	refs := make([]MoveRef, len(moves))
+	for i, m := range moves {
+		refs[i] = MoveRef{Key: m.Key(), Description: Describe(req.Product, tm, m), Move: m}
 	}
 	mu.Lock()
-	emit(Event{Kind: "started"})
+	emit(Event{Kind: EventStarted, Target: target, Moves: refs})
 	mu.Unlock()
 
 	var knownA, knownRuling string
@@ -163,36 +179,60 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 		knownA, knownRuling = domain.NormalizeCountry(k.Country), k.Ruling
 		res.CurrentOrigin = &KnownOrigin{Country: knownA, Ruling: knownRuling}
 	}
-	// The baseline runs alongside the moves: they need its facts (known now),
-	// and its origin only for economics, which are filled in after the search.
+	// The baseline runs alongside the moves: they need its facts now and its
+	// origin only for economics, which each move waits for when it finishes.
 	baseFacts := Render(req.Product, tm)
-	var base engine.Result
 	var baseErr error
+	baseOrigin := ""
+	baseReady := make(chan struct{})
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer close(baseReady)
 		r, err := p.engine.Predict(ctx, p.caseFor(req, "baseline", baseFacts))
 		if err != nil {
 			baseErr = fmt.Errorf("planner: baseline: %w", err)
 			return
 		}
 		addEngine(r.Usage)
-		base = r
+		res.Baseline = domain.Plan{Move: domain.Move{}, Description: Describe(req.Product, tm, nil), VariantFacts: baseFacts, Prediction: r.Prediction}
+		baseOrigin = r.Prediction.Origin
+		if knownA != "" {
+			baseOrigin = knownA
+		}
 		mu.Lock()
-		emit(Event{Kind: "baseline", Origin: r.Prediction.Origin, Description: Describe(req.Product, tm, nil)})
+		b := res.Baseline
+		emit(Event{Kind: EventBaseline, Plan: &b})
 		mu.Unlock()
 	}()
 
 	plans := make([]domain.Plan, len(moves))
 	sem := make(chan struct{}, p.opts.Concurrency)
 	errs := make([]error, len(moves))
+	// complete fills a move's economics once the baseline is known, stores
+	// it and reports it.
+	complete := func(i int, pl domain.Plan) {
+		<-baseReady
+		if baseErr == nil {
+			pl.DutyEffectYear, pl.AddedCostYear = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
+			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
+		}
+		mu.Lock()
+		defer mu.Unlock()
+		plans[i] = pl
+		done++
+		emit(Event{Kind: EventMoveDone, Move: pl.Move.Key(), Plan: &pl})
+	}
 	for i, m := range moves {
 		wg.Add(1)
 		go func(i int, m domain.Move) {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
+			mu.Lock()
+			emit(Event{Kind: EventMoveStarted, Move: m.Key()})
+			mu.Unlock()
 			variant := Apply(req.Product, m)
 			facts := Render(variant, tm, groupsOf(m)...)
 			r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
@@ -201,18 +241,13 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 				return
 			}
 			addEngine(r.Usage)
-			pl := domain.Plan{Move: m, Description: Describe(req.Product, tm, m), VariantFacts: facts, Prediction: r.Prediction}
+			pl := domain.Plan{Move: m, Description: refs[i].Description, VariantFacts: facts, Prediction: r.Prediction}
 			if r.Prediction.Origin != target {
 				pl.RejectionReason = fmt.Sprintf("engine predicts origin %s, not %s", r.Prediction.Origin, target)
 				pl.RejectionKind = domain.RejectOtherOrigin
-				plans[i] = pl
-				finish(Event{Kind: "predicted", Move: m.Key(), Description: pl.Description, Origin: r.Prediction.Origin, Outcome: string(domain.RejectOtherOrigin)})
+				complete(i, pl)
 				return
 			}
-			mu.Lock()
-			emit(Event{Kind: "predicted", Move: m.Key(), Description: pl.Description, Origin: r.Prediction.Origin})
-			emit(Event{Kind: "verifying", Move: m.Key(), Description: pl.Description})
-			mu.Unlock()
 			vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time,
 				Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
 			mu.Lock()
@@ -225,8 +260,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			if err != nil {
 				pl.RejectionReason = "precedent check failed: " + err.Error()
 				pl.RejectionKind = domain.RejectCheckFailed
-				plans[i] = pl
-				finish(Event{Kind: "verified", Move: m.Key(), Description: pl.Description, Outcome: string(domain.RejectCheckFailed)})
+				complete(i, pl)
 				return
 			}
 			v := vr.Verdict
@@ -241,26 +275,12 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			default:
 				pl.Shown = true
 			}
-			plans[i] = pl
-			outcome := "shown"
-			if !pl.Shown {
-				outcome = string(pl.RejectionKind)
-			}
-			finish(Event{Kind: "verified", Move: m.Key(), Description: pl.Description, Outcome: outcome})
+			complete(i, pl)
 		}(i, m)
 	}
 	wg.Wait()
 	if err := errors.Join(append([]error{baseErr}, errs...)...); err != nil {
 		return Result{}, err
-	}
-	res.Baseline = domain.Plan{Move: domain.Move{}, Description: Describe(req.Product, tm, nil), VariantFacts: baseFacts, Prediction: base.Prediction}
-	baseOrigin := base.Prediction.Origin
-	if knownA != "" {
-		baseOrigin = knownA
-	}
-	for i := range plans {
-		plans[i].DutyEffectYear, plans[i].AddedCostYear = economics(req, moves[i], baseOrigin, plans[i].Prediction.Origin)
-		plans[i].NetYear = plans[i].DutyEffectYear - plans[i].AddedCostYear
 	}
 	for _, pl := range plans {
 		if pl.Shown {
@@ -286,10 +306,10 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	})
 	if baseOrigin != target {
 		b := res.Baseline
-		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", base.Prediction.Origin)
+		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", b.Prediction.Origin)
 		b.RejectionKind = domain.RejectCurrentSetup
 		if knownA != "" {
-			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, base.Prediction.Origin)
+			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, b.Prediction.Origin)
 		}
 		res.Rejected = append([]domain.Plan{b}, res.Rejected...)
 	}
@@ -300,7 +320,8 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok
 	res.Stats.WallSeconds = time.Since(start).Seconds()
 	mu.Lock()
-	emit(Event{Kind: "done"})
+	r := res
+	emit(Event{Kind: EventDone, Result: &r})
 	mu.Unlock()
 	return res, nil
 }

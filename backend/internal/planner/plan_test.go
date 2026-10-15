@@ -207,20 +207,31 @@ func TestPlanWithProgressReportsEveryMove(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(events) < 2 || events[0].Kind != "started" || events[len(events)-1].Kind != "done" {
-		t.Fatalf("events = %+v", events)
+	first, last := events[0], events[len(events)-1]
+	if first.Kind != EventStarted || len(first.Moves) != 6 || first.Target != "Thailand" || last.Kind != EventDone || last.Result == nil || last.Done != 6 {
+		t.Fatalf("first/last = %+v / %+v", first, last)
 	}
 	kinds := map[string]int{}
+	doneKeys := map[string]bool{}
 	for i, e := range events {
 		kinds[e.Kind]++
 		if e.Total != 6 || (i > 0 && e.Done < events[i-1].Done) {
 			t.Errorf("event %d = %+v", i, e)
 		}
+		if e.Kind == EventMoveDone {
+			doneKeys[e.Move] = true
+			if e.Plan == nil || e.Plan.Move.Key() != e.Move {
+				t.Errorf("move_done without its plan: %+v", e)
+			}
+			if e.Plan.Move.Key() == "motor_fan_assembly@th+pcba@th" && (e.Plan.NetYear != 320000 || !e.Plan.Shown) {
+				t.Errorf("streamed plan economics = %+v", e.Plan)
+			}
+		}
 	}
-	if kinds["baseline"] != 1 || kinds["predicted"] != 6 || kinds["verifying"] != 1 || kinds["verified"] != 1 || events[len(events)-1].Done != 6 {
-		t.Errorf("event kinds = %v, last = %+v", kinds, events[len(events)-1])
+	if kinds[EventBaseline] != 1 || kinds[EventMoveStarted] != 6 || len(doneKeys) != 6 {
+		t.Errorf("event kinds = %v", kinds)
 	}
-	if len(res.Plans) != 1 || res.Plans[0].NetYear != 320000 {
+	if len(res.Plans) != 1 || res.Plans[0].NetYear != 320000 || len(last.Result.Plans) != 1 {
 		t.Errorf("result changed with progress: %+v", res.Plans)
 	}
 }
