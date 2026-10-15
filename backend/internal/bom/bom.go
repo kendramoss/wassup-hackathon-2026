@@ -9,7 +9,8 @@
 //	                     or where the plant is for an operation (required)
 //	plant                plant / factory / site / supplier (optional; defaults to the country)
 //	group                operation group / process group (optional; matched to the family template)
-//	type                 component (default) or operation
+//	type                 component (default), operation, or plant (a plant that makes
+//	                     nothing today but could: name is the plant, plus plant_capabilities)
 //	plant_capabilities   groups this row's plant could also perform, separated by ";" (optional)
 package bom
 
@@ -158,12 +159,16 @@ func Parse(rows [][]string, opts Options) (domain.Product, []string, error) {
 		if blank(row) {
 			continue
 		}
+		kind := strings.ToLower(cell(row, "type"))
 		name, country := cell(row, "name"), domain.NormalizeCountry(cell(row, "country"))
 		if name == "" || country == "" {
 			problems = append(problems, fmt.Sprintf("row %d: name and country are required", line))
 			continue
 		}
 		plantName := cell(row, "plant")
+		if kind == "plant" && plantName == "" {
+			plantName = name
+		}
 		if plantName == "" {
 			plantName = country
 		}
@@ -197,9 +202,11 @@ func Parse(rows [][]string, opts Options) (domain.Product, []string, error) {
 				warnings = append(warnings, fmt.Sprintf("row %d: capability %q is not in the %s template; ignored", line, c, opts.Family))
 			}
 		}
-		if strings.EqualFold(cell(row, "type"), "operation") {
+		switch kind {
+		case "plant": // declares the plant and its capabilities only
+		case "operation":
 			p.Operations = append(p.Operations, domain.Operation{Name: name, Plant: id, Group: group})
-		} else {
+		default:
 			p.Components = append(p.Components, domain.Component{Name: name, MadeIn: country, Plant: id, Group: group})
 		}
 	}

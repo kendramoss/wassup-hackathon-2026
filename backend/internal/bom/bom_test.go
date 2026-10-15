@@ -125,3 +125,34 @@ func TestHeatGunSampleMatchesFixture(t *testing.T) {
 			len(p.Components), len(p.Operations), len(got), len(r.Product.Components), len(r.Product.Operations), len(want))
 	}
 }
+
+func TestLiDARSampleMatchesDemo(t *testing.T) {
+	f, err := os.Open(filepath.Join("..", "..", "testdata", "lidar_bom.csv"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	rows, err := ReadRows(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tm, _ := planner.LoadTemplates()
+	lidar := tm["lidar_modules"]
+	p, w, err := Parse(rows, Options{Name: "LiDAR module", Family: "lidar_modules", Template: &lidar})
+	if err != nil {
+		t.Fatalf("lidar BOM: %v (warnings %v)", err, w)
+	}
+	r, err := planner.LoadRequest(filepath.Join("..", "..", "testdata", "lidar_scenario1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, target := range []string{"Vietnam", "China"} {
+		got, want := planner.Enumerate(p, lidar, target), planner.Enumerate(r.Product, lidar, target)
+		if len(got) != len(want) || len(want) == 0 {
+			t.Errorf("%s: sample gives %d moves, fixture %d", target, len(got), len(want))
+		}
+	}
+	if vn, ok := p.PlantByID("vietnam_smt_plant"); !ok || !vn.Can("main_boards") || vn.Country != "Vietnam" {
+		t.Errorf("Vietnam plant row not parsed: %+v", vn)
+	}
+}

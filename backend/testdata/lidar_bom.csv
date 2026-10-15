@@ -1,0 +1,10 @@
+type,name,country,plant,group,plant_capabilities
+component,Top Main Board (TMB) PCBA,Thailand,Thailand plant,main_boards,main_boards; rx_tx_boards; final_assembly
+component,Bottom Main Board (BMB) PCBA,Thailand,Thailand plant,main_boards,
+component,receiver (RX) PCBA,Thailand,Thailand plant,rx_tx_boards,
+component,transmitter (TX) PCBA,Thailand,Thailand plant,rx_tx_boards,
+component,"lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",China,China,bought_in,
+operation,"assemble the RX and TX modules, the lens housing, top main board and base at automated, bonding and fastening stations",Thailand,Thailand plant,final_assembly,
+operation,"cure, calibrate, test and inspect 100% of modules",Thailand,Thailand plant,final_assembly,
+plant,Vietnam SMT plant,Vietnam,Vietnam SMT plant,,main_boards; rx_tx_boards
+plant,China suppliers,China,China suppliers,,main_boards; rx_tx_boards

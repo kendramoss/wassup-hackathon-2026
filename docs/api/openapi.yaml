@@ -156,8 +156,8 @@ paths:
         Does not create a case: send the returned product (with the family) to POST /v1/cases/predict.
         One row per component, or per operation with type "operation". Headers (case-insensitive, aliases accepted):
         name (component / part / item), country (made in / origin), plant (factory / site / supplier; defaults to the country),
-        group (operation group, matched to the family template by id or name), type, plant_capabilities (groups the row's plant could also perform, ";"-separated).
-        Up to 500 rows, 5 MB. Sample: backend/testdata/heatgun_bom.csv.
+        group (operation group, matched to the family template by id or name), type (component, operation, or plant: a plant that makes nothing today, named in the name column, with its plant_capabilities), plant_capabilities (groups the row's plant could also perform, ";"-separated).
+        Up to 500 rows, 5 MB. Samples: backend/testdata/heatgun_bom.csv, backend/testdata/lidar_bom.csv.
       requestBody:
         required: true
         content:
