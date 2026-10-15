@@ -38,6 +38,21 @@ Without the router (confidence ≥ 0.95 alone), final covers 71.9% at 97.8%. The
 
 **Scope recall (dev window Jul–Dec 2025, up to 40 per gold regime):** routed out of scope — Part 102 tariff-shift 36/40 (90%), pharma API 35/36 (97%), substantial transformation 2/40. Full table: `results/scope-window-dev-router-v2.md`.
 
+## Accuracy experiments (16 Oct) — dev only, proxy; none adopted
+
+Paired against the engine-v1 BM25 dev run (90.0%, 422/469). Exact McNemar on discordant cases.
+
+| Variant (dev, n=469) | Accuracy | Fixed / broke vs baseline | p | Cost / case |
+|---|---|---|---|---|
+| Baseline: BM25, 5 precedents | 90.0% (86.9–92.4) | — | — | $0.0079 |
+| Hybrid: BM25 top-30 re-ranked by gemini-embedding-001 | 88.9% (85.7–91.4) | 7 / 12 | 0.36 | $0.0078 |
+| Pure embedding retrieval | 89.8% (86.7–92.2) | 5 / 6 | 1.00 | $0.0077 |
+| Voting: 5 calls over rotated precedent orders when confidence < 0.95 | 89.6% (86.5–92.0) | 2 / 4 | 0.69 | $0.0169 |
+
+- Scoring fix: 4 dev rulings hold different origins per scenario (`data/multi_scenario.json`, mechanical rule). Excluding them: dev 90.5%; held-out has none (89.9% unchanged). Reported, not a model change.
+- Conclusion: better-matched precedents and repeated asking do not change the engine's errors; they are judgment errors (raw-material thresholds, set/kit character, which component is the essence), not retrieval or sampling noise. The frozen configuration stays engine-v1 + BM25, already scored once on held-out (89.9%), so no new held-out run was made.
+- Side finding: first-call confidence varies between runs through the proxy (≥ 0.95 coverage 338 vs 369 on the same dev cases), so fast-path coverage is a ±3-point number.
+
 ## Planner and verifier (Gate C) — proxy, development only
 
 ### Move verifier on development flip pairs (54 CBP natural experiments dated before 2026; 46 changed, 8 unchanged)

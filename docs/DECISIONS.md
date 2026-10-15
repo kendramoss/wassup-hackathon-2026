@@ -80,3 +80,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D21 — Plan display bar stays at 0.95; near misses are shown greyed (human decision, 16 Oct)
 - The heat-gun "motor-fan + PCBA" move is precedent-supported on every run (supporting N347421), but the verifier's confidence lands on 0.90 or 0.95, so it was shown in 1 of 3 runs. Dev data (54 pairs) showed every precedent-supported verdict correct at ≥ 0.90 and ≥ 0.95 alike; 0.95 only cuts recall (known-A: 13/46 vs 21/46). Small negative class (8).
 - Kept 0.95 as the brief requires. Rejected plans now carry `rejection_kind`; `below_confidence_bar` rows (precedent-supported, confidence below 0.95) sort right after the current setup, and the UI shows them greyed with the label "Precedent-supported — below confidence bar" and their supporting ruling.
+
+## D22 — Accuracy options tried on dev; none adopted (16 Oct)
+- Hybrid/embedding retrieval and precedent-order voting were built (kept in code behind flags: `-retrieval`, `-votes`; engine defaults unchanged) and evaluated on dev only. None beat the baseline (eval/RESULTS.md). The configuration is unchanged, so the held-out split was not re-scored.
+- Remaining error types need judgment the model lacks, not better retrieval. Family playbooks, the obvious next lever, overfit in research (dev 91.9% → test 88.3%) and are not retried before the deadline.
