@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -53,6 +54,21 @@ func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result
 		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}}}, nil
 }
 
+type fakeClarifier struct {
+	onPoint bool
+	facts   []string
+}
+
+func (f *fakeClarifier) Review(_ context.Context, facts string, _ domain.Prediction, ps []domain.Ruling) (clarify.Result, error) {
+	f.facts = append(f.facts, facts)
+	return clarify.Result{OnPoint: f.onPoint, Questions: []string{"Where is the EPS liner moulded?"},
+		Conflict: &clarify.Conflict{RulingA: "N351809", RulingB: "N352485", DecidingDifference: "where the media is made"}}, nil
+}
+
+type fakePrecedents struct{}
+
+func (fakePrecedents) Get(id string) (domain.Ruling, bool) { return domain.Ruling{ID: id}, true }
+
 type fakeRulings struct{ calls int }
 
 func (f *fakeRulings) Ruling(_ context.Context, id string) (cross.Ruling, error) {
@@ -65,6 +81,7 @@ func (f *fakeRulings) Ruling(_ context.Context, id string) (cross.Ruling, error)
 
 type harness struct {
 	h       http.Handler
+	clar    *fakeClarifier
 	engine  *fakeEngine
 	planner *fakePlanner
 	rulings *fakeRulings
@@ -76,9 +93,9 @@ func newHarness(t *testing.T, regime string) harness {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}}
+	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}}
 	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, Deps{
-		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
+		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
@@ -288,5 +305,55 @@ func TestDemoFlowThroughTheAPI(t *testing.T) {
 	}
 	if code, _ := hs.do(t, "GET", "/v1/demos/nope", ""); code != 404 {
 		t.Errorf("missing demo status %d", code)
+	}
+}
+
+func TestNeedsInfoThenAnswers(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	hs.engine.conf = 0.8
+	code, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"A bicycle helmet: ABS shell moulded in Taiwan, assembled in China."}`)
+	if code != 201 {
+		t.Fatalf("predict %d %v", code, out)
+	}
+	if tr := out["triage"].(map[string]any); tr["route"] != "needs_info" {
+		t.Errorf("triage = %v", tr)
+	}
+	cl := out["clarify"].(map[string]any)
+	if cl["questions"].([]any)[0] != "Where is the EPS liner moulded?" || cl["conflict"] == nil {
+		t.Errorf("clarify = %v", cl)
+	}
+	id := out["id"].(string)
+	code, out = hs.do(t, "POST", "/v1/cases/"+id+"/answers", `{"answers":[{"question":"Where is the EPS liner moulded?","answer":"In Taiwan, from Taiwanese EPS beads."}]}`)
+	if code != 200 {
+		t.Fatalf("answers %d %v", code, out)
+	}
+	if !strings.Contains(hs.engine.last.Facts, "ADDITIONAL FACTS FROM THE REQUESTER") || !strings.Contains(hs.engine.last.Facts, "A: In Taiwan, from Taiwanese EPS beads.") ||
+		!strings.HasPrefix(hs.engine.last.Facts, "A bicycle helmet") {
+		t.Errorf("re-predicted facts = %q", hs.engine.last.Facts)
+	}
+	if len(out["answers"].([]any)) != 1 || out["id"] != id {
+		t.Errorf("answers response %v", out)
+	}
+	// A second round appends, it does not duplicate the first.
+	hs.do(t, "POST", "/v1/cases/"+id+"/answers", `{"answers":[{"question":"Who makes the straps?","answer":"China"}]}`)
+	if strings.Count(hs.engine.last.Facts, "ADDITIONAL FACTS") != 1 || strings.Count(hs.engine.last.Facts, "Q: ") != 2 {
+		t.Errorf("second round facts = %q", hs.engine.last.Facts)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/answers", `{"answers":[]}`); code != 400 {
+		t.Errorf("empty answers status %d", code)
+	}
+}
+
+func TestClarifySkippedOnFastPathAndOutOfScope(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	if out["clarify"] != nil || len(hs.clar.facts) != 0 {
+		t.Errorf("clarify ran on an auto case: %v", out["clarify"])
+	}
+	hs = newHarness(t, "textile_102_21")
+	hs.engine.conf = 0.5
+	_, out = hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	if out["clarify"] != nil || out["triage"].(map[string]any)["route"] != "needs_review" {
+		t.Errorf("out-of-scope case: %v %v", out["clarify"], out["triage"])
 	}
 }

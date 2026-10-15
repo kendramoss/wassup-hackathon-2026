@@ -56,6 +56,9 @@ type Route string
 const (
 	RouteAuto        Route = "auto"
 	RouteNeedsReview Route = "needs_review"
+	// RouteNeedsInfo: no earlier ruling is on point and the requester can
+	// answer questions that would settle it.
+	RouteNeedsInfo Route = "needs_info"
 )
 
 // Triage is the routing decision plus why.
@@ -67,7 +70,7 @@ type Triage struct {
 // Validate checks the route is known and a reason is given.
 func (t Triage) Validate() error {
 	var errs problems
-	if t.Route != RouteAuto && t.Route != RouteNeedsReview {
+	if t.Route != RouteAuto && t.Route != RouteNeedsReview && t.Route != RouteNeedsInfo {
 		errs.add("unknown route %q", t.Route)
 	}
 	if t.Reason == "" {

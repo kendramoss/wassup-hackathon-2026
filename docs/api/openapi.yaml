@@ -94,6 +94,30 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ExportResponse" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/answers:
+    post:
+      summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answers]
+              properties:
+                answers:
+                  type: array
+                  minItems: 1
+                  items: { type: object, required: [question, answer], properties: { question: { type: string }, answer: { type: string } } }
+      responses:
+        "200":
+          description: The re-analysed case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/rulings/{id}:
     get:
       summary: A CBP ruling's text (proxied from rulings.cbp.gov) with its public link
@@ -259,7 +283,7 @@ components:
     Triage:
       type: object
       properties:
-        route: { type: string, enum: [auto, needs_review] }
+        route: { type: string, enum: [auto, needs_review, needs_info], description: "needs_info: no earlier ruling on point; answer clarify.questions via /answers" }
         reason: { type: string }
     RouterLabel:
       type: object
@@ -282,7 +306,26 @@ components:
             triage: { $ref: "#/components/schemas/Triage" }
             router: { $ref: "#/components/schemas/RouterLabel" }
             plan: { $ref: "#/components/schemas/PlanResult" }
+            clarify: { $ref: "#/components/schemas/Clarify" }
+            answers: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string } } } }
             created_at: { type: string, format: date-time }
+    Clarify:
+      type: object
+      description: Only for in-scope cases below the 0.95 fast path. Never changes the predicted origin.
+      properties:
+        on_point: { type: boolean, description: An earlier ruling on the same kind of product and question exists }
+        closest_ruling: { type: string }
+        on_point_reason: { type: string }
+        conflict:
+          type: object
+          description: Two comparable earlier rulings that went different ways, and the difference CBP relied on
+          properties:
+            ruling_a: { type: string }
+            holding_a: { type: string }
+            ruling_b: { type: string }
+            holding_b: { type: string }
+            deciding_difference: { type: string }
+        questions: { type: array, maxItems: 3, items: { type: string } }
     PlanRequest:
       type: object
       required: [target]

@@ -13,6 +13,7 @@
 //	GET  /v1/cases/{id}          a case
 //	POST /v1/cases/{id}/plan     plan search
 //	POST /v1/cases/{id}/export   draft ruling request
+//	POST /v1/cases/{id}/answers  answers to follow-up questions; re-predicts
 //	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
 //	GET  /v1/eval/summary        results-page numbers
 //	GET  /v1/demos[/{id}]        demo cases for the UI
@@ -31,6 +32,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -154,6 +156,8 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Demos:         ds,
 		Engine:        eng,
 		Router:        router.New(model, cfg.RouterModel, 2000),
+		Clarifier:     clarify.New(model, cfg.EngineModel, 3000),
+		Precedents:    pool,
 		Planner:       planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:       crossClient,
 		Cases:         store.NewMemory(),

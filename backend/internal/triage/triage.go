@@ -6,6 +6,7 @@ package triage
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -21,4 +22,18 @@ func Decide(p domain.Prediction, threshold float64, inScope bool, scopeReason st
 	default:
 		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("confidence %.2f below %.2f", p.Confidence, threshold)}
 	}
+}
+
+// WithClarify refines a needs_review decision with the clarify review: when
+// no earlier ruling is on point and there are questions to ask, the case
+// goes back to the requester first (needs_info). Auto decisions and
+// out-of-scope cases are left alone.
+func WithClarify(t domain.Triage, noPrecedent bool, questions int) domain.Triage {
+	if t.Route != domain.RouteNeedsReview || strings.HasPrefix(t.Reason, "out of scope") {
+		return t
+	}
+	if noPrecedent && questions > 0 {
+		return domain.Triage{Route: domain.RouteNeedsInfo, Reason: t.Reason + "; no earlier ruling on point: answer the questions first"}
+	}
+	return t
 }

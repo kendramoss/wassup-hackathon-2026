@@ -90,3 +90,8 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - Six labels the learnability judge called wrong (N353581, N354156, N356481, N350517, H331375, N348376-manual) were checked: CBP's holdings match the labels. The judge, being the same model, disagreed with CBP — not a label problem.
 - `NormalizeCountry` keeps "A/B" answers as "A/B" (was glued into one word). Old result rows keep their stored prediction, so N354448 stays wrong in existing runs.
 - Effect: dev 90.0% → 90.9% (421/463); held-out unchanged 89.9%.
+
+## D24 — Clarify review: useful questions and conflicts, not an error detector
+- `clarify` (clarify-v1, one extra call ~$0.009, only for in-scope cases below 0.95) reports whether an earlier ruling is on point, conflicting comparable rulings with the deciding difference, and up to 3 questions. Triage routes "no precedent on point + questions" to `needs_info`; `POST /v1/cases/{id}/answers` appends answers to the facts and re-analyses.
+- Dev (127 below-threshold cases): the flags do **not** separate errors — engine error rate 26% with no precedent on point vs 22% with one; 24% where a conflict was found; needs_info 28% vs needs_review 21% (overlapping CIs). Reviewing the questions by hand, they target the facts CBP relied on (helmet: is the shell moulded to final shape; seamless pipe: are green tubes at final dimensions; filters: does the paper arrive in rolls or cut). Whether answers improve accuracy cannot be measured: the benchmark has no requester answers, and simulating them from ruling text would leak the holding.
+- So it ships as broker-facing help, not as a claimed accuracy gain. No held-out run: clarify never changes the predicted origin, and its routing showed no error signal on dev.

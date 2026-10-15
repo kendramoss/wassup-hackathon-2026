@@ -33,6 +33,9 @@
 //	    judge sees the case, CBP's holding and the k most similar earlier
 //	    rulings, and says whether an earlier ruling establishes a rule that
 //	    yields CBP's answer.
+//	eval clarify -in RESULTS [-below 0.95]
+//	    Run the clarify review on below-threshold cases of an engine run (same
+//	    precedents the engine saw) and report how its flags relate to errors.
 //	eval report -in FILE [-in FILE ...] [-adjust FILE]
 //	    Print the Markdown summary of existing result files.
 //
@@ -61,6 +64,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -108,6 +112,8 @@ func main() {
 		err = compareCmd(os.Args[2:])
 	case "learnability":
 		err = learnabilityCmd(os.Args[2:])
+	case "clarify":
+		err = clarifyCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -1436,5 +1442,124 @@ func learnabilityCmd(args []string) error {
 	}
 	wg.Wait()
 	fmt.Printf("learnability (dev errors, judge %s via %s): %v; anchor ruling was among the engine's 5 precedents in %d cases\n", cfg.EngineModel, cfg.LLMProvider, counts, inShown)
+	return nil
+}
+
+func clarifyCmd(args []string) error {
+	fl := flag.NewFlagSet("clarify", flag.ExitOnError)
+	in := fl.String("in", "../eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl", "engine result file")
+	below := fl.Float64("below", 0.95, "review cases with confidence below this")
+	adjustFile := fl.String("adjust", "../eval/data/scoring_adjustments.json", "scoring adjustments")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts")
+	confirmFinal := fl.Bool("confirm-final", false, "required for the held-out split")
+	_ = fl.Parse(args)
+	rows, err := readRows(*in, nil)
+	if err != nil {
+		return err
+	}
+	if len(rows) > 0 && rows[0].Split == "final" && !*confirmFinal {
+		return errors.New("held-out split: pass -confirm-final (run once with the frozen clarify prompt)")
+	}
+	if adj, err := evalkit.LoadAdjustments(*adjustFile); err == nil {
+		rows = adj.Apply(rows)
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	ctx := context.Background()
+	model, err := newModel(ctx, cfg, slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})))
+	if err != nil {
+		return err
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	store, err := corpus.Load(labels, *factsDir)
+	if err != nil {
+		return err
+	}
+	cl := clarify.New(model, cfg.EngineModel, 3000)
+	split := "dev"
+	if len(rows) > 0 {
+		split = rows[0].Split
+	}
+	outPath := filepath.Join(filepath.Dir(*in), fmt.Sprintf("clarify-%s-%s-%s.jsonl", split, clarify.PromptVersion, cfg.LLMProvider))
+	f, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	type tally struct{ n, wrong int }
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 8)
+	t := map[string]*tally{}
+	add := func(k string, wrong bool) {
+		if t[k] == nil {
+			t[k] = &tally{}
+		}
+		t[k].n++
+		if wrong {
+			t[k].wrong++
+		}
+	}
+	var cost float64
+	for _, r := range rows {
+		if r.Error != "" || r.Confidence >= *below {
+			continue
+		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(r evalkit.Row) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			c, _ := store.Get(r.Ruling)
+			var ps []domain.Ruling
+			for _, id := range r.Precedents {
+				if p, ok := store.Get(id); ok {
+					ps = append(ps, p)
+				}
+			}
+			res, err := cl.Review(ctx, c.Facts, domain.Prediction{Origin: r.Pred, Confidence: r.Confidence, KeyFactors: r.KeyFactors, Reasoning: r.Reasoning}, ps)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, r.Ruling, err)
+				return
+			}
+			b, _ := json.Marshal(map[string]any{"ruling": r.Ruling, "correct": r.Correct, "gold": r.Gold, "pred": r.Pred, "confidence": r.Confidence, "clarify": res})
+			mu.Lock()
+			defer mu.Unlock()
+			_, _ = f.Write(append(b, '\n'))
+			wrong := !r.Correct
+			add("all reviewed", wrong)
+			if res.OnPoint {
+				add("precedent on point", wrong)
+			} else {
+				add("no precedent on point", wrong)
+			}
+			if res.Conflict != nil {
+				add("conflicting precedents", wrong)
+			}
+			if res.NeedsInfo() {
+				add("needs_info route", wrong)
+			} else {
+				add("needs_review route", wrong)
+			}
+			cost += evalkit.Cost(evalkit.PromoPrices, cfg.EngineModel, res.Trace.InputTokens, res.Trace.OutputTokens)
+		}(r)
+	}
+	wg.Wait()
+	fmt.Printf("## Clarify review (%s, cases with confidence < %.2f, %s)\n\n| Flag | cases | engine wrong | error rate (95%% CI) |\n|---|---:|---:|---|\n", split, *below, cfg.LLMProvider)
+	for _, k := range []string{"all reviewed", "precedent on point", "no precedent on point", "conflicting precedents", "needs_info route", "needs_review route"} {
+		if x := t[k]; x != nil {
+			p, lo, hi := evalkit.Wilson(x.wrong, x.n)
+			fmt.Printf("| %s | %d | %d | %.0f%% (%.0f–%.0f) |\n", k, x.n, x.wrong, 100*p, 100*lo, 100*hi)
+		}
+	}
+	if n := t["all reviewed"]; n != nil {
+		fmt.Printf("\nCost per reviewed case: $%.4f (promo). Rows: %s\n", cost/float64(n.n), outPath)
+	}
 	return nil
 }

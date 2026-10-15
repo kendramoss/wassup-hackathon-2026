@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -30,7 +31,18 @@ type Case struct {
 	Triage        domain.Triage        `json:"triage"`
 	Router        *router.Label        `json:"router,omitempty"`
 	Plan          *planner.Result      `json:"plan,omitempty"`
-	CreatedAt     time.Time            `json:"created_at"`
+	Clarify       *clarify.Result      `json:"clarify,omitempty"`
+	// Answers are the requester's answers to clarify questions, in order.
+	Answers []Answer `json:"answers,omitempty"`
+	// OriginalFacts is the facts before answers were appended.
+	OriginalFacts string    `json:"original_facts,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+// Answer is one requester answer to a clarify question.
+type Answer struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 // Cases stores cases.

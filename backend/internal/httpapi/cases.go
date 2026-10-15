@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -42,6 +43,16 @@ type Planner interface {
 	Plan(ctx context.Context, req planner.Request) (planner.Result, error)
 }
 
+// Clarifier reviews low-confidence predictions (clarify.Clarifier).
+type Clarifier interface {
+	Review(ctx context.Context, facts string, p domain.Prediction, precedents []domain.Ruling) (clarify.Result, error)
+}
+
+// PrecedentStore looks up rulings shown to the engine.
+type PrecedentStore interface {
+	Get(id string) (domain.Ruling, bool)
+}
+
 // RulingSource returns a ruling's text (cross.Client).
 type RulingSource interface {
 	Ruling(ctx context.Context, id string) (cross.Ruling, error)
@@ -53,6 +64,8 @@ type Deps struct {
 	Engine        Predictor
 	Router        Router
 	Planner       Planner
+	Clarifier     Clarifier
+	Precedents    PrecedentStore
 	Rulings       RulingSource
 	Cases         store.Cases
 	Templates     map[string]planner.Template
@@ -78,7 +91,7 @@ type api struct {
 func (a *api) meta() map[string]any {
 	return map[string]any{
 		"model_ids":       map[string]string{"engine": a.d.EngineModel, "router": a.d.RouterModel, "verifier": a.d.VerifierModel},
-		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion},
+		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion},
 		"llm_provider":    a.d.Provider,
 		"disclaimer":      domain.Disclaimer,
 	}
@@ -169,15 +182,30 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Router and engine run concurrently; the router only labels scope and
-	// never changes the engine's answer.
+	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: time.Now().UTC()}
+	if err := a.analyse(r, &sc, c); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusCreated, caseFields(sc))
+}
+
+// analyse runs router and engine (concurrently), triage and, below the fast
+// path, the clarify review; it fills sc. The router and clarify never change
+// the engine's answer.
+func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
 	var label *router.Label
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			l, err := a.d.Router.Classify(r.Context(), facts)
+			l, err := a.d.Router.Classify(r.Context(), c.Facts)
 			if err != nil {
 				a.d.Logger.WarnContext(r.Context(), "router failed; scope unknown", "request_id", RequestID(r.Context()), "err", err)
 				return
@@ -188,30 +216,95 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	res, err := a.d.Engine.Predict(r.Context(), c)
 	wg.Wait()
 	if err != nil {
-		a.fail(w, r, err)
-		return
+		return err
 	}
 	inScope, scopeReason := true, ""
 	if label != nil {
 		inScope, scopeReason = label.Scope()
 	}
-	sc := store.Case{
-		ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, Prediction: res.Prediction,
-		Triage: triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason), Router: label, CreatedAt: time.Now().UTC(),
+	sc.Prediction, sc.Router = res.Prediction, label
+	sc.Triage = triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason)
+	sc.Clarify = nil
+	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {
+		var ps []domain.Ruling
+		for _, id := range res.Prediction.Precedents {
+			if p, ok := a.d.Precedents.Get(id); ok {
+				ps = append(ps, p)
+			}
+		}
+		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, res.Prediction, ps)
+		if err != nil {
+			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
+		} else {
+			sc.Clarify = &cr
+			sc.Triage = triage.WithClarify(sc.Triage, !cr.OnPoint, len(cr.Questions))
+		}
+	}
+	return nil
+}
+
+type answersRequest struct {
+	Answers []store.Answer `json:"answers"`
+}
+
+// answers appends the requester's answers to the facts and re-runs the
+// analysis on the same case.
+func (a *api) answers(w http.ResponseWriter, r *http.Request) {
+	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	var in answersRequest
+	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	var lines []string
+	for _, x := range in.Answers {
+		q, ans := strings.TrimSpace(x.Question), strings.TrimSpace(x.Answer)
+		if q == "" || ans == "" {
+			a.fail(w, r, fmt.Errorf("%w: each answer needs question and answer", domain.ErrInvalid))
+			return
+		}
+		lines = append(lines, "Q: "+q+"\nA: "+ans)
+	}
+	if len(lines) == 0 {
+		a.fail(w, r, fmt.Errorf("%w: answers are required", domain.ErrInvalid))
+		return
+	}
+	if sc.OriginalFacts == "" {
+		sc.OriginalFacts = sc.Facts
+	}
+	sc.Answers = append(sc.Answers, in.Answers...)
+	var all []string
+	for _, x := range sc.Answers {
+		all = append(all, "Q: "+strings.TrimSpace(x.Question)+"\nA: "+strings.TrimSpace(x.Answer))
+	}
+	facts := strings.TrimRight(sc.OriginalFacts, "\n") + "\n\nADDITIONAL FACTS FROM THE REQUESTER (answers to follow-up questions):\n" + strings.Join(all, "\n") + "\n"
+	date, _ := time.Parse(time.DateOnly, sc.Date)
+	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude}
+	if err := c.Validate(); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	sc.Facts = facts
+	if err := a.analyse(r, &sc, c); err != nil {
+		a.fail(w, r, err)
+		return
 	}
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusCreated, caseFields(sc))
+	a.respond(w, http.StatusOK, caseFields(sc))
 }
 
 func caseFields(c store.Case) map[string]any {
 	return map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
-		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "created_at": c.CreatedAt,
+		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 	}
 }
 

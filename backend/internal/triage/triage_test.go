@@ -32,3 +32,24 @@ func TestDecide(t *testing.T) {
 		})
 	}
 }
+
+func TestWithClarify(t *testing.T) {
+	review := domain.Triage{Route: domain.RouteNeedsReview, Reason: "confidence 0.80 below 0.95"}
+	if got := WithClarify(review, true, 2); got.Route != domain.RouteNeedsInfo || got.Validate() != nil {
+		t.Errorf("no precedent + questions = %+v", got)
+	}
+	if got := WithClarify(review, true, 0); got.Route != domain.RouteNeedsReview {
+		t.Errorf("no questions should stay needs_review: %+v", got)
+	}
+	if got := WithClarify(review, false, 3); got.Route != domain.RouteNeedsReview {
+		t.Errorf("on point should stay needs_review: %+v", got)
+	}
+	oos := domain.Triage{Route: domain.RouteNeedsReview, Reason: "out of scope: textile"}
+	if got := WithClarify(oos, true, 2); got.Route != domain.RouteNeedsReview {
+		t.Errorf("out of scope must stay: %+v", got)
+	}
+	auto := domain.Triage{Route: domain.RouteAuto, Reason: "x"}
+	if WithClarify(auto, true, 2) != auto {
+		t.Error("auto must not change")
+	}
+}
