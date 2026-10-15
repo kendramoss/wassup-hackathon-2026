@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bom"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
@@ -72,4 +74,46 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 		warnings = []string{}
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"product": p, "family": family, "warnings": warnings})
+}
+
+// ProductExtractor drafts a product from facts text (extract.Extractor).
+type ProductExtractor interface {
+	Extract(ctx context.Context, facts, name string, tm *planner.Template) (extract.Draft, error)
+}
+
+// extractProduct drafts an editable structured product from pasted facts.
+// Nothing is saved: the UI sends the edited product to /v1/cases/predict.
+func (a *api) extractProduct(w http.ResponseWriter, r *http.Request) {
+	if a.d.Extractor == nil {
+		writeError(w, http.StatusServiceUnavailable, "internal", "extractor is not configured", nil)
+		return
+	}
+	var in struct {
+		Facts  string `json:"facts"`
+		Family string `json:"family"`
+		Name   string `json:"name"`
+	}
+	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if strings.TrimSpace(in.Facts) == "" || len([]rune(in.Facts)) > domain.MaxFactsRunes {
+		a.fail(w, r, fmt.Errorf("%w: facts are required, up to %d characters", domain.ErrInvalid, domain.MaxFactsRunes))
+		return
+	}
+	var tm *planner.Template
+	if in.Family != "" {
+		t, ok := a.d.Templates[in.Family]
+		if !ok {
+			a.fail(w, r, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families()))
+			return
+		}
+		tm = &t
+	}
+	d, err := a.d.Extractor.Extract(r.Context(), in.Facts, in.Name, tm)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, d)
 }

@@ -192,6 +192,41 @@ paths:
                   family: { type: string }
                   warnings: { type: array, items: { type: string } }
         "400": { $ref: "#/components/responses/Error" }
+  /v1/products/extract:
+    post:
+      summary: Draft an editable structured product from pasted facts text (nothing is saved)
+      description: |
+        The engine model lists the parts, countries and assembly steps the text states, paragraph by paragraph (paragraphs split on blank lines, cited 1-based). Code then checks groups against the family template, names unnamed plants "<Country> plant" (name_guessed), and asks what else each plant could make (the plan search needs capabilities).
+        Parts mentioned without a stated country are not guessed: they are listed in one warning. Send the edited product with the facts to POST /v1/cases/predict. ~15 s through the proxy.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [facts]
+              properties:
+                facts: { type: string, maxLength: 12000 }
+                family: { type: string, description: "needed for groups and capability questions" }
+                name: { type: string, description: "product name; defaults to the name in the text" }
+      responses:
+        "200":
+          description: The draft
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product: { $ref: "#/components/schemas/Product" }
+                  plants: { type: array, items: { type: object, properties: { id: { type: string }, name: { type: string }, country: { type: string }, capabilities: { type: array, items: { type: string } }, name_guessed: { type: boolean } } } }
+                  components: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  operations: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  warnings: { type: array, items: { type: string } }
+                  questions: { type: array, items: { type: object, properties: { plant_id: { type: string }, ask: { type: string }, options: { type: array, items: { type: string } } } } }
+                  paragraphs: { type: integer }
+                  trace: { type: object }
+        "400": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
       summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
@@ -694,6 +729,15 @@ components:
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
         origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
+    DraftRow:
+      type: object
+      properties:
+        name: { type: string }
+        made_in: { type: string }
+        plant: { type: string }
+        group: { type: string, description: "template group id, or empty" }
+        source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none" }
+        group_guessed: { type: boolean, description: "no valid group from the text; pick one" }
     TargetSummary:
       type: object
       properties:

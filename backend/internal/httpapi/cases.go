@@ -69,6 +69,7 @@ type Deps struct {
 	Planner      Planner
 	Clarifier    Clarifier
 	Agent        CaseAgent
+	Extractor    ProductExtractor
 	Precedents   PrecedentStore
 	Rulings      RulingSource
 	Cases        store.Cases

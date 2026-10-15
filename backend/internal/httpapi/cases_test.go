@@ -24,6 +24,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -150,6 +151,7 @@ type harness struct {
 	planner *fakePlanner
 	rulings *fakeRulings
 	agent   *fakeAgent
+	extract *fakeExtractor
 }
 
 func newHarness(t *testing.T, regime string) harness {
@@ -158,9 +160,9 @@ func newHarness(t *testing.T, regime string) harness {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}, agent: &fakeAgent{}}
+	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}, agent: &fakeAgent{}, extract: &fakeExtractor{}}
 	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, Deps{
-		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Agent: hs.agent, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
+		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Agent: hs.agent, Extractor: hs.extract, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
@@ -741,5 +743,26 @@ func TestCaseHistoryRecordsEachStep(t *testing.T) {
 	last := got["history"].([]any)[5].(map[string]any)
 	if !strings.Contains(last["summary"].(string), "below the bar, check 0.88") || last["at"] == "" {
 		t.Errorf("export event = %v", last)
+	}
+}
+
+type fakeExtractor struct{ tm *planner.Template }
+
+func (f *fakeExtractor) Extract(_ context.Context, facts, name string, tm *planner.Template) (extract.Draft, error) {
+	f.tm = tm
+	return extract.Draft{Product: domain.Product{Name: "Heat gun"}, Warnings: []string{"The text says 24 components; it names 15."}}, nil
+}
+
+func TestExtractProductEndpoint(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	fx := hs.extract
+	code, out := hs.do(t, "POST", "/v1/products/extract", `{"facts":"Each heat gun is assembled in Thailand.","family":"motorised_tools_small_appliances"}`)
+	if code != 200 || out["product"].(map[string]any)["name"] != "Heat gun" || len(out["warnings"].([]any)) != 1 || fx.tm == nil {
+		t.Fatalf("extract %d %v", code, out)
+	}
+	for _, bad := range []string{`{"facts":" "}`, `{"facts":"x","family":"nope"}`} {
+		if code, _ := hs.do(t, "POST", "/v1/products/extract", bad); code != 400 {
+			t.Errorf("bad extract %s: %d", bad, code)
+		}
 	}
 }

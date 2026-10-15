@@ -1,0 +1,370 @@
+{
+  "product": {
+    "name": "Kobalt 12.5-amp heat gun, model number 5208257",
+    "family": "motorised_tools_small_appliances",
+    "plants": [
+      {
+        "id": "thailand_plant",
+        "name": "Thailand plant",
+        "country": "Thailand",
+        "capabilities": [
+          "final_assembly",
+          "heating_element",
+          "housing_moulding",
+          "motor_fan_assembly"
+        ]
+      },
+      {
+        "id": "china_plant",
+        "name": "China plant",
+        "country": "China",
+        "capabilities": [
+          "housing_moulding",
+          "motor_fan_assembly",
+          "pcba",
+          "switch_cord_minor_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "main housing",
+        "made_in": "Thailand",
+        "plant": "thailand_plant",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "front cover",
+        "made_in": "Thailand",
+        "plant": "thailand_plant",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "heating element",
+        "made_in": "Thailand",
+        "plant": "thailand_plant",
+        "group": "heating_element"
+      },
+      {
+        "name": "PCBA",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "pcba"
+      },
+      {
+        "name": "motor",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "fan",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "switch",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "power cord",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "wiring",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "knob",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "back cover",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "motor support",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "support ring",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "heat insulator",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "fasteners",
+        "made_in": "China",
+        "plant": "china_plant",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "press fitting the fan to the motor spindle and attaching the fan cover using screws",
+        "plant": "thailand_plant",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "preparing the wiring, including crimping plugs to the wires on the heating element, adding heat shrink tubing, soldering wires to the switch, and plugging wires from the heating element into the switch and the PCBA",
+        "plant": "thailand_plant",
+        "group": "final_assembly"
+      },
+      {
+        "name": "fastening the PCBA to the main housing, assembling the temperature knob, connecting the PCBA to the motor, and adding the back cover and motor support",
+        "plant": "thailand_plant",
+        "group": "final_assembly"
+      },
+      {
+        "name": "securing the power cord using a cord clamp, adding the switch slider, and closing the main housing using screws",
+        "plant": "thailand_plant",
+        "group": "final_assembly"
+      },
+      {
+        "name": "testing, labeling, and packaging each heat gun",
+        "plant": "thailand_plant",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "plants": [
+    {
+      "id": "thailand_plant",
+      "name": "Thailand plant",
+      "country": "Thailand",
+      "capabilities": [
+        "final_assembly",
+        "heating_element",
+        "housing_moulding",
+        "motor_fan_assembly"
+      ],
+      "name_guessed": true
+    },
+    {
+      "id": "china_plant",
+      "name": "China plant",
+      "country": "China",
+      "capabilities": [
+        "housing_moulding",
+        "motor_fan_assembly",
+        "pcba",
+        "switch_cord_minor_parts"
+      ],
+      "name_guessed": true
+    }
+  ],
+  "components": [
+    {
+      "name": "main housing",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "housing_moulding",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "front cover",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "housing_moulding",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "heating element",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "heating_element",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "PCBA",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "pcba",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "motor",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "motor_fan_assembly",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "fan",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "motor_fan_assembly",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "switch",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "power cord",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "wiring",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "knob",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "back cover",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "housing_moulding",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "motor support",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "support ring",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "heat insulator",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    },
+    {
+      "name": "fasteners",
+      "made_in": "China",
+      "plant": "china_plant",
+      "group": "switch_cord_minor_parts",
+      "source_paragraph": 3,
+      "group_guessed": false
+    }
+  ],
+  "operations": [
+    {
+      "name": "press fitting the fan to the motor spindle and attaching the fan cover using screws",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "motor_fan_assembly",
+      "source_paragraph": 4,
+      "group_guessed": false
+    },
+    {
+      "name": "preparing the wiring, including crimping plugs to the wires on the heating element, adding heat shrink tubing, soldering wires to the switch, and plugging wires from the heating element into the switch and the PCBA",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "final_assembly",
+      "source_paragraph": 4,
+      "group_guessed": false
+    },
+    {
+      "name": "fastening the PCBA to the main housing, assembling the temperature knob, connecting the PCBA to the motor, and adding the back cover and motor support",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "final_assembly",
+      "source_paragraph": 4,
+      "group_guessed": false
+    },
+    {
+      "name": "securing the power cord using a cord clamp, adding the switch slider, and closing the main housing using screws",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "final_assembly",
+      "source_paragraph": 4,
+      "group_guessed": false
+    },
+    {
+      "name": "testing, labeling, and packaging each heat gun",
+      "made_in": "Thailand",
+      "plant": "thailand_plant",
+      "group": "final_assembly",
+      "source_paragraph": 4,
+      "group_guessed": false
+    }
+  ],
+  "warnings": [
+    "The text mentions fan cover, screws, plugs, heat shrink tubing, cord clamp, switch slider without saying where they are made; add them if they should count.",
+    "The text says 24 components; it names 15.",
+    "The text states that 24 components are used and that only the main housing, front cover, and heating element are produced in Thailand while the remaining components are sourced from China, but paragraph [3] only explicitly names 12 Chinese components (using 'include'); parts first mentioned in the assembly steps in paragraph [4] (fan cover, screws, plugs, heat shrink tubing, cord clamp, switch slider) do not have a country explicitly stated alongside them."
+  ],
+  "questions": [
+    {
+      "plant_id": "thailand_plant",
+      "ask": "What else could the Thailand plant make?",
+      "options": [
+        "pcba",
+        "switch_cord_minor_parts"
+      ]
+    },
+    {
+      "plant_id": "china_plant",
+      "ask": "What else could the China plant make?",
+      "options": [
+        "heating_element"
+      ]
+    }
+  ],
+  "paragraphs": 5,
+  "trace": {
+    "llm_provider": "litellm",
+    "model_id": "gemini-4-argon",
+    "prompt_version": "extract-v3",
+    "input_tokens": 1532,
+    "output_tokens": 1022,
+    "latency_ms": 2425
+  }
+}

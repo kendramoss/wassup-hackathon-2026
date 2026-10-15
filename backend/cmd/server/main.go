@@ -41,6 +41,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
@@ -172,6 +173,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Engine:         eng,
 		Router:         router.New(model, cfg.RouterModel, 2000),
 		Agent:          caseagent.New(model, cfg.EngineModel, searcher, eng),
+		Extractor:      extract.New(model, cfg.EngineModel),
 		Clarifier:      clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:     pool,
 		Planner:        planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
