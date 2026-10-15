@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -40,6 +41,7 @@ type client struct {
 	http    *http.Client
 	token   string // ADMIN_TOKEN: bypasses the rate limits, pins the demo cases
 	idToken string // ID_TOKEN: Google identity token for a private Cloud Run service
+	dumpDir string // -dump: write the full heat-gun responses here
 }
 
 // pin marks a seeded case as a demo (listed first, protected from deletion).
@@ -54,17 +56,43 @@ func (c client) pin(id string) {
 }
 
 func (c client) call(method, path string, body any, out any) error {
+	b, err := c.callRaw(method, path, body)
+	if err != nil || out == nil {
+		return err
+	}
+	return json.Unmarshal(b, out)
+}
+
+// dump writes a raw response as <dir>/demo-seed-heatgun-<name>.json when -dump is set.
+func (c client) dump(name string, raw []byte) {
+	if c.dumpDir == "" {
+		return
+	}
+	var v any
+	if json.Unmarshal(raw, &v) != nil {
+		return
+	}
+	b, _ := json.MarshalIndent(v, "", "  ")
+	p := filepath.Join(c.dumpDir, "demo-seed-heatgun-"+name+".json")
+	if err := os.WriteFile(p, append(b, '\n'), 0o644); err != nil {
+		fmt.Fprintln(os.Stderr, "WARNING:", err)
+		return
+	}
+	fmt.Println("wrote", p)
+}
+
+func (c client) callRaw(method, path string, body any) ([]byte, error) {
 	var r io.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		r = bytes.NewReader(b)
 	}
 	req, err := http.NewRequest(method, c.base+path, r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if c.token != "" {
@@ -75,17 +103,14 @@ func (c client) call(method, path string, body any, out any) error {
 	}
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("%s %s: %w", method, path, err)
+		return nil, fmt.Errorf("%s %s: %w", method, path, err)
 	}
 	defer resp.Body.Close()
 	b, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("%s %s: %d %s", method, path, resp.StatusCode, strings.TrimSpace(string(b)))
+		return nil, fmt.Errorf("%s %s: %d %s", method, path, resp.StatusCode, strings.TrimSpace(string(b)))
 	}
-	if out != nil {
-		return json.Unmarshal(b, out)
-	}
-	return nil
+	return b, nil
 }
 
 type demo struct {
@@ -178,8 +203,9 @@ func seed(args []string) error {
 	api := fl.String("api", "http://localhost:8080", "server base URL")
 	multi := fl.String("multi", "testdata/heatgun_multi.json", "multi-country heat-gun fixture")
 	out := fl.String("out", "", "write the seeded cases as JSON (default: print only)")
+	dumpDir := fl.String("dump", "", "also write the full heat-gun predict, plan and scenarios responses to this directory")
 	_ = fl.Parse(args)
-	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN")}
+	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN"), dumpDir: *dumpDir}
 	if c.token == "" {
 		fmt.Fprintln(os.Stderr, "WARNING: ADMIN_TOKEN is not set: the seed may hit the rate limits (429), and demo cases will not be pinned")
 	}
@@ -204,10 +230,17 @@ func seed(args []string) error {
 			return err
 		}
 		var cr caseResp
-		if err := c.call("POST", "/v1/cases/predict", full.Predict, &cr); err != nil {
+		raw, err := c.callRaw("POST", "/v1/cases/predict", full.Predict)
+		if err == nil {
+			err = json.Unmarshal(raw, &cr)
+		}
+		if err != nil {
 			return fmt.Errorf("demo %s: %w", d.ID, err)
 		}
 		c.pin(cr.ID)
+		if d.ID == "heatgun-2022" {
+			c.dump("predict", raw)
+		}
 		s := Seeded{Demo: d.ID, Title: full.Title, CaseID: cr.ID, CBPHeld: full.CBPHeld, Origin: cr.Prediction.Origin,
 			Confidence: cr.Prediction.Confidence, Route: cr.Triage.Route}
 		fmt.Printf("%-24s case %s: %s %.2f (%s); CBP held %s\n", d.ID, cr.ID, cr.Prediction.Origin, cr.Prediction.Confidence, cr.Triage.Route, full.CBPHeld)
@@ -215,8 +248,15 @@ func seed(args []string) error {
 			var pr struct {
 				Plan planResult `json:"plan"`
 			}
-			if err := c.call("POST", "/v1/cases/"+cr.ID+"/plan", full.Plan, &pr); err != nil {
+			praw, err := c.callRaw("POST", "/v1/cases/"+cr.ID+"/plan", full.Plan)
+			if err == nil {
+				err = json.Unmarshal(praw, &pr)
+			}
+			if err != nil {
 				return fmt.Errorf("demo %s plan: %w", d.ID, err)
+			}
+			if d.ID == "heatgun-2022" {
+				c.dump("plan", praw)
 			}
 			s.BestPlan, s.PlanStatus = bestOf(pr.Plan)
 			fmt.Printf("%-24s plan: %s %s (%.0f s)\n", "", s.PlanStatus, s.BestPlan, pr.Plan.Stats.Wall)
@@ -300,9 +340,14 @@ func heatgunExtras(c client, id string, planBody json.RawMessage, first planResu
 				} `json:"comparison"`
 			} `json:"scenarios"`
 		}
-		if err := c.call("POST", "/v1/cases/"+id+"/scenarios", map[string]any{"scenarios": scen, "economics": pb.Economics}, &sr); err != nil {
+		sraw, err := c.callRaw("POST", "/v1/cases/"+id+"/scenarios", map[string]any{"scenarios": scen, "economics": pb.Economics})
+		if err == nil {
+			err = json.Unmarshal(sraw, &sr)
+		}
+		if err != nil {
 			return nil, fmt.Errorf("heat-gun scenarios: %w", err)
 		}
+		c.dump("scenarios", sraw)
 		for _, s := range sr.Scenarios {
 			net := "n/a"
 			if s.Comparison != nil && s.Comparison.Net != nil {

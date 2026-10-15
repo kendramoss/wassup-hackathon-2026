@@ -38,7 +38,7 @@ The precedent check is not repeatable from run to run (D31, D33): the heat gun's
 
 Side stories if time allows: LiDAR (second product family), BOM import (`backend/testdata/heatgun_bom.csv`), compare target countries (all below the bar in the last run, D36), ruling watch.
 
-## 4. Seeded outcomes (LiteLLM proxy, 16 Oct, fresh cache; replace with the recording-day run)
+## 4. Seeded outcomes (LiteLLM proxy, 16 Oct, run 1, fresh cache; replace with the recording-day run)
 
 | Demo | Prediction | CBP held | Plan |
 |---|---|---|---|
@@ -48,3 +48,17 @@ Side stories if time allows: LiDAR (second product family), BOM import (`backend
 | Dryer latch, assembled | China 0.99, auto | China | n/a |
 
 Heat gun extras: scenarios as today $0 (Thailand 0.75, differs from CBP), motor-fan in Thailand 0.95 net $380k, motor-fan + PCBA 0.98 net $320k; watch unchanged; ask cited N351922 and N348083; countries: Thailand below the bar, Vietnam and Malaysia no supported plan. Repeat search: identical verdicts, 6/6 cached, 8 s.
+
+### Run 2 (LiteLLM proxy, 16 Oct, clarify-v2, empty cache for these moves)
+Re-seeded to save full responses for the frontend (`make demo-seed` with `-dump`; `eval/results/demo-seed-heatgun-{predict,plan,scenarios}-litellm.json`, summary `eval/results/demo-seed-litellm.json`), not to look for a better result. Run 1's cache was in a scratch directory, so every check ran fresh.
+
+| Demo | Prediction | Plan |
+|---|---|---|
+| Heat gun | China 0.85, needs info (no ruling on point; 3 questions; a conflict, no lean) | **motor-fan + PCBA in Thailand shown: check 0.92 (exactly the bar), net $320k/yr** |
+| LiDAR | Thailand 0.95, auto | none shown; closest boards to Vietnam, check 0.90 |
+| Dryer latches | Thailand 0.96 / China 0.99, auto | n/a |
+
+Heat-gun scenarios: as today China 0.65 (now matches CBP; run 1 gave Thailand 0.75), motor-fan in Thailand 0.96 net $380k, both 0.98 net $320k. Compare countries: Thailand plan, Vietnam and Malaysia no plan. Repeat search: identical, 6/6 cached, 1.3 s.
+
+The two runs disagree on the heat gun's plan (0.75 vs 0.92) and on the as-today scenario. That is the run-to-run variation in section 2: the 0.92 sits exactly on the bar. Design both the shown-plan and no-plan screens; the recording-day run (Vertex) decides which one the video shows, and neither proxy run should be presented as the official outcome.
+
