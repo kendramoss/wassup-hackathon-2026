@@ -24,6 +24,9 @@ type scenarioInput struct {
 
 type scenariosRequest struct {
 	Scenarios []scenarioInput `json:"scenarios"`
+	// Economics prices each scenario against the current setup; when omitted,
+	// the case's latest economics (from a plan search) are used.
+	Economics *planner.Economics `json:"economics,omitempty"`
 }
 
 // scenarios predicts up to MaxScenarios alternative production setups for a
@@ -82,6 +85,19 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			a.fail(w, r, fmt.Errorf("scenario %q: %w", out[i].Label, err))
 			return
+		}
+	}
+	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+		sc.Economics = in.Economics
+	}
+	if e := sc.Economics; e != nil {
+		current := sc.Prediction.Origin
+		if sc.CurrentOrigin != nil && sc.CurrentOrigin.Country != "" {
+			current = sc.CurrentOrigin.Country
+		}
+		for i := range out {
+			cmp := planner.Compare(*e, sc.Product, out[i].Product, current, out[i].Prediction.Origin)
+			out[i].Comparison = &cmp
 		}
 	}
 	sc.Scenarios, sc.UpdatedAt = out, time.Now().UTC()

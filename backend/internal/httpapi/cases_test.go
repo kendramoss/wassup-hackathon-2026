@@ -544,3 +544,27 @@ func TestExportBelowBarPlanByMoveKey(t *testing.T) {
 		t.Error("shown plan draft carries the below-bar notice")
 	}
 }
+
+func TestScenariosPricedWithEconomics(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	body := `{"economics":{"illustrative":true,"annual_import_value_usd":2000000,"duty_rates":{"China":0.417,"Thailand":0.167}},
+		"scenarios":[{"label":"As today","facts":"Heat gun with the motor in China."},{"label":"Move motor","facts":"Heat gun with the motor in Thailand."}]}`
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", body)
+	if code != 200 {
+		t.Fatalf("scenarios %d %v", code, out)
+	}
+	ss := out["scenarios"].([]any)
+	today := ss[0].(map[string]any)["comparison"].(map[string]any)
+	moved := ss[1].(map[string]any)["comparison"].(map[string]any)
+	if today["duty_savings_usd"] != 0.0 || moved["duty_savings_usd"] != 500000.0 || moved["annual_duty_usd"] != 334000.0 ||
+		moved["added_cost_usd"] != nil || moved["illustrative"] != true {
+		t.Errorf("comparisons = %v / %v", today, moved)
+	}
+	// Economics are kept on the case and reused when a later call omits them.
+	_, again := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"Move motor","facts":"Heat gun with the motor in Thailand."}]}`)
+	if cmp := again["scenarios"].([]any)[0].(map[string]any)["comparison"].(map[string]any); cmp["duty_savings_usd"] != 500000.0 {
+		t.Errorf("stored economics not reused: %v", cmp)
+	}
+}

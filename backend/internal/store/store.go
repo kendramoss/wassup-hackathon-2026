@@ -45,6 +45,9 @@ type Case struct {
 	Scenarios []Scenario `json:"scenarios,omitempty"`
 	// Watch is the latest re-check of the prediction against newer rulings.
 	Watch *Watch `json:"watch,omitempty"`
+	// Economics are the latest user economics (from a plan search or a
+	// scenarios call), reused to price scenarios.
+	Economics *planner.Economics `json:"economics,omitempty"`
 }
 
 // Scenario is one alternative production setup and its prediction.
@@ -54,6 +57,9 @@ type Scenario struct {
 	Product    *domain.Product   `json:"product,omitempty"`
 	Prediction domain.Prediction `json:"prediction"`
 	Triage     domain.Triage     `json:"triage"`
+	// Comparison is the yearly duty and cost against the current setup;
+	// nil without economics.
+	Comparison *planner.Comparison `json:"comparison,omitempty"`
 }
 
 // Watch statuses.

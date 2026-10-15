@@ -170,6 +170,9 @@ paths:
                       label: { type: string, description: "defaults to 'Scenario N'" }
                       facts: { type: string }
                       product: { $ref: "#/components/schemas/Product" }
+                economics:
+                  description: Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used.
+                  allOf: [{ $ref: "#/components/schemas/Economics" }]
       responses:
         "200":
           description: The case with scenarios filled
@@ -437,6 +440,8 @@ components:
                   prediction: { $ref: "#/components/schemas/Prediction" }
                   triage: { $ref: "#/components/schemas/Triage" }
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+                  comparison: { $ref: "#/components/schemas/Comparison" }
+            economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             watch:
               type: [object, "null"]
               description: null until re-checked
@@ -463,20 +468,21 @@ components:
             holding_b: { type: string }
             deciding_difference: { type: string }
         questions: { type: array, maxItems: 3, items: { type: string } }
+    Economics:
+      type: object
+      description: User inputs, illustrative — editable. Kept on the case and reused to price scenarios.
+      properties:
+        illustrative: { type: boolean }
+        annual_import_value_usd: { type: number }
+        duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
+        duty_rates_note: { type: string }
+        group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
     PlanRequest:
       type: object
       required: [target]
       properties:
         target: { type: string, example: Thailand }
-        economics:
-          type: object
-          description: User inputs, illustrative — editable
-          properties:
-            illustrative: { type: boolean }
-            annual_import_value_usd: { type: number }
-            duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
-            duty_rates_note: { type: string }
-            group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } } }
+        economics: { $ref: "#/components/schemas/Economics" }
         actual_change:
           type: object
           description: For backtests, the real change and CBP's ruling on it; the result compares it with the best plan.
@@ -547,6 +553,17 @@ components:
         text: { type: string }
         url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
         origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
+    Comparison:
+      type: object
+      description: Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced.
+      properties:
+        duty_rate: { type: [number, "null"], description: rate for the scenario's predicted origin }
+        annual_duty_usd: { type: [number, "null"] }
+        duty_savings_usd: { type: [number, "null"], description: current setup's duty minus this scenario's }
+        added_cost_usd: { type: [number, "null"], description: "yearly cost of the operation groups moved (product scenarios with group costs only)" }
+        net_usd: { type: [number, "null"], description: savings minus added cost }
+        moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
+        illustrative: { type: boolean }
     MoveRef:
       type: object
       required: [key, description, move]

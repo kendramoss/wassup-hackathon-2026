@@ -364,7 +364,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
-		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch),
+		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics,
 	}
 }
 
@@ -372,7 +372,7 @@ func (a *api) scenarioFields(ss []store.Scenario) []map[string]any {
 	out := make([]map[string]any, len(ss))
 	for i, s := range ss {
 		out[i] = map[string]any{"label": s.Label, "facts": s.Facts, "product": s.Product, "prediction": s.Prediction,
-			"triage": s.Triage, "precedents_detail": a.precedentRefs(s.Prediction.Precedents)}
+			"triage": s.Triage, "precedents_detail": a.precedentRefs(s.Prediction.Precedents), "comparison": s.Comparison}
 	}
 	return out
 }
@@ -488,11 +488,21 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.Plan, c.UpdatedAt = &res, time.Now().UTC()
+	c.Economics = economicsFrom(in.Economics, c.Economics)
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)
 		return
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
+}
+
+// economicsFrom keeps the latest economics the user gave (an empty request
+// value leaves the stored one).
+func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
+	if e.AnnualImportValueUSD > 0 {
+		return &e
+	}
+	return old
 }
 
 // keepAlive is how often an idle plan stream sends an SSE comment, so proxies
@@ -549,6 +559,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	})
 	if err == nil {
 		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
+		c.Economics = economicsFrom(req.Economics, c.Economics)
 		err = a.d.Cases.Put(r.Context(), c)
 	}
 	if err != nil {
