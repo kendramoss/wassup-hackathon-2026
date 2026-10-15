@@ -30,12 +30,12 @@ frontend (Next.js, Cloud Run)  ──HTTP/JSON──►  backend (Go, Cloud Run)
 eval (Go CLI) → engine / router / verifier on frozen splits → eval/results/*.jsonl, eval/RESULTS.md
 ```
 
-1. **Predict.** Paste a CBP-style description or enter the bill of materials (components, where each is made, operations by plant). The engine reads it with the five most similar CBP rulings dated before the case and returns origin, key factors, confidence and the rulings it relied on. The router labels the origin regime: textile (19 CFR 102.21), USMCA/Part 102 and pharmaceutical-ingredient cases go to expert review.
+1. **Predict.** Paste a CBP-style description, or upload the bill of materials as CSV or Excel (components, where each is made, operations by plant; `POST /v1/products/import`). The engine reads it with the five most similar CBP rulings dated before the case and returns origin, key factors, confidence and the rulings it relied on. The router labels the origin regime: textile (19 CFR 102.21), USMCA/Part 102 and pharmaceutical-ingredient cases go to expert review.
 2. **Plan.** Pick a target origin. The planner moves *operation groups* (e.g. motor-fan assembly = stamp laminations, wind rotor, build stator, fit fan; PCBA SMT; housing moulding) to plants that can perform them, one or two groups at a time, and asks the engine about each variant.
 3. **Verify.** For variants predicted to reach the target, an ADK agent searches and reads earlier CBP rulings and answers "precedent-supported" only when it finds one where CBP treated the same kind of change as decisive; it also returns a counter-ruling where a similar change did not work. Only precedent-supported plans with verifier confidence ≥ 0.95 are shown; the rest are returned greyed out with the reason.
 4. **Rank and export.** Plans are ranked by duty effect minus added cost — best-ranked within the searched moves and your cost inputs (illustrative — editable). The chosen plan exports as a draft CBP ruling request. The search streams its progress (`Accept: text/event-stream`), so each move appears as it is predicted and checked (~25 s for the heat gun).
 
-Below the confidence bar, a **clarify** review says whether an earlier ruling is on point, shows conflicting earlier rulings with the difference that decided them, and asks up to three follow-up questions; when nothing is on point the case is routed **needs more information**. Answers are added to the facts and the case is re-analysed. Cases are saved, can compare up to three **production scenarios** side by side, and can be **re-checked against rulings CBP issued after the case date** (ruling watch).
+Below the confidence bar, a **clarify** review says whether an earlier ruling is on point, shows conflicting earlier rulings with the difference that decided them, and asks up to three follow-up questions; when nothing is on point the case is routed **needs more information**. Answers are added to the facts and the case is re-analysed. Cases are saved, can compare up to three **production scenarios** side by side (with yearly duty, savings and added cost from your economics), and can be **re-checked against rulings CBP issued after the case date** (ruling watch).
 
 Model choices are measured: Argon and Flash are equally accurate with precedents, Argon is faster (research p95 5 s vs 18 s). Every response and eval row records the provider, model IDs and prompt versions.
 
@@ -98,7 +98,7 @@ make smoke        # one live model call
 make eval-report  # summaries of the committed eval runs, no model calls
 ```
 
-API: `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
+API: `POST /v1/products/import`, `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
 
 Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confirm-final`; never tune on it), `compare`, `scope`, `flips`, `plan -fixture testdata/heatgun_2022.json`, `predict`, `clarify`, `torn`, `learnability`, `summary`, `report`. Every run is appended to `eval/results/RUNLOG.jsonl`.
 

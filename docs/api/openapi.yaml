@@ -146,6 +146,49 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/products/import:
+    post:
+      summary: Turn a bill of materials (CSV or Excel) into a structured product
+      description: |
+        Does not create a case: send the returned product (with the family) to POST /v1/cases/predict.
+        One row per component, or per operation with type "operation". Headers (case-insensitive, aliases accepted):
+        name (component / part / item), country (made in / origin), plant (factory / site / supplier; defaults to the country),
+        group (operation group, matched to the family template by id or name), type, plant_capabilities (groups the row's plant could also perform, ";"-separated).
+        Up to 500 rows, 5 MB. Sample: backend/testdata/heatgun_bom.csv.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx (first sheet) }
+                name: { type: string }
+                description: { type: string }
+                family: { type: string, description: "needed for groups and the plan search, e.g. motorised_tools_small_appliances" }
+          application/json:
+            schema:
+              type: object
+              required: [csv]
+              properties:
+                csv: { type: string }
+                name: { type: string }
+                description: { type: string }
+                family: { type: string }
+      responses:
+        "200":
+          description: The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [product, family, warnings]
+                properties:
+                  product: { $ref: "#/components/schemas/Product" }
+                  family: { type: string }
+                  warnings: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/scenarios:
     post:
       summary: Predict 1–3 alternative production setups side by side (replaces the case's previous scenarios)

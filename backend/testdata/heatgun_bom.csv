@@ -1,0 +1,18 @@
+type,name,country,plant,group,plant_capabilities
+component,main housing,Thailand,Rayong plant,housing_moulding,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; final_assembly
+component,front cover,Thailand,Rayong plant,housing_moulding,
+component,heating element,Thailand,Rayong plant,heating_element,
+component,electric motor,China,China suppliers,motor_fan_assembly,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts
+component,fan,China,China suppliers,motor_fan_assembly,
+component,motor support,China,China suppliers,motor_fan_assembly,
+component,printed circuit board assembly (PCBA),China,China suppliers,pcba,
+component,switch,China,China suppliers,switch_cord_minor_parts,
+component,power cord,China,China suppliers,switch_cord_minor_parts,
+component,wiring,China,China suppliers,switch_cord_minor_parts,
+component,knob,China,China suppliers,switch_cord_minor_parts,
+component,back cover,China,China suppliers,switch_cord_minor_parts,
+component,"support ring, heat insulator and fasteners",China,China suppliers,switch_cord_minor_parts,
+operation,press fit the fan to the motor spindle and attach the fan cover,Thailand,Rayong plant,final_assembly,
+operation,"crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",Thailand,Rayong plant,final_assembly,
+operation,"fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",Thailand,Rayong plant,final_assembly,
+operation,"secure the power cord, add the switch slider, close the housing with screws, test, label and pack",Thailand,Rayong plant,final_assembly,

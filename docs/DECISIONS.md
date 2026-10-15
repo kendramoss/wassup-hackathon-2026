@@ -143,3 +143,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - So `VERIFIER_VOTES` defaults to 1. The cache (D31) is what makes repeat searches identical; voting adds cost and latency without making the first verdict repeatable. Re-test on Vertex, where variance and rate limits may differ.
 - Config: directory settings now take `off` to disable (`CASES_DIR=off`, `VERIFIER_CACHE_DIR=off`); an empty value means the default.
 
+## D34 — BOM import and scenario pricing (15 Oct)
+- `POST /v1/products/import` turns a CSV or Excel (.xlsx, first sheet; github.com/xuri/excelize/v2) bill of materials into the structured product: one row per component or operation, header aliases, countries normalised, groups matched to the family template, plants created from the plant column (or the country), capabilities from the groups each plant makes plus an optional `plant_capabilities` column. It returns warnings for what the plan search will lack rather than guessing capabilities. It does not create a case. `backend/testdata/heatgun_bom.csv` imports to the same 6 planner moves as the hand-written heat-gun fixture.
+- Scenarios now carry a `comparison` against the current setup from the case's economics (given in the scenarios call, or kept from the last plan search): duty at the predicted origin, duty savings, added cost of the operation groups moved and net, labelled illustrative unless sourced. Heat-gun fixture economics: motor-fan assembly to Thailand saves $500k a year, adds $120k, net $380k.
+

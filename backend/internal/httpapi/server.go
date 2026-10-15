@@ -28,6 +28,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		a := &api{d: d, rulingMemo: map[string]rulingDTO{}}
 		mux.HandleFunc("POST /v1/cases/predict", a.predict)
 		mux.HandleFunc("GET /v1/cases", a.listCases)
+		mux.HandleFunc("POST /v1/products/import", a.importProduct)
 		mux.HandleFunc("POST /v1/cases/{id}/scenarios", a.scenarios)
 		mux.HandleFunc("POST /v1/cases/{id}/watch", a.watch)
 		mux.HandleFunc("POST /v1/watch/run", a.watchAll)

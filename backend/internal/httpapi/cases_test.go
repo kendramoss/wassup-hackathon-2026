@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -566,5 +567,45 @@ func TestScenariosPricedWithEconomics(t *testing.T) {
 	_, again := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"Move motor","facts":"Heat gun with the motor in Thailand."}]}`)
 	if cmp := again["scenarios"].([]any)[0].(map[string]any)["comparison"].(map[string]any); cmp["duty_savings_usd"] != 500000.0 {
 		t.Errorf("stored economics not reused: %v", cmp)
+	}
+}
+
+func TestImportProductFromBOM(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	csv := "Part,Made in,Factory,Operation group,Plant capabilities\n" +
+		"main housing,Thailand,Rayong plant,housing_moulding,motor_fan_assembly\n" +
+		"electric motor,China,China suppliers,motor_fan_assembly,\n"
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	fw, _ := mw.CreateFormFile("file", "bom.csv")
+	_, _ = fw.Write([]byte(csv))
+	_ = mw.WriteField("name", "Heat gun")
+	_ = mw.WriteField("family", "motorised_tools_small_appliances")
+	_ = mw.Close()
+	req := httptest.NewRequest("POST", "/v1/products/import", &buf)
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	var out map[string]any
+	_ = json.Unmarshal(rec.Body.Bytes(), &out)
+	if rec.Code != 200 {
+		t.Fatalf("import %d %v", rec.Code, out)
+	}
+	p := out["product"].(map[string]any)
+	if p["name"] != "Heat gun" || len(p["components"].([]any)) != 2 || len(p["plants"].([]any)) != 2 || out["warnings"] == nil {
+		t.Errorf("import = %v", out)
+	}
+	// The imported product is accepted by predict as is.
+	body, _ := json.Marshal(map[string]any{"date": "2026-01-14", "product": p, "family": "motorised_tools_small_appliances"})
+	if code, c := hs.do(t, "POST", "/v1/cases/predict", string(body)); code != 201 {
+		t.Errorf("predict with imported product: %d %v", code, c)
+	}
+	for _, bad := range []string{`{"name":"x","csv":"Part,Factory\nmotor,A\n"}`, `{"name":"x","family":"nope","csv":"Part,Country\nm,China\n"}`} {
+		if code, _ := hs.do(t, "POST", "/v1/products/import", bad); code != 400 {
+			t.Errorf("bad import %s: %d", bad, code)
+		}
+	}
+	if code, out := hs.do(t, "POST", "/v1/products/import", `{"name":"Fan","csv":"Part,Country\nmotor,China\n"}`); code != 200 || len(out["warnings"].([]any)) == 0 {
+		t.Errorf("json import %d %v", code, out)
 	}
 }
