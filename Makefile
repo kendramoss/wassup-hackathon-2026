@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus upload-corpus
+.PHONY: demo-seed test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus upload-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -47,3 +47,7 @@ eval-report: ## summaries of the committed runs, fast path joined with router-v2
 
 eval-summary: ## regenerate the numbers served by GET /v1/eval/summary (embedded in the server)
 	cd $(GO_DIR) && go run ./cmd/eval summary
+
+demo-seed: ## prepare a running server (make run) for recording: every demo case, plans, scenarios, watch, ask, country comparison; checks verdicts repeat (docs/DEMO.md)
+	cd $(GO_DIR) && go run ./cmd/demo seed -out ../eval/results/demo-seed.json
+

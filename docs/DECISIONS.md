@@ -179,3 +179,10 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - Held-out: adjustments exclude nothing. 340/377 = **90.2% (86.8–92.8)**. Regex 321/355 = 90.4% (86.9–93.1); manual 19/22 = 86.4% (66.7–95.3). Fast path: 300/377 = 79.6% at 96.0% (93.1–97.7). Router out of scope: 11/377 (dev: 8/469). Cost $0.0078 promo / $0.0157 list. Latency p50 4.6 s / p95 5.7 s. These are the README rows.
 - McNemar against the proxy run, same adjustments: held-out Vertex fixed 2 and broke 1, p = 1.000 (proxy 89.9%, Vertex 90.2%). Dev: fixed 3, broke 2, p = 1.000 (proxy 90.9%, Vertex 91.1%). No prompt or threshold was changed after seeing the held-out result.
 - Cost uses the same Gemini Developer API promo and list prices as the proxy runs (checked 2026-10-14). The Vertex price sheet for this project was not re-checked. Verifier and heat-gun plan figures in the summary stay proxy, development only. The tuning job (#38) was not launched.
+
+- Next, in order: the engine run on train + tune_check (~700 engine calls), then `eval tunedata`, the tuning job, a dev comparison with `compare` (McNemar, fast-path accuracy, calibration by band), and one held-out run only if dev improves.
+
+## D40 — Demo seed and recording runbook (16 Oct)
+- `make demo-seed` (`backend/cmd/demo`) prepares a running server for the video through the real API: a case per demo, its plan search, and for the heat gun the scenarios, ruling watch, one ask and the multi-country comparison. It repeats the heat-gun plan search and checks the verdicts match, so replays during recording are identical with the verdict cache on. LiteLLM run (`eval/results/demo-seed-litellm.json`, proxy): 3.5 min; repeat search identical, 6/6 from cache, 8 s.
+- The seed records the first verdict and does not re-roll for a better one: re-seeding until a plan clears the bar would misrepresent the system. In this run no heat-gun or LiDAR plan cleared 0.92, so the runbook (`docs/DEMO.md`) covers the "No plan cleared the bar" path and uses scenarios (motor-fan to Thailand 0.95, net $380k, illustrative) as the stable "move X saves $Y" story.
+
