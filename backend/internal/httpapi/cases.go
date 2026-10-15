@@ -182,8 +182,9 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: time.Now().UTC()}
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now}
 	if err := a.analyse(r, &sc, c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -288,7 +289,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	sc.Facts = facts
+	sc.Facts, sc.UpdatedAt = facts, time.Now().UTC()
 	if err := a.analyse(r, &sc, c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -305,7 +306,52 @@ func caseFields(c store.Case) map[string]any {
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
+		"updated_at": c.UpdatedAt, "step": c.Step(),
 	}
+}
+
+// caseSummary is one row of the cases list.
+type caseSummary struct {
+	ID          string   `json:"id"`
+	ProductName string   `json:"product_name"`
+	Date        string   `json:"date"`
+	Origin      *string  `json:"predicted_origin"`
+	Route       *string  `json:"triage_route"`
+	Confidence  *float64 `json:"confidence"`
+	Step        string   `json:"step"`
+	UpdatedAt   string   `json:"updated_at"`
+}
+
+func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
+	cs, err := a.d.Cases.List(r.Context())
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	rows := make([]caseSummary, 0, len(cs))
+	for _, c := range cs {
+		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339)}
+		if c.Product != nil {
+			row.ProductName = c.Product.Name
+		} else {
+			row.ProductName = firstWords(c.Facts, 8)
+		}
+		if c.Prediction.Origin != "" {
+			o, route, conf := c.Prediction.Origin, string(c.Triage.Route), c.Prediction.Confidence
+			row.Origin, row.Route, row.Confidence = &o, &route, &conf
+		}
+		rows = append(rows, row)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
+}
+
+// firstWords names a facts-only case by its opening words.
+func firstWords(s string, n int) string {
+	f := strings.Fields(s)
+	if len(f) > n {
+		return strings.Join(f[:n], " ") + "…"
+	}
+	return strings.Join(f, " ")
 }
 
 func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
@@ -352,7 +398,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	c.Plan = &res
+	c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -396,7 +442,14 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
 		}
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": export.Markdown(ex)})
+	content := export.Markdown(ex)
+	now := time.Now().UTC()
+	c.ExportedAt, c.UpdatedAt = &now, now
+	if err := a.d.Cases.Put(r.Context(), c); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
 }
 
 type rulingDTO struct {

@@ -10,6 +10,7 @@
 //
 //	GET  /health                 liveness (not /healthz: Cloud Run reserves paths ending in "z")
 //	POST /v1/cases/predict       origin prediction
+//	GET  /v1/cases               case list, newest first
 //	GET  /v1/cases/{id}          a case
 //	POST /v1/cases/{id}/plan     plan search
 //	POST /v1/cases/{id}/export   draft ruling request
@@ -148,6 +149,15 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	var cases store.Cases = store.NewMemory()
+	if cfg.CasesDir != "" {
+		fc, err := store.NewFile(cfg.CasesDir)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		cases = fc
+		logger.Info("cases persisted", "dir", cfg.CasesDir)
+	}
 	ds, err := demos.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -160,7 +170,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Precedents:    pool,
 		Planner:       planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:       crossClient,
-		Cases:         store.NewMemory(),
+		Cases:         cases,
 		Templates:     tmpls,
 		Summary:       evalsummary.Load,
 		FastPathConf:  cfg.FastPathConfidence,

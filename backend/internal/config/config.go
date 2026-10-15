@@ -56,6 +56,9 @@ type Config struct {
 	FactsDir       string
 	RawDir         string
 	VerifierSearch string // local | cross
+	// CasesDir, when set, persists cases as JSON files there; empty keeps
+	// them in memory.
+	CasesDir string
 }
 
 // Load reads the configuration from the process environment.

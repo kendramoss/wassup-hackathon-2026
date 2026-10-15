@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -355,5 +356,28 @@ func TestClarifySkippedOnFastPathAndOutOfScope(t *testing.T) {
 	_, out = hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
 	if out["clarify"] != nil || out["triage"].(map[string]any)["route"] != "needs_review" {
 		t.Errorf("out-of-scope case: %v %v", out["clarify"], out["triage"])
+	}
+}
+
+func TestListCases(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	if code, out := hs.do(t, "GET", "/v1/cases", ""); code != 200 || len(out["cases"].([]any)) != 0 {
+		t.Fatalf("empty list %d %v", code, out)
+	}
+	_, a := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	time.Sleep(2 * time.Millisecond)
+	_, b := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"A pump body is cast in China and assembled in Vietnam with a Vietnamese motor."}`)
+	hs.do(t, "POST", "/v1/cases/"+a["id"].(string)+"/export", "")
+	_, out := hs.do(t, "GET", "/v1/cases", "")
+	rows := out["cases"].([]any)
+	first, second := rows[0].(map[string]any), rows[1].(map[string]any)
+	if first["id"] != a["id"] || first["step"] != "export" || second["id"] != b["id"] || second["step"] != "origin" {
+		t.Errorf("order/steps = %v / %v", first, second)
+	}
+	if first["product_name"] != "Kobalt 12.5-amp heat gun, model 5208257" || !strings.HasPrefix(second["product_name"].(string), "A pump body is cast") {
+		t.Errorf("names = %v / %v", first["product_name"], second["product_name"])
+	}
+	if first["predicted_origin"] != "China" || first["triage_route"] != "auto" || first["confidence"] != 0.97 || first["updated_at"] == "" {
+		t.Errorf("row = %v", first)
 	}
 }

@@ -44,6 +44,21 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases:
+    get:
+      summary: List all cases, most recently updated first
+      responses:
+        "200":
+          description: Case summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cases]
+                properties:
+                  cases:
+                    type: array
+                    items: { $ref: "#/components/schemas/CaseSummary" }
   /v1/cases/{id}:
     get:
       summary: Fetch a case with its prediction and latest plan
@@ -204,6 +219,25 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    CaseSummary:
+      type: object
+      required: [id, product_name, date, predicted_origin, triage_route, confidence, step, updated_at]
+      properties:
+        id: { type: string }
+        product_name:
+          type: string
+          description: Structured product name, or the first words of the facts for a facts-only case
+        date: { type: string, format: date, description: Case date }
+        predicted_origin: { type: [string, "null"], description: null until analysed }
+        triage_route:
+          type: [string, "null"]
+          enum: [auto, needs_review, needs_info, null]
+        confidence: { type: [number, "null"], minimum: 0, maximum: 1 }
+        step:
+          type: string
+          enum: [product, origin, plan, export]
+          description: Furthest workflow step reached (export once a draft has been exported)
+        updated_at: { type: string, format: date-time }
     Error:
       type: object
       required: [code, message]
@@ -309,6 +343,8 @@ components:
             clarify: { $ref: "#/components/schemas/Clarify" }
             answers: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string } } } }
             created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+            step: { type: string, enum: [product, origin, plan, export] }
     Clarify:
       type: object
       description: Only for in-scope cases below the 0.95 fast path. Never changes the predicted origin.

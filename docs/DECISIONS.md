@@ -95,3 +95,9 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - `clarify` (clarify-v1, one extra call ~$0.009, only for in-scope cases below 0.95) reports whether an earlier ruling is on point, conflicting comparable rulings with the deciding difference, and up to 3 questions. Triage routes "no precedent on point + questions" to `needs_info`; `POST /v1/cases/{id}/answers` appends answers to the facts and re-analyses.
 - Dev (127 below-threshold cases): the flags do **not** separate errors — engine error rate 26% with no precedent on point vs 22% with one; 24% where a conflict was found; needs_info 28% vs needs_review 21% (overlapping CIs). Reviewing the questions by hand, they target the facts CBP relied on (helmet: is the shell moulded to final shape; seamless pipe: are green tubes at final dimensions; filters: does the paper arrive in rolls or cut). Whether answers improve accuracy cannot be measured: the benchmark has no requester answers, and simulating them from ruling text would leak the holding.
 - So it ships as broker-facing help, not as a claimed accuracy gain. No held-out run: clarify never changes the predicted origin, and its routing showed no error signal on dev.
+
+## D25 — Cases persist as JSON files; Firestore before deploy (15 Oct)
+- `GET /v1/cases` (Cases home page) needs cases to survive a restart. `store.File` writes one JSON file per case to `CASES_DIR` (default `../data/cases`, gitignored), atomically (temp file + rename); IDs are checked against `^[A-Za-z0-9_-]{1,64}$` so a crafted ID cannot escape the directory. `CASES_DIR=` (empty) keeps the in-memory store.
+- Every write sets `updated_at`; export also records `exported_at`, which drives `step = export`. The list is ordered by `updated_at` descending.
+- On Cloud Run the container disk is per-instance and lost on restart, so this is local persistence only. Before deploy, add a Firestore implementation of the same `store.Cases` interface (blocked on GCP setup).
+

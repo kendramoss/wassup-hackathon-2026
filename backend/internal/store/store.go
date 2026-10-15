@@ -6,6 +6,7 @@ package store
 import (
 	"context"
 	"errors"
+	"sort"
 	"sync"
 	"time"
 
@@ -37,6 +38,22 @@ type Case struct {
 	// OriginalFacts is the facts before answers were appended.
 	OriginalFacts string    `json:"original_facts,omitempty"`
 	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	// ExportedAt is set when a ruling-request draft was produced.
+	ExportedAt *time.Time `json:"exported_at,omitempty"`
+}
+
+// Step is how far the case has progressed in the UI flow.
+func (c Case) Step() string {
+	switch {
+	case c.ExportedAt != nil:
+		return "export"
+	case c.Plan != nil:
+		return "plan"
+	case c.Prediction.Origin != "":
+		return "origin"
+	}
+	return "product"
 }
 
 // Answer is one requester answer to a clarify question.
@@ -49,6 +66,8 @@ type Answer struct {
 type Cases interface {
 	Put(ctx context.Context, c Case) error
 	Get(ctx context.Context, id string) (Case, error)
+	// List returns all cases, most recently updated first.
+	List(ctx context.Context) ([]Case, error)
 }
 
 // Memory is an in-process Cases store. Data is lost on restart and not shared
@@ -67,6 +86,27 @@ func (m *Memory) Put(_ context.Context, c Case) error {
 	defer m.mu.Unlock()
 	m.cases[c.ID] = c
 	return nil
+}
+
+// List implements Cases.
+func (m *Memory) List(_ context.Context) ([]Case, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	out := make([]Case, 0, len(m.cases))
+	for _, c := range m.cases {
+		out = append(out, c)
+	}
+	sortNewest(out)
+	return out, nil
+}
+
+func sortNewest(cs []Case) {
+	sort.Slice(cs, func(i, j int) bool {
+		if !cs[i].UpdatedAt.Equal(cs[j].UpdatedAt) {
+			return cs[i].UpdatedAt.After(cs[j].UpdatedAt)
+		}
+		return cs[i].ID > cs[j].ID
+	})
 }
 
 // Get implements Cases.

@@ -15,3 +15,4 @@ backend/backend
 # Raw CBP ruling texts are fetched by cmd/corpus, never committed
 data/corpus/
 backend/server
+data/cases/
