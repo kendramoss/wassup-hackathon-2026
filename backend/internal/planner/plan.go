@@ -161,6 +161,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 			if r.Prediction.Origin != target {
 				pl.RejectionReason = fmt.Sprintf("engine predicts origin %s, not %s", r.Prediction.Origin, target)
+				pl.RejectionKind = domain.RejectOtherOrigin
 				plans[i] = pl
 				return
 			}
@@ -175,6 +176,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 			mu.Unlock()
 			if err != nil {
 				pl.RejectionReason = "precedent check failed: " + err.Error()
+				pl.RejectionKind = domain.RejectCheckFailed
 				plans[i] = pl
 				return
 			}
@@ -183,8 +185,10 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 			switch {
 			case !v.PrecedentSupported:
 				pl.RejectionReason = "no earlier ruling found where CBP held this kind of change decisive"
+				pl.RejectionKind = domain.RejectNoPrecedent
 			case v.Confidence < p.opts.PlanConfidence:
 				pl.RejectionReason = fmt.Sprintf("precedent-supported but verifier confidence %.2f is below %.2f", v.Confidence, p.opts.PlanConfidence)
+				pl.RejectionKind = domain.RejectBelowConfidence
 			default:
 				pl.Shown = true
 			}
@@ -203,14 +207,24 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 		}
 	}
 	sort.SliceStable(res.Plans, func(i, j int) bool { return res.Plans[i].NetYear > res.Plans[j].NetYear })
-	// Rejected: moves that reached the target in the engine first (closest
-	// calls), then the rest, each in enumeration order.
+	// Rejected, closest calls first: precedent-supported but below the
+	// confidence bar (best net first), then other verified moves, then moves
+	// the engine says miss the target; the current setup is prepended below.
+	rank := map[domain.RejectionKind]int{domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
 	sort.SliceStable(res.Rejected, func(i, j int) bool {
-		return res.Rejected[i].Verdict != nil && res.Rejected[j].Verdict == nil
+		a, b := res.Rejected[i], res.Rejected[j]
+		if rank[a.RejectionKind] != rank[b.RejectionKind] {
+			return rank[a.RejectionKind] < rank[b.RejectionKind]
+		}
+		if a.RejectionKind == domain.RejectBelowConfidence {
+			return a.NetYear > b.NetYear
+		}
+		return false
 	})
 	if baseOrigin != target {
 		b := res.Baseline
 		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", base.Prediction.Origin)
+		b.RejectionKind = domain.RejectCurrentSetup
 		if knownA != "" {
 			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, base.Prediction.Origin)
 		}

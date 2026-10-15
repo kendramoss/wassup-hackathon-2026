@@ -76,3 +76,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D20 — Pasted facts are normalised to the benchmark format; the heat-gun prediction is borderline
 - Corpus facts files, and therefore every benchmarked prompt, end with one newline. The API now appends it to pasted facts. Found because the heat-gun demo (CBP's own 2022 facts text) flipped with it: without the newline Thailand 5/5 runs (0.78); with it China 4/5 (0.75–0.85), Thailand 1/5. CBP held China.
 - The change restores the evaluated input format; it was not chosen per case. The heat-gun current setup stays a borderline case for the engine: always below the 0.95 fast path (routed to expert review), and the demo should present it that way. Measured 16 Oct, gemini-4-argon via LiteLLM (proxy).
+
+## D21 — Plan display bar stays at 0.95; near misses are shown greyed (human decision, 16 Oct)
+- The heat-gun "motor-fan + PCBA" move is precedent-supported on every run (supporting N347421), but the verifier's confidence lands on 0.90 or 0.95, so it was shown in 1 of 3 runs. Dev data (54 pairs) showed every precedent-supported verdict correct at ≥ 0.90 and ≥ 0.95 alike; 0.95 only cuts recall (known-A: 13/46 vs 21/46). Small negative class (8).
+- Kept 0.95 as the brief requires. Rejected plans now carry `rejection_kind`; `below_confidence_bar` rows (precedent-supported, confidence below 0.95) sort right after the current setup, and the UI shows them greyed with the label "Precedent-supported — below confidence bar" and their supporting ruling.

@@ -325,6 +325,12 @@ components:
         net_per_year: { type: number }
         shown: { type: boolean }
         rejection_reason: { type: string }
+        rejection_kind:
+          type: string
+          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed]
+          description: |
+            Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below 0.95:
+            render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
     PlanResult:
       type: object
       properties:
@@ -332,7 +338,7 @@ components:
         current_origin: { type: object, properties: { country: { type: string }, ruling: { type: string } } }
         baseline: { $ref: "#/components/schemas/Plan" }
         plans: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Precedent-supported, verifier confidence >= 0.95; best-ranked within the searched moves and your cost inputs first" }
-        rejected: { type: array, items: { $ref: "#/components/schemas/Plan" } }
+        rejected: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Greyed rows, closest first: current setup, below_confidence_bar, no_supporting_precedent, engine_other_origin" }
         backtest: { type: object }
         stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
         economics_illustrative: { type: boolean }

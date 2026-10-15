@@ -25,7 +25,7 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Heat gun 2022 origin | CBP held China | CBP ruling N328954 (15 Nov 2022) | Showable |
 | Heat gun 2026 origin after the change | CBP held Thailand | CBP ruling N357771 (29 Jan 2026) | Showable |
 | Duty difference China vs Thailand, heat gun | ≈25 points (≈41.7% vs ≈16.7% ad valorem) | `docs/DUTY-SOURCES.md` (HTS 8419.89.95 inferred; Section 301 List 2) | Showable with "product-specific; classification to be confirmed by a broker" |
-| Plan shown | motor-fan assembly + PCBA to Thailand; supporting N347421, counter N345859 | `eval/results/plan-heatgun-2022-local-litellm.json` | Proxy demo run; re-run on Vertex before recording |
+| Plan shown | motor-fan assembly + PCBA to Thailand; supporting N347421, counter N345859 | `eval/results/plan-heatgun-2022-local-litellm.json` | Proxy demo run; re-run on Vertex before recording. Verifier confidence varies 0.90–0.95 across runs: at 0.90 it appears as a greyed "below confidence bar" row (D21) — say so if it does |
 | Duty effect / added cost on plan cards | $500k/yr and $180k/yr | fixture inputs (illustrative — editable) | Show only as "illustrative — editable" |
 
 ## Market and time (from `hackathon-research/evidence/fees/LEDGER.md`)

@@ -103,7 +103,26 @@ type Plan struct {
 	DutyEffectYear float64    `json:"duty_effect_per_year"`
 	AddedCostYear  float64    `json:"added_cost_per_year"`
 	// NetYear is duty effect minus added cost, the ranking key.
-	NetYear         float64 `json:"net_per_year"`
-	Shown           bool    `json:"shown"`
-	RejectionReason string  `json:"rejection_reason,omitempty"`
+	NetYear         float64       `json:"net_per_year"`
+	Shown           bool          `json:"shown"`
+	RejectionReason string        `json:"rejection_reason,omitempty"`
+	RejectionKind   RejectionKind `json:"rejection_kind,omitempty"`
 }
+
+// RejectionKind classifies why a plan is not shown, so the UI can style it
+// (e.g. a greyed "below confidence bar" row) without parsing the reason.
+type RejectionKind string
+
+const (
+	// RejectCurrentSetup is the current setup, listed for comparison.
+	RejectCurrentSetup RejectionKind = "current_setup"
+	// RejectBelowConfidence is precedent-supported, but the verifier's
+	// confidence is below the display bar (0.95).
+	RejectBelowConfidence RejectionKind = "below_confidence_bar"
+	// RejectNoPrecedent means no earlier ruling held this kind of change decisive.
+	RejectNoPrecedent RejectionKind = "no_supporting_precedent"
+	// RejectOtherOrigin means the engine predicts the move does not reach the target.
+	RejectOtherOrigin RejectionKind = "engine_other_origin"
+	// RejectCheckFailed means the precedent check could not complete.
+	RejectCheckFailed RejectionKind = "check_failed"
+)

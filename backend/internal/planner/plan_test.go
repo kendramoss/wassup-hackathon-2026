@@ -112,14 +112,19 @@ func TestPlanNeedsVerifierConfidence(t *testing.T) {
 	if len(res.Plans) != 0 {
 		t.Fatalf("plans below verifier confidence must not be shown: %+v", res.Plans)
 	}
-	found := false
-	for _, pl := range res.Rejected {
-		if strings.Contains(pl.RejectionReason, "confidence 0.90 is below 0.95") {
-			found = true
-		}
+	// Current setup first, then the precedent-supported move below the bar.
+	if res.Rejected[0].RejectionKind != domain.RejectCurrentSetup {
+		t.Errorf("first rejected kind = %q", res.Rejected[0].RejectionKind)
 	}
-	if !found {
-		t.Error("missing low-confidence rejection reason")
+	below := res.Rejected[1]
+	if below.RejectionKind != domain.RejectBelowConfidence || below.Move.Key() != "motor_fan_assembly@th+pcba@th" ||
+		!strings.Contains(below.RejectionReason, "confidence 0.90 is below 0.95") || below.Verdict == nil || !below.Verdict.PrecedentSupported {
+		t.Errorf("second rejected = %+v", below)
+	}
+	for _, pl := range res.Rejected[2:] {
+		if pl.RejectionKind != domain.RejectOtherOrigin {
+			t.Errorf("remaining rejections should be engine misses: %+v", pl.RejectionKind)
+		}
 	}
 	if res.Backtest == nil || res.Backtest.PlanMoves != "no precedent-supported plan" {
 		t.Errorf("backtest = %+v", res.Backtest)
@@ -133,8 +138,14 @@ func TestPlanUnsupportedMoveIsRejectedWithCounterRuling(t *testing.T) {
 	}
 	var withVerdict int
 	for _, pl := range res.Rejected {
+		if pl.RejectionKind == "" {
+			t.Errorf("rejected plan without kind: %+v", pl.Description)
+		}
 		if pl.Verdict != nil {
 			withVerdict++
+			if pl.RejectionKind != domain.RejectNoPrecedent {
+				t.Errorf("kind = %q, want no_supporting_precedent", pl.RejectionKind)
+			}
 			if pl.Verdict.CounterRuling != "N340000" {
 				t.Errorf("counter ruling missing: %+v", pl.Verdict)
 			}
