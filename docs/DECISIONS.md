@@ -101,3 +101,9 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - Every write sets `updated_at`; export also records `exported_at`, which drives `step = export`. The list is ordered by `updated_at` descending.
 - On Cloud Run the container disk is per-instance and lost on restart, so this is local persistence only. Before deploy, add a Firestore implementation of the same `store.Cases` interface (blocked on GCP setup).
 
+## D26 — Follow-up answers do not settle split votes toward CBP; "unknown" answers stay out of the facts (15 Oct)
+- On the 14 dev cases where the engine's 5 votes split between two origins, simulated-requester answers to the clarify questions moved the majority away from CBP more often than toward it (57% → 36% agreement; 1 fixed / 4 broken with "Not stated." lines, 0 / 3 with answered questions only). Small sample, but negative in both variants (eval/RESULTS.md).
+- Mechanism: the engine treats "Not stated." and hedged answers as evidence against the processing country, and gives extra weight to facts restated in Q&A form. The simulated requester is also a weak stand-in for a real one: for NY rulings it had no facts beyond the input.
+- Product changes: `POST /v1/cases/{id}/answers` keeps "unknown"/"not stated" answers on the case but does not add them to the facts, and refuses a set with no factual answer. Clarify stays broker-facing help (D24); a re-analysis after answers is not claimed to be more CBP-like. Not adopted: re-voting after answers as a confidence signal.
+- Not tested: answers from real requesters with new facts, which the benchmark cannot supply.
+

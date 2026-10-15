@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -248,6 +249,11 @@ type answersRequest struct {
 	Answers []store.Answer `json:"answers"`
 }
 
+// unknownAnswer is an answer that adds no fact. Such lines are kept on the case
+// but not added to the facts: the engine reads "not stated" as evidence against
+// the processing country (D26).
+var unknownAnswer = regexp.MustCompile(`(?i)^(not stated|not known|unknown|n/?a|not sure|unsure|don'?t know|do not know|no idea|tbd|-+)\.?$`)
+
 // answers appends the requester's answers to the facts and re-runs the
 // analysis on the same case.
 func (a *api) answers(w http.ResponseWriter, r *http.Request) {
@@ -268,10 +274,16 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, fmt.Errorf("%w: each answer needs question and answer", domain.ErrInvalid))
 			return
 		}
-		lines = append(lines, "Q: "+q+"\nA: "+ans)
+		if !unknownAnswer.MatchString(ans) {
+			lines = append(lines, "Q: "+q+"\nA: "+ans)
+		}
+	}
+	if len(in.Answers) == 0 {
+		a.fail(w, r, fmt.Errorf("%w: answers are required", domain.ErrInvalid))
+		return
 	}
 	if len(lines) == 0 {
-		a.fail(w, r, fmt.Errorf("%w: answers are required", domain.ErrInvalid))
+		a.fail(w, r, fmt.Errorf("%w: no answer adds a fact (all unknown); nothing to re-analyse", domain.ErrInvalid))
 		return
 	}
 	if sc.OriginalFacts == "" {
@@ -280,7 +292,9 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	sc.Answers = append(sc.Answers, in.Answers...)
 	var all []string
 	for _, x := range sc.Answers {
-		all = append(all, "Q: "+strings.TrimSpace(x.Question)+"\nA: "+strings.TrimSpace(x.Answer))
+		if ans := strings.TrimSpace(x.Answer); !unknownAnswer.MatchString(ans) {
+			all = append(all, "Q: "+strings.TrimSpace(x.Question)+"\nA: "+ans)
+		}
 	}
 	facts := strings.TrimRight(sc.OriginalFacts, "\n") + "\n\nADDITIONAL FACTS FROM THE REQUESTER (answers to follow-up questions):\n" + strings.Join(all, "\n") + "\n"
 	date, _ := time.Parse(time.DateOnly, sc.Date)

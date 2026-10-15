@@ -112,6 +112,8 @@ func main() {
 		err = compareCmd(os.Args[2:])
 	case "learnability":
 		err = learnabilityCmd(os.Args[2:])
+	case "torn":
+		err = tornCmd(os.Args[2:])
 	case "clarify":
 		err = clarifyCmd(os.Args[2:])
 	default:

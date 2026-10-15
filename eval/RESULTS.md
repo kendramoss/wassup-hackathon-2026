@@ -58,6 +58,21 @@ Paired against the engine-v1 BM25 dev run (90.0%, 422/469). Exact McNemar on dis
 - Clarify review on 127 dev cases below 0.95 (proxy): engine error rate 26% (16–39) when no precedent is on point vs 22% (14–33) when one is; 24% with a conflict; 28% routed needs_info vs 21% needs_review. No error signal; kept for its questions and conflict display (D24). Rows: `results/clarify-dev-clarify-v1-litellm.jsonl`.
 - Learnability audit of the 47 dev errors (`results/learnability-dev.jsonl`): ~12 learnable from earlier rulings, 13 where earlier rulings point to the model's answer, 9 with no precedent, ~8 scoring/label (now adjusted). In 22 errors the deciding ruling was already among the engine's 5 precedents.
 
+## Split votes and follow-up answers (15 Oct) — dev only, proxy
+
+`go run ./cmd/eval torn`: re-vote (5 calls) the 117 dev cases with first-call confidence < 0.95 and keep the **14 torn** cases (runner-up origin got ≥ 2 of 5 calls). For each, clarify-v1 asks questions aimed at the split, a simulated requester (requester-v1) answers from the ruling text before CBP's HOLDING (HQ rulings) or from the facts section only (NY rulings, which state extra facts only inside CBP's reasoning), quoting the file for every answer, and a guard replaces answers that state a conclusion with "Not stated." Then the engine re-votes with the answers appended. Calls are deterministic: re-voting the original facts (control) gives the identical split every time.
+
+| Vote on the 14 torn cases | majority = CBP (95% CI) | settled (≥ 4 of 5 agree) |
+|---|---|---|
+| before / control (original facts) | 8/14 = 57% (33–79) | 0/14 |
+| after answers, "Not stated." lines included | 5/14 = 36% (16–61) | 10/14 |
+| after answers, answered questions only | 5/14 = 36% (16–61) | 3/14 |
+
+- Including "Not stated." lines: 1 fixed, 4 broken (exact McNemar p = 0.375). In 3 of the 4 breaks every answer was "Not stated."; the engine reads missing information as evidence against the processing country and settles on the imported part's country.
+- Answered questions only: 0 fixed, 3 broken (p = 0.25). The breaks came from answers that only restated facts already given (facts-only NY files) or hedged ("whether they are pre-blended is not stated").
+- 23 of 33 answers were "Not stated.": for most split cases the file holds no extra fact for the requester to give. Tiny sample, wide CIs; the direction is negative in both variants. Torn cases are rare (14 of 117 low-confidence dev cases).
+- Rows: `eval/results/torn-scan-dev-vote5-litellm.jsonl` (117-case scan), `torn-dev-clarify-v1-requester-v1-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answered-only-litellm.jsonl`. Cost ≈ $8.90 (promo).
+
 ## Planner and verifier (Gate C) — proxy, development only
 
 ### Move verifier on development flip pairs (54 CBP natural experiments dated before 2026; 46 changed, 8 unchanged)

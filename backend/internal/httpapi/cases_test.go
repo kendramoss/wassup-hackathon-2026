@@ -340,6 +340,9 @@ func TestNeedsInfoThenAnswers(t *testing.T) {
 	if strings.Count(hs.engine.last.Facts, "ADDITIONAL FACTS") != 1 || strings.Count(hs.engine.last.Facts, "Q: ") != 2 {
 		t.Errorf("second round facts = %q", hs.engine.last.Facts)
 	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/answers", `{"answers":[{"question":"Resin source?","answer":"Unknown"}]}`); code != 400 {
+		t.Errorf("all-unknown answers status %d", code)
+	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/answers", `{"answers":[]}`); code != 400 {
 		t.Errorf("empty answers status %d", code)
 	}

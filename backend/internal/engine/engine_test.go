@@ -201,6 +201,13 @@ func TestVotingPicksMajorityOverRotations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	counted := 0
+	for _, c := range res.VoteCounts {
+		counted += c
+	}
+	if counted != 5 {
+		t.Errorf("vote counts = %v", res.VoteCounts)
+	}
 	if len(f.Calls()) != 5 || res.Votes != 5 || res.Usage.InputTokens != 50 {
 		t.Errorf("calls=%d votes=%d tokens=%d", len(f.Calls()), res.Votes, res.Usage.InputTokens)
 	}

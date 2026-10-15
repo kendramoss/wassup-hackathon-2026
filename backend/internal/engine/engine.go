@@ -48,6 +48,8 @@ type Result struct {
 	Usage llm.Usage
 	// Votes is how many calls the answer is based on (1 without voting).
 	Votes int
+	// VoteCounts is how many calls gave each origin (nil without voting).
+	VoteCounts map[string]int
 }
 
 // ErrNoFacts means the case has no facts text to analyse.
@@ -149,7 +151,7 @@ func (e *Engine) vote(ctx context.Context, c domain.Case, precedents []domain.Ru
 	best.Usage = usage
 	best.Prediction.Trace.InputTokens, best.Prediction.Trace.OutputTokens = usage.InputTokens, usage.OutputTokens
 	best.Prediction.VoteAgreement = fmt.Sprintf("%d/%d", count[win], ok)
-	best.Votes = ok
+	best.Votes, best.VoteCounts = ok, count
 	return best, nil
 }
 
