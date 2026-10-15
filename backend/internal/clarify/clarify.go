@@ -17,13 +17,13 @@ import (
 )
 
 // PromptVersion is recorded with every result.
-const PromptVersion = "clarify-v1"
+const PromptVersion = "clarify-v2"
 
 // System is the clarify prompt (new; developed on the dev split).
 const System = `You review a U.S. customs origin prediction before it goes to a human expert. You get the product facts, the prediction, and the earlier CBP rulings that were retrieved for it (facts + CBP's holding).
 
 1. ON POINT: is one of these earlier rulings on point — the same kind of product, with the same kind of processing question (which component or operation decides origin)? A ruling on a different product that only shares general doctrine is NOT on point.
-2. CONFLICT: do two of these rulings on comparable products go different ways on the question that matters here (e.g. one credits the country that makes the filter media, another the country that pleats and assembles)? If so, name both and the fact that distinguished them in CBP's view.
+2. CONFLICT: do two of these rulings on comparable products go different ways on the question that matters here (e.g. one credits the country that makes the filter media, another the country that pleats and assembles)? If so, name both, the fact that distinguished them in CBP's view, and which of the two this case's facts are closer on that fact (leans: "a" or "b"; null if the facts do not say).
 3. QUESTIONS: list up to 3 short questions to the requester whose answers would most change the origin call — facts missing from the description that CBP relied on in the closest rulings (where a specific component is made, what an operation consists of, value shares, whether parts arrive finished). Ask nothing already answered in the facts. No questions if the facts are sufficient.
 
 Only cite rulings from the list given. Return ONLY JSON.`
@@ -39,7 +39,8 @@ var Schema = map[string]any{
 			"ruling_a": map[string]any{"type": "string"}, "holding_a": map[string]any{"type": "string"},
 			"ruling_b": map[string]any{"type": "string"}, "holding_b": map[string]any{"type": "string"},
 			"deciding_difference": map[string]any{"type": "string"},
-		}, "required": []string{"ruling_a", "holding_a", "ruling_b", "holding_b", "deciding_difference"}, "additionalProperties": false},
+			"leans":               map[string]any{"type": []string{"string", "null"}, "enum": []any{"a", "b", nil}},
+		}, "required": []string{"ruling_a", "holding_a", "ruling_b", "holding_b", "deciding_difference", "leans"}, "additionalProperties": false},
 		"questions": map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "maxItems": 3},
 	},
 	"required":             []string{"on_point", "closest_ruling", "on_point_reason", "conflict", "questions"},
@@ -53,6 +54,9 @@ type Conflict struct {
 	RulingB            string `json:"ruling_b"`
 	HoldingB           string `json:"holding_b"`
 	DecidingDifference string `json:"deciding_difference"`
+	// Leans is "a" or "b": the ruling this case's facts are closer to on the
+	// deciding difference; nil when the facts do not say (clarify-v2).
+	Leans *string `json:"leans"`
 }
 
 // Result is the review.
@@ -119,6 +123,9 @@ func (c *Clarifier) Review(ctx context.Context, facts string, p domain.Predictio
 		res.OnPoint = false // "on point" must name a ruling the engine actually saw
 	}
 	if k := a.Conflict; k != nil && k.RulingA != k.RulingB && slices.Contains(shown, k.RulingA) && slices.Contains(shown, k.RulingB) {
+		if k.Leans != nil && *k.Leans != "a" && *k.Leans != "b" {
+			k.Leans = nil
+		}
 		res.Conflict = k
 	}
 	for _, q := range a.Questions {

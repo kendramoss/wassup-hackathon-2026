@@ -706,6 +706,10 @@ components:
             ruling_b: { type: string }
             holding_b: { type: string }
             deciding_difference: { type: string }
+            leans:
+              type: [string, "null"]
+              enum: [a, b, null]
+              description: Which of the two rulings this case's facts are closer to on the deciding difference; null when the facts do not say (clarify-v2). The UI marks that ruling, or nothing when null.
         questions: { type: array, maxItems: 3, items: { type: string } }
     Economics:
       type: object

@@ -48,3 +48,20 @@ func TestReviewValidatesCitations(t *testing.T) {
 		})
 	}
 }
+
+func TestReviewConflictLeans(t *testing.T) {
+	for _, tt := range []struct{ leans, want string }{{`"b"`, "b"}, {`"a"`, "a"}, {`null`, ""}, {`"c"`, ""}} {
+		text := `{"on_point":false,"closest_ruling":null,"on_point_reason":"x","conflict":{"ruling_a":"N351809","holding_a":"China","ruling_b":"N352485","holding_b":"Thailand","deciding_difference":"where the media is made","leans":` + tt.leans + `},"questions":[]}`
+		r, err := New(llm.FakeText(text), "m", 2000).Review(context.Background(), "facts", domain.Prediction{Origin: "China"}, precs())
+		if err != nil || r.Conflict == nil {
+			t.Fatalf("leans %s: %+v %v", tt.leans, r, err)
+		}
+		got := ""
+		if r.Conflict.Leans != nil {
+			got = *r.Conflict.Leans
+		}
+		if got != tt.want {
+			t.Errorf("leans %s -> %q, want %q", tt.leans, got, tt.want)
+		}
+	}
+}
