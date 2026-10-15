@@ -2,9 +2,32 @@
 
 All runs are listed in `results/RUNLOG.jsonl`; per-case rows are in `results/*.jsonl`. Data: `data/` and `splits/` (sha256 in `SHA256SUMS`).
 
-> **Status (15 Oct 2026): every number below is "proxy, development only".** It was produced through the LiteLLM proxy because the team has no Vertex AI access yet. Official numbers come from re-running `make eval-test` with `LLM_PROVIDER=vertex` and replace this table. Do not put these in the README results table or on slides.
+> **Status (15 Oct 2026): the Vertex AI section is official.** Frozen config: engine-v1, BM25, K = 5, Gemini 4 Argon, router-v2 on Gemini 3.8 Flash, `GOOGLE_CLOUD_LOCATION=global`. The held-out split was scored once. Every section after that is still "proxy, development only" (LiteLLM). Do not put proxy numbers in the README results table or on slides.
 
-## Origin engine — Go port check (engine-v1, gemini-4-argon, 5 BM25 precedents dated before each case)
+## Origin engine — Vertex AI (official, 15 Oct 2026)
+
+Same frozen config as the proxy run below. Scoring adjustments from `eval/data/scoring_adjustments.json` (D23). Fast path: confidence ≥ 0.92 and router-v2 in scope. Rows: `results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl`, `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl`, `results/scope-*-router-v2-vertex.jsonl`.
+
+| Split | n (after adjustments) | Accuracy (95% CI) | Fast path coverage | Fast path accuracy (95% CI) | Cost / case (promo · list) | Latency p50 / p95 |
+|---|---:|---|---:|---|---|---|
+| dev (development set) | 463 | 91.1% (88.2–93.4) | 368 / 463 = 79.5% | 96.5% (94.1–97.9) | $0.0079 · $0.0158 | 4.8 s / 8.1 s |
+| **final** (held out) | 377 | **90.2% (86.8–92.8)** | 300 / 377 = 79.6% | **96.0% (93.1–97.7)** | $0.0078 · $0.0157 | 4.6 s / 5.7 s |
+
+- Held-out labels: regex 321/355 = 90.4% (86.9–93.1); manual 19/22 = 86.4% (66.7–95.3). Adjustments excluded 0 held-out rows and 6 dev rows. Unadjusted dev is 422/469 = 90.0% (86.9–92.4); that is what `GET /v1/eval/summary` embeds.
+- Router out of scope (all labelled substantial transformation): dev 8/469, final 11/377. One final router call (N362431) failed and was retried once; it is in scope. Not a second labeling.
+- McNemar vs the proxy run, same adjustments: held-out Vertex fixed 2, broke 1, p = 1.000. Dev: fixed 3, broke 2, p = 1.000.
+- Cost is the Developer API promo/list schedule used for the proxy runs. The Vertex price sheet was not re-checked. Nothing was changed after the held-out score.
+
+### Calibration (final, Vertex AI)
+
+| Confidence | n | correct | accuracy (95% CI) |
+|---|---:|---:|---|
+| ≥ 0.95 | 271 | 265 | 97.8% (95.3–99.0) |
+| 0.90–0.95 | 64 | 50 | 78.1% (66.6–86.5) |
+| 0.80–0.90 | 31 | 18 | 58.1% (40.8–73.6) |
+| < 0.80 | 11 | 7 | 63.6% (35.4–84.8) |
+
+## Origin engine — Go port check (engine-v1, gemini-4-argon, 5 BM25 precedents dated before each case) — proxy, development only
 
 | Split | n | Accuracy (95% Wilson CI) | Research run (same split, Python) | Same answer as research | Conf ≥ 0.95: coverage / accuracy | Cost / case (promo · list) | Latency p50 / p95 |
 |---|---:|---|---|---:|---|---|---|

@@ -49,10 +49,10 @@ Data: 2,790 CBP rulings (2023-01 to 2026-09, rulings.cbp.gov, public domain). La
 | Last country mentioned in facts | 39.8% (35.0–44.8) |
 | Final-assembly country | 40.6% (35.8–45.6) |
 | Most-mentioned country (best simple baseline) | 60.5% (55.5–65.3) |
-| **Origin Proof engine (Gemini 4 Argon + dated precedents), Vertex AI** | *pending the Vertex AI re-run* |
-| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | *pending* |
+| **Origin Proof engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
+| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | 79.6% of cases at 96.0% (93.1–97.7) |
 
-On the development split through the proxy, the engine is 90.9% accurate overall; it auto-accepts 79% of cases (confidence ≥ 0.92, in scope) at 95.1% accuracy (held-out: 78.5% at 96.6%), and the rest go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
+The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM25, K = 5, Gemini 4 Argon on Vertex AI, location `global`), scored once on the held-out split. On the development split through the proxy, the engine is 90.9% accurate overall; it auto-accepts 79% of cases (confidence ≥ 0.92, in scope) at 95.1% accuracy (held-out: 78.5% at 96.6%), and the rest go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
 
 ### Negative results (kept on purpose)
 - **One shared playbook** of legal guidance lowered accuracy versus the plain engine.
@@ -69,7 +69,7 @@ On the development split through the proxy, the engine is 90.9% accurate overall
 - Origin prediction covers the substantial-transformation regime only. The planner covers one family (motorised tools and small appliances); a second template (LiDAR modules) shows the extension path.
 - Plans model duty effect and user-entered cost only — not feasibility, tooling, capacity or transition costs. Duty rates for the demo are sourced and dated; classification is inferred and should be confirmed by a broker.
 - The precedent check is not deterministic through the development proxy: the same heat-gun move checked 0.95 in one run and 0.92 in the next, and 0.75–0.90 in later runs; a verdict cache keeps repeat searches identical.
-- Cases are saved as files on local disk; on Cloud Run they need Firestore (pending the GCP setup). The ruling watch sees new CBP rulings only after the corpus is rebuilt.
+- Cases are saved as files on local disk. Cloud Run is configured for Firestore, and `agent-backend` still needs `roles/datastore.user` before that store can be used (D39). The ruling watch sees new CBP rulings only after the corpus is rebuilt.
 - Precedent support is not a ruling. Plans go to a broker or counsel and, if needed, to CBP.
 
 ## Competitors (credited)
