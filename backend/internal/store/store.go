@@ -52,6 +52,33 @@ type Case struct {
 	Targets *TargetComparison `json:"targets,omitempty"`
 	// Chat is the conversation with the case agent, oldest first.
 	Chat []ChatTurn `json:"chat,omitempty"`
+	// History is the case's audit trail, oldest first (capped at MaxHistory).
+	History []Event `json:"history,omitempty"`
+}
+
+// MaxHistory caps a case's audit trail; the oldest events are dropped.
+const MaxHistory = 200
+
+// Event is one entry in a case's audit trail: what happened, its outcome in
+// one line, and the model and prompt versions behind it.
+type Event struct {
+	At       time.Time `json:"at"`
+	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported
+	Summary  string    `json:"summary"`
+	Provider string    `json:"llm_provider,omitempty"`
+	Model    string    `json:"model_id,omitempty"`
+	Prompt   string    `json:"prompt_version,omitempty"`
+}
+
+// Record appends an event to the audit trail.
+func (c *Case) Record(e Event) {
+	if e.At.IsZero() {
+		e.At = time.Now().UTC()
+	}
+	c.History = append(c.History, e)
+	if len(c.History) > MaxHistory {
+		c.History = c.History[len(c.History)-MaxHistory:]
+	}
 }
 
 // ChatTurn is one question to the case agent and its answer.

@@ -101,6 +101,11 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sc.Scenarios, sc.UpdatedAt = out, time.Now().UTC()
+	var parts []string
+	for _, s := range out {
+		parts = append(parts, fmt.Sprintf("%s: %s %.2f", s.Label, s.Prediction.Origin, s.Prediction.Confidence))
+	}
+	sc.Record(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")})
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
@@ -218,5 +223,7 @@ func (a *api) recheck(ctx context.Context, sc *store.Case) error {
 	}
 	// A background check is not case activity: UpdatedAt (list order) stays.
 	sc.Watch = &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer}
+	sc.Record(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
+		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion})
 	return a.d.Cases.Put(ctx, *sc)
 }

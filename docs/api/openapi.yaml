@@ -559,6 +559,18 @@ components:
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            history:
+              type: array
+              description: Audit trail, oldest first (last 200)
+              items:
+                type: object
+                properties:
+                  at: { type: string, format: date-time }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported] }
+                  summary: { type: string }
+                  llm_provider: { type: string }
+                  model_id: { type: string }
+                  prompt_version: { type: string }
             watch:
               type: [object, "null"]
               description: null until re-checked

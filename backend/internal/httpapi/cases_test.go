@@ -720,3 +720,26 @@ func TestRankTargetsBelowBarByConfidenceThenNet(t *testing.T) {
 		t.Errorf("ranking = %v", got)
 	}
 }
+
+func TestCaseHistoryRecordsEachStep(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"A","facts":"motor in China"}]}`)
+	hs.do(t, "POST", "/v1/cases/"+id+"/watch", "")
+	hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why?"}`)
+	hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	var kinds []string
+	for _, e := range got["history"].([]any) {
+		kinds = append(kinds, e.(map[string]any)["kind"].(string))
+	}
+	if strings.Join(kinds, ",") != "predicted,plan_searched,scenarios,watched,asked,exported" {
+		t.Errorf("history kinds = %v", kinds)
+	}
+	last := got["history"].([]any)[5].(map[string]any)
+	if !strings.Contains(last["summary"].(string), "below the bar, check 0.88") || last["at"] == "" {
+		t.Errorf("export event = %v", last)
+	}
+}

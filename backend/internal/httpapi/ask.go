@@ -77,6 +77,8 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	if len(c.Chat) > MaxChat {
 		c.Chat = c.Chat[len(c.Chat)-MaxChat:]
 	}
+	c.Record(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
+		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion})
 	if err := a.d.Cases.Put(r.Context(), c); err != nil { // asking is not case activity: updated_at stays
 		a.fail(w, r, err)
 		return

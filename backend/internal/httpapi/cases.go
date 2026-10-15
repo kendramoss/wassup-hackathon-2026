@@ -202,6 +202,7 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	sc.Record(predictionEvent("predicted", sc))
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
@@ -322,6 +323,9 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	ev := predictionEvent("answered", sc)
+	ev.Summary = fmt.Sprintf("%d answer(s) added; ", len(in.Answers)) + ev.Summary
+	sc.Record(ev)
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
@@ -366,9 +370,35 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
-		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat),
+		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(c.Targets),
 	}
+}
+
+func historyField(h []store.Event) []store.Event {
+	if h == nil {
+		return []store.Event{}
+	}
+	return h
+}
+
+// predictionEvent records an analysis with its model and prompt.
+func predictionEvent(kind string, c store.Case) store.Event {
+	p := c.Prediction
+	return store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, confidence %.2f, %s", p.Origin, p.Confidence, c.Triage.Route),
+		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}
+}
+
+func planEvent(res planner.Result) store.Event {
+	sum := fmt.Sprintf("target %s: %d moves searched, %d shown", res.Target, res.Stats.MovesSearched, len(res.Plans))
+	if len(res.Plans) > 0 {
+		sum += "; best: " + res.Plans[0].Description
+	}
+	if res.Stats.VerifierCached > 0 {
+		sum += fmt.Sprintf("; %d/%d precedent checks from cache", res.Stats.VerifierCached, res.Stats.VerifierRuns)
+	}
+	return store.Event{Kind: "plan_searched", Summary: sum, Provider: res.Baseline.Prediction.Trace.Provider,
+		Model: res.Baseline.Prediction.Trace.ModelID, Prompt: res.Baseline.Prediction.Trace.PromptVersion}
 }
 
 func chatField(t []store.ChatTurn) []store.ChatTurn {
@@ -508,6 +538,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	}
 	c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 	c.Economics = economicsFrom(in.Economics, c.Economics)
+	c.Record(planEvent(res))
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -579,6 +610,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	if err == nil {
 		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 		c.Economics = economicsFrom(req.Economics, c.Economics)
+		c.Record(planEvent(res))
 		err = a.d.Cases.Put(r.Context(), c)
 	}
 	if err != nil {
@@ -667,6 +699,14 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	content := export.Markdown(ex)
 	now := time.Now().UTC()
 	c.ExportedAt, c.UpdatedAt = &now, now
+	what := "current setup"
+	if chosen != nil {
+		what = chosen.Description
+		if ex.BelowBar != nil {
+			what += fmt.Sprintf(" (below the bar, check %.2f)", ex.BelowBar.Confidence)
+		}
+	}
+	c.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)
 		return
