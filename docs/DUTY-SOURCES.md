@@ -29,3 +29,17 @@ Checked 15 Oct 2026 against HTS **2026 Revision 21** ([currentRelease](https://h
 
 - The ~25 point gap rests on the List 2 25% (HTS heading text plus the 2019 exclusion notice) and on no current exclusion applying; the heat-gun exclusion is expired.
 - Forced-labor 301 is under legal challenge; the 9903.88.69 exclusions end 9 Nov 2026 unless extended.
+
+## Vietnam and Malaysia (country comparison demo, checked 15 Oct 2026)
+
+Sourced by the duty-rates session for `backend/testdata/heatgun_multi.json`; same classification caveats as above.
+
+| Origin | MFN | Section 301 China | Forced-labor 301 | Other | Total |
+|---|---|---|---|---|---|
+| Vietnam | 4.2% | n/a | +12.5% (9903.05.84) | none found | **~16.7%** |
+| Malaysia | 4.2% | n/a | +10% (9903.05.54) | none found | **~14.2%** |
+
+- **MFN 4.2%:** [HTS 8419.89.95](https://hts.usitc.gov/reststop/search?keyword=8419.89.95), Rev. 21. The Special column lists neither country, so no FTA preference applies.
+- **Forced-labor 301:** HTS headings [9903.05](https://hts.usitc.gov/reststop/search?keyword=9903.05) and [91 FR 47318](https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies). Item 33 sets Malaysia at 10%. **Vietnam's 12.5%** comes from the HTS heading and a [secondary tier list](https://zonos.com/docs/guides/country-guides/united-states/section-301-forced-labor); it is **not confirmed in the notice text**.
+- **Malaysia exemption not ruled out.** Malaysia has a country-specific list (U.S. note 52(j)(4)(i), heading 9903.05.99) plus Annex II Part E. 8419.89 is not in the note list or Annex II Part A (OCR, not proofread), but Part E was not checked. If it is exempt, Malaysia's total would be 4.2%.
+- Section 232, Section 122 (expired) and IEEPA (invalidated) add nothing, as above. Anti-dumping was not checked.

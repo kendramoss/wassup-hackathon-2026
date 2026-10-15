@@ -23,8 +23,9 @@ type compareRequest struct {
 
 // compareTargets runs the plan search for 2–MaxTargets target countries in
 // parallel and ranks them: countries with a shown plan first (best net per
-// year), then countries whose best precedent-supported plan is below the
-// bar, then countries with no supported plan or no capable plant.
+// year), then countries whose best precedent-supported plan is below the bar
+// (strongest precedent check, then net), then countries with no supported
+// plan or no capable plant.
 func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	if a.d.Planner == nil {
 		writeError(w, http.StatusServiceUnavailable, "internal", "planner is not configured", nil)
@@ -132,10 +133,16 @@ func rankTargets(ts []store.TargetSummary) {
 		if order[a.Status] != order[b.Status] {
 			return order[a.Status] < order[b.Status]
 		}
-		if a.Best != nil && b.Best != nil {
-			return a.Best.NetYear > b.Best.NetYear
+		if a.Best == nil || b.Best == nil {
+			return false
 		}
-		return false
+		// Below the bar, a stronger precedent check beats more money.
+		if a.Status == TargetBelowBar {
+			if ca, cb := verdictConf(*a.Best), verdictConf(*b.Best); ca != cb {
+				return ca > cb
+			}
+		}
+		return a.Best.NetYear > b.Best.NetYear
 	})
 	for i := range ts {
 		ts[i].Rank = i + 1

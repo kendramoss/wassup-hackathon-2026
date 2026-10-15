@@ -700,3 +700,23 @@ func TestAskKeepsConversation(t *testing.T) {
 		t.Errorf("empty question %d", code)
 	}
 }
+
+func TestRankTargetsBelowBarByConfidenceThenNet(t *testing.T) {
+	plan := func(conf, net float64) *domain.Plan {
+		return &domain.Plan{NetYear: net, Verdict: &domain.Verdict{Confidence: conf}}
+	}
+	ts := []store.TargetSummary{
+		{Target: "Malaysia", Status: TargetBelowBar, Best: plan(0.65, 455000)},
+		{Target: "Vietnam", Status: TargetBelowBar, Best: plan(0.85, 300000)},
+		{Target: "Laos", Status: TargetNoPlant},
+		{Target: "Thailand", Status: TargetBelowBar, Best: plan(0.65, 440000)},
+	}
+	rankTargets(ts)
+	var got []string
+	for _, x := range ts {
+		got = append(got, x.Target)
+	}
+	if strings.Join(got, ",") != "Vietnam,Malaysia,Thailand,Laos" || ts[0].Rank != 1 || ts[3].Rank != 4 {
+		t.Errorf("ranking = %v", got)
+	}
+}
