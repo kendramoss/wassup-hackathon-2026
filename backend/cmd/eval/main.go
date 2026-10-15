@@ -28,6 +28,11 @@
 //	eval compare -a BASE -b VARIANT [-exclude FILE]
 //	    Paired comparison on shared rulings: fixed / broken counts and an exact
 //	    McNemar test.
+//	eval learnability -in RESULTS [-k 10]
+//	    DIAGNOSTIC, dev only (uses gold labels): for each wrong prediction, a
+//	    judge sees the case, CBP's holding and the k most similar earlier
+//	    rulings, and says whether an earlier ruling establishes a rule that
+//	    yields CBP's answer.
 //	eval report -in FILE [-in FILE ...] [-exclude FILE]
 //	    Print the Markdown summary of existing result files.
 //
@@ -101,6 +106,8 @@ func main() {
 		err = multiScenarioCmd(os.Args[2:])
 	case "compare":
 		err = compareCmd(os.Args[2:])
+	case "learnability":
+		err = learnabilityCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -1299,4 +1306,143 @@ func lchoose(n, k int) float64 {
 	b, _ := math.Lgamma(float64(k + 1))
 	c, _ := math.Lgamma(float64(n - k + 1))
 	return a - b - c
+}
+
+const learnSystem = `You are auditing an origin-prediction model on U.S. CBP country-of-origin rulings. You get a case's facts, the origin CBP actually held, the model's wrong answer, and earlier CBP rulings (facts + holding), all dated before the case.
+
+Decide whether the earlier rulings contain a rule or a closely analogous holding that, applied to this case, gives CBP's answer. Be strict: the earlier ruling must involve the same kind of product or the same kind of processing question, and its reasoning must point to CBP's answer here.
+
+Classify the error:
+- "learnable_precedent": an earlier ruling here establishes the rule.
+- "facts_underdetermined": the facts given do not contain what decided the case (e.g. CBP relied on information not in the facts).
+- "cbp_inconsistent": earlier rulings point the other way (toward the model's answer).
+- "label_or_scoring": the gold label looks wrong, or the case has several products/scenarios.
+- "no_precedent": none of these rulings is on point.
+
+Return ONLY JSON.`
+
+var learnSchema = map[string]any{
+	"type": "object",
+	"properties": map[string]any{
+		"category":     map[string]any{"type": "string", "enum": []string{"learnable_precedent", "facts_underdetermined", "cbp_inconsistent", "label_or_scoring", "no_precedent"}},
+		"ruling":       map[string]any{"type": []string{"string", "null"}},
+		"rule":         map[string]any{"type": "string"},
+		"model_missed": map[string]any{"type": "string"},
+	},
+	"required":             []string{"category", "ruling", "rule", "model_missed"},
+	"additionalProperties": false,
+}
+
+func learnabilityCmd(args []string) error {
+	fl := flag.NewFlagSet("learnability", flag.ExitOnError)
+	in := fl.String("in", "../eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl", "engine result file (dev)")
+	k := fl.Int("k", 10, "earlier rulings shown to the judge")
+	vectorsPath := fl.String("vectors", "../data/corpus/embeddings-768.bin", "embedding index")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts")
+	out := fl.String("out", "../eval/results/learnability-dev.jsonl", "output")
+	_ = fl.Parse(args)
+	rows, err := readRows(*in, nil)
+	if err != nil {
+		return err
+	}
+	if len(rows) > 0 && rows[0].Split == "final" {
+		return errors.New("learnability uses gold labels in the prompt: dev only")
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	ctx := context.Background()
+	model, err := newModel(ctx, cfg, slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})))
+	if err != nil {
+		return err
+	}
+	emb, err := newEmbedder(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	labels, err := corpus.LoadLabels(*labelsPath)
+	if err != nil {
+		return err
+	}
+	store, err := corpus.Load(labels, *factsDir)
+	if err != nil {
+		return err
+	}
+	vecs, err := retrieval.LoadVectors(*vectorsPath)
+	if err != nil {
+		return err
+	}
+	vector := &retrieval.Hybrid{BM25: retrieval.NewBM25(store.Rulings(), engine.PrecedentText), Vectors: vecs, Embedder: emb}
+	f, err := os.Create(*out)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 6)
+	counts := map[string]int{}
+	inShown := 0
+	for _, r := range rows {
+		if r.Correct || r.Error != "" {
+			continue
+		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(r evalkit.Row) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			c, _ := store.Get(r.Ruling)
+			hits, err := vector.Search(ctx, c.Facts, *k, retrieval.PrecedentFilter(domain.Case{ID: c.ID, Date: c.Date}))
+			if err != nil {
+				fmt.Fprintln(os.Stderr, r.Ruling, err)
+				return
+			}
+			var b strings.Builder
+			for _, h := range hits {
+				fmt.Fprintf(&b, "[%s | %s] FACTS: %s\nCBP HOLDING: %s\n\n", h.Ruling.ID, h.Ruling.Date.Format(time.DateOnly),
+					corpus.Truncate(h.Ruling.Facts, 1200), corpus.Truncate(h.Ruling.Holding, 400))
+			}
+			user := fmt.Sprintf("CASE FACTS:\n%s\n\nCBP HELD: %s\nMODEL ANSWERED: %s\nMODEL REASONING: %s\n\nEARLIER CBP RULINGS:\n%s",
+				corpus.Truncate(c.Facts, 8000), r.Gold, r.Pred, r.Reasoning, b.String())
+			resp, err := model.Generate(ctx, llm.Request{Model: cfg.EngineModel, System: learnSystem,
+				Messages: []llm.Message{{Role: llm.RoleUser, Content: user}}, JSONSchema: learnSchema, SchemaName: "audit", MaxOutputTokens: 4000})
+			if err != nil {
+				fmt.Fprintln(os.Stderr, r.Ruling, err)
+				return
+			}
+			var a struct {
+				Category    string  `json:"category"`
+				Ruling      *string `json:"ruling"`
+				Rule        string  `json:"rule"`
+				ModelMissed string  `json:"model_missed"`
+			}
+			if err := resp.DecodeJSON(&a); err != nil {
+				fmt.Fprintln(os.Stderr, r.Ruling, err)
+				return
+			}
+			shown := false
+			if a.Ruling != nil {
+				for _, p := range r.Precedents {
+					if p == *a.Ruling {
+						shown = true
+					}
+				}
+			}
+			line, _ := json.Marshal(map[string]any{"ruling": r.Ruling, "gold": r.Gold, "pred": r.Pred, "confidence": r.Confidence,
+				"category": a.Category, "anchor": a.Ruling, "anchor_was_shown_to_engine": shown, "rule": a.Rule, "model_missed": a.ModelMissed})
+			mu.Lock()
+			defer mu.Unlock()
+			counts[a.Category]++
+			if shown {
+				inShown++
+			}
+			_, _ = f.Write(append(line, '\n'))
+		}(r)
+	}
+	wg.Wait()
+	fmt.Printf("learnability (dev errors, judge %s via %s): %v; anchor ruling was among the engine's 5 precedents in %d cases\n", cfg.EngineModel, cfg.LLMProvider, counts, inShown)
+	return nil
 }
