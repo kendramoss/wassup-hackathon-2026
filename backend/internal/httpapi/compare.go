@@ -27,6 +27,7 @@ type compareRequest struct {
 // (strongest precedent check, then net), then countries with no supported
 // plan or no capable plant.
 func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	if a.d.Planner == nil {
 		writeError(w, http.StatusServiceUnavailable, "internal", "planner is not configured", nil)
 		return
@@ -94,7 +95,11 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	for _, t := range cmp.Ranked {
 		parts = append(parts, fmt.Sprintf("#%d %s %s", t.Rank, t.Target, t.Status))
 	}
-	c.Record(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")})
+	var u usage
+	for _, res := range results {
+		a.planUsage(&u, res)
+	}
+	c.Record(u.on(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")}, start))
 	c.Economics = economicsFrom(in.Economics, c.Economics)
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)

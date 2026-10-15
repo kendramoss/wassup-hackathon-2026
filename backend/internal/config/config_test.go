@@ -27,6 +27,9 @@ func TestDefaults(t *testing.T) {
 	if c.LiteLLMBaseURL != "https://proxy.example" {
 		t.Errorf("trailing slash not trimmed: %q", c.LiteLLMBaseURL)
 	}
+	if c.RateLightPerMin != 20 || c.RateHeavyPerMin != 4 || c.RateGlobalPerMin != 120 || c.AdminToken != "" {
+		t.Errorf("rate/admin defaults = %d %d %d %q", c.RateLightPerMin, c.RateHeavyPerMin, c.RateGlobalPerMin, c.AdminToken)
+	}
 	if c.CasesDir != "../data/cases" || c.VerifierCacheDir != "../data/verifier-cache" || c.PlannerConcurrency != 8 || c.VerifierVotes != 1 {
 		t.Errorf("cases/cache/concurrency/votes defaults = %q %q %d %d", c.CasesDir, c.VerifierCacheDir, c.PlannerConcurrency, c.VerifierVotes)
 	}

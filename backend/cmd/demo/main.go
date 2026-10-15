@@ -36,8 +36,21 @@ func main() {
 }
 
 type client struct {
-	base string
-	http *http.Client
+	base    string
+	http    *http.Client
+	token   string // ADMIN_TOKEN: bypasses the rate limits, pins the demo cases
+	idToken string // ID_TOKEN: Google identity token for a private Cloud Run service
+}
+
+// pin marks a seeded case as a demo (listed first, protected from deletion).
+// Without the admin token the case is left unpinned.
+func (c client) pin(id string) {
+	if c.token == "" {
+		return
+	}
+	if err := c.call("PUT", "/v1/cases/"+id+"/pin", map[string]bool{"pinned": true}, nil); err != nil {
+		fmt.Fprintln(os.Stderr, "WARNING: could not pin", id+":", err)
+	}
 }
 
 func (c client) call(method, path string, body any, out any) error {
@@ -54,6 +67,12 @@ func (c client) call(method, path string, body any, out any) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if c.token != "" {
+		req.Header.Set("X-Admin-Token", c.token)
+	}
+	if c.idToken != "" {
+		req.Header.Set("Authorization", "Bearer "+c.idToken)
+	}
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return fmt.Errorf("%s %s: %w", method, path, err)
@@ -160,9 +179,12 @@ func seed(args []string) error {
 	multi := fl.String("multi", "testdata/heatgun_multi.json", "multi-country heat-gun fixture")
 	out := fl.String("out", "", "write the seeded cases as JSON (default: print only)")
 	_ = fl.Parse(args)
-	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}}
+	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN")}
+	if c.token == "" {
+		fmt.Fprintln(os.Stderr, "WARNING: ADMIN_TOKEN is not set: the seed may hit the rate limits (429), and demo cases will not be pinned")
+	}
 	if err := c.call("GET", "/health", nil, nil); err != nil {
-		return fmt.Errorf("server not reachable at %s (start it with make run): %w", c.base, err)
+		return fmt.Errorf("server not reachable at %s (start it with make run; a private Cloud Run service needs ID_TOKEN=$(gcloud auth print-identity-token)): %w", c.base, err)
 	}
 	var demos struct {
 		Demos []struct {
@@ -185,6 +207,7 @@ func seed(args []string) error {
 		if err := c.call("POST", "/v1/cases/predict", full.Predict, &cr); err != nil {
 			return fmt.Errorf("demo %s: %w", d.ID, err)
 		}
+		c.pin(cr.ID)
 		s := Seeded{Demo: d.ID, Title: full.Title, CaseID: cr.ID, CBPHeld: full.CBPHeld, Origin: cr.Prediction.Origin,
 			Confidence: cr.Prediction.Confidence, Route: cr.Triage.Route}
 		fmt.Printf("%-24s case %s: %s %.2f (%s); CBP held %s\n", d.ID, cr.ID, cr.Prediction.Origin, cr.Prediction.Confidence, cr.Triage.Route, full.CBPHeld)
@@ -334,6 +357,7 @@ func heatgunExtras(c client, id string, planBody json.RawMessage, first planResu
 	if err := c.call("POST", "/v1/cases/predict", body, &mc); err != nil {
 		return nil, fmt.Errorf("multi-country case: %w", err)
 	}
+	c.pin(mc.ID)
 	var cmp struct {
 		Targets []struct {
 			Rank   int    `json:"rank"`

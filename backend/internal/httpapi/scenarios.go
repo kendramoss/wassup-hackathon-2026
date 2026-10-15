@@ -10,6 +10,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -32,6 +33,7 @@ type scenariosRequest struct {
 // scenarios predicts up to MaxScenarios alternative production setups for a
 // case, side by side, and replaces the case's previous scenarios.
 func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
 	if err != nil {
 		a.fail(w, r, err)
@@ -71,13 +73,14 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	errs := make([]error, len(cases))
+	labels := make([]*router.Label, len(cases))
 	var wg sync.WaitGroup
 	for i := range cases {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			pred, _, tr, _, err := a.classify(r.Context(), cases[i])
-			out[i].Prediction, out[i].Triage, errs[i] = pred, tr, err
+			pred, label, tr, _, err := a.classify(r.Context(), cases[i])
+			out[i].Prediction, out[i].Triage, labels[i], errs[i] = pred, tr, label, err
 		}(i)
 	}
 	wg.Wait()
@@ -102,10 +105,13 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	}
 	sc.Scenarios, sc.UpdatedAt = out, time.Now().UTC()
 	var parts []string
-	for _, s := range out {
+	var u usage
+	for i, s := range out {
 		parts = append(parts, fmt.Sprintf("%s: %s %.2f", s.Label, s.Prediction.Origin, s.Prediction.Confidence))
+		u.trace(s.Prediction.Trace)
+		u.label(labels[i])
 	}
-	sc.Record(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")})
+	sc.Record(u.on(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")}, start))
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
@@ -203,7 +209,8 @@ func (a *api) recheck(ctx context.Context, sc *store.Case) error {
 	if err != nil {
 		return fmt.Errorf("case %s has no valid date: %w", sc.ID, err)
 	}
-	now := time.Now().UTC()
+	start := time.Now()
+	now := start.UTC()
 	c := domain.Case{ID: sc.ID, Date: now, Facts: sc.Facts, Product: sc.Product, Exclude: sc.Exclude}
 	res, err := a.d.Engine.Predict(ctx, c)
 	if err != nil {
@@ -223,7 +230,9 @@ func (a *api) recheck(ctx context.Context, sc *store.Case) error {
 	}
 	// A background check is not case activity: UpdatedAt (list order) stays.
 	sc.Watch = &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer}
-	sc.Record(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
-		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion})
+	var u usage
+	u.trace(res.Prediction.Trace)
+	sc.Record(u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
+		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start))
 	return a.d.Cases.Put(ctx, *sc)
 }

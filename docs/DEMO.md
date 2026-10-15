@@ -13,6 +13,7 @@ Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md
    ```bash
    make demo-seed   # ~3–5 min; writes eval/results/demo-seed.json
    ```
+   `make run` and `make demo-seed` share a local admin token, so the seed is not rate-limited and pins the demo cases (listed first; visitors cannot delete them, D45). Against Cloud Run, set `ADMIN_TOKEN` to the service's token and `ID_TOKEN=$(gcloud auth print-identity-token)`, then `go run ./cmd/demo seed -api <URL>`.
    It creates a case for each demo, runs the plan searches, and fills the heat gun's scenarios, ruling watch, one ask and the multi-country comparison. It then repeats the heat-gun plan search and prints `verdicts identical=true`. If it prints a WARNING, the cache is off.
 3. Open `eval/results/demo-seed.json` and write down what the plan screens will show. From now on, replays return these verdicts (in seconds, not ~30 s).
 

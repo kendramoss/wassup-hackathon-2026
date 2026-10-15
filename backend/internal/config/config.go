@@ -87,6 +87,12 @@ type Config struct {
 	// VerifierCacheDir, when set, stores verifier verdicts so repeated plan
 	// searches give the same verdicts (D31); VERIFIER_CACHE_DIR=off disables it.
 	VerifierCacheDir string
+	// RateLightPerMin, RateHeavyPerMin and RateGlobalPerMin cap the
+	// model-calling endpoints (D45); 0 disables that limit.
+	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
+	// AdminToken lets the demo seed bypass the limits, pin demo cases and
+	// delete pinned ones. Empty: nobody is admin.
+	AdminToken string
 }
 
 // Load reads the configuration from the process environment.
@@ -123,6 +129,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		CasesDir:          e.dir("CASES_DIR", "../data/cases"),
 		FirestoreDatabase: e.str("FIRESTORE_DATABASE", "(default)"),
 		VerifierCacheDir:  e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		RateLightPerMin:   e.integer("RATE_LIGHT_PER_MIN", 20),
+		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
+		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
+		AdminToken:        e.str("ADMIN_TOKEN", ""),
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -176,6 +186,17 @@ func (c Config) validate() error {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
 		}
+	}
+	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin} {
+		if v < 0 {
+			bad("%s must be 0 (off) or positive, got %d", name, v)
+		}
+	}
+	if c.RateGlobalPerMin > 0 && c.RateGlobalPerMin < 5 { // one heavy request takes 5 (httpapi.HeavyWeight)
+		bad("RATE_GLOBAL_PER_MIN must be 0 (off) or at least 5, got %d", c.RateGlobalPerMin)
+	}
+	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
+		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
 	}
 	switch c.CasesStore {
 	case CasesFirestore:

@@ -99,4 +99,20 @@ func (f *File) List(ctx context.Context) ([]Case, error) {
 	return out, nil
 }
 
+// Delete implements Cases.
+func (f *File) Delete(_ context.Context, id string) error {
+	p, err := f.path(id)
+	if err != nil {
+		return err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if err := os.Remove(p); errors.Is(err, fs.ErrNotExist) {
+		return ErrNotFound
+	} else if err != nil {
+		return fmt.Errorf("store: delete %s: %w", id, err)
+	}
+	return nil
+}
+
 var _ Cases = (*File)(nil)

@@ -46,6 +46,13 @@ func TestFirestoreEmulator(t *testing.T) {
 	if _, err := f.Get(ctx, "../etc/passwd"); !errors.Is(err, ErrNotFound) {
 		t.Errorf("invalid id not rejected: %v", err)
 	}
+	_ = f.Put(ctx, Case{ID: "case_gone", UpdatedAt: time.Now().UTC()})
+	if err := f.Delete(ctx, "case_gone"); err != nil {
+		t.Errorf("Delete = %v", err)
+	}
+	if err := f.Delete(ctx, "case_gone"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("second Delete = %v", err)
+	}
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	_ = f.Put(ctx, Case{ID: "case_a", UpdatedAt: now.Add(-time.Hour)})
 	if err := f.Put(ctx, Case{ID: "case_b", UpdatedAt: now, Plan: &planner.Result{}}); err != nil {

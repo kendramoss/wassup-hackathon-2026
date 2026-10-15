@@ -54,6 +54,9 @@ type Case struct {
 	Chat []ChatTurn `json:"chat,omitempty"`
 	// History is the case's audit trail, oldest first (capped at MaxHistory).
 	History []Event `json:"history,omitempty"`
+	// Pinned cases (the seeded demos) list first and can be deleted only
+	// with the admin token.
+	Pinned bool `json:"pinned,omitempty"`
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.
@@ -63,11 +66,17 @@ const MaxHistory = 200
 // one line, and the model and prompt versions behind it.
 type Event struct {
 	At       time.Time `json:"at"`
-	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics
+	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics | pinned | unpinned
 	Summary  string    `json:"summary"`
 	Provider string    `json:"llm_provider,omitempty"`
 	Model    string    `json:"model_id,omitempty"`
 	Prompt   string    `json:"prompt_version,omitempty"`
+	// Model usage behind the step: tokens summed over every call, the
+	// estimated cost at the eval's promo prices, and the step's wall time.
+	InputTokens  int     `json:"input_tokens,omitempty"`
+	OutputTokens int     `json:"output_tokens,omitempty"`
+	CostUSD      float64 `json:"cost_usd,omitempty"`
+	LatencyMS    int64   `json:"latency_ms,omitempty"`
 }
 
 // Record appends an event to the audit trail.
@@ -157,8 +166,10 @@ type Answer struct {
 type Cases interface {
 	Put(ctx context.Context, c Case) error
 	Get(ctx context.Context, id string) (Case, error)
-	// List returns all cases, most recently updated first.
+	// List returns all cases: pinned first, then most recently updated.
 	List(ctx context.Context) ([]Case, error)
+	// Delete removes a case; ErrNotFound if there is none.
+	Delete(ctx context.Context, id string) error
 }
 
 // Memory is an in-process Cases store. Data is lost on restart and not shared
@@ -193,6 +204,9 @@ func (m *Memory) List(_ context.Context) ([]Case, error) {
 
 func sortNewest(cs []Case) {
 	sort.Slice(cs, func(i, j int) bool {
+		if cs[i].Pinned != cs[j].Pinned {
+			return cs[i].Pinned
+		}
 		if !cs[i].UpdatedAt.Equal(cs[j].UpdatedAt) {
 			return cs[i].UpdatedAt.After(cs[j].UpdatedAt)
 		}
@@ -209,6 +223,17 @@ func (m *Memory) Get(_ context.Context, id string) (Case, error) {
 		return Case{}, ErrNotFound
 	}
 	return c, nil
+}
+
+// Delete implements Cases.
+func (m *Memory) Delete(_ context.Context, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.cases[id]; !ok {
+		return ErrNotFound
+	}
+	delete(m.cases, id)
+	return nil
 }
 
 var _ Cases = (*Memory)(nil)

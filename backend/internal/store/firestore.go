@@ -110,6 +110,22 @@ func (f *Firestore) List(ctx context.Context) ([]Case, error) {
 	return out, nil
 }
 
+// Delete implements Cases.
+func (f *Firestore) Delete(ctx context.Context, id string) error {
+	if !caseIDPattern.MatchString(id) {
+		return ErrNotFound
+	}
+	if _, err := f.col.Doc(id).Get(ctx); status.Code(err) == codes.NotFound {
+		return ErrNotFound
+	} else if err != nil {
+		return fmt.Errorf("store: read %s: %w", id, err)
+	}
+	if _, err := f.col.Doc(id).Delete(ctx); err != nil {
+		return fmt.Errorf("store: delete %s: %w", id, err)
+	}
+	return nil
+}
+
 func decodeSnapshot(snap *firestore.DocumentSnapshot) (Case, error) {
 	var d firestoreDoc
 	if err := snap.DataTo(&d); err != nil {

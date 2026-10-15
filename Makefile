@@ -16,7 +16,7 @@ fmt:
 	cd $(GO_DIR) && gofmt -w .
 
 run: ## local server on :8080
-	cd $(GO_DIR) && go run ./cmd/server
+	cd $(GO_DIR) && ADMIN_TOKEN=$${ADMIN_TOKEN:-local-dev-admin-token} go run ./cmd/server
 
 smoke: ## one live engine-model call (needs LLM_PROVIDER and its credentials in the env)
 	cd $(GO_DIR) && go run ./cmd/server -smoke
@@ -49,5 +49,5 @@ eval-summary: ## regenerate the numbers served by GET /v1/eval/summary (embedded
 	cd $(GO_DIR) && go run ./cmd/eval summary
 
 demo-seed: ## prepare a running server (make run) for recording: every demo case, plans, scenarios, watch, ask, country comparison; checks verdicts repeat (docs/DEMO.md)
-	cd $(GO_DIR) && go run ./cmd/demo seed -out ../eval/results/demo-seed.json
+	cd $(GO_DIR) && ADMIN_TOKEN=$${ADMIN_TOKEN:-local-dev-admin-token} go run ./cmd/demo seed -out ../eval/results/demo-seed.json
 

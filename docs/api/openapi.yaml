@@ -10,6 +10,13 @@ info:
 
     Every successful response carries `model_ids`, `prompt_versions`, `llm_provider`
     and the `disclaimer`. Errors use `{code, message, details}`.
+
+    Rate limits (D45): endpoints that call a model are limited per client (the
+    frontend forwards the browser's address as `X-Client-IP`): light ones (predict,
+    answers, ask, extract, scenarios, watch) 20 a minute, heavy ones (plan,
+    compare-targets) 4 a minute, plus a global cap. Over the limit: 429
+    `rate_limited` with `Retry-After` and `details.retry_after_s`. Requests with
+    the admin token (`X-Admin-Token` header) are not limited.
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)
@@ -43,10 +50,11 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases:
     get:
-      summary: List all cases, most recently updated first
+      summary: List all cases, pinned (seeded demos) first, then most recently updated
       responses:
         "200":
           description: Case summaries
@@ -69,6 +77,33 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CaseResponse" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a case
+      description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/pin:
+    put:
+      summary: Pin or unpin a case (admin token required)
+      description: Pinned cases list first and cannot be deleted without the admin token. The demo seed pins the cases it creates. Recorded in history; updated_at is unchanged.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [pinned], properties: { pinned: { type: boolean } } }
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/plan:
     post:
@@ -96,6 +131,7 @@ paths:
               schema: { $ref: "#/components/schemas/PlanResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/export:
     post:
@@ -149,6 +185,8 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
       summary: Turn a bill of materials (CSV or Excel) into a structured product
@@ -226,6 +264,7 @@ paths:
                   paragraphs: { type: integer }
                   trace: { type: object }
         "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
@@ -257,6 +296,7 @@ paths:
                   targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/economics:
     put:
@@ -319,6 +359,7 @@ paths:
                   chat: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string }, cited_rulings: { type: array, items: { type: string } }, at: { type: string, format: date-time } } } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/scenarios:
     post:
@@ -355,6 +396,7 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/watch:
     post:
@@ -369,11 +411,13 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/watch/run:
     post:
-      summary: Re-check every analysed case (for a scheduler)
+      summary: Re-check every analysed case (for a scheduler; admin token required)
       responses:
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Counts and the cases whose origin changed
           content:
@@ -473,7 +517,7 @@ components:
   schemas:
     CaseSummary:
       type: object
-      required: [id, product_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count]
+      required: [id, product_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count, pinned]
       properties:
         id: { type: string }
         product_name:
@@ -492,6 +536,7 @@ components:
         updated_at: { type: string, format: date-time }
         watch_status: { type: [string, "null"], enum: [unchanged, changed, null], description: null until re-checked }
         scenario_count: { type: integer }
+        pinned: { type: boolean, description: A seeded demo case; listed first }
     Error:
       type: object
       required: [code, message]
@@ -602,6 +647,7 @@ components:
             created_at: { type: string, format: date-time }
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
+            pinned: { type: boolean }
             precedents_detail:
               type: array
               description: The earlier rulings in prediction.precedents, in the same order, with CBP's held origin
@@ -626,11 +672,15 @@ components:
                 type: object
                 properties:
                   at: { type: string, format: date-time }
-                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics] }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned] }
                   summary: { type: string }
                   llm_provider: { type: string }
                   model_id: { type: string }
                   prompt_version: { type: string }
+                  input_tokens: { type: integer, description: Summed over every model call in the step; absent when no model was called }
+                  output_tokens: { type: integer }
+                  cost_usd: { type: number, description: "Estimated at the eval's promo prices (eval/RESULTS.md); cached precedent checks cost nothing. For asked, the agent model only (not its what-if engine calls)." }
+                  latency_ms: { type: integer, description: Wall time of the step }
             watch:
               type: [object, "null"]
               description: null until re-checked

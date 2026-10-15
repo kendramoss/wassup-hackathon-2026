@@ -84,6 +84,11 @@ type Deps struct {
 	RouterModel    string
 	VerifierModel  string
 	Logger         *slog.Logger
+	// Limits caps model-calling endpoints per client (zero: no limits).
+	Limits Limits
+	// AdminToken (X-Admin-Token header) bypasses the limits and allows
+	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
+	AdminToken string
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -91,6 +96,7 @@ const maxBody = 256 << 10
 
 type api struct {
 	d          Deps
+	limiter    *limiter
 	rulingMu   sync.Mutex
 	rulingMemo map[string]rulingDTO
 }
@@ -162,6 +168,7 @@ type predictRequest struct {
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	var in predictRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)
@@ -212,7 +219,7 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	sc.Record(predictionEvent("predicted", sc))
+	sc.Record(predictionEvent("predicted", sc, start))
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		a.fail(w, r, err)
 		return
@@ -293,6 +300,7 @@ func toClarify(as []store.Answer) []clarify.Answer {
 // answers appends the requester's answers to the facts and re-runs the
 // analysis on the same case.
 func (a *api) answers(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
 	if err != nil {
 		a.fail(w, r, err)
@@ -333,7 +341,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	ev := predictionEvent("answered", sc)
+	ev := predictionEvent("answered", sc, start)
 	ev.Summary = fmt.Sprintf("%d answer(s) added; ", len(in.Answers)) + ev.Summary
 	sc.Record(ev)
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
@@ -381,7 +389,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
-		"targets": targetsField(c.Targets),
+		"targets": targetsField(c.Targets), "pinned": c.Pinned,
 	}
 }
 
@@ -392,14 +400,28 @@ func historyField(h []store.Event) []store.Event {
 	return h
 }
 
-// predictionEvent records an analysis with its model and prompt.
-func predictionEvent(kind string, c store.Case) store.Event {
+// predictionEvent records an analysis with its model and prompt, and the
+// usage of the engine, router and clarify calls behind it.
+func predictionEvent(kind string, c store.Case, start time.Time) store.Event {
 	p := c.Prediction
-	return store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, confidence %.2f, %s", p.Origin, p.Confidence, c.Triage.Route),
-		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}
+	var u usage
+	u.trace(p.Trace)
+	u.label(c.Router)
+	if c.Clarify != nil {
+		u.trace(c.Clarify.Trace)
+	}
+	return u.on(store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, confidence %.2f, %s", p.Origin, p.Confidence, c.Triage.Route),
+		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}, start)
 }
 
-func planEvent(res planner.Result) store.Event {
+// planUsage is the engine and verifier usage of a plan search (cached
+// precedent checks cost nothing).
+func (a *api) planUsage(u *usage, res planner.Result) {
+	u.add(a.d.EngineModel, res.Stats.EngineInTok, res.Stats.EngineOutTok)
+	u.add(a.d.VerifierModel, res.Stats.VerifierInTok, res.Stats.VerifierOutTok)
+}
+
+func (a *api) planEvent(res planner.Result) store.Event {
 	sum := fmt.Sprintf("target %s: %d moves searched, %d shown", res.Target, res.Stats.MovesSearched, len(res.Plans))
 	if len(res.Plans) > 0 {
 		sum += "; best: " + res.Plans[0].Description
@@ -407,8 +429,12 @@ func planEvent(res planner.Result) store.Event {
 	if res.Stats.VerifierCached > 0 {
 		sum += fmt.Sprintf("; %d/%d precedent checks from cache", res.Stats.VerifierCached, res.Stats.VerifierRuns)
 	}
-	return store.Event{Kind: "plan_searched", Summary: sum, Provider: res.Baseline.Prediction.Trace.Provider,
-		Model: res.Baseline.Prediction.Trace.ModelID, Prompt: res.Baseline.Prediction.Trace.PromptVersion}
+	var u usage
+	a.planUsage(&u, res)
+	e := u.on(store.Event{Kind: "plan_searched", Summary: sum, Provider: res.Baseline.Prediction.Trace.Provider,
+		Model: res.Baseline.Prediction.Trace.ModelID, Prompt: res.Baseline.Prediction.Trace.PromptVersion}, time.Time{})
+	e.LatencyMS = int64(res.Stats.WallSeconds * 1000)
+	return e
 }
 
 func chatField(t []store.ChatTurn) []store.ChatTurn {
@@ -456,6 +482,7 @@ type caseSummary struct {
 	UpdatedAt   string   `json:"updated_at"`
 	Watch       *string  `json:"watch_status"` // null until re-checked; unchanged | changed
 	Scenarios   int      `json:"scenario_count"`
+	Pinned      bool     `json:"pinned"`
 }
 
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
@@ -466,7 +493,7 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	rows := make([]caseSummary, 0, len(cs))
 	for _, c := range cs {
-		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios)}
+		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
 		if c.Watch != nil {
 			row.Watch = &c.Watch.Status
 		}
@@ -552,7 +579,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	}
 	c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 	c.Economics = economicsFrom(in.Economics, c.Economics)
-	c.Record(planEvent(res))
+	c.Record(a.planEvent(res))
 	if err := a.d.Cases.Put(r.Context(), c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -624,7 +651,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	if err == nil {
 		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
 		c.Economics = economicsFrom(req.Economics, c.Economics)
-		c.Record(planEvent(res))
+		c.Record(a.planEvent(res))
 		err = a.d.Cases.Put(r.Context(), c)
 	}
 	if err != nil {

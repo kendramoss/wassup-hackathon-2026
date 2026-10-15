@@ -53,13 +53,14 @@ func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, e
 	if f.later != "" && c.Date.After(time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)) {
 		origin = f.later
 	}
-	return engine.Result{Prediction: domain.Prediction{Origin: origin, Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"}}}, nil
+	return engine.Result{Prediction: domain.Prediction{Origin: origin, Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"},
+		Trace: domain.Trace{Provider: "fake", ModelID: "gemini-4-argon", PromptVersion: "engine-v1", InputTokens: 3000, OutputTokens: 200}}}, nil
 }
 
 type fakeRouter struct{ regime string }
 
 func (f fakeRouter) Classify(context.Context, string) (router.Label, error) {
-	return router.Label{Route: "assembly", Subfamily: "motorised", Regime: f.regime, Reason: "r"}, nil
+	return router.Label{Route: "assembly", Subfamily: "motorised", Regime: f.regime, Reason: "r", ModelID: "gemini-3.8-flash", InputTokens: 1000, OutputTokens: 100}, nil
 }
 
 type fakePlanner struct {
@@ -91,7 +92,8 @@ func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result
 			Rejected: []domain.Plan{{Move: domain.Move{{Group: "pcba", ToPlant: "vn"}}, Description: "Make PCBA in Vietnam", NetYear: 900000,
 				Prediction: domain.Prediction{Origin: "Vietnam"}, Verdict: below, RejectionKind: domain.RejectBelowConfidence}}}, nil
 	}
-	return planner.Result{CaseID: r.CaseID, Target: r.Target, Stats: planner.Stats{MovesSearched: 6}, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+	return planner.Result{CaseID: r.CaseID, Target: r.Target, Stats: planner.Stats{MovesSearched: 6, EngineInTok: 30000, EngineOutTok: 2000,
+		VerifierInTok: 10000, VerifierOutTok: 1000, WallSeconds: 12.5}, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
 		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true, NetYear: 320000,
 		Move: domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}}}},
 		Rejected: []domain.Plan{
@@ -156,24 +158,46 @@ type harness struct {
 
 func newHarness(t *testing.T, regime string) harness {
 	t.Helper()
+	return newHarnessWith(t, regime, nil)
+}
+
+// newHarnessWith lets a test adjust the deps (limits, admin token).
+func newHarnessWith(t *testing.T, regime string, adjust func(*Deps)) harness {
+	t.Helper()
 	tm, err := planner.LoadTemplates()
 	if err != nil {
 		t.Fatal(err)
 	}
 	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}, agent: &fakeAgent{}, extract: &fakeExtractor{}}
-	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, Deps{
+	d := Deps{
 		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Agent: hs.agent, Extractor: hs.extract, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
 		Demos: mustDemos(t), FastPathConf: 0.92, PlanConfidence: 0.92, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
-	})
+		AdminToken: testAdmin,
+	}
+	if adjust != nil {
+		adjust(&d)
+	}
+	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, d)
 	return hs
 }
 
 func (hs harness) do(t *testing.T, method, path, body string) (int, map[string]any) {
 	t.Helper()
+	return hs.doAs(t, method, path, body, nil)
+}
+
+const testAdmin = "test-admin-token-0123456789"
+
+// doAs sends a request with extra headers (admin token, client IP).
+func (hs harness) doAs(t *testing.T, method, path, body string, headers map[string]string) (int, map[string]any) {
+	t.Helper()
 	req := httptest.NewRequest(method, path, strings.NewReader(body))
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
 	rec := httptest.NewRecorder()
 	hs.h.ServeHTTP(rec, req)
 	var out map[string]any
@@ -506,7 +530,10 @@ func TestWatchRechecksWithNewerRulings(t *testing.T) {
 		t.Errorf("watch moved updated_at: %v -> %v", before, out["updated_at"])
 	}
 	hs.engine.later = ""
-	_, run := hs.do(t, "POST", "/v1/watch/run", "")
+	if code, _ := hs.do(t, "POST", "/v1/watch/run", ""); code != http.StatusForbidden {
+		t.Errorf("watch run without the admin token = %d", code)
+	}
+	_, run := hs.doAs(t, "POST", "/v1/watch/run", "", map[string]string{"X-Admin-Token": testAdmin})
 	if run["checked"] != 1.0 || len(run["changed"].([]any)) != 0 {
 		t.Errorf("watch run = %v", run)
 	}

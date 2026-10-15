@@ -188,6 +188,8 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		RouterModel:    cfg.RouterModel,
 		VerifierModel:  cfg.VerifierModel,
 		Logger:         logger,
+		Limits:         httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin},
+		AdminToken:     cfg.AdminToken,
 	}, nil
 }
 

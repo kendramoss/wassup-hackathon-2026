@@ -48,3 +48,33 @@ func TestStoresListNewestFirstAndFilePersists(t *testing.T) {
 		t.Errorf("path traversal not rejected: %v", err)
 	}
 }
+
+func TestStoresDeleteAndPinnedFirst(t *testing.T) {
+	f, err := NewFile(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	now := time.Now().UTC()
+	for _, s := range []Cases{NewMemory(), f} {
+		_ = s.Put(ctx, Case{ID: "case_demo", UpdatedAt: now.Add(-time.Hour), Pinned: true})
+		_ = s.Put(ctx, Case{ID: "case_new", UpdatedAt: now})
+		_ = s.Put(ctx, Case{ID: "case_old", UpdatedAt: now.Add(-2 * time.Hour)})
+		cs, _ := s.List(ctx)
+		if len(cs) != 3 || cs[0].ID != "case_demo" || cs[1].ID != "case_new" {
+			t.Errorf("%T order = %s, %s", s, cs[0].ID, cs[1].ID)
+		}
+		if err := s.Delete(ctx, "case_new"); err != nil {
+			t.Errorf("%T delete: %v", s, err)
+		}
+		if _, err := s.Get(ctx, "case_new"); !errors.Is(err, ErrNotFound) {
+			t.Errorf("%T get after delete = %v", s, err)
+		}
+		if err := s.Delete(ctx, "case_new"); !errors.Is(err, ErrNotFound) {
+			t.Errorf("%T second delete = %v", s, err)
+		}
+	}
+	if err := f.Delete(ctx, "../etc/passwd"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("path traversal not rejected: %v", err)
+	}
+}
