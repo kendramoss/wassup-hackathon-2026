@@ -1,7 +1,0 @@
-@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap");
-/* B · Federal register: US government's own typeface (Public Sans, USWDS), cool white, navy ink, federal blue */
-:root{--paper:#f4f6f9;--sheet:#ffffff;--ink:#1b2b45;--dim:#4f5d73;--faint:#7c879a;--line:#dbe1ea;--wash:#e9edf3;
---ok:#1a4480;--ok-wash:#e5edf8;--ask:#8a4b00;--ask-wash:#fdf1dd;--ask-line:#ecc98c;--ask-bar:#d08a1e;
---serif:"Public Sans",sans-serif;--sans:"Public Sans",sans-serif;--mono:"Roboto Mono",ui-monospace,monospace;--r:4px}
-.verdict{font-weight:800!important;letter-spacing:-.03em!important}
-.ask-box h3,.cf h3,h1,h2{font-weight:700!important}

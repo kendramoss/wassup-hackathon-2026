@@ -1,5 +1,0 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
-/* A · Ruling letter: warm paper, editorial serif, one green for "supported", amber for "look again" */
-:root{--paper:#faf8f3;--sheet:#ffffff;--ink:#1b1a17;--dim:#625d54;--faint:#8f897e;--line:#e3dfd5;--wash:#f2efe7;
---ok:#1f5f46;--ok-wash:#e6efe9;--ask:#8a4f05;--ask-wash:#fbf0dc;--ask-line:#e9cf9f;--ask-bar:#c98a28;
---serif:"Source Serif 4",Georgia,serif;--sans:"Inter",-apple-system,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;--r:8px}
