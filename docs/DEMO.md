@@ -36,7 +36,7 @@ The precedent check is not repeatable from run to run (D31, D33): the heat gun's
 7. **Draft for broker.** The letter, with the below-bar banner if it applies. Print or download.
 8. **Accuracy.** The results page: overall and fast-path accuracy with CIs, labelled official (Vertex) or proxy.
 
-Before recording, `curl <API>/health?deep=1` must say `"status":"ok"` (store write and model call, D47).
+Before recording, run `scripts/smoke.sh <API>` (with `ID_TOKEN` and `ADMIN_TOKEN` against Cloud Run): deep health, a predict, the case list and one plan search; it deletes its case afterwards.
 
 Side stories if time allows: portfolio triage (`backend/testdata/portfolio_sample.csv`: 2 auto, 1 needs info, 2 review including an out-of-scope textile, D47), LiDAR (second product family), BOM import (`backend/testdata/heatgun_bom.csv`), compare target countries (all below the bar in the last run, D36), ruling watch.
 
