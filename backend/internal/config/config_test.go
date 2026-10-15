@@ -27,6 +27,9 @@ func TestDefaults(t *testing.T) {
 	if c.LiteLLMBaseURL != "https://proxy.example" {
 		t.Errorf("trailing slash not trimmed: %q", c.LiteLLMBaseURL)
 	}
+	if c.CasesDir != "../data/cases" || c.VerifierCacheDir != "../data/verifier-cache" || c.PlannerConcurrency != 8 {
+		t.Errorf("cases/cache/concurrency defaults = %q %q %d", c.CasesDir, c.VerifierCacheDir, c.PlannerConcurrency)
+	}
 }
 
 func TestValidation(t *testing.T) {

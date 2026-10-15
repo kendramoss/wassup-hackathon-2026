@@ -59,6 +59,9 @@ type Config struct {
 	// CasesDir, when set, persists cases as JSON files there; empty keeps
 	// them in memory.
 	CasesDir string
+	// VerifierCacheDir, when set, stores verifier verdicts so repeated plan
+	// searches give the same verdicts (D31); set it empty to disable.
+	VerifierCacheDir string
 }
 
 // Load reads the configuration from the process environment.
@@ -87,10 +90,12 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:     e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:       e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:         e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch: strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		LabelsPath:       e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:         e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:           e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:   strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		CasesDir:         e.str("CASES_DIR", "../data/cases"),
+		VerifierCacheDir: e.str("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
 	}
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
