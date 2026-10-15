@@ -27,7 +27,10 @@ type Prediction struct {
 	// retrieval order; Precedents are all rulings shown to it.
 	CitedRulings []string `json:"cited_rulings"`
 	Precedents   []string `json:"precedents"`
-	Trace        Trace    `json:"trace"`
+	// VoteAgreement, when the engine voted, is how many calls gave this
+	// origin, e.g. "4/5".
+	VoteAgreement string `json:"vote_agreement,omitempty"`
+	Trace         Trace  `json:"trace"`
 }
 
 // Validate checks the model returned an origin and a confidence in [0, 1].

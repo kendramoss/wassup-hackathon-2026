@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"sort"
+	"sync"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -17,6 +19,11 @@ type Options struct {
 	Model           string // e.g. gemini-4-argon
 	K               int    // precedents per case
 	MaxOutputTokens int
+	// Votes > 1 re-asks low-confidence cases (first answer below VoteBelow)
+	// Votes-1 more times with the precedents in rotated order, still at
+	// temperature 0, and returns the majority origin (D22).
+	Votes     int
+	VoteBelow float64
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -37,8 +44,10 @@ type Result struct {
 	// Flip is the model's "smallest change that would flip origin" (eval only;
 	// the product does not show it).
 	Flip string
-	// Usage is the model call's token accounting.
+	// Usage is the token accounting over every call made for this case.
 	Usage llm.Usage
+	// Votes is how many calls the answer is based on (1 without voting).
+	Votes int
 }
 
 // ErrNoFacts means the case has no facts text to analyse.
@@ -72,6 +81,80 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 			precedents = append(precedents, h.Ruling)
 		}
 	}
+	first, err := e.ask(ctx, c, precedents)
+	if err != nil {
+		return Result{}, err
+	}
+	if e.opts.Votes <= 1 || first.Prediction.Confidence >= e.opts.VoteBelow || len(precedents) < 2 {
+		return first, nil
+	}
+	return e.vote(ctx, c, precedents, first)
+}
+
+// vote asks again with rotated precedent orders and picks the majority
+// origin; ties go to the higher summed confidence, then to the first answer.
+// The returned prediction is the most confident call with the winning origin,
+// its confidence unchanged, so voting cannot lift a case into the fast path.
+func (e *Engine) vote(ctx context.Context, c domain.Case, precedents []domain.Ruling, first Result) (Result, error) {
+	n := e.opts.Votes
+	results := make([]Result, n)
+	errs := make([]error, n)
+	results[0] = first
+	var wg sync.WaitGroup
+	for i := 1; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			shift := i % len(precedents)
+			rotated := append(append([]domain.Ruling{}, precedents[shift:]...), precedents[:shift]...)
+			if i >= len(precedents) {
+				for l, r := 0, len(rotated)-1; l < r; l, r = l+1, r-1 { // reversed rotations after a full cycle
+					rotated[l], rotated[r] = rotated[r], rotated[l]
+				}
+			}
+			results[i], errs[i] = e.ask(ctx, c, rotated)
+		}(i)
+	}
+	wg.Wait()
+	count, confSum := map[string]int{}, map[string]float64{}
+	var usage llm.Usage
+	ok := 0
+	for i, r := range results {
+		if errs[i] != nil {
+			continue
+		}
+		ok++
+		o := r.Prediction.Origin
+		count[o]++
+		confSum[o] += r.Prediction.Confidence
+		usage.InputTokens += r.Usage.InputTokens
+		usage.OutputTokens += r.Usage.OutputTokens
+		usage.TotalTokens += r.Usage.TotalTokens
+	}
+	win := first.Prediction.Origin
+	for o := range count {
+		if count[o] > count[win] || (count[o] == count[win] && confSum[o] > confSum[win]) {
+			win = o
+		}
+	}
+	best := first
+	if best.Prediction.Origin != win {
+		best = Result{}
+	}
+	for i, r := range results {
+		if errs[i] == nil && r.Prediction.Origin == win && r.Prediction.Confidence > best.Prediction.Confidence {
+			best = r
+		}
+	}
+	best.Usage = usage
+	best.Prediction.Trace.InputTokens, best.Prediction.Trace.OutputTokens = usage.InputTokens, usage.OutputTokens
+	best.Prediction.VoteAgreement = fmt.Sprintf("%d/%d", count[win], ok)
+	best.Votes = ok
+	return best, nil
+}
+
+// ask makes one model call with the given precedents in the given order.
+func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Ruling) (Result, error) {
 	resp, err := e.model.Generate(ctx, llm.Request{
 		Model:           e.opts.Model,
 		System:          System,
@@ -91,13 +174,14 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 	for i, p := range precedents {
 		ids[i] = p.ID
 	}
+	sort.Strings(ids) // order-independent, so votes over rotations report the same set
 	pred := domain.Prediction{
 		KeyFactors:   []string{},
 		Origin:       domain.NormalizeCountry(a.Origin),
 		DecisiveStep: a.DecisiveStep,
 		Reasoning:    a.Reasoning,
 		Precedents:   ids,
-		CitedRulings: citedIn(a.Reasoning+" "+a.DecisiveStep+" "+a.EssentialCharacter, ids),
+		CitedRulings: citedIn(a.Reasoning+" "+a.DecisiveStep+" "+a.EssentialCharacter, precedentIDs(precedents)),
 		Trace: domain.Trace{
 			Provider:      resp.Provider,
 			ModelID:       resp.ModelID,
@@ -117,11 +201,19 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 	if err := pred.Validate(); err != nil {
 		return Result{}, fmt.Errorf("engine: predict %s: %w: %v", c.ID, llm.ErrBadResponse, err)
 	}
-	r := Result{Prediction: pred, Usage: resp.Usage}
+	r := Result{Prediction: pred, Usage: resp.Usage, Votes: 1}
 	if a.Flip != nil {
 		r.Flip = *a.Flip
 	}
 	return r, nil
+}
+
+func precedentIDs(ps []domain.Ruling) []string {
+	out := make([]string, len(ps))
+	for i, p := range ps {
+		out[i] = p.ID
+	}
+	return out
 }
 
 var rulingRef = regexp.MustCompile(`\b[NH][0-9]{6}\b`)

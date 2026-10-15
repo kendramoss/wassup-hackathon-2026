@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -165,5 +166,71 @@ func TestPredictListsAreNeverNil(t *testing.T) {
 	p := res.Prediction
 	if p.KeyFactors == nil || p.CitedRulings == nil || p.Precedents == nil {
 		t.Errorf("nil lists: %+v", p)
+	}
+}
+
+func votingEngine(f *llm.Fake) *Engine {
+	ps := []domain.Ruling{
+		{ID: "N300001", Date: day("2025-01-01"), Facts: "heat gun motor"},
+		{ID: "N300002", Date: day("2025-01-02"), Facts: "heat gun pcba"},
+		{ID: "N300003", Date: day("2025-01-03"), Facts: "heat gun fan"},
+	}
+	return New(f, retrieval.NewBM25(ps, PrecedentText), Options{Model: "m", K: 3, Votes: 5, VoteBelow: 0.95})
+}
+
+// firstShown returns the ruling ID of the first precedent block in a prompt.
+func firstShown(req llm.Request) string {
+	s := req.Messages[0].Content
+	i := strings.Index(s, "[N")
+	return s[i+1 : i+8]
+}
+
+func TestVotingPicksMajorityOverRotations(t *testing.T) {
+	var mu sync.Mutex
+	f := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		mu.Lock()
+		defer mu.Unlock()
+		// The model follows whichever precedent comes first: Thailand unless
+		// N300003 leads.
+		if firstShown(req) == "N300003" {
+			return llm.Response{Text: `{"origin_country":"China","confidence":0.9}`, Usage: llm.Usage{InputTokens: 10}}, nil
+		}
+		return llm.Response{Text: `{"origin_country":"Thailand","confidence":0.8}`, Usage: llm.Usage{InputTokens: 10}}, nil
+	}}
+	res, err := votingEngine(f).Predict(context.Background(), domain.Case{ID: "X", Date: day("2026-01-01"), Facts: "heat gun"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(f.Calls()) != 5 || res.Votes != 5 || res.Usage.InputTokens != 50 {
+		t.Errorf("calls=%d votes=%d tokens=%d", len(f.Calls()), res.Votes, res.Usage.InputTokens)
+	}
+	if res.Prediction.VoteAgreement == "" || res.Prediction.Confidence > 0.9 {
+		t.Errorf("prediction = %+v", res.Prediction)
+	}
+	orders := map[string]bool{}
+	for _, c := range f.Calls() {
+		orders[firstShown(c)] = true
+	}
+	if len(orders) != 3 {
+		t.Errorf("rotations should lead with each precedent: %v", orders)
+	}
+}
+
+func TestNoVotingWhenConfident(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Thailand","confidence":0.97}`)
+	res, err := votingEngine(f).Predict(context.Background(), domain.Case{ID: "X", Date: day("2026-01-01"), Facts: "heat gun"})
+	if err != nil || len(f.Calls()) != 1 || res.Votes != 1 || res.Prediction.VoteAgreement != "" {
+		t.Fatalf("calls=%d res=%+v err=%v", len(f.Calls()), res, err)
+	}
+}
+
+func TestVotingConfidenceIsNotInflated(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Thailand","confidence":0.85}`)
+	res, err := votingEngine(f).Predict(context.Background(), domain.Case{ID: "X", Date: day("2026-01-01"), Facts: "heat gun"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Prediction.Confidence != 0.85 || res.Prediction.VoteAgreement != "5/5" {
+		t.Errorf("unanimous low-confidence vote: %+v", res.Prediction)
 	}
 }

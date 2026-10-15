@@ -114,6 +114,8 @@ func run(args []string) error {
 	retrievalMode := fl.String("retrieval", "bm25", "bm25, hybrid (BM25 candidates re-ranked by embeddings) or vector")
 	candidates := fl.Int("candidates", 30, "BM25 candidates re-ranked in hybrid mode")
 	vectorsPath := fl.String("vectors", "../data/corpus/embeddings-768.bin", "embedding index (go run ./cmd/corpus embed)")
+	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
+	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score the held-out final split")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
@@ -194,7 +196,8 @@ func run(args []string) error {
 			return fmt.Errorf("-retrieval must be bm25, hybrid or vector")
 		}
 	}
-	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
+	eng := engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+		Votes: *votes, VoteBelow: *voteBelow})
 	var rt *router.Router
 	if *useRouter {
 		rt = router.New(model, cfg.RouterModel, 2000)
@@ -203,6 +206,9 @@ func run(args []string) error {
 	name := fmt.Sprintf("%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.PromptVersion, cfg.LLMProvider)
 	if *retrievalMode != "bm25" {
 		name = fmt.Sprintf("%s-%s-%s%d-%s-%s", *split, cfg.EngineModel, *retrievalMode, *candidates, engine.PromptVersion, cfg.LLMProvider)
+	}
+	if *votes > 1 {
+		name += fmt.Sprintf("-vote%d", *votes)
 	}
 	if *useRouter {
 		name += "-router"
@@ -299,6 +305,7 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 	row.Flip, row.Reasoning, row.Precedents, row.Cited = res.Flip, p.Reasoning, p.Precedents, p.CitedRulings
 	row.Provider, row.ModelID = p.Trace.Provider, p.Trace.ModelID
 	row.InputTokens, row.OutputTokens, row.LatencyMS = p.Trace.InputTokens, p.Trace.OutputTokens, p.Trace.LatencyMS
+	row.Votes = res.Votes
 	row.CostUSD = evalkit.Cost(evalkit.PromoPrices, cfg.EngineModel, row.InputTokens, row.OutputTokens)
 	row.CostUSDList = evalkit.Cost(evalkit.ListPrices, cfg.EngineModel, row.InputTokens, row.OutputTokens)
 	row.InScope = inScope
