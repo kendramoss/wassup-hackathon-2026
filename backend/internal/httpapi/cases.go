@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -92,7 +91,7 @@ type api struct {
 func (a *api) meta() map[string]any {
 	return map[string]any{
 		"model_ids":       map[string]string{"engine": a.d.EngineModel, "router": a.d.RouterModel, "verifier": a.d.VerifierModel},
-		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion},
+		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion, "answers": clarify.AnswersVersion},
 		"llm_provider":    a.d.Provider,
 		"disclaimer":      domain.Disclaimer,
 	}
@@ -249,10 +248,14 @@ type answersRequest struct {
 	Answers []store.Answer `json:"answers"`
 }
 
-// unknownAnswer is an answer that adds no fact. Such lines are kept on the case
-// but not added to the facts: the engine reads "not stated" as evidence against
-// the processing country (D26).
-var unknownAnswer = regexp.MustCompile(`(?i)^(not stated|not known|unknown|n/?a|not sure|unsure|don'?t know|do not know|no idea|tbd|-+)\.?$`)
+// toClarify converts stored answers for clarify.AppendAnswers.
+func toClarify(as []store.Answer) []clarify.Answer {
+	out := make([]clarify.Answer, len(as))
+	for i, x := range as {
+		out[i] = clarify.Answer{Question: x.Question, Answer: x.Answer}
+	}
+	return out
+}
 
 // answers appends the requester's answers to the facts and re-runs the
 // analysis on the same case.
@@ -267,22 +270,17 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	var lines []string
-	for _, x := range in.Answers {
-		q, ans := strings.TrimSpace(x.Question), strings.TrimSpace(x.Answer)
-		if q == "" || ans == "" {
-			a.fail(w, r, fmt.Errorf("%w: each answer needs question and answer", domain.ErrInvalid))
-			return
-		}
-		if !unknownAnswer.MatchString(ans) {
-			lines = append(lines, "Q: "+q+"\nA: "+ans)
-		}
-	}
 	if len(in.Answers) == 0 {
 		a.fail(w, r, fmt.Errorf("%w: answers are required", domain.ErrInvalid))
 		return
 	}
-	if len(lines) == 0 {
+	for _, x := range in.Answers {
+		if strings.TrimSpace(x.Question) == "" || strings.TrimSpace(x.Answer) == "" {
+			a.fail(w, r, fmt.Errorf("%w: each answer needs question and answer", domain.ErrInvalid))
+			return
+		}
+	}
+	if _, ok := clarify.AppendAnswers("", toClarify(in.Answers)); !ok {
 		a.fail(w, r, fmt.Errorf("%w: no answer adds a fact (all unknown); nothing to re-analyse", domain.ErrInvalid))
 		return
 	}
@@ -290,13 +288,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		sc.OriginalFacts = sc.Facts
 	}
 	sc.Answers = append(sc.Answers, in.Answers...)
-	var all []string
-	for _, x := range sc.Answers {
-		if ans := strings.TrimSpace(x.Answer); !unknownAnswer.MatchString(ans) {
-			all = append(all, "Q: "+strings.TrimSpace(x.Question)+"\nA: "+ans)
-		}
-	}
-	facts := strings.TrimRight(sc.OriginalFacts, "\n") + "\n\nADDITIONAL FACTS FROM THE REQUESTER (answers to follow-up questions):\n" + strings.Join(all, "\n") + "\n"
+	facts, _ := clarify.AppendAnswers(sc.OriginalFacts, toClarify(sc.Answers))
 	date, _ := time.Parse(time.DateOnly, sc.Date)
 	c := domain.Case{ID: sc.ID, Date: date, Facts: facts, Product: sc.Product, Exclude: sc.Exclude}
 	if err := c.Validate(); err != nil {

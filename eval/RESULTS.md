@@ -67,11 +67,13 @@ Paired against the engine-v1 BM25 dev run (90.0%, 422/469). Exact McNemar on dis
 | before / control (original facts) | 8/14 = 57% (33–79) | 0/14 |
 | after answers, "Not stated." lines included | 5/14 = 36% (16–61) | 10/14 |
 | after answers, answered questions only | 5/14 = 36% (16–61) | 3/14 |
+| after answers, answers-v2 (hedge sentences removed, neutral header) — **adopted** | 7/14 = 50% (27–73) | 5/14 (2 on CBP's origin, 3 not) |
 
 - Including "Not stated." lines: 1 fixed, 4 broken (exact McNemar p = 0.375). In 3 of the 4 breaks every answer was "Not stated."; the engine reads missing information as evidence against the processing country and settles on the imported part's country.
 - Answered questions only: 0 fixed, 3 broken (p = 0.25). The breaks came from answers that only restated facts already given (facts-only NY files) or hedged ("whether they are pre-blended is not stated").
+- answers-v2 (`clarify.AppendAnswers`, used by the API and the eval): sentences that only report missing information ("…is not explicitly stated") are removed, and the header tells the engine the answers weigh the same as the facts and that unaddressed points are not evidence. 0 fixed, 1 broken (p = 1.0). The remaining break (N351538, impeller castings) received only factual answers: the engine treats the Chinese casting as decisive where CBP held the Malaysian machining (66–85% of material removed) was — the same raw-material judgment error as in the main error analysis, not an answer-format effect.
 - 23 of 33 answers were "Not stated.": for most split cases the file holds no extra fact for the requester to give. Tiny sample, wide CIs; the direction is negative in both variants. Torn cases are rare (14 of 117 low-confidence dev cases).
-- Rows: `eval/results/torn-scan-dev-vote5-litellm.jsonl` (117-case scan), `torn-dev-clarify-v1-requester-v1-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answered-only-litellm.jsonl`. Cost ≈ $8.90 (promo).
+- Rows: `eval/results/torn-scan-dev-vote5-litellm.jsonl` (117-case scan), `torn-dev-clarify-v1-requester-v1-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answered-only-litellm.jsonl`, `torn-dev-clarify-v1-requester-v1-answers-v2-litellm.jsonl`. Cost ≈ $11.70 (promo).
 
 ## Planner and verifier (Gate C) — proxy, development only
 

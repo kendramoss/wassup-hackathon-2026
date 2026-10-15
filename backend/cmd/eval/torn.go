@@ -31,7 +31,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
 
-const requesterVersion = "requester-v1-answered-only"
+const requesterVersion = "requester-v1"
 
 const requesterSystem = `You are the importer who asked U.S. Customs for a country-of-origin ruling. Customs has sent follow-up questions about your product.
 You are given your request file. Answer each question with facts about the product only: what each part is, where and how it is made or processed, materials and where they come from, costs or values, and the steps performed in each country.
@@ -97,22 +97,6 @@ func guard(a qa, file string) qa {
 		return a
 	}
 	return qa{Question: a.Question, Answer: "Not stated.", Quote: a.Quote, Dropped: a.Dropped, Original: a.Answer}
-}
-
-// withAnswers appends the answered questions only: a "Not stated." line reads
-// to the engine as evidence against the processing country (requester-v1 run,
-// D26), so unanswered questions are left out.
-func withAnswers(facts string, as []qa) (string, bool) {
-	var lines []string
-	for _, a := range as {
-		if a.Answer != "Not stated." {
-			lines = append(lines, "Q: "+a.Question+"\nA: "+a.Answer)
-		}
-	}
-	if len(lines) == 0 {
-		return facts, false
-	}
-	return strings.TrimRight(facts, "\n") + "\n\nADDITIONAL FACTS FROM THE REQUESTER (answers to follow-up questions):\n" + strings.Join(lines, "\n") + "\n", true
 }
 
 // split describes a vote: the winner, runner-up and whether it is torn
@@ -201,7 +185,7 @@ func tornCmd(args []string) error {
 	if *limit > 0 && *limit < len(cands) {
 		cands = cands[:*limit]
 	}
-	outPath := filepath.Join(filepath.Dir(*in), fmt.Sprintf("torn-dev-%s-%s-%s.jsonl", clarify.PromptVersion, requesterVersion, cfg.LLMProvider))
+	outPath := filepath.Join(filepath.Dir(*in), fmt.Sprintf("torn-dev-%s-%s-%s-%s.jsonl", clarify.PromptVersion, requesterVersion, clarify.AnswersVersion, cfg.LLMProvider))
 	f, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -410,7 +394,11 @@ func runTorn(ctx context.Context, r evalkit.Row, c domain.Ruling, before split, 
 	}
 	*n = len(as)
 	line["answers"] = as
-	facts, answered := withAnswers(c.Facts, as)
+	cas := make([]clarify.Answer, len(as))
+	for i, a := range as {
+		cas[i] = clarify.Answer{Question: a.Question, Answer: a.Answer}
+	}
+	facts, answered := clarify.AppendAnswers(c.Facts, cas)
 	if !answered { // nothing to add: the vote is the control vote
 		*after = ctrl
 		line["after"] = ctrl
@@ -421,7 +409,7 @@ func runTorn(ctx context.Context, r evalkit.Row, c domain.Ruling, before split, 
 		return err
 	}
 	*after = aft
-	line["answers"], line["after"], line["requester_version"] = as, aft, requesterVersion
+	line["answers"], line["after"], line["requester_version"], line["answers_version"] = as, aft, requesterVersion, clarify.AnswersVersion
 	return nil
 }
 

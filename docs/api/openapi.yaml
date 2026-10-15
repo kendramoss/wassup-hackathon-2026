@@ -111,7 +111,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/answers:
     post:
-      summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers like "unknown" or "not stated" are kept on the case but not added to the facts (D26); 400 if no answer adds a fact
+      summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
         required: true
