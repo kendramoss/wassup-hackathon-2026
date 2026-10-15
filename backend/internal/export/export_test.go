@@ -18,7 +18,7 @@ func TestMarkdown(t *testing.T) {
 		domain.Disclaimer, "Draft for review by a licensed customs broker", "19 C.F.R. Part 177",
 		"CBP previously ruled on the current production setup: origin China (N328954)", "make Motor-fan assembly and PCBA (SMT) in Thailand",
 		"N347421 — a comparable change", "N345859 — a similar change that did not alter origin", "https://rulings.cbp.gov/ruling/N350001",
-		"product of Thailand, because motor-fan assembly made in Thailand",
+		"product of Thailand, based on these key factors: motor-fan assembly made in Thailand.",
 	} {
 		if !strings.Contains(md, want) {
 			t.Errorf("draft missing %q", want)
@@ -31,5 +31,17 @@ func TestMarkdown(t *testing.T) {
 	}
 	if strings.Count(md, "N347421 —") != 1 {
 		t.Error("supporting ruling listed twice")
+	}
+}
+
+func TestListPhrase(t *testing.T) {
+	for in, want := range map[string]string{
+		"Heating element|Electric motor-fan assembly|PCBA": "heating element, electric motor-fan assembly and PCBA",
+		"Housing":           "housing",
+		"Motor, wound|Fan.": "motor, wound; and fan",
+	} {
+		if got := listPhrase(strings.Split(in, "|")); got != want {
+			t.Errorf("listPhrase(%q) = %q, want %q", in, got, want)
+		}
 	}
 }

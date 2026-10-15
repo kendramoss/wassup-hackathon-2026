@@ -6,6 +6,7 @@ package export
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -55,7 +56,7 @@ func Markdown(in Input) string {
 		b.WriteString("The requester submits that origin should be determined as follows")
 	}
 	if len(in.Prediction.KeyFactors) > 0 {
-		fmt.Fprintf(&b, ", because %s", lowerFirst(strings.Join(in.Prediction.KeyFactors, "; ")))
+		fmt.Fprintf(&b, ", based on these key factors: %s", listPhrase(in.Prediction.KeyFactors))
 	}
 	b.WriteString(". [REQUESTER TO CONFIRM AND EXPAND WITH COUNSEL.]\n\n")
 	b.WriteString("## Earlier CBP rulings considered\n\n")
@@ -81,8 +82,31 @@ func Markdown(in Input) string {
 }
 
 func lowerFirst(s string) string {
-	if s == "" {
+	if s == "" || (len(s) > 1 && unicode.IsUpper(rune(s[1]))) { // keep acronyms: PCBA, SMT
 		return s
 	}
 	return strings.ToLower(s[:1]) + s[1:]
+}
+
+// listPhrase joins key factors as "a, b and c", lowercasing each first letter;
+// factors that contain commas are joined with semicolons instead.
+func listPhrase(items []string) string {
+	sep := ", "
+	for _, it := range items {
+		if strings.Contains(it, ",") {
+			sep = "; "
+		}
+	}
+	xs := make([]string, len(items))
+	for i, it := range items {
+		xs[i] = lowerFirst(strings.TrimRight(strings.TrimSpace(it), "."))
+	}
+	if len(xs) == 1 {
+		return xs[0]
+	}
+	last := " and "
+	if sep == "; " {
+		last = "; and "
+	}
+	return strings.Join(xs[:len(xs)-1], sep) + last + xs[len(xs)-1]
 }
