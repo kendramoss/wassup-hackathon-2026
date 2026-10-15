@@ -12,6 +12,11 @@ import (
 	"time"
 )
 
+// DefaultFastPath is the auto-accept confidence bar: the lowest confidence at
+// which cumulative accuracy stays at or above 95% on dev (95.7%, 81% of cases)
+// and held-out (96.7%, 80%) through the proxy (D32).
+const DefaultFastPath = 0.92
+
 // Provider names for LLM_PROVIDER.
 const (
 	ProviderLiteLLM = "litellm"
@@ -85,7 +90,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		LLMMaxRetries:        e.integer("LLM_MAX_RETRIES", 3),
 		MaxOutputTokens:      e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
 		PrecedentK:           e.integer("PRECEDENT_K", 5),
-		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", 0.95),
+		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
 		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),

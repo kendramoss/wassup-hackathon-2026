@@ -19,7 +19,7 @@ frontend (Next.js, Cloud Run)  ──HTTP/JSON──►  backend (Go, Cloud Run)
                                                  ├─ router    Gemini 3.8 Flash: product family + origin-regime check
                                                  ├─ engine    Gemini 4 Argon + 5 earlier CBP rulings (BM25, dated strictly before the case)
                                                  │            → origin, key factors, confidence, cited rulings
-                                                 ├─ triage    confidence ≥ 0.95 and in scope → auto; otherwise needs expert review
+                                                 ├─ triage    confidence ≥ 0.92 and in scope → auto; otherwise needs expert review
                                                  ├─ clarify   below the bar: is an earlier ruling on point? conflicting rulings? follow-up questions
                                                  ├─ planner   single/double moves of operation groups to capable plants
                                                  │            → render variant facts → engine → keep moves that reach the target
@@ -50,9 +50,9 @@ Data: 2,790 CBP rulings (2023-01 to 2026-09, rulings.cbp.gov, public domain). La
 | Final-assembly country | 40.6% (35.8–45.6) |
 | Most-mentioned country (best simple baseline) | 60.5% (55.5–65.3) |
 | **Origin Proof engine (Gemini 4 Argon + dated precedents), Vertex AI** | *pending the Vertex AI re-run* |
-| Fast path (confidence ≥ 0.95 and in scope), Vertex AI | *pending* |
+| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | *pending* |
 
-On the development split through the proxy, the engine is 90.9% accurate overall and 96.4% on the 73% of cases it auto-accepts (confidence ≥ 0.95, in scope); the rest go to expert review. Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
+On the development split through the proxy, the engine is 90.9% accurate overall; it auto-accepts 79% of cases (confidence ≥ 0.92, in scope) at 95.1% accuracy (held-out: 78.5% at 96.6%), and the rest go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
 
 ### Negative results (kept on purpose)
 - **One shared playbook** of legal guidance lowered accuracy versus the plain engine.

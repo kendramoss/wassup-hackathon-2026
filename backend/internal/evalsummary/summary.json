@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T18:30:07Z",
+  "generated_at": "2026-10-15T08:54:35Z",
   "status": "proxy, development only: produced through the LiteLLM proxy; official numbers come from the Vertex AI re-run",
   "items": [
     {
@@ -35,11 +35,11 @@
     },
     {
       "key": "final_fastpath_accuracy",
-      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path (confidence ≥ 0.95 and in scope) accuracy",
-      "value": 0.9774,
-      "ci_low": 0.9515,
-      "ci_high": 0.9896,
-      "n": 265,
+      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "value": 0.9662,
+      "ci_low": 0.9389,
+      "ci_high": 0.9815,
+      "n": 296,
       "split": "final",
       "development_only": false,
       "source": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl + eval/results/scope-final-router-v2.jsonl"
@@ -47,7 +47,7 @@
     {
       "key": "final_fastpath_coverage",
       "label": "Held-out (377 rulings, Jan–Sep 2026): fast path coverage",
-      "value": 0.7029,
+      "value": 0.7851,
       "n": 377,
       "split": "final",
       "development_only": false,
@@ -111,11 +111,11 @@
     },
     {
       "key": "dev_fastpath_accuracy",
-      "label": "Development (469 rulings, Jul–Dec 2025): fast path (confidence ≥ 0.95 and in scope) accuracy",
-      "value": 0.9581,
-      "ci_low": 0.9309,
-      "ci_high": 0.9749,
-      "n": 334,
+      "label": "Development (469 rulings, Jul–Dec 2025): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "value": 0.9515,
+      "ci_low": 0.9246,
+      "ci_high": 0.9691,
+      "n": 371,
       "split": "dev",
       "development_only": true,
       "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl + eval/results/scope-dev-router-v2.jsonl"
@@ -123,7 +123,7 @@
     {
       "key": "dev_fastpath_coverage",
       "label": "Development (469 rulings, Jul–Dec 2025): fast path coverage",
-      "value": 0.7122,
+      "value": 0.791,
       "n": 469,
       "split": "dev",
       "development_only": true,

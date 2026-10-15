@@ -132,3 +132,8 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 - `POST /v1/cases/{id}/export` accepts `move_key`: any shown plan, or a rejected plan whose precedent check found support below the bar (`below_confidence_bar`). The draft then states near the top: "Below the confidence bar: Origin Proof's precedent check rated this change 0.92, under its 0.95 bar…". Plans rejected for no precedent, another origin or a failed check return 400.
 - Bug fixed: the `CASES_DIR` setting described in D25 was never read by the config loader, so the server kept cases in memory and lost them on restart. Now read (default `../data/cases`) and checked by a config test and a live restart.
 
+## D32 — Auto-accept bar lowered from 0.95 to 0.92 (15 Oct)
+- The user chose the lowest confidence at which cumulative accuracy stays at or above 95% on both splits. Proxy, engine-v1: confidence ≥ 0.92 is 95.7% on 81% of dev cases and 96.7% on 80% of held-out cases; with the router's scope check (fast path), 95.1% on 79.1% of dev and 96.6% (93.9–98.2) on 78.5% of held-out. At 0.95 it was 96.4% / 97.8% on ~72%.
+- Trade-off: about 8% more cases skip expert review for about 1 point of accuracy; cases scored exactly 0.92 are ~88% right on their own, and the dev lower CI bound is 93.1%. Held-out confirmed the dev choice; it was not used to search for the bar. Re-check on Vertex before quoting official numbers.
+- `FAST_PATH_CONFIDENCE` default (`config.DefaultFastPath`) is 0.92; the eval report and summary use it. The plan bar (verifier confidence for showing a plan, `PLAN_CONFIDENCE`) stays 0.95. Eval experiment flags (`clarify -below`, `torn -below`, `-vote-below`) keep 0.95 so recorded runs reproduce.
+

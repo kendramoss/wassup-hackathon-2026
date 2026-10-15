@@ -448,7 +448,7 @@ components:
                 precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
     Clarify:
       type: object
-      description: Only for in-scope cases below the 0.95 fast path. Never changes the predicted origin.
+      description: Only for in-scope cases below the fast-path bar (0.92). Never changes the predicted origin.
       properties:
         on_point: { type: boolean, description: An earlier ruling on the same kind of product and question exists }
         closest_ruling: { type: string }

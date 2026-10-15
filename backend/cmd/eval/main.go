@@ -485,7 +485,7 @@ func report(args []string) error {
 	fl.Var(&in, "in", "result file (repeatable)")
 	scopeFile := fl.String("scope", "", "router label file from eval scope -out; recomputes in-scope and the fast path")
 	adjustFile := fl.String("adjust", "", "scoring adjustments (eval/data/scoring_adjustments.json)")
-	threshold := fl.Float64("threshold", 0.95, "fast-path confidence threshold used with -scope")
+	threshold := fl.Float64("threshold", config.DefaultFastPath, "fast-path confidence threshold used with -scope")
 	_ = fl.Parse(args)
 	var scopeOf map[string]bool
 	if *scopeFile != "" {
@@ -1068,7 +1068,7 @@ func summaryCmd(args []string) error {
 				}
 				rows[i].InScope = in
 				rows[i].TriageRoute = "needs_review"
-				if in && rows[i].Error == "" && rows[i].Confidence >= 0.95 {
+				if in && rows[i].Error == "" && rows[i].Confidence >= config.DefaultFastPath {
 					rows[i].TriageRoute = "auto"
 				}
 			}
@@ -1081,7 +1081,7 @@ func summaryCmd(args []string) error {
 		items = append(items, item{Key: prefix + "_conf95_coverage", Label: label + ": share of cases with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: split, Source: src})
 		if scopeFile != "" {
 			p, lo, hi := pct(s.FastK, s.FastN)
-			items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + ": fast path (confidence ≥ 0.95 and in scope) accuracy", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: src + " + eval/results/" + scopeFile})
+			items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: src + " + eval/results/" + scopeFile})
 			items = append(items, item{Key: prefix + "_fastpath_coverage", Label: label + ": fast path coverage", Value: r4(float64(s.FastN) / float64(s.N)), N: s.N, Split: split, Source: src + " + eval/results/" + scopeFile})
 		}
 		items = append(items, item{Key: prefix + "_cost_per_case_usd", Label: label + ": cost per prediction (USD, promo price)", Value: r4(s.CostPerCase), N: s.N, Split: split, Source: src})

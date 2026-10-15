@@ -4,7 +4,7 @@
 frontend (Next.js, Cloud Run, public) ──HTTP/JSON──► backend (Go, Cloud Run, private)
                                                        ├─ router    Gemini 3.8 Flash: family label + regime check
                                                        ├─ engine    Gemini 4 Argon + 5 earlier rulings (BM25): origin, key factors, confidence, citations
-                                                       ├─ triage    confidence ≥ 0.95 and in scope → auto; else needs_review
+                                                       ├─ triage    confidence ≥ 0.92 and in scope → auto; else needs_review
                                                        ├─ planner   single/double operation-group moves → variant facts → engine
                                                        ├─ verifier  ADK agent (Argon) + search_rulings / read_ruling → precedent-supported or not
                                                        └─ export    draft ruling-request document
@@ -45,4 +45,4 @@ All calls: temperature 0, JSON schema when a JSON answer is expected, prompt ver
 1. `cmd/corpus fetch` → `data/corpus/raw/<id>.json` (CROSS JSON; gitignored). `cmd/corpus build` → `data/corpus/facts/<id>.txt`.
 2. `corpus.Load(labels, factsDir)` → store of rulings with a single held origin (the precedent pool).
 3. `engine.Predict(case)`: BM25 over the pool, filtered to rulings dated strictly before the case → prompt → Gemini → normalised prediction.
-4. `router.Classify(facts)` → regime → `triage.Decide` (auto iff confidence ≥ 0.95 and in scope).
+4. `router.Classify(facts)` → regime → `triage.Decide` (auto iff confidence ≥ 0.92 and in scope, D32).

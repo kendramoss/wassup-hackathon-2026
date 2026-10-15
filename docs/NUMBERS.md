@@ -9,7 +9,7 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Held-out origin accuracy (377 rulings, Jan–Sep 2026) | Go port via proxy 89.9% (86.5–92.6); research run 89.1% (85.6–91.9) | `eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl`; research `RESULTS-v2.md` | Proxy — **replace with Vertex** |
 | Best simple baseline (most-mentioned country) | 60.5% (55.5–65.3) | research `RESULTS-v2.md` (no model involved) | Showable |
 | Other baselines | final-assembly 40.6%, last-mentioned 39.8%, majority 12.2% | research `RESULTS-v2.md` | Showable |
-| Fast path (confidence ≥ 0.95 and in scope), held-out | 70.3% of cases at 97.7% (95.1–99.0), router-v2 | final rows + `eval/results/scope-final-router-v2.jsonl` | Proxy — replace with Vertex |
+| Fast path (confidence ≥ 0.92 and in scope), held-out | 78.5% of cases at 96.6% (93.9–98.2), router-v2 (at the old 0.95 bar: 70.3% at 97.7%) | final rows + `eval/results/scope-final-router-v2.jsonl` | Proxy — replace with Vertex |
 | Confidence ≥ 0.95 alone, held-out | 71.9% at 97.8% (95.3–99.0) | final rows | Proxy. Do **not** show the research "65% at 98.0%": it describes a different routed pipeline |
 | Change detection from scratch, held-out 2026 pairs | 68% (47–84), n=22; always-change baseline 63.6%; balanced accuracy 61.6% | research `RESULTS-v2.md` | Showable, always with both baselines; label "weak" |
 | Move verifier, development set (54 pre-2026 pairs) | precision 34/34 (90–100), recall 74%, specificity 8/8; with CBP's current origin given: 38/38 (91–100), 83%, 8/8 | `eval/results/flips-dev-verifier-*.jsonl` | Proxy; must say **"development set"** |
