@@ -24,8 +24,8 @@
 //	eval multiscenario [-out ../eval/data/multi_scenario.json]
 //	    Flag split rulings whose holding gives different origins for different
 //	    scenarios (a mechanical rule over CBP's analysis text, applied to every
-//	    item); report -exclude uses the list to score with and without them.
-//	eval compare -a BASE -b VARIANT [-exclude FILE]
+//	    item); they feed eval/data/scoring_adjustments.json (report -adjust).
+//	eval compare -a BASE -b VARIANT [-adjust FILE]
 //	    Paired comparison on shared rulings: fixed / broken counts and an exact
 //	    McNemar test.
 //	eval learnability -in RESULTS [-k 10]
@@ -33,7 +33,7 @@
 //	    judge sees the case, CBP's holding and the k most similar earlier
 //	    rulings, and says whether an earlier ruling establishes a rule that
 //	    yields CBP's answer.
-//	eval report -in FILE [-in FILE ...] [-exclude FILE]
+//	eval report -in FILE [-in FILE ...] [-adjust FILE]
 //	    Print the Markdown summary of existing result files.
 //
 // Model and provider come from the same environment as the server
@@ -452,7 +452,7 @@ func report(args []string) error {
 	var in stringList
 	fl.Var(&in, "in", "result file (repeatable)")
 	scopeFile := fl.String("scope", "", "router label file from eval scope -out; recomputes in-scope and the fast path")
-	excludeFile := fl.String("exclude", "", "JSON object keyed by ruling (eval multiscenario output): score without these rulings")
+	adjustFile := fl.String("adjust", "", "scoring adjustments (eval/data/scoring_adjustments.json)")
 	threshold := fl.Float64("threshold", 0.95, "fast-path confidence threshold used with -scope")
 	_ = fl.Parse(args)
 	var scopeOf map[string]bool
@@ -474,23 +474,14 @@ func report(args []string) error {
 		if len(rows) > 0 {
 			split = rows[0].Split
 		}
-		if *excludeFile != "" {
-			b, err := os.ReadFile(*excludeFile)
+		if *adjustFile != "" {
+			adj, err := evalkit.LoadAdjustments(*adjustFile)
 			if err != nil {
 				return err
 			}
-			var ex map[string]any
-			if err := json.Unmarshal(b, &ex); err != nil {
-				return err
-			}
-			kept := rows[:0]
-			for _, r := range rows {
-				if _, skip := ex[r.Ruling]; !skip {
-					kept = append(kept, r)
-				}
-			}
-			fmt.Fprintf(os.Stderr, "report: excluded %d multi-scenario rulings\n", len(rows)-len(kept))
-			rows = kept
+			n := len(rows)
+			rows = adj.Apply(rows)
+			fmt.Fprintf(os.Stderr, "report: adjustments applied, %d excluded\n", n-len(rows))
 		}
 		if scopeOf != nil {
 			for i := range rows {
@@ -1239,7 +1230,7 @@ func compareCmd(args []string) error {
 	fl := flag.NewFlagSet("compare", flag.ExitOnError)
 	a := fl.String("a", "", "baseline result file")
 	b := fl.String("b", "", "variant result file")
-	excludeFile := fl.String("exclude", "", "rulings to leave out (eval multiscenario output)")
+	adjustFile := fl.String("adjust", "", "scoring adjustments (eval/data/scoring_adjustments.json)")
 	_ = fl.Parse(args)
 	ra, err := readRows(*a, nil)
 	if err != nil {
@@ -1249,11 +1240,12 @@ func compareCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	skip := map[string]any{}
-	if *excludeFile != "" {
-		if bs, err := os.ReadFile(*excludeFile); err == nil {
-			_ = json.Unmarshal(bs, &skip)
+	if *adjustFile != "" {
+		adj, err := evalkit.LoadAdjustments(*adjustFile)
+		if err != nil {
+			return err
 		}
+		ra, rb = adj.Apply(ra), adj.Apply(rb)
 	}
 	ok := func(r evalkit.Row) bool { return r.Correct && r.Error == "" }
 	byID := map[string]evalkit.Row{}
@@ -1263,7 +1255,7 @@ func compareCmd(args []string) error {
 	var n, ka, kb, fixed, broken int
 	for _, y := range rb {
 		x, found := byID[y.Ruling]
-		if _, s := skip[y.Ruling]; !found || s {
+		if !found {
 			continue
 		}
 		n++

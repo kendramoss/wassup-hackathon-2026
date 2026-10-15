@@ -26,6 +26,31 @@ var nonCountryChars = regexp.MustCompile(`[^a-z .'()]`)
 // aliases are matched after removing digits and punctuation except ". ' ( )",
 // and unknown names are title-cased.
 func NormalizeCountry(s string) string {
+	// "Indonesia/Malaysia", "Indonesia or Malaysia": normalise each part
+	// rather than gluing them into one word (D23).
+	if parts := altSplit.Split(strings.TrimSpace(s), -1); len(parts) > 1 {
+		out := make([]string, 0, len(parts))
+		for _, p := range parts {
+			if n := normalizeOne(p); n != "" {
+				out = append(out, n)
+			}
+		}
+		return strings.Join(out, "/")
+	}
+	return normalizeOne(s)
+}
+
+var altSplit = regexp.MustCompile(`\s*(?:/|\||\band/or\b|\bor\b)\s*`)
+
+// CountryParts splits a normalised "A/B" origin into its countries.
+func CountryParts(s string) []string {
+	if s == "" {
+		return nil
+	}
+	return strings.Split(s, "/")
+}
+
+func normalizeOne(s string) string {
 	c := strings.ToLower(strings.TrimSpace(s))
 	if c == "" {
 		return ""

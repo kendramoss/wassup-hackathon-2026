@@ -84,3 +84,9 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D22 — Accuracy options tried on dev; none adopted (16 Oct)
 - Hybrid/embedding retrieval and precedent-order voting were built (kept in code behind flags: `-retrieval`, `-votes`; engine defaults unchanged) and evaluated on dev only. None beat the baseline (eval/RESULTS.md). The configuration is unchanged, so the held-out split was not re-scored.
 - Remaining error types need judgment the model lacks, not better retrieval. Family playbooks, the obvious next lever, overfit in research (dev 91.9% → test 88.3%) and are not retried before the deadline.
+
+## D23 — Scoring adjustments: verified, mechanical, applied to every run
+- `eval/data/scoring_adjustments.json`: 6 dev exclusions (4 multi-scenario holdings from `eval multiscenario`; H325607, a revocation covering two hose rulings with different origins; N354982, held "the country where the blanks are worked") and 1 alternative gold (N354448, CBP held "Indonesia/Malaysia"). Found by a mechanical scan of both splits (non-country labels, A/B holdings, revocations), each verified against the ruling text. Held-out: one flag (H360070), label correct; no change.
+- Six labels the learnability judge called wrong (N353581, N354156, N356481, N350517, H331375, N348376-manual) were checked: CBP's holdings match the labels. The judge, being the same model, disagreed with CBP — not a label problem.
+- `NormalizeCountry` keeps "A/B" answers as "A/B" (was glued into one word). Old result rows keep their stored prediction, so N354448 stays wrong in existing runs.
+- Effect: dev 90.0% → 90.9% (421/463); held-out unchanged 89.9%.

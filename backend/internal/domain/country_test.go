@@ -26,6 +26,9 @@ func TestNormalizeCountry(t *testing.T) {
 		{"Mexico2", "Mexico"},
 		{"", ""},
 		{"Türkiye", "Turkey"},
+		{"Indonesia/Malaysia", "Indonesia/Malaysia"},
+		{"Indonesia or Malaysia", "Indonesia/Malaysia"},
+		{"PRC / Viet Nam", "China/Vietnam"},
 	}
 	for _, tt := range tests {
 		if got := NormalizeCountry(tt.in); got != tt.want {

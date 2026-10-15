@@ -67,3 +67,12 @@ func TestSummarize(t *testing.T) {
 		}
 	}
 }
+
+func TestAdjustments(t *testing.T) {
+	a := Adjustments{Exclude: map[string]string{"N1": "x"}, Alternatives: map[string][]string{"N2": {"Indonesia", "Malaysia"}}}
+	rows := []Row{{Ruling: "N1"}, {Ruling: "N2", Pred: "Indonesia/Malaysia"}, {Ruling: "N3", Correct: true}, {Ruling: "N2", Pred: "Indonesia/China"}}
+	got := a.Apply(rows)
+	if len(got) != 3 || !got[0].Correct || !got[1].Correct || got[2].Correct {
+		t.Errorf("Apply = %+v", got)
+	}
+}
