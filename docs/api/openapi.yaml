@@ -607,6 +607,7 @@ components:
         net_usd: { type: [number, "null"], description: savings minus added cost }
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
+        origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
     MoveRef:
       type: object
       required: [key, description, move]

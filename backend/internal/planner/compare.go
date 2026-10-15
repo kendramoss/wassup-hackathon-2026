@@ -23,14 +23,26 @@ type Comparison struct {
 	NetUSD       *float64    `json:"net_usd"`
 	Moved        domain.Move `json:"moved"`
 	Illustrative bool        `json:"illustrative"`
+	// OriginDiffersFromCurrent is true when the setup's predicted origin is not
+	// the current setup's origin. For a setup that moves nothing this is the
+	// engine disagreeing with the current origin, not a duty change.
+	OriginDiffersFromCurrent bool `json:"origin_differs_from_current"`
 }
 
 // Compare prices a setup whose predicted origin is origin against the current
 // setup (product current, origin currentOrigin). variant is the setup's
 // structured product, if it has one; groups it places at a different plant
 // count as moves.
+//
+// A structured setup that moves no operation group is the current setup: its
+// duty stays at the current origin's rate and it saves nothing, even when the
+// engine predicts a different origin for it.
 func Compare(e Economics, current *domain.Product, variant *domain.Product, currentOrigin, origin string) Comparison {
-	c := Comparison{Illustrative: e.Illustrative, Moved: domain.Move{}}
+	c := Comparison{Illustrative: e.Illustrative, Moved: domain.Move{},
+		OriginDiffersFromCurrent: domain.NormalizeCountry(origin) != domain.NormalizeCountry(currentOrigin)}
+	if current != nil && variant != nil && len(movesBetween(*current, *variant)) == 0 {
+		origin = currentOrigin
+	}
 	r2, ok2 := e.DutyRate(origin)
 	if ok2 {
 		c.DutyRate = ptr(r2)
