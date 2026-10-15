@@ -196,44 +196,53 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusCreated, a.caseFields(sc))
 }
 
-// analyse runs router and engine (concurrently), triage and, below the fast
-// path, the clarify review; it fills sc. The router and clarify never change
-// the engine's answer.
-func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
+// classify runs router and engine concurrently and decides triage. The router
+// labels scope only; it never changes the engine's answer.
+func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
 	var label *router.Label
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			l, err := a.d.Router.Classify(r.Context(), c.Facts)
+			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
-				a.d.Logger.WarnContext(r.Context(), "router failed; scope unknown", "request_id", RequestID(r.Context()), "err", err)
+				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
 				return
 			}
 			label = &l
 		}()
 	}
-	res, err := a.d.Engine.Predict(r.Context(), c)
+	res, err := a.d.Engine.Predict(ctx, c)
 	wg.Wait()
 	if err != nil {
-		return err
+		return domain.Prediction{}, nil, domain.Triage{}, false, err
 	}
 	inScope, scopeReason := true, ""
 	if label != nil {
 		inScope, scopeReason = label.Scope()
 	}
-	sc.Prediction, sc.Router = res.Prediction, label
-	sc.Triage = triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason)
+	return res.Prediction, label, triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason), inScope, nil
+}
+
+// analyse runs router and engine (concurrently), triage and, below the fast
+// path, the clarify review; it fills sc. The router and clarify never change
+// the engine's answer.
+func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
+	pred, label, tr, inScope, err := a.classify(r.Context(), c)
+	if err != nil {
+		return err
+	}
+	sc.Prediction, sc.Router, sc.Triage = pred, label, tr
 	sc.Clarify = nil
 	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {
 		var ps []domain.Ruling
-		for _, id := range res.Prediction.Precedents {
+		for _, id := range pred.Precedents {
 			if p, ok := a.d.Precedents.Get(id); ok {
 				ps = append(ps, p)
 			}
 		}
-		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, res.Prediction, ps)
+		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, pred, ps)
 		if err != nil {
 			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
 		} else {
@@ -344,7 +353,25 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
+		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch),
 	}
+}
+
+func (a *api) scenarioFields(ss []store.Scenario) []map[string]any {
+	out := make([]map[string]any, len(ss))
+	for i, s := range ss {
+		out[i] = map[string]any{"label": s.Label, "facts": s.Facts, "product": s.Product, "prediction": s.Prediction,
+			"triage": s.Triage, "precedents_detail": a.precedentRefs(s.Prediction.Precedents)}
+	}
+	return out
+}
+
+func (a *api) watchFields(w *store.Watch) any {
+	if w == nil {
+		return nil
+	}
+	return map[string]any{"checked_at": w.CheckedAt, "status": w.Status, "prediction": w.Prediction,
+		"newer_rulings": a.precedentRefs(w.Newer), "precedents_detail": a.precedentRefs(w.Prediction.Precedents)}
 }
 
 // caseSummary is one row of the cases list.
@@ -357,6 +384,8 @@ type caseSummary struct {
 	Confidence  *float64 `json:"confidence"`
 	Step        string   `json:"step"`
 	UpdatedAt   string   `json:"updated_at"`
+	Watch       *string  `json:"watch_status"` // null until re-checked; unchanged | changed
+	Scenarios   int      `json:"scenario_count"`
 }
 
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
@@ -367,7 +396,10 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	rows := make([]caseSummary, 0, len(cs))
 	for _, c := range cs {
-		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339)}
+		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios)}
+		if c.Watch != nil {
+			row.Watch = &c.Watch.Status
+		}
 		if c.Product != nil {
 			row.ProductName = c.Product.Name
 		} else {

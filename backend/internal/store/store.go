@@ -41,6 +41,35 @@ type Case struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 	// ExportedAt is set when a ruling-request draft was produced.
 	ExportedAt *time.Time `json:"exported_at,omitempty"`
+	// Scenarios are alternative production setups predicted side by side.
+	Scenarios []Scenario `json:"scenarios,omitempty"`
+	// Watch is the latest re-check of the prediction against newer rulings.
+	Watch *Watch `json:"watch,omitempty"`
+}
+
+// Scenario is one alternative production setup and its prediction.
+type Scenario struct {
+	Label      string            `json:"label"`
+	Facts      string            `json:"facts"`
+	Product    *domain.Product   `json:"product,omitempty"`
+	Prediction domain.Prediction `json:"prediction"`
+	Triage     domain.Triage     `json:"triage"`
+}
+
+// Watch statuses.
+const (
+	WatchUnchanged = "unchanged" // same origin with today's precedents
+	WatchChanged   = "changed"   // a different origin with today's precedents
+)
+
+// Watch is a re-run of the engine with every precedent available today, so
+// rulings CBP issued after the case date can count.
+type Watch struct {
+	CheckedAt  time.Time         `json:"checked_at"`
+	Status     string            `json:"status"`
+	Prediction domain.Prediction `json:"prediction"`
+	// Newer are the precedents used that are dated after the case date.
+	Newer []string `json:"newer_rulings"`
 }
 
 // Step is how far the case has progressed in the UI flow.

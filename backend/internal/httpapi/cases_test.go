@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -27,17 +28,28 @@ import (
 )
 
 type fakeEngine struct {
-	err  error
-	conf float64
-	last domain.Case
+	mu    sync.Mutex
+	err   error
+	conf  float64
+	last  domain.Case
+	later string // origin for cases dated after 2026-06-01 (watch re-checks), if set
 }
 
 func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	f.last = c
 	if f.err != nil {
 		return engine.Result{}, f.err
 	}
-	return engine.Result{Prediction: domain.Prediction{Origin: "China", Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"}}}, nil
+	origin := "China"
+	if strings.Contains(c.Facts, "motor in Thailand") {
+		origin = "Thailand"
+	}
+	if f.later != "" && c.Date.After(time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)) {
+		origin = f.later
+	}
+	return engine.Result{Prediction: domain.Prediction{Origin: origin, Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"}}}, nil
 }
 
 type fakeRouter struct{ regime string }
@@ -69,7 +81,11 @@ func (f *fakeClarifier) Review(_ context.Context, facts string, _ domain.Predict
 type fakePrecedents struct{}
 
 func (fakePrecedents) Get(id string) (domain.Ruling, bool) {
-	return domain.Ruling{ID: id, Date: time.Date(2025, 3, 25, 0, 0, 0, 0, time.UTC), Subject: "Air fryer", Origin: "Vietnam"}, true
+	date := time.Date(2025, 3, 25, 0, 0, 0, 0, time.UTC)
+	if id == "N350002" { // issued after the heat-gun fixture's case date
+		date = time.Date(2026, 5, 4, 0, 0, 0, 0, time.UTC)
+	}
+	return domain.Ruling{ID: id, Date: date, Subject: "Air fryer", Origin: "Vietnam"}, true
 }
 
 type fakeRulings struct{ calls int }
@@ -391,5 +407,63 @@ func TestListCases(t *testing.T) {
 	}
 	if first["predicted_origin"] != "China" || first["triage_route"] != "auto" || first["confidence"] != 0.97 || first["updated_at"] == "" {
 		t.Errorf("row = %v", first)
+	}
+}
+
+func TestScenariosSideBySide(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[
+		{"label":"As today","facts":"Heat gun with the motor in China."},
+		{"label":"Move motor","facts":"Heat gun with the motor in Thailand."}]}`)
+	if code != 200 {
+		t.Fatalf("scenarios %d %v", code, out)
+	}
+	ss := out["scenarios"].([]any)
+	first, second := ss[0].(map[string]any), ss[1].(map[string]any)
+	if first["label"] != "As today" || first["prediction"].(map[string]any)["origin_country"] != "China" ||
+		second["prediction"].(map[string]any)["origin_country"] != "Thailand" || len(second["precedents_detail"].([]any)) != 2 {
+		t.Errorf("scenarios = %v", ss)
+	}
+	_, list := hs.do(t, "GET", "/v1/cases", "")
+	if n := list["cases"].([]any)[0].(map[string]any)["scenario_count"]; n != 2.0 {
+		t.Errorf("scenario_count = %v", n)
+	}
+	for _, body := range []string{`{"scenarios":[]}`, `{"scenarios":[{"facts":"a"},{"facts":"b"},{"facts":"c"},{"facts":"d"}]}`,
+		`{"scenarios":[{"label":"x"}]}`, `{"scenarios":[{"facts":"a","product":{"name":"p"}}]}`} {
+		if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", body); code != 400 {
+			t.Errorf("bad scenarios %s: status %d", body, code)
+		}
+	}
+}
+
+func TestWatchRechecksWithNewerRulings(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	before := c["updated_at"]
+	hs.engine.later = "Thailand"
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/watch", "")
+	if code != 200 {
+		t.Fatalf("watch %d %v", code, out)
+	}
+	w := out["watch"].(map[string]any)
+	newer := w["newer_rulings"].([]any)
+	if w["status"] != "changed" || len(newer) != 1 || newer[0].(map[string]any)["id"] != "N350002" ||
+		w["prediction"].(map[string]any)["origin_country"] != "Thailand" || out["prediction"].(map[string]any)["origin_country"] != "China" {
+		t.Errorf("watch = %v", w)
+	}
+	if out["updated_at"] != before {
+		t.Errorf("watch moved updated_at: %v -> %v", before, out["updated_at"])
+	}
+	hs.engine.later = ""
+	_, run := hs.do(t, "POST", "/v1/watch/run", "")
+	if run["checked"] != 1.0 || len(run["changed"].([]any)) != 0 {
+		t.Errorf("watch run = %v", run)
+	}
+	_, list := hs.do(t, "GET", "/v1/cases", "")
+	if st := list["cases"].([]any)[0].(map[string]any)["watch_status"]; st != "unchanged" {
+		t.Errorf("watch_status = %v", st)
 	}
 }
