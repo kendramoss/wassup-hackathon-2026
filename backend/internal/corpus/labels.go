@@ -63,12 +63,15 @@ func LoadLabels(path string) ([]Label, error) {
 	return out, nil
 }
 
-// Splits are the frozen eval splits from eval/splits/splits_final.json.
+// Splits are the frozen eval splits from eval/splits/splits_final.json, or
+// the tuning splits from eval/splits/splits_tune.json (train, tune_check).
 type Splits struct {
-	FrozenAt string   `json:"frozen_at"`
-	Final    []string `json:"final"`
-	Dev      []string `json:"dev"`
-	Pilot    []string `json:"pilot"`
+	FrozenAt  string   `json:"frozen_at"`
+	Final     []string `json:"final,omitempty"`
+	Dev       []string `json:"dev,omitempty"`
+	Pilot     []string `json:"pilot,omitempty"`
+	Train     []string `json:"train,omitempty"`
+	TuneCheck []string `json:"tune_check,omitempty"`
 }
 
 // LoadSplits reads the splits file.
@@ -93,6 +96,10 @@ func (s Splits) IDs(name string) ([]string, error) {
 		return s.Dev, nil
 	case "pilot":
 		return s.Pilot, nil
+	case "train":
+		return s.Train, nil
+	case "tune_check":
+		return s.TuneCheck, nil
 	}
-	return nil, fmt.Errorf("corpus: unknown split %q (want final, dev or pilot)", name)
+	return nil, fmt.Errorf("corpus: unknown split %q (want final, dev, pilot, train or tune_check)", name)
 }

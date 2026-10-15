@@ -116,6 +116,10 @@ func main() {
 		err = tornCmd(os.Args[2:])
 	case "clarify":
 		err = clarifyCmd(os.Args[2:])
+	case "tunesplit":
+		err = tuneSplitCmd(os.Args[2:])
+	case "tunedata":
+		err = tuneDataCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -127,7 +131,7 @@ func main() {
 
 func run(args []string) error {
 	fl := flag.NewFlagSet("run", flag.ExitOnError)
-	split := fl.String("split", "dev", "dev, final or pilot")
+	split := fl.String("split", "dev", "dev, final or pilot; train or tune_check with -splits ../eval/splits/splits_tune.json")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
