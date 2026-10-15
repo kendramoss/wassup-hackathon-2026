@@ -33,6 +33,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
@@ -175,6 +176,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Demos:          ds,
 		Engine:         eng,
 		Router:         router.New(model, cfg.RouterModel, 2000),
+		Agent:          caseagent.New(model, cfg.EngineModel, searcher, eng),
 		Clarifier:      clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:     pool,
 		Planner:        planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),

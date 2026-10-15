@@ -35,7 +35,7 @@ eval (Go CLI) → engine / router / verifier on frozen splits → eval/results/*
 3. **Verify.** For variants predicted to reach the target, an ADK agent searches and reads earlier CBP rulings and answers "precedent-supported" only when it finds one where CBP treated the same kind of change as decisive; it also returns a counter-ruling where a similar change did not work. Only precedent-supported plans with verifier confidence ≥ 0.92 are shown; the rest are returned greyed out with the reason.
 4. **Rank and export.** Plans are ranked by duty effect minus added cost — best-ranked within the searched moves and your cost inputs (illustrative — editable). The chosen plan exports as a draft CBP ruling request. The search streams its progress (`Accept: text/event-stream`), so each move appears as it is predicted and checked (~25 s for the heat gun).
 
-Below the confidence bar, a **clarify** review says whether an earlier ruling is on point, shows conflicting earlier rulings with the difference that decided them, and asks up to three follow-up questions; when nothing is on point the case is routed **needs more information**. Answers are added to the facts and the case is re-analysed. Cases are saved, can compare up to three **production scenarios** side by side (with yearly duty, savings and added cost from your economics), and can be **re-checked against rulings CBP issued after the case date** (ruling watch).
+Below the confidence bar, a **clarify** review says whether an earlier ruling is on point, shows conflicting earlier rulings with the difference that decided them, and asks up to three follow-up questions; when nothing is on point the case is routed **needs more information**. Answers are added to the facts and the case is re-analysed. Cases are saved, can compare up to three **production scenarios** side by side (with yearly duty, savings and added cost from your economics), can be **re-checked against rulings CBP issued after the case date** (ruling watch), can **compare target countries** (one plan search per country, ranked by net savings), and have an **ask-the-case agent** that explains the prediction from the rulings and runs what-ifs.
 
 Model choices are measured: Argon and Flash are equally accurate with precedents, Argon is faster (research p95 5 s vs 18 s). Every response and eval row records the provider, model IDs and prompt versions.
 
@@ -98,7 +98,7 @@ make smoke        # one live model call
 make eval-report  # summaries of the committed eval runs, no model calls
 ```
 
-API: `POST /v1/products/import`, `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
+API: `POST /v1/products/import`, `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | compare-targets | ask | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
 
 Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confirm-final`; never tune on it), `compare`, `scope`, `flips`, `plan -fixture testdata/heatgun_2022.json`, `predict`, `clarify`, `torn`, `learnability`, `summary`, `report`. Every run is appended to `eval/results/RUNLOG.jsonl`.
 

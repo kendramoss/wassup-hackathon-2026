@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"mime/multipart"
@@ -16,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
@@ -59,7 +61,10 @@ func (f fakeRouter) Classify(context.Context, string) (router.Label, error) {
 	return router.Label{Route: "assembly", Subfamily: "motorised", Regime: f.regime, Reason: "r"}, nil
 }
 
-type fakePlanner struct{ got planner.Request }
+type fakePlanner struct {
+	mu  sync.Mutex
+	got planner.Request
+}
 
 func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, progress func(planner.Event)) (planner.Result, error) {
 	progress(planner.Event{Kind: planner.EventStarted, Target: r.Target, Moves: []planner.MoveRef{{Key: "pcba@th"}}, Total: 1})
@@ -72,16 +77,39 @@ func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, p
 }
 
 func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
+	f.mu.Lock()
 	f.got = r
+	f.mu.Unlock()
 	v := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.96}
 	below := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.88}
-	return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
-		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true}},
+	switch r.Target {
+	case "Malaysia": // no capable plant there
+		return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{}, Rejected: []domain.Plan{}}, nil
+	case "Vietnam": // supported only below the bar
+		return planner.Result{CaseID: r.CaseID, Target: r.Target, Plans: []domain.Plan{}, Stats: planner.Stats{MovesSearched: 3},
+			Rejected: []domain.Plan{{Move: domain.Move{{Group: "pcba", ToPlant: "vn"}}, Description: "Make PCBA in Vietnam", NetYear: 900000,
+				Prediction: domain.Prediction{Origin: "Vietnam"}, Verdict: below, RejectionKind: domain.RejectBelowConfidence}}}, nil
+	}
+	return planner.Result{CaseID: r.CaseID, Target: r.Target, Stats: planner.Stats{MovesSearched: 6}, Plans: []domain.Plan{{Description: "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+		VariantFacts: "variant facts", Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.98}, Verdict: v, Shown: true, NetYear: 320000,
+		Move: domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}}}},
 		Rejected: []domain.Plan{
 			{Move: domain.Move{{Group: "pcba", ToPlant: "th"}}, Description: "Make PCBA in Thailand", VariantFacts: "pcba facts",
 				Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.96}, Verdict: below, RejectionKind: domain.RejectBelowConfidence},
 			{Move: domain.Move{{Group: "switch", ToPlant: "th"}}, Description: "Make switch in Thailand", RejectionKind: domain.RejectNoPrecedent},
 		}}, nil
+}
+
+type fakeAgent struct {
+	mu   sync.Mutex
+	last caseagent.Input
+}
+
+func (f *fakeAgent) Ask(_ context.Context, in caseagent.Input) (caseagent.Answer, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.last = in
+	return caseagent.Answer{Answer: "Because the motor is Chinese, as in N350001.", Cited: []string{"N350001"}, WhatIfs: []caseagent.WhatIf{}, Steps: []caseagent.Step{{Tool: "get_case"}}}, nil
 }
 
 type fakeClarifier struct {
@@ -121,6 +149,7 @@ type harness struct {
 	engine  *fakeEngine
 	planner *fakePlanner
 	rulings *fakeRulings
+	agent   *fakeAgent
 }
 
 func newHarness(t *testing.T, regime string) harness {
@@ -129,9 +158,9 @@ func newHarness(t *testing.T, regime string) harness {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}}
+	hs := harness{engine: &fakeEngine{conf: 0.97}, planner: &fakePlanner{}, rulings: &fakeRulings{}, clar: &fakeClarifier{}, agent: &fakeAgent{}}
 	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, Deps{
-		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
+		Engine: hs.engine, Router: fakeRouter{regime}, Planner: hs.planner, Clarifier: hs.clar, Agent: hs.agent, Precedents: fakePrecedents{}, Rulings: hs.rulings, Cases: store.NewMemory(), Templates: tm,
 		Summary: func() (evalsummary.Summary, error) {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
@@ -607,5 +636,67 @@ func TestImportProductFromBOM(t *testing.T) {
 	}
 	if code, out := hs.do(t, "POST", "/v1/products/import", `{"name":"Fan","csv":"Part,Country\nmotor,China\n"}`); code != 200 || len(out["warnings"].([]any)) == 0 {
 		t.Errorf("json import %d %v", code, out)
+	}
+}
+
+func TestCompareTargetsRanksCountries(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/compare-targets", `{"targets":["Malaysia","vietnam","Thailand"]}`)
+	if code != 200 {
+		t.Fatalf("compare %d %v", code, out)
+	}
+	ranked := out["targets"].([]any)
+	var got []string
+	for _, x := range ranked {
+		m := x.(map[string]any)
+		got = append(got, fmt.Sprintf("%v:%v:%v", m["rank"], m["target"], m["status"]))
+	}
+	// A shown plan beats a bigger below-bar one; no plant comes last.
+	if strings.Join(got, " ") != "1:Thailand:plan 2:Vietnam:below_bar 3:Malaysia:no_plant" {
+		t.Errorf("ranking = %v", got)
+	}
+	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@vn","target":"Vietnam"}`)
+	if code != 200 || !strings.Contains(ex["content"].(string), "under its 0.92 bar") {
+		t.Errorf("draft from comparison %d %v", code, ex)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@vn","target":"Laos"}`); code != 400 {
+		t.Errorf("unknown target draft %d", code)
+	}
+	for _, bad := range []string{`{"targets":["Thailand"]}`, `{"targets":["Thailand","thailand"]}`, `{"targets":["A","B","C","D","E"]}`} {
+		if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/compare-targets", bad); code != 400 {
+			t.Errorf("bad compare %s: %d", bad, code)
+		}
+	}
+	_, got2 := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if tg, _ := got2["targets"].(map[string]any); tg == nil || len(tg["ranked"].([]any)) != 3 || tg["results"] != nil {
+		t.Errorf("case targets field = %v", got2["targets"])
+	}
+}
+
+func TestAskKeepsConversation(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why China?"}`)
+	if code != 200 || out["reply"].(map[string]any)["answer"] == "" || len(out["chat"].([]any)) != 1 || len(out["cited_detail"].([]any)) != 1 {
+		t.Fatalf("ask %d %v", code, out)
+	}
+	if !strings.Contains(hs.agent.last.CaseSummary, "PREDICTION: origin China") || len(hs.agent.last.History) != 0 {
+		t.Errorf("first ask input = %+v", hs.agent.last)
+	}
+	hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"And Thailand?"}`)
+	if len(hs.agent.last.History) != 1 || hs.agent.last.History[0].Question != "Why China?" {
+		t.Errorf("history = %+v", hs.agent.last.History)
+	}
+	if _, got := hs.do(t, "GET", "/v1/cases/"+id, ""); len(got["chat"].([]any)) != 2 {
+		t.Errorf("chat on case = %v", got["chat"])
+	}
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"reset":true}`); code != 200 || len(out["chat"].([]any)) != 0 {
+		t.Errorf("reset %d %v", code, out)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":""}`); code != 400 {
+		t.Errorf("empty question %d", code)
 	}
 }

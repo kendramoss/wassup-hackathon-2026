@@ -179,3 +179,9 @@ func formatHits(hits []Hit) string {
 }
 
 var rulingRef = regexp.MustCompile(`\b[NH][0-9]{6}\b`)
+
+// FormatHits renders search hits as the tool result text agents read.
+func FormatHits(hits []Hit) string { return formatHits(hits) }
+
+// RulingRef matches CBP ruling numbers in text.
+var RulingRef = rulingRef

@@ -111,6 +111,9 @@ paths:
                 plan_index:
                   type: integer
                   description: Index into the latest plan's shown plans; omit both fields to draft for the current setup.
+                target:
+                  type: string
+                  description: "With move_key: draft from that country's search in the latest compare-targets call."
                 move_key:
                   type: string
                   description: "Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index."
@@ -189,6 +192,77 @@ paths:
                   family: { type: string }
                   warnings: { type: array, items: { type: string } }
         "400": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/compare-targets:
+    post:
+      summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
+      description: |
+        Ranking: countries with a shown plan first (best net per year), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
+        Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest.
+        Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targets]
+              properties:
+                targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
+                economics: { $ref: "#/components/schemas/Economics" }
+      responses:
+        "200":
+          description: Ranked countries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/ask:
+    post:
+      summary: Ask the case agent a question about this case
+      description: |
+        An ADK agent with tools get_case, search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on revised facts, at most 2 per question).
+        The conversation is kept on the case (last 20 turns; the last 6 are given as context). {"reset": true} clears it. Typical latency 15–40 s through the proxy.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question: { type: string, maxLength: 2000 }
+                reset: { type: boolean }
+      responses:
+        "200":
+          description: The reply and the conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  reply:
+                    type: object
+                    properties:
+                      answer: { type: string }
+                      cited_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer that the agent saw in a tool result or the case" }
+                      dropped_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer it never saw (do not show as citations)" }
+                      what_ifs: { type: array, items: { type: object, properties: { change: { type: string }, origin: { type: string }, confidence: { type: number }, decisive_step: { type: string } } } }
+                      steps: { type: array, items: { type: object, properties: { tool: { type: string }, arg: { type: string } } } }
+                      model_calls: { type: integer }
+                      trace: { type: object }
+                  cited_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+                  chat: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string }, cited_rulings: { type: array, items: { type: string } }, at: { type: string, format: date-time } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/scenarios:
     post:
       summary: Predict 1–3 alternative production setups side by side (replaces the case's previous scenarios)
@@ -608,6 +682,15 @@ components:
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
         origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
+    TargetSummary:
+      type: object
+      properties:
+        rank: { type: integer }
+        target: { type: string }
+        status: { type: string, enum: [plan, below_bar, no_plan, no_plant] }
+        best: { description: "best shown plan, or the closest below-bar plan; null otherwise", allOf: [{ $ref: "#/components/schemas/Plan" }] }
+        shown_count: { type: integer }
+        moves_searched: { type: integer }
     MoveRef:
       type: object
       required: [key, description, move]

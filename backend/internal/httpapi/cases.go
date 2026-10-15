@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
@@ -67,6 +68,7 @@ type Deps struct {
 	Router       Router
 	Planner      Planner
 	Clarifier    Clarifier
+	Agent        CaseAgent
 	Precedents   PrecedentStore
 	Rulings      RulingSource
 	Cases        store.Cases
@@ -95,7 +97,7 @@ type api struct {
 func (a *api) meta() map[string]any {
 	return map[string]any{
 		"model_ids":       map[string]string{"engine": a.d.EngineModel, "router": a.d.RouterModel, "verifier": a.d.VerifierModel},
-		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion, "answers": clarify.AnswersVersion},
+		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion, "answers": clarify.AnswersVersion, "case_agent": caseagent.PromptVersion},
 		"llm_provider":    a.d.Provider,
 		"disclaimer":      domain.Disclaimer,
 	}
@@ -364,8 +366,25 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
-		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics,
+		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat),
+		"targets": targetsField(c.Targets),
 	}
+}
+
+func chatField(t []store.ChatTurn) []store.ChatTurn {
+	if t == nil {
+		return []store.ChatTurn{}
+	}
+	return t
+}
+
+// targetsField is the ranked comparison without the full per-target results,
+// which can be large; drafts read them from the store.
+func targetsField(t *store.TargetComparison) any {
+	if t == nil {
+		return nil
+	}
+	return map[string]any{"checked_at": t.CheckedAt, "ranked": t.Ranked}
 }
 
 func (a *api) scenarioFields(ss []store.Scenario) []map[string]any {
@@ -577,6 +596,9 @@ type exportRequest struct {
 	// MoveKey picks a plan by move, among shown plans or rejected plans whose
 	// precedent check was below the bar.
 	MoveKey string `json:"move_key"`
+	// Target, with MoveKey, picks from that country's search in the latest
+	// country comparison instead of the latest plan search.
+	Target string `json:"target"`
 }
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
@@ -613,7 +635,20 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 		chosen = &c.Plan.Plans[*in.PlanIndex]
 	case in.MoveKey != "":
-		p, err := draftablePlan(c.Plan, in.MoveKey)
+		src := c.Plan
+		if in.Target != "" {
+			src = nil
+			if c.Targets != nil {
+				if res, ok := c.Targets.Results[domain.NormalizeCountry(in.Target)]; ok {
+					src = &res
+				}
+			}
+			if src == nil {
+				a.fail(w, r, fmt.Errorf("%w: target %q is not in the latest country comparison", domain.ErrInvalid, in.Target))
+				return
+			}
+		}
+		p, err := draftablePlan(src, in.MoveKey)
 		if err != nil {
 			a.fail(w, r, err)
 			return

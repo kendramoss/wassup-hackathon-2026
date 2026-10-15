@@ -48,6 +48,35 @@ type Case struct {
 	// Economics are the latest user economics (from a plan search or a
 	// scenarios call), reused to price scenarios.
 	Economics *planner.Economics `json:"economics,omitempty"`
+	// Targets is the latest comparison of target countries.
+	Targets *TargetComparison `json:"targets,omitempty"`
+	// Chat is the conversation with the case agent, oldest first.
+	Chat []ChatTurn `json:"chat,omitempty"`
+}
+
+// ChatTurn is one question to the case agent and its answer.
+type ChatTurn struct {
+	Question string    `json:"question"`
+	Answer   string    `json:"answer"`
+	Cited    []string  `json:"cited_rulings"`
+	At       time.Time `json:"at"`
+}
+
+// TargetComparison is a plan search per target country, ranked.
+type TargetComparison struct {
+	CheckedAt time.Time                 `json:"checked_at"`
+	Ranked    []TargetSummary           `json:"ranked"`
+	Results   map[string]planner.Result `json:"results"` // full plan search per target
+}
+
+// TargetSummary is one target country's outcome.
+type TargetSummary struct {
+	Rank          int          `json:"rank"`
+	Target        string       `json:"target"`
+	Status        string       `json:"status"` // plan | below_bar | no_plan | no_plant
+	Best          *domain.Plan `json:"best"`   // best shown plan, or the closest below-bar plan
+	ShownCount    int          `json:"shown_count"`
+	MovesSearched int          `json:"moves_searched"`
 }
 
 // Scenario is one alternative production setup and its prediction.

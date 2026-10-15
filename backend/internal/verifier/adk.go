@@ -161,3 +161,18 @@ func fromLLMResponse(r llm.Response) *model.LLMResponse {
 }
 
 var _ model.LLM = (*adkModel)(nil)
+
+// ADKModel is the ADK adapter over llm.Model, for other agents (case agent).
+type ADKModel = adkModel
+
+// NewADKModel adapts m for an ADK agent; maxTokens caps each response.
+func NewADKModel(m llm.Model, modelID string, maxTokens int) *ADKModel {
+	return &adkModel{m: m, id: modelID, maxTokens: maxTokens}
+}
+
+// Stats returns the model calls made and the tokens used so far.
+func (a *adkModel) Stats() (calls int, usage llm.Usage, provider, modelID string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.calls, a.usage, a.provider, a.modelID
+}
