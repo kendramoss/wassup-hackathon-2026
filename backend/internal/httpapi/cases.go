@@ -156,6 +156,9 @@ type predictRequest struct {
 	Family        string               `json:"family"`
 	Exclude       []string             `json:"exclude_rulings"`
 	CurrentOrigin *planner.KnownOrigin `json:"current_origin"`
+	// Economics are optional money inputs, kept on the case for plan,
+	// scenarios and compare-targets calls that omit their own.
+	Economics *planner.Economics `json:"economics"`
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
@@ -197,8 +200,14 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	}
 
 	now := time.Now().UTC()
+	if in.Economics != nil {
+		if err := validateEconomics(*in.Economics); err != nil {
+			a.fail(w, r, err)
+			return
+		}
+	}
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now}
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics}
 	if err := a.analyse(r, &sc, c); err != nil {
 		a.fail(w, r, err)
 		return
@@ -519,9 +528,13 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
+	econ := in.Economics
+	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
+		econ = *c.Economics
+	}
 	req := planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
-		Product: *c.Product, Economics: in.Economics, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
+		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
 		ActualChange: in.ActualChange,
 	}
 	if err := req.Validate(); err != nil {

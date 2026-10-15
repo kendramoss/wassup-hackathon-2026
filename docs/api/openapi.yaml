@@ -258,6 +258,28 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/economics:
+    put:
+      summary: Replace the case's money inputs (no model calls)
+      description: Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Economics" }
+      responses:
+        "200":
+          description: Stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  economics: { $ref: "#/components/schemas/Economics" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/ask:
     post:
       summary: Ask the case agent a question about this case
@@ -536,6 +558,9 @@ components:
           properties:
             country: { type: string }
             ruling: { type: string }
+        economics:
+          description: Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics)
+          allOf: [{ $ref: "#/components/schemas/Economics" }]
     Prediction:
       type: object
       properties:
@@ -601,7 +626,7 @@ components:
                 type: object
                 properties:
                   at: { type: string, format: date-time }
-                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported] }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics] }
                   summary: { type: string }
                   llm_provider: { type: string }
                   model_id: { type: string }

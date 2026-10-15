@@ -766,3 +766,48 @@ func TestExtractProductEndpoint(t *testing.T) {
 		}
 	}
 }
+
+func TestEconomicsOnPredictAndPut(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	b, _ := os.ReadFile(filepath.Join("..", "..", "testdata", "heatgun_2022.json"))
+	var fx map[string]json.RawMessage
+	_ = json.Unmarshal(b, &fx)
+	var body map[string]any
+	_ = json.Unmarshal([]byte(heatGunBody(t)), &body)
+	body["economics"] = fx["economics"]
+	raw, _ := json.Marshal(body)
+	code, c := hs.do(t, "POST", "/v1/cases/predict", string(raw))
+	if code != 201 {
+		t.Fatalf("predict %d %v", code, c)
+	}
+	id := c["id"].(string)
+	var want, got any
+	_ = json.Unmarshal(fx["economics"], &want)
+	got = c["economics"]
+	if fmt.Sprint(want) != fmt.Sprint(got) {
+		t.Errorf("economics did not round-trip:\n want %v\n got  %v", want, got)
+	}
+	// A plan call without economics uses the case's.
+	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	if e := hs.planner.got.Economics; e.AnnualImportValueUSD != 2000000 || e.DutyRates["China"] != 0.417 {
+		t.Errorf("plan got economics %+v", e)
+	}
+	code, out := hs.do(t, "PUT", "/v1/cases/"+id+"/economics", `{"illustrative":true,"annual_import_value_usd":1000000,"duty_rates":{"China":0.417,"Thailand":0.167}}`)
+	if code != 200 || out["economics"].(map[string]any)["annual_import_value_usd"] != 1000000.0 {
+		t.Fatalf("put %d %v", code, out)
+	}
+	_, got2 := hs.do(t, "GET", "/v1/cases/"+id, "")
+	h := got2["history"].([]any)
+	if got2["economics"].(map[string]any)["annual_import_value_usd"] != 1000000.0 || h[len(h)-1].(map[string]any)["kind"] != "economics" {
+		t.Errorf("case after put: %v / %v", got2["economics"], h[len(h)-1])
+	}
+	for _, bad := range []string{`{"duty_rates":{"China":41.7}}`, `{"annual_import_value_usd":-1}`, `{"group_costs":{"pcba":{"th":-5}}}`} {
+		if code, _ := hs.do(t, "PUT", "/v1/cases/"+id+"/economics", bad); code != 400 {
+			t.Errorf("bad economics %s: %d", bad, code)
+		}
+	}
+	bad := strings.Replace(string(raw), `"China":0.417`, `"China":41.7`, 1)
+	if code, _ := hs.do(t, "POST", "/v1/cases/predict", bad); code != 400 {
+		t.Errorf("predict with a percent rate: %d", code)
+	}
+}
