@@ -41,6 +41,7 @@ type Router interface {
 // Planner searches plans (planner.Planner).
 type Planner interface {
 	Plan(ctx context.Context, req planner.Request) (planner.Result, error)
+	PlanWithProgress(ctx context.Context, req planner.Request, progress func(planner.Event)) (planner.Result, error)
 }
 
 // Clarifier reviews low-confidence predictions (clarify.Clarifier).
@@ -108,21 +109,28 @@ func (a *api) respond(w http.ResponseWriter, status int, fields map[string]any) 
 // fail maps errors to the error format; internal details are logged, not
 // returned.
 func (a *api) fail(w http.ResponseWriter, r *http.Request, err error) {
+	status, code, msg := a.errorFor(r, err)
+	writeError(w, status, code, msg, nil)
+}
+
+// errorFor maps an error to status, code and a client-safe message, logging
+// server-side causes.
+func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	var apiErr *llm.APIError
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
-		writeError(w, http.StatusBadRequest, "invalid_input", err.Error(), nil)
+		return http.StatusBadRequest, "invalid_input", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound):
-		writeError(w, http.StatusNotFound, "not_found", err.Error(), nil)
+		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", RequestID(r.Context()), "err", err)
-		writeError(w, http.StatusBadGateway, "model_bad_response", "the model returned an unusable answer; try again", nil)
+		return http.StatusBadGateway, "model_bad_response", "the model returned an unusable answer; try again"
 	case errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr), errors.Is(err, context.DeadlineExceeded):
 		a.d.Logger.ErrorContext(r.Context(), "model unavailable", "request_id", RequestID(r.Context()), "err", err)
-		writeError(w, http.StatusBadGateway, "model_unavailable", "the model provider is unavailable; try again", nil)
+		return http.StatusBadGateway, "model_unavailable", "the model provider is unavailable; try again"
 	default:
 		a.d.Logger.ErrorContext(r.Context(), "internal error", "request_id", RequestID(r.Context()), "err", err)
-		writeError(w, http.StatusInternalServerError, "internal", "internal error", nil)
+		return http.StatusInternalServerError, "internal", "internal error"
 	}
 }
 
@@ -458,11 +466,20 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	res, err := a.d.Planner.Plan(r.Context(), planner.Request{
+	req := planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: in.Economics, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
 		ActualChange: in.ActualChange,
-	})
+	}
+	if err := req.Validate(); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if strings.Contains(r.Header.Get("Accept"), "text/event-stream") {
+		a.planStream(w, r, c, req)
+		return
+	}
+	res, err := a.d.Planner.Plan(r.Context(), req)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -473,6 +490,39 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
+}
+
+// planStream runs the plan search as server-sent events: "progress" events
+// (planner.Event) while it runs, then one "result" event with the same body as
+// the JSON response, or one "error" event ({code, message}).
+func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request) {
+	rc := http.NewResponseController(w)
+	_ = rc.SetWriteDeadline(time.Time{}) // the search outlives the server's default write timeout
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("X-Accel-Buffering", "no")
+	w.WriteHeader(http.StatusOK)
+	var mu sync.Mutex
+	send := func(event string, v any) {
+		b, _ := json.Marshal(v)
+		mu.Lock()
+		defer mu.Unlock()
+		fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, b)
+		_ = rc.Flush()
+	}
+	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) { send("progress", e) })
+	if err == nil {
+		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
+		err = a.d.Cases.Put(r.Context(), c)
+	}
+	if err != nil {
+		_, code, msg := a.errorFor(r, err)
+		send("error", ErrorBody{Code: code, Message: msg})
+		return
+	}
+	out := a.meta()
+	out["case_id"], out["plan"] = c.ID, res
+	send("result", out)
 }
 
 type exportRequest struct {

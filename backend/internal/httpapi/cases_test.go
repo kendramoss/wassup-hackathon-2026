@@ -60,6 +60,13 @@ func (f fakeRouter) Classify(context.Context, string) (router.Label, error) {
 
 type fakePlanner struct{ got planner.Request }
 
+func (f *fakePlanner) PlanWithProgress(ctx context.Context, r planner.Request, progress func(planner.Event)) (planner.Result, error) {
+	progress(planner.Event{Kind: "started", Total: 2})
+	progress(planner.Event{Kind: "predicted", Move: "pcba@th", Origin: "Thailand", Total: 2})
+	progress(planner.Event{Kind: "done", Done: 2, Total: 2})
+	return f.Plan(ctx, r)
+}
+
 func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
 	f.got = r
 	v := &domain.Verdict{PrecedentSupported: true, SupportingRuling: "N347421", CounterRuling: "N345859", Confidence: 0.96}
@@ -465,5 +472,29 @@ func TestWatchRechecksWithNewerRulings(t *testing.T) {
 	_, list := hs.do(t, "GET", "/v1/cases", "")
 	if st := list["cases"].([]any)[0].(map[string]any)["watch_status"]; st != "unchanged" {
 		t.Errorf("watch_status = %v", st)
+	}
+}
+
+func TestPlanStreamsProgressThenResult(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	req := httptest.NewRequest("POST", "/v1/cases/"+c["id"].(string)+"/plan", strings.NewReader(`{"target":"Thailand"}`))
+	req.Header.Set("Accept", "text/event-stream")
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	body := rec.Body.String()
+	if rec.Code != 200 || rec.Header().Get("Content-Type") != "text/event-stream" {
+		t.Fatalf("status %d type %q", rec.Code, rec.Header().Get("Content-Type"))
+	}
+	if strings.Count(body, "event: progress\n") != 3 || !strings.Contains(body, "event: result\ndata: {") ||
+		strings.Index(body, "event: result") < strings.LastIndex(body, "event: progress") {
+		t.Errorf("stream = %s", body)
+	}
+	if !strings.Contains(body, `"plans":[`) || !strings.Contains(body, `"case_id"`) {
+		t.Errorf("result event lacks the plan: %s", body)
+	}
+	_, got := hs.do(t, "GET", "/v1/cases/"+c["id"].(string), "")
+	if got["step"] != "plan" {
+		t.Errorf("streamed plan not stored: step %v", got["step"])
 	}
 }

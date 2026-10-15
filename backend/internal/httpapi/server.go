@@ -86,6 +86,9 @@ func (s *statusRecorder) WriteHeader(code int) {
 	s.ResponseWriter.WriteHeader(code)
 }
 
+// Unwrap lets http.ResponseController reach Flush on the real writer (SSE).
+func (s *statusRecorder) Unwrap() http.ResponseWriter { return s.ResponseWriter }
+
 func newID() string {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)

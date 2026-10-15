@@ -33,6 +33,17 @@ type Options struct {
 	Concurrency int
 }
 
+// Event is one step of a plan search, for progress display.
+type Event struct {
+	Kind        string `json:"kind"` // started | baseline | predicted | verifying | verified | done
+	Move        string `json:"move,omitempty"`
+	Description string `json:"description,omitempty"`
+	Origin      string `json:"origin,omitempty"`  // predicted origin (baseline, predicted)
+	Outcome     string `json:"outcome,omitempty"` // verified: shown | below_confidence_bar | no_supporting_precedent | check_failed; predicted: engine_other_origin when it misses the target
+	Done        int    `json:"done"`              // moves finished
+	Total       int    `json:"total"`             // moves searched
+}
+
 // Planner searches operation-group moves.
 type Planner struct {
 	templates map[string]Template
@@ -100,6 +111,12 @@ var ErrUnknownFamily = errors.New("planner: unknown product family")
 // the target are verified; shown plans are precedent-supported with verifier
 // confidence ≥ PlanConfidence, ranked by duty effect minus added cost.
 func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
+	return p.PlanWithProgress(ctx, req, nil)
+}
+
+// PlanWithProgress is Plan, calling progress (if not nil) after each step.
+// Calls are serialised; progress must not block for long.
+func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress func(Event)) (Result, error) {
 	start := time.Now()
 	if err := req.Validate(); err != nil {
 		return Result{}, err
@@ -122,25 +139,53 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 		res.Stats.EngineOutTok += u.OutputTokens
 	}
 
-	baseFacts := Render(req.Product, tm)
-	base, err := p.engine.Predict(ctx, p.caseFor(req, "baseline", baseFacts))
-	if err != nil {
-		return Result{}, fmt.Errorf("planner: baseline: %w", err)
-	}
-	addEngine(base.Usage)
-	res.Baseline = domain.Plan{Move: domain.Move{}, Description: Describe(req.Product, tm, nil), VariantFacts: baseFacts, Prediction: base.Prediction}
-	baseOrigin := base.Prediction.Origin
-	var knownA, knownRuling string
-	if k := req.CurrentOrigin; k != nil && k.Country != "" {
-		baseOrigin, knownA, knownRuling = domain.NormalizeCountry(k.Country), domain.NormalizeCountry(k.Country), k.Ruling
-		res.CurrentOrigin = &KnownOrigin{Country: knownA, Ruling: knownRuling}
-	}
-
 	moves := Enumerate(req.Product, tm, target)
 	res.Stats.MovesSearched = len(moves)
+	done := 0
+	emit := func(e Event) { // callers hold mu
+		if progress != nil {
+			e.Done, e.Total = done, len(moves)
+			progress(e)
+		}
+	}
+	finish := func(e Event) {
+		mu.Lock()
+		defer mu.Unlock()
+		done++
+		emit(e)
+	}
+	mu.Lock()
+	emit(Event{Kind: "started"})
+	mu.Unlock()
+
+	var knownA, knownRuling string
+	if k := req.CurrentOrigin; k != nil && k.Country != "" {
+		knownA, knownRuling = domain.NormalizeCountry(k.Country), k.Ruling
+		res.CurrentOrigin = &KnownOrigin{Country: knownA, Ruling: knownRuling}
+	}
+	// The baseline runs alongside the moves: they need its facts (known now),
+	// and its origin only for economics, which are filled in after the search.
+	baseFacts := Render(req.Product, tm)
+	var base engine.Result
+	var baseErr error
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		r, err := p.engine.Predict(ctx, p.caseFor(req, "baseline", baseFacts))
+		if err != nil {
+			baseErr = fmt.Errorf("planner: baseline: %w", err)
+			return
+		}
+		addEngine(r.Usage)
+		base = r
+		mu.Lock()
+		emit(Event{Kind: "baseline", Origin: r.Prediction.Origin, Description: Describe(req.Product, tm, nil)})
+		mu.Unlock()
+	}()
+
 	plans := make([]domain.Plan, len(moves))
 	sem := make(chan struct{}, p.opts.Concurrency)
-	var wg sync.WaitGroup
 	errs := make([]error, len(moves))
 	for i, m := range moves {
 		wg.Add(1)
@@ -157,14 +202,17 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 			}
 			addEngine(r.Usage)
 			pl := domain.Plan{Move: m, Description: Describe(req.Product, tm, m), VariantFacts: facts, Prediction: r.Prediction}
-			pl.DutyEffectYear, pl.AddedCostYear = economics(req, m, baseOrigin, r.Prediction.Origin)
-			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 			if r.Prediction.Origin != target {
 				pl.RejectionReason = fmt.Sprintf("engine predicts origin %s, not %s", r.Prediction.Origin, target)
 				pl.RejectionKind = domain.RejectOtherOrigin
 				plans[i] = pl
+				finish(Event{Kind: "predicted", Move: m.Key(), Description: pl.Description, Origin: r.Prediction.Origin, Outcome: string(domain.RejectOtherOrigin)})
 				return
 			}
+			mu.Lock()
+			emit(Event{Kind: "predicted", Move: m.Key(), Description: pl.Description, Origin: r.Prediction.Origin})
+			emit(Event{Kind: "verifying", Move: m.Key(), Description: pl.Description})
+			mu.Unlock()
 			vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time,
 				Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
 			mu.Lock()
@@ -178,6 +226,7 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 				pl.RejectionReason = "precedent check failed: " + err.Error()
 				pl.RejectionKind = domain.RejectCheckFailed
 				plans[i] = pl
+				finish(Event{Kind: "verified", Move: m.Key(), Description: pl.Description, Outcome: string(domain.RejectCheckFailed)})
 				return
 			}
 			v := vr.Verdict
@@ -193,11 +242,25 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 				pl.Shown = true
 			}
 			plans[i] = pl
+			outcome := "shown"
+			if !pl.Shown {
+				outcome = string(pl.RejectionKind)
+			}
+			finish(Event{Kind: "verified", Move: m.Key(), Description: pl.Description, Outcome: outcome})
 		}(i, m)
 	}
 	wg.Wait()
-	if err := errors.Join(errs...); err != nil {
+	if err := errors.Join(append([]error{baseErr}, errs...)...); err != nil {
 		return Result{}, err
+	}
+	res.Baseline = domain.Plan{Move: domain.Move{}, Description: Describe(req.Product, tm, nil), VariantFacts: baseFacts, Prediction: base.Prediction}
+	baseOrigin := base.Prediction.Origin
+	if knownA != "" {
+		baseOrigin = knownA
+	}
+	for i := range plans {
+		plans[i].DutyEffectYear, plans[i].AddedCostYear = economics(req, moves[i], baseOrigin, plans[i].Prediction.Origin)
+		plans[i].NetYear = plans[i].DutyEffectYear - plans[i].AddedCostYear
 	}
 	for _, pl := range plans {
 		if pl.Shown {
@@ -236,6 +299,9 @@ func (p *Planner) Plan(ctx context.Context, req Request) (Result, error) {
 	res.Stats.InputTokens = res.Stats.EngineInTok + res.Stats.VerifierInTok
 	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok
 	res.Stats.WallSeconds = time.Since(start).Seconds()
+	mu.Lock()
+	emit(Event{Kind: "done"})
+	mu.Unlock()
 	return res, nil
 }
 

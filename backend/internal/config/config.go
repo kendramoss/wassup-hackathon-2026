@@ -85,7 +85,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", 0.95),
 		PlanConfidence:       e.float("PLAN_CONFIDENCE", 0.95),
 		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
-		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 4),
+		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
 		LabelsPath:     e.str("LABELS_PATH", "data/labels.jsonl"),
 		FactsDir:       e.str("CORPUS_FACTS_DIR", "data/facts"),

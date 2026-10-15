@@ -197,3 +197,30 @@ type thaiEngine struct{}
 func (thaiEngine) Predict(context.Context, domain.Case) (engine.Result, error) {
 	return engine.Result{Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.8}}, nil
 }
+
+func TestPlanWithProgressReportsEveryMove(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	tmpls, _ := LoadTemplates()
+	var events []Event
+	res, err := New(tmpls, &fakeEngine{}, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95, Concurrency: 8}).
+		PlanWithProgress(context.Background(), r, func(e Event) { events = append(events, e) })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(events) < 2 || events[0].Kind != "started" || events[len(events)-1].Kind != "done" {
+		t.Fatalf("events = %+v", events)
+	}
+	kinds := map[string]int{}
+	for i, e := range events {
+		kinds[e.Kind]++
+		if e.Total != 6 || (i > 0 && e.Done < events[i-1].Done) {
+			t.Errorf("event %d = %+v", i, e)
+		}
+	}
+	if kinds["baseline"] != 1 || kinds["predicted"] != 6 || kinds["verifying"] != 1 || kinds["verified"] != 1 || events[len(events)-1].Done != 6 {
+		t.Errorf("event kinds = %v, last = %+v", kinds, events[len(events)-1])
+	}
+	if len(res.Plans) != 1 || res.Plans[0].NetYear != 320000 {
+		t.Errorf("result changed with progress: %+v", res.Plans)
+	}
+}
