@@ -393,7 +393,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
-		"targets": targetsField(c.Targets), "pinned": c.Pinned,
+		"targets": targetsField(c.Targets), "pinned": c.Pinned, "display_name": summaryRow(c).DisplayName,
 	}
 }
 
@@ -478,6 +478,7 @@ func (a *api) watchFields(w *store.Watch) any {
 type caseSummary struct {
 	ID          string   `json:"id"`
 	ProductName string   `json:"product_name"`
+	DisplayName string   `json:"display_name"` // the user's name for the case, else product_name
 	Date        string   `json:"date"`
 	Origin      *string  `json:"predicted_origin"`
 	Route       *string  `json:"triage_route"`
@@ -500,22 +501,31 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 		if c.ID == HealthProbeID {
 			continue
 		}
-		row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
-		if c.Watch != nil {
-			row.Watch = &c.Watch.Status
-		}
-		if c.Product != nil {
-			row.ProductName = c.Product.Name
-		} else {
-			row.ProductName = firstWords(c.Facts, 8)
-		}
-		if c.Prediction.Origin != "" {
-			o, route, conf := c.Prediction.Origin, string(c.Triage.Route), c.Prediction.Confidence
-			row.Origin, row.Route, row.Confidence = &o, &route, &conf
-		}
-		rows = append(rows, row)
+		rows = append(rows, summaryRow(c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
+}
+
+// summaryRow is a case's row on Cases home.
+func summaryRow(c store.Case) caseSummary {
+	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
+	if c.Watch != nil {
+		row.Watch = &c.Watch.Status
+	}
+	if c.Product != nil {
+		row.ProductName = c.Product.Name
+	} else {
+		row.ProductName = firstWords(c.Facts, 8)
+	}
+	row.DisplayName = row.ProductName
+	if c.DisplayName != "" {
+		row.DisplayName = c.DisplayName
+	}
+	if c.Prediction.Origin != "" {
+		o, route, conf := c.Prediction.Origin, string(c.Triage.Route), c.Prediction.Confidence
+		row.Origin, row.Route, row.Confidence = &o, &route, &conf
+	}
+	return row
 }
 
 // firstWords names a facts-only case by its opening words.

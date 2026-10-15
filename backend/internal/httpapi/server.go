@@ -44,6 +44,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/watch/run", a.adminOnly(a.watchAll))
 		mux.HandleFunc("GET /v1/cases/{id}", a.getCase)
 		mux.HandleFunc("DELETE /v1/cases/{id}", a.deleteCase)
+		mux.HandleFunc("PATCH /v1/cases/{id}", a.renameCase)
 		mux.HandleFunc("POST /v1/cases/{id}/plan", a.limit(heavy, a.plan))
 		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
 		mux.HandleFunc("POST /v1/cases/{id}/answers", a.limit(light, a.answers))

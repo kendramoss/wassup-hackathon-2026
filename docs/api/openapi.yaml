@@ -146,6 +146,24 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "404": { $ref: "#/components/responses/Error" }
+    patch:
+      summary: Rename a case (its display name on Cases home)
+      description: Sets display_name; product_name stays as entered. Whitespace is collapsed; 1–200 characters. Pinned cases need the admin token (403 otherwise). No model call; recorded in history as renamed; updated_at is unchanged (D48).
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [display_name], properties: { display_name: { type: string, minLength: 1, maxLength: 200 } } }
+      responses:
+        "200":
+          description: The updated case row
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseSummary" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
     delete:
       summary: Delete a case
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
@@ -600,12 +618,13 @@ components:
               error: { type: string, example: "rpc error: code = PermissionDenied desc = Missing or insufficient permissions." }
     CaseSummary:
       type: object
-      required: [id, product_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count, pinned]
+      required: [id, product_name, display_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count, pinned]
       properties:
         id: { type: string }
         product_name:
           type: string
           description: Structured product name, or the first words of the facts for a facts-only case
+        display_name: { type: string, description: "The user's name for the case (PATCH /v1/cases/{id}), else product_name. Show this on Cases home." }
         date: { type: string, format: date, description: Case date }
         predicted_origin: { type: [string, "null"], description: null until analysed }
         triage_route:
@@ -731,6 +750,7 @@ components:
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
             pinned: { type: boolean }
+            display_name: { type: string }
             precedents_detail:
               type: array
               description: The earlier rulings in prediction.precedents, in the same order, with CBP's held origin
@@ -755,7 +775,7 @@ components:
                 type: object
                 properties:
                   at: { type: string, format: date-time }
-                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned] }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed] }
                   summary: { type: string }
                   llm_provider: { type: string }
                   model_id: { type: string }

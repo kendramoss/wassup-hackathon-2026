@@ -57,6 +57,9 @@ type Case struct {
 	// Pinned cases (the seeded demos) list first and can be deleted only
 	// with the admin token.
 	Pinned bool `json:"pinned,omitempty"`
+	// DisplayName is the user's name for the case on Cases home; the
+	// product name stays as entered.
+	DisplayName string `json:"display_name,omitempty"`
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.
@@ -66,7 +69,7 @@ const MaxHistory = 200
 // one line, and the model and prompt versions behind it.
 type Event struct {
 	At       time.Time `json:"at"`
-	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics | pinned | unpinned
+	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics | pinned | unpinned | renamed
 	Summary  string    `json:"summary"`
 	Provider string    `json:"llm_provider,omitempty"`
 	Model    string    `json:"model_id,omitempty"`

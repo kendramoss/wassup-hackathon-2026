@@ -128,3 +128,33 @@ func TestHistoryRecordsUsageAndCost(t *testing.T) {
 		t.Errorf("plan usage = %v", plan)
 	}
 }
+
+func TestRenameCase(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	if c["display_name"] != c["product"].(map[string]any)["name"] {
+		t.Errorf("default display_name = %v", c["display_name"])
+	}
+	code, row := hs.do(t, "PATCH", "/v1/cases/"+id, `{"display_name":"  Heat gun   — Q3 sourcing  "}`)
+	if code != http.StatusOK || row["display_name"] != "Heat gun — Q3 sourcing" || row["id"] != id || row["product_name"] == row["display_name"] {
+		t.Fatalf("rename = %d %v", code, row)
+	}
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	h := got["history"].([]any)
+	if e := h[len(h)-1].(map[string]any); e["kind"] != "renamed" || e["cost_usd"] != nil || got["updated_at"] != c["updated_at"] {
+		t.Errorf("history %v, updated_at %v -> %v", e, c["updated_at"], got["updated_at"])
+	}
+	for _, bad := range []string{`{"display_name":"   "}`, `{}`, `{"display_name":"` + strings.Repeat("x", 201) + `"}`} {
+		if code, _ := hs.do(t, "PATCH", "/v1/cases/"+id, bad); code != http.StatusBadRequest {
+			t.Errorf("%s = %d", bad[:20], code)
+		}
+	}
+	hs.doAs(t, "PUT", "/v1/cases/"+id+"/pin", `{"pinned":true}`, admin)
+	if code, _ := hs.do(t, "PATCH", "/v1/cases/"+id, `{"display_name":"x"}`); code != http.StatusForbidden {
+		t.Errorf("rename pinned = %d", code)
+	}
+	if code, _ := hs.do(t, "PATCH", "/v1/cases/case_missing", `{"display_name":"x"}`); code != http.StatusNotFound {
+		t.Errorf("rename missing = %d", code)
+	}
+}
