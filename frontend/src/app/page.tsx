@@ -1,11 +1,11 @@
 import { AppBar } from "@/components/op/chrome";
-import { CasesHome } from "@/components/op/screens/cases-home";
+import { Landing } from "@/components/op/landing/landing";
 
 export default function Home() {
   return (
     <>
-      <AppBar />
-      <CasesHome />
+      <AppBar active="none" sticky />
+      <Landing />
     </>
   );
 }
