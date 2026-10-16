@@ -126,3 +126,19 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestExportCFR177Config(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ExportCFR177 {
+		t.Fatalf("EXPORT_CFR177 default = %v %v, want off", c.ExportCFR177, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EXPORT_CFR177": v})))
+		if err != nil || c.ExportCFR177 != want {
+			t.Errorf("EXPORT_CFR177=%s = %v %v, want %v", v, c.ExportCFR177, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EXPORT_CFR177": "maybe"}))); err == nil || !strings.Contains(err.Error(), "EXPORT_CFR177") {
+		t.Errorf("EXPORT_CFR177=maybe: %v", err)
+	}
+}

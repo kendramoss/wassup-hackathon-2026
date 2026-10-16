@@ -226,6 +226,13 @@ paths:
   /v1/cases/{id}/export:
     post:
       summary: Draft a CBP ruling request for the case (Markdown)
+      description: >-
+        Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a
+        letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials
+        and processing by country, question, position with the earlier rulings, prior consideration,
+        documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the
+        case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400.
+        Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
         required: false
@@ -246,6 +253,11 @@ paths:
                 preview:
                   type: boolean
                   description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print."
+                format:
+                  type: string
+                  enum: [markdown, cfr177]
+                  default: markdown
+                  description: "markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66)."
       responses:
         "200":
           description: Draft
@@ -971,7 +983,7 @@ components:
         - type: object
           properties:
             case_id: { type: string }
-            format: { type: string, enum: [markdown] }
+            format: { type: string, enum: [markdown, cfr177], description: The format rendered; content is Markdown text in both. }
             content: { type: string }
     Ruling:
       type: object
