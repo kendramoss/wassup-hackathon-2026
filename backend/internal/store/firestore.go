@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -335,4 +336,120 @@ func (s *FirestoreSpend) Total(ctx context.Context, day string) (float64, error)
 		return float64(n), nil
 	}
 	return 0, nil
+}
+
+// APIKeyCollection holds one document per API key, by key ID, with the
+// key's SHA-256 (never the key itself); APIKeyUsageCollection holds one
+// document per key and UTC day with its request count (apikey.Store, D69).
+const (
+	APIKeyCollection      = "api_keys"
+	APIKeyUsageCollection = "api_key_usage"
+)
+
+// APIKeys is the API key store on the same client.
+func (f *Firestore) APIKeys() *FirestoreAPIKeys {
+	return &FirestoreAPIKeys{client: f.client, keys: f.client.Collection(APIKeyCollection), usage: f.client.Collection(APIKeyUsageCollection)}
+}
+
+// FirestoreAPIKeys implements apikey.Store.
+type FirestoreAPIKeys struct {
+	client      *firestore.Client
+	keys, usage *firestore.CollectionRef
+}
+
+type apiKeyDoc struct {
+	ID         string    `firestore:"id"`
+	Name       string    `firestore:"name"`
+	Hash       string    `firestore:"sha256"`
+	CreatedAt  time.Time `firestore:"created_at"`
+	DailyQuota int       `firestore:"daily_quota"`
+	Disabled   bool      `firestore:"disabled"`
+}
+
+func (d apiKeyDoc) key() apikey.Key {
+	return apikey.Key{ID: d.ID, Name: d.Name, Hash: d.Hash, CreatedAt: d.CreatedAt, DailyQuota: d.DailyQuota, Disabled: d.Disabled}
+}
+
+// Create implements apikey.Store.
+func (s *FirestoreAPIKeys) Create(ctx context.Context, k apikey.Key) error {
+	d := apiKeyDoc{ID: k.ID, Name: k.Name, Hash: k.Hash, CreatedAt: k.CreatedAt, DailyQuota: k.DailyQuota, Disabled: k.Disabled}
+	if _, err := s.keys.Doc(k.ID).Create(ctx, d); err != nil {
+		return fmt.Errorf("store: create api key: %w", err)
+	}
+	return nil
+}
+
+// Get implements apikey.Store.
+func (s *FirestoreAPIKeys) Get(ctx context.Context, id string) (apikey.Key, error) {
+	snap, err := s.keys.Doc(id).Get(ctx)
+	if status.Code(err) == codes.NotFound {
+		return apikey.Key{}, apikey.ErrNotFound
+	}
+	if err != nil {
+		return apikey.Key{}, fmt.Errorf("store: read api key: %w", err)
+	}
+	var d apiKeyDoc
+	if err := snap.DataTo(&d); err != nil {
+		return apikey.Key{}, fmt.Errorf("store: decode api key: %w", err)
+	}
+	return d.key(), nil
+}
+
+// List implements apikey.Store.
+func (s *FirestoreAPIKeys) List(ctx context.Context) ([]apikey.Key, error) {
+	it := s.keys.Documents(ctx)
+	defer it.Stop()
+	var out []apikey.Key
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			return out, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list api keys: %w", err)
+		}
+		var d apiKeyDoc
+		if err := snap.DataTo(&d); err != nil {
+			return nil, fmt.Errorf("store: decode api key: %w", err)
+		}
+		out = append(out, d.key())
+	}
+}
+
+// Disable implements apikey.Store.
+func (s *FirestoreAPIKeys) Disable(ctx context.Context, id string) error {
+	_, err := s.keys.Doc(id).Update(ctx, []firestore.Update{{Path: "disabled", Value: true}})
+	if status.Code(err) == codes.NotFound {
+		return apikey.ErrNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("store: disable api key: %w", err)
+	}
+	return nil
+}
+
+// Use implements apikey.Store. A transaction reads and bumps the day's
+// count, so two instances counting at once each get their own number.
+func (s *FirestoreAPIKeys) Use(ctx context.Context, id, day string) (int64, error) {
+	ref := s.usage.Doc(id + "_" + day)
+	var n int64
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		n = 0
+		snap, err := tx.Get(ref)
+		switch {
+		case status.Code(err) == codes.NotFound:
+		case err != nil:
+			return err
+		default:
+			if v, err := snap.DataAt("requests"); err == nil {
+				n, _ = v.(int64)
+			}
+		}
+		n++
+		return tx.Set(ref, map[string]any{"key_id": id, "day": day, "requests": n, "updated_at": time.Now().UTC()})
+	})
+	if err != nil {
+		return 0, fmt.Errorf("store: count api key use: %w", err)
+	}
+	return n, nil
 }

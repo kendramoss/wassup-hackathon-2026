@@ -105,6 +105,11 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
+	// admin issues keys with a daily request quota, each key gets its own
+	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
+	// when cases are, else in memory.
+	APIKeys bool
 	// DailySpendCapUSD stops new model-calling requests once the UTC day's
 	// estimated model spend reaches it (D59); 0 disables the cap.
 	DailySpendCapUSD float64
@@ -174,6 +179,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
+	case "on", "true", "1":
+		c.APIKeys = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -255,6 +267,14 @@ func (c Config) validate() error {
 	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
+	}
+	if c.APIKeys {
+		if c.AdminToken == "" {
+			bad("API_KEYS=on needs ADMIN_TOKEN (keys are issued with it)")
+		}
+		if c.OnCloudRun && c.CasesStore != CasesFirestore {
+			bad("API_KEYS=on on Cloud Run needs CASES_STORE=firestore (keys in memory are lost on restart and not shared)")
+		}
 	}
 	switch c.VerifierCacheStore {
 	case VerdictsFirestore:

@@ -126,3 +126,36 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestAPIKeysConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.APIKeys {
+		t.Fatalf("API keys default = %v %v, want off", c.APIKeys, err)
+	}
+	tests := []struct {
+		name string
+		env  map[string]string
+		on   bool
+		want string // fragment of the error; empty means valid
+	}{
+		{"on with admin token", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "local-admin"}, true, ""},
+		{"off explicitly", map[string]string{"API_KEYS": "off"}, false, ""},
+		{"bad value", map[string]string{"API_KEYS": "maybe"}, false, "API_KEYS must be on or off"},
+		{"needs admin token", map[string]string{"API_KEYS": "on"}, false, "API_KEYS=on needs ADMIN_TOKEN"},
+		{"Cloud Run needs firestore", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "a-long-admin-token-123", "K_SERVICE": "backend", "CASES_STORE": "memory"}, false, "CASES_STORE=firestore"},
+		{"Cloud Run with firestore", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "a-long-admin-token-123", "K_SERVICE": "backend"}, true, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := FromEnv(getenv(merge(vertexEnv(), tt.env)))
+			switch {
+			case tt.want == "" && err != nil:
+				t.Fatalf("unexpected error: %v", err)
+			case tt.want != "" && (err == nil || !strings.Contains(err.Error(), tt.want)):
+				t.Fatalf("error %v, want it to contain %q", err, tt.want)
+			case tt.want == "" && c.APIKeys != tt.on:
+				t.Errorf("APIKeys = %v, want %v", c.APIKeys, tt.on)
+			}
+		})
+	}
+}

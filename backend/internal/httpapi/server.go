@@ -53,6 +53,11 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("GET /v1/duty-rates", a.dutyRates)
 		mux.HandleFunc("GET /v1/demos", a.listDemos)
 		mux.HandleFunc("GET /v1/demos/{id}", a.getDemo)
+		if d.APIKeys != nil {
+			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
+			mux.HandleFunc("GET /v1/admin/api-keys", a.adminOnly(a.listAPIKeys))
+			mux.HandleFunc("DELETE /v1/admin/api-keys/{id}", a.adminOnly(a.disableAPIKey))
+		}
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
 	if a != nil {
@@ -65,7 +70,11 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, http.StatusNotFound, "not_found", "no such endpoint", nil)
 	})
-	return withRequestLog(logger, mux)
+	var h http.Handler = mux
+	if a != nil && a.d.APIKeys != nil {
+		h = a.withAPIKeys(mux)
+	}
+	return withRequestLog(logger, h)
 }
 
 type ctxKey struct{}

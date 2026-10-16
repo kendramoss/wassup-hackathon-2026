@@ -21,6 +21,11 @@ info:
     Ruling lookups (`GET /v1/rulings/{id}`) have their own per-client limit (30 fetches a minute; a ruling already fetched is free), separate from the model budget (D58).
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
+
+    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
+security:
+  - {}
+  - ApiKey: []
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)
@@ -633,7 +638,72 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/EvalSummary" }
+  /v1/admin/api-keys:
+    post:
+      summary: Issue an API key (admin token required; API_KEYS=on only)
+      description: Returns the key once, in `key`. Only its SHA-256 is stored, so it cannot be shown again; issue a new one if it is lost (D69).
+      security: [{ AdminToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, daily_quota]
+              properties:
+                name: { type: string, maxLength: 100, description: Who the key is for }
+                daily_quota: { type: integer, minimum: 1, maximum: 1000000, description: Requests a UTC day }
+      responses:
+        "201":
+          description: The key, shown once, and its record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, api_key]
+                properties:
+                  key: { type: string, pattern: "^op_[A-Za-z0-9_-]{43}$", description: "Send as X-API-Key. Not stored; shown only here." }
+                  api_key: { $ref: "#/components/schemas/APIKey" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    get:
+      summary: List API keys without secrets (admin token required)
+      security: [{ AdminToken: [] }]
+      responses:
+        "200":
+          description: Every key, newest first, disabled ones included
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [api_keys]
+                properties:
+                  api_keys: { type: array, items: { $ref: "#/components/schemas/APIKey" } }
+        "403": { $ref: "#/components/responses/Error" }
+  /v1/admin/api-keys/{id}:
+    delete:
+      summary: Disable an API key for good (admin token required)
+      description: The record stays in the list with `disabled` true; requests with the key then get 401.
+      security: [{ AdminToken: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f]{16}$" } }
+      responses:
+        "204": { description: Disabled }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
 components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        A broker's key, `op_` plus 43 characters, issued by the admin (D69; only with API_KEYS=on). Optional: requests without it are served as before. A key gets its own rate-limit buckets (instead of the X-Client-IP ones), a request quota per UTC day (over it: 429 `quota_exceeded` with Retry-After at the next UTC day), and owns the cases it creates. An unknown or disabled key gets 401 `unauthorized`. Model calls still count toward the daily spend cap (503 `budget_reached`).
+    AdminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+      description: The deployment's admin token (seeding, pinning, issuing API keys). Never sent from the browser.
   parameters:
     CaseID:
       name: id
@@ -691,9 +761,19 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthorized, quota_exceeded]
         message: { type: string }
         details: {}
+    APIKey:
+      type: object
+      description: A stored API key; the secret and its hash are never returned (D69).
+      required: [id, name, created_at, daily_quota, disabled]
+      properties:
+        id: { type: string, pattern: "^[0-9a-f]{16}$" }
+        name: { type: string }
+        created_at: { type: string, format: date-time }
+        daily_quota: { type: integer, description: Requests a UTC day }
+        disabled: { type: boolean }
     Meta:
       type: object
       required: [model_ids, prompt_versions, llm_provider, disclaimer]

@@ -18,6 +18,8 @@
 //	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
 //	GET  /v1/eval/summary        results-page numbers
 //	GET  /v1/demos[/{id}]        demo cases for the UI
+//	POST|GET /v1/admin/api-keys, DELETE /v1/admin/api-keys/{id}
+//	                             broker API keys (API_KEYS=on, admin token)
 package main
 
 import (
@@ -35,6 +37,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
@@ -248,6 +251,16 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	// API keys for brokers (D69), in Firestore when cases are there.
+	var keys *apikey.Keys
+	if cfg.APIKeys {
+		var ks apikey.Store = apikey.NewMemory()
+		if fs, ok := cases.(*store.Firestore); ok {
+			ks = fs.APIKeys()
+		}
+		keys = apikey.New(ks)
+		logger.Info("API keys on", "store", fmt.Sprintf("%T", ks))
+	}
 	return httpapi.Deps{
 		Demos:           ds,
 		Engine:          predictor,
@@ -271,6 +284,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
+		APIKeys:         keys,
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
