@@ -814,6 +814,7 @@ components:
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            economics_priced: { description: "economics with the sourced duty rates a plan search would use filled in (D52, D56); null without economics. Display only.", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             history:
               type: array
               description: Audit trail, oldest first (last 200)

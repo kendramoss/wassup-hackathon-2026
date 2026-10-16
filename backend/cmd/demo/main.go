@@ -228,6 +228,7 @@ func seed(args []string) error {
 	out := fl.String("out", "", "write the seeded cases as JSON (default: print only)")
 	retries := fl.Int("retries", 4, "retries per request when the model provider is unavailable (waits 1, 2, 4, 8 min)")
 	dumpDir := fl.String("dump", "", "also write the full heat-gun predict, plan and scenarios responses to this directory")
+	force := fl.Bool("force", false, "seed a demo even when a pinned case with its name already exists (makes duplicates)")
 	_ = fl.Parse(args)
 	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN"), dumpDir: *dumpDir}
 	for i := 0; i < *retries; i++ {
@@ -247,6 +248,10 @@ func seed(args []string) error {
 	if err := c.call("GET", "/v1/demos", nil, &demos); err != nil {
 		return err
 	}
+	existing, err := pinnedNames(c)
+	if err != nil {
+		return err
+	}
 	var seeded []Seeded
 	var heatgunCase string
 	var heatgunPlan json.RawMessage
@@ -256,8 +261,16 @@ func seed(args []string) error {
 		if err := c.call("GET", "/v1/demos/"+d.ID, nil, &full); err != nil {
 			return err
 		}
+		if id, ok := existing[full.Title]; ok && !*force {
+			fmt.Printf("%-24s skipped: pinned case %s already exists (delete it or pass -force to seed again)\n", d.ID, id)
+			continue
+		}
+		body, err := withDisplayName(full.Predict, full.Title)
+		if err != nil {
+			return fmt.Errorf("demo %s: %w", d.ID, err)
+		}
 		var cr caseResp
-		raw, err := c.callRaw("POST", "/v1/cases/predict", full.Predict)
+		raw, err := c.callRaw("POST", "/v1/cases/predict", body)
 		if err == nil {
 			err = json.Unmarshal(raw, &cr)
 		}
@@ -294,7 +307,12 @@ func seed(args []string) error {
 		seeded = append(seeded, s)
 	}
 	if heatgunCase != "" {
-		notes, err := heatgunExtras(c, heatgunCase, heatgunPlan, heatgunFirst, *multi)
+		multiPath := *multi
+		if id, ok := existing[MultiCountryName]; ok && !*force {
+			fmt.Printf("%-24s skipped the country comparison: pinned case %s already exists\n", "", id)
+			multiPath = ""
+		}
+		notes, err := heatgunExtras(c, heatgunCase, heatgunPlan, heatgunFirst, multiPath)
 		if err != nil {
 			return err
 		}
@@ -425,6 +443,7 @@ func heatgunExtras(c client, id string, planBody json.RawMessage, first planResu
 	for _, k := range []string{"date", "product", "family", "exclude_rulings", "current_origin"} {
 		body[k] = fx[k]
 	}
+	body["display_name"], _ = json.Marshal(MultiCountryName)
 	var mc caseResp
 	if err := c.call("POST", "/v1/cases/predict", body, &mc); err != nil {
 		return nil, fmt.Errorf("multi-country case: %w", err)
@@ -467,4 +486,40 @@ func moved(product map[string]any, groups []string) map[string]any {
 		}
 	}
 	return p
+}
+
+// MultiCountryName names the country-comparison case on Cases home.
+const MultiCountryName = "Heat gun: compare Thailand, Vietnam and Malaysia"
+
+// pinnedNames maps the display name of every pinned case to its ID, so a
+// second seed run does not pin duplicate demo cards.
+func pinnedNames(c client) (map[string]string, error) {
+	var list struct {
+		Cases []struct {
+			ID          string `json:"id"`
+			DisplayName string `json:"display_name"`
+			Pinned      bool   `json:"pinned"`
+		} `json:"cases"`
+	}
+	if err := c.call("GET", "/v1/cases", nil, &list); err != nil {
+		return nil, err
+	}
+	out := map[string]string{}
+	for _, k := range list.Cases {
+		if k.Pinned {
+			out[k.DisplayName] = k.ID
+		}
+	}
+	return out, nil
+}
+
+// withDisplayName adds display_name to a predict body so the case is listed
+// under the demo's title rather than the first words of its facts.
+func withDisplayName(predict json.RawMessage, name string) (map[string]json.RawMessage, error) {
+	body := map[string]json.RawMessage{}
+	if err := json.Unmarshal(predict, &body); err != nil {
+		return nil, err
+	}
+	body["display_name"], _ = json.Marshal(name)
+	return body, nil
 }

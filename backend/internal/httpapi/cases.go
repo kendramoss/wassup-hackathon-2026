@@ -417,7 +417,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
-		"targets": targetsField(c.Targets), "pinned": c.Pinned, "display_name": summaryRow(c).DisplayName,
+		"targets": targetsField(c.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 	}
 }
 
@@ -631,6 +631,17 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 
 // economicsFrom keeps the latest economics the user gave (an empty request
 // value leaves the stored one).
+// economicsPriced is the case's economics with the duty rates a plan search
+// would use (sourced table rates filled in, D52), for display; nil without
+// economics.
+func (a *api) economicsPriced(c store.Case) *planner.Economics {
+	if c.Economics == nil {
+		return nil
+	}
+	e := a.priced(*c.Economics, c.Product)
+	return &e
+}
+
 // priced fills duty rates the user did not give from the sourced table, for
 // a product with an HTS number. Without economics there is nothing to price.
 func (a *api) priced(e planner.Economics, p *domain.Product) planner.Economics {
@@ -807,7 +818,9 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	content := export.Markdown(ex)
-	if in.Preview {
+	// A visitor viewing a pinned demo case gets the draft without writing to
+	// it: the seeded demos stay as recorded (D56).
+	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
 		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
 		return
 	}
