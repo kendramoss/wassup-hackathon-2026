@@ -18,7 +18,7 @@ fmt:
 run: ## local server on :8080
 	cd $(GO_DIR) && ADMIN_TOKEN=$${ADMIN_TOKEN:-local-dev-admin-token} go run ./cmd/server
 
-smoke: ## one live engine-model call (needs LLM_PROVIDER and its credentials in the env)
+smoke: ## one live Vertex call (Application Default Credentials and GOOGLE_CLOUD_PROJECT)
 	cd $(GO_DIR) && go run ./cmd/server -smoke
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
@@ -41,7 +41,7 @@ eval-dev: ## engine on the dev split (469; resumes, so a finished run just re-pr
 eval-test: ## held-out split (377): run once per frozen config; never tune on it
 	cd $(GO_DIR) && go run ./cmd/eval run -split final -confirm-final
 
-eval-report: ## summaries of the committed runs, fast path joined with router-v2 labels (no model calls)
+eval-report: ## reprint the recorded proxy runs (the *-litellm.jsonl inputs stay as history; no model calls)
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-dev-router-v2.jsonl
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-final-router-v2.jsonl
 

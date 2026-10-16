@@ -1,0 +1,51 @@
+[
+  {
+    "demo": "heatgun-2022",
+    "title": "Heat gun, 2022 setup (Kobalt 12.5-amp)",
+    "case_id": "case_1b48a0abe7dd",
+    "cbp_held": "China (N328954)",
+    "predicted_origin": "China",
+    "confidence": 0.78,
+    "route": "needs_info",
+    "best_plan": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand (check 0.85, below the bar)",
+    "plan_status": "below_bar",
+    "notes": [
+      "repeat plan search: verdicts identical=true, 6/6 from cache, 135.8 s",
+      "scenario \"As today\": Thailand 0.75, net $0/yr",
+      "scenario \"motor_fan_assembly in Thailand\": Thailand 0.98, net $380000/yr",
+      "scenario \"motor_fan_assembly + pcba in Thailand\": Thailand 0.98, net $320000/yr",
+      "ruling watch: unchanged",
+      "ask: answered, cites [N351922 N348083]",
+      "compare targets (case case_f85614bd052a): #1 Malaysia below_bar, #2 Thailand below_bar, #3 Vietnam no_plan"
+    ]
+  },
+  {
+    "demo": "lidar-s1",
+    "title": "LiDAR module, all core PCBAs made in Thailand (Hesai OT128)",
+    "case_id": "case_7d54018bed17",
+    "cbp_held": "Thailand (N359371, scenario I)",
+    "predicted_origin": "Thailand",
+    "confidence": 0.95,
+    "route": "auto",
+    "best_plan": "Make Main boards (TMB and BMB PCBAs) and RX and TX PCBAs in Vietnam (check 0.85, below the bar)",
+    "plan_status": "below_bar"
+  },
+  {
+    "demo": "dryer-latch-moulded",
+    "title": "Dryer door latch, housing and lever moulded in Thailand",
+    "case_id": "case_701c4f65e8e4",
+    "cbp_held": "Thailand",
+    "predicted_origin": "Thailand",
+    "confidence": 0.98,
+    "route": "auto"
+  },
+  {
+    "demo": "dryer-latch-assembled",
+    "title": "Dryer door latch, Chinese parts assembled in Thailand",
+    "case_id": "case_acfd756e240d",
+    "cbp_held": "China",
+    "predicted_origin": "China",
+    "confidence": 0.98,
+    "route": "auto"
+  }
+]
