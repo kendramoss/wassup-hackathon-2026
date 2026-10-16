@@ -94,7 +94,11 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		sc.Economics = in.Economics
 	}
 	if sc.Economics != nil {
-		e := a.priced(*sc.Economics, sc.Product) // table rates are not stored on the case
+		origins := caseOrigins(sc)
+		for _, s := range out {
+			origins = append(append(origins, domain.CountryParts(s.Prediction.Origin)...), productCountries(s.Product)...)
+		}
+		e := a.priced(r.Context(), *sc.Economics, sc.Product, origins, true) // table and live rates are not stored on the case
 		current := sc.Prediction.Origin
 		if sc.CurrentOrigin != nil && sc.CurrentOrigin.Country != "" {
 			current = sc.CurrentOrigin.Country
