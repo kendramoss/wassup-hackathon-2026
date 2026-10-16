@@ -1282,7 +1282,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached";
             message: string;
             details?: unknown;
         };
@@ -1408,7 +1408,7 @@ export interface components {
              * @enum {string}
              */
             route?: "auto" | "needs_review" | "needs_info";
-            /** @description Starts with "out of scope: " for regimes the tool does not cover (usmca_part102, pharma_api; textile_102_21 unless the textile engine is on), or with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51). */
+            /** @description Starts with "out of scope: " for regimes the tool does not cover (usmca_part102; textile_102_21 unless the textile engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, D62). */
             reason?: string;
         };
         RouterLabel: {
