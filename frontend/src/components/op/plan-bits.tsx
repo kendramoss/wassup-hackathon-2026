@@ -81,7 +81,7 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
             <ul className="flex flex-col gap-1.5">
               {incoming.map((g) => (
                 <li key={`in-${g}`} className={cx("border px-2.5 py-1.5 text-[12.5px]", below ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
-                  <b className={cx("mr-1.5 text-[10px] font-medium uppercase tracking-[0.06em]", below ? "text-ask" : "text-ok")}>moved</b>
+                  <b className={cx("mr-1.5 text-[11px] font-medium uppercase tracking-[0.06em]", below ? "text-ask" : "text-ok")}>moved</b>
                   {groupName(g)}
                 </li>
               ))}

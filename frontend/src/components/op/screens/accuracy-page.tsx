@@ -183,7 +183,7 @@ export function AccuracyPage() {
                   </span>
                 </div>
               ))}
-              <div className="grid gap-x-4 text-[10px] text-dimension sm:grid-cols-[230px_minmax(0,1fr)_130px]">
+              <div className="grid gap-x-4 text-[11px] text-dimension sm:grid-cols-[230px_minmax(0,1fr)_130px]">
                 <span />
                 <span className="flex justify-between">
                   {["0%", "25%", "50%", "75%", "100%"].map((t) => (
@@ -235,7 +235,7 @@ export function AccuracyPage() {
                 <thead>
                   <tr>
                     {["What", "Value", "95% interval", "n", "Status", "Source"].map((h) => (
-                      <th key={h} scope="col" className="border-b border-line py-2 pr-3 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                      <th key={h} scope="col" className="border-b border-line py-2 pr-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                         {h}
                       </th>
                     ))}

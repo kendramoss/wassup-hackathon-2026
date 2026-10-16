@@ -55,3 +55,18 @@ func TestBelowBarNotice(t *testing.T) {
 		t.Error("notice shown without BelowBar")
 	}
 }
+
+func TestReadRulingsWhenNoneCited(t *testing.T) {
+	md := Markdown(Input{ProductName: "x", Facts: "f", Requested: "China", Prediction: domain.Prediction{Precedents: []string{"N340187", "N351782"}}})
+	for _, want := range []string{"N340187 — read by Origin Proof, not cited; [CONFIRM RELEVANCE]", "https://rulings.cbp.gov/ruling/N351782"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("draft missing %q", want)
+		}
+	}
+	if strings.Contains(md, "[ADD RELEVANT EARLIER RULINGS]") {
+		t.Error("placeholder shown although rulings were read")
+	}
+	if !strings.Contains(Markdown(Input{ProductName: "x", Facts: "f"}), "[ADD RELEVANT EARLIER RULINGS]") {
+		t.Error("placeholder missing when nothing was read")
+	}
+}

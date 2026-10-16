@@ -30,8 +30,10 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const [values, setValues] = useState<Record<string, string>>({});
   const formId = useId();
 
+  const pick = move ? { move_key: move, target } : {};
+  // A visit only previews; Download and Print record the export (#86).
   const fetchDraft = () =>
-    api.exportDraft(id, move ? { move_key: move, target } : {}).then((d) => {
+    api.exportDraft(id, { ...pick, preview: true }).then((d) => {
       setDraft(d);
       if (c.step !== "export") setCase({ ...c, step: "export" });
     }, setError);
@@ -56,7 +58,10 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const notice = noticeAt >= 0 ? paras[noticeAt].replace(/^[>*_\s]+|[*_\s]+$/g, "") : null;
   const body = noticeAt >= 0 ? paras.filter((_, i) => i !== noticeAt).join("\n\n") : text;
 
+  const record = () => void api.exportDraft(id, pick).catch(() => {});
+
   const download = () => {
+    record();
     const blob = new Blob([text], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -139,7 +144,10 @@ function Draft({ id, c, setCase }: CaseCtx) {
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown
           </Button>
-          <Button onClick={() => window.print()} disabled={!draft}>
+          <Button onClick={() => {
+              record();
+              window.print();
+            }} disabled={!draft}>
             Print the letter
           </Button>
         </div>

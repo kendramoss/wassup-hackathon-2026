@@ -185,7 +185,7 @@ function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange: (c: Ca
         <thead>
           <tr>
             {[...copy.cases.columns, ""].map((h, i) => (
-              <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+              <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                 {h || <span className="sr-only">Actions</span>}
               </th>
             ))}

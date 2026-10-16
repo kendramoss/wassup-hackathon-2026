@@ -179,7 +179,7 @@ function Compare({ id, c }: CaseCtx) {
               <thead>
                 <tr>
                   {["#", "Country", "Status", "Best move", "Precedent check", "Net per year", ""].map((h, i) => (
-                    <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                    <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                       {h}
                     </th>
                   ))}
@@ -263,8 +263,10 @@ function Compare({ id, c }: CaseCtx) {
           )}
           {top?.best && (top.status === "plan" || top.status === "below_bar") && !since ? (
             <Button onClick={() => draft(top)}>Draft for {top.target} →</Button>
+          ) : since ? null : top ? (
+            <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : (
-            <Button disabled>Draft this plan →</Button>
+            <span className="text-xs text-dim">Compare first, then draft the best plan</span>
           )}
         </div>
       </Footer>

@@ -14,6 +14,7 @@ import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 
 type Tab = "parts" | "paste" | "bom";
+const tabOrder: Tab[] = ["parts", "paste", "bom"];
 
 // Operation groups of the planner templates, offered as suggestions.
 const groupSuggestions = [
@@ -91,6 +92,9 @@ export function ProductStep() {
   const router = useRouter();
   const params = useSearchParams();
   const demoId = params.get("demo");
+  // ?from=<case>: a pasted case's description, to turn into parts and plants
+  // so the plan search can run (#81). The old case stays as it is.
+  const fromId = params.get("from");
 
   const [tab, setTab] = useState<Tab>("parts");
   const [name, setName] = useState("");
@@ -103,6 +107,7 @@ export function ProductStep() {
   const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
+  const [askName, setAskName] = useState(false);
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -129,6 +134,19 @@ export function ProductStep() {
       setExtra({ exclude_rulings: p.exclude_rulings, current_origin: p.current_origin, facts: p.product ? p.facts : undefined });
     }, setError);
   }, [demoId]);
+
+  useEffect(() => {
+    if (!fromId || demoId) return;
+    api.getCase(fromId).then((c) => {
+      setName(c.product?.name || c.display_name || "");
+      if (c.date) setDate(c.date);
+      setFacts(c.facts ?? "");
+      if (c.product?.components?.length) {
+        setProduct(c.product);
+        setTab("parts");
+      } else setTab("paste");
+    }, setError);
+  }, [fromId, demoId]);
 
   // "Turn into parts and plants": the engine drafts the tables from the
   // text (nothing saved); they open on the Parts and plants tab to check.
@@ -183,6 +201,11 @@ export function ProductStep() {
   else if (tab === "paste" && facts.trim().length <= 20) missing = "Paste a description (a sentence or more)";
   else if (tab !== "paste" && !product.components.some((c) => c.name.trim() && c.made_in.trim())) missing = "Add a part and where it's made";
   const ready = missing === null;
+  // Not ready: the button stays focusable and takes you to what's missing.
+  const showMissing = () => {
+    const field = name.trim() === "" ? "[data-field=name]" : missing === "Add the case date" ? "[data-field=date]" : "#step1-panel textarea, #step1-panel input";
+    document.querySelector<HTMLElement>(field)?.focus();
+  };
   const tiers = unlocks(tab, facts, product, economics);
   const countries = [...new Set((product.plants ?? []).map((p) => p.country.trim()).filter(Boolean))];
   const groups = productGroups(product);
@@ -203,14 +226,31 @@ export function ProductStep() {
             )}
           </p>
 
+          {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
           <div role="tablist" aria-label="How to describe the product" className="mt-7 inline-flex flex-wrap border border-edge bg-sheet">
-            {(["parts", "paste", "bom"] as Tab[]).map((t) => (
+            {tabOrder.map((t) => (
               <button
                 key={t}
+                id={`step1-tab-${t}`}
                 role="tab"
                 type="button"
                 aria-selected={tab === t}
+                aria-controls="step1-panel"
+                tabIndex={tab === t ? 0 : -1}
                 onClick={() => setTab(t)}
+                onKeyDown={(e) => {
+                  const i = tabOrder.indexOf(t);
+                  const next =
+                    e.key === "ArrowRight" ? tabOrder[(i + 1) % tabOrder.length]
+                    : e.key === "ArrowLeft" ? tabOrder[(i + tabOrder.length - 1) % tabOrder.length]
+                    : e.key === "Home" ? tabOrder[0]
+                    : e.key === "End" ? tabOrder[tabOrder.length - 1]
+                    : null;
+                  if (!next) return;
+                  e.preventDefault();
+                  setTab(next);
+                  document.getElementById(`step1-tab-${next}`)?.focus();
+                }}
                 className={cx("min-h-10 px-4 text-[13px]", tab === t ? "bg-ink text-paper" : "text-body hover:bg-wash")}
               >
                 {copy.product.tabs[t]}
@@ -218,9 +258,84 @@ export function ProductStep() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
-            <Field label={copy.product.name}>
-              {(id) => <input id={id} className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+          {drafted && tab === "parts" && (
+            <div className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
+              <p className="font-medium text-ask">Drafted from your text. Check these before you continue.</p>
+              {drafted.length > 0 && (
+                <ul className="duo mt-1.5 flex list-disc flex-col gap-1 pl-5 text-ask">
+                  {drafted.map((w) => (
+                    <li key={w}>{w}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          <div className="mt-7" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
+            {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
+            {tab === "paste" && (
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+                <Field label={copy.product.facts}>
+                  {(id) => (
+                    <div className="border border-edge bg-white shadow-[4px_4px_0_var(--shadow)] focus-within:border-ok">
+                      <textarea
+                        id={id}
+                        className="duo block min-h-[320px] w-full resize-y bg-transparent px-4 py-3.5 text-[13.5px] leading-[1.7] outline-none placeholder:text-faint"
+                        maxLength={12000}
+                        value={facts}
+                        placeholder="Each heat gun is assembled in Thailand using 24 components sourced from China and Thailand. The main housing, front cover and heating element are produced in Thailand…"
+                        onChange={(e) => setFacts(e.target.value)}
+                        aria-describedby={`${id}-count`}
+                      />
+                      <div className="flex items-center justify-between gap-3 border-t border-dashed border-guide px-4 py-2 text-[11.5px] text-dim">
+                        <span className="duo">{copy.product.factsHelp}</span>
+                        <span id={`${id}-count`} className="shrink-0 tabular-nums">
+                          {facts.length.toLocaleString("en-US")} / 12,000
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </Field>
+                <aside className="self-start border border-line bg-sheet px-4 py-3.5 text-[12.5px] lg:mt-6">
+                  <p className="eyebrow mb-2">What helps</p>
+                  <ul className="duo flex list-disc flex-col gap-1.5 pl-4 text-body">
+                    <li>What the product is and what it does.</li>
+                    <li>Every part and the country it&apos;s made in.</li>
+                    <li>What happens in each country, step by step: moulding, winding, soldering, assembly, testing.</li>
+                    <li>Write it like a ruling request to CBP. A ruling&apos;s own text works.</li>
+                  </ul>
+                </aside>
+              </div>
+            )}
+            {tab === "bom" && (
+              <BomImport
+                name={name}
+                family={family}
+                imported={imported}
+                onImported={(r) => {
+                  setImported(r);
+                  setProduct(r.product);
+                  if (r.family) setFamily(r.family);
+                  // The file name ("heatgun bom") is no product name and would
+                  // land in the ruling letter (#85): ask for one instead.
+                  if (!name.trim()) {
+                    setAskName(true);
+                    setTimeout(() => document.querySelector<HTMLElement>("[data-field=name]")?.focus(), 0);
+                  }
+                }}
+                onEdit={() => setTab("parts")}
+                onUseText={(text) => {
+                  setFacts(text.slice(0, 12000));
+                  setTab("paste");
+                }}
+              />
+            )}
+          </div>
+
+          {/* After the input: name, family and date (an import fills the name). */}
+          <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
+              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
             </Field>
             <Field label={copy.product.family}>
               {(id) => (
@@ -238,11 +353,11 @@ export function ProductStep() {
               )}
             </Field>
             <Field label={copy.product.date} help={copy.product.dateHelp}>
-              {(id) => <input id={id} type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
             </Field>
           </div>
-
-          <ul aria-label="What this input unlocks" className="mt-5 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
+          {/* Below the input it describes: what it unlocks so far. */}
+          <ul aria-label="What this input unlocks" className="mt-7 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
             {tiers.map((t, i) => (
               <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
                 <span
@@ -291,75 +406,6 @@ export function ProductStep() {
             </p>
           )}
 
-          {drafted && tab === "parts" && (
-            <div className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
-              <p className="font-medium text-ask">Drafted from your text. Check these before you continue.</p>
-              {drafted.length > 0 && (
-                <ul className="duo mt-1.5 flex list-disc flex-col gap-1 pl-5 text-ask">
-                  {drafted.map((w) => (
-                    <li key={w}>{w}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
-          <div className="mt-7" role="tabpanel">
-            {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
-            {tab === "paste" && (
-              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
-                <Field label={copy.product.facts}>
-                  {(id) => (
-                    <div className="border border-edge bg-white shadow-[4px_4px_0_var(--shadow)] focus-within:border-ok">
-                      <textarea
-                        id={id}
-                        className="duo block min-h-[320px] w-full resize-y bg-transparent px-4 py-3.5 text-[13.5px] leading-[1.7] outline-none placeholder:text-faint"
-                        maxLength={12000}
-                        value={facts}
-                        placeholder="Each heat gun is assembled in Thailand using 24 components sourced from China and Thailand. The main housing, front cover and heating element are produced in Thailand…"
-                        onChange={(e) => setFacts(e.target.value)}
-                        aria-describedby={`${id}-count`}
-                      />
-                      <div className="flex items-center justify-between gap-3 border-t border-dashed border-guide px-4 py-2 text-[11.5px] text-dim">
-                        <span className="duo">{copy.product.factsHelp}</span>
-                        <span id={`${id}-count`} className="shrink-0 tabular-nums">
-                          {facts.length.toLocaleString("en-US")} / 12,000
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </Field>
-                <aside className="self-start border border-line bg-sheet px-4 py-3.5 text-[12.5px] lg:mt-6">
-                  <p className="eyebrow mb-2">What helps</p>
-                  <ul className="duo flex list-disc flex-col gap-1.5 pl-4 text-body">
-                    <li>What the product is and what it does.</li>
-                    <li>Every part and the country it&apos;s made in.</li>
-                    <li>What happens in each country, step by step: moulding, winding, soldering, assembly, testing.</li>
-                    <li>Write it like a ruling request to CBP. A ruling&apos;s own text works.</li>
-                  </ul>
-                </aside>
-              </div>
-            )}
-            {tab === "bom" && (
-              <BomImport
-                name={name}
-                family={family}
-                imported={imported}
-                onImported={(r) => {
-                  setImported(r);
-                  setProduct(r.product);
-                  if (r.family) setFamily(r.family);
-                  if (!name && r.product.name) setName(r.product.name);
-                }}
-                onEdit={() => setTab("parts")}
-                onUseText={(text) => {
-                  setFacts(text.slice(0, 12000));
-                  setTab("paste");
-                }}
-              />
-            )}
-          </div>
-
           {error ? (
             <div className="mt-6">
               <ErrorBox error={error} onRetry={submit} />
@@ -376,7 +422,7 @@ export function ProductStep() {
                   {missing}
                 </span>
               ) : null}
-              <Button onClick={submit} disabled={!ready || busy} aria-describedby={missing ? "go-why" : undefined}>
+              <Button onClick={ready ? submit : showMissing} disabled={busy} aria-disabled={!ready} aria-describedby={missing ? "go-why" : undefined}>
                 {copy.product.go} →
               </Button>
             </div>
@@ -511,7 +557,7 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
               <thead>
                 <tr>
                   {["Part", "Made at", "Country", "Group"].map((h) => (
-                    <th key={h} scope="col" className="pb-2 pr-2 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                    <th key={h} scope="col" className="pb-2 pr-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                       {h}
                     </th>
                   ))}

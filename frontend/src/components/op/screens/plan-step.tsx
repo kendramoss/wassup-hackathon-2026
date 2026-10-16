@@ -117,11 +117,28 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
 
   const draft = (key?: string) => router.push(`/cases/${encodeURIComponent(id)}/draft${key ? `?move=${encodeURIComponent(key)}` : ""}`);
 
+  // Nothing to plan towards yet: a pasted case has no plants, or every plant
+  // is in the origin country. A next step, not an error (#81, #98).
   if (!target) {
+    const plants = c.product?.plants?.length ?? 0;
     return (
-      <Main>
-        <ErrorBox error={new Error("No target country: add a plant in another country on the Product step.")} />
-      </Main>
+      <>
+        <Main className="flex flex-col gap-3">
+          <p className="eyebrow">Step 3 · Plan</p>
+          <h1 className="text-xl tracking-[-0.04em]">Plan a move</h1>
+          <p className="duo max-w-[72ch] text-sm text-dim">
+            {plants
+              ? "The plan search moves work between your plants. Every plant on this case is in the origin country, so there is nowhere to move to. Add a plant in another country."
+              : "The plan search moves work between your plants, so it needs parts and plants. This case was started from a pasted description. Turn the description into parts and plants on a new case; this one stays as it is."}
+          </p>
+        </Main>
+        <Footer>
+          <Next>{plants ? "Add a plant in another country." : "Turn the description into parts and plants."}</Next>
+          <div className="ml-auto">
+            <ButtonLink href={`/cases/new?from=${encodeURIComponent(id)}`}>{plants ? "Add a plant →" : "Add parts and plants →"}</ButtonLink>
+          </div>
+        </Footer>
+      </>
     );
   }
 
@@ -216,7 +233,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
               : closest
                 ? "Draft for the closest move. The letter says it's below the bar."
                 : result
-                  ? "Try scenarios or another country: no move found support."
+                  ? "No move found support. Draft for the current setup, or compare other countries."
                   : `Search moves to ${target}.`}
         </Next>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
@@ -236,13 +253,25 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             <>
               <Button onClick={() => draft(moveKey(closest))}>{copy.plan.draftClosest}</Button>
             </>
+          ) : result ? (
+            // Nothing cleared or came close: the letter can still go out for
+            // today's setup (#84), as the Draft tab already allowed.
+            <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : (
-            <Button disabled>{copy.plan.draft}</Button>
+            !searching && <span className="text-xs text-dim">The draft opens after the search</span>
           )}
         </div>
       </Footer>
     </>
   );
+}
+
+// "No change" is the baseline, not a move: "3 more moves and No change"
+// keeps the count in line with "Moves searched" (#90).
+function moreLabel(hidden: number, withBaseline: boolean): string {
+  const moves = withBaseline ? hidden - 1 : hidden;
+  if (!withBaseline) return `${moves} more ${moves === 1 ? "move" : "moves"}`;
+  return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and No change` : "Show No change";
 }
 
 function Band({ children, left, right }: { children: React.ReactNode; left: string; right?: string }) {
@@ -378,7 +407,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
         <thead>
           <tr>
             {["Move", "Outcome", "Precedent check", "Net per year"].map((h) => (
-              <th key={h} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+              <th key={h} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                 {h}
               </th>
             ))}
@@ -485,7 +514,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
           <thead>
             <tr>
               {["Move", "Outcome", "Precedent check", "Net per year", ""].map((h, i) => (
-                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                   {h || <span className="sr-only">Draft</span>}
                 </th>
               ))}
@@ -534,7 +563,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
       </div>
       {every.length > 3 && (
         <button type="button" className="mt-2 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          {open ? "Show the top 3" : `${every.length - 3} more moves`}
+          {open ? "Show the top 3" : moreLabel(every.length - 3, noChange.length > 0)}
         </button>
       )}
       {open && result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
