@@ -105,6 +105,12 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// Teams (on|off, default off) verifies the Google ID token the frontend
+	// proxy forwards as X-User-Token and serves team workspaces (D68).
+	// TeamsAudience is the OAuth client ID the tokens must be issued to;
+	// required when Teams is on.
+	Teams         bool
+	TeamsAudience string
 	// DailySpendCapUSD stops new model-calling requests once the UTC day's
 	// estimated model spend reaches it (D59); 0 disables the cap.
 	DailySpendCapUSD float64
@@ -163,6 +169,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		CasesListLimit:    e.integer("CASES_LIST_LIMIT", 200),
 		DailySpendCapUSD:  e.float("DAILY_SPEND_CAP_USD", 0),
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
+		TeamsAudience:     e.str("TEAMS_AUDIENCE", ""),
 		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
@@ -174,6 +181,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
+	case "on", "true", "1":
+		c.Teams = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("TEAMS must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -238,6 +252,9 @@ func (c Config) validate() error {
 	}
 	if c.CasesListLimit < 1 {
 		bad("CASES_LIST_LIMIT must be positive, got %d", c.CasesListLimit)
+	}
+	if c.Teams && !strings.HasSuffix(c.TeamsAudience, ".apps.googleusercontent.com") {
+		bad("TEAMS=on needs TEAMS_AUDIENCE, the Google OAuth client ID (…apps.googleusercontent.com), got %q", c.TeamsAudience)
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)

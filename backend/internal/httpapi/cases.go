@@ -29,6 +29,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -111,6 +112,12 @@ type Deps struct {
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// Teams turns on sign-in and team workspaces (D68): X-User-Token is
+	// verified by Users, and Workspaces maps the user to their workspace.
+	// Off by default; anonymous requests keep CaseOwnership's rules.
+	Teams      bool
+	Users      teams.Verifier
+	Workspaces teams.Store
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -250,10 +257,13 @@ func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (s
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
 		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
 		Owner: ownerOf(r)}
+	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
+		sc.Owner, sc.Workspace = u.owner, u.workspace
+	}
 	if err := a.analyse(r, &sc, c); err != nil {
 		return store.Case{}, err
 	}
-	sc.Record(predictionEvent("predicted", sc, start))
+	record(r.Context(), &sc, predictionEvent("predicted", sc, start))
 	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
 		return store.Case{}, err
 	}
@@ -390,7 +400,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		latest.OriginalFacts, latest.Answers = sc.OriginalFacts, sc.Answers
 		latest.Facts, latest.UpdatedAt = sc.Facts, sc.UpdatedAt
 		latest.Prediction, latest.Router, latest.Triage, latest.Clarify = sc.Prediction, sc.Router, sc.Triage, sc.Clarify
-		latest.Record(ev)
+		record(r.Context(), latest, ev)
 		return nil
 	})
 	if err != nil {
@@ -558,15 +568,22 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 		limit = 200
 	}
 	cs, err := store.ListRecent(r.Context(), a.d.Cases, limit)
+	if err == nil {
+		cs, err = a.workspaceCases(r.Context(), cs)
+	}
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	rows := make([]caseSummary, 0, len(cs))
+	shown := make([]store.Case, 0, len(cs))
 	for _, c := range cs {
-		if c.ID == HealthProbeID || !a.visible(r, c) {
-			continue
+		if c.ID != HealthProbeID && a.visible(r, c) {
+			shown = append(shown, c)
 		}
+	}
+	shown = store.CapRecent(shown, limit) // a no-op unless workspace cases were added
+	rows := make([]caseSummary, 0, len(shown))
+	for _, c := range shown {
 		rows = append(rows, summaryRow(c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
@@ -667,7 +684,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
-			latest.Record(ev)
+			record(r.Context(), latest, ev)
 			return nil
 		}); err != nil {
 			a.fail(w, r, err)
@@ -779,7 +796,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(req.Economics, latest.Economics)
-			latest.Record(ev)
+			record(r.Context(), latest, ev)
 			return nil
 		})
 	}
@@ -886,7 +903,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.ExportedAt, latest.UpdatedAt = &now, now
-		latest.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
+		record(r.Context(), latest, store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
 		return nil
 	}); err != nil {
 		a.fail(w, r, err)

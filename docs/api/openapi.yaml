@@ -21,6 +21,8 @@ info:
     Ruling lookups (`GET /v1/rulings/{id}`) have their own per-client limit (30 fetches a minute; a ruling already fetched is free), separate from the model budget (D58).
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
+
+    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin.
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)
@@ -624,6 +626,64 @@ paths:
                   predict: { $ref: "#/components/schemas/PredictRequest" }
                   plan: { oneOf: [{ $ref: "#/components/schemas/PlanRequest" }, { type: "null" }] }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces:
+    post:
+      summary: Create a team workspace (TEAMS=on; sign-in required)
+      description: The caller becomes its admin and only member. A user can be in one workspace (409 conflict if already in one). Served only with TEAMS=on (404 otherwise). D68.
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [name], properties: { name: { type: string, minLength: 1, maxLength: 100, description: Whitespace is collapsed } } }
+      responses:
+        "201":
+          description: The workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/mine:
+    get:
+      summary: The signed-in user and their workspace (TEAMS=on)
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      responses:
+        "200":
+          description: The user's email and workspace (null when they have none)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [email, workspace]
+                properties:
+                  email: { type: string, format: email }
+                  workspace: { oneOf: [{ $ref: "#/components/schemas/Workspace" }, { type: "null" }] }
+        "401": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members:
+    post:
+      summary: Add a member by email (the workspace's admin only; TEAMS=on)
+      description: 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already in a workspace or the workspace has 50 members. The new member sees the workspace's cases the next time they sign in with that Google account.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email, description: Lower-cased } } }
+      responses:
+        "200":
+          description: The updated workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
@@ -639,6 +699,12 @@ components:
       name: id
       in: path
       required: true
+      schema: { type: string }
+    UserToken:
+      name: X-User-Token
+      in: header
+      required: true
+      description: The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint.
       schema: { type: string }
   responses:
     Error:
@@ -691,9 +757,20 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict]
         message: { type: string }
         details: {}
+    Workspace:
+      type: object
+      description: A team workspace (D68); its members see each other's cases.
+      required: [id, name, members, created_by, created_at, admin]
+      properties:
+        id: { type: string, example: ws_3f9a2c1b7d4e }
+        name: { type: string }
+        members: { type: array, items: { type: string, format: email } }
+        created_by: { type: string, format: email, description: The workspace's admin }
+        created_at: { type: string, format: date-time }
+        admin: { type: boolean, description: The caller is the admin }
     Meta:
       type: object
       required: [model_ids, prompt_versions, llm_provider, disclaimer]
@@ -866,6 +943,7 @@ components:
                   output_tokens: { type: integer }
                   cost_usd: { type: number, description: "Estimated at the eval's promo prices (eval/RESULTS.md); cached precedent checks cost nothing. For asked, the agent model only (not its what-if engine calls)." }
                   latency_ms: { type: integer, description: Wall time of the step }
+                  actor: { type: string, format: email, description: "The signed-in user who took the step (TEAMS=on, D68); absent for anonymous visitors" }
             watch:
               type: [object, "null"]
               description: null until re-checked

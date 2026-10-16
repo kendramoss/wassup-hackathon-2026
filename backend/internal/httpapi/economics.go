@@ -59,7 +59,7 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.Economics, latest.UpdatedAt = &e, now
-		latest.Record(store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
+		record(r.Context(), latest, store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
 			e.AnnualImportValueUSD, len(e.DutyRates), len(e.GroupCosts))})
 		return nil
 	})

@@ -126,3 +126,28 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestTeamsConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.Teams || c.TeamsAudience != "" {
+		t.Fatalf("teams defaults = %v %q %v", c.Teams, c.TeamsAudience, err)
+	}
+	const aud = "1234-abc.apps.googleusercontent.com"
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": aud})))
+	if err != nil || !on.Teams || on.TeamsAudience != aud {
+		t.Errorf("teams on = %v %q %v", on.Teams, on.TeamsAudience, err)
+	}
+	// An audience alone does nothing: teams stays off.
+	if off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEAMS_AUDIENCE": aud}))); err != nil || off.Teams {
+		t.Errorf("audience without TEAMS = %v %v", off.Teams, err)
+	}
+	for _, bad := range []map[string]string{
+		{"TEAMS": "maybe", "TEAMS_AUDIENCE": aud},
+		{"TEAMS": "on"}, // no audience: any client's token would pass
+		{"TEAMS": "on", "TEAMS_AUDIENCE": "my-backend-url"}, // not an OAuth client ID
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "TEAMS") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}

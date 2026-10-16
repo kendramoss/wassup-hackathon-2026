@@ -34,7 +34,13 @@ type firestoreDoc struct {
 	ID        string    `firestore:"id"`
 	UpdatedAt time.Time `firestore:"updated_at"`
 	Pinned    bool      `firestore:"pinned"` // queried by ListRecent (D58)
-	Case      []byte    `firestore:"case_json_gz"`
+	// Workspace is queried by ListWorkspace (D68); absent for anonymous cases.
+	Workspace string `firestore:"workspace,omitempty"`
+	Case      []byte `firestore:"case_json_gz"`
+}
+
+func docOf(c Case, gz []byte) firestoreDoc {
+	return firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Workspace: c.Workspace, Case: gz}
 }
 
 // NewFirestore connects to database (empty means "(default)") in project
@@ -67,7 +73,7 @@ func (f *Firestore) Put(ctx context.Context, c Case) error {
 	if err != nil {
 		return fmt.Errorf("store: encode %s: %w", c.ID, err)
 	}
-	if _, err := f.col.Doc(c.ID).Set(ctx, firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Case: b}); err != nil {
+	if _, err := f.col.Doc(c.ID).Set(ctx, docOf(c, b)); err != nil {
 		return fmt.Errorf("store: write %s: %w", c.ID, err)
 	}
 	return nil
@@ -101,7 +107,7 @@ func (f *Firestore) Update(ctx context.Context, id string, fn func(*Case) error)
 			return fmt.Errorf("store: encode %s: %w", id, err)
 		}
 		out = c
-		return tx.Set(f.col.Doc(id), firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Case: b})
+		return tx.Set(f.col.Doc(id), docOf(c, b))
 	})
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
@@ -150,6 +156,30 @@ func (f *Firestore) List(ctx context.Context) ([]Case, error) {
 	return out, nil
 }
 
+// ListWorkspace implements WorkspaceLister with a single-field equality
+// query (no composite index needed); it reads all of the workspace's cases.
+func (f *Firestore) ListWorkspace(ctx context.Context, workspace string) ([]Case, error) {
+	it := f.col.Where("workspace", "==", workspace).Documents(ctx)
+	defer it.Stop()
+	var out []Case
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list workspace: %w", err)
+		}
+		c, err := decodeSnapshot(snap)
+		if err != nil {
+			continue
+		}
+		out = append(out, c)
+	}
+	sortNewest(out)
+	return out, nil
+}
+
 // ListRecent implements RecentLister: every pinned case plus the n most
 // recently updated others, reading only those documents (D58). A pinned case
 // saved before the pinned field existed is found by the second query only
@@ -185,7 +215,7 @@ func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
 	if err := add(f.col.OrderBy("updated_at", firestore.Desc).Limit(n + len(out))); err != nil {
 		return nil, err
 	}
-	return capRecent(out, n), nil
+	return CapRecent(out, n), nil
 }
 
 // Delete implements Cases.

@@ -27,9 +27,20 @@ func ownerOf(r *http.Request) string {
 	return hex.EncodeToString(h[:16])
 }
 
-// visible reports whether the request may see case c.
+// visible reports whether the request may see case c. A signed-in user's
+// visibility is in teamVisible (D68); a case made by a signed-in user is
+// never visible to anonymous visitors.
 func (a *api) visible(r *http.Request, c store.Case) bool {
-	if !a.d.CaseOwnership || c.Pinned || a.isAdmin(r) {
+	if c.Pinned || a.isAdmin(r) {
+		return true
+	}
+	if id := identityOf(r.Context()); id.email != "" {
+		return teamVisible(r, id, c)
+	}
+	if teamCase(c) {
+		return false
+	}
+	if !a.d.CaseOwnership {
 		return true
 	}
 	o := ownerOf(r)

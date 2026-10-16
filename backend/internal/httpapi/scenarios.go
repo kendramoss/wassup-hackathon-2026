@@ -115,7 +115,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	if a.demoReadOnly(r, sc) {
 		sc.Scenarios, sc.UpdatedAt = out, now
-		sc.Record(ev)
+		record(r.Context(), &sc, ev)
 		a.respond(w, http.StatusOK, a.caseFields(sc))
 		return
 	}
@@ -124,7 +124,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			latest.Economics = in.Economics
 		}
 		latest.Scenarios, latest.UpdatedAt = out, now
-		latest.Record(ev)
+		record(r.Context(), latest, ev)
 		return nil
 	})
 	if err != nil {
@@ -251,12 +251,12 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start)
 	if !save {
 		sc.Watch = watch
-		sc.Record(ev)
+		record(ctx, sc, ev)
 		return nil
 	}
 	saved, err := a.d.Cases.Update(ctx, sc.ID, func(latest *store.Case) error {
 		latest.Watch = watch
-		latest.Record(ev)
+		record(ctx, latest, ev)
 		return nil
 	})
 	if err != nil {

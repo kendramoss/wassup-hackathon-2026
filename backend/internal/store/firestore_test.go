@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 func TestGzipJSONRoundTrip(t *testing.T) {
@@ -98,5 +99,34 @@ func TestFirestoreEmulator(t *testing.T) {
 	}
 	if b, ok, err := f2.Verdicts().Get(ctx, key); !ok || err != nil || string(b) != `{"v":1}` {
 		t.Errorf("verdict from another client = %s %v %v", b, ok, err)
+	}
+	// Workspaces (D68): the query field survives Update, membership is unique.
+	wsID := fmt.Sprintf("ws_%d", now.UnixNano())
+	_ = f.Put(ctx, Case{ID: "case_team", Workspace: wsID, UpdatedAt: now})
+	if _, err := f.Update(ctx, "case_team", func(c *Case) error { c.DisplayName = "renamed"; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	if cs, err := f2.ListWorkspace(ctx, wsID); err != nil || len(cs) != 1 || cs[0].DisplayName != "renamed" {
+		t.Errorf("ListWorkspace = %+v %v", cs, err)
+	}
+	ws, ws2 := f.Workspaces(), f2.Workspaces()
+	owner, member := wsID+"@example.com", "m"+wsID+"@example.com"
+	if err := ws.Create(ctx, teams.Workspace{ID: wsID, Name: "Acme", Members: []string{owner}, CreatedBy: owner}); err != nil {
+		t.Fatal(err)
+	}
+	if err := ws.Create(ctx, teams.Workspace{ID: wsID + "x", Members: []string{owner}}); !errors.Is(err, teams.ErrMember) {
+		t.Errorf("second workspace for the owner = %v", err)
+	}
+	if w, err := ws.AddMember(ctx, wsID, member); err != nil || len(w.Members) != 2 {
+		t.Errorf("AddMember = %+v %v", w, err)
+	}
+	if _, err := ws.AddMember(ctx, wsID, member); !errors.Is(err, teams.ErrMember) {
+		t.Errorf("AddMember twice = %v", err)
+	}
+	if w, err := ws2.Of(ctx, member); err != nil || w.ID != wsID || w.Name != "Acme" {
+		t.Errorf("Of(member) from another client = %+v %v", w, err)
+	}
+	if _, err := ws2.Of(ctx, "nobody@example.com"); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Of(nobody) = %v", err)
 	}
 }
