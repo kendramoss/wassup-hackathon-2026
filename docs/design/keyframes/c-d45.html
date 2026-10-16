@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 3 key frames: foundations</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+body{background:#ecebe6;padding:56px 48px 120px}
+h1{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.lede{margin-top:12px;max-width:84ch;color:#3d3a35}
+section{margin-top:64px}h2{font-family:var(--serif);font-size:26px;font-weight:600}
+.note{margin-top:6px;color:var(--dim);font-size:14px;max-width:86ch}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:22px;align-items:start}
+figure{background:#fff;border-radius:10px;overflow:hidden}figure img{display:block;width:100%}
+figcaption{padding:12px 14px 14px;font-size:14px;line-height:1.45}
+figcaption b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dim);margin-bottom:4px}
+.rec{color:var(--ok);font-weight:600}
+.check{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;font-size:13px;max-width:1100px}
+.check div::before{content:"✓ ";font-weight:700;color:var(--ok)}.check div.p::before{content:"~ ";color:#c4892a}.check div.x::before{content:"✗ ";color:#b0412e}
+.links{margin-top:8px;font-size:13px}
+@media (max-width:1100px){.row,.check{grid-template-columns:1fr}body{padding:32px 20px 80px}}
+</style></head><body>
+<h1>Backend D45: concepts</h1>
+<p class="lede">Pinned demos and delete on Cases home, the rate-limit note, and case history with cost per step (backend <span class="mono">feat/origin-proof-demo</span> 43315ef). Demo rows use the demo-seed run (<span class="mono">eval/results/demo-seed-litellm.json</span>).</p>
+<section><h2>Cases home: two options</h2><div class="row" style="grid-template-columns:repeat(2,minmax(0,1fr))"><figure><a href="c-cases-group.html"><img src="png/c-cases-group.png" alt=""></a><figcaption><b>Option 1 · one table, two groups</b>Demos first with a "Demo" tag and no row menu; your cases under them with a ⋯ menu (Open, Rename, Delete case…).</figcaption></figure><figure><a href="c-cases-cards.html"><img src="png/c-cases-cards.png" alt=""></a><figcaption><b>Option 2 · demo cards, then your cases</b>Pinned demos as four cards showing origin, status and the plan result; your cases as a table with Delete and an inline red confirm row.</figcaption></figure></div>
+<div class="check"><div>Pinned cases can't be deleted, so they never show Delete (the API answers 403)</div><div>"Re-check all" is gone (admin-only now)</div><div>Option 2 shows the demo story at a glance: heat gun "no plan cleared 0.92", which is the video path</div><div class="p">"Rename" in option 1 needs an endpoint; drop it if there isn't one</div><div class="x">Option 1 makes demos look like the user's own work</div></div></section>
+<section><h2>Rate limit (429 rate_limited): where it shows</h2><div class="row" style="grid-template-columns:repeat(2,minmax(0,1fr))"><figure><a href="c-rate-plan.html"><img src="png/c-rate-plan.png" alt=""></a><figcaption><b>Beside the button that hit it</b>"Too many plan searches this minute. Try again in 42 s." with a ring counting down; the button is off until zero. Plan is 4 a minute.</figcaption></figure><figure><a href="c-rate-extract.html"><img src="png/c-rate-extract.png" alt=""></a><figcaption><b>Same pattern elsewhere</b>On paste drafting: "Busy right now. Try again in 18 s; your text is kept." Seconds from details.retry_after_s.</figcaption></figure></div>
+<div class="check"><div>Grey and blue, not red: it isn't a failure and nothing is lost</div><div>Lives next to the action, not in a toast or the error panel</div><div class="p">The proxy must pass X-Client-IP, or everyone shares one 4-a-minute plan bucket</div></div></section>
+<section><h2>Case history with cost per step: two options</h2><div class="row" style="grid-template-columns:repeat(2,minmax(0,1fr))"><figure><a href="c-hist-drawer.html"><img src="png/c-hist-drawer.png" alt=""></a><figcaption><b>Option 1 · drawer from the audit line</b>Every event (time, kind, summary, model, cost · time, tokens), with the total at the bottom. Opens from "History" on the audit line.</figcaption></figure><figure><a href="c-hist-inline.html"><img src="png/c-hist-inline.png" alt=""></a><figcaption><b>Option 2 · in the side panel</b>The same list, compact, replacing the audit line under the rulings read.</figcaption></figure></div>
+<div class="check"><div>Cost and time are muted; absent when no model ran ("no model")</div><div>The case total backs the cost claim on the accuracy page</div><div class="p">Only predict ($0.019 · 13.6 s, from the backend) and plan ($0.22 · 33 s, the proxy plan run in NUMBERS.md) are real; "…" marks the rest until the seeded history JSON arrives. Summaries are written from the seed notes</div><div class="x">Option 2 makes the side panel very long on a well-used case</div></div></section>
+<section><h2>Suggested pick</h2><p class="lede">Cases option 2, the rate-limit note as drawn, and history option 1 (the drawer).</p></section>
+</body></html>

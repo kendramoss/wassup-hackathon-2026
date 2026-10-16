@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 3 key frames: foundations</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+body{background:#ecebe6;padding:56px 48px 120px}
+h1{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.lede{margin-top:12px;max-width:84ch;color:#3d3a35}
+section{margin-top:64px}h2{font-family:var(--serif);font-size:26px;font-weight:600}
+.note{margin-top:6px;color:var(--dim);font-size:14px;max-width:86ch}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:22px;align-items:start}
+figure{background:#fff;border-radius:10px;overflow:hidden}figure img{display:block;width:100%}
+figcaption{padding:12px 14px 14px;font-size:14px;line-height:1.45}
+figcaption b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dim);margin-bottom:4px}
+.rec{color:var(--ok);font-weight:600}
+.check{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;font-size:13px;max-width:1100px}
+.check div::before{content:"✓ ";font-weight:700;color:var(--ok)}.check div.p::before{content:"~ ";color:#c4892a}.check div.x::before{content:"✗ ";color:#b0412e}
+.links{margin-top:8px;font-size:13px}
+@media (max-width:1100px){.row,.check{grid-template-columns:1fr}body{padding:32px 20px 80px}}
+</style></head><body>
+<h1>Result screen variants: concepts</h1>
+<p class="lede">The states the Result screen (k2 band) can be in besides auto-accepted. Each frame uses a real recorded case: the cabin air filter N351082 and heat pump N351860 from the dev clarify and engine runs, the knit gaiters N357543 from the held-out set (Vertex AI). The heat gun's needs-review state with questions is already <a href="p-k2.html">p-k2.html</a>.</p>
+<section><h2>Earlier rulings disagree: two options</h2><div class="row" style="grid-template-columns:repeat(2,minmax(0,1fr))"><figure><a href="c-res-conflict-pair.html"><img src="png/c-res-conflict-pair.png" alt=""></a><figcaption><b>Option 1 · side by side</b>Both rulings as two halves with their holdings, the one this case leans on in blue, and "What CBP relied on" (deciding_difference) under them. Every sentence is the endpoint's text.</figcaption></figure><figure><a href="c-res-conflict-fork.html"><img src="png/c-res-conflict-fork.png" alt=""></a><figcaption><b>Option 2 · fork</b>The question at the top, deciding_difference as the fork, a ruling on each branch. Reads faster, but the branch labels ("many parts made in Thailand") are written by us, not returned by the API.</figcaption></figure></div>
+<div class="check"><div>Option 1 shows only endpoint text (conflict.ruling_a/holding_a/ruling_b/holding_b/deciding_difference)</div><div>The questions still follow, so the user can answer the deciding fact</div><div class="p">"This case follows" is read from the reasoning, which cites the media ruling; the API has no field for it. Either drop the marker or ask the backend for <span class="mono">conflict.leans</span></div><div class="x">Option 2 needs short branch labels the API doesn't return</div></div></section>
+<section><h2>Other states</h2><div class="row" style="grid-template-columns:repeat(3,minmax(0,1fr))"><figure><a href="c-res-review.html"><img src="png/c-res-review.png" alt=""></a><figcaption><b>Needs expert review, no questions</b>Heat pump, China 0.90. An amber panel: below the bar, the held-out rates under and over it, the key factor, "Draft a note for the broker" and "Add facts". Then the reasoning as returned.</figcaption></figure><figure><a href="c-res-scope.html"><img src="png/c-res-scope.png" alt=""></a><figcaption><b>Out of scope</b>Knit gaiters N357543 (held-out, Vertex AI): the band leads with "Textile rules" and triage.reason; the prediction (China 0.99) is subordinate, "for reference"; plan search off with the reason. Detected by triage.reason starting "out of scope: " (regimes textile_102_21, usmca_part102, pharma_api; "unclear" is in scope). No follow-up questions. Honest note: CBP decided this one as substantial transformation and China was right, so the router was being careful.</figcaption></figure><figure><a href="c-res-error.html"><img src="png/c-res-error.png" alt=""></a><figcaption><b>Model error</b>model_unavailable: the band stays a Draft with placeholders, a red panel says nothing is lost, "Try again" with the try count. model_bad_response retries too; internal shows the message and the case ID.</figcaption></figure></div>
+<div class="check"><div>Each state says what happens next in one button</div><div>Red only for the real failure; amber for "look again"</div><div>Held-out numbers quoted only where they apply (in-scope fast path)</div><div>Out of scope confirmed by the backend: a normal case, never an error (D7)</div><div class="p">Error panel copy is ours; the API's message is shown under it as returned</div></div></section>
+<section><h2>Suggested pick</h2><p class="lede">Option 1 for conflicts (endpoint text only), with the "this case follows" marker kept only if the backend adds it. The three other states as drawn.</p></section>
+</body></html>
