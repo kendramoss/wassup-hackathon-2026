@@ -121,6 +121,7 @@ export const api = {
   ruling: (id: string) => call<Ruling>(`/rulings/${enc(id)}`),
   evalSummary: () => call<EvalSummary>("/eval/summary"),
   importBom: (form: FormData) => call<ImportResponse>("/products/import", { method: "POST", body: form }),
+  importCsv: (body: { csv: string; name?: string; family?: string }) => post<ImportResponse>("/products/import", body),
   extract: (body: { facts: string; family?: string; name?: string }, signal?: AbortSignal) => post<ExtractResponse>("/products/extract", body, signal),
   batch: (form: FormData, signal?: AbortSignal) => call<BatchResponse>("/cases/batch", { method: "POST", body: form, signal }),
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),

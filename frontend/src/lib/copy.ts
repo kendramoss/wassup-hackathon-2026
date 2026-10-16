@@ -29,8 +29,8 @@ export const copy = {
     factsHelp: "Components, where each is made, and the processing in each country, as you would write to CBP.",
     go: "Find the likely origin",
     working: "Finding the likely origin…",
-    bomDrop: "Drop a CSV or .xlsx bill of materials, or choose a file",
-    bomGuide: "Columns: name and country (required); plant, group, type, plant_capabilities (optional).",
+    bomDrop: "Drop a bill of materials (CSV, Excel or PDF), or choose a file",
+    bomGuide: "Columns: name and country (required); plant, group, type, plant_capabilities (optional). A PDF needs those as a table with a header row.",
     bomSample: "Download sample (heat gun)",
   },
 

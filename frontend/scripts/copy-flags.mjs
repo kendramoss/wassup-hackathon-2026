@@ -1,4 +1,4 @@
-// Copies the flag SVGs for every country in src/lib/countries.ts from
+// Copies the flag SVGs (and the PDF.js worker) for every country in src/lib/countries.ts from
 // flag-icons (MIT) into public/flags, so flags are bundled and never loaded
 // from a CDN. Runs before dev and build.
 import { copyFile, mkdir, readFile } from "node:fs/promises";
@@ -12,4 +12,6 @@ for (const code of codes) {
     new URL(`../public/flags/${code}.svg`, import.meta.url),
   );
 }
-console.log(`copied ${codes.size} flags`);
+// The PDF.js worker, for reading BOM tables out of PDFs (src/lib/pdf-bom.ts).
+await copyFile(new URL("../node_modules/pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url), new URL("../public/pdf.worker.min.mjs", import.meta.url));
+console.log(`copied ${codes.size} flags and the PDF.js worker`);

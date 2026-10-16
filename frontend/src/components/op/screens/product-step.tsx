@@ -7,6 +7,7 @@ import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { CaseTabs, ErrorBox, Footer, Main } from "../chrome";
 import { groupName } from "../plan-bits";
+import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 
 type Tab = "parts" | "paste" | "bom";
@@ -210,6 +211,10 @@ export function ProductStep() {
                   if (!name && r.product.name) setName(r.product.name);
                 }}
                 onEdit={() => setTab("parts")}
+                onUseText={(text) => {
+                  setFacts(text.slice(0, 12000));
+                  setTab("paste");
+                }}
               />
             )}
           </div>
@@ -450,16 +455,19 @@ function BomImport({
   imported,
   onImported,
   onEdit,
+  onUseText,
 }: {
   name: string;
   family: string;
   imported: ImportResponse | null;
   onImported: (r: ImportResponse) => void;
   onEdit: () => void;
+  onUseText: (text: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [pdfText, setPdfText] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const inputId = useId();
 
@@ -467,6 +475,20 @@ function BomImport({
     setFile(f);
     setBusy(true);
     setError(null);
+    setPdfText(null);
+    // PDFs are read in the browser: the table becomes CSV for the same import.
+    if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
+      try {
+        const { csv } = await pdfToBomCsv(f);
+        onImported(await api.importCsv({ csv, name: name || undefined, family: family || undefined }));
+      } catch (e) {
+        if (e instanceof PdfTableError) setPdfText(e.text);
+        setError(e);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const form = new FormData();
     form.append("file", f);
     if (name) form.append("name", name);
@@ -502,10 +524,32 @@ function BomImport({
       >
         <span className="text-sm">{file ? `${file.name} · replace file` : copy.product.bomDrop}</span>
         <span className="duo mt-2 block text-xs text-dim">{copy.product.bomGuide}</span>
-        <input id={inputId} type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        <input id={inputId} type="file" accept=".csv,.xlsx,.pdf,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       </label>
       {busy && <Spinner label="Importing…" />}
       {error ? <ErrorBox error={error} /> : null}
+      {pdfText && pdfText.trim().length > 20 && (
+        <p className="duo text-[13px]">
+          No parts table found, but the PDF has text.{" "}
+          <button type="button" className="text-ok underline underline-offset-2" onClick={() => onUseText(pdfText)}>
+            Use its text as the description
+          </button>
+        </p>
+      )}
+      <p className="text-xs text-dim">
+        Test files (heat gun, 17 rows):{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
+          CSV
+        </a>{" "}
+        ·{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.xlsx" download>
+          Excel
+        </a>{" "}
+        ·{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
+          PDF
+        </a>
+      </p>
       {imported && p && (
         <Panel>
           <PanelHead right="Ready for the plan search">Imported</PanelHead>

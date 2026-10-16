@@ -15,6 +15,7 @@
   "dependencies": {
     "flag-icons": "^7.2.3",
     "next": "16.4.0",
+    "pdfjs-dist": "^4.10.38",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
