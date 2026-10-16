@@ -42,7 +42,7 @@ Same frozen config as the proxy run below. Scoring adjustments from `eval/data/s
 - McNemar, Argon vs Flash, same adjustments: Flash fixed 16, broke 19, p = 0.736. Gap is 0.6 points, inside the ~3-point band.
 - The jsonl `cost_usd` field is 0: the price table has no Flash 3.5 entry. The $0.017 figure is mean tokens (about 2,705 in / 1,453 out) times Vertex global standard $1.50 / $9.00 per 1M, output including reasoning, from the Agent Platform pricing page checked 15 Oct 2026. The 469-case run cost about $8.
 - Flash's fast path is below the 95% accuracy the 0.92 bar was chosen for. Overall accuracy is close; the confident answers are not.
-- Tuning was not launched. Supervised fine-tuning for Gemini 3.5 Flash is $0.01 per 1,000 training tokens ($10 per 1M). See D44.
+- Tuning was not launched. Supervised fine-tuning for Gemini 3.5 Flash is $0.01 per 1,000 training tokens ($10 per 1M). Anas: no Flash tuning before the freeze. The staging deploy of this baseline (health ok, case saves denied) is in D44.
 
 ## Origin engine — Go port check (engine-v1, gemini-4-argon, 5 BM25 precedents dated before each case) — proxy, development only
 
