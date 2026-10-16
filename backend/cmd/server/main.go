@@ -31,6 +31,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -117,7 +118,14 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 		}
 		base = v
 	case config.ProviderFake:
-		base = llm.FakeText(`{"origin_country":"China","confidence":0.5}`)
+		// Every call gets the engine's JSON, except the case agent, which
+		// gets a plain sentence so Ask shows an answer in local runs.
+		base = &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+			if strings.Contains(req.System, "trade-compliance lead") {
+				return llm.Response{Text: "This is the local fake model, so there is no real answer here. With LLM_PROVIDER=vertex the agent reads the case and earlier CBP rulings and answers in plain words."}, nil
+			}
+			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`}, nil
+		}}
 	default:
 		return nil, fmt.Errorf("unknown LLM provider %q", cfg.LLMProvider)
 	}
