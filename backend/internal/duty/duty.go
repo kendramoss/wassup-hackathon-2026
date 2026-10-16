@@ -58,6 +58,7 @@ type file struct {
 	Lines      []struct {
 		HTS         string                 `json:"hts"`
 		Description string                 `json:"description"`
+		Checked     string                 `json:"checked"` // overrides the file's date
 		Origins     map[string][]Component `json:"origins"`
 	} `json:"lines"`
 }
@@ -73,6 +74,9 @@ func parse(b []byte) (*Table, error) {
 	t := &Table{lines: map[string]Line{}}
 	for _, l := range f.Lines {
 		line := Line{HTS: l.HTS, Description: l.Description, Checked: f.Checked, Revision: f.Revision, SourcesDoc: f.SourcesDoc}
+		if l.Checked != "" {
+			line.Checked = l.Checked
+		}
 		for origin, cs := range l.Origins {
 			r := Rate{Origin: domain.NormalizeCountry(origin), Components: cs}
 			for _, c := range cs {

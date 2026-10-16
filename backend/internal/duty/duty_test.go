@@ -31,6 +31,16 @@ func TestTableMatchesDutySources(t *testing.T) {
 	if len(l.Rates) != len(want) {
 		t.Errorf("%d origins", len(l.Rates))
 	}
+	lidar, ok := tb.Line("9015.80.2000")
+	if !ok || lidar.Checked != "2026-10-17" {
+		t.Fatalf("LiDAR line = %v %+v", ok, lidar)
+	}
+	wantLidar := map[string]float64{"China": 0.375, "Thailand": 0.125, "Vietnam": 0.125, "Malaysia": 0.10} // docs/DUTY-SOURCES.md, LiDAR section
+	for _, r := range lidar.Rates {
+		if wantLidar[r.Origin] != r.Total || r.Unverified {
+			t.Errorf("LiDAR %s total %v unverified %v, want %v verified", r.Origin, r.Total, r.Unverified, wantLidar[r.Origin])
+		}
+	}
 	if _, ok := tb.Line("9999.99.99"); ok {
 		t.Error("unknown line found")
 	}

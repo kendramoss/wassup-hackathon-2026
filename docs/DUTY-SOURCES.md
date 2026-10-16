@@ -43,3 +43,31 @@ Sourced by the duty-rates session for `backend/testdata/heatgun_multi.json`; sam
 - **Forced-labor 301:** HTS headings [9903.05](https://hts.usitc.gov/reststop/search?keyword=9903.05) and [91 FR 47318](https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies). Item 33 sets Malaysia at 10%. **Vietnam's 12.5%** comes from the HTS heading and a [secondary tier list](https://zonos.com/docs/guides/country-guides/united-states/section-301-forced-labor); it is **not confirmed in the notice text**.
 - **Malaysia exemption not ruled out.** Malaysia has a country-specific list (U.S. note 52(j)(4)(i), heading 9903.05.99) plus Annex II Part E. 8419.89 is not in the note list or Annex II Part A (OCR, not proofread), but Part E was not checked. If it is exempt, Malaysia's total would be 4.2%.
 - Section 232, Section 122 (expired) and IEEPA (invalidated) add nothing, as above. Anti-dumping was not checked.
+
+## Hesai OT128 LiDAR (LiDAR demo, checked 17 Oct 2026)
+
+Checked against HTS **2026 Revision 21** (released 7 Oct, in effect from 9 Oct 2026) and the full Chapter 99 PDF, searched through its text layer. These rates apply to this product only and are not advice. "unverified" means not confirmed from a primary source. Researched by a background agent; the MFN line and the classification ruling were spot-checked on 17 Oct.
+
+| Item | China | Thailand | Vietnam | Malaysia |
+|---|---|---|---|---|
+| Subheading | 9015.80.20 (stat. 9015.80.2000), "Surveying… instruments: Other instruments and appliances: Optical instruments and appliances". **Inferred, see 1** | same | same | same |
+| General (MFN) col. 1 | Free | Free | Free | Free |
+| Section 301 China, 9903.88.01 (List 1) | +25% | n/a | n/a | n/a |
+| Section 301 forced-labor, 2026 | +12.5% (9903.05.31) | +12.5% (9903.05.77) | +12.5% (9903.05.84) | +10% (9903.05.54) |
+| Section 232, Section 122, IEEPA | 0% | 0% | 0% | 0% |
+| **Total ad valorem** | **~37.5%** | **~12.5%** | **~12.5%** | **~10%** |
+
+### Sources
+
+1. **Classification (inferred; no ruling on this model).** The Hesai rulings [N359371](https://rulings.cbp.gov/api/ruling/N359371) (25 Mar 2026; scenario I Thailand, scenario II with PCBAs made in Vietnam = Vietnam) and [N363700](https://rulings.cbp.gov/api/ruling/N363700) (7 Aug 2026) are origin-only. The closest classification rulings, [N282920](https://rulings.cbp.gov/api/ruling/N282920), [N282922](https://rulings.cbp.gov/api/ruling/N282922) and [N282926](https://rulings.cbp.gov/api/ruling/N282926) (2017, LeddarTech LiDAR modules for autonomous-vehicle collision avoidance), use **9015.80.2000** and cite [HQ H245890](https://rulings.cbp.gov/api/ruling/H245890) for LiDAR in heading 9015. Competing line: 9015.10.40 (electrical rangefinders; [NY G82747](https://rulings.cbp.gov/api/ruling/G82747), a laser-radar cruise sensor). No ruling found uses 8526.10 or 9031.80 for LiDAR.
+2. **MFN Free.** [HTS 9015.80.20](https://hts.usitc.gov/reststop/search?keyword=9015.80.20), Rev. 21. Primary.
+3. **Section 301 China = List 1, +25%.** 9015.80.20 is in U.S. note 20(b) to subchapter III of Ch. 99, the products of [9903.88.01](https://hts.usitc.gov/reststop/search?keyword=9903.88.01). No exclusion in notes 20(vvv)/(www) (9903.88.69/.70, through 9 Nov 2026) covers it (text search). Actions continued by [91 FR 64212](https://www.federalregister.gov/documents/2026/10/07/2026-20510/continuation-of-actions-chinas-acts-policies-and-practices-related-to-technology-transfer) (7 Oct 2026). Primary.
+4. **Section 301 forced-labor.** [91 FR 47318](https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies): 12.5% on products of China, Thailand and Vietnam; 10% on Malaysia. 9015.80.20 is in none of the exemption notes (52(b) Annex II Part A; Malaysia's 52(j)(4)), by text search, not proofread. Note 52(a) confirms it stacks on China 301. Primary.
+5. **IEEPA** ended by [91 FR 9437](https://www.federalregister.gov/documents/2026/02/25/2026-03832/ending-certain-tariff-actions). **Section 122** expired 23 Jul 2026 (Ch. 99 compiler's note). **Section 232:** 9015.80.20 is in no 232 note. Primary.
+6. **Not checked:** anti-dumping/countervailing, fees, actions after 16 Oct 2026. A China-origin OT128 is hypothetical; no ruling covers that scenario.
+
+### Caveats
+
+- **Classification is the main risk.** Under 9015.10.40 instead, China 301 would still be 25% (List 3), but if the module counts as a passenger-vehicle or light-truck part, Section 232 autos +25% (9903.94.05) would apply, which exempts it from forced-labor 301 (note 52(f)(3)): about China 50%, others 25%. Get a binding ruling.
+- Forced-labor 301 is under legal challenge.
+- Side finding for the heat-gun section: the notice text does say 12.5% on products of Vietnam, and note 52(a) confirms stacking, so those two heat-gun entries could be upgraded to verified after a re-check.

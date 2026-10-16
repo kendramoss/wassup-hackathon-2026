@@ -8,23 +8,169 @@
       "description": "Other machinery, plant or equipment: Other: Other (general-use heat guns; classification inferred from HQ H317418, unverified for a given model)",
       "origins": {
         "China": [
-          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
-          {"name": "Section 301 China, List 2", "rate": 0.25, "heading": "9903.88.02", "source": "https://hts.usitc.gov/reststop/search?keyword=9903.88.02", "verified": true, "note": "the 2019 heat-gun exclusion (9903.88.12) has expired"},
-          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.31", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true, "note": "stacking on China 301 from a secondary guide, unverified"}
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.042,
+            "heading": "8419.89.95",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95",
+            "verified": true
+          },
+          {
+            "name": "Section 301 China, List 2",
+            "rate": 0.25,
+            "heading": "9903.88.02",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9903.88.02",
+            "verified": true,
+            "note": "the 2019 heat-gun exclusion (9903.88.12) has expired"
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.31",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "stacking on China 301 from a secondary guide, unverified"
+          }
         ],
         "Thailand": [
-          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
-          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.77", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true}
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.042,
+            "heading": "8419.89.95",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95",
+            "verified": true
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.77",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true
+          }
         ],
         "Vietnam": [
-          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
-          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.84", "source": "https://hts.usitc.gov/reststop/search?keyword=9903.05", "verified": false, "note": "12.5% from the HTS heading and a secondary tier list; not confirmed in the notice text"}
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.042,
+            "heading": "8419.89.95",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95",
+            "verified": true
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.84",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9903.05",
+            "verified": false,
+            "note": "12.5% from the HTS heading and a secondary tier list; not confirmed in the notice text"
+          }
         ],
         "Malaysia": [
-          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
-          {"name": "Section 301 forced-labor (2026)", "rate": 0.10, "heading": "9903.05.54", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true, "note": "a Malaysia exemption (Annex II Part E) is not ruled out; exempt would mean 4.2% total"}
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.042,
+            "heading": "8419.89.95",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95",
+            "verified": true
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.1,
+            "heading": "9903.05.54",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "a Malaysia exemption (Annex II Part E) is not ruled out; exempt would mean 4.2% total"
+          }
         ]
-      }
+      },
+      "checked": "2026-10-15"
+    },
+    {
+      "hts": "9015.80.20",
+      "description": "Surveying, hydrographic, oceanographic, hydrological, meteorological or geophysical instruments and appliances: Other instruments and appliances: Optical instruments and appliances (LiDAR sensor modules, e.g. Hesai OT128; classification inferred from NY N282920/N282922/N282926 and HQ H245890, no ruling on this model; 9015.10.40 rangefinder is the competing line)",
+      "origins": {
+        "China": [
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.0,
+            "heading": "9015.80.20",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9015.80.20",
+            "verified": true,
+            "note": "Free; classification itself inferred, not ruled for this model"
+          },
+          {
+            "name": "Section 301 China, List 1",
+            "rate": 0.25,
+            "heading": "9903.88.01",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9903.88.01",
+            "verified": true,
+            "note": "9015.80.20 listed in U.S. note 20(b), Ch. 99; no 20(vvv)/(www) exclusion found; actions continued by 91 FR 64212 (7 Oct 2026)"
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.31",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "not in U.S. note 52(b) exemptions (text search, not proofread); stacks on China 301 per note 52(a)"
+          }
+        ],
+        "Thailand": [
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.0,
+            "heading": "9015.80.20",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9015.80.20",
+            "verified": true,
+            "note": "Free; origin Thailand per CBP N359371 scenario I and N363700"
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.77",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "not in U.S. note 52(b) exemptions (text search, not proofread)"
+          }
+        ],
+        "Vietnam": [
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.0,
+            "heading": "9015.80.20",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9015.80.20",
+            "verified": true,
+            "note": "Free; N359371 scenario II (PCBAs made in Vietnam) holds Vietnam origin"
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.125,
+            "heading": "9903.05.84",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "notice text: 12.5 percent tariffs on products of Vietnam; not in note 52(b) exemptions"
+          }
+        ],
+        "Malaysia": [
+          {
+            "name": "MFN (column 1 general)",
+            "rate": 0.0,
+            "heading": "9015.80.20",
+            "source": "https://hts.usitc.gov/reststop/search?keyword=9015.80.20",
+            "verified": true,
+            "note": "Free"
+          },
+          {
+            "name": "Section 301 forced-labor (2026)",
+            "rate": 0.1,
+            "heading": "9903.05.54",
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "not in note 52(b) or Malaysia list note 52(j)(4) (9903.05.99/9903.06.01); FR Annex II Part E images not compared directly"
+          }
+        ]
+      },
+      "checked": "2026-10-17"
     }
   ]
 }
