@@ -142,7 +142,31 @@ Rule: auto-accept when engine confidence ≥ 0.95 **and** the router says the ca
 
 Without the router (confidence ≥ 0.95 alone), final covers 71.9% at 97.8%. The research brief's "65% at 98.0%" came from a different routed pipeline and does not describe this rule.
 
-**Scope recall (dev window Jul–Dec 2025, up to 40 per gold regime):** routed out of scope — Part 102 tariff-shift 36/40 (90%), pharma API 35/36 (97%), substantial transformation 2/40. Full table: `results/scope-window-dev-router-v2.md`.
+**Scope recall (dev window Jul–Dec 2025, up to 40 per gold regime):** routed out of scope — Part 102 tariff-shift 36/40 (90%), pharma API 35/36 (97%), substantial transformation 2/40. Full table: `results/scope-window-dev-router-v2.md`. That file is the LiteLLM proxy run. The official Vertex repeat is the next section.
+
+## Router scope check (Vertex, dev window)
+
+Official provider: Vertex `global`, router-v2, `gemini-3.8-flash`. Dev window only (1 Jul–31 Dec 2025, up to 40 rulings per gold regime, file order). Not held-out. No router-prompt change. 214 calls, 0 errors. Rows: `results/scope-window-dev-router-v2-vertex.jsonl`. The proxy table is `results/scope-window-dev-router-v2.md`.
+
+| Gold regime (labels) | n | routed out of scope | router regime labels | errors |
+|---|---:|---|---|---:|
+| 9802_us_components | 40 | 1 (2%, 0–13) | substantial_transformation 39, textile_102_21 1 | 0 |
+| marking_only | 10 | 2 (20%, 6–51) | substantial_transformation 8, usmca_part102 2 | 0 |
+| other | 8 | 5 (62%, 31–86) | substantial_transformation 3, usmca_part102 5 | 0 |
+| part102_tariff_shift | 40 | 35 (88%, 74–95) | substantial_transformation 5, textile_102_21 29, usmca_part102 6 | 0 |
+| pharma_api | 36 | 34 (94%, 82–98) | pharma_api 33, substantial_transformation 2, usmca_part102 1 | 0 |
+| single_country | 40 | 2 (5%, 1–17) | pharma_api 1, substantial_transformation 38, textile_102_21 1 | 0 |
+| substantial_transformation | 40 | 2 (5%, 1–17) | substantial_transformation 38, usmca_part102 2 | 0 |
+
+Against the proxy table, no gold regime's out-of-scope share moved by more than 10 points. The two that moved: part102_tariff_shift 36/40 (90%) to 35/40 (88%), pharma_api 35/36 (97%) to 34/36 (94%). The other five regimes match the proxy counts.
+
+"Routed out of scope" in the table is `Label.Scope()`: textile_102_21, usmca_part102 and pharma_api. The three claim numbers below use the narrower definitions. Intervals are Wilson 95%, the same function as `evalkit.Wilson`.
+
+- **Out-of-scope recall.** Pharma API cases plus Part 102 cases that are not on the textile list (`splits_textile.json`, rulings whose text cites 19 CFR 102.21): 36 pharma + 7 non-textile Part 102 = 43. Not labelled substantial_transformation: 34 pharma (33 pharma_api, 1 usmca_part102) + 4 Part 102 (all usmca_part102) = 38. **38/43 = 88.4% (75.5–94.9).** The other 5 were labelled substantial_transformation (2 pharma, 3 Part 102).
+- **Textile routing.** Of the 40 Part 102 rulings in this window, 33 are on the textile list. Labelled textile_102_21: 29. The other 4 are substantial_transformation 2 and usmca_part102 2. **29/33 = 87.9% (72.7–95.2).**
+- **False out-of-scope.** Of 40 substantial_transformation rulings, labelled usmca_part102 or pharma_api: 2, both usmca_part102. **2/40 = 5.0% (1.4–16.5).**
+
+Cost of the recorded run, at the `evalkit` Gemini 3.8 Flash prices: 308,842 input tokens and 67,439 output tokens, $0.48 promo ($0.75 / $3.75 per 1M) and $0.97 list ($1.50 / $7.50 per 1M). Wall time 272 s with 4 workers.
 
 ## Accuracy experiments (16 Oct) — dev only, proxy; none adopted
 
