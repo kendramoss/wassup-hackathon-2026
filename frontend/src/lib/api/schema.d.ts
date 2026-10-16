@@ -830,27 +830,13 @@ export interface paths {
                                 cited_rulings?: string[];
                                 /** @description ruling numbers in the answer it never saw (do not show as citations) */
                                 dropped_rulings?: string[];
-                                what_ifs?: {
-                                    change?: string;
-                                    origin?: string;
-                                    confidence?: number;
-                                    decisive_step?: string;
-                                }[];
-                                steps?: {
-                                    tool?: string;
-                                    arg?: string;
-                                }[];
+                                what_ifs?: components["schemas"]["WhatIf"][];
+                                steps?: components["schemas"]["ChatStep"][];
                                 model_calls?: number;
                                 trace?: Record<string, never>;
                             };
                             cited_detail?: components["schemas"]["PrecedentRef"][];
-                            chat?: {
-                                question?: string;
-                                answer?: string;
-                                cited_rulings?: string[];
-                                /** Format: date-time */
-                                at?: string;
-                            }[];
+                            chat?: components["schemas"]["ChatTurn"][];
                         };
                     };
                 };
@@ -1383,6 +1369,28 @@ export interface components {
             /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
             display_name?: string;
         };
+        /** @description One re-run of the origin engine on revised facts */
+        WhatIf: {
+            change?: string;
+            origin?: string;
+            confidence?: number;
+            decisive_step?: string;
+            /** @description The revised facts the engine re-ran */
+            facts?: string;
+        };
+        ChatStep: {
+            tool?: string;
+            arg?: string;
+        };
+        ChatTurn: {
+            question?: string;
+            answer?: string;
+            cited_rulings?: string[];
+            /** Format: date-time */
+            at?: string;
+            what_ifs?: components["schemas"]["WhatIf"][];
+            steps?: components["schemas"]["ChatStep"][];
+        };
         Prediction: {
             origin_country?: string;
             key_factors?: string[];
@@ -1437,6 +1445,10 @@ export interface components {
             display_name?: string;
             /** @description The earlier rulings in prediction.precedents, in the same order, with CBP's held origin */
             precedents_detail?: components["schemas"]["PrecedentRef"][];
+            /** @description Rulings cited in the conversation, first mention first, with CBP's held origin */
+            cited_detail?: components["schemas"]["PrecedentRef"][];
+            /** @description Conversation with the case agent, oldest first (last 20). Each turn keeps its what-ifs and steps. */
+            chat?: components["schemas"]["ChatTurn"][];
             scenarios?: {
                 label?: string;
                 facts?: string;
@@ -1448,6 +1460,8 @@ export interface components {
             }[];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
+            /** @description economics with the sourced duty rates a plan search would use filled in (D52, D56); null without economics. Display only. */
+            economics_priced?: components["schemas"]["Economics"];
             /** @description Audit trail, oldest first (last 200) */
             history?: {
                 /** Format: date-time */

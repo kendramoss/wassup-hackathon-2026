@@ -14,10 +14,9 @@ type Step = { tool?: string; arg?: string };
 type Extra = { whatIfs?: WhatIf[]; steps?: Step[]; calls?: number };
 type Turn = ChatTurn & Extra;
 
-// The conversation lives on the case (#110), so closing and reopening the
-// drawer or switching tabs shows what the server has. The rest lives here,
-// outside the drawer, for this visit: a question still being answered, the
-// what-ifs and steps the server doesn't store yet (#112), and ruling details.
+// The conversation lives on the case (#110), including each turn's what-ifs
+// and steps (#112). A question still being answered, and ruling names the
+// case has not loaded yet, live here for this visit.
 const inflight = new Map<string, { q: string; since: number }>();
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -35,9 +34,12 @@ const turnKey = (caseId: string, t: ChatTurn) => `${caseId}|${t.at ?? ""}|${t.qu
 // screens. Earlier turns collapse to one line; the newest shows in full.
 export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: () => void; onChat: (chat: ChatTurn[]) => void }) {
   const id = c.id!;
-  const chat = (c as CaseResponse & { chat?: ChatTurn[] }).chat ?? [];
-  const turns: Turn[] = chat.map((t) => ({ ...t, ...extras.get(turnKey(id, t)) }));
-  for (const r of c.precedents_detail ?? []) if (r.id && !details.has(r.id)) details.set(r.id, r);
+  const chat = c.chat ?? [];
+  const turns: Turn[] = chat.map((t) => {
+    const extra = extras.get(turnKey(id, t));
+    return { ...t, ...extra, whatIfs: extra?.whatIfs ?? t.what_ifs, steps: extra?.steps ?? t.steps };
+  });
+  for (const r of [...(c.precedents_detail ?? []), ...(c.cited_detail ?? [])]) if (r.id && !details.has(r.id)) details.set(r.id, r);
   const pending = useSyncExternalStore(
     subscribe,
     () => inflight.get(id) ?? null,

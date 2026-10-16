@@ -93,12 +93,31 @@ func (c *Case) Record(e Event) {
 	}
 }
 
-// ChatTurn is one question to the case agent and its answer.
+// ChatTurn is one question to the case agent and its answer. What-ifs and
+// steps are kept with the turn so a reload can show them (#112, #115).
 type ChatTurn struct {
-	Question string    `json:"question"`
-	Answer   string    `json:"answer"`
-	Cited    []string  `json:"cited_rulings"`
-	At       time.Time `json:"at"`
+	Question string       `json:"question"`
+	Answer   string       `json:"answer"`
+	Cited    []string     `json:"cited_rulings"`
+	At       time.Time    `json:"at"`
+	WhatIfs  []ChatWhatIf `json:"what_ifs,omitempty"`
+	Steps    []ChatStep   `json:"steps,omitempty"`
+}
+
+// ChatWhatIf is one what-if the agent ran while answering. Facts are the
+// revised facts the engine re-ran (#115).
+type ChatWhatIf struct {
+	Change     string  `json:"change"`
+	Origin     string  `json:"origin"`
+	Confidence float64 `json:"confidence"`
+	Decisive   string  `json:"decisive_step"`
+	Facts      string  `json:"facts,omitempty"`
+}
+
+// ChatStep is one tool call the agent made while answering.
+type ChatStep struct {
+	Tool string `json:"tool"`
+	Arg  string `json:"arg,omitempty"`
 }
 
 // TargetComparison is a plan search per target country, ranked.
@@ -169,6 +188,13 @@ type Answer struct {
 type Cases interface {
 	Put(ctx context.Context, c Case) error
 	Get(ctx context.Context, id string) (Case, error)
+	// Update re-reads the case, applies fn, and writes that case back.
+	// A handler that did slow work must use this instead of writing the
+	// case it read earlier: that copy is stale, and Put would wipe
+	// anything saved in the meantime (#111). fn may run more than once
+	// and must only change the case it is given. ErrNotFound if there is
+	// no such case. If fn returns an error, nothing is written.
+	Update(ctx context.Context, id string, fn func(*Case) error) (Case, error)
 	// List returns all cases: pinned first, then most recently updated.
 	List(ctx context.Context) ([]Case, error)
 	// Delete removes a case; ErrNotFound if there is none.
@@ -225,6 +251,28 @@ func (m *Memory) Get(_ context.Context, id string) (Case, error) {
 	if !ok {
 		return Case{}, ErrNotFound
 	}
+	return c, nil
+}
+
+// Update implements Cases. The lock is held across the read, fn, and write.
+func (m *Memory) Update(_ context.Context, id string, fn func(*Case) error) (Case, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	c, ok := m.cases[id]
+	if !ok {
+		return Case{}, ErrNotFound
+	}
+	// Detach the slices a handler appends to, so a failing fn cannot
+	// write through the stored case.
+	c.Chat = append([]ChatTurn(nil), c.Chat...)
+	c.History = append([]Event(nil), c.History...)
+	c.Scenarios = append([]Scenario(nil), c.Scenarios...)
+	c.Answers = append([]Answer(nil), c.Answers...)
+	c.Exclude = append([]string(nil), c.Exclude...)
+	if err := fn(&c); err != nil {
+		return Case{}, err
+	}
+	m.cases[id] = c
 	return c, nil
 }
 

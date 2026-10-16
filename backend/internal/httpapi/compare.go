@@ -91,7 +91,6 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		cmp.Ranked = append(cmp.Ranked, summarise(t, results[i]))
 	}
 	rankTargets(cmp.Ranked)
-	c.Targets, c.UpdatedAt = cmp, time.Now().UTC()
 	var parts []string
 	for _, t := range cmp.Ranked {
 		parts = append(parts, fmt.Sprintf("#%d %s %s", t.Rank, t.Target, t.Status))
@@ -100,10 +99,15 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	for _, res := range results {
 		a.planUsage(&u, res)
 	}
-	c.Record(u.on(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")}, start))
-	c.Economics = economicsFrom(in.Economics, c.Economics)
+	ev := u.on(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")}, start)
 	if !a.demoReadOnly(r, c) {
-		if err := a.d.Cases.Put(r.Context(), c); err != nil {
+		now := time.Now().UTC()
+		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			latest.Targets, latest.UpdatedAt = cmp, now
+			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			latest.Record(ev)
+			return nil
+		}); err != nil {
 			a.fail(w, r, err)
 			return
 		}

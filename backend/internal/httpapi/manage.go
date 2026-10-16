@@ -76,16 +76,20 @@ func (a *api) renameCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: display_name must be 1 to %d characters", domain.ErrInvalid, MaxDisplayName))
 		return
 	}
-	if name != c.DisplayName {
-		old := summaryRow(c).DisplayName
-		c.DisplayName = name
-		c.Record(store.Event{Kind: "renamed", Summary: fmt.Sprintf("renamed from %q to %q", old, name)})
-		if err := a.d.Cases.Put(r.Context(), c); err != nil {
-			a.fail(w, r, err)
-			return
+	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if name == latest.DisplayName {
+			return nil
 		}
+		old := summaryRow(*latest).DisplayName
+		latest.DisplayName = name
+		latest.Record(store.Event{Kind: "renamed", Summary: fmt.Sprintf("renamed from %q to %q", old, name)})
+		return nil
+	})
+	if err != nil {
+		a.fail(w, r, err)
+		return
 	}
-	writeJSON(w, http.StatusOK, summaryRow(c))
+	writeJSON(w, http.StatusOK, summaryRow(saved))
 }
 
 type pinRequest struct {
@@ -108,17 +112,21 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: pinned (true or false) is required", domain.ErrInvalid))
 		return
 	}
-	if c.Pinned != *in.Pinned { // pinning is not case activity: updated_at stays
-		c.Pinned = *in.Pinned
+	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if latest.Pinned == *in.Pinned { // pinning is not case activity: updated_at stays
+			return nil
+		}
+		latest.Pinned = *in.Pinned
 		kind := "unpinned"
-		if c.Pinned {
+		if latest.Pinned {
 			kind = "pinned"
 		}
-		c.Record(store.Event{Kind: kind, Summary: "case " + kind + " by the admin"})
-		if err := a.d.Cases.Put(r.Context(), c); err != nil {
-			a.fail(w, r, err)
-			return
-		}
+		latest.Record(store.Event{Kind: kind, Summary: "case " + kind + " by the admin"})
+		return nil
+	})
+	if err != nil {
+		a.fail(w, r, err)
+		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(c))
+	a.respond(w, http.StatusOK, a.caseFields(saved))
 }
