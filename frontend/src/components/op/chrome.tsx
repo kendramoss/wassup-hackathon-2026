@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
+import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot } from "./action-bar";
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
@@ -60,6 +61,7 @@ export function CaseTabs({
   onAsk?: () => void;
 }) {
   return (
+    <>
     <nav aria-label="Case" className="no-print flex min-h-[52px] flex-wrap items-center gap-x-2 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:px-10">
       <ul className="flex flex-wrap items-center gap-1.5">
         {tabs.map((t) => {
@@ -105,6 +107,8 @@ export function CaseTabs({
         <CaseSwitcher caseId={caseId} title={title} />
       </div>
     </nav>
+    <ActionSlot />
+    </>
   );
 }
 
@@ -159,6 +163,9 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
 
 // The next step sits in a fixed footer.
 export function Footer({ children }: { children: ReactNode }) {
+  const slot = useActionSlot();
+  if (ACTIONS_ON_TOP && slot) return <Portal to={slot}>{children}</Portal>;
+  if (ACTIONS_ON_TOP) return null; // the slot mounts with the tabs; actions appear there
   return (
     <>
       <div className="h-24" aria-hidden="true" />
