@@ -155,6 +155,11 @@ type Config struct {
 	DutyLiveMFN        bool
 	DutyLiveMFNTTL     time.Duration
 	DutyLiveMFNTimeout time.Duration
+	// ExportCFR177 (on|off, default off) lets POST /v1/cases/{id}/export
+	// take "format": "cfr177", a ruling-request letter laid out on
+	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
+	ExportCFR177 bool
+	exportCFR177 string // as given, checked by validate
 }
 
 // Load reads the configuration from the process environment.
@@ -251,6 +256,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("DUTY_LIVE_MFN must be on or off, got %q", v))
 	}
+	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
+	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	defStore := CasesFile
 	if c.OnCloudRun {
 		defStore = CasesFirestore // local disk is lost on restart there
@@ -307,6 +314,11 @@ func (c Config) validate() error {
 	}
 	if c.CasesListLimit < 1 {
 		bad("CASES_LIST_LIMIT must be positive, got %d", c.CasesListLimit)
+	}
+	switch c.exportCFR177 {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)

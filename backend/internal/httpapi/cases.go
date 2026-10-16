@@ -143,6 +143,9 @@ type Deps struct {
 	// spend reaches its cap (D59). The admin token is not exempt from
 	// counting, only from the refusal.
 	Spend *spend.Meter
+	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
+	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
+	ExportCFR177 bool
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
@@ -937,7 +940,16 @@ type exportRequest struct {
 	// Preview renders the draft without recording an export: the Draft
 	// screen previews on every visit and records only on Download or Print.
 	Preview bool `json:"preview"`
+	// Format is "markdown" (default, the generic draft) or "cfr177" (the
+	// letter laid out on 19 CFR 177.2, when EXPORT_CFR177 is on; D66).
+	Format string `json:"format"`
 }
+
+// Export formats.
+const (
+	formatMarkdown = "markdown"
+	formatCFR177   = "cfr177"
+)
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	c, err := a.loadCase(r)
@@ -952,11 +964,24 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	format := strings.ToLower(strings.TrimSpace(in.Format))
+	switch {
+	case format == "" || format == formatMarkdown:
+		format = formatMarkdown
+	case format == formatCFR177 && a.d.ExportCFR177:
+	case format == formatCFR177:
+		a.fail(w, r, fmt.Errorf("%w: format cfr177 is not enabled on this server", domain.ErrInvalid))
+		return
+	default:
+		a.fail(w, r, fmt.Errorf("%w: format must be markdown or cfr177, got %q", domain.ErrInvalid, in.Format))
+		return
+	}
 	name := ""
 	if c.Product != nil {
 		name = c.Product.Name
 	}
-	ex := export.Input{ProductName: name, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
+	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction,
+		Textile: c.Router != nil && c.Router.Regime == router.RegimeTextile}
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
@@ -995,6 +1020,10 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	}
 	if p := chosen; p != nil {
 		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
+		if c.Product != nil { // the letter lists where things are made after the move
+			moved := planner.Apply(*c.Product, p.Move)
+			ex.Product = &moved
+		}
 		if p.Verdict != nil {
 			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
 			if p.RejectionKind == domain.RejectBelowConfidence {
@@ -1003,10 +1032,13 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	content := export.Markdown(ex)
+	if format == formatCFR177 {
+		content = export.CFR177(ex)
+	}
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
 		return
 	}
 	now := time.Now().UTC()
@@ -1019,13 +1051,17 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.ExportedAt, latest.UpdatedAt = &now, now
-		latest.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
+		summary := "draft ruling request for " + what
+		if format == formatCFR177 {
+			summary = "19 CFR 177.2 ruling-request letter for " + what
+		}
+		latest.Record(store.Event{Kind: "exported", Summary: summary})
 		return nil
 	}); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
 }
 
 // draftablePlan finds a plan by move key: any shown plan, or a rejected plan

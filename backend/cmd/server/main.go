@@ -363,6 +363,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		PharmaFastPath:  cfg.PharmaFastPath,
 		FamilyBars:      familyBars,
 		HTS:             htsSuggester,
+		ExportCFR177:    cfg.ExportCFR177,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }
