@@ -40,7 +40,7 @@ type Config struct {
 
 	// LLM provider: vertex (Gemini on Vertex AI with Application Default
 	// Credentials), or fake for offline tests and UI work. The LiteLLM proxy
-	// used before Vertex access was removed (D39).
+	// used before Vertex access was removed (D49).
 	LLMProvider string
 	GCPProject  string
 	GCPLocation string
@@ -143,7 +143,7 @@ func (c Config) validate() error {
 			bad("LLM_PROVIDER=fake cannot run on Cloud Run")
 		}
 	default:
-		bad("LLM_PROVIDER must be vertex or fake, got %q (the LiteLLM proxy was removed, D39)", c.LLMProvider)
+		bad("LLM_PROVIDER must be vertex or fake, got %q (the LiteLLM proxy was removed, D49)", c.LLMProvider)
 	}
 	for name, v := range map[string]string{"ENGINE_MODEL": c.EngineModel, "ROUTER_MODEL": c.RouterModel, "VERIFIER_MODEL": c.VerifierModel} {
 		if v == "" {

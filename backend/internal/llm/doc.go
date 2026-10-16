@@ -2,7 +2,7 @@
 // providers. Engine, router, planner and verifier depend only on the Model
 // interface; implementations are Vertex AI through google.golang.org/genai
 // (development, evals and deployment) and Fake (tests). The LiteLLM proxy
-// used before the team had Vertex access was removed (D39).
+// used before the team had Vertex access was removed (D49).
 //
 // Every call is deterministic by contract: temperature 0 and, when a JSON
 // answer is expected, a response JSON schema.

@@ -91,7 +91,7 @@ Model access is configured by environment only:
 | `vertex` (default) | development, evals and deployment | `GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global` + `gcloud auth application-default login` |
 | `fake` | offline tests and UI work (fixed answer, no model calls) | `LLM_PROVIDER=fake` |
 
-The LiteLLM proxy used before Vertex access was removed (D39). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
+The LiteLLM proxy used before Vertex access was removed (D49). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
 ```bash
 make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
