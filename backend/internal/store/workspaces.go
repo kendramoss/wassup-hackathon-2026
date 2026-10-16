@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/grpc/codes"
@@ -38,7 +39,7 @@ type memberDoc struct {
 
 // Create implements teams.Store.
 func (s *FirestoreWorkspaces) Create(ctx context.Context, w teams.Workspace) error {
-	if len(w.Members) > teams.MaxMembers {
+	if len(w.Members)+len(w.Invited) > teams.MaxMembers {
 		return teams.ErrFull
 	}
 	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
@@ -90,8 +91,58 @@ func (s *FirestoreWorkspaces) Of(ctx context.Context, email string) (teams.Works
 	return s.Get(ctx, m.Workspace)
 }
 
-// AddMember implements teams.Store.
-func (s *FirestoreWorkspaces) AddMember(ctx context.Context, id, email string) (teams.Workspace, error) {
+// Invite implements teams.Store. The invitation is a field on the workspace
+// document only: no workspace_members document is written until the invitee
+// joins, so Of does not see it.
+func (s *FirestoreWorkspaces) Invite(ctx context.Context, id, email string) (teams.Workspace, error) {
+	if !caseIDPattern.MatchString(id) {
+		return teams.Workspace{}, teams.ErrNotFound
+	}
+	var out teams.Workspace
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
+		switch {
+		case err != nil:
+			return err
+		case w.HasMember(email):
+			return teams.ErrMember
+		case w.HasInvite(email):
+			out = w
+			return nil
+		case len(w.Members)+len(w.Invited) >= teams.MaxMembers:
+			return teams.ErrFull
+		}
+		w.Invited = append(w.Invited, email)
+		out = w
+		return tx.Set(s.ws.Doc(id), w)
+	})
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("invite", err)
+	}
+	return out, nil
+}
+
+// Invites implements teams.Store (an array-contains query, served by
+// Firestore's automatic single-field index).
+func (s *FirestoreWorkspaces) Invites(ctx context.Context, email string) ([]teams.Workspace, error) {
+	snaps, err := s.ws.Where("invited", "array-contains", email).Limit(teams.MaxInvites).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("store: list invitations: %w", err)
+	}
+	out := make([]teams.Workspace, 0, len(snaps))
+	for _, snap := range snaps {
+		w, err := decodeWorkspace(snap, nil)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, w)
+	}
+	return out, nil
+}
+
+// Join implements teams.Store: one transaction checks the invitation and
+// that email is in no workspace, then writes the member document.
+func (s *FirestoreWorkspaces) Join(ctx context.Context, id, email string) (teams.Workspace, error) {
 	if !caseIDPattern.MatchString(id) {
 		return teams.Workspace{}, teams.ErrNotFound
 	}
@@ -101,6 +152,9 @@ func (s *FirestoreWorkspaces) AddMember(ctx context.Context, id, email string) (
 		if err != nil {
 			return err
 		}
+		if !w.HasInvite(email) {
+			return teams.ErrNotFound
+		}
 		if _, err := tx.Get(s.members.Doc(email)); err == nil {
 			return teams.ErrMember
 		} else if status.Code(err) != codes.NotFound {
@@ -109,6 +163,7 @@ func (s *FirestoreWorkspaces) AddMember(ctx context.Context, id, email string) (
 		if len(w.Members) >= teams.MaxMembers {
 			return teams.ErrFull
 		}
+		w.Invited = slices.DeleteFunc(w.Invited, func(e string) bool { return e == email })
 		w.Members = append(w.Members, email)
 		if err := tx.Set(s.ws.Doc(id), w); err != nil {
 			return err
@@ -116,13 +171,18 @@ func (s *FirestoreWorkspaces) AddMember(ctx context.Context, id, email string) (
 		out = w
 		return tx.Create(s.members.Doc(email), memberDoc{Workspace: id})
 	})
-	switch {
-	case err == nil:
-		return out, nil
-	case errors.Is(err, teams.ErrNotFound), errors.Is(err, teams.ErrMember), errors.Is(err, teams.ErrFull):
-		return teams.Workspace{}, err
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("join", err)
 	}
-	return teams.Workspace{}, fmt.Errorf("store: add member: %w", err)
+	return out, nil
+}
+
+// workspaceErr passes the teams errors through and wraps the rest.
+func workspaceErr(op string, err error) error {
+	if errors.Is(err, teams.ErrNotFound) || errors.Is(err, teams.ErrMember) || errors.Is(err, teams.ErrFull) {
+		return err
+	}
+	return fmt.Errorf("store: %s workspace: %w", op, err)
 }
 
 func decodeWorkspace(snap *firestore.DocumentSnapshot, err error) (teams.Workspace, error) {

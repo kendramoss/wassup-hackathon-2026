@@ -117,11 +117,23 @@ func TestFirestoreEmulator(t *testing.T) {
 	if err := ws.Create(ctx, teams.Workspace{ID: wsID + "x", Members: []string{owner}}); !errors.Is(err, teams.ErrMember) {
 		t.Errorf("second workspace for the owner = %v", err)
 	}
-	if w, err := ws.AddMember(ctx, wsID, member); err != nil || len(w.Members) != 2 {
-		t.Errorf("AddMember = %+v %v", w, err)
+	if w, err := ws.Invite(ctx, wsID, member); err != nil || len(w.Members) != 1 || !w.HasInvite(member) {
+		t.Errorf("Invite = %+v %v", w, err)
 	}
-	if _, err := ws.AddMember(ctx, wsID, member); !errors.Is(err, teams.ErrMember) {
-		t.Errorf("AddMember twice = %v", err)
+	if _, err := ws2.Of(ctx, member); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Of(invited, not joined) = %v, want ErrNotFound", err)
+	}
+	if inv, err := ws2.Invites(ctx, member); err != nil || len(inv) != 1 || inv[0].ID != wsID {
+		t.Errorf("Invites = %+v %v", inv, err)
+	}
+	if _, err := ws.Join(ctx, wsID, "uninvited"+member); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Join uninvited = %v", err)
+	}
+	if w, err := ws.Join(ctx, wsID, member); err != nil || len(w.Members) != 2 || w.HasInvite(member) {
+		t.Errorf("Join = %+v %v", w, err)
+	}
+	if _, err := ws.Invite(ctx, wsID, member); !errors.Is(err, teams.ErrMember) {
+		t.Errorf("Invite a member = %v", err)
 	}
 	if w, err := ws2.Of(ctx, member); err != nil || w.ID != wsID || w.Name != "Acme" {
 		t.Errorf("Of(member) from another client = %+v %v", w, err)

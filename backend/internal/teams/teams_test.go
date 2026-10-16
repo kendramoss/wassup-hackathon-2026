@@ -95,29 +95,92 @@ func TestMemory(t *testing.T) {
 	if _, err := m.Get(ctx, "ws_b"); !errors.Is(err, ErrNotFound) {
 		t.Errorf("refused workspace was saved: %v", err)
 	}
-	got, err := m.AddMember(ctx, "ws_a", "amy@example.com")
-	if err != nil || len(got.Members) != 2 {
-		t.Fatalf("AddMember = %+v %v", got, err)
+
+	// An invitation is not a membership.
+	got, err := m.Invite(ctx, "ws_a", "amy@example.com")
+	if err != nil || len(got.Members) != 1 || !got.HasInvite("amy@example.com") || got.HasMember("amy@example.com") {
+		t.Fatalf("Invite = %+v %v", got, err)
+	}
+	if _, err := m.Of(ctx, "amy@example.com"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("Of(amy) before joining = %v, want ErrNotFound", err)
+	}
+	if again, err := m.Invite(ctx, "ws_a", "amy@example.com"); err != nil || len(again.Invited) != 1 {
+		t.Errorf("inviting amy twice = %+v %v, want a no-op", again, err)
+	}
+	if inv, err := m.Invites(ctx, "amy@example.com"); err != nil || len(inv) != 1 || inv[0].ID != "ws_a" {
+		t.Errorf("Invites(amy) = %+v %v", inv, err)
+	}
+	if _, err := m.Invite(ctx, "ws_a", "alice@example.com"); !errors.Is(err, ErrMember) {
+		t.Errorf("inviting a member = %v, want ErrMember", err)
+	}
+	if _, err := m.Invite(ctx, "ws_x", "zed@example.com"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("invite to an unknown workspace = %v", err)
+	}
+	if _, err := m.Join(ctx, "ws_a", "zed@example.com"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("joining uninvited = %v, want ErrNotFound", err)
+	}
+	if _, err := m.Join(ctx, "ws_x", "amy@example.com"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("joining an unknown workspace = %v, want ErrNotFound", err)
+	}
+
+	got, err = m.Join(ctx, "ws_a", "amy@example.com")
+	if err != nil || !got.HasMember("amy@example.com") || got.HasInvite("amy@example.com") {
+		t.Fatalf("Join = %+v %v", got, err)
 	}
 	got.Members[0] = "changed" // callers get a copy
 	if of, err := m.Of(ctx, "amy@example.com"); err != nil || of.ID != "ws_a" || of.Members[0] != "alice@example.com" {
 		t.Errorf("Of(amy) = %+v %v", of, err)
 	}
-	if _, err := m.AddMember(ctx, "ws_a", "amy@example.com"); !errors.Is(err, ErrMember) {
-		t.Errorf("adding amy twice = %v", err)
+	if inv, _ := m.Invites(ctx, "amy@example.com"); len(inv) != 0 {
+		t.Errorf("invitation kept after joining: %+v", inv)
 	}
-	if _, err := m.AddMember(ctx, "ws_x", "zed@example.com"); !errors.Is(err, ErrNotFound) {
-		t.Errorf("unknown workspace = %v", err)
+	if _, err := m.Join(ctx, "ws_a", "amy@example.com"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("joining twice = %v, want ErrNotFound (invitation used)", err)
 	}
-	for i := len(got.Members); i < MaxMembers; i++ {
-		if _, err := m.AddMember(ctx, "ws_a", fmt.Sprintf("u%d@example.com", i)); err != nil {
+
+	// Someone already in a workspace can be invited (an invite does not
+	// reveal their membership) but cannot join a second one.
+	if err := m.Create(ctx, Workspace{ID: "ws_b", Name: "Bob Co", Members: []string{"bob@example.com"}, CreatedBy: "bob@example.com"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.Invite(ctx, "ws_b", "amy@example.com"); err != nil {
+		t.Errorf("inviting a member of another workspace = %v", err)
+	}
+	if _, err := m.Join(ctx, "ws_b", "amy@example.com"); !errors.Is(err, ErrMember) {
+		t.Errorf("amy joins a second workspace = %v, want ErrMember", err)
+	}
+	if of, _ := m.Of(ctx, "amy@example.com"); of.ID != "ws_a" {
+		t.Errorf("amy moved to %q", of.ID)
+	}
+
+	// Members plus invitations are capped.
+	for i := 2; i < MaxMembers; i++ {
+		if _, err := m.Invite(ctx, "ws_a", fmt.Sprintf("u%d@example.com", i)); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if _, err := m.AddMember(ctx, "ws_a", "late@example.com"); !errors.Is(err, ErrFull) {
-		t.Errorf("member %d = %v, want ErrFull", MaxMembers+1, err)
+	if _, err := m.Invite(ctx, "ws_a", "late@example.com"); !errors.Is(err, ErrFull) {
+		t.Errorf("invitation %d = %v, want ErrFull", MaxMembers+1, err)
 	}
 	if !w.IsAdmin("alice@example.com") || w.IsAdmin("amy@example.com") || (Workspace{}).IsAdmin("") {
 		t.Error("IsAdmin")
+	}
+}
+
+func TestMemoryInvitesCapped(t *testing.T) {
+	ctx := context.Background()
+	m := NewMemory()
+	for i := 0; i < MaxInvites+3; i++ {
+		id := fmt.Sprintf("ws_%02d", i)
+		admin := fmt.Sprintf("admin%d@example.com", i)
+		if err := m.Create(ctx, Workspace{ID: id, Members: []string{admin}, CreatedBy: admin}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := m.Invite(ctx, id, "victim@example.com"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if inv, err := m.Invites(ctx, "victim@example.com"); err != nil || len(inv) != MaxInvites || inv[0].ID != "ws_00" {
+		t.Errorf("Invites = %d %v", len(inv), err)
 	}
 }

@@ -22,7 +22,7 @@ info:
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
 
-    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin.
+    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin. The admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)
@@ -647,24 +647,36 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/workspaces/mine:
     get:
-      summary: The signed-in user and their workspace (TEAMS=on)
+      summary: The signed-in user, their workspace and pending invitations (TEAMS=on)
       parameters: [{ $ref: "#/components/parameters/UserToken" }]
       responses:
         "200":
-          description: The user's email and workspace (null when they have none)
+          description: The user's email, workspace (null when they have none) and pending invitations
           content:
             application/json:
               schema:
                 type: object
-                required: [email, workspace]
+                required: [email, workspace, invites]
                 properties:
                   email: { type: string, format: email }
                   workspace: { oneOf: [{ $ref: "#/components/schemas/Workspace" }, { type: "null" }] }
+                  invites:
+                    type: array
+                    maxItems: 20
+                    description: Workspaces that have invited the user and that they have not joined
+                    items:
+                      type: object
+                      required: [workspace_id, name, invited_by, created_at]
+                      properties:
+                        workspace_id: { type: string }
+                        name: { type: string }
+                        invited_by: { type: string, format: email, description: The workspace's admin }
+                        created_at: { type: string, format: date-time, description: When the workspace was created }
         "401": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/members:
     post:
-      summary: Add a member by email (the workspace's admin only; TEAMS=on)
-      description: 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already in a workspace or the workspace has 50 members. The new member sees the workspace's cases the next time they sign in with that Google account.
+      summary: Invite a member by email (the workspace's admin only; TEAMS=on)
+      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -682,6 +694,22 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/join:
+    post:
+      summary: Accept an invitation to a workspace (TEAMS=on)
+      description: The caller must have been invited by email (`GET /v1/workspaces/mine` lists invitations). 404 without an invitation or for an unknown workspace; 409 if the caller is already in a workspace or it has 50 members. Only cases created after joining belong to the workspace. No request body.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The workspace joined
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
@@ -763,11 +791,12 @@ components:
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
-      required: [id, name, members, created_by, created_at, admin]
+      required: [id, name, members, invited, created_by, created_at, admin]
       properties:
         id: { type: string, example: ws_3f9a2c1b7d4e }
         name: { type: string }
-        members: { type: array, items: { type: string, format: email } }
+        members: { type: array, items: { type: string, format: email }, description: Users who created or joined it }
+        invited: { type: array, items: { type: string, format: email }, description: Pending invitations, not yet members }
         created_by: { type: string, format: email, description: The workspace's admin }
         created_at: { type: string, format: date-time }
         admin: { type: boolean, description: The caller is the admin }

@@ -25,6 +25,9 @@ import (
 // their workspace's cases, their own cases, and the anonymous cases made
 // from the same browser (X-Visitor-ID). History events record the user's
 // email as the actor. Requests without a token are anonymous and keep D58.
+// "Their workspace" is one they created or joined: the admin's invitation
+// alone does not make anyone a member, so a user's cases are never shared
+// with a workspace they did not accept.
 
 // maxUserToken caps X-User-Token (Google ID tokens are about 1 KB).
 const maxUserToken = 4096
@@ -155,33 +158,53 @@ func (a *api) workspaceCases(ctx context.Context, cs []store.Case) ([]store.Case
 	return cs, nil
 }
 
-// workspaceDTO is a workspace as returned; members only to members.
+// workspaceDTO is a workspace as returned to its members.
 type workspaceDTO struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Members   []string  `json:"members"`
+	Invited   []string  `json:"invited"` // pending invitations
 	CreatedBy string    `json:"created_by"`
 	CreatedAt time.Time `json:"created_at"`
 	Admin     bool      `json:"admin"` // the caller administers it
 }
 
 func workspaceOut(w teams.Workspace, email string) workspaceDTO {
-	return workspaceDTO{ID: w.ID, Name: w.Name, Members: w.Members, CreatedBy: w.CreatedBy, CreatedAt: w.CreatedAt, Admin: w.IsAdmin(email)}
+	members, invited := w.Members, w.Invited
+	if members == nil {
+		members = []string{}
+	}
+	if invited == nil {
+		invited = []string{}
+	}
+	return workspaceDTO{ID: w.ID, Name: w.Name, Members: members, Invited: invited, CreatedBy: w.CreatedBy, CreatedAt: w.CreatedAt, Admin: w.IsAdmin(email)}
 }
 
-// workspaceError maps a teams error to a response.
-func (a *api) workspaceError(w http.ResponseWriter, r *http.Request, err error) {
+// inviteDTO is a pending invitation as the invitee sees it: who invited
+// them to what, not the member list (they are not a member yet).
+type inviteDTO struct {
+	WorkspaceID string    `json:"workspace_id"`
+	Name        string    `json:"name"`
+	InvitedBy   string    `json:"invited_by"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// workspaceError maps a teams error to a response; member is the message
+// for ErrMember, which means different things to different endpoints.
+func (a *api) workspaceError(w http.ResponseWriter, r *http.Request, err error, member string) {
 	switch {
 	case errors.Is(err, teams.ErrNotFound):
 		writeError(w, http.StatusNotFound, "not_found", "no such workspace", nil)
 	case errors.Is(err, teams.ErrMember):
-		writeError(w, http.StatusConflict, "conflict", "that user is already in a workspace (a user can be in one)", nil)
+		writeError(w, http.StatusConflict, "conflict", member, nil)
 	case errors.Is(err, teams.ErrFull):
 		writeError(w, http.StatusConflict, "conflict", err.Error(), nil)
 	default:
 		a.fail(w, r, err)
 	}
 }
+
+const alreadyInOne = "you are already in a workspace (a user can be in one)"
 
 type createWorkspaceRequest struct {
 	Name string `json:"name"`
@@ -206,13 +229,14 @@ func (a *api) createWorkspace(w http.ResponseWriter, r *http.Request) {
 	}
 	ws := teams.Workspace{ID: "ws_" + newID()[:12], Name: name, Members: []string{id.email}, CreatedBy: id.email, CreatedAt: time.Now().UTC()}
 	if err := a.d.Workspaces.Create(r.Context(), ws); err != nil {
-		a.workspaceError(w, r, err)
+		a.workspaceError(w, r, err, alreadyInOne)
 		return
 	}
 	writeJSON(w, http.StatusCreated, workspaceOut(ws, id.email))
 }
 
-// myWorkspace returns the signed-in user and their workspace (null if none).
+// myWorkspace returns the signed-in user, their workspace (null if none)
+// and their pending invitations.
 func (a *api) myWorkspace(w http.ResponseWriter, r *http.Request) {
 	id, ok := requireUser(w, r)
 	if !ok {
@@ -222,11 +246,21 @@ func (a *api) myWorkspace(w http.ResponseWriter, r *http.Request) {
 	if id.workspace != "" {
 		ws, err := a.d.Workspaces.Get(r.Context(), id.workspace)
 		if err != nil {
-			a.workspaceError(w, r, err)
+			a.workspaceError(w, r, err, alreadyInOne)
 			return
 		}
 		out["workspace"] = workspaceOut(ws, id.email)
 	}
+	pending, err := a.d.Workspaces.Invites(r.Context(), id.email)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	invites := make([]inviteDTO, 0, len(pending))
+	for _, ws := range pending {
+		invites = append(invites, inviteDTO{WorkspaceID: ws.ID, Name: ws.Name, InvitedBy: ws.CreatedBy, CreatedAt: ws.CreatedAt})
+	}
+	out["invites"] = invites
 	writeJSON(w, http.StatusOK, out)
 }
 
@@ -234,8 +268,10 @@ type addMemberRequest struct {
 	Email string `json:"email"`
 }
 
-// addMember adds a user to the workspace; only its admin (creator) may.
-// A workspace the caller is not in is a 404, so its existence does not leak.
+// addMember invites a user to the workspace; only its admin (creator) may.
+// The invitee is not a member, and their cases are not shared, until they
+// sign in and accept (joinWorkspace). A workspace the caller is not in is a
+// 404, so its existence does not leak.
 func (a *api) addMember(w http.ResponseWriter, r *http.Request) {
 	id, ok := requireUser(w, r)
 	if !ok {
@@ -253,22 +289,43 @@ func (a *api) addMember(w http.ResponseWriter, r *http.Request) {
 	}
 	wsID := r.PathValue("id")
 	if wsID != id.workspace {
-		a.workspaceError(w, r, teams.ErrNotFound)
+		a.workspaceError(w, r, teams.ErrNotFound, "")
 		return
 	}
 	ws, err := a.d.Workspaces.Get(r.Context(), wsID)
 	if err != nil {
-		a.workspaceError(w, r, err)
+		a.workspaceError(w, r, err, "")
 		return
 	}
 	if !ws.IsAdmin(id.email) {
-		writeError(w, http.StatusForbidden, "forbidden", "only the workspace's admin can add members", nil)
+		writeError(w, http.StatusForbidden, "forbidden", "only the workspace's admin can invite members", nil)
 		return
 	}
-	saved, err := a.d.Workspaces.AddMember(r.Context(), wsID, email)
+	saved, err := a.d.Workspaces.Invite(r.Context(), wsID, email)
 	if err != nil {
-		a.workspaceError(w, r, err)
+		a.workspaceError(w, r, err, "that user is already a member of this workspace")
 		return
 	}
 	writeJSON(w, http.StatusOK, workspaceOut(saved, id.email))
+}
+
+// joinWorkspace accepts the caller's own invitation. Without one it is a
+// 404, as for a workspace that does not exist; a user already in a
+// workspace gets 409. Only cases created after joining belong to the
+// workspace: earlier ones stay personal.
+func (a *api) joinWorkspace(w http.ResponseWriter, r *http.Request) {
+	id, ok := requireUser(w, r)
+	if !ok {
+		return
+	}
+	if id.workspace != "" {
+		a.workspaceError(w, r, teams.ErrMember, alreadyInOne)
+		return
+	}
+	ws, err := a.d.Workspaces.Join(r.Context(), r.PathValue("id"), id.email)
+	if err != nil {
+		a.workspaceError(w, r, err, alreadyInOne)
+		return
+	}
+	writeJSON(w, http.StatusOK, workspaceOut(ws, id.email))
 }

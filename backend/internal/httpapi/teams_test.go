@@ -56,6 +56,17 @@ func teamsHarness(t *testing.T, adjust func(*Deps)) (harness, *fakeUsers, *store
 	return hs, users, cases
 }
 
+// addToWorkspace has admin invite name to wsID and name accept.
+func (hs harness) addToWorkspace(t *testing.T, wsID, admin, name string) {
+	t.Helper()
+	if code, out := hs.doAs(t, "POST", "/v1/workspaces/"+wsID+"/members", `{"email":"`+name+`@example.com"}`, user(admin)); code != http.StatusOK {
+		t.Fatalf("%s invites %s = %d %v", admin, name, code, out)
+	}
+	if code, out := hs.doAs(t, "POST", "/v1/workspaces/"+wsID+"/join", "", user(name)); code != http.StatusOK {
+		t.Fatalf("%s joins = %d %v", name, code, out)
+	}
+}
+
 func (hs harness) newCase(t *testing.T, headers map[string]string) string {
 	t.Helper()
 	code, out := hs.doAs(t, "POST", "/v1/cases/predict", heatGunBody(t), headers)
@@ -103,13 +114,38 @@ func TestWorkspaceEndpoints(t *testing.T) {
 	if code, _ := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Second"}`, user("alice")); code != http.StatusConflict {
 		t.Errorf("a second workspace for alice = %d, want 409", code)
 	}
-	members := "/v1/workspaces/" + wsID + "/members"
-	if code, out := hs.doAs(t, "POST", members, `{"email":" Amy@Example.com "}`, user("alice")); code != http.StatusOK || len(out["members"].([]any)) != 2 {
-		t.Fatalf("add amy = %d %v", code, out)
+	members, join := "/v1/workspaces/"+wsID+"/members", "/v1/workspaces/"+wsID+"/join"
+	// Adding a member is an invitation: amy is not a member until she accepts.
+	code, out := hs.doAs(t, "POST", members, `{"email":" Amy@Example.com "}`, user("alice"))
+	if code != http.StatusOK || len(out["members"].([]any)) != 1 || len(out["invited"].([]any)) != 1 || out["invited"].([]any)[0] != "amy@example.com" {
+		t.Fatalf("invite amy = %d %v", code, out)
+	}
+	if code, out := hs.doAs(t, "POST", members, `{"email":"amy@example.com"}`, user("alice")); code != http.StatusOK || len(out["invited"].([]any)) != 1 {
+		t.Errorf("inviting amy again = %d %v, want 200 and one invitation", code, out)
 	}
 	code, mine = hs.doAs(t, "GET", "/v1/workspaces/mine", "", user("amy"))
-	if w, _ := mine["workspace"].(map[string]any); code != http.StatusOK || w["id"] != wsID || w["admin"] != false {
+	invites, _ := mine["invites"].([]any)
+	if code != http.StatusOK || mine["workspace"] != nil || len(invites) != 1 {
+		t.Fatalf("amy's workspace before accepting = %d %v", code, mine)
+	}
+	if inv := invites[0].(map[string]any); inv["workspace_id"] != wsID || inv["name"] != "Acme Imports" || inv["invited_by"] != "alice@example.com" || inv["members"] != nil {
+		t.Errorf("amy's invitation = %v", inv)
+	}
+	if code, _ := hs.doAs(t, "POST", join, "", user("zed")); code != http.StatusNotFound {
+		t.Errorf("uninvited join = %d, want 404", code)
+	}
+	if code, _ := hs.doAs(t, "POST", join, "", nil); code != http.StatusUnauthorized {
+		t.Errorf("anonymous join = %d, want 401", code)
+	}
+	if code, out := hs.doAs(t, "POST", join, "", user("amy")); code != http.StatusOK || len(out["members"].([]any)) != 2 || len(out["invited"].([]any)) != 0 || out["admin"] != false {
+		t.Fatalf("amy joins = %d %v", code, out)
+	}
+	code, mine = hs.doAs(t, "GET", "/v1/workspaces/mine", "", user("amy"))
+	if w, _ := mine["workspace"].(map[string]any); code != http.StatusOK || w["id"] != wsID || w["admin"] != false || len(mine["invites"].([]any)) != 0 {
 		t.Errorf("amy's workspace = %d %v", code, mine)
+	}
+	if code, _ := hs.doAs(t, "POST", join, "", user("amy")); code != http.StatusConflict {
+		t.Errorf("amy joins again = %d, want 409", code)
 	}
 	tests := []struct {
 		name, as, path, body string
@@ -121,6 +157,7 @@ func TestWorkspaceEndpoints(t *testing.T) {
 		{"bad email", "alice", members, `{"email":"not-an-email"}`, http.StatusBadRequest},
 		{"already a member", "alice", members, `{"email":"amy@example.com"}`, http.StatusConflict},
 		{"anonymous", "", members, `{"email":"zed@example.com"}`, http.StatusUnauthorized},
+		{"join an unknown workspace", "zed", "/v1/workspaces/ws_nope/join", "", http.StatusNotFound},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -133,10 +170,78 @@ func TestWorkspaceEndpoints(t *testing.T) {
 			}
 		})
 	}
-	// bob has his own workspace; alice cannot pull him into hers.
+	// bob has his own workspace. alice can invite him (the answer does not
+	// reveal that he is in one) but he cannot join a second.
 	hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Bob Co"}`, user("bob"))
-	if code, _ := hs.doAs(t, "POST", members, `{"email":"bob@example.com"}`, user("alice")); code != http.StatusConflict {
-		t.Errorf("adding a member of another workspace = %d, want 409", code)
+	if code, _ := hs.doAs(t, "POST", members, `{"email":"bob@example.com"}`, user("alice")); code != http.StatusOK {
+		t.Errorf("inviting a member of another workspace = %d, want 200", code)
+	}
+	if code, _ := hs.doAs(t, "POST", join, "", user("bob")); code != http.StatusConflict {
+		t.Errorf("bob joins a second workspace = %d, want 409", code)
+	}
+}
+
+// TestInvitationNeedsConsent: an admin who invites someone gains nothing
+// until that person accepts. A pre-claimed email can still create its own
+// workspace, and its cases stay personal.
+func TestInvitationNeedsConsent(t *testing.T) {
+	hs, _, cases := teamsHarness(t, nil)
+	_, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Mallory Co"}`, user("mallory"))
+	malloryWS := ws["id"].(string)
+	if code, _ := hs.doAs(t, "POST", "/v1/workspaces/"+malloryWS+"/members", `{"email":"victim@example.com"}`, user("mallory")); code != http.StatusOK {
+		t.Fatalf("invite = %d", code)
+	}
+
+	// The victim signs in for the first time and makes a case.
+	before := hs.newCase(t, user("victim"))
+	if c, _ := cases.Get(context.Background(), before); c.Workspace != "" {
+		t.Errorf("invited user's case filed in workspace %q", c.Workspace)
+	}
+	if code, _ := hs.doAs(t, "GET", "/v1/cases/"+before, "", user("mallory")); code != http.StatusNotFound {
+		t.Errorf("inviter opens the uninvited victim's case = %d, want 404", code)
+	}
+	if hs.listIDs(t, user("mallory"))[before] {
+		t.Error("inviter lists the victim's case")
+	}
+
+	// The victim is free to start their own team instead; the stale
+	// invitation then cannot be used.
+	code, own := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Victim Inc"}`, user("victim"))
+	if code != http.StatusCreated {
+		t.Fatalf("victim creates a workspace = %d %v", code, own)
+	}
+	if code, _ := hs.doAs(t, "POST", "/v1/workspaces/"+malloryWS+"/join", "", user("victim")); code != http.StatusConflict {
+		t.Errorf("victim joins a second workspace = %d, want 409", code)
+	}
+	after := hs.newCase(t, user("victim"))
+	for _, id := range []string{before, after} {
+		if code, _ := hs.doAs(t, "GET", "/v1/cases/"+id, "", user("mallory")); code != http.StatusNotFound {
+			t.Errorf("inviter opens %s = %d, want 404", id, code)
+		}
+	}
+	if c, _ := cases.Get(context.Background(), after); c.Workspace != own["id"] {
+		t.Errorf("victim's case in workspace %q, want their own %v", c.Workspace, own["id"])
+	}
+}
+
+// TestJoinSharesOnlyNewCases: once an invitee accepts, the cases they create
+// from then on are shared; those from before stay personal.
+func TestJoinSharesOnlyNewCases(t *testing.T) {
+	hs, _, _ := teamsHarness(t, nil)
+	_, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Acme"}`, user("alice"))
+	wsID := ws["id"].(string)
+	hs.doAs(t, "POST", "/v1/workspaces/"+wsID+"/members", `{"email":"amy@example.com"}`, user("alice"))
+	before := hs.newCase(t, user("amy"))
+	if code, _ := hs.doAs(t, "POST", "/v1/workspaces/"+wsID+"/join", "", user("amy")); code != http.StatusOK {
+		t.Fatalf("amy joins = %d", code)
+	}
+	after := hs.newCase(t, user("amy"))
+	got := hs.listIDs(t, user("alice"))
+	if got[before] || !got[after] {
+		t.Errorf("alice lists amy's case from before joining = %v, after = %v; want false, true", got[before], got[after])
+	}
+	if mine := hs.listIDs(t, user("amy")); !mine[before] || !mine[after] {
+		t.Errorf("amy lists her own cases = %v", mine)
 	}
 }
 
@@ -145,21 +250,23 @@ func TestTeamsVisibility(t *testing.T) {
 		t.Run(fmt.Sprintf("case_ownership=%v", ownership), func(t *testing.T) {
 			hs, _, _ := teamsHarness(t, func(d *Deps) { d.CaseOwnership = ownership })
 			_, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Acme"}`, user("alice"))
-			hs.doAs(t, "POST", "/v1/workspaces/"+ws["id"].(string)+"/members", `{"email":"amy@example.com"}`, user("alice"))
+			hs.addToWorkspace(t, ws["id"].(string), "alice", "amy")
+			hs.doAs(t, "POST", "/v1/workspaces/"+ws["id"].(string)+"/members", `{"email":"ivy@example.com"}`, user("alice"))
 
 			browser := map[string]string{"X-Visitor-ID": "alice-browser-id-00001"}
 			other := map[string]string{"X-Visitor-ID": "someone-else-id-000002"}
 			alice := hs.newCase(t, user("alice")) // in Acme
 			amy := hs.newCase(t, user("amy"))     // in Acme
 			bob := hs.newCase(t, user("bob"))     // signed in, no workspace
+			ivy := hs.newCase(t, user("ivy"))     // invited to Acme, not joined
 			anonSame := hs.newCase(t, browser)    // anonymous, alice's browser
 			anonOther := hs.newCase(t, other)     // anonymous, another browser
 			anonNone := hs.newCase(t, nil)        // anonymous, no visitor ID
 			demo := hs.newCase(t, admin)          // pinned below
 			hs.doAs(t, "PUT", "/v1/cases/"+demo+"/pin", `{"pinned":true}`, admin)
 
-			all := []string{alice, amy, bob, anonSame, anonOther, anonNone, demo}
-			names := map[string]string{alice: "alice's", amy: "amy's", bob: "bob's", anonSame: "anon (alice's browser)",
+			all := []string{alice, amy, bob, ivy, anonSame, anonOther, anonNone, demo}
+			names := map[string]string{alice: "alice's", amy: "amy's", bob: "bob's", ivy: "ivy's", anonSame: "anon (alice's browser)",
 				anonOther: "anon (other browser)", anonNone: "anon (no visitor ID)", demo: "demo"}
 			// Anonymous visitors keep D58: everything except signed-in
 			// users' cases with ownership off, their own with it on.
@@ -178,6 +285,7 @@ func TestTeamsVisibility(t *testing.T) {
 				{"alice, another device", user("alice"), []string{alice, amy, demo}},
 				{"amy (member of Acme)", user("amy"), []string{alice, amy, demo}},
 				{"bob (no workspace)", user("bob"), []string{bob, demo}},
+				{"ivy (invited to Acme, not joined)", user("ivy"), []string{ivy, demo}},
 				{"carol (signed in, nothing yet)", user("carol"), []string{demo}},
 				{"anonymous, alice's browser", browser, anonSees(anonSame)},
 				{"anonymous, other browser", other, anonSees(anonOther)},
@@ -207,7 +315,7 @@ func TestTeamsCaseActions(t *testing.T) {
 	hs, _, cases := teamsHarness(t, nil)
 	_, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Acme"}`, user("alice"))
 	wsID := ws["id"].(string)
-	hs.doAs(t, "POST", "/v1/workspaces/"+wsID+"/members", `{"email":"amy@example.com"}`, user("alice"))
+	hs.addToWorkspace(t, wsID, "alice", "amy")
 	id := hs.newCase(t, user("alice"))
 
 	stored, err := cases.Get(context.Background(), id)

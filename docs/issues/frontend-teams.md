@@ -10,16 +10,17 @@
 3. **Proxy** (`frontend/src/lib/backend.ts`, the `/api/v1` proxy): if the `op_user` cookie is present, send it to the backend as `X-User-Token: <token>`. The proxy builds headers from scratch, so a browser can't inject its own `X-User-Token`. Keep doing that. Keep sending `X-Visitor-ID` as well: a signed-in user still sees the cases they made anonymously in that browser.
 4. **Expiry:** Google ID tokens last about an hour. On a backend 401 with `code: "unauthenticated"`, clear the cookie and show "Your sign-in expired. Sign in again." Use GIS auto-select or One Tap to refresh quietly where possible.
 5. **Workspace UI** (Cases home, small panel or settings page):
-   - `GET /v1/workspaces/mine` → `{email, workspace|null}`.
+   - `GET /v1/workspaces/mine` → `{email, workspace|null, invites[]}`.
    - No workspace: "Create a team workspace" (name field) → `POST /v1/workspaces {name}`.
-   - Workspace: name plus member list. If `admin`, show "Add member" (email) → `POST /v1/workspaces/{id}/members {email}`. Show these errors: 409 "already in a workspace", 403 "only the admin can add members".
+   - Pending invitations (`invites`, each `{workspace_id, name, invited_by}`): "alice@acme.com invited you to Acme Imports" with a "Join" button → `POST /v1/workspaces/{workspace_id}/join`. Say that only cases created after joining are shared. 409 means they are already in a workspace.
+   - Workspace: name, member list and pending invitations (`invited`, marked "invited"). If `admin`, show "Invite member" (email) → `POST /v1/workspaces/{id}/members {email}`. The invitee joins when they next sign in and accept; nothing is shared before that. Show these errors: 409 "already a member" or "workspace full", 403 "only the admin can invite".
    - A user is in at most one workspace.
 6. **History:** show `actor` (email) on history events when present ("Predicted by amy@acme.com").
 
 **Then turn it on:** in `.github/workflows/deploy.yml`, add `TEAMS=on,TEAMS_AUDIENCE=<client id>` to the backend's `--set-env-vars`, and add the frontend origin to the OAuth client's authorised JavaScript origins.
 
 **Acceptance:**
-- Alice signs in, creates "Acme", adds Amy. Amy signs in (another browser) and sees Alice's cases plus the demos. Bob (signed in, not in Acme) and an anonymous window don't see them, and opening their URL shows not-found.
+- Alice signs in, creates "Acme", invites Amy. Amy signs in (another browser), sees the invitation, joins, and then sees Alice's cases plus the demos. Before Amy joins, Alice does not see Amy's cases. Bob (signed in, not in Acme) and an anonymous window don't see them, and opening their URL shows not-found.
 - A case's history shows who predicted, renamed and exported it.
 - Signed out, everything works as today (demos, anonymous cases).
 - An expired token shows the sign-in-again note, not a broken page.
