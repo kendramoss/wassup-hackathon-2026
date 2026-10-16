@@ -42,6 +42,12 @@ type client struct {
 	token   string // ADMIN_TOKEN: bypasses the rate limits, pins the demo cases
 	idToken string // ID_TOKEN: Google identity token for a private Cloud Run service
 	dumpDir string // -dump: write the full heat-gun responses here
+	// waits are the pauses before each retry of a request that failed because
+	// the model provider was unavailable (Vertex 429/504 show up as 502
+	// model_unavailable). Completed engine calls and precedent checks are
+	// cached server-side (D50, D54), so a retry redoes only what failed and
+	// cannot change a verdict already given.
+	waits []time.Duration
 }
 
 // pin marks a seeded case as a demo (listed first, protected from deletion).
@@ -82,17 +88,34 @@ func (c client) dump(name string, raw []byte) {
 }
 
 func (c client) callRaw(method, path string, body any) ([]byte, error) {
+	for i := 0; ; i++ {
+		b, status, err := c.once(method, path, body)
+		if err == nil || !retryable(status) || i >= len(c.waits) {
+			return b, err
+		}
+		fmt.Fprintf(os.Stderr, "%s %s: model provider unavailable (%d); retry %d of %d in %s\n", method, path, status, i+1, len(c.waits), c.waits[i])
+		time.Sleep(c.waits[i])
+	}
+}
+
+// retryable reports whether a failed request is worth repeating: the model
+// provider was unavailable or the request timed out. 0 is a transport error.
+func retryable(status int) bool {
+	return status == 0 || status == http.StatusBadGateway || status == http.StatusServiceUnavailable || status == http.StatusGatewayTimeout
+}
+
+func (c client) once(method, path string, body any) ([]byte, int, error) {
 	var r io.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return nil, err
+			return nil, -1, err
 		}
 		r = bytes.NewReader(b)
 	}
 	req, err := http.NewRequest(method, c.base+path, r)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if c.token != "" {
@@ -103,14 +126,14 @@ func (c client) callRaw(method, path string, body any) ([]byte, error) {
 	}
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("%s %s: %w", method, path, err)
+		return nil, 0, fmt.Errorf("%s %s: %w", method, path, err)
 	}
 	defer resp.Body.Close()
 	b, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("%s %s: %d %s", method, path, resp.StatusCode, strings.TrimSpace(string(b)))
+		return nil, resp.StatusCode, fmt.Errorf("%s %s: %d %s", method, path, resp.StatusCode, strings.TrimSpace(string(b)))
 	}
-	return b, nil
+	return b, resp.StatusCode, nil
 }
 
 type demo struct {
@@ -203,9 +226,13 @@ func seed(args []string) error {
 	api := fl.String("api", "http://localhost:8080", "server base URL")
 	multi := fl.String("multi", "testdata/heatgun_multi.json", "multi-country heat-gun fixture")
 	out := fl.String("out", "", "write the seeded cases as JSON (default: print only)")
+	retries := fl.Int("retries", 4, "retries per request when the model provider is unavailable (waits 1, 2, 4, 8 min)")
 	dumpDir := fl.String("dump", "", "also write the full heat-gun predict, plan and scenarios responses to this directory")
 	_ = fl.Parse(args)
 	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN"), dumpDir: *dumpDir}
+	for i := 0; i < *retries; i++ {
+		c.waits = append(c.waits, time.Minute<<i)
+	}
 	if c.token == "" {
 		fmt.Fprintln(os.Stderr, "WARNING: ADMIN_TOKEN is not set: the seed may hit the rate limits (429), and demo cases will not be pinned")
 	}
