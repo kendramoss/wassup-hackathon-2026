@@ -459,7 +459,13 @@ function Reasoning({ text }: { text: string }) {
 
 function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: string) => void }) {
   const rejected = result.rejected ?? [];
-  const every = [...(result.plans ?? []), ...rejected.filter((p) => p.rejection_kind !== "current_setup"), ...rejected.filter((p) => p.rejection_kind === "current_setup")];
+  // Shown plans first, then the rest closest first (precedent check, then
+  // net), matching the band (DESIGN.md: "every row greyed, closest first");
+  // "No change" last.
+  const byCheck = (a: Plan, b: Plan) => (b.verdict?.confidence ?? 0) - (a.verdict?.confidence ?? 0) || (b.net_per_year ?? 0) - (a.net_per_year ?? 0);
+  const below = rejected.filter((p) => p.rejection_kind === "below_confidence_bar").sort(byCheck);
+  const others = rejected.filter((p) => p.rejection_kind !== "below_confidence_bar" && p.rejection_kind !== "current_setup");
+  const every = [...(result.plans ?? []), ...below, ...others, ...rejected.filter((p) => p.rejection_kind === "current_setup")];
   const [open, setOpen] = useState(false);
   const all = open ? every : every.slice(0, 3);
   return (
