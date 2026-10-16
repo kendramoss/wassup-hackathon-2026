@@ -135,7 +135,7 @@ export function TriagePage() {
 
   return (
     <Main>
-      <Link href="/" className="text-[13px] text-ok hover:underline">
+      <Link href="/cases" className="text-[13px] text-ok hover:underline">
         ← Cases
       </Link>
       <h1 className="mt-3 text-[28px] tracking-[-0.05em]">Triage a portfolio</h1>
@@ -384,7 +384,7 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
         </Button>
         <span className="text-[13px] text-dim">
           All {total - failed} are saved on{" "}
-          <Link href="/" className="text-ok hover:underline">
+          <Link href="/cases" className="text-ok hover:underline">
             Cases
           </Link>
         </span>

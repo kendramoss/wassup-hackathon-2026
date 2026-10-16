@@ -51,10 +51,10 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
         <Main className="flex flex-col gap-3">
           <h1 className="text-xl tracking-[-0.04em]">Case not found</h1>
           <p className="duo max-w-[72ch] text-sm text-dim">
-            There is no case <span className="font-mono">{id}</span>. It may have been deleted, or the link is incomplete.
+            There is no case <span className="font-mono">{id}</span>. It may have been deleted, the link may be incomplete, or it was started in another browser: each visitor sees only their own cases.
           </p>
           <p>
-            <Link href="/" className="text-sm text-ok underline underline-offset-2">
+            <Link href="/cases" className="text-sm text-ok underline underline-offset-2">
               ← Back to your cases
             </Link>
           </p>

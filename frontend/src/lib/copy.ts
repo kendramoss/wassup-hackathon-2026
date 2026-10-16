@@ -10,7 +10,7 @@ export const copy = {
 
   cases: {
     title: "Cases",
-    empty: "No cases yet. Start one, or load a demo with real CBP facts.",
+    empty: "No cases yet. Cases you start show here, and only you see them.",
     newCase: "+ New case",
     recheckAll: "Re-check all",
     demos: "Demos · real CBP facts",

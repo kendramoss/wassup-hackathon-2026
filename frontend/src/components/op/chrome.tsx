@@ -351,7 +351,7 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
     return (
       <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
         <p className="duo">{e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : "Today's demo budget for model calls is used up."}</p>
-        <Link href="/" className="mt-1 inline-block text-ok underline underline-offset-2">
+        <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
           Open a demo case →
         </Link>
       </div>
