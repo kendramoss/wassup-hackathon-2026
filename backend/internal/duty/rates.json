@@ -1,0 +1,30 @@
+{
+  "checked": "2026-10-15",
+  "hts_revision": "HTS 2026 Revision 21",
+  "sources_doc": "docs/DUTY-SOURCES.md",
+  "lines": [
+    {
+      "hts": "8419.89.95",
+      "description": "Other machinery, plant or equipment: Other: Other (general-use heat guns; classification inferred from HQ H317418, unverified for a given model)",
+      "origins": {
+        "China": [
+          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
+          {"name": "Section 301 China, List 2", "rate": 0.25, "heading": "9903.88.02", "source": "https://hts.usitc.gov/reststop/search?keyword=9903.88.02", "verified": true, "note": "the 2019 heat-gun exclusion (9903.88.12) has expired"},
+          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.31", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true, "note": "stacking on China 301 from a secondary guide, unverified"}
+        ],
+        "Thailand": [
+          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
+          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.77", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true}
+        ],
+        "Vietnam": [
+          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
+          {"name": "Section 301 forced-labor (2026)", "rate": 0.125, "heading": "9903.05.84", "source": "https://hts.usitc.gov/reststop/search?keyword=9903.05", "verified": false, "note": "12.5% from the HTS heading and a secondary tier list; not confirmed in the notice text"}
+        ],
+        "Malaysia": [
+          {"name": "MFN (column 1 general)", "rate": 0.042, "heading": "8419.89.95", "source": "https://hts.usitc.gov/reststop/search?keyword=8419.89.95", "verified": true},
+          {"name": "Section 301 forced-labor (2026)", "rate": 0.10, "heading": "9903.05.54", "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies", "verified": true, "note": "a Malaysia exemption (Annex II Part E) is not ruled out; exempt would mean 4.2% total"}
+        ]
+      }
+    }
+  ]
+}

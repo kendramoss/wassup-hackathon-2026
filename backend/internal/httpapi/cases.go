@@ -19,6 +19,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
@@ -89,6 +90,9 @@ type Deps struct {
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
+	// Duty, when set, fills duty rates the user did not give from the sourced
+	// table, for products with an HTS number (D52).
+	Duty *duty.Table
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -576,6 +580,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
 		econ = *c.Economics
 	}
+	econ = a.priced(econ, c.Product)
 	req := planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
@@ -606,6 +611,25 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 
 // economicsFrom keeps the latest economics the user gave (an empty request
 // value leaves the stored one).
+// priced fills duty rates the user did not give from the sourced table, for
+// a product with an HTS number. Without economics there is nothing to price.
+func (a *api) priced(e planner.Economics, p *domain.Product) planner.Economics {
+	if a.d.Duty == nil || p == nil || p.HTS == "" || e.AnnualImportValueUSD <= 0 {
+		return e
+	}
+	rates, filled := a.d.Duty.Fill(e.DutyRates, p.HTS)
+	if len(filled) == 0 {
+		return e
+	}
+	e.DutyRates, e.DutyRatesFromTable = rates, filled
+	note := a.d.Duty.Note(p.HTS, filled)
+	if e.DutyRatesNote != "" {
+		note = e.DutyRatesNote + " " + note
+	}
+	e.DutyRatesNote = note
+	return e
+}
+
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
 	if e.AnnualImportValueUSD > 0 {
 		return &e

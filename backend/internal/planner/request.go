@@ -52,6 +52,9 @@ type Economics struct {
 	// DutyRates is the total ad-valorem duty rate by origin country (0.25 = 25%).
 	DutyRates     map[string]float64 `json:"duty_rates"`
 	DutyRatesNote string             `json:"duty_rates_note,omitempty"`
+	// DutyRatesFromTable lists the origins whose rate came from the sourced
+	// duty table rather than the user (D52).
+	DutyRatesFromTable []string `json:"duty_rates_from_table,omitempty"`
 	// GroupCosts is the annual cost of performing an operation group at a
 	// plant: group ID -> plant ID -> USD.
 	GroupCosts map[string]map[string]float64 `json:"group_costs"`

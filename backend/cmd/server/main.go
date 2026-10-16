@@ -39,6 +39,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
@@ -153,6 +154,10 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		ver = vc
 		logger.Info("verifier verdicts cached", "dir", cfg.VerifierCacheDir)
 	}
+	dutyTable, err := duty.Load()
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -187,6 +192,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Logger:         logger,
 		Limits:         httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin},
 		AdminToken:     cfg.AdminToken,
+		Duty:           dutyTable,
 		Checks:         []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }

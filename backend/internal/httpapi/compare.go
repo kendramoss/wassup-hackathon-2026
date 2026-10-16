@@ -64,6 +64,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	if econ.AnnualImportValueUSD == 0 && c.Economics != nil {
 		econ = *c.Economics
 	}
+	econ = a.priced(econ, c.Product)
 	results := make([]planner.Result, len(targets))
 	errs := make([]error, len(targets))
 	var wg sync.WaitGroup
