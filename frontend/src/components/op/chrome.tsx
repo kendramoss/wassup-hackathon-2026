@@ -9,19 +9,20 @@ import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
-// prerenders in the static shell of dynamic routes.
-export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) {
-  const onAccuracy = active === "accuracy";
+// prerenders in the static shell of dynamic routes. Cases lives at /cases;
+// the landing page (/) passes "none".
+export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "none"; sticky?: boolean }) {
+  const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
   return (
-    <header className="no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10">
+    <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10", sticky && "sticky top-0 z-30")}>
       <Link href="/" className="text-[19px] font-semibold tracking-[-0.03em]">
         Origin <i className="not-italic text-ok">Proof</i>
       </Link>
       <nav aria-label="Main" className="flex gap-5 text-sm">
-        <Link href="/" aria-current={!onAccuracy ? "page" : undefined} className={cx(!onAccuracy ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink")}>
+        <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
           {copy.nav.cases}
         </Link>
-        <Link href="/accuracy" aria-current={onAccuracy ? "page" : undefined} className={cx(onAccuracy ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink")}>
+        <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
           {copy.nav.accuracy}
         </Link>
       </nav>
@@ -253,7 +254,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
             {cases === null && <li className="px-2 py-1.5 text-dim">Loading cases…</li>}
           </ul>
           <div className="mt-1 flex justify-between border-t border-line px-2 pt-2">
-            <Link href="/" className="text-ok">All cases</Link>
+            <Link href="/cases" className="text-ok">All cases</Link>
             <Link href="/cases/new" className="text-ok">{copy.cases.newCase}</Link>
           </div>
         </div>

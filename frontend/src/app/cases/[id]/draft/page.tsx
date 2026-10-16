@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Draft for broker" };
 export default function Page() {
   return (
     <>
-      <AppBar />
+      <AppBar active="cases" />
       <Suspense>
         <DraftStep />
       </Suspense>
