@@ -3,24 +3,37 @@
 import { useEffect, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { ErrorBox, Main } from "../chrome";
-import { Chip, Panel, ScrollX, Spinner, cx } from "../ui";
+import { Chip, ScrollX, Spinner, cx } from "../ui";
 
-const pctOf = (v?: number) => (v === undefined ? "—" : `${(v * 100).toFixed(1)}%`);
+// "How accurate is it?" (DESIGN.md, locked 16 Oct, frame p-accuracy.html):
+// every held-out ruling as a square beside the three headline cards, then
+// rules of thumb, cost and time, what we don't claim, and every number.
+// All figures come from GET /v1/eval/summary except the two marked below,
+// which docs/NUMBERS.md records and the endpoint doesn't carry.
 
-// Items are ratios unless their key says otherwise: *_usd is dollars,
-// *_s is seconds.
-function valueOf(key: string | undefined, v?: number) {
-  if (v === undefined) return "—";
-  if (key?.endsWith("_usd")) return `$${v < 1 ? v.toFixed(4).replace(/0+$/, "") : v.toFixed(2)}`;
-  if (key?.endsWith("_s")) return `${v.toFixed(v < 10 ? 1 : 0)} s`;
-  return pctOf(v);
+type Item = NonNullable<EvalSummary["items"]>[number];
+
+const LIST_PRICE = 0.0157; // docs/NUMBERS.md: list price per prediction
+const PROXY = { from: 0.899, to: 0.902, p: "1.0" }; // docs/NUMBERS.md: proxy → Vertex, McNemar
+
+const pct = (v?: number, d = 1) => (v === undefined ? "—" : `${(v * 100).toFixed(d)}%`);
+const ci0 = (it?: Item) => (it?.ci_low !== undefined && it?.ci_high !== undefined ? `${Math.round(it.ci_low * 100)}–${Math.round(it.ci_high * 100)}` : "");
+const ci = (it?: Item) => (it?.ci_low !== undefined && it?.ci_high !== undefined ? `${(it.ci_low * 100).toFixed(1)}–${(it.ci_high * 100).toFixed(1)}` : "");
+
+function Card({ title, big, children, className }: { title: string; big: string; children: React.ReactNode; className?: string }) {
+  return (
+    <section className={cx("border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]", className)}>
+      <h2 className="eyebrow">{title}</h2>
+      <p className="mt-2 text-[34px] leading-none tracking-[-0.05em]">{big}</p>
+      <p className="duo mt-2.5 text-xs text-dim">{children}</p>
+    </section>
+  );
 }
 
-// "How accurate is it?": GET /v1/eval/summary. Every number shows its split,
-// n and CI; proxy numbers are labelled until the Vertex re-run.
 export function AccuracyPage() {
   const [data, setData] = useState<EvalSummary | null>(null);
   const [error, setError] = useState<unknown>(null);
+  const [all, setAll] = useState(false);
   const load = () => {
     setError(null);
     api.evalSummary().then(setData, setError);
@@ -28,22 +41,66 @@ export function AccuracyPage() {
   useEffect(() => {
     api.evalSummary().then(setData, setError);
   }, []);
+
   const items = data?.items ?? [];
-  const [lead, ...rest] = items;
+  const get = (k: string) => items.find((i) => i.key === k);
+  const acc = get("final_accuracy");
+  const fpAcc = get("final_fastpath_accuracy");
+  const fpCov = get("final_fastpath_coverage");
+  const cost = get("final_cost_per_case_usd");
+  const p50 = get("final_latency_p50_s");
+  const p95 = get("final_latency_p95_s");
+  const dev = get("dev_accuracy");
+  const change = get("change_detection_heldout");
+  const changeBase = get("change_detection_always_change_baseline");
+  const movePrec = get("verifier_unknown-a_precision");
+  const moveRec = get("verifier_unknown-a_recall");
+
+  // The squares, worked out from the rates (DESIGN.md: 288 / 12 / 52 / 25).
+  const n = acc?.n ?? 377;
+  const right = Math.round((acc?.value ?? 0) * n);
+  const auto = fpAcc?.n ?? Math.round((fpCov?.value ?? 0) * n);
+  const autoRight = Math.round((fpAcc?.value ?? 0) * auto);
+  const autoWrong = auto - autoRight;
+  const review = n - auto;
+  const reviewRight = right - autoRight;
+  const reviewWrong = review - reviewRight;
+  const squares = [
+    ...Array(autoRight).fill("ar"),
+    ...Array(autoWrong).fill("aw"),
+    ...Array(reviewRight).fill("rr"),
+    ...Array(reviewWrong).fill("rw"),
+  ] as ("ar" | "aw" | "rr" | "rw")[];
+  const sq = { ar: "bg-ok", aw: "border border-ink bg-white", rr: "bg-ok/25", rw: "border border-dashed border-dim bg-white" };
+
+  const bars = [
+    { label: "Origin Proof (Gemini, Vertex AI)", it: acc, ours: true },
+    { label: "Most-mentioned country", it: get("baseline_most_mentioned") },
+    { label: "Country of final assembly", it: get("baseline_final_assembly") },
+    { label: "Last-mentioned country", it: get("baseline_last_mentioned") },
+    { label: "Always the most common origin", it: get("baseline_majority") },
+  ].filter((b) => b.it);
+
+  const status = (it: Item): { label: string; tone?: "ok" | "ask" } =>
+    it.key?.startsWith("baseline")
+      ? { label: "baseline, no model" }
+      : it.key?.startsWith("change_detection")
+        ? { label: "weak" }
+        : it.development_only
+          ? { label: "development set", tone: "ask" }
+          : { label: "official", tone: "ok" };
+  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "change_detection_heldout", "verifier_unknown-a_precision"];
+  const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
+  const value = (it: Item) =>
+    it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
+
   return (
     <Main>
-      <p className="eyebrow">How accurate is it?</p>
-      <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Measured on CBP rulings the model never saw</h1>
-      <p className="duo mt-2 max-w-[80ch] text-sm text-dim">
-        Each case is predicted using only earlier rulings dated before it, then compared with what CBP actually held. The held-out split was scored once and never used for tuning.
+      <h1 className="text-[34px] tracking-[-0.05em]">How accurate is it?</h1>
+      <p className="duo mt-2 max-w-[68ch] text-[14px] text-dim">
+        We gave Origin Proof {n} real CBP origin rulings from January to September 2026, none of which it had seen, and compared its answer with CBP&apos;s. Every number below has
+        its interval and its source.
       </p>
-      {data?.status && (
-        <p className="mt-3">
-          <Chip className="whitespace-normal" tone={/^official/i.test(data.status) ? "ok" : "ask"}>
-            {data.status}
-          </Chip>
-        </p>
-      )}
       {error ? (
         <div className="mt-6">
           <ErrorBox error={error} onRetry={load} />
@@ -54,51 +111,168 @@ export function AccuracyPage() {
           <Spinner label="Loading the numbers…" />
         </div>
       )}
-      {lead && (
-        <Panel className="mt-8">
-          <p className="eyebrow">{lead.label}</p>
-          <p className="mt-1 text-[64px] leading-none tracking-[-0.06em]">{pctOf(lead.value)}</p>
-          <p className="mt-2 text-xs text-dim">
-            {lead.ci_low !== undefined && `95% CI ${pctOf(lead.ci_low)}–${pctOf(lead.ci_high)} · `}n = {lead.n} · {lead.split}
-            {lead.development_only ? " · proxy" : ""}
-          </p>
-        </Panel>
-      )}
-      {rest.length > 0 && (
-        <div className="mt-8">
-          <ScrollX label="All measured numbers">
-          <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
-            <thead>
-              <tr>
-                {["Measure", "Value", "95% CI", "n", "Split", "Source"].map((h) => (
-                  <th key={h} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
-                    {h}
-                  </th>
+
+      {acc && (
+        <>
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <section className="border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="eyebrow">Every held-out ruling</h2>
+                <Chip tone="ok">official · Vertex AI</Chip>
+                <span className="ml-auto text-[11px] text-dim">one square = one CBP ruling</span>
+              </div>
+              <div
+                className="mt-4 grid gap-[3px]"
+                style={{ gridTemplateColumns: "repeat(29, minmax(0, 1fr))" }}
+                role="img"
+                aria-label={`${n} rulings: ${autoRight} auto-accepted and right, ${autoWrong} auto-accepted and wrong, ${reviewRight} sent to review and right, ${reviewWrong} sent to review and wrong.`}
+              >
+                {squares.map((k, i) => (
+                  <i key={i} className={cx("aspect-square", sq[k])} />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rest.map((it) => (
-                <tr key={it.key} className={cx("border-b border-line last:border-0", it.key?.startsWith("baseline") && "text-dim")}>
-                  <td className="duo px-3.5 py-2.5">
-                    {it.label}
-                    {it.development_only && <span className="ml-2 text-[11px] text-ask">proxy</span>}
-                  </td>
-                  <td className="whitespace-nowrap px-3.5 py-2.5 text-[15px]">{valueOf(it.key, it.value)}</td>
-                  <td className="whitespace-nowrap px-3.5 py-2.5 text-dim">{it.ci_low !== undefined ? `${pctOf(it.ci_low)}–${pctOf(it.ci_high)}` : "—"}</td>
-                  <td className="px-3.5 py-2.5">{it.n}</td>
-                  <td className="px-3.5 py-2.5">{it.split}</td>
-                  <td className="max-w-[28ch] truncate px-3.5 py-2.5 text-xs text-dim" title={it.source}>
-                    {it.source}
-                  </td>
-                </tr>
+              </div>
+              <ul className="mt-4 grid gap-x-6 gap-y-2 text-xs text-body sm:grid-cols-2">
+                {(
+                  [
+                    ["ar", `auto-accepted, right · ${autoRight}`],
+                    ["aw", `auto-accepted, wrong · ${autoWrong}`],
+                    ["rr", `sent to review, right · ${reviewRight}`],
+                    ["rw", `sent to review, wrong · ${reviewWrong}`],
+                  ] as const
+                ).map(([k, l]) => (
+                  <li key={k} className="flex items-center gap-2">
+                    <i className={cx("inline-block size-2.5", sq[k])} aria-hidden="true" />
+                    {l}
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <div className="flex flex-col gap-5">
+              <Card title="Overall" big={pct(acc.value)}>
+                {right} of {n} right ({ci(acc)}).
+              </Card>
+              <Card title="Auto-accepted (confidence ≥ 0.92)" big={pct(fpAcc?.value)}>
+                right, on {pct(fpCov?.value)} of cases ({ci(fpAcc)}). This is the 0.92 bar on every Result screen.
+              </Card>
+              <Card title="Sent to review" big={String(review)}>
+                cases, {reviewRight} right ({pct(reviewRight / Math.max(review, 1), 0)}, against {pct(fpAcc?.value, 0)} when it&apos;s sure), so a person checks them.
+              </Card>
+            </div>
+          </div>
+
+          <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="eyebrow">Against rules of thumb</h2>
+              <span className="ml-auto text-[11px] text-dim">same {n} rulings · 95% interval</span>
+            </div>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {bars.map(({ label, it, ours }) => (
+                <div key={label} className="grid items-center gap-x-4 gap-y-1 text-[12.5px] sm:grid-cols-[230px_minmax(0,1fr)_130px]">
+                  <span>{label}</span>
+                  <span className="relative h-3 bg-wash">
+                    <i className={cx("absolute inset-y-0 left-0", ours ? "bg-ok" : "bg-dim")} style={{ width: `${(it!.value ?? 0) * 100}%` }} />
+                    {it!.ci_low !== undefined && (
+                      <>
+                        <i className="absolute -inset-y-1 w-px bg-ink" style={{ left: `${it!.ci_low * 100}%` }} />
+                        <i className="absolute -inset-y-1 w-px bg-ink" style={{ left: `${(it!.ci_high ?? 0) * 100}%` }} />
+                      </>
+                    )}
+                  </span>
+                  <span className="tabular-nums sm:text-right">
+                    <b className={cx("font-medium", !ours && "font-normal")}>{pct(it!.value)}</b> <span className="text-dim">({ci(it)})</span>
+                  </span>
+                </div>
               ))}
-            </tbody>
-          </table>
-          </ScrollX>
-        </div>
+              <div className="grid gap-x-4 text-[10px] text-dimension sm:grid-cols-[230px_minmax(0,1fr)_130px]">
+                <span />
+                <span className="flex justify-between">
+                  {["0%", "25%", "50%", "75%", "100%"].map((t) => (
+                    <span key={t}>{t}</span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            <Card title="Cost per prediction" big={cost ? `$${cost.value}` : "—"}>
+              promo; ${LIST_PRICE} list. Gemini on Vertex AI.
+            </Card>
+            <Card title="Time per prediction" big={p50 ? `${p50.value?.toFixed(1)} s` : "—"}>
+              median; {p95?.value?.toFixed(1)} s for 95% of cases.
+            </Card>
+            <Card title="Against the proxy run" big={`p = ${PROXY.p}`}>
+              no difference ({pct(PROXY.from)} → {pct(PROXY.to)}, McNemar).
+            </Card>
+          </div>
+
+          <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+            <h2 className="eyebrow">What we don&apos;t claim</h2>
+            <ul className="duo mt-3 flex list-disc flex-col gap-2 pl-5 text-[13px]">
+              {change && (
+                <li>
+                  Spotting that a change flips the origin, from scratch: {pct(change.value, 0)} ({ci0(change)}) on {change.n} pairs, against {pct(changeBase?.value)} for always
+                  saying &ldquo;it changes&rdquo;. Weak; shown only with both baselines.
+                </li>
+              )}
+              {movePrec && (
+                <li>
+                  Move checks on the Plan step: {movePrec.n} of {movePrec.n} flagged moves were right ({ci0(movePrec)}) on a {get("verifier_unknown-a_cost_usd")?.n ?? 54}-pair
+                  development set, finding {pct(moveRec?.value, 0)} of real flips. Development set, not held out.
+                </li>
+              )}
+              <li>Not a ruling. A licensed broker confirms before anything is filed.</li>
+            </ul>
+          </section>
+
+          <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="eyebrow">Every number</h2>
+              <span className="ml-auto text-[11px] text-dim">from GET /v1/eval/summary</span>
+            </div>
+            <ScrollX label="Every number">
+              <table className="mt-3 w-full min-w-[760px] border-collapse text-[12.5px]">
+                <thead>
+                  <tr>
+                    {["What", "Value", "95% interval", "n", "Status", "Source"].map((h) => (
+                      <th key={h} scope="col" className="border-b border-line py-2 pr-3 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((it) => {
+                    const s = status(it);
+                    return (
+                      <tr key={it.key} className="border-b border-dashed border-line align-top">
+                        <td className="duo py-2 pr-3">{it.label}</td>
+                        <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{value(it)}</td>
+                        <td className="whitespace-nowrap py-2 pr-3 tabular-nums text-dim">{ci(it)}</td>
+                        <td className="py-2 pr-3 tabular-nums">{it.n ?? ""}</td>
+                        <td className="py-2 pr-3">
+                          <Chip tone={s.tone}>{s.label}</Chip>
+                        </td>
+                        <td className="max-w-[24ch] truncate py-2 text-[11px] text-dim" title={it.source}>
+                          {it.source?.split(/[/ ]/).filter((x) => x.includes(".")).pop() ?? it.source}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </ScrollX>
+            <button type="button" onClick={() => setAll(!all)} className="mt-3 min-h-8 text-[12.5px] text-ok hover:underline">
+              {all ? "Show the main numbers" : `Show all ${items.length} numbers`}
+            </button>
+          </section>
+
+          <p className="duo mt-6 max-w-[90ch] text-[11.5px] text-dim">
+            {data?.status} {dev ? `Development split: ${pct(dev.value)} on ${dev.n}.` : ""} Generated {data?.generated_at?.slice(0, 10)} from GET /v1/eval/summary; every row traces to
+            docs/NUMBERS.md.
+          </p>
+        </>
       )}
-      {data?.generated_at && <p className="mt-4 text-xs text-dim">Generated {data.generated_at}</p>}
     </Main>
   );
 }
