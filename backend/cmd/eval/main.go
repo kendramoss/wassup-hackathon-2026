@@ -38,6 +38,12 @@
 //	    precedents the engine saw) and report how its flags relate to errors.
 //	eval report -in FILE [-in FILE ...] [-adjust FILE]
 //	    Print the Markdown summary of existing result files.
+//	eval calibrate [-target 0.95] [-min-n 20]
+//	    No model calls. Fit an auto-accept bar per router subfamily on the
+//	    dev engine results only, then apply the frozen bars once to the
+//	    held-out results and compare with the global bar (D63). Writes
+//	    eval/results/calibration-by-family.{json,md} and the bars the
+//	    server embeds (internal/triage/family_bars.json).
 //
 // Model and provider come from the same environment as the server
 // (LLM_PROVIDER, ENGINE_MODEL, ROUTER_MODEL, PRECEDENT_K, ...). Run from backend/.
@@ -120,6 +126,8 @@ func main() {
 		err = tuneSplitCmd(os.Args[2:])
 	case "tunedata":
 		err = tuneDataCmd(os.Args[2:])
+	case "calibrate":
+		err = calibrateCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

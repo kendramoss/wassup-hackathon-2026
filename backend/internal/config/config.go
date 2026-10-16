@@ -122,6 +122,11 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// FastPathByFamily (on|off, default off) replaces the global auto-accept
+	// bar with the per-subfamily bars fitted on dev by `eval calibrate`
+	// (embedded in internal/triage); subfamilies without a fitted bar keep
+	// FastPathConfidence (D63).
+	FastPathByFamily string
 }
 
 // Load reads the configuration from the process environment.
@@ -167,6 +172,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
 		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		FastPathByFamily:  strings.ToLower(e.str("FAST_PATH_BY_FAMILY", "off")),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -242,6 +248,9 @@ func (c Config) validate() error {
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
 	}
+	if c.FastPathByFamily != "on" && c.FastPathByFamily != "off" {
+		bad("FAST_PATH_BY_FAMILY must be on or off, got %q", c.FastPathByFamily)
+	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
 	}
@@ -289,6 +298,9 @@ func (c Config) validate() error {
 	}
 	return errors.Join(errs...)
 }
+
+// FamilyBars reports whether triage uses the per-subfamily bars (D63).
+func (c Config) FamilyBars() bool { return c.FastPathByFamily == "on" }
 
 // String renders the config for startup logs; it holds no secrets.
 func (c Config) String() string {

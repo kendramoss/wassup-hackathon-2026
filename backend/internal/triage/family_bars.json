@@ -1,0 +1,11 @@
+{
+  "rule": "dev only: per router subfamily, the lowest confidence c such that, among in-scope dev cases, accuracy at confidence ≥ c' is ≥ 95% for every c' ≥ c that keeps ≥ 20 cases (and c itself keeps ≥ 20); else the global 0.92",
+  "source": "eval/results/calibration-by-family.json (eval calibrate, D63)",
+  "bars": {
+    "electronics": 0.78,
+    "filters": 0.95,
+    "metal_tools_parts": 0.78,
+    "motorised": 0.75,
+    "other": 0.96
+  }
+}

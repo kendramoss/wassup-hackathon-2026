@@ -101,6 +101,10 @@ type Deps struct {
 	// review.
 	Textile         Predictor
 	TextileFastPath float64
+	// FamilyBars, when set (FAST_PATH_BY_FAMILY=on), replaces FastPathConf
+	// with the bar of the router's subfamily; the triage reason names it
+	// (D63). Nil keeps the global bar.
+	FamilyBars *triage.FamilyBars
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
@@ -289,9 +293,13 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 		}
 		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
-	inScope, scopeReason := true, ""
+	inScope, scopeReason, subfamily := true, "", ""
 	if label != nil {
 		inScope, scopeReason = label.Scope()
+		subfamily = label.Subfamily
+	}
+	if a.d.FamilyBars != nil {
+		return res.Prediction, label, triage.DecideByFamily(res.Prediction, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope, nil
 	}
 	return res.Prediction, label, triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason), inScope, nil
 }
