@@ -50,6 +50,13 @@ func TestBatchTriage(t *testing.T) {
 	if n := len(list["cases"].([]any)); n != 2 {
 		t.Errorf("saved %d cases, want 2", n)
 	}
+	names := map[string]bool{}
+	for _, c := range list["cases"].([]any) {
+		names[c.(map[string]any)["display_name"].(string)] = true
+	}
+	if !names["Heat gun"] || !names["Fan"] {
+		t.Errorf("saved cases are not named after their rows: %v", names)
+	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/batch", `{"items":[]}`); code != http.StatusBadRequest {
 		t.Errorf("empty batch = %d", code)
 	}
