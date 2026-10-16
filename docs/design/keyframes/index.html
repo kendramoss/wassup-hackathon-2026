@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 2 key frames: layout</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+body{background:#ecebe6;padding:56px 48px 120px}
+h1{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.lede{margin-top:12px;max-width:80ch;color:#3d3a35}
+section{margin-top:64px}h2{font-family:var(--serif);font-size:26px;font-weight:600}
+.note{margin-top:6px;color:var(--dim);font-size:14px;max-width:86ch}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:22px;align-items:start}
+figure{background:#fff;border-radius:10px;overflow:hidden}figure img{display:block;width:100%}
+figcaption{padding:12px 14px 14px;font-size:14px;line-height:1.45}
+figcaption b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dim);margin-bottom:4px}
+figcaption .rec{color:var(--ok);font-weight:600}
+.check{margin-top:12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.check div::before{content:"✓ ";font-weight:700;color:var(--ok)}.check div.p::before{content:"~ ";color:#c4892a}.check div.x::before{content:"✗ ";color:#b0412e}
+@media (max-width:1100px){.row{grid-template-columns:1fr}body{padding:32px 20px 80px}}
+</style></head><body>
+<h1>Step 2 key frames: page layout</h1>
+<p class="lede">One screen, three layouts: the heat-gun Result as the endpoint returned it (likely China at 0.85, needs expert review, three follow-up questions, five earlier rulings). Verdict, decisive step, key factor, questions and rulings are the recorded response word for word (<span class="mono">eval/results/predict-heatgun-2022-litellm.json</span>, proxy run), desktop 1440 × 900. Colour and type are placeholders; they are decided in step 3. The questions carry no accuracy claim. Checks are against the step-1 principles: ✓ pass, ~ partial, ✗ fail.</p>
+<section><h2>Result screen, needs more facts</h2>
+<p class="note">Same content in every frame: the verdict, one plain sentence, the question box, key factors and the rulings it read. Only the frame around it changes.</p>
+<div class="row">
+<figure><a href="step2-a.html"><img src="png/step2-a.png" alt=""></a><figcaption><b>step2-a · one growing page</b>Product, Origin, Plan and Draft stack down one page. Later sections wait as dashed placeholders.
+<div class="check"><div>Whole story visible by scrolling: good for the 2:45 video</div><div>Cheapest to build</div><div class="p">Evidence sits below the question box, a scroll away rather than beside the answer</div><div class="x">"One decision per screen" breaks: four decisions on one page, and it gets long once the plan table lands</div></div></figcaption></figure>
+<figure><a href="step2-b.html"><img src="png/step2-b.png" alt=""></a><figcaption><b>step2-b · separate steps with a progress bar</b> <span class="rec">Recommended.</span> One step per screen; evidence in a right-hand panel; the next step sits in a fixed footer.
+<div class="check"><div>One decision per screen; the verdict owns the left column</div><div>Evidence beside the answer, never more than a glance away</div><div>Progress bar tells a judge where they are in the story</div><div class="p">"Plan anyway" next to the disabled main button needs a clearer rule in step 4</div></div></figcaption></figure>
+<figure><a href="step2-c.html"><img src="png/step2-c.png" alt=""></a><figcaption><b>step2-c · case page with tabs</b>A case list on the left and tabs per stage. Feels like a working tool for a compliance team.
+<div class="check"><div>Easy to switch between cases and come back</div><div class="p">Tabs hide the order; a judge can't tell Plan comes after Origin</div><div class="p">Only two rulings fit beside the answer; the rest go to a tab</div><div class="x">Reads as a dashboard, against "document, not dashboard"</div></div></figcaption></figure>
+</div></section>
+<section><h2>Layout b: starting a case and moving between cases</h2>
+<p class="note">How you get into the four steps and back out. "Cases" in the top bar is home: every product you've started, plus the demos. The case name in the step bar switches cases without leaving the step you're on.</p>
+<div class="row" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+<figure><a href="step2-b-cases.html"><img src="png/step2-b-cases.png" alt=""></a><figcaption><b>step2-b-cases · Cases (home)</b>One row per product: likely origin, status, and the step you left off on. "+ New case" starts step 1; a demo card loads real CBP facts into step 1.
+<div class="check"><div>Compare verdicts across cases at a glance, in a list like the ruling index</div><div>Demos give judges a one-click start</div><div class="p">The API has no "list cases" endpoint and the store forgets cases on restart: keep the list in the browser for now, or add <span class="mono">GET /v1/cases</span></div></div></figcaption></figure>
+<figure><a href="step2-b-new.html"><img src="png/step2-b-new.png" alt=""></a><figcaption><b>step2-b-new · new case, step 1</b>Parts and plants as two short tables, or paste a CBP-style description. One button forward: "Find the likely origin".
+<div class="check"><div>One decision: describe the product</div><div>"Load a demo" for anyone without data</div><div class="p">Field-level design (country picker, plant chips) comes in step 4</div></div></figcaption></figure>
+<figure><a href="step2-b-conflict.html"><img src="png/step2-b-conflict.png" alt=""></a><figcaption><b>step2-b-conflict · earlier rulings disagree</b>Real endpoint output, word for word: the recorded <span class="mono">clarify</span> response for dev case N351082 (automotive air-conditioning filter, proxy run). The two rulings side by side with their holdings, what decided it, and three questions.
+<div class="check"><div>Holds real-length text: holdings about 150 characters, "what decided it" 400, questions up to 300</div><div>The closest ruling and why it's on point sit beside the answer</div><div class="p">The page is taller than one screen; step 4 decides whether holdings collapse to one line</div><div class="p">No plain-language reason sentence: this record has no engine reasoning, so the lead line is missing</div></div></figcaption></figure>
+<figure><a href="step2-b-switch.html"><img src="png/step2-b-switch.png" alt=""></a><figcaption><b>step2-b-switch · case switcher</b>Click the case name in the step bar. Each case reopens on its own step; "All cases" goes home.
+<div class="check"><div>Switch cases without losing your place</div><div>"+ New case" reachable from any step</div><div class="p">Not needed for the video; cheap to cut if time runs short</div></div></figcaption></figure>
+</div></section>
+</body></html>

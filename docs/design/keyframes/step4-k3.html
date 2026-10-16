@@ -1,0 +1,102 @@
+<!doctype html><html lang="en"><head><style>@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");</style><meta charset="utf-8"><title>Key screen · k3 · the finding as a sentence</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style><style>/* inlined from _shared/theme-f.css */
+/* F · Dark reading room (after Claude, Gemini, Adaline dark): charcoal page, light serif verdict, mint for supported, amber for look again */
+:root{--paper:#181817;--sheet:#212120;--ink:#ecebe6;--dim:#a8a59d;--faint:#7d7a73;--line:#34332f;--wash:#2a2a28;
+--ok:#7cc8a4;--ok-wash:#1f3329;--ask:#efb257;--ask-wash:#352a18;--ask-line:#5c4720;--ask-bar:#e0a040;
+--serif:"Source Serif 4",Georgia,serif;--sans:"Inter",sans-serif;--mono:"IBM Plex Mono",monospace;--r:8px}
+.btn{background:var(--ink)!important;color:#141413!important;border-color:var(--ink)!important}
+.btn.ghost{background:transparent!important;color:var(--ink)!important;border-color:var(--line)!important}
+.btn.off{background:var(--wash)!important;color:var(--faint)!important;border-color:var(--line)!important}
+.st.on .d{background:var(--ink)!important;border-color:var(--ink)!important;color:#141413!important}
+.st.done .d{color:#141413!important}
+.q .field{background:var(--paper)!important}
+
+</style><style>
+.steps{display:flex;padding:0 40px;height:52px;align-items:center;border-bottom:1px solid var(--line);font-size:14px}
+.st{display:flex;align-items:center;gap:8px;color:var(--faint)}.st .d{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-family:var(--mono)}
+.st.done{color:var(--dim)}.st.done .d{background:var(--ok);border-color:var(--ok);color:#141413}.st.on{color:var(--ink);font-weight:600}.st.on .d{background:var(--ink);border-color:var(--ink);color:#141413}
+.sep{flex:0 0 56px;height:1px;background:var(--line);margin:0 14px}.case{margin-left:auto;font-size:13px;color:var(--dim)}
+.rl{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid var(--line);list-style:none}.rl:last-child{border-bottom:1px solid var(--line)}
+.rs{display:block;font-size:14px}.rh{display:block;font-size:12.5px;color:var(--dim)}.rn{font-family:var(--mono);font-size:13px;white-space:nowrap;text-align:right}
+.rn em{display:block;font-style:normal;font-family:var(--sans);font-size:11px;color:var(--ok);font-weight:600;letter-spacing:.04em;text-transform:uppercase}.rl.cit .rn{color:var(--ok)}
+.meter{position:relative;height:6px;background:var(--wash);border-radius:6px;width:260px;margin-top:10px}.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--ask)}.meter b{position:absolute;top:-5px;width:2px;height:16px;background:var(--ink)}
+.mlab{display:flex;justify-content:space-between;width:260px;font-size:12px;color:var(--dim);margin-top:6px;font-family:var(--mono)}
+.match{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--dim)}.match::before{content:"✓";color:var(--ok);font-weight:700}
+.qa{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:6px}.qa .field{margin:0}.idk{align-self:center;font-size:13px;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:9px 12px;white-space:nowrap}
+.audit{font-size:12px;color:var(--faint);font-family:var(--mono);line-height:1.6}
+.foot{position:fixed;left:0;right:0;bottom:0;height:68px;border-top:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 40px;gap:14px;z-index:4}.foot .r{margin-left:auto;display:flex;gap:10px;align-items:center}
+main{max-width:860px;margin:0 auto;padding:56px 40px 120px}
+.finding{font-family:var(--serif);font-size:44px;line-height:1.15;letter-spacing:-.015em;font-weight:400}.finding b{font-weight:600;color:var(--ink);border-bottom:3px solid var(--ask)}
+.meta{display:flex;gap:28px;align-items:center;margin-top:22px}
+.reason{font-family:var(--serif);font-size:18px;line-height:1.65;color:#d6d4cd;margin-top:28px}.cite{font-family:var(--mono);font-size:13px;color:var(--ok);background:var(--ok-wash);padding:1px 6px;border-radius:4px;text-decoration:none}
+.fn{margin-top:30px}.fn h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:8px}
+.fn ul{display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
+</style></head><body>
+<div class="bar"><span class="mark">Origin <i>Proof</i></span><nav><span class="on">Cases</span><span>How accurate is it?</span></nav><span class="right">Not a ruling. Confirm with a licensed customs broker.</span></div>
+<div class="steps"><span class="st done"><span class="d">✓</span>Product</span><span class="sep"></span><span class="st on"><span class="d">2</span>Origin</span><span class="sep"></span><span class="st"><span class="d">3</span>Plan</span><span class="sep"></span><span class="st"><span class="d">4</span>Draft for broker</span><span class="case">Kobalt 12.5-amp heat gun · 14 Jan 2026</span></div><main><div class="eyebrow">Likely origin · substantial transformation</div><p class="finding">CBP would likely find this heat gun a product of <b>China</b>.</p>
+<div class="meta"><span class="chip ask">Needs expert review</span><div><div class="meter"><i style="width:85%"></i><b style="left:92%"></b></div><div class="mlab"><span>confidence 0.85</span><span>auto-accept 0.92</span></div></div></div>
+<p class="reason">To deliver hot air, a heat gun relies equally on its heating element, motor, fan, and PCBA. While the heating element and housing are made in Thailand, the motor, fan, PCBA, switch, and power cord are sourced from China. The final assembly in Thailand consists of simple press-fitting, screwing, soldering, and plugging, which does not substantially transform the Chinese components. Because the majority of the critical functional components originate in China (similar to <a class="cite">N351922</a> and <a class="cite">N348083</a>), the origin is China.</p><div style="margin-top:16px"><p class="match">Same as CBP's ruling on this setup: China, <span class="mono">N328954</span> (Nov 2022).</p></div>
+<div style="margin-top:36px"><div class="ask-box"><h3>CBP would likely ask about this</h3><p class="why">Closest earlier ruling: <span class="mono">N346397</span>, an air fryer. Answering adds these facts and runs the analysis again.</p><div class="q"><label>1. How is the heating element manufactured in Thailand (e.g., formed and wound from raw wire and insulating materials, or assembled from pre-made Chinese subcomponents), and where are its raw materials sourced?</label><div class="qa"><div class="field">Type your answer</div><span class="idk">I don't know</span></div></div><div class="q"><label>2. How are the main housing and front cover produced in Thailand (e.g., injection molded from raw plastic resin), and what is the country of origin of the resin?</label><div class="qa"><div class="field">Type your answer</div><span class="idk">I don't know</span></div></div><div class="q"><label>3. What is the relative cost or value share of the Thai-produced heating element and housing compared to the Chinese-sourced motor, fan, and PCBA?</label><div class="qa"><div class="field">Type your answer</div><span class="idk">I don't know</span></div></div><div class="actions"><span class="btn off">Add answers and re-run</span><span class="fine">Enabled once one answer adds a fact</span></div></div></div>
+<div class="fn ev"><h4>Earlier CBP rulings read</h4><ul><li class="rl cit"><div><span class="rs">Commercial food warmer</span><span class="rh">9 May 2025 · held China</span></div><span class="rn">N348083<em>cited</em></span></li><li class="rl cit"><div><span class="rs">Refrigerant recovery unit</span><span class="rh">27 Aug 2025 · held China</span></div><span class="rn">N351922<em>cited</em></span></li><li class="rl"><div><span class="rs">Air fryer</span><span class="rh">25 Mar 2025 · held Vietnam</span></div><span class="rn">N346397</span></li><li class="rl"><div><span class="rs">Air fryer</span><span class="rh">26 Mar 2025 · held Vietnam</span></div><span class="rn">N346398</span></li><li class="rl"><div><span class="rs">Fans</span><span class="rh">27 Aug 2025 · held Thailand</span></div><span class="rn">N351782</span></li></ul></div><div style="margin-top:20px"><p class="audit">Gemini 4 Argon · engine-v1 · clarify-v1 · read 5 CBP rulings dated before 14 Jan 2026 · proxy run</p></div></main><div class="foot"><span class="btn ghost">← Edit product</span><div class="r"><span class="fine">Answering is optional</span><span class="btn">Plan a move to Thailand →</span></div></div></body></html>
