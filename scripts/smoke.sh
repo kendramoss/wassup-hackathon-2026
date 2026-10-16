@@ -11,10 +11,15 @@
 #
 # ID_TOKEN:    Google identity token, for a private Cloud Run service.
 # ADMIN_TOKEN: bypasses the rate limits (the script makes 3 model-calling requests).
+# PAUSE:       seconds to wait before each model-calling request (deep health,
+#              predict, plan). Default 60, so a predict does not run straight
+#              into a plan search while gemini-4-argon is crowded. PAUSE=0
+#              restores the old back-to-back behaviour.
 # Needs curl and python3.
 set -euo pipefail
 API=${1:?usage: scripts/smoke.sh <API base URL>}
 API=${API%/}
+PAUSE=${PAUSE:-60}
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
@@ -40,13 +45,23 @@ step() {
 }
 json() { python3 -c "import json,sys; d=json.load(open('$TMP/out')); print($1)"; }
 
+# pause sleeps before a request that calls a model.
+pause() {
+	if [ "${PAUSE}" != 0 ]; then
+		printf '      pausing %ss before the next model call\n' "$PAUSE"
+		sleep "$PAUSE"
+	fi
+}
+
 step "GET /health" 200 GET /health
+pause
 step "GET /health?deep=1" 200 GET "/health?deep=1" ||
 	{ echo "deep health failed: fix the case store or model access before anything else"; exit 1; }
 json "'      checks: ' + ', '.join(f\"{k} {v['latency_ms']} ms\" for k, v in d['checks'].items())"
 step "GET /v1/demos/heatgun-2022" 200 GET /v1/demos/heatgun-2022
 python3 -c "import json; d=json.load(open('$TMP/out')); json.dump(d['predict'], open('$TMP/predict.json','w')); json.dump(d['plan'], open('$TMP/plan.json','w'))"
 
+pause
 step "POST /v1/cases/predict (heat gun)" 201 POST /v1/cases/predict "$TMP/predict.json"
 ID=$(json "d['id']")
 json "f\"      {d['id']}: {d['prediction']['origin_country']} {d['prediction']['confidence']:.2f} ({d['triage']['route']}), {d['llm_provider']} {d['model_ids']['engine']}\""
@@ -62,6 +77,7 @@ trap cleanup EXIT
 step "GET /v1/cases/{id}" 200 GET "/v1/cases/$ID"
 step "GET /v1/cases" 200 GET /v1/cases
 json "'      listed: ' + str(any(c['id'] == '$ID' for c in d['cases']))"
+pause
 step "POST /v1/cases/{id}/plan (~30 s)" 200 POST "/v1/cases/$ID/plan" "$TMP/plan.json"
 json "(lambda p: f\"      {p['stats']['moves_searched']} moves, {len(p['plans'])} shown, {p['stats'].get('verifier_cached', 0)}/{p['stats']['verifier_runs']} checks cached\")(d['plan'])"
 
