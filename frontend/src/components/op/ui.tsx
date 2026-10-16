@@ -163,7 +163,8 @@ export function Chip({ tone, children, className }: { tone?: "ok" | "ask" | "fai
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded-[2px] border px-2 py-0.5 text-xs",
+        "inline-flex items-center gap-1 rounded-[2px] border px-2 py-0.5 text-xs",
+        !className?.includes("whitespace-") && "whitespace-nowrap",
         tone === "ok" && "border-ok bg-ok-wash text-ok",
         tone === "ask" && "border-ask-line bg-ask-wash text-ask",
         tone === "fail" && "border-fail bg-fail-wash text-fail",
@@ -187,6 +188,15 @@ export function Dimension({ children, className }: { children: ReactNode; classN
   return <span className={cx("text-[10px] tracking-[0.02em] text-dimension", className)}>{children}</span>;
 }
 
+// A horizontally scrolling table wrapper that keyboard users can scroll.
+export function ScrollX({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div role="region" aria-label={label} tabIndex={0} className="relative max-w-full overflow-x-auto">
+      {children}
+    </div>
+  );
+}
+
 export function Spinner({ label }: { label: string }) {
   return (
     <span role="status" className="inline-flex items-center gap-2 text-sm text-dim">
@@ -202,7 +212,7 @@ export function RulingLink({ id, className }: { id: string; className?: string }
       href={`https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`}
       target="_blank"
       rel="noreferrer"
-      className={cx("font-mono text-ok underline-offset-2 hover:underline", className)}
+      className={cx("font-mono text-ok underline decoration-1 underline-offset-2", className)}
     >
       {id}
     </a>

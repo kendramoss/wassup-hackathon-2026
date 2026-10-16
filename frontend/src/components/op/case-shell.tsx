@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
 import type { CaseResponse } from "@/lib/api/client";
-import { stepIndex } from "@/lib/format";
+import { formatDate, stepIndex } from "@/lib/format";
 import { caseTitle, useCase } from "@/lib/use-case";
 import { ErrorBox, Main, StepBar } from "./chrome";
 import { Spinner } from "./ui";
@@ -28,7 +28,7 @@ export function CaseShell({ step, children }: { step: number; children: (ctx: Ca
   const reached = data ? (stepIndex[data.step ?? "origin"] ?? 2) : step;
   const title = data ? (
     <>
-      {caseTitle(data)} <span className="text-dim">· {data.date}</span>
+      {caseTitle(data)} <span className="text-dim">· {formatDate(data.date)}</span>
     </>
   ) : (
     "Loading…"

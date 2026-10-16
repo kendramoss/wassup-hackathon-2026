@@ -67,7 +67,7 @@ function Compare({ id, c }: CaseCtx) {
 
   return (
     <>
-      <div className="border-b border-dashed border-guide">
+      <section aria-label="Comparison summary" className="border-b border-dashed border-guide">
         <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
           <Dimension className="absolute left-4 top-3 sm:left-10">
             fig.4 — compare target countries{since ? " · searching" : ranked && !anyPlan ? " · no country cleared the bar" : ""}
@@ -76,7 +76,7 @@ function Compare({ id, c }: CaseCtx) {
             <>
               <div>
                 <p className="eyebrow">Comparing {picked.length} countries</p>
-                <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em]">Searching moves to {picked.join(", ")}</p>
+                <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">Searching moves to {picked.join(", ")}</h1>
               </div>
               <div>
                 <p className="eyebrow">Elapsed</p>
@@ -96,14 +96,14 @@ function Compare({ id, c }: CaseCtx) {
             <>
               <div>
                 <p className={cx("eyebrow", !anyPlan && "text-ask")}>{anyPlan ? "Best country" : "No country cleared the 0.92 bar"}</p>
-                <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em]">
+                <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">
                   {anyPlan ? "" : "Closest: "}
                   {(top.best.description ?? "").replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "")} in{" "}
                   <span className="inline-flex items-center gap-2 whitespace-nowrap">
                     <Flag country={top.target} size={26} />
                     {top.target}
                   </span>
-                </p>
+                </h1>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {anyPlan ? <Chip tone="ok">{copy.plan.supported}</Chip> : <Chip tone="ask">● Below the bar · {conf(top.best.verdict?.confidence)}</Chip>}
                   <Chip>
@@ -132,12 +132,12 @@ function Compare({ id, c }: CaseCtx) {
           ) : (
             <div>
               <p className="eyebrow">{copy.plan.compare}</p>
-              <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em]">One plan search per country, in parallel, ranked.</p>
+              <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">One plan search per country, in parallel, ranked.</h1>
               {ranked && <p className="duo mt-2 text-sm text-ask">No country found a precedent-supported move.</p>}
             </div>
           )}
         </div>
-      </div>
+      </section>
       <Main className="flex flex-col gap-7">
         <fieldset>
           <legend className="text-[11px] uppercase tracking-[0.08em] text-dimension">Countries to compare · 2–4, from your plants</legend>
@@ -171,7 +171,7 @@ function Compare({ id, c }: CaseCtx) {
         {error ? <ErrorBox error={error} onRetry={run} /> : null}
 
         {(ranked || since) && (
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
               <caption className="pb-2.5 text-left text-[11px] uppercase tracking-[0.08em] text-dimension">
                 Ranked · plan, then below the bar, then no supported plan, then no capable plant

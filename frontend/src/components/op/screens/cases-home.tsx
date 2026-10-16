@@ -73,7 +73,7 @@ export function CasesHome() {
       )}
 
       {cases && cases.length > 0 && (
-        <div className="mt-6 overflow-x-auto">
+        <div className="relative mt-6 overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
             <thead>
               <tr>

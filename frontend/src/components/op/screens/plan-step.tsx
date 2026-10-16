@@ -221,13 +221,13 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
 
 function Band({ children, left, right }: { children: React.ReactNode; left: string; right?: string }) {
   return (
-    <div className="border-b border-dashed border-guide">
+    <section aria-label="Plan summary" className="border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
         <Dimension className="absolute left-4 top-3 sm:left-10">{left}</Dimension>
         {right && <Dimension className="absolute right-4 top-3 sm:right-10">{right}</Dimension>}
         {children}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -251,10 +251,10 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
     <Band left={below ? `fig.1 — no plan cleared the bar · 0 of ${total} moves shown` : `fig.1 — best plan · ${shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>{below ? copy.plan.none : copy.plan.best}</p>
-        <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em] sm:text-[32px]">
+        <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           {below ? "Closest: " : ""}
           {sentence(plan)} in <To country={target} />
-        </p>
+        </h1>
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">● Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           <Chip>
@@ -288,7 +288,7 @@ function NoneBand({ target }: { target: string }) {
     <Band left="fig.1 — no supported plan">
       <div>
         <p className="eyebrow text-ask">No plan reached {target}</p>
-        <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</p>
+        <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
       </div>
     </Band>
   );
@@ -300,9 +300,9 @@ function StartBand({ target, c }: { target: string; c: CaseResponse }) {
     <Band left="fig.1 — plan a move">
       <div>
         <p className="eyebrow">Step 3 · Plan</p>
-        <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em] sm:text-[32px]">
+        <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Which operations would have to move for the origin to become <To country={target} />?
-        </p>
+        </h1>
         <p className="duo mt-3 text-sm text-dim">
           Today: <Country name={cur?.country ?? c.prediction?.origin_country} /> {cur?.ruling ? <>(CBP, <RulingLink id={cur.ruling} />)</> : "(likely origin)"}. Moves only go to plants your product lists.
         </p>
@@ -316,9 +316,9 @@ function SearchingBand({ target, progress }: { target: string; progress: { done:
     <Band left="fig.1 — searching" right="moves run in parallel">
       <div>
         <p className="eyebrow">{copy.plan.searching}</p>
-        <p className="duo mt-1 text-[26px] leading-tight tracking-[-0.05em] sm:text-[32px]">
+        <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Checking each move to <To country={target} /> against earlier CBP rulings
-        </p>
+        </h1>
       </div>
       <div>
         <p className="eyebrow">Elapsed</p>
@@ -348,7 +348,7 @@ function outcome(p: Plan | undefined) {
 
 function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null; lit: string | null }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
         <thead>
           <tr>
@@ -403,7 +403,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Every move searched · best first</h2>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <thead>
             <tr>

@@ -108,16 +108,16 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
   const cur = currentOrigin(c);
   const route = c.triage?.route;
   return (
-    <div className="relative border-b border-dashed border-guide">
+    <section aria-label="Likely origin" className="relative border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[auto_minmax(0,1fr)_260px] lg:gap-11">
         <Dimension className="absolute left-4 top-3 sm:left-10">fig.1 — likely origin</Dimension>
         {route && <Dimension className="absolute right-4 top-3 sm:right-10">route: {route}</Dimension>}
         <div>
           <p className="eyebrow">{copy.result.eyebrow}</p>
-          <p className="mt-1 flex items-center gap-4 text-[56px] leading-none tracking-[-0.06em] sm:text-[84px]">
+          <h1 className="mt-1 flex items-center gap-4 text-[56px] font-normal leading-none tracking-[-0.06em] sm:text-[84px]">
             <Flag country={p.origin_country} size={58} />
             {p.origin_country || "—"}
-          </p>
+          </h1>
         </div>
         <div className="min-w-0 pb-3.5">
           {p.decisive_step && (
@@ -141,7 +141,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
           <Ruler value={p.confidence} label={`${BAR} auto-accept`} caption={`confidence ${conf(p.confidence)}`} />
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -162,7 +162,7 @@ function WatchStrip({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse
   };
   const changed = w?.status === "changed";
   return (
-    <div className="column mx-auto w-full max-w-[1240px] px-4 pt-6 sm:px-10">
+    <section aria-label="Ruling watch" className="column mx-auto w-full max-w-[1240px] px-4 pt-6 sm:px-10">
       <div
         className={cx(
           "duo grid items-center gap-3 px-4 py-3 text-[13px] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-5",
@@ -202,7 +202,7 @@ function WatchStrip({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse
           {busy ? "Re-checking…" : w ? "Re-check again" : "Re-check now"}
         </Button>
       </div>
-    </div>
+    </section>
   );
 }
 

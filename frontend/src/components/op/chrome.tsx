@@ -35,8 +35,8 @@ const stepHref = (id: string, n: number) => `/cases/${encodeURIComponent(id)}/${
 // step are links; the case name opens the switcher.
 export function StepBar({ caseId, current, reached, title }: { caseId?: string; current: number; reached: number; title: ReactNode }) {
   return (
-    <div className="no-print flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-2 border-b border-line bg-paper px-4 py-2 text-sm sm:px-10">
-      <ol className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label="Steps">
+    <nav aria-label="Case steps" className="no-print flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-2 border-b border-line bg-paper px-4 py-2 text-sm sm:px-10">
+      <ol className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {stepNames.map((name, i) => {
           const n = i + 1;
           const done = n < current || (n !== current && n <= reached);
@@ -71,7 +71,7 @@ export function StepBar({ caseId, current, reached, title }: { caseId?: string; 
       <div className="ml-auto">
         <CaseSwitcher caseId={caseId} title={title} />
       </div>
-    </div>
+    </nav>
   );
 }
 
@@ -127,9 +127,9 @@ export function Footer({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="h-24" aria-hidden="true" />
-      <div className="no-print fixed inset-x-0 bottom-0 z-10 flex min-h-[68px] flex-wrap items-center gap-3 border-t border-dashed border-guide bg-paper px-4 py-2 sm:px-10">
+      <footer className="no-print fixed inset-x-0 bottom-0 z-10 flex min-h-[68px] flex-wrap items-center gap-3 border-t border-dashed border-guide bg-paper px-4 py-2 sm:px-10">
         {children}
-      </div>
+      </footer>
     </>
   );
 }

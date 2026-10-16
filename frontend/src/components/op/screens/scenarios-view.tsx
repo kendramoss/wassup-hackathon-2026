@@ -251,7 +251,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Where each part is made</h2>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <thead>
             <tr>

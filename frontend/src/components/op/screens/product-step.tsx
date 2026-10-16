@@ -100,7 +100,7 @@ export function ProductStep() {
     <>
       <StepBar current={1} reached={1} title={name || "New case"} />
       <Main>
-        <div className="max-w-[880px]">
+        <div className="min-w-0 max-w-[880px]">
           <p className="eyebrow">Step 1 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
           <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
           <p className="duo mt-1 text-dim">{copy.product.lede}</p>
@@ -203,13 +203,13 @@ function PartsEditor({ product, onChange, family, onFamily }: { product: Product
   const listId = useId();
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex min-w-0 flex-col gap-7">
       <datalist id={listId}>
         {groupSuggestions.map((g) => (
           <option key={g} value={g} />
         ))}
       </datalist>
-      <Panel>
+      <Panel className="min-w-0">
         <PanelHead right={`${plants.length} plants`}>Plants</PanelHead>
         <Rows
           head={["ID", "Name", "Country", "Can also make (groups, ; separated)"]}
@@ -229,7 +229,7 @@ function PartsEditor({ product, onChange, family, onFamily }: { product: Product
           addLabel="+ Add plant"
         />
       </Panel>
-      <Panel>
+      <Panel className="min-w-0">
         <PanelHead right={`${product.components.length} parts`}>Parts</PanelHead>
         <Rows
           head={["Part", "Made in", "Plant", "Group"]}
@@ -244,7 +244,7 @@ function PartsEditor({ product, onChange, family, onFamily }: { product: Product
           addLabel="+ Add part"
         />
       </Panel>
-      <Panel>
+      <Panel className="min-w-0">
         <PanelHead right={`${ops.length} steps`}>Processing at each plant</PanelHead>
         <Rows
           head={["Operation", "Plant", "Group"]}
@@ -273,7 +273,7 @@ function Cell({ label, value, onChange, list }: { label: string; value: string; 
 
 function Rows({ head, rows, onRemove, onAdd, addLabel }: { head: string[]; rows: ReactNode[][]; onRemove: (i: number) => void; onAdd: () => void; addLabel: string }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[620px] border-collapse text-sm">
         <thead>
           <tr>
@@ -282,7 +282,9 @@ function Rows({ head, rows, onRemove, onAdd, addLabel }: { head: string[]; rows:
                 {h}
               </th>
             ))}
-            <th className="w-8" />
+            <th className="w-8">
+              <span className="sr-only">Remove</span>
+            </th>
           </tr>
         </thead>
         <tbody>

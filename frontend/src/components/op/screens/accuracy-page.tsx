@@ -3,9 +3,18 @@
 import { useEffect, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { ErrorBox, Main } from "../chrome";
-import { Chip, Panel, Spinner, cx } from "../ui";
+import { Chip, Panel, ScrollX, Spinner, cx } from "../ui";
 
 const pctOf = (v?: number) => (v === undefined ? "—" : `${(v * 100).toFixed(1)}%`);
+
+// Items are ratios unless their key says otherwise: *_usd is dollars,
+// *_s is seconds.
+function valueOf(key: string | undefined, v?: number) {
+  if (v === undefined) return "—";
+  if (key?.endsWith("_usd")) return `$${v < 1 ? v.toFixed(4).replace(/0+$/, "") : v.toFixed(2)}`;
+  if (key?.endsWith("_s")) return `${v.toFixed(v < 10 ? 1 : 0)} s`;
+  return pctOf(v);
+}
 
 // "How accurate is it?": GET /v1/eval/summary. Every number shows its split,
 // n and CI; proxy numbers are labelled until the Vertex re-run.
@@ -30,7 +39,9 @@ export function AccuracyPage() {
       </p>
       {data?.status && (
         <p className="mt-3">
-          <Chip tone={/proxy|development/i.test(data.status) ? "ask" : "ok"}>{data.status}</Chip>
+          <Chip className="whitespace-normal" tone={/proxy|development/i.test(data.status) ? "ask" : "ok"}>
+            {data.status}
+          </Chip>
         </p>
       )}
       {error ? (
@@ -54,7 +65,8 @@ export function AccuracyPage() {
         </Panel>
       )}
       {rest.length > 0 && (
-        <div className="mt-8 overflow-x-auto">
+        <div className="mt-8">
+          <ScrollX label="All measured numbers">
           <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
             <thead>
               <tr>
@@ -72,7 +84,7 @@ export function AccuracyPage() {
                     {it.label}
                     {it.development_only && <span className="ml-2 text-[11px] text-ask">proxy</span>}
                   </td>
-                  <td className="px-3.5 py-2.5 text-[15px]">{pctOf(it.value)}</td>
+                  <td className="whitespace-nowrap px-3.5 py-2.5 text-[15px]">{valueOf(it.key, it.value)}</td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 text-dim">{it.ci_low !== undefined ? `${pctOf(it.ci_low)}–${pctOf(it.ci_high)}` : "—"}</td>
                   <td className="px-3.5 py-2.5">{it.n}</td>
                   <td className="px-3.5 py-2.5">{it.split}</td>
@@ -83,6 +95,7 @@ export function AccuracyPage() {
               ))}
             </tbody>
           </table>
+          </ScrollX>
         </div>
       )}
       {data?.generated_at && <p className="mt-4 text-xs text-dim">Generated {data.generated_at}</p>}
