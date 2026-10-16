@@ -101,6 +101,13 @@ type Config struct {
 	// AdminToken lets the demo seed bypass the limits, pin demo cases and
 	// delete pinned ones. Empty: nobody is admin.
 	AdminToken string
+	// TextileEngine (on|off, default off) predicts textile cases under
+	// 19 CFR 102.21 instead of leaving them out of scope (D51), with
+	// precedents from TextileRulings. TextileFastPath is its auto-accept bar;
+	// 0 (default) sends every textile case to review.
+	TextileEngine   bool
+	TextileRulings  string
+	TextileFastPath float64
 }
 
 // Load reads the configuration from the process environment.
@@ -139,6 +146,15 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
 		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
+		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
+		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
+	}
+	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.TextileEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -190,6 +206,9 @@ func (c Config) validate() error {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
 		}
+	}
+	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
+		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
 	}
 	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin} {
 		if v < 0 {

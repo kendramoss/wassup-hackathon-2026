@@ -30,6 +30,10 @@ type Options struct {
 	// PrecedentReasoning adds each precedent's CBP reasoning (Ruling.Reasoning)
 	// to the user message (eval experiments).
 	PrecedentReasoning bool
+	// System and Version replace the substantial-transformation prompt and
+	// its version, for another origin regime (TextileSystem, D51).
+	System  string
+	Version string
 }
 
 // Engine predicts origin from facts plus dated precedents.
@@ -162,14 +166,21 @@ func (e *Engine) vote(ctx context.Context, c domain.Case, precedents []domain.Ru
 }
 
 func (e *Engine) system() string {
-	if e.opts.Rules == "" {
-		return System
+	sys := System
+	if e.opts.System != "" {
+		sys = e.opts.System
 	}
-	return System + "\n\n" + e.opts.Rules
+	if e.opts.Rules == "" {
+		return sys
+	}
+	return sys + "\n\n" + e.opts.Rules
 }
 
 func (e *Engine) promptVersion() string {
 	v := PromptVersion
+	if e.opts.Version != "" {
+		v = e.opts.Version
+	}
 	if e.opts.Rules != "" {
 		v += "+" + e.opts.RulesVersion
 	}

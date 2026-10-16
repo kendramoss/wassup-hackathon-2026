@@ -44,6 +44,72 @@ Same frozen config as the proxy run below. Scoring adjustments from `eval/data/s
 - Flash's fast path is below the 95% accuracy the 0.92 bar was chosen for. Overall accuracy is close; the confident answers are not.
 - Tuning was not launched. Supervised fine-tuning for Gemini 3.5 Flash is $0.01 per 1,000 training tokens ($10 per 1M). Anas: no Flash tuning before the freeze. The staging deploy of this baseline (health ok, case saves denied) is in D44.
 
+## Textile regime (19 CFR 102.21) — Vertex AI (16 Oct 2026)
+
+`textile-v1`, Gemini 4 Argon, plain BM25, K = 5, precedents limited to textile rulings dated before the case. Split frozen in `eval/splits/splits_textile.json` (dev 99, final 71). Dev was scored first. Held-out was scored once after that, with the prompt, K, and the split left as they were. Rows: `results/textile-dev-gemini-4-argon-prec-textile-v1-vertex.jsonl`, `results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl`. The "fast path" line in the raw eval report still uses the substantial-transformation bar of 0.92. The textile bar below is separate.
+
+| Split | n | Accuracy (95% CI) | ≥ 0.95 coverage | ≥ 0.95 accuracy (95% CI) | Cost / case (promo · list) | Latency p50 / p95 |
+|---|---:|---|---:|---|---|---|
+| dev (Jul–Dec 2025) | 99 | 79.8% (70.8–86.5) | 67 / 99 = 67.7% | 95.5% (87.6–98.5) | $0.0092 · $0.0184 | 5.5 s / 68.1 s |
+| **final** (held out, 2026) | 71 | **85.9% (76.0–92.2)** | 42 / 71 = 59.2% | **95.2% (84.2–98.7)** | $0.0093 · $0.0185 | 5.7 s / 47.7 s |
+
+Substantial-transformation dev, same model and K, is 91.1% (88.2–93.4) on 463 adjusted cases. Textile dev is about 11 points lower; held-out is about 4 points under the substantial-transformation held-out of 90.2% (86.8–92.8). Both textile numbers sit well above a most-common-origin rule (always China, the dev majority: 30/99 = 30.3% on dev, 9/71 = 12.7% on held-out). The held-out majority class is Canada at 19/71 = 26.8%; that figure uses the held-out labels, so it is not a rule that could have been set beforehand. A where-assembled read of the facts — the country named on the sewing or assembly step, unextracted cases counted wrong — is 21/99 = 21.2% on dev and 19/71 = 26.8% on held-out.
+
+### Calibration
+
+| Confidence | dev n | dev correct | dev accuracy | final n | final correct | final accuracy (95% CI) |
+|---|---:|---:|---|---:|---:|---|
+| ≥ 0.95 | 67 | 64 | 95.5% (87.6–98.5) | 42 | 40 | 95.2% (84.2–98.7) |
+| 0.90–0.95 | 19 | 10 | 52.6% (31.7–72.7) | 13 | 9 | 69.2% (42.4–87.3) |
+| 0.80–0.90 | 6 | 3 | 50.0% (18.8–81.2) | 4 | 3 | 75.0% (30.1–95.4) |
+| < 0.80 | 7 | 2 | 28.6% (8.2–64.1) | 12 | 9 | 75.0% (46.8–91.1) |
+
+Cumulative accuracy stays at or above 95% down through confidence 0.95 on both splits (dev 64/67, held-out 40/42). The next grid point, 0.92, drops to 70/76 = 92.1% on dev and 45/49 = 91.8% on held-out. No held-out score falls in [0.93, 0.95), so a bar of 0.93 would select the same 42 cases. Proposed `TEXTILE_FAST_PATH=0.95` (42/71 cases). Zero call errors on both runs. Dev p95 is one slow case, not the typical call (p50 is 5.5 s).
+
+### Dev errors (20)
+
+The rule is the deciding rule the model named (`key_factors`). Three of these name 19 CFR 102.11 or substantial transformation instead of 102.21 (N349660, N352059, H335912); N352763 treats the good as a non-textile LED module. The prompt was not changed after this list.
+
+| Ruling | Gold | Predicted | Confidence | Rule named |
+|---|---|---|---:|---|
+| N350055 | Pakistan | China | 0.96 | (c)(2) and (e)(2)(i) dyeing, printing, and two finishing operations |
+| N349831 | Cambodia | China | 0.92 | (c)(4) most important manufacturing process (outer shell fabric formation) |
+| N349660 | Mexico | United States | 0.85 | (c)(4); also 19 CFR 102.11(d)(3) essential character |
+| N350421 | Indonesia | China | 0.90 | (c)(4) most important manufacturing process |
+| H335912 | Canada | United States | 0.90 | 19 CFR 102.11(b)(1) essential character, via 102.17 |
+| N350930 | Cambodia | China | 0.90 | (c)(4) most important assembly or manufacturing process |
+| N351308 | Mexico | China | 0.90 | (c)(4) most important manufacturing process (caliper core) |
+| N351508 | China | Indonesia | 0.90 | (c)(5) last country of important manufacturing process |
+| N352059 | Mexico | Germany | 0.78 | Substantial transformation / 19 CFR 102.11(b)(1) |
+| N352404 | Pakistan | China | 0.40 | (c)(2) fabric formation |
+| N353243 | China | Pakistan | 0.85 | (c)(4) most important manufacturing process (outer shell fabric) |
+| N353342 | China | Canada | 0.65 | (c)(2) tariff shift / substantial transformation in Canada |
+| N353658 | Vietnam | China | 0.95 | (c)(4) most important manufacturing process |
+| N353972 | Dominican Republic | United States | 0.92 | (c)(2) fabric formation |
+| N355835 | Canada | China | 0.35 | (c)(2) tariff shift / assembly |
+| N355801 | China | Pakistan | 0.85 | (c)(4) most important manufacturing process |
+| N356882 | Vietnam | China | 0.92 | (c)(4) most important manufacturing process |
+| N356886 | Vietnam | China | 0.90 | (c)(4) most important manufacturing process |
+| N356766 | Uzbekistan | India | 0.98 | (c)(2) tariff shift (wholly assembled) |
+| N352763 | Mexico | China | 0.75 | Substantial transformation (non-textile, LED module / PCBA) |
+
+### Held-out errors (10)
+
+| Ruling | Gold | Predicted | Confidence | Rule named |
+|---|---|---|---:|---|
+| N357199 | Vietnam | China | 0.92 | (c)(4) most important manufacturing process |
+| N358446 | India | Uzbekistan | 0.90 | (c)(4) most important assembly or manufacturing process |
+| N358577 | United States | Costa Rica | 0.90 | (c)(2) wholly assembled |
+| N359056 | Mexico | Canada | 0.65 | (c)(2) tariff shift / substantial transformation via printing and framing |
+| N359690 | Canada | Mexico | 0.65 | (c)(2) tariff shift |
+| N361684 | United States | Thailand | 0.78 | (c)(2) / 102.20(r) tariff shift and substantial transformation |
+| N360050 | Cambodia | China | 0.92 | (c)(4) most important manufacturing process |
+| N357180 | Mexico | United States | 0.85 | (c)(4) most important assembly or manufacturing process |
+| N364456 | China | Slovakia | 0.98 | (c)(2) tariff shift |
+| N364457 | China | Slovakia | 0.95 | (c)(2) tariff shift |
+
+Two held-out misses sit at or above 0.95, both China predicted as Slovakia under (c)(2). That is why the ≥ 0.95 band is 40/42 rather than 42/42, and why the Wilson lower bound is 84.2%.
+
 ## Origin engine — Go port check (engine-v1, gemini-4-argon, 5 BM25 precedents dated before each case) — proxy, development only
 
 | Split | n | Accuracy (95% Wilson CI) | Research run (same split, Python) | Same answer as research | Conf ≥ 0.95: coverage / accuracy | Cost / case (promo · list) | Latency p50 / p95 |

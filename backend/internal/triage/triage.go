@@ -24,6 +24,22 @@ func Decide(p domain.Prediction, threshold float64, inScope bool, scopeReason st
 	}
 }
 
+// TextilePrefix starts the reason of every textile-regime decision (D51).
+const TextilePrefix = "textile rules (19 CFR 102.21)"
+
+// Textile routes a prediction made under the textile rules. With fastPath 0
+// (the default until the textile eval sets a threshold) it always goes to
+// review: the regime is new and has no held-out result yet.
+func Textile(p domain.Prediction, fastPath float64) domain.Triage {
+	if fastPath > 0 && p.Confidence >= fastPath {
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("%s: confidence %.2f ≥ %.2f", TextilePrefix, p.Confidence, fastPath)}
+	}
+	if fastPath > 0 {
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("%s: confidence %.2f below %.2f", TextilePrefix, p.Confidence, fastPath)}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: TextilePrefix + ": a new regime without a held-out result yet; an expert reviews every textile case"}
+}
+
 // WithClarify refines a needs_review decision with the clarify review: when
 // no earlier ruling is on point and there are questions to ask, the case
 // goes back to the requester first (needs_info). Auto decisions and

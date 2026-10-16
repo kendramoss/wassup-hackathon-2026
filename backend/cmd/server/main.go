@@ -39,6 +39,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
@@ -145,6 +146,22 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
 	ver = verifier.NewMajority(ver, cfg.VerifierVotes) // the cache below stores the majority verdict
+	var textile httpapi.Predictor
+	if cfg.TextileEngine {
+		ids, err := corpus.LoadIDList(cfg.TextileRulings)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		var tpool []domain.Ruling
+		for _, id := range ids {
+			if r, ok := pool.Get(id); ok {
+				tpool = append(tpool, r)
+			}
+		}
+		textile = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.TextileSystem, Version: engine.TextileVersion})
+		logger.Info("textile engine on", "precedents", len(tpool), "fast_path", cfg.TextileFastPath)
+	}
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -176,28 +193,30 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		return httpapi.Deps{}, err
 	}
 	return httpapi.Deps{
-		Demos:          ds,
-		Engine:         eng,
-		Router:         router.New(model, cfg.RouterModel, 2000),
-		Agent:          caseagent.New(model, cfg.EngineModel, searcher, eng),
-		Extractor:      extract.New(model, cfg.EngineModel),
-		Clarifier:      clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:     pool,
-		Planner:        planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
-		Rulings:        crossClient,
-		Cases:          cases,
-		Templates:      tmpls,
-		Summary:        evalsummary.Load,
-		FastPathConf:   cfg.FastPathConfidence,
-		PlanConfidence: cfg.PlanConfidence,
-		Provider:       model.Provider(),
-		EngineModel:    cfg.EngineModel,
-		RouterModel:    cfg.RouterModel,
-		VerifierModel:  cfg.VerifierModel,
-		Logger:         logger,
-		Limits:         httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin},
-		AdminToken:     cfg.AdminToken,
-		Checks:         []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+		Demos:           ds,
+		Engine:          eng,
+		Router:          router.New(model, cfg.RouterModel, 2000),
+		Agent:           caseagent.New(model, cfg.EngineModel, searcher, eng),
+		Extractor:       extract.New(model, cfg.EngineModel),
+		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
+		Precedents:      pool,
+		Planner:         planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Rulings:         crossClient,
+		Cases:           cases,
+		Templates:       tmpls,
+		Summary:         evalsummary.Load,
+		FastPathConf:    cfg.FastPathConfidence,
+		PlanConfidence:  cfg.PlanConfidence,
+		Provider:        model.Provider(),
+		EngineModel:     cfg.EngineModel,
+		RouterModel:     cfg.RouterModel,
+		VerifierModel:   cfg.VerifierModel,
+		Logger:          logger,
+		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin},
+		AdminToken:      cfg.AdminToken,
+		Textile:         textile,
+		TextileFastPath: cfg.TextileFastPath,
+		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }
 

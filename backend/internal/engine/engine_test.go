@@ -260,3 +260,15 @@ func TestPrecedentReasoningInUserMessage(t *testing.T) {
 		t.Error("reasoning shown only when enabled")
 	}
 }
+
+func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	e := New(f, nil, Options{Model: "m", System: TextileSystem, Version: TextileVersion})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "c", Date: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), Facts: "knit gaiters"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Prediction.Trace.PromptVersion != TextileVersion || !strings.Contains(f.Calls()[0].System, "102.21") {
+		t.Errorf("version %q, system %.60q", res.Prediction.Trace.PromptVersion, f.Calls()[0].System)
+	}
+}
