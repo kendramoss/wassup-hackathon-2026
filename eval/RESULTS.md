@@ -257,3 +257,19 @@ Chosen on dev with the held-out already spent on v1, so no independent test yet 
 
 Rows: `results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl`. Five calls returned 429 or 504 and were retried; the file has one row per ruling. `TEXTILE_PROMPT` stays v1.
 
+
+## USMCA / Part 102 rules on dev (LiteLLM proxy, 17 Oct; D61)
+
+**Proxy, development only.** `go run ./cmd/eval run -regime usmca -split dev` (labels `data/labels_usmca.jsonl`, splits `splits/splits_usmca.json`, facts in `backend/data/facts`). 72 dev cases (2024–2025), K = 5 BM25 precedents drawn only from labelled Part 102 rulings dated before each case. Held-out (32, 2026) was not run.
+
+| | engine-v1 (substantial transformation) | **usmca-v1 (102.11 / 102.20)** |
+|---|---|---|
+| Accuracy | 52/72 = 72.2% (61.0–81.2) | **54/72 = 75.0% (63.9–83.6)** |
+| ≥ 0.95 | 32/34 = 94.1% (80.9–98.4) | 36/37 = 97.3% (86.2–99.5) |
+| McNemar vs engine-v1 | — | fixed 6, broke 4, p = 0.75 |
+| Cost / case (promo) | $0.0081 | $0.0099 |
+| Latency p50 / p95 | 6.0 s / 8.7 s | 6.8 s / 12.9 s |
+
+Always-Mexico is 28/72 = 38.9%, always-Canada 24/72 = 33.3%. Rows: `results/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm.jsonl` and `results/usmca-dev-gemini-4-argon-prec-engine-v1-litellm.jsonl` (same pool and cases, engine-v1 prompt).
+
+Of the 18 usmca-v1 misses, 3 are label problems rather than model errors: H345343 and H342474 (the two manual rows, copied from `labels.jsonl`) hold the Section 301 origin, while CBP's marking origin, the question Part 102 answers, is Mexico in both; N342959's "evidence" is a facts sentence ("German origin Module frames"), not a holding. 12 of the 18 predict the country that made a main material or component (South Korea for cast covers, China for film and spouts, Germany for coated paper, the United States for cereal and potato flakes) where CBP found the tariff shift met in Mexico or Canada: the model under-applies (a)(3).
