@@ -122,6 +122,11 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// HTSSuggest (on|off, default off) serves POST /v1/products/hts-suggest:
+	// candidate HTS subheadings from rulings that state one, listed in
+	// HTSIndex (written by "corpus hts-index"; D64). Off: the endpoint is a 404.
+	HTSSuggest bool
+	HTSIndex   string
 }
 
 // Load reads the configuration from the process environment.
@@ -167,6 +172,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
 		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		HTSIndex:          e.str("HTS_INDEX", "data/hts_index.json"),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -181,6 +187,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("HTS_SUGGEST", "off")); v {
+	case "on", "true", "1":
+		c.HTSSuggest = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("HTS_SUGGEST must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -241,6 +254,9 @@ func (c Config) validate() error {
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
+	}
+	if c.HTSSuggest && !strings.HasSuffix(c.HTSIndex, ".json") {
+		bad("HTS_INDEX must be a .json file written by \"corpus hts-index\", got %q", c.HTSIndex)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)

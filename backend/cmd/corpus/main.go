@@ -10,6 +10,9 @@
 //	corpus embed   [-facts DIR] [-out FILE] [-dims 768]
 //	    Embed the facts of every labelled ruling (gemini-embedding-001 via the
 //	    configured LLM provider) into a vector index for hybrid retrieval.
+//	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
+//	    List the rulings whose text states the HTS subheading CBP applied
+//	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
 //	corpus compare -a DIR -b DIR
 //	    Compare two facts directories (port check against the research split).
 //
@@ -41,7 +44,7 @@ const userAgent = "origin-proof (Google Cloud AI Builder Cup 2026 prototype)"
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare|embed|reasoning|hts-index [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -56,6 +59,8 @@ func main() {
 		err = embed(os.Args[2:])
 	case "reasoning":
 		err = reasoningFile(os.Args[2:])
+	case "hts-index":
+		err = htsIndex(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

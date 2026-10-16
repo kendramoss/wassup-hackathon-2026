@@ -126,3 +126,29 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestHTSSuggestConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.HTSSuggest || c.HTSIndex != "data/hts_index.json" {
+		t.Fatalf("hts defaults = %v %q %v", c.HTSSuggest, c.HTSIndex, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"HTS_SUGGEST": "ON", "HTS_INDEX": "/data/x.json"})))
+	if err != nil || !on.HTSSuggest || on.HTSIndex != "/data/x.json" {
+		t.Errorf("hts on = %v %q %v", on.HTSSuggest, on.HTSIndex, err)
+	}
+	tests := []struct {
+		env  map[string]string
+		want string
+	}{
+		{map[string]string{"HTS_SUGGEST": "maybe"}, "HTS_SUGGEST must be on or off"},
+		{map[string]string{"HTS_SUGGEST": "on", "HTS_INDEX": "data/facts"}, "HTS_INDEX must be a .json file"},
+	}
+	for _, tt := range tests {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), tt.env))); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: error %v, want %q", tt.env, err, tt.want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"HTS_INDEX": "data/facts"}))); err != nil {
+		t.Errorf("HTS_INDEX is not checked while off: %v", err)
+	}
+}
