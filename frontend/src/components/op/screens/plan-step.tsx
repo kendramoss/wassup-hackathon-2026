@@ -153,33 +153,47 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
           </div>
         )}
         {searching && <LiveTable rows={rows} baseline={baseline} lit={lit} />}
-        {result && lead && c.product && (
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
-            <Panel>
-              <PanelHead right={best ? "moved in blue" : <span className="text-ask">below the bar</span>}>fig.2 — {best ? "best plan" : "closest move"}, by plant</PanelHead>
-              <PlantDiagram product={c.product} plan={lead} below={!best} />
-            </Panel>
-            <CheckPanel plan={lead} />
+        {/* #4: the decision first (band above), then the moves and why the
+            best one is supported side by side; the diagram explains, so it
+            comes after. Money inputs open in a drawer. */}
+        {result && (
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <AllMoves result={result} onDraft={draft} />
+            <aside aria-label="Why it's supported" className="flex min-w-0 flex-col gap-5">
+              {lead && <WhySupported plan={lead} />}
+              <section aria-label="Money inputs" className="text-[13px]">
+                <h3 className="eyebrow mb-1">Money · illustrative</h3>
+                <p className="duo">
+                  {economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "No import value yet"}
+                  {Object.keys(economics.duty_rates ?? {}).length ? ` · duty ${Object.entries(economics.duty_rates ?? {}).map(([k, v]) => `${k} ${Math.round(v * 1000) / 10}%`).join(", ")}` : ""}{" "}
+                  <button type="button" className="text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
+                    Edit
+                  </button>
+                </p>
+              </section>
+            </aside>
           </div>
         )}
-        {result && <AllMoves result={result} onDraft={draft} />}
+        {result && lead && c.product && (
+          <Panel className="shadow-none">
+            <PanelHead right={best ? "moved in blue" : <span className="text-ask">below the bar</span>}>fig.2 — {best ? "best plan" : "closest move"}, by plant</PanelHead>
+            <PlantDiagram product={c.product} plan={lead} below={!best} />
+          </Panel>
+        )}
         {result?.backtest ? <BacktestPanel bt={result.backtest as Record<string, unknown>} /> : null}
-        {result && (
-          <div>
-            <button type="button" className="text-[13px] text-ok hover:underline" onClick={() => setShowMoney((s) => !s)} aria-expanded={showMoney}>
-              {showMoney ? "Hide money inputs" : "Inputs are illustrative · edit costs and duty"}
-            </button>
-            {showMoney && (
-              <div className="mt-4 flex flex-col gap-4">
-                <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
-                <div>
-                  <Button variant="ghost" onClick={run}>
-                    Search again with these inputs
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+        {showMoney && (
+          <MoneyDrawer onClose={() => setShowMoney(false)}>
+            <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowMoney(false);
+                run();
+              }}
+            >
+              Search again with these inputs
+            </Button>
+          </MoneyDrawer>
         )}
       </Main>
       <Footer>
@@ -376,21 +390,47 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
   );
 }
 
-function CheckPanel({ plan }: { plan: Plan }) {
+// Why the lead move is (or nearly is) supported: flat, summarised; the
+// verifier's full reasoning folds behind "Read the full check".
+function WhySupported({ plan }: { plan: Plan }) {
   const v = plan.verdict ?? {};
   return (
-    <Panel>
-      <PanelHead right={`verifier · ${conf(v.confidence)} · bar ${BAR}`}>Precedent check</PanelHead>
-      <div className="border-b border-line py-2.5 text-[13px]">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-ok">Supports</p>
-        {v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : <span className="text-dim">none found</span>}
-      </div>
-      <div className="border-b border-line py-2.5 text-[13px]">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-ask">Counter-ruling · distinguish it</p>
-        {v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : <span className="text-dim">none found</span>}
-      </div>
+    <section aria-label="Precedent check" className="text-[13px]">
+      <h3 className="eyebrow mb-1">Why it&apos;s supported</h3>
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
+        <dt className="text-dim">Check</dt>
+        <dd>
+          {conf(v.confidence)} · {checkWords(v.confidence)}
+        </dd>
+        <dt className="text-dim">Supports</dt>
+        <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : "none found"}</dd>
+        <dt className="text-dim">Counter</dt>
+        <dd>{v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : "none found"}</dd>
+      </dl>
       {v.reasoning && <Reasoning text={v.reasoning} />}
-    </Panel>
+    </section>
+  );
+}
+
+function MoneyDrawer({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    close.current?.focus();
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [onClose]);
+  return (
+    <div role="dialog" aria-modal="false" aria-label="Money inputs" className="fixed inset-x-0 bottom-0 top-[108px] z-30 flex flex-col border-l border-edge bg-sheet shadow-[-4px_0_0_var(--shadow)] sm:left-auto sm:w-[600px]">
+      <div className="flex items-center gap-3 border-b border-dashed border-guide px-5 py-3.5 text-[11px] uppercase tracking-[0.08em] text-dim">
+        <b className="font-medium text-ink">◆ Money inputs</b>
+        <span>illustrative — editable</span>
+        <button ref={close} type="button" aria-label="Close" className="ml-auto px-1 text-base text-dim hover:text-ink" onClick={onClose}>
+          ✕
+        </button>
+      </div>
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-5">{children}</div>
+    </div>
   );
 }
 
@@ -411,12 +451,16 @@ function Reasoning({ text }: { text: string }) {
 }
 
 function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: string) => void }) {
-  const all = [...(result.plans ?? []), ...(result.rejected ?? [])];
+  const every = [...(result.plans ?? []), ...(result.rejected ?? [])];
+  const [open, setOpen] = useState(false);
+  const all = open ? every : every.slice(0, 3);
   return (
-    <section>
-      <h2 className="eyebrow mb-2.5">Every move searched · best first</h2>
+    <section className="min-w-0">
+      <h2 className="eyebrow mb-2.5">
+        Moves searched · {every.length} · best first
+      </h2>
       <div className="relative overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+        <table className="w-full min-w-[680px] border-collapse border border-line bg-sheet text-[13px]">
           <thead>
             <tr>
               {["Move", "Outcome", "Why", "Precedent check", "Net per year", ""].map((h, i) => (
@@ -465,7 +509,12 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
           </tbody>
         </table>
       </div>
-      {result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
+      {every.length > 3 && (
+        <button type="button" className="mt-2 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? "Show the top 3" : `${every.length - 3} more moves`}
+        </button>
+      )}
+      {open && result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
     </section>
   );
 }
