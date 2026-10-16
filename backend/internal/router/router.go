@@ -84,6 +84,10 @@ type Label struct {
 // RegimeTextile is the label for textile and apparel goods (19 CFR 102.21).
 const RegimeTextile = "textile_102_21"
 
+// RegimeUSMCA is the label for USMCA preference or Canada/Mexico marking
+// questions decided under the Part 102 tariff-shift rules (19 CFR 102.11).
+const RegimeUSMCA = "usmca_part102"
+
 // OutOfScopeRegimes are routed to review: origin prediction covers the
 // substantial-transformation regime only.
 var outOfScope = map[string]string{

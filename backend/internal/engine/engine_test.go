@@ -272,3 +272,17 @@ func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
 		t.Errorf("version %q, system %.60q", res.Prediction.Trace.PromptVersion, f.Calls()[0].System)
 	}
 }
+
+func TestUSMCAPromptReplacesSystemAndVersion(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Mexico","essential_character":"(a)(3) shift to 8309","decisive_step":"stamped in Mexico","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	e := New(f, nil, Options{Model: "m", System: USMCASystem, Version: USMCAVersion})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "c", Date: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), Facts: "bolt seals"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sys := f.Calls()[0].System
+	if res.Prediction.Trace.PromptVersion != USMCAVersion || res.Prediction.Origin != "Mexico" || !strings.Contains(sys, "102.11") ||
+		!strings.Contains(sys, "102.20") || strings.Contains(sys, "substantial-transformation test") {
+		t.Errorf("version %q, origin %q, system %.80q", res.Prediction.Trace.PromptVersion, res.Prediction.Origin, sys)
+	}
+}

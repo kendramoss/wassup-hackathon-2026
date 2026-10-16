@@ -150,13 +150,23 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
-	regime := fl.String("regime", "st", "st (substantial transformation) or textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51)")
+	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51) or usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61)")
 	_ = fl.Parse(args)
-	if *regime != "st" && *regime != "textile" {
-		return fmt.Errorf("-regime must be st or textile, got %q", *regime)
+	if *regime != "st" && *regime != "textile" && *regime != "usmca" {
+		return fmt.Errorf("-regime must be st, textile or usmca, got %q", *regime)
 	}
 	if *regime == "textile" && *splitsPath == "../eval/splits/splits_final.json" {
 		*splitsPath = "../eval/splits/splits_textile.json"
+	}
+	if *regime == "usmca" {
+		// Its own labels: most Part 102 rulings predate labels.jsonl (2023+).
+		// Every labelled ruling is a precedent for the cases dated after it.
+		if *labelsPath == "../eval/data/labels.jsonl" {
+			*labelsPath = "../eval/data/labels_usmca.jsonl"
+		}
+		if *splitsPath == "../eval/splits/splits_final.json" {
+			*splitsPath = "../eval/splits/splits_usmca.json"
+		}
 	}
 
 	if *split == "final" && !*confirmFinal {
@@ -267,6 +277,13 @@ func run(args []string) error {
 		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
 			Votes: *votes, VoteBelow: *voteBelow, System: sys, Version: ver, PrecedentReasoning: *useReasoning})
 	}
+	if *regime == "usmca" {
+		if *useRules || *useReasoning || *retrievalMode != "bm25" {
+			return errors.New("-regime usmca supports bm25 runs only")
+		}
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			Votes: *votes, VoteBelow: *voteBelow, System: engine.USMCASystem, Version: engine.USMCAVersion})
+	}
 	var rt *router.Router
 	if *useRouter {
 		rt = router.New(model, cfg.RouterModel, 2000)
@@ -279,6 +296,12 @@ func run(args []string) error {
 			tv = engine.TextileVersion2
 		}
 		name = fmt.Sprintf("textile-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, tv, cfg.LLMProvider)
+		if cfg.PrecedentK != 5 {
+			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
+		}
+	}
+	if *regime == "usmca" {
+		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.USMCAVersion, cfg.LLMProvider)
 		if cfg.PrecedentK != 5 {
 			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
 		}
@@ -477,6 +500,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 		if strings.Contains(name, engine.TextileVersion2) {
 			prompt = engine.TextileVersion2
 		}
+	}
+	if strings.HasPrefix(name, "usmca-") {
+		prompt = engine.USMCAVersion
 	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": split == "final",

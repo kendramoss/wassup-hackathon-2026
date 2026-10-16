@@ -101,6 +101,12 @@ type Deps struct {
 	// review.
 	Textile         Predictor
 	TextileFastPath float64
+	// USMCA, when set, predicts cases the router labels usmca_part102 under
+	// the Part 102 rules (19 CFR 102.11 / 102.20) instead of leaving them out
+	// of scope (D61). USMCAFastPath is its auto-accept bar; 0 sends every
+	// USMCA case to review.
+	USMCA         Predictor
+	USMCAFastPath float64
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
@@ -288,6 +294,13 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 			return tres.Prediction, label, triage.Textile(tres.Prediction, a.d.TextileFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	if label != nil && label.Regime == router.RegimeUSMCA && a.d.USMCA != nil {
+		ures, err := a.d.USMCA.Predict(ctx, c)
+		if err == nil { // in scope, but clarify (substantial transformation) does not apply
+			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
+		}
+		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
 	inScope, scopeReason := true, ""
 	if label != nil {

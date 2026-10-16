@@ -40,6 +40,22 @@ func Textile(p domain.Prediction, fastPath float64) domain.Triage {
 	return domain.Triage{Route: domain.RouteNeedsReview, Reason: TextilePrefix + ": a new regime without a held-out result yet; an expert reviews every textile case"}
 }
 
+// USMCAPrefix starts the reason of every USMCA-regime decision (D61).
+const USMCAPrefix = "USMCA / Part 102 rules (19 CFR 102.11)"
+
+// USMCA routes a prediction made under the Part 102 rules. With fastPath 0
+// (the default until a held-out run sets a threshold) it always goes to
+// review.
+func USMCA(p domain.Prediction, fastPath float64) domain.Triage {
+	if fastPath > 0 && p.Confidence >= fastPath {
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("%s: confidence %.2f ≥ %.2f", USMCAPrefix, p.Confidence, fastPath)}
+	}
+	if fastPath > 0 {
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("%s: confidence %.2f below %.2f", USMCAPrefix, p.Confidence, fastPath)}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: USMCAPrefix + ": a new regime without a held-out result yet; an expert reviews every USMCA case"}
+}
+
 // WithClarify refines a needs_review decision with the clarify review: when
 // no earlier ruling is on point and there are questions to ask, the case
 // goes back to the requester first (needs_info). Auto decisions and

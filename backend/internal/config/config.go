@@ -122,6 +122,14 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// USMCAEngine (on|off, default off) predicts cases the router labels
+	// usmca_part102 under the Part 102 rules (19 CFR 102.11 / 102.20,
+	// usmca-v1) with precedents from USMCALabels (a copy of
+	// eval/data/labels_usmca.jsonl; facts in FactsDir). USMCAFastPath is its
+	// auto-accept bar; 0 (default) sends every USMCA case to review (D61).
+	USMCAEngine   bool
+	USMCALabels   string
+	USMCAFastPath float64
 }
 
 // Load reads the configuration from the process environment.
@@ -167,6 +175,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
 		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		USMCALabels:       e.str("USMCA_LABELS", "data/labels_usmca.jsonl"),
+		USMCAFastPath:     e.float("USMCA_FAST_PATH", 0),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -181,6 +191,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("USMCA_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.USMCAEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("USMCA_ENGINE must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -244,6 +261,9 @@ func (c Config) validate() error {
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
+	}
+	if c.USMCAFastPath < 0 || c.USMCAFastPath > 1 {
+		bad("USMCA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.USMCAFastPath)
 	}
 	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
