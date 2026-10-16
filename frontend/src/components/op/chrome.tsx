@@ -34,12 +34,14 @@ export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) 
 
 export type CaseTab = "product" | "origin" | "scenarios" | "plan" | "draft";
 
-const tabs: { key: CaseTab; label: string; step: number; path: string }[] = [
+// The four steps in order, then the optional scenario sandbox (#82): it sat
+// between Origin and Plan and read as a required step.
+const tabs: { key: CaseTab; label: string; step: number; path: string; optional?: boolean }[] = [
   { key: "product", label: "Product", step: 1, path: "product" },
   { key: "origin", label: "Origin", step: 2, path: "origin" },
-  { key: "scenarios", label: "What if", step: 2, path: "scenarios" },
   { key: "plan", label: "Plan", step: 3, path: "plan" },
   { key: "draft", label: "Draft for broker", step: 4, path: "draft" },
+  { key: "scenarios", label: "Try scenarios", step: 2, path: "scenarios", optional: true },
 ];
 
 export const tabStep: Record<CaseTab, number> = { product: 1, origin: 2, scenarios: 2, plan: 3, draft: 4 };
@@ -71,6 +73,7 @@ export function CaseTabs({
           const cls = cx(
             "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
             on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-transparent text-dim",
+            t.optional && !on && open && "border-dashed bg-transparent",
           );
           const inner = (
             <>
@@ -80,11 +83,12 @@ export function CaseTabs({
                 </span>
               )}
               {t.label}
+              {t.optional && <span className="text-[11px] text-dim">· optional</span>}
               {done && <span className="sr-only">(done)</span>}
             </>
           );
           return (
-            <li key={t.key}>
+            <li key={t.key} className={cx(t.optional && "sm:ml-3 sm:border-l sm:border-line sm:pl-4")}>
               {on || !open ? (
                 <span className={cls} aria-current={on ? "page" : undefined} aria-disabled={!on && !open ? true : undefined}>
                   {inner}
