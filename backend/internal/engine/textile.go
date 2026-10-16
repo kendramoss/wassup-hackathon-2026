@@ -1,5 +1,7 @@
 package engine
 
+import "strings"
+
 // TextileVersion is the textile prompt's version (D51).
 const TextileVersion = "textile-v1"
 
@@ -24,3 +26,14 @@ Return ONLY a JSON object:
  "flip": "<the smallest plausible change to the facts that would change the origin, or null>",
  "confidence": <0.0-1.0>,
  "reasoning": "<=80 words"}`
+
+// TextileVersion2 is textile-v1 plus guidance on filled made-up articles,
+// used with each precedent's CBP reasoning (D53). The guidance comes from the
+// textile rulings dated before the dev window: of the comforters, quilts,
+// mattress pads, duvets and pillows among them whose subject names the rule,
+// 14 were decided under (c)(2), 11 under (c)(5) and 2 under (c)(4).
+const TextileVersion2 = "textile-v2"
+
+// TextileSystem2 is TextileSystem with the filled made-up guidance.
+var TextileSystem2 = strings.Replace(TextileSystem, "State which rule decides.", `For filled or quilted made-up articles (comforters, quilts, mattress pads, duvets, pillows, cushions) where (c)(2) and (c)(3) do not decide, CBP rarely finds a single most important process under (c)(4): it usually treats forming the shell fabric and the filling, quilting and assembly as equally important and applies (c)(5), the last country where an important process occurred. Follow the earlier rulings on the same kind of article, and their reasoning, where they are close.
+State which rule decides.`, 1)

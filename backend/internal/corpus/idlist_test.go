@@ -25,3 +25,13 @@ func TestTextileRulingsShipWithLabelsAndFacts(t *testing.T) {
 		t.Errorf("%d textile rulings, %d without facts or label in the image's data", len(ids), missing)
 	}
 }
+
+func TestTextileReasoningShips(t *testing.T) {
+	m, err := LoadReasoning("../../data/textile_reasoning.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(m) < 350 {
+		t.Errorf("reasoning for %d textile rulings", len(m))
+	}
+}
