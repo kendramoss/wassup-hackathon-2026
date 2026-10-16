@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex, stepNames } from "@/lib/format";
 import { Button, cx } from "./ui";
 
-export function AppBar() {
-  const path = usePathname();
-  const onAccuracy = path.startsWith("/accuracy");
+// The active section is passed in rather than read from the URL, so the bar
+// prerenders in the static shell of dynamic routes.
+export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) {
+  const onAccuracy = active === "accuracy";
   return (
     <header className="no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10">
       <Link href="/" className="text-[19px] font-semibold tracking-[-0.03em]">

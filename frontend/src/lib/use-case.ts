@@ -7,12 +7,15 @@ import { api, type CaseResponse } from "./api/client";
 export function useCase(id: string) {
   const [data, setData] = useState<CaseResponse | null>(null);
   const [error, setError] = useState<unknown>(null);
-  const load = useCallback(() => {
+  const fetchCase = useCallback(() => api.getCase(id).then(setData, setError), [id]);
+  useEffect(() => {
+    fetchCase();
+  }, [fetchCase]);
+  const reload = useCallback(() => {
     setError(null);
-    api.getCase(id).then(setData, setError);
-  }, [id]);
-  useEffect(load, [load]);
-  return { data, error, reload: load, setData };
+    fetchCase();
+  }, [fetchCase]);
+  return { data, error, reload, setData };
 }
 
 export function caseTitle(c: CaseResponse | null): string {

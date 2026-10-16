@@ -20,7 +20,7 @@ export function CasesHome() {
     api.listCases().then((r) => setCases(r.cases), setError);
   };
   useEffect(() => {
-    load();
+    api.listCases().then((r) => setCases(r.cases), setError);
     api.demos().then((r) => setDemos(r.demos ?? []), () => setDemos([]));
   }, []);
 

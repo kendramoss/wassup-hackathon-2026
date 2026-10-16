@@ -140,12 +140,31 @@
   }
 }
 
+@keyframes slide {
+  from {
+    left: -33%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
 @media print {
   body {
     background: #fff;
   }
   .no-print {
     display: none !important;
+  }
+  .column {
+    border: 0;
+    padding: 0;
+    display: block;
+  }
+  .letter {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
   }
 }
 
