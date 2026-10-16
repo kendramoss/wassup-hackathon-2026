@@ -1,0 +1,39 @@
+1. [ ] Smart Glasses - Model #1 
+ The Next Generation Smart Glasses addressed in the March 6, 2025 inquiry are artificial 
+intelligence (“AI”) glasses that offer users the opportunity to capture photos and videos, make 
+video calls or livestream, store photos and videos, listen to music, make phone calls, send texts 
+using voice commands, and ask questions and receive answers using AI. The Smart Glasses 
+have a front frame, right and left temple pieces, and two lenses. The lenses of the Smart Glasses 
+are available as prescription or non-prescription, depending on what the customer chooses. The 
+customer has the option to select polarized or non-polarized sunglass lenses, transition, blue 
+filter, or clear form lenses. 
+ The Smart Glasses are equipped with a [ ] chipset that is mounted to the main logic board 
+(“MLB”) within the product. The Smart Glasses incorporate a high-power main processing unit 
+that handles heavy computing including photo and video processing, wireless communication, 
+2
+and AI functionalities; a microcontroller unit (“MCU”) that handles lower computing 
+functionalities such as sensor processing, audio playback, and microphone capture; components 
+that provide memory storage; and components that provide capacitive touch functionality, 
+allowing users to interact with the Smart Glasses through touch gestures. 
+ All of these functions are made possible by the chipset mounted on the MLB, which is 
+responsible for the flow of data, power, and communication between the major components. The 
+main components of the Chipset include the applications processor, which handles instructions, 
+manages memory, manages power, processes all multimedia, and ensures that all parts and 
+components are communicating with each other to fully integrate operations, and the WiFi/Bluetooth chip, which enables Wi-Fi and Bluetooth connectivity for the device. 
+ It is stated that the MLB drives the functioning of the Smart Glasses through visual and 
+audio feedback from several other components, including: 
+? The Secondary Logic Board (“SLB”) (surface mounted in Vietnam), which is an 
+auxiliary PCBA that is responsible for enabling and amplifying the audio of the speaker 
+on the right temple flexible printed circuit board. The SLB also contains an action button 
+that allows the user to activate video or streaming. The SLB supports the communication 
+capabilities of the Smart Glasses by enabling the speaker to perform key functions by 
+engaging the action button. 
+? Flexible Printed Circuit Boards (“FPCAs”), which are responsible for connecting the 
+different components of the Smart Glasses to each other and directly or indirectly to the 
+MLB. The Superflex FPCA contains a microphone and connects to the MLB, camera, 
+SLB, and charging contacts. The Camera FPCA contains the camera module and 
+connects to the Superflex FPCA. The Right Temple FPCA contains two microphones, an 
+integrated circuit (“IC”), and right speaker pads and connects to the SLB and the right 
+temple speaker. The left temple FPCA contains two microphones and left speaker pads 
+and connects to the MLB and the left speaker. The Slider FPCA contains a two-position 
+switch and connects to the MLB.

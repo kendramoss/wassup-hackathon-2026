@@ -1,0 +1,17 @@
+{
+  "source": "CBP ruling N351460 (29 Jul 2025), rulings.cbp.gov",
+  "plan": null,
+  "id": "dryer-latch-moulded",
+  "title": "Dryer door latch, housing and lever moulded in Thailand",
+  "description": "Scenario 1 of N351460: Chinese resin is injection-moulded into the housing and lever in Thailand.",
+  "predict": {
+    "date": "2025-07-18",
+    "facts": "The product in question is a door latch, model number 308D1127P001, for a front-loading dryer. This article is used in the drying machine’s door lock system and is comprised of a specially shaped plastic housing, lever, and a metal spring. The door latch is secured to the dryer’s door, and acts as a mating part for the machine’s door strike on the drying machine, securing the door in the closed position. Chinese-origin PA66 plastic resin pellets are sent to Thailand where they are dehumidified and then placed into a plastic injection molding machine to fully form the housing and lever components. In Thailand, the Chinese-origin spring is hand-attached to the lever and housing, and all three components are quickly pushed together using a manual table-top press, completing the article.",
+    "exclude_rulings": [
+      "N351460"
+    ]
+  },
+  "cbp_held": "Thailand",
+  "notes": "Facts are CBP's sentences from N351460, one scenario each (scenario 2 restates the shared assembly step in place of 'as described in scenario 1'). Prediction only; precedents dated before 18 Jul 2025 (request date).",
+  "order": 3
+}

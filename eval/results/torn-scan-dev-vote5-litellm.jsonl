@@ -1,0 +1,117 @@
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"H342833","torn":false}
+{"before":{"counts":{"Canada":5},"winner":"Canada"},"gold":"Canada","ruling":"H344538","torn":false}
+{"before":{"counts":{"Malaysia":5},"winner":"Malaysia"},"gold":"Malaysia","ruling":"H339851","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"H342474","torn":false}
+{"after":{"counts":{"China":1,"Mexico":3,"United States":1},"winner":"Mexico","second":"China"},"answers":[{"question":"In what condition do the Chinese metal leg assembly and U.S. plastic seat shell arrive in Mexico (e.g., already bent, welded, and molded to final shape with pre-drilled holes), and what specific manufacturing operations are performed in Mexico beyond riveting and gluing?","answer":"We state in our file that the seating components arrive in Mexico in an incomplete, unassembled, and unfinished condition, and then undergo manufacture, assembly, inspection, and packaging. Specific details regarding whether the components arrive bent, welded, or pre-drilled, as well as the specific manufacturing steps beyond assembly, inspection, and packaging, are not stated.","quote":"In Mexico, the incomplete, unassembled, and unfinished seating   components will undergo manufacture, inspection, packaging, and then be exported to the United   States."},{"question":"What is the relative cost or value of the Chinese metal leg assembly compared to the U.S. unitary plastic seat shell?","answer":"Not stated."}],"before":{"counts":{"China":2,"Mexico":1,"United States":2},"winner":"China","second":"United States"},"clarify":{"on_point":false,"on_point_reason":"The retrieved rulings all involve complex, upholstered office or gaming swivel chairs (with gas lifts, casters, foam, and textile upholstery) imported unassembled, rather than a simple, unupholstered two-piece metal and plastic stacking chair assembled in Mexico. Furthermore, the retrieved ruling excerpts omit the specific manufacturing and component-sourcing details needed to compare the origin reasoning.","questions":["In what condition do the Chinese metal leg assembly and U.S. plastic seat shell arrive in Mexico (e.g., already bent, welded, and molded to final shape with pre-drilled holes), and what specific manufacturing operations are performed in Mexico beyond riveting and gluing?","What is the relative cost or value of the Chinese metal leg assembly compared to the U.S. unitary plastic seat shell?"],"trace":{"llm_provider":"litellm","model_id":"gemini-4-argon","prompt_version":"clarify-v1","input_tokens":2871,"output_tokens":225,"latency_ms":860}},"control":{"counts":{"China":2,"Mexico":1,"United States":2},"winner":"China","second":"United States"},"gold":"United States","requester_version":"requester-v1","ruling":"H345343","torn":true}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"H348154","torn":false}
+{"before":{"counts":{"US Virgin Islands":5},"winner":"US Virgin Islands"},"gold":"US Virgin Islands","ruling":"H346979","torn":false}
+{"after":{"counts":{"China":5},"winner":"China"},"answers":[{"question":"In Scenario 1, how is the motor manufactured in Vietnam (e.g., winding stator coils and fabricating the rotor from raw materials vs. assembling imported motor sub-components)?","answer":"We clarified in our reconsideration request that for both models, a Chinese-origin basic motor is imported from China and used to produce the motor subassembly in Vietnam. In Vietnam, we produce this motor subassembly by securing the Chinese-origin basic motor into the motor bracket and attaching injection-molded plastic fan blades and fan housings. The file does not state how the motor itself was manufactured in Vietnam under the initial Scenario 1 description.","quote":"You highlight that the motor subassembly is also produced in Vietnam; from a Chinese-origin basic motor which is secured into the motor bracket and attached with plastic fan blades and fan housings."},{"question":"In Scenario 2 (where the motor is imported from China), what percentage of the total Bill of Materials value is attributable to Vietnamese-origin components?","answer":"In the second manufacturing scenario where the motor is imported from China, the portion of Vietnamese-originated components and parts is approximately 35% by value.","quote":"Accordingly, the portion of Vietnamese originated components and parts will decrease to approximate 35% (by value) in this scenario."},{"question":"Are the Printed Circuit Board Assemblies (PCBAs) imported from China fully populated with active electronics, or does the 4-step PCB process in Vietnam involve SMT/wave soldering?","answer":"We purchase the PCBA in China as a complete assembly that is already loaded with Chinese firmware containing product controls and safety features. Whether the 4-step PCB assembly process in Vietnam involves SMT or wave soldering is not stated in the file.","quote":"The PCB[A] is purchased in China as a complete assembly and is loaded with Chinese firmware containing product controls and safety features."}],"before":{"counts":{"China":3,"Vietnam":2},"winner":"China","second":"Vietnam"},"clarify":{"on_point":false,"closest_ruling":"N351503","on_point_reason":"None of the retrieved rulings cover motorized air purifying appliances; the closest rulings (N351503 and N351504) involve household fan heaters assembled in Vietnam from Chinese and Vietnamese components, while N350079 involves a passive replacement water filter cartridge rather than an electromechanical appliance.","questions":["In Scenario 1, how is the motor manufactured in Vietnam (e.g., winding stator coils and fabricating the rotor from raw materials vs. assembling imported motor sub-components)?","In Scenario 2 (where the motor is imported from China), what percentage of the total Bill of Materials value is attributable to Vietnamese-origin components?","Are the Printed Circuit Board Assemblies (PCBAs) imported from China fully populated with active electronics, or does the 4-step PCB process in Vietnam involve SMT/wave soldering?"],"trace":{"llm_provider":"litellm","model_id":"gemini-4-argon","prompt_version":"clarify-v1","input_tokens":3728,"output_tokens":248,"latency_ms":892}},"control":{"counts":{"China":3,"Vietnam":2},"winner":"China","second":"Vietnam"},"gold":"Vietnam","requester_version":"requester-v1","ruling":"H323218","torn":true}
+{"after":{"counts":{"Brazil":2,"United States":3},"winner":"United States","second":"Brazil"},"before":{"counts":{"Brazil":2,"United States":3},"winner":"United States","second":"Brazil"},"clarify":{"on_point":false,"on_point_reason":"None of the retrieved rulings involve bovine leather, hides, or tanning and crusting operations. The retrieved rulings cover unrelated products: polystyrene foam sheets (N351725), concrete admixtures (N342276), cosmetic powder lotion (N334264), borax chemical compounds (N353581), and coated aluminum coils (H335509).","questions":[],"trace":{"llm_provider":"litellm","model_id":"gemini-4-argon","prompt_version":"clarify-v1","input_tokens":2887,"output_tokens":148,"latency_ms":5069}},"control":{"counts":{"Brazil":2,"United States":3},"winner":"United States","second":"Brazil"},"gold":"United States","ruling":"H354210","torn":true}
+{"before":{"counts":{"Mexico":5},"winner":"Mexico"},"gold":"China","ruling":"H346536","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N350113","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N350176","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Vietnam","ruling":"N350401","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Vietnam","ruling":"N350346","torn":false}
+{"before":{"counts":{"Cambodia":5},"winner":"Cambodia"},"gold":"Cambodia","ruling":"N350306","torn":false}
+{"before":{"counts":{"China":1,"Vietnam":4},"winner":"Vietnam","second":"China"},"gold":"Vietnam","ruling":"N350480","torn":false}
+{"before":{"counts":{"China":1,"Vietnam":4},"winner":"Vietnam","second":"China"},"gold":"Vietnam","ruling":"N350425","torn":false}
+{"before":{"counts":{"Mexico":5},"winner":"Mexico"},"gold":"Mexico","ruling":"N350470","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N350492","torn":false}
+{"before":{"counts":{"Costa Rica":5},"winner":"Costa Rica"},"gold":"France","ruling":"N350517","torn":false}
+{"before":{"counts":{"Taiwan":5},"winner":"Taiwan"},"gold":"Taiwan","ruling":"N350680","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N350678","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N350750","torn":false}
+{"before":{"counts":{"China":1,"South Korea":4},"winner":"South Korea","second":"China"},"gold":"China","ruling":"N350768","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N350803","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N350867","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N350865","torn":false}
+{"before":{"counts":{"Malaysia":5},"winner":"Malaysia"},"gold":"Malaysia","ruling":"N350849","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N350920","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"China","ruling":"N351081","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351082","torn":false}
+{"before":{"counts":{"China":4,"Thailand":1},"winner":"China","second":"Thailand"},"gold":"Thailand","ruling":"N351174","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351184","torn":false}
+{"before":{"counts":{"Philippines":5},"winner":"Philippines"},"gold":"Philippines","ruling":"N351261","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N351185","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351263","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351335","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"China","ruling":"N351368","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N351341","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N351477","torn":false}
+{"before":{"counts":{"Morocco":5},"winner":"Morocco"},"gold":"Morocco","ruling":"N351528","torn":false}
+{"before":{"counts":{"China":1,"Vietnam":4},"winner":"Vietnam","second":"China"},"gold":"Vietnam","ruling":"N351582","torn":false}
+{"before":{"counts":{"China":1,"Germany":4},"winner":"Germany","second":"China"},"gold":"Germany","ruling":"N351631","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N351782","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351807","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351809","torn":false}
+{"before":{"counts":{"Sri Lanka":5},"winner":"Sri Lanka"},"gold":"Sri Lanka","ruling":"N351832","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351860","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N351887","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N351904","torn":false}
+{"before":{"counts":{"China":4,"Thailand":1},"winner":"China","second":"Thailand"},"gold":"China","ruling":"N351922","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N351958","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N351962","torn":false}
+{"before":{"counts":{"Malaysia":5},"winner":"Malaysia"},"gold":"Malaysia","ruling":"N352067","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N352073","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N352167","torn":false}
+{"before":{"counts":{"Ireland":1,"Spain":4},"winner":"Spain","second":"Ireland"},"gold":"Ireland","ruling":"N352231","torn":false}
+{"before":{"counts":{"Japan":5},"winner":"Japan"},"gold":"Philippines","ruling":"N352223","torn":false}
+{"before":{"counts":{"Malaysia":5},"winner":"Malaysia"},"gold":"China","ruling":"N352230","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Peru","ruling":"N352389","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N352429","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N352477","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Thailand","ruling":"N352485","torn":false}
+{"before":{"counts":{"Singapore":5},"winner":"Singapore"},"gold":"Taiwan","ruling":"N352561","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N352543","torn":false}
+{"before":{"counts":{"United Arab Emirates":5},"winner":"United Arab Emirates"},"gold":"United Arab Emirates","ruling":"N352638","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N352815","torn":false}
+{"before":{"counts":{"South Korea":5},"winner":"South Korea"},"gold":"South Korea","ruling":"N352841","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N352739","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N352938","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N353023","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N353086","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N353089","torn":false}
+{"before":{"counts":{"Cambodia":1,"China":4},"winner":"China","second":"Cambodia"},"gold":"China","ruling":"N353152","torn":false}
+{"before":{"counts":{"Malaysia":5},"winner":"Malaysia"},"gold":"Malaysia","ruling":"N353105","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N353214","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N353216","torn":false}
+{"before":{"counts":{"Indonesia":5},"winner":"Indonesia"},"gold":"Indonesia","ruling":"N353394","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N353476","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N353301","torn":false}
+{"before":{"counts":{"India":5},"winner":"India"},"gold":"India","ruling":"N353648","torn":false}
+{"before":{"counts":{"China":4,"Thailand":1},"winner":"China","second":"Thailand"},"gold":"China","ruling":"N353655","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N353747","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N353997","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Thailand","ruling":"N353879","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N354105","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"United Arab Emirates","ruling":"N354156","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N354327","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N354291","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N354369","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N354424","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"United States","ruling":"N354481","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Japan","ruling":"N354423","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N354559","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N355067","torn":false}
+{"before":{"counts":{"South Korea":5},"winner":"South Korea"},"gold":"South Korea","ruling":"N355137","torn":false}
+{"before":{"counts":{"Germany":5},"winner":"Germany"},"gold":"Germany","ruling":"N355156","torn":false}
+{"before":{"counts":{"Thailand":5},"winner":"Thailand"},"gold":"Thailand","ruling":"N355237","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N355289","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"Thailand","ruling":"N355523","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N355549","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N355694","torn":false}
+{"before":{"counts":{"Turkey":5},"winner":"Turkey"},"gold":"Turkey","ruling":"N355798","torn":false}
+{"before":{"counts":{"China":4,"India":1},"winner":"China","second":"India"},"gold":"India","ruling":"N355929","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"China","ruling":"N355989","torn":false}
+{"before":{"counts":{"China":1,"Thailand":4},"winner":"Thailand","second":"China"},"gold":"China","ruling":"N356030","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N356144","torn":false}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N356189","torn":false}
+{"before":{"counts":{"India":4,"United Kingdom":1},"winner":"India","second":"United Kingdom"},"gold":"United Kingdom","ruling":"N356150","torn":false}
+{"after":{"counts":{"Germany":3,"Switzerland":2},"winner":"Germany","second":"Switzerland"},"answers":[{"question":"Is the reusable skin-to-ski adhesive a specialized formula engineered or produced in Switzerland, and what is the complexity of its application process compared to the fabric weaving and lamination in Germany?","answer":"Not stated."},{"question":"What is the relative cost or value added of the operations performed in Germany (weaving, pile alignment, lamination) versus Switzerland (adhesive coating, die-cutting, sewing attachments)?","answer":"Not stated."},{"question":"Can the laminated velvet rolls exported from Germany be used for any purpose other than ski climbing skins?","answer":"Not stated.","quote":"You argue that this fabric has a pre-determined end use as  climbing skins at the time of its export to Switzerland","dropped":"conclusion word","original":"We state that the fabric formed, treated, and laminated in Germany has a pre-determined end use as climbing skins at the time it is exported to Switzerland."}],"before":{"counts":{"Germany":3,"Switzerland":2},"winner":"Germany","second":"Switzerland"},"clarify":{"on_point":false,"on_point_reason":"None of the retrieved rulings cover ski climbing skins, sporting goods accessories in heading 9506, or analogous textile-backed technical equipment. N354743 and N347072 apply statutory textile rules (19 CFR 102.21) to household linens, whereas heading 9506 uses the common-law substantial transformation test; the remaining rulings involve ratchet straps, tape dispensers, and steel roofing.","questions":["Is the reusable skin-to-ski adhesive a specialized formula engineered or produced in Switzerland, and what is the complexity of its application process compared to the fabric weaving and lamination in Germany?","What is the relative cost or value added of the operations performed in Germany (weaving, pile alignment, lamination) versus Switzerland (adhesive coating, die-cutting, sewing attachments)?","Can the laminated velvet rolls exported from Germany be used for any purpose other than ski climbing skins?"],"trace":{"llm_provider":"litellm","model_id":"gemini-4-argon","prompt_version":"clarify-v1","input_tokens":3091,"output_tokens":259,"latency_ms":5046}},"control":{"counts":{"Germany":3,"Switzerland":2},"winner":"Germany","second":"Switzerland"},"gold":"Germany","requester_version":"requester-v1","ruling":"N355854","torn":true}
+{"before":{"counts":{"United States":5},"winner":"United States"},"gold":"United States","ruling":"N356289","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N356467","torn":false}
+{"before":{"counts":{"China":5},"winner":"China"},"gold":"South Korea","ruling":"N356520","torn":false}
+{"before":{"counts":{"Turkey":5},"winner":"Turkey"},"gold":"Turkey","ruling":"N356481","torn":false}
+{"before":{"counts":{"Vietnam":5},"winner":"Vietnam"},"gold":"Vietnam","ruling":"N356522","torn":false}
+{"before":{"counts":{"China":4,"Taiwan":1},"winner":"China","second":"Taiwan"},"gold":"Taiwan","ruling":"N356663","torn":false}
+{"before":{"counts":{"Italy":5},"winner":"Italy"},"gold":"Italy","ruling":"N356865","torn":false}

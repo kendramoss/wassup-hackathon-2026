@@ -1,0 +1,353 @@
+{
+  "generated_at": "2026-10-15T18:32:19Z",
+  "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
+  "items": [
+    {
+      "key": "final_accuracy",
+      "label": "Held-out (377 rulings, Jan–Sep 2026) accuracy",
+      "value": 0.9019,
+      "ci_low": 0.8676,
+      "ci_high": 0.928,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "final_conf95_accuracy",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): accuracy when confidence ≥ 0.95",
+      "value": 0.9779,
+      "ci_low": 0.9525,
+      "ci_high": 0.9898,
+      "n": 271,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "final_conf95_coverage",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): share of cases with confidence ≥ 0.95",
+      "value": 0.7188,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "final_fastpath_accuracy",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "value": 0.96,
+      "ci_low": 0.9314,
+      "ci_high": 0.977,
+      "n": 300,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + eval/results/scope-final-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "final_fastpath_coverage",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path coverage",
+      "value": 0.7958,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + eval/results/scope-final-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "final_cost_per_case_usd",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): cost per prediction (USD, promo price)",
+      "value": 0.0078,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "final_latency_p50_s",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): latency p50 (s, Vertex AI)",
+      "value": 4.616,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "final_latency_p95_s",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): latency p95 (s, Vertex AI)",
+      "value": 5.65,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_accuracy",
+      "label": "Development (469 rulings, Jul–Dec 2025) accuracy",
+      "value": 0.8998,
+      "ci_low": 0.8693,
+      "ci_high": 0.9238,
+      "n": 469,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_conf95_accuracy",
+      "label": "Development (469 rulings, Jul–Dec 2025): accuracy when confidence ≥ 0.95",
+      "value": 0.9643,
+      "ci_low": 0.9386,
+      "ci_high": 0.9795,
+      "n": 336,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_conf95_coverage",
+      "label": "Development (469 rulings, Jul–Dec 2025): share of cases with confidence ≥ 0.95",
+      "value": 0.7164,
+      "n": 469,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_fastpath_accuracy",
+      "label": "Development (469 rulings, Jul–Dec 2025): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "value": 0.9569,
+      "ci_low": 0.9311,
+      "ci_high": 0.9733,
+      "n": 371,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl + eval/results/scope-dev-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "dev_fastpath_coverage",
+      "label": "Development (469 rulings, Jul–Dec 2025): fast path coverage",
+      "value": 0.791,
+      "n": 469,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl + eval/results/scope-dev-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "dev_cost_per_case_usd",
+      "label": "Development (469 rulings, Jul–Dec 2025): cost per prediction (USD, promo price)",
+      "value": 0.0079,
+      "n": 469,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_latency_p50_s",
+      "label": "Development (469 rulings, Jul–Dec 2025): latency p50 (s, Vertex AI)",
+      "value": 4.804,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "dev_latency_p95_s",
+      "label": "Development (469 rulings, Jul–Dec 2025): latency p95 (s, Vertex AI)",
+      "value": 8.579,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+    },
+    {
+      "key": "research_final_accuracy",
+      "label": "Research run: Gemini 4 Argon + dated precedents",
+      "value": 0.891,
+      "ci_low": 0.856,
+      "ci_high": 0.919,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "baseline_most_mentioned",
+      "label": "Baseline: most-mentioned country",
+      "value": 0.605,
+      "ci_low": 0.555,
+      "ci_high": 0.653,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "baseline_final_assembly",
+      "label": "Baseline: final-assembly country",
+      "value": 0.406,
+      "ci_low": 0.358,
+      "ci_high": 0.456,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "baseline_last_mentioned",
+      "label": "Baseline: last country mentioned",
+      "value": 0.398,
+      "ci_low": 0.35,
+      "ci_high": 0.448,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "baseline_majority",
+      "label": "Baseline: majority country (Vietnam)",
+      "value": 0.122,
+      "ci_low": 0.093,
+      "ci_high": 0.159,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "research_argon_facts_only",
+      "label": "Research: Gemini 4 Argon, facts only (no precedents)",
+      "value": 0.859,
+      "ci_low": 0.821,
+      "ci_high": 0.891,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "change_detection_heldout",
+      "label": "Change detection from scratch, held-out 2026 pairs (weak)",
+      "value": 0.6818181818181818,
+      "ci_low": 0.47,
+      "ci_high": 0.84,
+      "n": 22,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "change_detection_always_change_baseline",
+      "label": "Baseline: always predict a change (same 22 pairs)",
+      "value": 0.6363636363636364,
+      "n": 22,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "change_detection_balanced_accuracy",
+      "label": "Change detection balanced accuracy (same 22 pairs)",
+      "value": 0.616,
+      "n": 22,
+      "split": "final",
+      "development_only": false,
+      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+    },
+    {
+      "key": "verifier_unknown-a_precision",
+      "label": "Move verifier (development set): correct when it says a move changes origin",
+      "value": 1,
+      "ci_low": 0.8985,
+      "ci_high": 1,
+      "n": 34,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_unknown-a_recall",
+      "label": "Move verifier (development set): real changes caught",
+      "value": 0.7391,
+      "ci_low": 0.5974,
+      "ci_high": 0.844,
+      "n": 46,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_unknown-a_specificity",
+      "label": "Move verifier (development set): no-change moves rejected",
+      "value": 1,
+      "ci_low": 0.6756,
+      "ci_high": 1,
+      "n": 8,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_unknown-a_cost_usd",
+      "label": "Move verifier (development set): cost per check (USD, promo)",
+      "value": 0.0323,
+      "n": 54,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_known-a_precision",
+      "label": "Move verifier (development set, CBP origin of current setup given): correct when it says a move changes origin",
+      "value": 1,
+      "ci_low": 0.9082,
+      "ci_high": 1,
+      "n": 38,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_known-a_recall",
+      "label": "Move verifier (development set, CBP origin of current setup given): real changes caught",
+      "value": 0.8261,
+      "ci_low": 0.6928,
+      "ci_high": 0.9091,
+      "n": 46,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_known-a_specificity",
+      "label": "Move verifier (development set, CBP origin of current setup given): no-change moves rejected",
+      "value": 1,
+      "ci_low": 0.6756,
+      "ci_high": 1,
+      "n": 8,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_known-a_cost_usd",
+      "label": "Move verifier (development set, CBP origin of current setup given): cost per check (USD, promo)",
+      "value": 0.0314,
+      "n": 54,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+    },
+    {
+      "key": "plan_heatgun_cost_usd",
+      "label": "Full plan, heat gun demo: cost (USD, promo)",
+      "value": 0.224,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-heatgun-2022-local-litellm.json"
+    },
+    {
+      "key": "plan_heatgun_wall_s",
+      "label": "Full plan, heat gun demo: wall time (s, via proxy)",
+      "value": 33,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-heatgun-2022-local-litellm.json"
+    }
+  ]
+}

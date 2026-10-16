@@ -1,0 +1,17 @@
+{
+  "_doc": "Scoring adjustments applied identically to every run. 'exclude': rulings not scored (no single held origin). 'alternatives': CBP held either country. Sources: eval multiscenario (mechanical) + a mechanical scan of both splits for non-country labels, A/B holdings and revocations, each verified against the ruling text (docs/DECISIONS.md D23).",
+  "exclude": {
+    "N349992": "multi-scenario holding: China, Vietnam (eval multiscenario)",
+    "N350963": "multi-scenario holding: China, Thailand (eval multiscenario)",
+    "N351073": "multi-scenario holding: China, Thailand (eval multiscenario)",
+    "N352014": "multi-scenario holding: China, Malaysia (eval multiscenario)",
+    "H325607": "revocation covering two hose rulings with different origins (Spain-origin and Japan-origin hoses); label quoted the revoked ruling",
+    "N354982": "holding is 'the country where the blanks are worked', not a single country"
+  },
+  "alternatives": {
+    "N354448": [
+      "Indonesia",
+      "Malaysia"
+    ]
+  }
+}

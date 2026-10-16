@@ -1,0 +1,11 @@
+{
+  "family": "lidar_modules",
+  "version": "1",
+  "name": "LiDAR sensor modules (backup demo family)",
+  "note": "Second family to show that a new family is a template file only. Built from CBP ruling N359371.",
+  "groups": [
+    {"id": "main_boards", "name": "Main boards (TMB and BMB PCBAs)", "operations": ["SMT assembly of the Top Main Board (TMB) PCBA and the Bottom Main Board (BMB) PCBA"], "movable": true},
+    {"id": "rx_tx_boards", "name": "RX and TX PCBAs", "operations": ["SMT assembly of the receiver (RX) PCBA and the transmitter (TX) PCBA"], "movable": true},
+    {"id": "final_assembly", "name": "Final assembly", "operations": ["assemble the RX and TX modules, lens housing, top main board and base", "bond, fasten, cure", "calibrate, test and inspect"], "movable": false}
+  ]
+}

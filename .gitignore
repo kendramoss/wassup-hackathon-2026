@@ -8,3 +8,15 @@ service-account*.json
 # Build output
 *.exe
 backend/backend
+
+# Origin Proof: local env files of any name (LiteLLM key lives only in the shell)
+.env*
+!.env.example
+# Raw CBP ruling texts are fetched by cmd/corpus, never committed
+data/corpus/
+backend/server
+data/cases/
+data/verifier-cache/
+
+# Supervised tuning data (eval tunedata); kept in the corpus bucket
+data/tuning/

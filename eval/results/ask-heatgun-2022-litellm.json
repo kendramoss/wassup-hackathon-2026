@@ -1,0 +1,88 @@
+{
+  "case_id": "case_22e38e535292",
+  "chat": [
+    {
+      "question": "Why does Origin Proof think this is Thailand when CBP held China?",
+      "answer": "Origin Proof predicted Thailand\u2014though with low confidence (0.75, flagged as needing more information)\u2014because the facts state the heating element, main housing, and front cover are \"produced in Thailand.\" Origin Proof reasoned that because the core components delivering heated air are split between Thailand (heating element) and China (motor, fan, and PCBA), manufacturing the heating element and housing from raw materials and integrating them via soldering, wiring, and mechanical assembly would substantially transform the parts in Thailand (citing N335508, where producing essential appliance components plus assembly conferred Thai origin).\n\nHowever, the facts do not detail *how* the heating element and housing are produced in Thailand or component values. In N328954, CBP held the origin is China, indicating CBP viewed the Chinese components as imparting the essential character and the Thai operations as simple assembly (similar to N351782). Confirm any compliance decisions with a licensed customs broker or CBP binding ruling.",
+      "cited_rulings": [
+        "N335508",
+        "N328954",
+        "N351782"
+      ],
+      "at": "2026-10-15T09:43:26.557894Z"
+    },
+    {
+      "question": "What if the motor-fan assembly were also made in Thailand?",
+      "answer": "If the motor, fan, and motor support were also produced in Thailand, the predicted origin would be Thailand with high confidence (0.98). \n\nIn this scenario, the core functional components that impart the essential character of a heat gun (producing and blowing hot air)\u2014the heating element, electric motor, fan, and main housing\u2014are all manufactured in Thailand. Similar to N351782 (where the country producing the motor and blades determined the origin of fans) and N335508, manufacturing these critical components from raw materials and integrating them with the remaining Chinese components (PCBA, switch, power cord, and minor parts) via soldering, wiring, and final assembly in Thailand would substantially transform the Chinese parts into a new article of commerce.\n\nNote that how the motor and heating element are manufactured in Thailand (full production vs. simple sub-assembly) still matters. Because precedent support is not a ruling, confirm any supply-chain changes with a licensed customs broker or a CBP binding ruling.",
+      "cited_rulings": [
+        "N351782",
+        "N335508"
+      ],
+      "at": "2026-10-15T09:43:46.585418Z"
+    }
+  ],
+  "cited_detail": [
+    {
+      "id": "N351782",
+      "date": "2025-08-27",
+      "subject": "The country of origin of fans",
+      "origin": "Thailand",
+      "url": "https://rulings.cbp.gov/ruling/N351782"
+    },
+    {
+      "id": "N335508",
+      "date": "2023-10-12",
+      "subject": "The country of origin of an electric cooking range from Thailand.",
+      "origin": "Thailand",
+      "url": "https://rulings.cbp.gov/ruling/N335508"
+    }
+  ],
+  "disclaimer": "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
+  "llm_provider": "litellm",
+  "model_ids": {
+    "engine": "gemini-4-argon",
+    "router": "gemini-3.8-flash",
+    "verifier": "gemini-4-argon"
+  },
+  "prompt_versions": {
+    "answers": "answers-v2",
+    "case_agent": "case-agent-v1",
+    "clarify": "clarify-v1",
+    "engine": "engine-v1",
+    "router": "router-v2",
+    "verifier": "verifier-v1"
+  },
+  "reply": {
+    "answer": "If the motor, fan, and motor support were also produced in Thailand, the predicted origin would be Thailand with high confidence (0.98). \n\nIn this scenario, the core functional components that impart the essential character of a heat gun (producing and blowing hot air)\u2014the heating element, electric motor, fan, and main housing\u2014are all manufactured in Thailand. Similar to N351782 (where the country producing the motor and blades determined the origin of fans) and N335508, manufacturing these critical components from raw materials and integrating them with the remaining Chinese components (PCBA, switch, power cord, and minor parts) via soldering, wiring, and final assembly in Thailand would substantially transform the Chinese parts into a new article of commerce.\n\nNote that how the motor and heating element are manufactured in Thailand (full production vs. simple sub-assembly) still matters. Because precedent support is not a ruling, confirm any supply-chain changes with a licensed customs broker or a CBP binding ruling.",
+    "cited_rulings": [
+      "N351782",
+      "N335508"
+    ],
+    "what_ifs": [
+      {
+        "change": "motor-fan assembly made in Thailand",
+        "origin": "Thailand",
+        "confidence": 0.98,
+        "decisive_step": "Manufacturing of core functional components (heating element, motor, fan) and final assembly in Thailand"
+      }
+    ],
+    "steps": [
+      {
+        "tool": "get_case"
+      },
+      {
+        "tool": "what_if",
+        "arg": "motor-fan assembly made in Thailand"
+      }
+    ],
+    "model_calls": 3,
+    "trace": {
+      "llm_provider": "litellm",
+      "model_id": "gemini-4-argon",
+      "prompt_version": "case-agent-v1",
+      "input_tokens": 4543,
+      "output_tokens": 550,
+      "latency_ms": 0
+    }
+  }
+}

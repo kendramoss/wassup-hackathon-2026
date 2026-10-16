@@ -1,0 +1,967 @@
+openapi: 3.1.0
+info:
+  title: Origin Proof API
+  version: 1.0.0
+  description: |
+    Predicts the country of origin U.S. Customs (CBP) would likely assign under the
+    substantial-transformation test, citing only earlier CBP rulings, and searches
+    production plans (operation-group moves) for a target origin. Plans are
+    "precedent-supported" at most — never approved or guaranteed.
+
+    Every successful response carries `model_ids`, `prompt_versions`, `llm_provider`
+    and the `disclaimer`. Errors use `{code, message, details}`.
+
+    Rate limits (D45): endpoints that call a model are limited per client (the
+    frontend forwards the browser's address as `X-Client-IP`): light ones (predict,
+    answers, ask, extract, scenarios, watch) 20 a minute, heavy ones (plan,
+    compare-targets) 4 a minute, plus a global cap. Over the limit: 429
+    `rate_limited` with `Retry-After` and `details.retry_after_s`. Requests with
+    the admin token (`X-Admin-Token` header) are not limited.
+servers:
+  - url: http://localhost:8080
+    description: Local (`make run`)
+paths:
+  /health:
+    get:
+      summary: Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
+      description: With deep=1 it also writes, reads and deletes a probe case and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
+      parameters:
+        - { name: deep, in: query, required: false, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+        "429": { $ref: "#/components/responses/Error" }
+        "503":
+          description: A dependency check failed (deep=1)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+  /v1/cases/predict:
+    post:
+      summary: Predict origin for a case (creates the case)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PredictRequest" }
+      responses:
+        "201":
+          description: Case created with its prediction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/batch:
+    post:
+      summary: Triage a portfolio (up to 20 products) in one call
+      description: |
+        Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [facts]
+                    properties:
+                      name: { type: string }
+                      facts: { type: string }
+                      date: { type: string, format: date, description: Default today }
+          multipart/form-data:
+            schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
+      responses:
+        "200":
+          description: One row per product, in order, and counts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Meta"
+                  - type: object
+                    required: [rows, summary]
+                    properties:
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required: [name, out_of_scope, error]
+                          properties:
+                            name: { type: string, description: The given name, or the first words of the facts }
+                            case_id: { type: string }
+                            predicted_origin: { type: string }
+                            confidence: { type: number }
+                            triage_route: { type: string, enum: [auto, needs_review, needs_info] }
+                            out_of_scope: { type: boolean }
+                            reason: { type: string, description: triage.reason }
+                            cost_usd: { type: number }
+                            error: { type: [string, "null"], description: null when the product was analysed }
+                      summary:
+                        type: object
+                        properties:
+                          total: { type: integer }
+                          auto: { type: integer }
+                          needs_review: { type: integer }
+                          needs_info: { type: integer }
+                          out_of_scope: { type: integer, description: Included in needs_review }
+                          failed: { type: integer }
+                          cost_usd: { type: number }
+                          latency_ms: { type: integer }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+  /v1/cases:
+    get:
+      summary: List all cases, pinned (seeded demos) first, then most recently updated
+      responses:
+        "200":
+          description: Case summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cases]
+                properties:
+                  cases:
+                    type: array
+                    items: { $ref: "#/components/schemas/CaseSummary" }
+  /v1/cases/{id}:
+    get:
+      summary: Fetch a case with its prediction and latest plan
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      summary: Rename a case (its display name on Cases home)
+      description: Sets display_name; product_name stays as entered. Whitespace is collapsed; 1–200 characters. Pinned cases need the admin token (403 otherwise). No model call; recorded in history as renamed; updated_at is unchanged (D48).
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [display_name], properties: { display_name: { type: string, minLength: 1, maxLength: 200 } } }
+      responses:
+        "200":
+          description: The updated case row
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseSummary" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      summary: Delete a case
+      description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/pin:
+    put:
+      summary: Pin or unpin a case (admin token required)
+      description: Pinned cases list first and cannot be deleted without the admin token. The demo seed pins the cases it creates. Recorded in history; updated_at is unchanged.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [pinned], properties: { pinned: { type: boolean } } }
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/plan:
+    post:
+      summary: Search plans for a target origin (needs a structured product and a family)
+      description: |
+        Send `Accept: text/event-stream` to receive the search as server-sent events instead of one JSON response:
+        - `start` {target, moves: [MoveRef], total}: every move to be searched, so each row can be drawn as queued.
+        - `baseline` {plan: Plan}: the current setup, any time before `done`.
+        - `move_started` {key, done, total}: work began on that move.
+        - `move_done` {key, plan: Plan, done, total}: one per move, with economics, shown, rejection_kind and verdict filled in.
+        - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
+        - `: keep-alive` comment lines every 10 s.
+        Input errors (400/404) are returned as normal JSON responses before the stream starts.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlanRequest" }
+      responses:
+        "200":
+          description: Plan search result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlanResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/export:
+    post:
+      summary: Draft a CBP ruling request for the case (Markdown)
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan_index:
+                  type: integer
+                  description: Index into the latest plan's shown plans; omit both fields to draft for the current setup.
+                target:
+                  type: string
+                  description: "With move_key: draft from that country's search in the latest compare-targets call."
+                move_key:
+                  type: string
+                  description: "Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index."
+      responses:
+        "200":
+          description: Draft
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExportResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/answers:
+    post:
+      summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answers]
+              properties:
+                answers:
+                  type: array
+                  minItems: 1
+                  items: { type: object, required: [question, answer], properties: { question: { type: string }, answer: { type: string } } }
+      responses:
+        "200":
+          description: The re-analysed case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/products/import:
+    post:
+      summary: Turn a bill of materials (CSV or Excel) into a structured product
+      description: |
+        Does not create a case: send the returned product (with the family) to POST /v1/cases/predict.
+        One row per component, or per operation with type "operation". Headers (case-insensitive, aliases accepted):
+        name (component / part / item), country (made in / origin), plant (factory / site / supplier; defaults to the country),
+        group (operation group, matched to the family template by id or name), type (component, operation, or plant: a plant that makes nothing today, named in the name column, with its plant_capabilities), plant_capabilities (groups the row's plant could also perform, ";"-separated).
+        Up to 500 rows, 5 MB. Samples: backend/testdata/heatgun_bom.csv, backend/testdata/lidar_bom.csv.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx (first sheet) }
+                name: { type: string }
+                description: { type: string }
+                family: { type: string, description: "needed for groups and the plan search, e.g. motorised_tools_small_appliances" }
+          application/json:
+            schema:
+              type: object
+              required: [csv]
+              properties:
+                csv: { type: string }
+                name: { type: string }
+                description: { type: string }
+                family: { type: string }
+      responses:
+        "200":
+          description: The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [product, family, warnings]
+                properties:
+                  product: { $ref: "#/components/schemas/Product" }
+                  family: { type: string }
+                  warnings: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/Error" }
+  /v1/products/extract:
+    post:
+      summary: Draft an editable structured product from pasted facts text (nothing is saved)
+      description: |
+        The engine model lists the parts, countries and assembly steps the text states, paragraph by paragraph (paragraphs split on blank lines, cited 1-based). Code then checks groups against the family template, names unnamed plants "<Country> plant" (name_guessed), and asks what else each plant could make (the plan search needs capabilities).
+        Parts mentioned without a stated country are not guessed: they are listed in one warning. Send the edited product with the facts to POST /v1/cases/predict. ~15 s through the proxy.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [facts]
+              properties:
+                facts: { type: string, maxLength: 12000 }
+                family: { type: string, description: "needed for groups and capability questions" }
+                name: { type: string, description: "product name; defaults to the name in the text" }
+      responses:
+        "200":
+          description: The draft
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product: { $ref: "#/components/schemas/Product" }
+                  plants: { type: array, items: { type: object, properties: { id: { type: string }, name: { type: string }, country: { type: string }, capabilities: { type: array, items: { type: string } }, name_guessed: { type: boolean } } } }
+                  components: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  operations: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  warnings: { type: array, items: { type: string } }
+                  questions: { type: array, items: { type: object, properties: { plant_id: { type: string }, ask: { type: string }, options: { type: array, items: { type: string } } } } }
+                  paragraphs: { type: integer }
+                  trace: { type: object }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/compare-targets:
+    post:
+      summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
+      description: |
+        Ranking: countries with a shown plan first (best net per year), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
+        Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest.
+        Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targets]
+              properties:
+                targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
+                economics: { $ref: "#/components/schemas/Economics" }
+      responses:
+        "200":
+          description: Ranked countries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/economics:
+    put:
+      summary: Replace the case's money inputs (no model calls)
+      description: Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Economics" }
+      responses:
+        "200":
+          description: Stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  economics: { $ref: "#/components/schemas/Economics" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/ask:
+    post:
+      summary: Ask the case agent a question about this case
+      description: |
+        An ADK agent with tools get_case, search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on revised facts, at most 2 per question).
+        The conversation is kept on the case (last 20 turns; the last 6 are given as context). {"reset": true} clears it. Typical latency 15–40 s through the proxy.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question: { type: string, maxLength: 2000 }
+                reset: { type: boolean }
+      responses:
+        "200":
+          description: The reply and the conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  reply:
+                    type: object
+                    properties:
+                      answer: { type: string }
+                      cited_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer that the agent saw in a tool result or the case" }
+                      dropped_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer it never saw (do not show as citations)" }
+                      what_ifs: { type: array, items: { type: object, properties: { change: { type: string }, origin: { type: string }, confidence: { type: number }, decisive_step: { type: string } } } }
+                      steps: { type: array, items: { type: object, properties: { tool: { type: string }, arg: { type: string } } } }
+                      model_calls: { type: integer }
+                      trace: { type: object }
+                  cited_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+                  chat: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string }, cited_rulings: { type: array, items: { type: string } }, at: { type: string, format: date-time } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/scenarios:
+    post:
+      summary: Predict 1–3 alternative production setups side by side (replaces the case's previous scenarios)
+      description: Each scenario gives facts text or a structured product (rendered with the case family's template). Scenarios run the engine, router and triage like predict, without the clarify review. The case's own prediction is unchanged.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scenarios]
+              properties:
+                scenarios:
+                  type: array
+                  minItems: 1
+                  maxItems: 3
+                  items:
+                    type: object
+                    description: exactly one of facts or product
+                    properties:
+                      label: { type: string, description: "defaults to 'Scenario N'" }
+                      facts: { type: string }
+                      product: { $ref: "#/components/schemas/Product" }
+                economics:
+                  description: Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used.
+                  allOf: [{ $ref: "#/components/schemas/Economics" }]
+      responses:
+        "200":
+          description: The case with scenarios filled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/watch:
+    post:
+      summary: Re-check the prediction with every precedent available today
+      description: The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "200":
+          description: The case with watch filled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+  /v1/watch/run:
+    post:
+      summary: Re-check every analysed case (for a scheduler; admin token required)
+      responses:
+        "403": { $ref: "#/components/responses/Error" }
+        "200":
+          description: Counts and the cases whose origin changed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [checked, changed, failed]
+                properties:
+                  checked: { type: integer }
+                  changed: { type: array, items: { type: string } }
+                  failed: { type: array, items: { type: string } }
+  /v1/rulings/{id}:
+    get:
+      summary: A CBP ruling's text (proxied from rulings.cbp.gov) with its public link
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[NH][0-9]{6}$", example: N357771 }
+      responses:
+        "200":
+          description: Ruling
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Ruling" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/demos:
+    get:
+      summary: Demo cases for the UI's "load demo" button
+      responses:
+        "200":
+          description: Demo list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, example: heatgun-2022 }
+                        title: { type: string }
+                        description: { type: string }
+                        cbp_held: { type: string, example: "China (N328954)" }
+                        has_plan: { type: boolean }
+  /v1/demos/{id}:
+    get:
+      summary: One demo with ready request bodies for predict and plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Demo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  order: { type: integer }
+                  title: { type: string }
+                  description: { type: string }
+                  source: { type: string }
+                  cbp_held: { type: string }
+                  notes: { type: string }
+                  predict: { $ref: "#/components/schemas/PredictRequest" }
+                  plan: { oneOf: [{ $ref: "#/components/schemas/PlanRequest" }, { type: "null" }] }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/eval/summary:
+    get:
+      summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EvalSummary" }
+components:
+  parameters:
+    CaseID:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+  schemas:
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        llm_provider: { type: string }
+        version: { type: string }
+        checks:
+          type: object
+          description: deep=1 only; keys case_store and model
+          additionalProperties:
+            type: object
+            properties:
+              ok: { type: boolean }
+              latency_ms: { type: integer }
+              error: { type: string, example: "rpc error: code = PermissionDenied desc = Missing or insufficient permissions." }
+    CaseSummary:
+      type: object
+      required: [id, product_name, display_name, date, predicted_origin, triage_route, confidence, step, updated_at, watch_status, scenario_count, pinned]
+      properties:
+        id: { type: string }
+        product_name:
+          type: string
+          description: Structured product name, or the first words of the facts for a facts-only case
+        display_name: { type: string, description: "The user's name for the case (PATCH /v1/cases/{id}), else product_name. Show this on Cases home." }
+        date: { type: string, format: date, description: Case date }
+        predicted_origin: { type: [string, "null"], description: null until analysed }
+        triage_route:
+          type: [string, "null"]
+          enum: [auto, needs_review, needs_info, null]
+        confidence: { type: [number, "null"], minimum: 0, maximum: 1 }
+        step:
+          type: string
+          enum: [product, origin, plan, export]
+          description: Furthest workflow step reached (export once a draft has been exported)
+        updated_at: { type: string, format: date-time }
+        watch_status: { type: [string, "null"], enum: [unchanged, changed, null], description: null until re-checked }
+        scenario_count: { type: integer }
+        pinned: { type: boolean, description: A seeded demo case; listed first }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal]
+        message: { type: string }
+        details: {}
+    Meta:
+      type: object
+      required: [model_ids, prompt_versions, llm_provider, disclaimer]
+      properties:
+        model_ids: { type: object, additionalProperties: { type: string }, example: { engine: gemini-4-argon, router: gemini-3.8-flash } }
+        prompt_versions: { type: object, additionalProperties: { type: string }, example: { engine: engine-v1, router: router-v2 } }
+        llm_provider: { type: string, enum: [vertex, litellm, fake], description: "litellm results are labelled proxy, development only" }
+        disclaimer: { type: string, example: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling." }
+    Plant:
+      type: object
+      required: [id, country]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        country: { type: string }
+        capabilities: { type: array, items: { type: string }, description: Operation groups this plant can perform }
+    Component:
+      type: object
+      required: [name, made_in]
+      properties:
+        name: { type: string }
+        made_in: { type: string }
+        plant: { type: string, description: Plant ID when made at one of the product's own plants }
+        group: { type: string, description: Operation group that produces it }
+    Operation:
+      type: object
+      required: [name, plant]
+      properties:
+        name: { type: string }
+        plant: { type: string }
+        group: { type: string }
+    Product:
+      type: object
+      required: [name, components]
+      properties:
+        name: { type: string }
+        family: { type: string }
+        description: { type: string }
+        plants: { type: array, items: { $ref: "#/components/schemas/Plant" } }
+        components: { type: array, items: { $ref: "#/components/schemas/Component" } }
+        operations: { type: array, items: { $ref: "#/components/schemas/Operation" } }
+    PredictRequest:
+      type: object
+      description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this).
+      required: [date]
+      properties:
+        date: { type: string, format: date, description: Case date; only CBP rulings dated strictly before it are used }
+        facts: { type: string, maxLength: 12000 }
+        product: { $ref: "#/components/schemas/Product" }
+        family: { type: string, example: motorised_tools_small_appliances }
+        exclude_rulings: { type: array, items: { type: string }, description: Rulings about this very case, never used as precedent }
+        current_origin:
+          type: object
+          description: CBP's holding on the current setup, if the user has one
+          properties:
+            country: { type: string }
+            ruling: { type: string }
+        economics:
+          description: Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics)
+          allOf: [{ $ref: "#/components/schemas/Economics" }]
+    Prediction:
+      type: object
+      properties:
+        origin_country: { type: string }
+        key_factors: { type: array, items: { type: string } }
+        decisive_step: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        reasoning: { type: string }
+        cited_rulings: { type: array, items: { type: string }, description: Earlier rulings the model named (only rulings it was shown) }
+        precedents: { type: array, items: { type: string }, description: All earlier rulings shown to the model }
+    Triage:
+      type: object
+      properties:
+        route: { type: string, enum: [auto, needs_review, needs_info], description: "needs_info: no earlier ruling on point; answer clarify.questions via /answers" }
+        reason: { type: string }
+    RouterLabel:
+      type: object
+      properties:
+        route: { type: string }
+        subfamily: { type: string }
+        regime: { type: string, enum: [substantial_transformation, textile_102_21, usmca_part102, pharma_api, unclear] }
+        reason: { type: string }
+    CaseResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            id: { type: string }
+            date: { type: string, format: date }
+            facts: { type: string, description: The facts the engine read (rendered from the product when one was given) }
+            product: { $ref: "#/components/schemas/Product" }
+            family: { type: string }
+            prediction: { $ref: "#/components/schemas/Prediction" }
+            triage: { $ref: "#/components/schemas/Triage" }
+            router: { $ref: "#/components/schemas/RouterLabel" }
+            plan: { $ref: "#/components/schemas/PlanResult" }
+            clarify: { $ref: "#/components/schemas/Clarify" }
+            answers: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string } } } }
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+            step: { type: string, enum: [product, origin, plan, export] }
+            pinned: { type: boolean }
+            display_name: { type: string }
+            precedents_detail:
+              type: array
+              description: The earlier rulings in prediction.precedents, in the same order, with CBP's held origin
+              items: { $ref: "#/components/schemas/PrecedentRef" }
+            scenarios:
+              type: array
+              items:
+                type: object
+                properties:
+                  label: { type: string }
+                  facts: { type: string }
+                  product: { $ref: "#/components/schemas/Product" }
+                  prediction: { $ref: "#/components/schemas/Prediction" }
+                  triage: { $ref: "#/components/schemas/Triage" }
+                  precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+                  comparison: { $ref: "#/components/schemas/Comparison" }
+            economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            history:
+              type: array
+              description: Audit trail, oldest first (last 200)
+              items:
+                type: object
+                properties:
+                  at: { type: string, format: date-time }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed] }
+                  summary: { type: string }
+                  llm_provider: { type: string }
+                  model_id: { type: string }
+                  prompt_version: { type: string }
+                  input_tokens: { type: integer, description: Summed over every model call in the step; absent when no model was called }
+                  output_tokens: { type: integer }
+                  cost_usd: { type: number, description: "Estimated at the eval's promo prices (eval/RESULTS.md); cached precedent checks cost nothing. For asked, the agent model only (not its what-if engine calls)." }
+                  latency_ms: { type: integer, description: Wall time of the step }
+            watch:
+              type: [object, "null"]
+              description: null until re-checked
+              properties:
+                checked_at: { type: string, format: date-time }
+                status: { type: string, enum: [unchanged, changed] }
+                prediction: { $ref: "#/components/schemas/Prediction" }
+                newer_rulings: { type: array, description: "precedents used that are dated after the case date", items: { $ref: "#/components/schemas/PrecedentRef" } }
+                precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+    Clarify:
+      type: object
+      description: Only for in-scope cases below the fast-path bar (0.92). Never changes the predicted origin.
+      properties:
+        on_point: { type: boolean, description: An earlier ruling on the same kind of product and question exists }
+        closest_ruling: { type: string }
+        on_point_reason: { type: string }
+        conflict:
+          type: object
+          description: Two comparable earlier rulings that went different ways, and the difference CBP relied on
+          properties:
+            ruling_a: { type: string }
+            holding_a: { type: string }
+            ruling_b: { type: string }
+            holding_b: { type: string }
+            deciding_difference: { type: string }
+            leans:
+              type: [string, "null"]
+              enum: [a, b, null]
+              description: Which of the two rulings this case's facts are closer to on the deciding difference; null when the facts do not say (clarify-v2). The UI marks that ruling, or nothing when null.
+        questions: { type: array, maxItems: 3, items: { type: string } }
+    Economics:
+      type: object
+      description: User inputs, illustrative — editable. Kept on the case and reused to price scenarios.
+      properties:
+        illustrative: { type: boolean }
+        annual_import_value_usd: { type: number }
+        duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
+        duty_rates_note: { type: string }
+        group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
+    PlanRequest:
+      type: object
+      required: [target]
+      properties:
+        target: { type: string, example: Thailand }
+        economics: { $ref: "#/components/schemas/Economics" }
+        actual_change:
+          type: object
+          description: For backtests, the real change and CBP's ruling on it; the result compares it with the best plan.
+          properties:
+            _source: { type: string }
+            moved_to: { type: string }
+            moved_to_thailand: { type: array, items: { type: string } }
+            still_from_china: { type: array, items: { type: string } }
+    Verdict:
+      type: object
+      properties:
+        precedent_supported: { type: boolean }
+        supporting_ruling: { type: string }
+        counter_ruling: { type: string }
+        confidence: { type: number }
+        reasoning: { type: string }
+    Plan:
+      type: object
+      properties:
+        move: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
+        description: { type: string }
+        prediction: { $ref: "#/components/schemas/Prediction" }
+        verdict: { $ref: "#/components/schemas/Verdict" }
+        duty_effect_per_year: { type: number }
+        added_cost_per_year: { type: number }
+        net_per_year: { type: number }
+        shown: { type: boolean }
+        rejection_reason: { type: string }
+        rejection_kind:
+          type: string
+          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed]
+          description: |
+            Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
+            render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
+    PlanResult:
+      type: object
+      properties:
+        target: { type: string }
+        current_origin: { type: object, properties: { country: { type: string }, ruling: { type: string } } }
+        baseline: { $ref: "#/components/schemas/Plan" }
+        plans: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE); best-ranked within the searched moves and your cost inputs first" }
+        rejected: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Greyed rows, closest first: current setup, below_confidence_bar, no_supporting_precedent, engine_other_origin" }
+        backtest: { type: object }
+        stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
+        economics_illustrative: { type: boolean }
+        duty_rates_note: { type: string }
+    PlanResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            case_id: { type: string }
+            plan: { $ref: "#/components/schemas/PlanResult" }
+    ExportResponse:
+      allOf:
+        - $ref: "#/components/schemas/Meta"
+        - type: object
+          properties:
+            case_id: { type: string }
+            format: { type: string, enum: [markdown] }
+            content: { type: string }
+    Ruling:
+      type: object
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        subject: { type: string }
+        text: { type: string }
+        url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
+        origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
+    Comparison:
+      type: object
+      description: Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced.
+      properties:
+        duty_rate: { type: [number, "null"], description: rate for the scenario's predicted origin }
+        annual_duty_usd: { type: [number, "null"] }
+        duty_savings_usd: { type: [number, "null"], description: current setup's duty minus this scenario's }
+        added_cost_usd: { type: [number, "null"], description: "yearly cost of the operation groups moved (product scenarios with group costs only)" }
+        net_usd: { type: [number, "null"], description: savings minus added cost }
+        moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
+        illustrative: { type: boolean }
+        origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
+    DraftRow:
+      type: object
+      properties:
+        name: { type: string }
+        made_in: { type: string }
+        plant: { type: string }
+        group: { type: string, description: "template group id, or empty" }
+        source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none" }
+        group_guessed: { type: boolean, description: "no valid group from the text; pick one" }
+    TargetSummary:
+      type: object
+      properties:
+        rank: { type: integer }
+        target: { type: string }
+        status: { type: string, enum: [plan, below_bar, no_plan, no_plant] }
+        best: { description: "best shown plan, or the closest below-bar plan; null otherwise", allOf: [{ $ref: "#/components/schemas/Plan" }] }
+        shown_count: { type: integer }
+        moves_searched: { type: integer }
+    MoveRef:
+      type: object
+      required: [key, description, move]
+      properties:
+        key: { type: string, example: motor_fan_assembly@th+pcba@th }
+        description: { type: string }
+        move: { type: object, description: "same shape as Plan.move" }
+    PrecedentRef:
+      type: object
+      required: [id, date, subject, origin, url]
+      properties:
+        id: { type: string }
+        date: { type: string, format: date, description: "empty if the ruling is not in the precedent pool" }
+        subject: { type: string }
+        origin: { type: [string, "null"], description: "CBP's held origin; null when no single held origin" }
+        url: { type: string }
+    EvalSummary:
+      type: object
+      description: Every number with its split, n, CI and source; proxy runs are flagged.
+      properties:
+        generated_at: { type: string }
+        status: { type: string, description: e.g. "proxy, development only" until the Vertex re-run }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              label: { type: string }
+              value: { type: number }
+              ci_low: { type: number }
+              ci_high: { type: number }
+              n: { type: integer }
+              split: { type: string }
+              development_only: { type: boolean }
+              source: { type: string }

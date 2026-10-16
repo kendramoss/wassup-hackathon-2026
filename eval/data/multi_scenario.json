@@ -1,0 +1,30 @@
+{
+  "N349992": {
+    "held": [
+      "China",
+      "Vietnam"
+    ],
+    "split": "dev"
+  },
+  "N350963": {
+    "held": [
+      "China",
+      "Thailand"
+    ],
+    "split": "dev"
+  },
+  "N351073": {
+    "held": [
+      "China",
+      "Thailand"
+    ],
+    "split": "dev"
+  },
+  "N352014": {
+    "held": [
+      "China",
+      "Malaysia"
+    ],
+    "split": "dev"
+  }
+}
