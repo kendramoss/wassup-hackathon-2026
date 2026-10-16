@@ -165,7 +165,7 @@ function Compare({ id, c }: CaseCtx) {
             </Button>
           </div>
         )}
-        {error ? <ErrorBox error={error} onRetry={run} /> : null}
+        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
 
         {(ranked || since) && (
           <div className="relative overflow-x-auto">

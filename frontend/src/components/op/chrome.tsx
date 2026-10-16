@@ -322,8 +322,28 @@ function RateLimitNote({ seconds, onRetry }: { seconds: number; onRetry?: () => 
   );
 }
 
-export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+// Pinned demos are read-only for visitors (backend D57). Says so where an
+// edit would have been, with the way to a case of one's own.
+export function DemoNote({ title, message }: { title?: string | null; message?: string }) {
+  const [demoId, setDemoId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!title) return;
+    api.demos().then((r) => setDemoId(r.demos?.find((d) => d.title === title)?.id ?? null), () => {});
+  }, [title]);
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-1 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+      <span className="duo">{message ?? "This is a pinned demo: you can explore it, but changes here aren't saved."}</span>
+      <Link href={demoId ? `/cases/new?demo=${encodeURIComponent(demoId)}` : "/cases/new"} className="text-ok underline underline-offset-2">
+        Start a new case from this demo →
+      </Link>
+    </div>
+  );
+}
+
+export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetry?: () => void; demoTitle?: string | null }) {
   const e = error instanceof ApiError ? error : null;
+  // 403 "forbidden" (D57): an edit to a pinned demo.
+  if (e?.status === 403 && (e.code as string) === "forbidden") return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
   if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
   const outOfScope = e?.code === "out_of_scope";
   const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");

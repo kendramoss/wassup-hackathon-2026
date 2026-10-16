@@ -172,7 +172,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
         <StartBand target={target} c={c} />
       )}
       <Main className="flex flex-col gap-8">
-        {error ? <ErrorBox error={error} onRetry={run} /> : null}
+        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
         {!result && !searching && (
           <div className="flex flex-col gap-6">
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />

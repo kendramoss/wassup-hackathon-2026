@@ -6,7 +6,7 @@ import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
+import { DemoNote, ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
@@ -302,6 +302,22 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
     }
   };
   const visible = more ? qs : qs.slice(0, 1);
+  if (c.pinned)
+    return (
+      <Panel tone="ask">
+        <h2 className="text-base font-medium tracking-[-0.02em]">
+          {copy.result.questions} <span className="text-[13px] font-normal text-dim">· optional, sharpens the answer</span>
+        </h2>
+        <ol className="duo mt-3 flex list-decimal flex-col gap-2 pl-5 text-sm">
+          {qs.map((q) => (
+            <li key={q}>{q}</li>
+          ))}
+        </ol>
+        <div className="mt-4">
+          <DemoNote title={c.display_name} message="This is a pinned demo, so its answers stay as they are." />
+        </div>
+      </Panel>
+    );
   return (
     <Panel tone="ask">
       <h2 className="text-base font-medium tracking-[-0.02em]">
@@ -353,7 +369,7 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
       </div>
       {error ? (
         <div className="mt-3">
-          <ErrorBox error={error} onRetry={submit} />
+          <ErrorBox error={error} onRetry={submit} demoTitle={c.display_name} />
         </div>
       ) : null}
     </Panel>
