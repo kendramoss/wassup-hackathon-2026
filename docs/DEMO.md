@@ -4,9 +4,9 @@ Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md
 
 ## 1. Prepare (about 10 minutes, the day of recording)
 
-1. Start the backend with the provider you will show. Use Vertex when IAM is done (official); LiteLLM is development only, so if you record with it, the results screen must say "proxy, development only".
+1. Start the backend on Vertex, the only model provider (D49). Local development needs Application Default Credentials (`gcloud auth application-default login`).
    ```bash
-   make run   # LLM_PROVIDER=vertex GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global
+   make run   # GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global
    ```
    Keep the verdict cache on (the default: `VERIFIER_CACHE_DIR=../data/verifier-cache`). Cases are saved under `data/cases`.
 2. Seed every demo:
