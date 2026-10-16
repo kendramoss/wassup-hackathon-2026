@@ -8,7 +8,7 @@ import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Main, Next } from "../chrome";
-import { MoneyDrawer, hasMoney, moneySummary, productGroups } from "../money-drawer";
+import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -154,7 +154,7 @@ export function ProductStep() {
   const submit = async () => {
     setBusy(true);
     setError(null);
-    const body: PredictRequest = { date, exclude_rulings: extra.exclude_rulings, current_origin: extra.current_origin, economics: hasMoney(economics) ? economics : undefined };
+    const body: PredictRequest = { date, exclude_rulings: extra.exclude_rulings, current_origin: extra.current_origin, economics: hasAnyMoney(economics) ? economics : undefined };
     if (tab === "paste") {
       // The backend rejects a product with no components, so a pasted
       // description goes in as facts only; the name is set right after.
@@ -278,7 +278,7 @@ export function ProductStep() {
                   )}
                   {t.key === "money" && (
                     <button type="button" onClick={() => setMoneyOpen(true)} className="mt-2 min-h-7 text-[12px] text-ok hover:underline">
-                      {hasMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
+                      {hasAnyMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
                     </button>
                   )}
                 </div>

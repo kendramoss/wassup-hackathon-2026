@@ -37,6 +37,13 @@ export function hasMoney(e: Economics | undefined): boolean {
   return Boolean(e?.annual_import_value_usd && Object.keys(e.duty_rates ?? {}).length && Object.keys(e.group_costs ?? {}).length);
 }
 
+// Something to edit, even when a duty rate or a cost is still blank. The
+// money tier stays incomplete until hasMoney; this only decides whether the
+// saved numbers go with the case.
+export function hasAnyMoney(e: Economics | undefined): boolean {
+  return Boolean(e?.annual_import_value_usd || Object.keys(e?.duty_rates ?? {}).length || Object.keys(e?.group_costs ?? {}).length);
+}
+
 // "$2.0M imports a year · China 41.7%, Thailand 16.7% · 5 groups costed"
 export function moneySummary(e: Economics | undefined): string {
   if (!e) return "";
