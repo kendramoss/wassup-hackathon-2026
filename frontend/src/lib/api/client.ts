@@ -123,7 +123,15 @@ export const api = {
   importBom: (form: FormData) => call<ImportResponse>("/products/import", { method: "POST", body: form }),
   importCsv: (body: { csv: string; name?: string; family?: string }) => post<ImportResponse>("/products/import", body),
   extract: (body: { facts: string; family?: string; name?: string }, signal?: AbortSignal) => post<ExtractResponse>("/products/extract", body, signal),
-  batch: (form: FormData, signal?: AbortSignal) => call<BatchResponse>("/cases/batch", { method: "POST", body: form, signal }),
+  batch: (file: File, signal?: AbortSignal) => {
+    const form = new FormData();
+    form.append("file", file);
+    return call<BatchResponse>("/cases/batch", { method: "POST", body: form, signal });
+  },
+  // CSV rows the preview already parsed. Empty facts stay in the list so the
+  // backend reports that row as failed instead of dropping it.
+  batchItems: (items: { name: string; facts: string; date?: string }[], signal?: AbortSignal) =>
+    post<BatchResponse>("/cases/batch", { items }, signal),
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),

@@ -8,6 +8,7 @@ import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { hasAnyMoney } from "../money-drawer";
 import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -45,7 +46,10 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
     api.demo(demo).then((d) => {
       if (d.plan && (!target || d.plan.target === target)) {
         setReq(d.plan);
-        setEconomics(d.plan.economics ?? c.economics ?? { illustrative: true });
+        // A case that already has money (edited on step 1) keeps it. The demo
+        // fixture is only the starting point.
+        const saved = c.economics;
+        setEconomics(saved && hasAnyMoney(saved) ? saved : (d.plan.economics ?? { illustrative: true }));
       } else fallback();
     }, fallback);
   }, [id, target, c.economics]);

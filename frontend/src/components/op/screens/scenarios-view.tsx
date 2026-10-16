@@ -1,11 +1,13 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { api, type CaseResponse, type Product, type Scenario } from "@/lib/api/client";
+import { api, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
+import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
@@ -36,18 +38,34 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
   );
   const origin = c.prediction?.origin_country;
   const other = product?.plants?.find((p) => p.country !== origin)?.id ?? product?.plants?.[0]?.id ?? "";
-  const [drafts, setDrafts] = useState<Draft[]>(() =>
-    product?.plants?.length
+  // "Add as a scenario" from Ask: the what-if becomes a facts draft, kept
+  // beside the first two so the case stays at three scenarios at most.
+  const add = useSearchParams().get("add")?.trim();
+  const [drafts, setDrafts] = useState<Draft[]>(() => {
+    const base: Draft[] = product?.plants?.length
       ? [
           { label: "As today", mode: "move", groups: [], plant: other, facts: "" },
           { label: `${groupName(groups[0])} moved`, mode: "move", groups: groups.slice(0, 1), plant: other, facts: "" },
           { label: `${groupName(groups[0])} + ${groupName(groups[1])} moved`, mode: "move", groups: groups.slice(0, 2), plant: other, facts: "" },
         ]
-      : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }],
-  );
-  const [editing, setEditing] = useState(!(c.scenarios?.length));
+      : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];
+    if (!add) return base;
+    const label = add.length > 60 ? add.slice(0, 59) + "…" : add;
+    return [...base.slice(0, 2), { label, mode: "facts", groups: [], plant: "", facts: `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() }];
+  });
+  const [editing, setEditing] = useState(Boolean(add) || !(c.scenarios?.length));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [moneyOpen, setMoneyOpen] = useState(false);
+  const saveMoney = async (e: Economics) => {
+    setMoneyOpen(false);
+    setError(null);
+    try {
+      setCase(await api.putEconomics(id, e));
+    } catch (err) {
+      setError(err);
+    }
+  };
 
   const run = async () => {
     setBusy(true);
@@ -84,7 +102,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
           )}
         </div>
 
-        {c.economics && <MoneyStrip c={c} />}
+        <MoneyStrip c={c} onEdit={() => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
         {error ? <ErrorBox error={error} onRetry={run} /> : null}
@@ -100,6 +118,15 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         {!editing && sc.length > 0 && <Cards sc={sc} c={c} />}
         {!editing && sc.length > 0 && product && <Matrix sc={sc} c={c} />}
       </Main>
+      {moneyOpen && (
+        <MoneyDrawer
+          value={c.economics ?? undefined}
+          product={product ?? undefined}
+          countries={[...new Set((product?.plants ?? []).map((p) => p.country).concat(c.prediction?.origin_country ?? []).filter(Boolean))]}
+          onClose={() => setMoneyOpen(false)}
+          onSave={saveMoney}
+        />
+      )}
       <Footer>
         <Next>{product?.plants?.length ? "Search precedent-checked plans for the move that looks best." : "Compare what-ifs, then add parts and plants to search real plans."}</Next>
         <div className="ml-auto">
@@ -110,18 +137,24 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
   );
 }
 
-function MoneyStrip({ c }: { c: CaseResponse }) {
-  const e = c.economics!;
+// Money above the cards (DESIGN.md, p-scen): the inputs every net below
+// is worked out from, and the drawer to change them.
+function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit: () => void }) {
+  const e = c.economics;
+  const groups = Object.keys(e?.group_costs ?? {}).length;
   return (
-    <div className="duo flex flex-wrap items-center gap-x-5 gap-y-1 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border border-edge bg-sheet px-4 py-3 text-[13px] shadow-[3px_3px_0_var(--shadow)]">
       <span className="text-[11px] uppercase tracking-[0.08em] text-dim">{copy.money}</span>
-      {e.annual_import_value_usd ? <span>{money(e.annual_import_value_usd)} imports a year</span> : null}
-      {Object.entries(e.duty_rates ?? {}).map(([k, v]) => (
+      {e?.annual_import_value_usd ? <span>{money(e.annual_import_value_usd)} imports a year</span> : <span className="text-dim">No import value yet</span>}
+      {Object.entries(e?.duty_rates ?? {}).map(([k, v]) => (
         <span key={k}>
           <Country name={k} /> {pct(v)}
         </span>
       ))}
-      <span className="text-dim">edit on the Plan step</span>
+      {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
+      <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
+        {e ? "Edit inputs" : "+ Add money inputs"}
+      </button>
     </div>
   );
 }
@@ -139,7 +172,7 @@ function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: 
             Label
           </label>
           <input id={`sl${i}`} className="mt-1.5 w-full rounded-[2px] border border-line bg-white px-3 py-2 text-sm" value={d.label} onChange={(e) => set(i, { label: e.target.value })} />
-          {c.product ? (
+          {c.product && d.mode === "move" ? (
             <fieldset className="mt-3">
               <legend className="eyebrow">Move these groups</legend>
               <div className="mt-1.5 flex flex-col gap-1 text-[13px]">
@@ -219,6 +252,21 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
             <span className="self-start">
               <StatusChip route={s.triage?.route} />
             </span>
+            {(cmp?.moved?.length ?? 0) > 0 && (
+              <p className="flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="text-dim">Moves</span>
+                {cmp!.moved!.map((m) => (
+                  <Chip key={`${m.group}-${m.to_plant}`} tone="ok">
+                    {groupName(m.group)}
+                  </Chip>
+                ))}
+                {cmp!.moved![0]?.to_plant && (
+                  <span className="text-dim">
+                    to {c.product?.plants?.find((pl) => pl.id === cmp!.moved![0].to_plant)?.name ?? cmp!.moved![0].to_plant}
+                  </span>
+                )}
+              </p>
+            )}
             <Ruler value={p.confidence} label={`${BAR} auto-accept`} width={220} caption={`confidence ${conf(p.confidence)}`} />
             {p.decisive_step && <p className="duo clamp-2 text-[13px]">{p.decisive_step}</p>}
             {cmp?.origin_differs_from_current && cur && (nothingMoves || !s.product) && (
@@ -253,7 +301,9 @@ function Matrix({ sc: all, c }: { sc: Scenario[]; c: CaseResponse }) {
   const parts = c.product!.components;
   // The fixed "Today" column already shows the current setup, so a product
   // scenario that moves nothing would repeat it.
-  const sc = all.filter((s) => !(s.product && (s.comparison?.moved?.length ?? 0) === 0));
+  // A description-only scenario has no parts to show.
+  const sc = all.filter((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0);
+  if (sc.length === 0) return null;
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Where each part is made</h2>
