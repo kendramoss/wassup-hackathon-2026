@@ -93,6 +93,12 @@ type Deps struct {
 	// Duty, when set, fills duty rates the user did not give from the sourced
 	// table, for products with an HTS number (D52).
 	Duty *duty.Table
+	// Textile, when set, predicts cases the router labels textile_102_21
+	// under 19 CFR 102.21 instead of leaving them out of scope (D51).
+	// TextileFastPath is its auto-accept bar; 0 sends every textile case to
+	// review.
+	Textile         Predictor
+	TextileFastPath float64
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -256,6 +262,13 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 	wg.Wait()
 	if err != nil {
 		return domain.Prediction{}, nil, domain.Triage{}, false, err
+	}
+	if label != nil && label.Regime == router.RegimeTextile && a.d.Textile != nil {
+		tres, err := a.d.Textile.Predict(ctx, c)
+		if err == nil { // in scope, but clarify (substantial transformation) does not apply
+			return tres.Prediction, label, triage.Textile(tres.Prediction, a.d.TextileFastPath), false, nil
+		}
+		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
 	inScope, scopeReason := true, ""
 	if label != nil {

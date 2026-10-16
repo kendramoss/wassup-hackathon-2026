@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -66,5 +67,19 @@ func TestFirestoreEmulator(t *testing.T) {
 	cs, err := f2.List(ctx)
 	if err != nil || len(cs) < 2 || cs[0].ID != "case_b" || cs[0].Step() != "plan" || !cs[0].UpdatedAt.Equal(now) {
 		t.Errorf("list after restart = %+v %v", cs, err)
+	}
+	vb := f.Verdicts()
+	key := fmt.Sprintf("k%d", now.UnixNano())
+	if _, ok, err := vb.Get(ctx, key); ok || err != nil {
+		t.Fatalf("missing verdict = %v %v", ok, err)
+	}
+	if err := vb.Put(ctx, key, []byte(`{"v":1}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := vb.Put(ctx, key, []byte(`{"v":2}`)); err != nil { // first write wins, no error
+		t.Fatal(err)
+	}
+	if b, ok, err := f2.Verdicts().Get(ctx, key); !ok || err != nil || string(b) != `{"v":1}` {
+		t.Errorf("verdict from another client = %s %v %v", b, ok, err)
 	}
 }

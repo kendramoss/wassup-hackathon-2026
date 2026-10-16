@@ -70,7 +70,7 @@ jobs:
           gcloud run deploy backend --source backend
           --project "$PROJECT" --region "$REGION" --quiet
           --service-account "agent-backend@$PROJECT.iam.gserviceaccount.com"
-          --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global,LLM_PROVIDER=vertex,CASES_STORE=firestore,VERIFIER_CACHE_DIR=/tmp/verifier-cache"
+          --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT,GOOGLE_CLOUD_LOCATION=global,LLM_PROVIDER=vertex,CASES_STORE=firestore,VERIFIER_CACHE_STORE=firestore,TEXTILE_ENGINE=on,TEXTILE_FAST_PATH=0.95"
           --set-secrets "ADMIN_TOKEN=origin-proof-admin-token:latest"
           --timeout=300
           --max-instances 3

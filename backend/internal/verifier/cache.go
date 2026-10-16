@@ -19,26 +19,71 @@ type Checker interface {
 	Verify(ctx context.Context, t Task) (Result, error)
 }
 
-// Cache stores verdicts on disk so the same task gets the same verdict on
-// every run. The model is called at temperature 0, but the agent's tool path
-// still varies through the provider, which moved a heat-gun plan between 0.95
-// and 0.92 on consecutive runs (D31). Delete the directory to re-verify.
+// Blobs stores cached verdicts by key. DirBlobs keeps them on local disk;
+// store.FirestoreBlobs shares them between Cloud Run instances and survives
+// restarts (D50).
+type Blobs interface {
+	Get(ctx context.Context, key string) ([]byte, bool, error)
+	Put(ctx context.Context, key string, b []byte) error
+}
+
+// DirBlobs stores each blob as <dir>/<key>.json.
+type DirBlobs struct{ Dir string }
+
+// Get implements Blobs.
+func (d DirBlobs) Get(_ context.Context, key string) ([]byte, bool, error) {
+	b, err := os.ReadFile(filepath.Join(d.Dir, key+".json"))
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil, false, nil
+	}
+	if err != nil {
+		return nil, false, err
+	}
+	return b, true, nil
+}
+
+// Put implements Blobs (atomically: write a temp file, then rename).
+func (d DirBlobs) Put(_ context.Context, key string, b []byte) error {
+	tmp, err := os.CreateTemp(d.Dir, ".tmp-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(b); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), filepath.Join(d.Dir, key+".json"))
+}
+
+// Cache stores verdicts so the same task gets the same verdict on every run.
+// The model is called at temperature 0, but the agent's tool path still
+// varies through the provider, which moved a heat-gun plan between 0.95 and
+// 0.92 on consecutive runs (D31). Clear the store to re-verify.
 type Cache struct {
 	inner Checker
-	dir   string
+	blobs Blobs
 	model string
 }
 
 // NewCache wraps inner with an on-disk cache in dir, keyed by the task, the
 // verifier model and PromptVersion.
 func NewCache(inner Checker, dir, model string) (*Cache, error) {
-	if m, ok := inner.(*Majority); ok {
-		model = fmt.Sprintf("%s×%d", model, m.n) // a single-run verdict is not reused for a majority
-	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("verifier: cache dir: %w", err)
 	}
-	return &Cache{inner: inner, dir: dir, model: model}, nil
+	return NewCacheIn(inner, DirBlobs{Dir: dir}, model), nil
+}
+
+// NewCacheIn wraps inner with a cache in blobs.
+func NewCacheIn(inner Checker, blobs Blobs, model string) *Cache {
+	if m, ok := inner.(*Majority); ok {
+		model = fmt.Sprintf("%s×%d", model, m.n) // a single-run verdict is not reused for a majority
+	}
+	return &Cache{inner: inner, blobs: blobs, model: model}
 }
 
 func (c *Cache) key(t Task) string {
@@ -54,33 +99,26 @@ func (c *Cache) key(t Task) string {
 
 // Verify returns the stored verdict for t, or runs inner and stores it.
 // A cached result reports no model calls, tool steps or usage, and Cached.
+// A failed cache read is an error (re-running could give a different
+// verdict); a failed write only loses the cache entry.
 func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
-	path := filepath.Join(c.dir, c.key(t)+".json")
-	if b, err := os.ReadFile(path); err == nil {
+	key := c.key(t)
+	if b, ok, err := c.blobs.Get(ctx, key); err != nil {
+		return Result{}, fmt.Errorf("verifier: read cache: %w", err)
+	} else if ok {
 		var r Result
 		if json.Unmarshal(b, &r) == nil {
 			r.Steps, r.ModelCalls, r.Cached = nil, 0, true
 			r.Usage.InputTokens, r.Usage.OutputTokens, r.Usage.TotalTokens = 0, 0, 0
 			return r, nil
 		}
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		return Result{}, fmt.Errorf("verifier: read cache: %w", err)
 	}
 	r, err := c.inner.Verify(ctx, t)
 	if err != nil {
 		return r, err
 	}
-	b, err := json.Marshal(r)
-	if err != nil {
-		return r, nil
+	if b, err := json.Marshal(r); err == nil {
+		_ = c.blobs.Put(ctx, key, b) // best effort
 	}
-	tmp, err := os.CreateTemp(c.dir, ".tmp-*")
-	if err != nil {
-		return r, nil // caching is best effort
-	}
-	if _, err := tmp.Write(b); err == nil && tmp.Close() == nil {
-		_ = os.Rename(tmp.Name(), path)
-	}
-	_ = os.Remove(tmp.Name())
 	return r, nil
 }

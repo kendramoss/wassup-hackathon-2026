@@ -51,7 +51,7 @@ const System = routerMD + regimeAddendum
 var (
 	Routes      = []string{"set_kit", "commodity", "assembly", "scenario"}
 	Subfamilies = []string{"electronics", "motorised", "metal_tools_parts", "battery_solar", "filters", "furniture_fixtures", "medical", "apparel_textile_goods", "other"}
-	Regimes     = []string{"substantial_transformation", "textile_102_21", "usmca_part102", "pharma_api", "unclear"}
+	Regimes     = []string{"substantial_transformation", RegimeTextile, "usmca_part102", "pharma_api", "unclear"}
 )
 
 // Schema constrains the router's answer to the allowed values.
@@ -80,6 +80,9 @@ type Label struct {
 	OutputTokens  int    `json:"output_tokens"`
 	LatencyMS     int64  `json:"latency_ms"`
 }
+
+// RegimeTextile is the label for textile and apparel goods (19 CFR 102.21).
+const RegimeTextile = "textile_102_21"
 
 // OutOfScopeRegimes are routed to review: origin prediction covers the
 // substantial-transformation regime only.

@@ -32,6 +32,23 @@ func TestDefaults(t *testing.T) {
 	env["CASES_DIR"], env["VERIFIER_CACHE_DIR"] = "off", "OFF"
 	if off, err := FromEnv(getenv(env)); err != nil || off.CasesDir != "" || off.VerifierCacheDir != "" {
 		t.Errorf("off not honoured: %q %q %v", off.CasesDir, off.VerifierCacheDir, err)
+	} else if off.VerifierCacheStore != VerdictsOff {
+		t.Errorf("cache store with dir off = %q", off.VerifierCacheStore)
+	}
+	if c.VerifierCacheStore != VerdictsFile {
+		t.Errorf("local verdict cache = %q, want file", c.VerifierCacheStore)
+	}
+	run := map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend", "VERIFIER_CACHE_DIR": "/tmp/verifier-cache"}
+	if cr, err := FromEnv(getenv(run)); err != nil || cr.VerifierCacheStore != VerdictsFirestore {
+		t.Errorf("Cloud Run verdict cache = %q %v, want firestore (shared between instances)", cr.VerifierCacheStore, err)
+	}
+	run["VERIFIER_CACHE_STORE"] = "file"
+	if cr, err := FromEnv(getenv(run)); err != nil || cr.VerifierCacheStore != VerdictsFile {
+		t.Errorf("explicit file = %q %v", cr.VerifierCacheStore, err)
+	}
+	run["VERIFIER_CACHE_STORE"] = "redis"
+	if _, err := FromEnv(getenv(run)); err == nil || !strings.Contains(err.Error(), "VERIFIER_CACHE_STORE") {
+		t.Errorf("bad store accepted: %v", err)
 	}
 }
 
@@ -88,5 +105,21 @@ func TestCasesStoreDefaults(t *testing.T) {
 	run, err := FromEnv(getenv(map[string]string{"LLM_PROVIDER": "vertex", "GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}))
 	if err != nil || run.CasesStore != CasesFirestore {
 		t.Errorf("Cloud Run default = %q %v", run.CasesStore, err)
+	}
+}
+
+func TestTextileConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TextileEngine || c.TextileFastPath != 0 || c.TextileRulings != "data/textile_rulings.json" {
+		t.Fatalf("textile defaults = %v %v %q %v", c.TextileEngine, c.TextileFastPath, c.TextileRulings, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEXTILE_ENGINE": "on", "TEXTILE_FAST_PATH": "0.95"})))
+	if err != nil || !on.TextileEngine || on.TextileFastPath != 0.95 {
+		t.Errorf("textile on = %+v %v", on.TextileEngine, err)
+	}
+	for _, bad := range []map[string]string{{"TEXTILE_ENGINE": "maybe"}, {"TEXTILE_FAST_PATH": "1.5"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
+			t.Errorf("%v accepted", bad)
+		}
 	}
 }

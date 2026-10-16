@@ -20,3 +20,8 @@ data/verifier-cache/
 
 # Supervised tuning data (eval tunedata); kept in the corpus bucket
 data/tuning/
+
+# go build ./cmd/eval output
+/backend/eval
+/backend/server
+/backend/demo

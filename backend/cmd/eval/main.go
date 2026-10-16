@@ -149,7 +149,14 @@ func run(args []string) error {
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
+	regime := fl.String("regime", "st", "st (substantial transformation) or textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51)")
 	_ = fl.Parse(args)
+	if *regime != "st" && *regime != "textile" {
+		return fmt.Errorf("-regime must be st or textile, got %q", *regime)
+	}
+	if *regime == "textile" && *splitsPath == "../eval/splits/splits_final.json" {
+		*splitsPath = "../eval/splits/splits_textile.json"
+	}
 
 	if *split == "final" && !*confirmFinal {
 		return errors.New("the final split is held out: pass -confirm-final, and do not change prompts, thresholds or retrieval because of its result")
@@ -204,9 +211,16 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
+	pool := store.Rulings()
+	if *regime == "textile" {
+		pool = textilePool(store, splits.Textile)
+		if len(pool) == 0 {
+			return errors.New("textile: the splits file lists no textile rulings")
+		}
+	}
 	var retr retrieval.Retriever
 	if *cond == "prec" {
-		bm := retrieval.NewBM25(store.Rulings(), engine.PrecedentText)
+		bm := retrieval.NewBM25(pool, engine.PrecedentText)
 		retr = bm
 		switch *retrievalMode {
 		case "bm25":
@@ -241,12 +255,22 @@ func run(args []string) error {
 		}
 		eng = engine.New(model, retr, opts)
 	}
+	if *regime == "textile" {
+		if *useRules || *useReasoning || *retrievalMode != "bm25" {
+			return errors.New("-regime textile supports plain bm25 runs only")
+		}
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			Votes: *votes, VoteBelow: *voteBelow, System: engine.TextileSystem, Version: engine.TextileVersion})
+	}
 	var rt *router.Router
 	if *useRouter {
 		rt = router.New(model, cfg.RouterModel, 2000)
 	}
 
 	name := fmt.Sprintf("%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.PromptVersion, cfg.LLMProvider)
+	if *regime == "textile" {
+		name = fmt.Sprintf("textile-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.TextileVersion, cfg.LLMProvider)
+	}
 	if *retrievalMode != "bm25" {
 		name = fmt.Sprintf("%s-%s-%s%d-%s-%s", *split, cfg.EngineModel, *retrievalMode, *candidates, engine.PromptVersion, cfg.LLMProvider)
 	}
@@ -435,13 +459,17 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 		return err
 	}
 	defer f.Close()
+	prompt := engine.PromptVersion
+	if strings.HasPrefix(name, "textile-") {
+		prompt = engine.TextileVersion
+	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": split == "final",
 		"cases": n, "limit": limit, "scored": s.N, "correct": s.Correct, "errors": s.Errors,
 		"accuracy": round(s.Acc), "ci95": []float64{round(s.Lo), round(s.Hi)},
 		"fast_path_coverage": s.FastN, "fast_path_correct": s.FastK,
 		"llm_provider": cfg.LLMProvider, "engine_model": cfg.EngineModel, "router_model": cfg.RouterModel,
-		"prompt_version": engine.PromptVersion, "k": cfg.PrecedentK, "fast_path_threshold": cfg.FastPathConfidence,
+		"prompt_version": prompt, "k": cfg.PrecedentK, "fast_path_threshold": cfg.FastPathConfidence,
 		"git_revision": revision(), "wall_s": int(wall.Seconds()), "interrupted": interrupted,
 		"cost_per_case_usd": s.CostPerCase, "latency_p50_ms": s.LatencyP50, "latency_p95_ms": s.P95,
 	}
@@ -1645,4 +1673,16 @@ func clarifyCmd(args []string) error {
 		fmt.Printf("\nCost per reviewed case: $%.4f (promo). Rows: %s\n", cost/float64(n.n), outPath)
 	}
 	return nil
+}
+
+// textilePool is the textile engine's precedents: the listed rulings that
+// have facts and a label (D51).
+func textilePool(store *corpus.Store, ids []string) []domain.Ruling {
+	var out []domain.Ruling
+	for _, id := range ids {
+		if r, ok := store.Get(id); ok {
+			out = append(out, r)
+		}
+	}
+	return out
 }

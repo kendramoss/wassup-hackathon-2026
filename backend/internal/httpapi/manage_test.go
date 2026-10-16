@@ -1,11 +1,16 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 )
 
 var admin = map[string]string{"X-Admin-Token": testAdmin}
@@ -156,5 +161,39 @@ func TestRenameCase(t *testing.T) {
 	}
 	if code, _ := hs.do(t, "PATCH", "/v1/cases/case_missing", `{"display_name":"x"}`); code != http.StatusNotFound {
 		t.Errorf("rename missing = %d", code)
+	}
+}
+
+type textileEngine struct{ conf float64 }
+
+func (e textileEngine) Predict(context.Context, domain.Case) (engine.Result, error) {
+	return engine.Result{Prediction: domain.Prediction{Origin: "Vietnam", Confidence: e.conf, Precedents: []string{"N350001"},
+		Trace: domain.Trace{ModelID: "gemini-4-argon", PromptVersion: engine.TextileVersion}}}, nil
+}
+
+func TestTextileRegime(t *testing.T) {
+	gaiter := `{"date":"2026-03-01","facts":"Knit polyester neck gaiters, knit in Vietnam from Chinese yarn."}`
+	// Without a textile engine: out of scope, as before.
+	hs := newHarness(t, "textile_102_21")
+	_, out := hs.do(t, "POST", "/v1/cases/predict", gaiter)
+	if r := out["triage"].(map[string]any)["reason"].(string); !strings.HasPrefix(r, "out of scope") {
+		t.Errorf("no textile engine: reason %q", r)
+	}
+	for _, tt := range []struct {
+		fast  float64
+		route string
+	}{{0, "needs_review"}, {0.9, "auto"}, {0.99, "needs_review"}} {
+		hs := newHarnessWith(t, "textile_102_21", func(d *Deps) { d.Textile, d.TextileFastPath = textileEngine{conf: 0.97}, tt.fast })
+		code, out := hs.do(t, "POST", "/v1/cases/predict", gaiter)
+		if code != http.StatusCreated {
+			t.Fatalf("predict = %d %v", code, out)
+		}
+		p, tr := out["prediction"].(map[string]any), out["triage"].(map[string]any)
+		if p["origin_country"] != "Vietnam" || tr["route"] != tt.route || !strings.HasPrefix(tr["reason"].(string), triage.TextilePrefix) || out["clarify"] != nil {
+			t.Errorf("fast %.2f: prediction %v triage %v clarify %v", tt.fast, p["origin_country"], tr, out["clarify"])
+		}
+		if len(hs.clar.facts) != 0 {
+			t.Errorf("clarify ran on a textile case")
+		}
 	}
 }

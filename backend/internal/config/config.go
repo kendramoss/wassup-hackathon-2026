@@ -33,6 +33,13 @@ const (
 	CasesMemory    = "memory"
 )
 
+// Verdict cache stores for VERIFIER_CACHE_STORE.
+const (
+	VerdictsFirestore = "firestore"
+	VerdictsFile      = "file"
+	VerdictsOff       = "off"
+)
+
 // Config is the validated runtime configuration. Secret fields are excluded
 // from String so the config can be logged.
 type Config struct {
@@ -84,12 +91,23 @@ type Config struct {
 	// VerifierCacheDir, when set, stores verifier verdicts so repeated plan
 	// searches give the same verdicts (D31); VERIFIER_CACHE_DIR=off disables it.
 	VerifierCacheDir string
+	// VerifierCacheStore is where verdicts are cached: firestore (default
+	// when cases are in Firestore, so all instances share them, D50), file
+	// (VerifierCacheDir) or off.
+	VerifierCacheStore string
 	// RateLightPerMin, RateHeavyPerMin and RateGlobalPerMin cap the
 	// model-calling endpoints (D45); 0 disables that limit.
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
 	// AdminToken lets the demo seed bypass the limits, pin demo cases and
 	// delete pinned ones. Empty: nobody is admin.
 	AdminToken string
+	// TextileEngine (on|off, default off) predicts textile cases under
+	// 19 CFR 102.21 instead of leaving them out of scope (D51), with
+	// precedents from TextileRulings. TextileFastPath is its auto-accept bar;
+	// 0 (default) sends every textile case to review.
+	TextileEngine   bool
+	TextileRulings  string
+	TextileFastPath float64
 }
 
 // Load reads the configuration from the process environment.
@@ -128,12 +146,29 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
 		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
+		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
+		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
+	}
+	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.TextileEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
 		defStore = CasesFirestore // local disk is lost on restart there
 	}
 	c.CasesStore = strings.ToLower(e.str("CASES_STORE", defStore))
+	defCache := VerdictsFile
+	switch {
+	case c.VerifierCacheDir == "": // VERIFIER_CACHE_DIR=off
+		defCache = VerdictsOff
+	case c.CasesStore == CasesFirestore:
+		defCache = VerdictsFirestore
+	}
+	c.VerifierCacheStore = strings.ToLower(e.str("VERIFIER_CACHE_STORE", defCache))
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
@@ -172,6 +207,9 @@ func (c Config) validate() error {
 			bad("%s must be positive, got %d", name, v)
 		}
 	}
+	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
+		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
+	}
 	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
@@ -182,6 +220,19 @@ func (c Config) validate() error {
 	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
+	}
+	switch c.VerifierCacheStore {
+	case VerdictsFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when VERIFIER_CACHE_STORE=firestore")
+		}
+	case VerdictsFile:
+		if c.VerifierCacheDir == "" {
+			bad("VERIFIER_CACHE_STORE=file needs VERIFIER_CACHE_DIR")
+		}
+	case VerdictsOff:
+	default:
+		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
 	}
 	switch c.CasesStore {
 	case CasesFirestore:

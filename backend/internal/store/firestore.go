@@ -164,3 +164,48 @@ func gunzipJSON(b []byte, v any) error {
 }
 
 var _ Cases = (*Firestore)(nil)
+
+// VerdictCollection holds cached verifier verdicts, one document per key.
+const VerdictCollection = "verifier_cache"
+
+// FirestoreBlobs stores cached verifier verdicts in Firestore (verifier.Blobs),
+// so every Cloud Run instance reuses the same verdict and a restart keeps it
+// (D50). Without it, /tmp caches differ per instance and a replayed plan
+// search could land on an instance that verifies afresh.
+type FirestoreBlobs struct{ col *firestore.CollectionRef }
+
+type verdictDoc struct {
+	Verdict []byte    `firestore:"verdict_json"`
+	At      time.Time `firestore:"cached_at"`
+}
+
+// Verdicts returns the verdict cache on the same client.
+func (f *Firestore) Verdicts() *FirestoreBlobs {
+	return &FirestoreBlobs{col: f.client.Collection(VerdictCollection)}
+}
+
+// Get implements verifier.Blobs.
+func (b *FirestoreBlobs) Get(ctx context.Context, key string) ([]byte, bool, error) {
+	snap, err := b.col.Doc(key).Get(ctx)
+	if status.Code(err) == codes.NotFound {
+		return nil, false, nil
+	}
+	if err != nil {
+		return nil, false, fmt.Errorf("store: read verdict %s: %w", key, err)
+	}
+	var d verdictDoc
+	if err := snap.DataTo(&d); err != nil {
+		return nil, false, fmt.Errorf("store: decode verdict %s: %w", key, err)
+	}
+	return d.Verdict, true, nil
+}
+
+// Put implements verifier.Blobs. The first verdict stored for a key wins:
+// two instances verifying the same move at once keep one answer.
+func (b *FirestoreBlobs) Put(ctx context.Context, key string, v []byte) error {
+	_, err := b.col.Doc(key).Create(ctx, verdictDoc{Verdict: v, At: time.Now().UTC()})
+	if status.Code(err) == codes.AlreadyExists {
+		return nil
+	}
+	return err
+}
