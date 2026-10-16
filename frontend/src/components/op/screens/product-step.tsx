@@ -258,54 +258,6 @@ export function ProductStep() {
             </Field>
           </div>
 
-          <ul aria-label="What this input unlocks" className="mt-5 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
-            {tiers.map((t, i) => (
-              <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
-                <span
-                  aria-hidden="true"
-                  className={cx(
-                    "mt-0.5 inline-grid size-4 shrink-0 place-items-center border text-[11px] leading-none",
-                    t.state === "done" ? "border-ok bg-ok text-white" : t.state === "limited" ? "border-ask text-ask" : "border-edge",
-                  )}
-                >
-                  {t.state === "done" ? "✓" : t.state === "limited" ? "!" : ""}
-                </span>
-                <div className="min-w-0 text-[12.5px]">
-                  <p className="font-medium text-ink">
-                    {t.label}
-                    <span className="sr-only">: {t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}</span>
-                  </p>
-                  <p className={cx("duo mt-0.5", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}>{t.note}</p>
-                  {t.key === "plan" && tab === "paste" && (
-                    <button
-                      type="button"
-                      onClick={draftParts}
-                      disabled={facts.trim().length <= 20 || drafting !== null}
-                      className="mt-2 inline-flex min-h-8 items-center gap-1.5 border border-ok bg-white px-2.5 text-[12px] text-ok shadow-[2px_2px_0_var(--shadow)] hover:bg-ok-wash disabled:cursor-not-allowed disabled:border-line disabled:text-dim disabled:shadow-none"
-                    >
-                      {drafting ? (
-                        <>
-                          Drafting… <Elapsed since={drafting.since} />
-                        </>
-                      ) : (
-                        "✦ Turn into parts and plants"
-                      )}
-                    </button>
-                  )}
-                  {t.key === "money" && (
-                    <button type="button" onClick={() => setMoneyOpen(true)} className="mt-2 min-h-7 text-[12px] text-ok hover:underline">
-                      {hasAnyMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-          {tab !== "paste" && product.components.length > 0 && (
-            <p className="mt-3 text-[12px] text-dim">
-              {product.components.length} components · {product.operations?.length ?? 0} operations · {product.plants?.length ?? 0} plants · {groups.length} groups to move
-            </p>
-          )}
 
           {drafted && tab === "parts" && (
             <div className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
@@ -375,6 +327,56 @@ export function ProductStep() {
               />
             )}
           </div>
+
+          {/* Below the input it describes: what it unlocks so far. */}
+          <ul aria-label="What this input unlocks" className="mt-7 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
+            {tiers.map((t, i) => (
+              <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    "mt-0.5 inline-grid size-4 shrink-0 place-items-center border text-[11px] leading-none",
+                    t.state === "done" ? "border-ok bg-ok text-white" : t.state === "limited" ? "border-ask text-ask" : "border-edge",
+                  )}
+                >
+                  {t.state === "done" ? "✓" : t.state === "limited" ? "!" : ""}
+                </span>
+                <div className="min-w-0 text-[12.5px]">
+                  <p className="font-medium text-ink">
+                    {t.label}
+                    <span className="sr-only">: {t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}</span>
+                  </p>
+                  <p className={cx("duo mt-0.5", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}>{t.note}</p>
+                  {t.key === "plan" && tab === "paste" && (
+                    <button
+                      type="button"
+                      onClick={draftParts}
+                      disabled={facts.trim().length <= 20 || drafting !== null}
+                      className="mt-2 inline-flex min-h-8 items-center gap-1.5 border border-ok bg-white px-2.5 text-[12px] text-ok shadow-[2px_2px_0_var(--shadow)] hover:bg-ok-wash disabled:cursor-not-allowed disabled:border-line disabled:text-dim disabled:shadow-none"
+                    >
+                      {drafting ? (
+                        <>
+                          Drafting… <Elapsed since={drafting.since} />
+                        </>
+                      ) : (
+                        "✦ Turn into parts and plants"
+                      )}
+                    </button>
+                  )}
+                  {t.key === "money" && (
+                    <button type="button" onClick={() => setMoneyOpen(true)} className="mt-2 min-h-7 text-[12px] text-ok hover:underline">
+                      {hasAnyMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+          {tab !== "paste" && product.components.length > 0 && (
+            <p className="mt-3 text-[12px] text-dim">
+              {product.components.length} components · {product.operations?.length ?? 0} operations · {product.plants?.length ?? 0} plants · {groups.length} groups to move
+            </p>
+          )}
 
           {error ? (
             <div className="mt-6">
