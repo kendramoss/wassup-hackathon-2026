@@ -7,7 +7,7 @@ import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main } from "../chrome";
 import { groupName } from "../plan-bits";
-import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, Spinner, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 export function ScenariosView() {
   return <CaseShell tab="scenarios">{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
@@ -254,7 +254,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Where each part is made</h2>
-      <div className="relative overflow-x-auto">
+      <ScrollX label="Where each part is made">
         <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <thead>
             <tr>
@@ -304,7 +304,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
             </tr>
           </tbody>
         </table>
-      </div>
+      </ScrollX>
     </section>
   );
 }
