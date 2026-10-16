@@ -111,6 +111,10 @@ type Deps struct {
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// BOMVersions serves POST /v1/cases/{id}/bom-version: a newer BOM
+	// diffed against the case's product and re-predicted (D67). Off by
+	// default (the route is not registered).
+	BOMVersions bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
