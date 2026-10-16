@@ -19,7 +19,7 @@ export function PlanStep() {
 
 type Row = { key: string; description: string; plan?: Plan; started?: boolean };
 
-function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
+function PlanScreen({ id, c, setCase }: CaseCtx) {
   const params = useSearchParams();
   const router = useRouter();
   const target = params.get("target") ?? planTarget(c) ?? "";
@@ -134,14 +134,8 @@ function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
             </p>
           </div>
           <NextSteps
-            steps={[
-              { label: plants ? "Add a plant in another country" : "Add parts and plants", href: `/cases/new?from=${encodeURIComponent(id)}` },
-              { label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` },
-            ]}
-            suggestions={[
-              { label: "Ask about this case", onClick: ask },
-              { label: "Try a what-if scenario", href: `/cases/${encodeURIComponent(id)}/scenarios` },
-            ]}
+            steps={[{ label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` }]}
+            suggestions={[{ label: "Try a what-if scenario", href: `/cases/${encodeURIComponent(id)}/scenarios` }]}
           />
         </Main>
         <Footer>
@@ -198,7 +192,7 @@ function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
               {lead && <WhySupported plan={lead} />}
               <div>
                 {lead && c.product && (
-                  <Fold title={`fig.2 — ${best ? "best plan" : "closest move"}, by plant`} meta={best ? "moved in blue" : "below the bar"}>
+                  <Fold title={`${best ? "Best plan" : "Closest move"}, by plant`} meta={best ? "moved in blue" : "below the bar"}>
                     <PlantDiagram product={c.product} plan={lead} below={!best} />
                   </Fold>
                 )}
@@ -212,7 +206,7 @@ function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
                   </p>
                 </Fold>
                 {result.backtest ? (
-                  <Fold title="fig.3 — backtest against CBP's actual ruling">
+                  <Fold title="Backtest against CBP's actual ruling">
                     <BacktestPanel bt={result.backtest as Record<string, unknown>} />
                   </Fold>
                 ) : null}
@@ -224,17 +218,10 @@ function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
               </div>
             </div>
             <NextSteps
-              steps={[
-                best
-                  ? { label: copy.plan.draft, onClick: () => draft(moveKey(best)) }
-                  : closest
-                    ? { label: copy.plan.draftClosest, onClick: () => draft(moveKey(closest)) }
-                    : { label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` },
-                { label: copy.plan.compare, href: `/cases/${encodeURIComponent(id)}/compare` },
-              ]}
+              steps={[{ label: copy.plan.compare, href: `/cases/${encodeURIComponent(id)}/compare` }]}
               suggestions={[
-                { label: "Change the money inputs", onClick: () => setShowMoney(true) },
-                { label: "Ask about this case", onClick: ask },
+                // Only when the nets can't be worked out yet.
+                ...(!economics.annual_import_value_usd ? [{ label: "Add money inputs to see the net per year", onClick: () => setShowMoney(true) }] : []),
                 { label: "Try your own what-ifs", href: `/cases/${encodeURIComponent(id)}/scenarios` },
               ]}
             />
@@ -273,11 +260,6 @@ function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
               Cancel
             </Button>
           )}
-          {result && (
-            <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/compare`}>
-              {copy.plan.compare}
-            </ButtonLink>
-          )}
           {best ? (
             <Button onClick={() => draft(moveKey(best))}>{copy.plan.draft}</Button>
           ) : closest ? (
@@ -305,11 +287,11 @@ function moreLabel(hidden: number, withBaseline: boolean): string {
   return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and No change` : "Show No change";
 }
 
-function Band({ children, left, right }: { children: React.ReactNode; left: string; right?: string }) {
+function Band({ children, left, right }: { children: React.ReactNode; left?: string; right?: string }) {
   return (
     <section aria-label="Plan summary" className="border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
-        <Dimension className="absolute left-4 top-3 sm:left-10">{left}</Dimension>
+        {left && <Dimension className="absolute left-4 top-3 sm:left-10">{left}</Dimension>}
         {right && <Dimension className="absolute right-4 top-3 sm:right-10">{right}</Dimension>}
         {children}
       </div>
@@ -333,7 +315,7 @@ function sentence(p: Plan) {
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
   const v = plan.verdict?.confidence;
   return (
-    <Band left={below ? `fig.1 — no plan cleared the bar · 0 of ${total} moves shown` : `fig.1 — best plan · ${shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
+    <Band left={`${below ? 0 : shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
@@ -370,7 +352,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
 
 function NoneBand({ target }: { target: string }) {
   return (
-    <Band left="fig.1 — no supported plan">
+    <Band>
       <div>
         <p className="eyebrow text-ask">Step 3 of 4 · No plan reached {target}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
@@ -382,7 +364,7 @@ function NoneBand({ target }: { target: string }) {
 function StartBand({ target, c }: { target: string; c: CaseResponse }) {
   const cur = currentOrigin(c);
   return (
-    <Band left="fig.1 — plan a move">
+    <Band>
       <div>
         <p className="eyebrow">Step 3 of 4 · Plan</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
@@ -398,7 +380,7 @@ function StartBand({ target, c }: { target: string; c: CaseResponse }) {
 
 function SearchingBand({ target, progress }: { target: string; progress: { done: number; total: number; since: number } }) {
   return (
-    <Band left="fig.1 — searching" right="moves run in parallel">
+    <Band right="moves run in parallel">
       <div>
         <p className="eyebrow">Step 3 of 4 · {copy.plan.searching}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
@@ -25,6 +25,8 @@ export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) 
           {copy.nav.accuracy}
         </Link>
       </nav>
+      {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
+      <div id="case-crumb" className="flex min-w-0 items-center border-line empty:hidden sm:border-l sm:pl-5" />
       <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5">
         {copy.cases.newCase}
       </ButtonLink>
@@ -106,8 +108,10 @@ export function CaseTabs({
         })}
       </ul>
     </nav>
-      <div className="ml-auto flex flex-wrap items-center gap-3">
+      <Crumb>
         <CaseSwitcher caseId={caseId} title={title} />
+      </Crumb>
+      <div className="ml-auto flex flex-wrap items-center gap-3">
         {onAsk && (
           <button type="button" onClick={onAsk} className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
             Ask about this case
@@ -137,7 +141,7 @@ type Item = { label: ReactNode; href?: string; onClick?: () => void };
 export function NextSteps({ steps = [], suggestions = [], inline }: { steps?: Item[]; suggestions?: Item[]; inline?: boolean }) {
   const { setNext } = useNextSlot();
   return (
-    <aside aria-label="Next steps" className={cx("no-print flex min-w-0 flex-col gap-5", !inline && "lg:border-l lg:border-line lg:pl-8")}>
+    <aside aria-label="Next steps" className={cx("no-print flex min-w-0 flex-col gap-5", !inline && "lg:sticky lg:top-36 lg:self-start lg:border-l lg:border-line lg:pl-8")}>
       <section>
         <h2 className="eyebrow mb-2 text-ok">Next steps</h2>
         <div ref={setNext} className="duo text-[13px] text-body empty:hidden" />
@@ -184,6 +188,14 @@ function Items({ items, arrow }: { items: Item[]; arrow?: boolean }) {
   );
 }
 
+// Renders the case menu into the app bar's breadcrumb slot. The slot is
+// static markup, so it is read once on the client (null on the server).
+const noSubscribe = () => () => {};
+function Crumb({ children }: { children: ReactNode }) {
+  const el = useSyncExternalStore(noSubscribe, () => document.getElementById("case-crumb"), () => null);
+  return el ? <Portal to={el}>{children}</Portal> : null;
+}
+
 const stepHref = (id: string, n: number) => `/cases/${encodeURIComponent(id)}/${["", "product", "origin", "plan", "draft"][n]}`;
 
 function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) {
@@ -216,7 +228,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
         <span className="max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+        <div className="absolute left-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <ul>
             {(cases ?? []).filter((c) => c.id !== caseId).slice(0, 6).map((c) => (
               <li key={c.id}>

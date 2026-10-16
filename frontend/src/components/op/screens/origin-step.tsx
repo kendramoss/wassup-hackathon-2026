@@ -15,7 +15,7 @@ export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
 }
 
-function Result({ id, c, setCase, ask }: CaseCtx) {
+function Result({ id, c, setCase }: CaseCtx) {
   const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
@@ -93,15 +93,9 @@ function Result({ id, c, setCase, ask }: CaseCtx) {
           </div>
         </div>
         <NextSteps
-          steps={[
-            c.product?.plants?.length
-              ? { label: `Plan a move${target ? ` to ${target}` : ""}`, href: `/cases/${enc}/plan${target ? `?target=${encodeURIComponent(target)}` : ""}` }
-              : { label: "Add parts and plants", href: `/cases/new?from=${enc}` },
-            { label: route === "auto" ? "Draft a ruling request" : "Have a broker review: draft a ruling request", href: `/cases/${enc}/draft` },
-          ]}
+          steps={[{ label: route === "auto" ? "Draft a ruling request" : "Have a broker review: draft a ruling request", href: `/cases/${enc}/draft` }]}
           suggestions={[
             ...(qs ? [{ label: `Answer ${qs === 1 ? "the question" : `the ${qs} questions`} to sharpen this`, onClick: () => document.getElementById("q0")?.focus() }] : []),
-            { label: "Ask about this case", onClick: ask },
             { label: "Try a what-if scenario", href: `/cases/${enc}/scenarios` },
           ]}
         />
@@ -138,7 +132,6 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
   return (
     <section aria-label="Likely origin" className="relative border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[auto_minmax(0,1fr)_260px] lg:gap-11">
-        <Dimension className="absolute left-4 top-3 sm:left-10">fig.1 — likely origin</Dimension>
         <div>
           <StepEyebrow tab="origin">{copy.result.eyebrow}</StepEyebrow>
           <h1 className="mt-1 flex items-center gap-4 text-[56px] font-normal leading-none tracking-[-0.06em] sm:text-[84px]">

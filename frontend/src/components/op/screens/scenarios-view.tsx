@@ -6,7 +6,7 @@ import { api, type CaseResponse, type Economics, type Product, type Scenario } f
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
@@ -30,7 +30,7 @@ function variant(product: Product, groups: string[], plantId: string): Product {
   };
 }
 
-function Scenarios({ id, c, setCase, ask }: CaseCtx) {
+function Scenarios({ id, c, setCase }: CaseCtx) {
   const product = c.product;
   const groups = useMemo(
     () => [...new Set([...(product?.components ?? []), ...(product?.operations ?? [])].map((x) => x.group).filter((x): x is string => Boolean(x)))].filter((g) => g !== "final_assembly"),
@@ -126,29 +126,13 @@ function Scenarios({ id, c, setCase, ask }: CaseCtx) {
         )}
 
         {!editing && sc.length > 0 && <Cards sc={sc} c={c} />}
-        {/* Then the detail (left) beside what to do next (right), 17 Oct. */}
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="min-w-0">
-            {!editing && product && sc.some((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0) && (
-              <Fold title="Where each part is made" meta="today and in each scenario">
-                <Matrix sc={sc} c={c} />
-              </Fold>
-            )}
+        {!editing && product && sc.some((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0) && (
+          <div>
+            <Fold title="Where each part is made" meta="today and in each scenario">
+              <Matrix sc={sc} c={c} />
+            </Fold>
           </div>
-          <NextSteps
-            steps={[
-              product?.plants?.length
-                ? { label: "Search precedent-checked plans", href: `/cases/${encodeURIComponent(id)}/plan` }
-                : { label: "Add parts and plants", href: `/cases/new?from=${encodeURIComponent(id)}` },
-              { label: "Back to the likely origin", href: `/cases/${encodeURIComponent(id)}/origin` },
-            ]}
-            suggestions={[
-              ...(!editing ? [{ label: "Edit the scenarios", onClick: () => setEditing(true) }] : []),
-              { label: c.economics ? "Change the money inputs" : "Add money inputs", onClick: () => setMoneyOpen(true) },
-              { label: "Ask about this case", onClick: ask },
-            ]}
-          />
-        </div>
+        )}
       </Main>
       {moneyOpen && (
         <MoneyDrawer

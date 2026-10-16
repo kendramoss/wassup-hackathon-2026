@@ -6,7 +6,7 @@ import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
+import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { moveKey } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
@@ -28,7 +28,7 @@ function storedRanking(c: CaseResponse): TargetSummary[] | null {
   return t?.ranked ?? null;
 }
 
-function Compare({ id, c, ask }: CaseCtx) {
+function Compare({ id, c }: CaseCtx) {
   const router = useRouter();
   const origin = c.prediction?.origin_country;
   const options = useMemo(() => [...new Set((c.product?.plants ?? []).map((p) => p.country).filter(Boolean))], [c.product]);
@@ -69,9 +69,6 @@ function Compare({ id, c, ask }: CaseCtx) {
     <>
       <section aria-label="Comparison summary" className="border-b border-dashed border-guide">
         <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
-          <Dimension className="absolute left-4 top-3 sm:left-10">
-            fig.4 — compare target countries{since ? " · searching" : ranked && !anyPlan ? " · no country cleared the bar" : ""}
-          </Dimension>
           {since ? (
             <>
               <div>
@@ -243,26 +240,12 @@ function Compare({ id, c, ask }: CaseCtx) {
             </table>
           </div>
         )}
-        {/* Then how to read it (left) beside what to do next (right), 17 Oct. */}
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="min-w-0">
-            <Fold title="How the ranking works">
-              <p className="duo max-w-[90ch] text-[13px] text-dim">
-                Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
-              </p>
-            </Fold>
-          </div>
-          <NextSteps
-            steps={[
-              ...(top?.best && (top.status === "plan" || top.status === "below_bar") && !since
-                ? [{ label: `Draft for ${top.target}`, onClick: () => draft(top) }]
-                : top && !since
-                  ? [{ label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` }]
-                  : []),
-              { label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` },
-            ]}
-            suggestions={[{ label: "Ask about this case", onClick: ask }]}
-          />
+        <div>
+          <Fold title="How the ranking works">
+            <p className="duo max-w-[90ch] text-[13px] text-dim">
+              Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
+            </p>
+          </Fold>
         </div>
       </Main>
       <Footer>
