@@ -33,6 +33,13 @@ const (
 	CasesMemory    = "memory"
 )
 
+// Verdict cache stores for VERIFIER_CACHE_STORE.
+const (
+	VerdictsFirestore = "firestore"
+	VerdictsFile      = "file"
+	VerdictsOff       = "off"
+)
+
 // Config is the validated runtime configuration. Secret fields are excluded
 // from String so the config can be logged.
 type Config struct {
@@ -84,6 +91,10 @@ type Config struct {
 	// VerifierCacheDir, when set, stores verifier verdicts so repeated plan
 	// searches give the same verdicts (D31); VERIFIER_CACHE_DIR=off disables it.
 	VerifierCacheDir string
+	// VerifierCacheStore is where verdicts are cached: firestore (default
+	// when cases are in Firestore, so all instances share them, D50), file
+	// (VerifierCacheDir) or off.
+	VerifierCacheStore string
 	// RateLightPerMin, RateHeavyPerMin and RateGlobalPerMin cap the
 	// model-calling endpoints (D45); 0 disables that limit.
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
@@ -134,6 +145,14 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		defStore = CasesFirestore // local disk is lost on restart there
 	}
 	c.CasesStore = strings.ToLower(e.str("CASES_STORE", defStore))
+	defCache := VerdictsFile
+	switch {
+	case c.VerifierCacheDir == "": // VERIFIER_CACHE_DIR=off
+		defCache = VerdictsOff
+	case c.CasesStore == CasesFirestore:
+		defCache = VerdictsFirestore
+	}
+	c.VerifierCacheStore = strings.ToLower(e.str("VERIFIER_CACHE_STORE", defCache))
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
@@ -182,6 +201,19 @@ func (c Config) validate() error {
 	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
+	}
+	switch c.VerifierCacheStore {
+	case VerdictsFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when VERIFIER_CACHE_STORE=firestore")
+		}
+	case VerdictsFile:
+		if c.VerifierCacheDir == "" {
+			bad("VERIFIER_CACHE_STORE=file needs VERIFIER_CACHE_DIR")
+		}
+	case VerdictsOff:
+	default:
+		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
 	}
 	switch c.CasesStore {
 	case CasesFirestore:

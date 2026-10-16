@@ -8,7 +8,7 @@ Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md
    ```bash
    make run   # GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global
    ```
-   Keep the verdict cache on (the default: `VERIFIER_CACHE_DIR=../data/verifier-cache`). Cases are saved under `data/cases`.
+   Keep the verdict cache on (the default: `VERIFIER_CACHE_DIR=../data/verifier-cache` locally; on Cloud Run it is the Firestore collection `verifier_cache`, shared by every instance, D50; delete that collection to start fresh). Cases are saved under `data/cases`.
 2. Seed every demo:
    ```bash
    make demo-seed   # ~3–5 min; writes eval/results/demo-seed.json

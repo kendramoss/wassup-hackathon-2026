@@ -32,6 +32,23 @@ func TestDefaults(t *testing.T) {
 	env["CASES_DIR"], env["VERIFIER_CACHE_DIR"] = "off", "OFF"
 	if off, err := FromEnv(getenv(env)); err != nil || off.CasesDir != "" || off.VerifierCacheDir != "" {
 		t.Errorf("off not honoured: %q %q %v", off.CasesDir, off.VerifierCacheDir, err)
+	} else if off.VerifierCacheStore != VerdictsOff {
+		t.Errorf("cache store with dir off = %q", off.VerifierCacheStore)
+	}
+	if c.VerifierCacheStore != VerdictsFile {
+		t.Errorf("local verdict cache = %q, want file", c.VerifierCacheStore)
+	}
+	run := map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend", "VERIFIER_CACHE_DIR": "/tmp/verifier-cache"}
+	if cr, err := FromEnv(getenv(run)); err != nil || cr.VerifierCacheStore != VerdictsFirestore {
+		t.Errorf("Cloud Run verdict cache = %q %v, want firestore (shared between instances)", cr.VerifierCacheStore, err)
+	}
+	run["VERIFIER_CACHE_STORE"] = "file"
+	if cr, err := FromEnv(getenv(run)); err != nil || cr.VerifierCacheStore != VerdictsFile {
+		t.Errorf("explicit file = %q %v", cr.VerifierCacheStore, err)
+	}
+	run["VERIFIER_CACHE_STORE"] = "redis"
+	if _, err := FromEnv(getenv(run)); err == nil || !strings.Contains(err.Error(), "VERIFIER_CACHE_STORE") {
+		t.Errorf("bad store accepted: %v", err)
 	}
 }
 
