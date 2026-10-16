@@ -13,7 +13,7 @@ import (
 // deleteCase removes a case (D45). Pinned cases (the seeded demos) need the
 // admin token, so a visitor cannot remove them from a shared deployment.
 func (a *api) deleteCase(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -54,7 +54,7 @@ const MaxDisplayName = 200
 // renameCase sets the case's display name (D48). Pinned cases need the admin
 // token, as for delete. No model call; updated_at is unchanged.
 func (a *api) renameCase(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -98,7 +98,7 @@ type pinRequest struct {
 
 // pinCase pins or unpins a case (admin only). Pinned cases list first.
 func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -112,8 +112,16 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: pinned (true or false) is required", domain.ErrInvalid))
 		return
 	}
+	// Pinning is not case activity: updated_at stays. Pinning an already
+	// pinned case saves it again without a history event, which writes the
+	// store's pinned field for cases saved before it existed (D58). Update
+	// re-reads the case so the rewrite cannot clobber a newer save.
+	if !*in.Pinned && !c.Pinned {
+		a.respond(w, http.StatusOK, a.caseFields(c))
+		return
+	}
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
-		if latest.Pinned == *in.Pinned { // pinning is not case activity: updated_at stays
+		if latest.Pinned == *in.Pinned {
 			return nil
 		}
 		latest.Pinned = *in.Pinned

@@ -98,6 +98,13 @@ type Config struct {
 	// RateLightPerMin, RateHeavyPerMin and RateGlobalPerMin cap the
 	// model-calling endpoints (D45); 0 disables that limit.
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
+	// RateLookupPerMin caps ruling fetches from CROSS per client (D58).
+	RateLookupPerMin int
+	// CasesListLimit caps GET /v1/cases: pinned cases plus the newest others (D58).
+	CasesListLimit int
+	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
+	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
+	CaseOwnership bool
 	// AdminToken lets the demo seed bypass the limits, pin demo cases and
 	// delete pinned ones. Empty: nobody is admin.
 	AdminToken string
@@ -149,11 +156,20 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateLightPerMin:   e.integer("RATE_LIGHT_PER_MIN", 20),
 		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
 		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
+		RateLookupPerMin:  e.integer("RATE_LOOKUP_PER_MIN", 30),
+		CasesListLimit:    e.integer("CASES_LIST_LIMIT", 200),
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
 		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
 		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
 		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+	}
+	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
+	case "on", "true", "1":
+		c.CaseOwnership = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -213,13 +229,16 @@ func (c Config) validate() error {
 			bad("%s must be positive, got %d", name, v)
 		}
 	}
+	if c.CasesListLimit < 1 {
+		bad("CASES_LIST_LIMIT must be positive, got %d", c.CasesListLimit)
+	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
 	}
-	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin} {
+	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}

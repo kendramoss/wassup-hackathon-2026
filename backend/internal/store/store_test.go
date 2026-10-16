@@ -124,3 +124,17 @@ func TestUpdateAppliesOnlyItsChange(t *testing.T) {
 		t.Errorf("path traversal not rejected: %v", err)
 	}
 }
+
+func TestListRecentKeepsPinnedAndCaps(t *testing.T) {
+	m := NewMemory()
+	ctx := context.Background()
+	now := time.Now().UTC()
+	_ = m.Put(ctx, Case{ID: "case_old_pin", UpdatedAt: now.Add(-time.Hour * 24), Pinned: true})
+	for i, id := range []string{"case_1", "case_2", "case_3"} {
+		_ = m.Put(ctx, Case{ID: id, UpdatedAt: now.Add(time.Duration(i) * time.Minute)})
+	}
+	cs, err := ListRecent(ctx, m, 2)
+	if err != nil || len(cs) != 3 || cs[0].ID != "case_old_pin" || cs[1].ID != "case_3" || cs[2].ID != "case_2" {
+		t.Errorf("ListRecent = %+v %v", cs, err)
+	}
+}

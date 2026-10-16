@@ -39,7 +39,7 @@ func validateEconomics(e planner.Economics) error {
 // putEconomics replaces the case's money inputs without running anything;
 // plan, scenarios and compare-targets use them when a call omits its own.
 func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return

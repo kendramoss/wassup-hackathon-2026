@@ -68,6 +68,23 @@ func TestFirestoreEmulator(t *testing.T) {
 	if err != nil || len(cs) < 2 || cs[0].ID != "case_b" || cs[0].Step() != "plan" || !cs[0].UpdatedAt.Equal(now) {
 		t.Errorf("list after restart = %+v %v", cs, err)
 	}
+	// ListRecent: the pinned case plus the newest others, from the query.
+	_ = f.Put(ctx, Case{ID: "case_pin", UpdatedAt: now.Add(-48 * time.Hour), Pinned: true})
+	recent, err := f2.ListRecent(ctx, 1)
+	if err != nil || len(recent) != 2 || recent[0].ID != "case_pin" || recent[1].ID != "case_b" {
+		t.Errorf("ListRecent = %v %v", recent, err)
+	}
+	// Update replaces the document; the pinned query field has to survive it.
+	if _, err := f.Update(ctx, "case_pin", func(c *Case) error {
+		c.DisplayName = "still pinned"
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	recent, err = f2.ListRecent(ctx, 1)
+	if err != nil || len(recent) != 2 || recent[0].ID != "case_pin" || recent[0].DisplayName != "still pinned" {
+		t.Errorf("ListRecent after Update = %v %v", recent, err)
+	}
 	vb := f.Verdicts()
 	key := fmt.Sprintf("k%d", now.UnixNano())
 	if _, ok, err := vb.Get(ctx, key); ok || err != nil {

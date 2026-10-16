@@ -47,6 +47,7 @@ func (m *Majority) Verify(ctx context.Context, t Task) (Result, error) {
 		total.Usage.InputTokens += r.Usage.InputTokens
 		total.Usage.OutputTokens += r.Usage.OutputTokens
 		total.Usage.TotalTokens += r.Usage.TotalTokens
+		total.ToolErrors += r.ToolErrors
 		if errs[i] != nil {
 			continue
 		}
@@ -66,7 +67,7 @@ func (m *Majority) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	sort.SliceStable(group, func(i, j int) bool { return group[i].Verdict.Confidence < group[j].Verdict.Confidence })
 	best := group[(len(group)-1)/2] // median; the lower one of an even pair
-	best.ModelCalls, best.Steps, best.Usage = total.ModelCalls, total.Steps, total.Usage
+	best.ModelCalls, best.Steps, best.Usage, best.ToolErrors = total.ModelCalls, total.Steps, total.Usage, total.ToolErrors
 	best.Verdict.Agreement = fmt.Sprintf("%d/%d", len(group), len(ok))
 	return best, nil
 }

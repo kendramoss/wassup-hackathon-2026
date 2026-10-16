@@ -17,6 +17,10 @@ info:
     compare-targets) 4 a minute, plus a global cap. Over the limit: 429
     `rate_limited` with `Retry-After` and `details.retry_after_s`. Requests with
     the admin token (`X-Admin-Token` header) are not limited.
+
+    Ruling lookups (`GET /v1/rulings/{id}`) have their own per-client limit (30 fetches a minute; a ruling already fetched is free), separate from the model budget (D58).
+
+    Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)

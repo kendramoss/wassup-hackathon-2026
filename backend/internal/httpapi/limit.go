@@ -20,6 +20,9 @@ type Limits struct {
 	LightPerMin  int // predict, answers, ask, extract, scenarios, watch
 	HeavyPerMin  int // plan search, compare targets (each runs many model calls)
 	GlobalPerMin int // all clients together, in light units (heavy counts HeavyWeight)
+	// LookupPerMin caps ruling lookups per client (each may fetch from CBP's
+	// CROSS); they don't count against the model budget (D58).
+	LookupPerMin int
 }
 
 // HeavyWeight is what one heavy request takes from the global bucket.
@@ -33,7 +36,8 @@ type class int
 const (
 	light class = iota
 	heavy
-	bulk // batch triage: the heavy bucket per client, MaxBatch from the global bucket
+	bulk   // batch triage: the heavy bucket per client, MaxBatch from the global bucket
+	lookup // ruling lookups: their own bucket per client, not the global one
 )
 
 type limiter struct {
@@ -45,8 +49,8 @@ type limiter struct {
 }
 
 type clientBuckets struct {
-	light, heavy *rate.Limiter
-	seen         time.Time
+	light, heavy, lookup *rate.Limiter
+	seen                 time.Time
 }
 
 func perMin(n int) (rate.Limit, int) {
@@ -70,7 +74,8 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 	if !ok {
 		lr, lb := perMin(l.lim.LightPerMin)
 		hr, hb := perMin(l.lim.HeavyPerMin)
-		cb = &clientBuckets{light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), seen: now} // seen now, or the cleanup below drops it at once
+		kr, kb := perMin(l.lim.LookupPerMin)
+		cb = &clientBuckets{light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), lookup: rate.NewLimiter(kr, kb), seen: now} // seen now, or the cleanup below drops it at once
 		l.clients[key] = cb
 		if len(l.clients) > 10000 { // forget idle clients so the map stays bounded
 			for k, v := range l.clients {
@@ -89,12 +94,17 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 		b, weight = cb.heavy, HeavyWeight
 	case bulk: // a whole heavy burst: one batch a minute per client (D57)
 		b, weight, n = cb.heavy, MaxBatch, max(1, l.lim.HeavyPerMin)
+	case lookup:
+		b, weight = cb.lookup, 0
 	}
 	rc := b.ReserveN(now, n)
 	if !rc.OK() || rc.DelayFrom(now) > 0 {
 		wait := rc.DelayFrom(now)
 		rc.CancelAt(now)
 		return false, wait
+	}
+	if weight == 0 {
+		return true, 0
 	}
 	rg := l.global.ReserveN(now, weight)
 	if !rg.OK() || rg.DelayFrom(now) > 0 {
@@ -144,13 +154,7 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if a.limiter != nil && !a.isAdmin(r) {
 			if ok, wait := a.limiter.allow(clientKey(r), c); !ok {
-				secs := int(math.Ceil(wait.Seconds()))
-				if secs < 1 {
-					secs = 1
-				}
-				w.Header().Set("Retry-After", fmt.Sprint(secs))
-				writeError(w, http.StatusTooManyRequests, "rate_limited",
-					fmt.Sprintf("too many requests; try again in %d s", secs), map[string]int{"retry_after_s": secs})
+				a.tooMany(w, wait)
 				return
 			}
 		}
@@ -167,4 +171,15 @@ func (a *api) adminOnly(h http.HandlerFunc) http.HandlerFunc {
 		}
 		h(w, r)
 	}
+}
+
+// tooMany writes 429 with Retry-After.
+func (a *api) tooMany(w http.ResponseWriter, wait time.Duration) {
+	secs := int(math.Ceil(wait.Seconds()))
+	if secs < 1 {
+		secs = 1
+	}
+	w.Header().Set("Retry-After", fmt.Sprint(secs))
+	writeError(w, http.StatusTooManyRequests, "rate_limited",
+		fmt.Sprintf("too many requests; try again in %d s", secs), map[string]int{"retry_after_s": secs})
 }

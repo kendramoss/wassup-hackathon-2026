@@ -33,6 +33,7 @@ type Firestore struct {
 type firestoreDoc struct {
 	ID        string    `firestore:"id"`
 	UpdatedAt time.Time `firestore:"updated_at"`
+	Pinned    bool      `firestore:"pinned"` // queried by ListRecent (D58)
 	Case      []byte    `firestore:"case_json_gz"`
 }
 
@@ -66,7 +67,7 @@ func (f *Firestore) Put(ctx context.Context, c Case) error {
 	if err != nil {
 		return fmt.Errorf("store: encode %s: %w", c.ID, err)
 	}
-	if _, err := f.col.Doc(c.ID).Set(ctx, firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Case: b}); err != nil {
+	if _, err := f.col.Doc(c.ID).Set(ctx, firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Case: b}); err != nil {
 		return fmt.Errorf("store: write %s: %w", c.ID, err)
 	}
 	return nil
@@ -100,7 +101,7 @@ func (f *Firestore) Update(ctx context.Context, id string, fn func(*Case) error)
 			return fmt.Errorf("store: encode %s: %w", id, err)
 		}
 		out = c
-		return tx.Set(f.col.Doc(id), firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Case: b})
+		return tx.Set(f.col.Doc(id), firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Case: b})
 	})
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
@@ -147,6 +148,44 @@ func (f *Firestore) List(ctx context.Context) ([]Case, error) {
 	}
 	sortNewest(out)
 	return out, nil
+}
+
+// ListRecent implements RecentLister: every pinned case plus the n most
+// recently updated others, reading only those documents (D58). A pinned case
+// saved before the pinned field existed is found by the second query only
+// while it is among the newest; re-pinning it (PUT /pin) writes the field.
+func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
+	seen := map[string]bool{}
+	var out []Case
+	add := func(q firestore.Query) error {
+		it := q.Documents(ctx)
+		defer it.Stop()
+		for {
+			snap, err := it.Next()
+			if errors.Is(err, iterator.Done) {
+				return nil
+			}
+			if err != nil {
+				return fmt.Errorf("store: list: %w", err)
+			}
+			if seen[snap.Ref.ID] {
+				continue
+			}
+			c, err := decodeSnapshot(snap)
+			if err != nil {
+				continue
+			}
+			seen[snap.Ref.ID] = true
+			out = append(out, c)
+		}
+	}
+	if err := add(f.col.Where("pinned", "==", true)); err != nil {
+		return nil, err
+	}
+	if err := add(f.col.OrderBy("updated_at", firestore.Desc).Limit(n + len(out))); err != nil {
+		return nil, err
+	}
+	return capRecent(out, n), nil
 }
 
 // Delete implements Cases.

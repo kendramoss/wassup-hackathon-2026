@@ -110,6 +110,9 @@ type Result struct {
 	Dropped []string
 	// Cached is true when the verdict came from Cache, not a fresh run.
 	Cached bool
+	// ToolErrors counts search/read calls that failed (e.g. CROSS down). A
+	// verdict reached without that evidence is not cached (D58).
+	ToolErrors int
 }
 
 // Options configures the verifier.
@@ -163,6 +166,12 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	var mu sync.Mutex
 	var steps []Step
+	toolErrors := 0
+	failed := func() {
+		mu.Lock()
+		toolErrors++
+		mu.Unlock()
+	}
 	seen := map[string]bool{} // rulings that appeared in any tool result
 	note := func(s Step, out string) {
 		mu.Lock()
@@ -179,6 +188,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}, func(tc agent.ToolContext, a searchArgs) (toolOut, error) {
 		hits, err := v.search.Search(ctx, a.Query, t.Before, exclude)
 		if err != nil {
+			failed()
 			return toolOut{}, err
 		}
 		out := formatHits(hits)
@@ -194,6 +204,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}, func(tc agent.ToolContext, a readArgs) (toolOut, error) {
 		out, err := v.search.Read(ctx, strings.TrimSpace(a.Ruling), t.Before, exclude)
 		if err != nil {
+			failed()
 			return toolOut{}, err
 		}
 		note(Step{"read_ruling", a.Ruling}, out)
@@ -274,7 +285,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		}
 	}
 
-	res := Result{Steps: steps, ModelCalls: m.calls, Usage: m.usage}
+	res := Result{Steps: steps, ModelCalls: m.calls, Usage: m.usage, ToolErrors: toolErrors}
 	var ans answer
 	if err := (llm.Response{Text: final}).DecodeJSON(&ans); err != nil {
 		return res, fmt.Errorf("verifier: final answer: %w", err)
