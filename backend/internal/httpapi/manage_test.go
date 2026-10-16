@@ -197,3 +197,42 @@ func TestTextileRegime(t *testing.T) {
 		}
 	}
 }
+
+func TestExportOnPinnedCaseDoesNotWriteForVisitors(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	hs.doAs(t, "PUT", "/v1/cases/"+id+"/pin", `{"pinned":true}`, admin)
+	_, before := hs.do(t, "GET", "/v1/cases/"+id, "")
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/export", "")
+	if code != http.StatusOK || out["content"] == "" {
+		t.Fatalf("export = %d %v", code, out)
+	}
+	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if len(after["history"].([]any)) != len(before["history"].([]any)) || after["updated_at"] != before["updated_at"] || after["step"] == "export" {
+		t.Errorf("a visitor's export wrote to a pinned case: history %d -> %d, step %v", len(before["history"].([]any)), len(after["history"].([]any)), after["step"])
+	}
+	hs.doAs(t, "POST", "/v1/cases/"+id+"/export", "", admin)
+	_, admin2 := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if len(admin2["history"].([]any)) != len(before["history"].([]any))+1 {
+		t.Error("the admin's export was not recorded")
+	}
+}
+
+func TestCaseShowsPricedEconomics(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	if c["economics_priced"] != nil {
+		t.Errorf("no economics yet, got %v", c["economics_priced"])
+	}
+	id := c["id"].(string)
+	hs.do(t, "PUT", "/v1/cases/"+id+"/economics", `{"illustrative":true,"annual_import_value_usd":2000000}`)
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	e := got["economics_priced"].(map[string]any)
+	if r := e["duty_rates"].(map[string]any); r["China"] != 0.417 || len(e["duty_rates_from_table"].([]any)) != 4 {
+		t.Errorf("economics_priced = %v", e)
+	}
+	if r, _ := got["economics"].(map[string]any)["duty_rates"].(map[string]any); len(r) != 0 {
+		t.Errorf("table rates leaked into the stored economics: %v", r)
+	}
+}

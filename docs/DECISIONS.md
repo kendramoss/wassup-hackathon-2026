@@ -269,3 +269,9 @@ Staging check the same day, revision `origin-proof-api-staging-00008-665`, `TEXT
 ## D55 — Plan-stream race fixed; the seed survives provider outages (17 Oct)
 - The plan stream's keep-alive goroutine could write to the response after the handler returned (`go test -race` caught it once in CI; reproduced 1 in 200 runs with a 50 µs keep-alive). The handler now waits for that goroutine to exit before returning. On a server this could have written a keep-alive into a reused connection.
 - The production seed stopped on the LiDAR plan search when `gemini-4-argon` returned 504 after all retries. `cmd/demo` now retries a request that fails with 502/503/504 or a transport error after 1, 2, 4 and 8 minutes. Retrying cannot change a verdict already given: finished predictions and checks are cached (D50, D54).
+
+## D56 — Demo cases stay as seeded (17 Oct)
+- The production dry-run found 15 pinned demo cases (3 seed runs × 5 demos), several named after the first words of their facts, and opening the Draft page on a demo wrote an `exported` event to it. Viewing the demo should not change it.
+- `POST /v1/cases/{id}/export` on a pinned case without the admin token now returns the draft without saving anything (as `preview: true` does); with the token it records as before.
+- `make demo-seed` names each case after its demo title (`display_name`) and skips a demo that already has a pinned case with that name (`-force` seeds anyway). `scripts/demo-dedupe.sh <API>` cleans an existing server: it keeps one pinned case per demo (furthest step, then newest), renames it, and deletes the rest; dry run unless `APPLY=1`. Tested locally on 15 duplicates down to 5, keeping the two dryer latches apart (their facts share the first 408 characters).
+- The case response adds `economics_priced`: the stored economics with the sourced duty rates a plan search would use (D52), so the Scenarios money strip can show them; `economics` stays exactly what the user entered.
