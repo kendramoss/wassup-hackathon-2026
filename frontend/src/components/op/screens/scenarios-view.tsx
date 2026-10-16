@@ -112,10 +112,10 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
           )}
         </div>
 
-        <MoneyStrip c={c} onEdit={() => setMoneyOpen(true)} />
+        <MoneyStrip c={c} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
-        {error ? <ErrorBox error={error} onRetry={run} /> : null}
+        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
             <Button onClick={run} disabled={busy || drafts.length === 0}>
@@ -157,7 +157,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
 // is worked out from, and the drawer to change them.
 // Rates come from economics_priced (D56): what the user typed plus the
 // sourced duty rates the plan search uses. Edits still go to economics.
-function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit: () => void }) {
+function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
   const e = (c as CaseResponse & { economics_priced?: Economics | null }).economics_priced ?? c.economics;
   const groups = Object.keys(e?.group_costs ?? {}).length;
   return (
@@ -170,9 +170,13 @@ function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit: () => void }) {
         </span>
       ))}
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
-      <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
-        {c.economics ? "Edit inputs" : "+ Add money inputs"}
-      </button>
+      {onEdit ? (
+        <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
+          {c.economics ? "Edit inputs" : "+ Add money inputs"}
+        </button>
+      ) : (
+        <span className="ml-auto text-xs text-dim">demo inputs · start a new case to change them</span>
+      )}
     </div>
   );
 }
