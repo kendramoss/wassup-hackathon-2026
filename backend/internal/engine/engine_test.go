@@ -261,6 +261,24 @@ func TestPrecedentReasoningInUserMessage(t *testing.T) {
 	}
 }
 
+// RenderUserWithReasoning is what promptsnap hashes for textile-v2; it must
+// be exactly what Predict sends with PrecedentReasoning on.
+func TestRenderUserWithReasoningIsSent(t *testing.T) {
+	ps := []domain.Ruling{{ID: "N100001", Date: day("2025-01-01"), Facts: "knit gaiters", Holding: "Vietnam", Reasoning: "CBP weighed the knitting."}}
+	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	e := New(f, retrieval.NewBM25(ps, PrecedentText), Options{Model: "m", K: 1, System: TextileSystem2, Version: TextileVersion2, PrecedentReasoning: true})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "c", Date: day("2026-01-01"), Facts: "knit gaiters"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Calls()[0].Messages[0].Content, RenderUserWithReasoning("knit gaiters", ps); got != want {
+		t.Errorf("sent:\n%s\nwant:\n%s", got, want)
+	}
+	if res.Prediction.Trace.PromptVersion != TextileVersion2+"+"+ReasoningVersion {
+		t.Errorf("version %q", res.Prediction.Trace.PromptVersion)
+	}
+}
+
 func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
 	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
 	e := New(f, nil, Options{Model: "m", System: TextileSystem, Version: TextileVersion})

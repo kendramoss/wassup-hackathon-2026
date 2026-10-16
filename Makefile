@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: demo-seed test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-summary bundle-corpus upload-corpus
+.PHONY: demo-seed test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -46,6 +46,12 @@ eval-test: ## held-out split (377): run once per frozen config; never tune on it
 eval-report: ## reprint the recorded proxy runs (the *-litellm.jsonl inputs stay as history; no model calls)
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/dev-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-dev-router-v2.jsonl
 	cd $(GO_DIR) && go run ./cmd/eval report -in ../eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl -scope ../eval/results/scope-final-router-v2.jsonl
+
+eval-slice: ## regression slice (D72): 30 dev rulings vs the committed baseline (~60 model calls; also .github/workflows/eval-slice.yml)
+	cd $(GO_DIR) && EVAL_SLICE=on go run ./cmd/eval slice
+
+prompt-snapshot: ## rewrite backend/internal/promptsnap/snapshot.json after bumping a prompt version (D72)
+	cd $(GO_DIR) && go test ./internal/promptsnap -update
 
 eval-summary: ## regenerate the numbers served by GET /v1/eval/summary (embedded in the server)
 	cd $(GO_DIR) && go run ./cmd/eval summary

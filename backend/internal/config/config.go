@@ -190,6 +190,15 @@ type Config struct {
 	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
 	// as server-sent stage events when asked for text/event-stream (D71).
 	StreamPredict string
+	// EvalSlice (on|off, default off) lets `eval slice` spend model calls on
+	// the 30-case regression slice (D72); the comparison against the
+	// committed baseline (-in FILE) needs no model and works either way.
+	// EvalSliceMaxDrop is how many fewer correct cases than the baseline
+	// still pass (default 2); EvalSliceBandMin is the accuracy the cases at
+	// confidence >= 0.95 must keep (default 0.95).
+	EvalSlice        bool
+	EvalSliceMaxDrop int
+	EvalSliceBandMin float64
 }
 
 // StreamPredictOn reports whether STREAM_PREDICT is on.
@@ -249,6 +258,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		HTSIndex:           e.str("HTS_INDEX", "data/hts_index.json"),
 		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
 		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
+		EvalSliceMaxDrop:   e.integer("EVAL_SLICE_MAX_DROP", 2),
+		EvalSliceBandMin:   e.float("EVAL_SLICE_BAND_MIN", 0.95),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -315,6 +326,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		c.StreamPredict = "off"
 	default:
 		c.StreamPredict = v // refused by validate
+	}
+	switch v := strings.ToLower(e.str("EVAL_SLICE", "off")); v {
+	case "on", "true", "1":
+		c.EvalSlice = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("EVAL_SLICE must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -395,6 +413,12 @@ func (c Config) validate() error {
 	}
 	if c.StreamPredict != "on" && c.StreamPredict != "off" {
 		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
+	}
+	if c.EvalSliceMaxDrop < 0 {
+		bad("EVAL_SLICE_MAX_DROP must be 0 or more correct cases, got %d", c.EvalSliceMaxDrop)
+	}
+	if c.EvalSliceBandMin <= 0 || c.EvalSliceBandMin > 1 {
+		bad("EVAL_SLICE_BAND_MIN must be in (0, 1], got %v", c.EvalSliceBandMin)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)

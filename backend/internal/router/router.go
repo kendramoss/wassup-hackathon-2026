@@ -120,12 +120,15 @@ func New(model llm.Model, modelID string, maxTokens int) *Router {
 	return &Router{model: model, modelID: modelID, maxTokens: maxTokens}
 }
 
+// RenderUser is the user message Classify sends.
+func RenderUser(facts string) string { return "CASE FACTS:\n" + facts }
+
 // Classify labels one case from its facts.
 func (r *Router) Classify(ctx context.Context, facts string) (Label, error) {
 	resp, err := r.model.Generate(ctx, llm.Request{
 		Model:           r.modelID,
 		System:          System,
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: "CASE FACTS:\n" + facts}},
+		Messages:        []llm.Message{{Role: llm.RoleUser, Content: RenderUser(facts)}},
 		JSONSchema:      Schema,
 		SchemaName:      "route",
 		MaxOutputTokens: r.maxTokens,
