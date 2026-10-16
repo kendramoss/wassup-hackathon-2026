@@ -255,7 +255,7 @@ export function Elapsed({ since }: { since: number }) {
 export function Next({ children }: { children: ReactNode }) {
   return (
     <p className="duo min-w-0 text-[13px] text-body">
-      <span className="mr-2 text-[10.5px] font-medium uppercase tracking-[0.08em] text-ok">Next</span>
+      <span className="mr-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ok">Next</span>
       {children}
     </p>
   );

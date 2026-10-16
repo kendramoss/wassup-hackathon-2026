@@ -62,9 +62,9 @@ function Result({ id, c, setCase }: CaseCtx) {
           ) : null}
           {c.precedents_detail?.length ? <RulingsSummary c={c} /> : null}
           <WatchLine c={c} setCase={setCase} />
+          {/* Plain words first; model and prompt ids sit behind "Run details" (#93). */}
           <Audit>
-            {c.model_ids?.engine} · {c.prompt_versions?.engine}
-            {c.prompt_versions?.clarify && c.clarify ? ` · ${c.prompt_versions.clarify}` : ""} · read {p.precedents?.length ?? 0} CBP rulings dated before {formatDate(c.date)}
+            Read {p.precedents?.length ?? 0} CBP rulings dated before {formatDate(c.date)}
             {isProxy(c.llm_provider) ? ` · ${copy.proxy}` : ""}
             {c.history?.length ? (
               <>
@@ -75,6 +75,14 @@ function Result({ id, c, setCase }: CaseCtx) {
               </>
             ) : null}
           </Audit>
+          <details className="duo text-xs text-dim">
+            <summary className="inline-flex min-h-6 cursor-pointer items-center hover:text-ink">Run details</summary>
+            <p className="mt-1">
+              Model {c.model_ids?.engine} · prompt {c.prompt_versions?.engine}
+              {c.prompt_versions?.clarify && c.clarify ? ` · questions ${c.prompt_versions.clarify}` : ""}
+              {c.triage?.route ? ` · route ${c.triage.route}` : ""}
+            </p>
+          </details>
         </aside>
       </Main>
       <Footer>
@@ -110,7 +118,6 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
     <section aria-label="Likely origin" className="relative border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[auto_minmax(0,1fr)_260px] lg:gap-11">
         <Dimension className="absolute left-4 top-3 sm:left-10">fig.1 — likely origin</Dimension>
-        {route && <Dimension className="absolute right-4 top-3 sm:right-10">route: {route}</Dimension>}
         <div>
           <p className="eyebrow">{copy.result.eyebrow}</p>
           <h1 className="mt-1 flex items-center gap-4 text-[56px] font-normal leading-none tracking-[-0.06em] sm:text-[84px]">
@@ -233,7 +240,7 @@ function Conflict({ c }: { c: CaseResponse }) {
           const follows = k.leans === side;
           return (
             <div key={side} className={cx("border p-3 text-[13px]", follows ? "border-ok bg-ok-wash" : "border-line bg-white")}>
-              {follows && <p className="mb-1.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-ok">This case follows</p>}
+              {follows && <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-ok">This case follows</p>}
               {r?.subject && <p className="font-medium">{shortSubject(r.subject)}</p>}
               <p className="mt-0.5 text-xs text-dim">
                 {id && <RulingLink id={id} />}

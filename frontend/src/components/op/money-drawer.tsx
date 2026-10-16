@@ -113,7 +113,7 @@ export function MoneyDrawer({
       header={
         <>
           <b className="font-medium text-ink">Money inputs</b>
-          <span className="ml-3 border border-ask-line px-1.5 py-0.5 text-[10.5px] text-ask">illustrative — editable</span>
+          <span className="ml-3 border border-ask-line px-1.5 py-0.5 text-[11px] text-ask">illustrative — editable</span>
         </>
       }
       footer={
@@ -230,7 +230,7 @@ export function MoneyDrawer({
                         onChange={(ev) => setMore(Number(ev.target.value))}
                         className="w-full accent-[var(--ok)]"
                       />
-                      <div className="-mt-1 flex justify-between text-[10px] text-dimension">
+                      <div className="-mt-1 flex justify-between text-[11px] text-dimension">
                         {["0%", "+25%", "+50%", "+75%", "+100%"].map((t) => (
                           <span key={t}>{t}</span>
                         ))}
@@ -256,16 +256,16 @@ export function MoneyDrawer({
                   <table className="w-full min-w-[420px] border-collapse">
                     <thead>
                       <tr>
-                        <th scope="col" className="pb-2 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                        <th scope="col" className="pb-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                           Group
                         </th>
                         {plants.map((p) => (
-                          <th key={p.id} scope="col" className="pb-2 text-right text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                          <th key={p.id} scope="col" className="pb-2 text-right text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                             {p.name || p.country}
                           </th>
                         ))}
                         {others.length > 0 && (
-                          <th scope="col" className="pb-2 pl-3 text-right text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                          <th scope="col" className="pb-2 pl-3 text-right text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                             Moving adds
                           </th>
                         )}

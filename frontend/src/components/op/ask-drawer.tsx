@@ -44,6 +44,8 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
     if (box && el) box.scrollTop += el.getBoundingClientRect().top - box.getBoundingClientRect().top - 16;
   }, [turns, pending]);
 
+  const [announced, setAnnounced] = useState("");
+
   const ask = async (q: string) => {
     q = q.trim();
     if (!q || pending) return;
@@ -60,6 +62,7 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
         { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls },
       ]);
       setOpen(null);
+      setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) {
         setError(e);
@@ -97,7 +100,11 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
       }
     >
       <div className="flex h-full flex-col">
-        <div ref={log} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4" aria-live="polite">
+        {/* Screen readers hear only the newest answer, not the whole log (#101). */}
+        <p className="sr-only" aria-live="polite">
+          {pending ? "Reading the case and earlier rulings…" : announced}
+        </p>
+        <div ref={log} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
           {turns.length === 0 && !pending && (
             <p className="duo text-[13px] text-dim">
               Ask why the engine landed where it did, or try a change (&ldquo;what if …&rdquo;). The agent reads this case and earlier CBP rulings dated before{" "}
@@ -203,7 +210,7 @@ function TurnView({ t, detail, caseId }: { t: Turn; detail: Record<string, Prece
       {t.whatIfs?.map((w, i) => (
         <div key={i} className="mt-3 grid gap-3.5 border border-edge bg-white px-3.5 py-3 shadow-[3px_3px_0_var(--shadow)] sm:grid-cols-[minmax(0,1fr)_150px]">
           <div>
-            <p className="text-[10.5px] uppercase tracking-[0.06em] text-ok">What if · {w.change}</p>
+            <p className="text-[11px] uppercase tracking-[0.06em] text-ok">What if · {w.change}</p>
             <p className="mt-1 flex items-center gap-2 text-2xl tracking-[-0.05em]">
               <Flag country={w.origin} size={20} />
               {w.origin}
@@ -226,7 +233,7 @@ function TurnView({ t, detail, caseId }: { t: Turn; detail: Record<string, Prece
       <Answer text={t.answer ?? ""} ids={cited} />
       {cited.length > 0 && (
         <div className="mt-2.5 text-xs">
-          <p className="mb-1 text-[10.5px] uppercase tracking-[0.06em] text-dim">Cited · rulings the agent read</p>
+          <p className="mb-1 text-[11px] uppercase tracking-[0.06em] text-dim">Cited · rulings the agent read</p>
           {cited.map((id) => {
             const r = detail[id];
             return (
