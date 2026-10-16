@@ -80,7 +80,7 @@ function Compare({ id, c }: CaseCtx) {
                 <p className="mt-1 text-[44px] leading-none tracking-[-0.05em]">
                   <Elapsed since={since} />
                 </p>
-                <p className="mt-2 text-xs text-dim">usually ~30–40 s · results arrive together</p>
+                <p className="mt-2 text-xs text-dim">can take a minute or two · results arrive together</p>
               </div>
               <div>
                 <p className="eyebrow">Progress</p>

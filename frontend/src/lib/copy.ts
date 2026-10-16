@@ -55,7 +55,7 @@ export const copy = {
     none: `No plan cleared the 0.92 bar`,
     supported: "Precedent-supported",
     searching: "Searching moves",
-    usually: "usually ~30 s",
+    usually: "can take a minute or two",
     draft: "Draft the ruling request →",
     draftClosest: "Draft for the closest move →",
     illustrative: "illustrative — editable",
