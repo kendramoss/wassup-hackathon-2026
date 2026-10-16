@@ -71,10 +71,12 @@ One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-
 
 | Demo | Prediction | CBP held | Plan |
 |---|---|---|---|
-| Heat gun (CBP facts) | China 0.78, needs info (no ruling on point; 3 questions; a conflict, no lean) | China (N328954) | none shown; closest PCBA and switch, cord and minor parts in Thailand, check 0.85 |
-| LiDAR | Thailand 0.95, auto | Thailand (N359371, scenario I) | none shown; closest boards to Vietnam, check 0.85 |
+| Heat gun (CBP facts) | China 0.78, needs info (no ruling on point; 3 questions; a conflict, no lean) | China (N328954) | none shown; closest motor-fan assembly + PCBA in Thailand, check 0.90, net $320k/yr |
+| LiDAR | Thailand 0.95, auto | Thailand (N359371, scenario I) | none shown; boards to Vietnam at check 0.85 (see note) |
 | Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
 | Dryer latch, assembled | China 0.98, auto | China | n/a |
+
+"Closest" means what the Plan screen shows: the below-bar move with the highest precedent check (ties keep list order). The seed summary used to print the first below-bar row instead, so the heat-gun row above was corrected on 17 Oct from `demo-seed-heatgun-plan-vertex.json`: the five below-bar moves checked 0.85, 0.85, 0.85, 0.90 (motor-fan + PCBA) and 0.85. `eval/results/demo-seed-vertex.json` still has the old summary line. The LiDAR plan was not dumped, so its row may name an equal-or-lower move than the screen; check the Plan page. Proxy run 1's "closest" lines have the same caveat.
 
 Heat gun extras: as today Thailand 0.75 net $0 (differs from CBP), motor-fan in Thailand 0.98 net $380k, motor-fan + PCBA 0.98 net $320k; watch unchanged; ask cited N351922 and N348083; countries: Malaysia below the bar, Thailand below the bar, Vietnam no plan. Repeat search: identical verdicts, 6/6 cached, 135.8 s. The heat-gun plan is below the bar, so the video uses the no-plan screen.
 
