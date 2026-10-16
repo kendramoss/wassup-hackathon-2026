@@ -442,7 +442,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Draft a CBP ruling request for the case (Markdown) */
+        /**
+         * Draft a CBP ruling request for the case (Markdown)
+         * @description Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials and processing by country, question, position with the earlier rulings, prior consideration, documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400. Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
+         */
         post: {
             parameters: {
                 query?: never;
@@ -463,6 +466,12 @@ export interface paths {
                         move_key?: string;
                         /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. */
                         preview?: boolean;
+                        /**
+                         * @description markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66).
+                         * @default markdown
+                         * @enum {string}
+                         */
+                        format?: "markdown" | "cfr177";
                     };
                 };
             };
@@ -669,6 +678,86 @@ export interface paths {
                 400: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/hts-suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suggest up to 3 HTS subheadings from CBP rulings that state one (off unless HTS_SUGGEST=on, D64)
+         * @description BM25 finds the 10 indexed rulings most like the product (815 rulings whose text states the subheading CBP applied, 449 distinct 8-digit subheadings; `backend/data/hts_index.json`), groups them by subheading and keeps the 3 best (summed scores). One router-model call (constrained JSON) gives each a short reason, citing only rulings retrieved for that subheading. If that call fails the candidates are still returned with `reasons_unavailable: true`.
+         *     A suggestion, not a classification: every response carries the note "suggestion only — confirm the classification with a licensed broker". Rate-limited as light. 404 when HTS_SUGGEST is off.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        facts?: string;
+                        product?: components["schemas"]["Product"];
+                    };
+                };
+            };
+            responses: {
+                /** @description Candidates, best first (empty when no indexed ruling shares a term with the product) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            candidates?: {
+                                /**
+                                 * @description 8-digit subheading
+                                 * @example 8419.89.95
+                                 */
+                                hts?: string;
+                                supporting_rulings?: {
+                                    id?: string;
+                                    /** Format: date */
+                                    date?: string;
+                                    subject?: string;
+                                    url?: string;
+                                }[];
+                                /** @description empty when reasons_unavailable */
+                                reason?: string;
+                                /** @description supporting rulings the reason relies on */
+                                cited?: string[];
+                                /** @description GET /v1/duty-rates?hts= has sourced rates for it */
+                                duty_rates_available?: boolean;
+                            }[];
+                            /** @example suggestion only — confirm the classification with a licensed broker */
+                            note?: string;
+                            reasons_unavailable?: boolean;
+                            trace?: Record<string, never> | null;
+                            llm_provider?: string;
+                            /** @example hts-suggest-v1 */
+                            prompt_version?: string;
+                            disclaimer?: string;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -917,6 +1006,117 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/bom-version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compare a newer bill of materials with the case's product (supplier change alert; off unless BOM_VERSIONS=on)
+         * @description D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants with the same name keep the case's plant IDs.
+         *     The new product is compared with the case's: components added or removed, a component made in another country or at another plant, operations added, removed or moved to another plant. Groups and capabilities are not compared (they change the plan search, not the origin).
+         *     When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). If the case's facts are not the rendered old product (CBP's wording, a drafted description, clarify answers), the old product is rendered and predicted too (a second engine call) so origin_changed compares two BOMs, not two wordings (facts_basis: rendered). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
+         *     Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers, and current_origin: CBP's ruling was on the old BOM); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /**
+                         * Format: binary
+                         * @description CSV or .xlsx (first sheet)
+                         */
+                        file: string;
+                        /**
+                         * @description default false
+                         * @enum {string}
+                         */
+                        apply?: "true" | "false";
+                    };
+                    "application/json": {
+                        csv: string;
+                        /** @default false */
+                        apply?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description The changes and the comparison of origins */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            case_id: string;
+                            changes: {
+                                /** @enum {string} */
+                                kind: "component_added" | "component_removed" | "country_changed" | "plant_changed" | "operation_added" | "operation_removed" | "operation_moved";
+                                /** @description Component or operation name */
+                                name: string;
+                                from_country?: string;
+                                to_country?: string;
+                                /** @description Plant name */
+                                from_plant?: string;
+                                /** @description Plant name */
+                                to_plant?: string;
+                                /** @example electric motor: made in Thailand, was China (plant Rayong plant, was China suppliers) */
+                                summary: string;
+                            }[];
+                            /** @description What the plan search will lack */
+                            warnings: string[];
+                            product: components["schemas"]["Product"];
+                            /** @description The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered */
+                            old_origin: string;
+                            old_confidence?: number;
+                            /**
+                             * @description case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new.
+                             * @enum {string}
+                             */
+                            facts_basis: "case" | "rendered";
+                            /** @description The case's own predicted origin (equals old_origin when facts_basis is case) */
+                            case_origin: string;
+                            /** @description Predicted origin for the new BOM (old_origin when nothing changed) */
+                            new_origin: string;
+                            new_confidence: number;
+                            /** @description new_origin differs from old_origin (both from the same kind of facts) */
+                            origin_changed: boolean;
+                            triage: components["schemas"]["Triage"];
+                            /** @description The new prediction; absent when nothing changed */
+                            prediction?: components["schemas"]["Prediction"];
+                            /** @description false when no change could affect the origin (no model call) */
+                            repredicted: boolean;
+                            applied: boolean;
+                            /** @description The updated case, when applied */
+                            case?: components["schemas"]["CaseResponse"];
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+                502: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/cases/{id}/watch": {
         parameters: {
             query?: never;
@@ -1050,7 +1250,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Sourced duty rates by HTS subheading, with every component and source (D52) */
+        /**
+         * Sourced duty rates by HTS subheading, with every component and source (D52)
+         * @description The sourced table always wins. With DUTY_LIVE_MFN=on (default off), a subheading the table does not have is answered with its live MFN (column 1 general) rate from the USITC HTS as `{hts, description, live_mfn}` (D65). A live fetch (not a cached answer) counts against the per-client lookup limit (429). A missing line or a failed fetch is 404, never 5xx.
+         */
         get: {
             parameters: {
                 query?: {
@@ -1063,7 +1266,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description One line (with hts) or {lines} (without) */
+                /** @description One line (with hts) or {lines} (without), or a live MFN rate (D65) */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1091,10 +1294,12 @@ export interface paths {
                                 }[];
                             }[];
                             lines?: Record<string, never>[];
+                            live_mfn?: components["schemas"]["LiveMFN"];
                         };
                     };
                 };
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
             };
         };
         put?: never;
@@ -1200,6 +1405,223 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a team workspace (TEAMS=on; sign-in required)
+         * @description The caller becomes its admin and only member. A user can be in one workspace (409 conflict if already in one). Served only with TEAMS=on (404 otherwise). D68.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Whitespace is collapsed */
+                        name: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The workspace */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Workspace"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in user, their workspace and pending invitations (TEAMS=on) */
+        get: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The user's email, workspace (null when they have none) and pending invitations */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: email */
+                            email: string;
+                            workspace: components["schemas"]["Workspace"] | null;
+                            /** @description Workspaces that have invited the user and that they have not joined */
+                            invites: {
+                                workspace_id: string;
+                                name: string;
+                                /**
+                                 * Format: email
+                                 * @description The workspace's admin
+                                 */
+                                invited_by: string;
+                                /**
+                                 * Format: date-time
+                                 * @description When the workspace was created
+                                 */
+                                created_at: string;
+                            }[];
+                        };
+                    };
+                };
+                401: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite a member by email (the workspace's admin only; TEAMS=on)
+         * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: email
+                         * @description Lower-cased
+                         */
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The updated workspace */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Workspace"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept an invitation to a workspace (TEAMS=on)
+         * @description The caller must have been invited by email (`GET /v1/workspaces/mine` lists invitations). 404 without an invitation or for an unknown workspace; 409 if the caller is already in a workspace or it has 50 members. Only cases created after joining belong to the workspace. No request body.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The workspace joined */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Workspace"];
+                    };
+                };
+                401: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/eval/summary": {
         parameters: {
             query?: never;
@@ -1231,6 +1653,124 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List API keys without secrets (admin token required) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Every key, newest first, disabled ones included */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            api_keys: components["schemas"]["APIKey"][];
+                        };
+                    };
+                };
+                403: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        /**
+         * Issue an API key (admin token required; API_KEYS=on only)
+         * @description Returns the key once, in `key`. Only its SHA-256 is stored, so it cannot be shown again; issue a new one if it is lost (D69).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Who the key is for */
+                        name: string;
+                        /** @description Requests a UTC day */
+                        daily_quota: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description The key, shown once, and its record */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Send as X-API-Key. Not stored; shown only here. */
+                            key: string;
+                            api_key: components["schemas"]["APIKey"];
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/api-keys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Disable an API key for good (admin token required)
+         * @description The record stays in the list with `disabled` true; requests with the key then get 401.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Disabled */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1289,9 +1829,38 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded";
             message: string;
             details?: unknown;
+        };
+        /** @description A team workspace (D68); its members see each other's cases. */
+        Workspace: {
+            /** @example ws_3f9a2c1b7d4e */
+            id: string;
+            name: string;
+            /** @description Users who created or joined it */
+            members: string[];
+            /** @description Pending invitations */
+            invited: string[];
+            /**
+             * Format: email
+             * @description The workspace's admin
+             */
+            created_by: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description The caller is the admin */
+            admin: boolean;
+        };
+        /** @description A stored API key; the secret and its hash are never returned (D69). */
+        APIKey: {
+            id: string;
+            name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** @description Requests a UTC day */
+            daily_quota: number;
+            disabled: boolean;
         };
         Meta: {
             /**
@@ -1415,7 +1984,7 @@ export interface components {
              * @enum {string}
              */
             route?: "auto" | "needs_review" | "needs_info";
-            /** @description Starts with "out of scope: " for regimes the tool does not cover (usmca_part102; textile_102_21 unless the textile engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, D62). */
+            /** @description Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). With FAST_PATH_BY_FAMILY=on (off by default, D63) the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)". */
             reason?: string;
         };
         RouterLabel: {
@@ -1467,14 +2036,14 @@ export interface components {
             }[];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
-            /** @description economics with the sourced duty rates a plan search would use filled in (D52, D56); null without economics. Display only. */
+            /** @description economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only. */
             economics_priced?: components["schemas"]["Economics"];
             /** @description Audit trail, oldest first (last 200) */
             history?: {
                 /** Format: date-time */
                 at?: string;
                 /** @enum {string} */
-                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed";
+                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated";
                 summary?: string;
                 llm_provider?: string;
                 model_id?: string;
@@ -1486,6 +2055,11 @@ export interface components {
                 cost_usd?: number;
                 /** @description Wall time of the step */
                 latency_ms?: number;
+                /**
+                 * Format: email
+                 * @description The signed-in user who took the step (TEAMS=on, D68); absent for anonymous visitors
+                 */
+                actor?: string;
             }[];
             /** @description null until re-checked */
             watch?: {
@@ -1520,6 +2094,33 @@ export interface components {
             };
             questions?: string[];
         };
+        /** @description The column 1 general (MFN) rate of one subheading, fetched live from the USITC HTS and cached (D65). Only plain ad valorem rates ("4.2%", "Free") get a rate; specific or compound rates are reported as printed with supported false. Never includes Section 301, forced-labor or 232 duties, or special (FTA/GSP) rates. */
+        LiveMFN: {
+            /** @example 8516.79.00 */
+            hts?: string;
+            description?: string;
+            /**
+             * @description the rate as printed in the HTS
+             * @example 2.7%
+             */
+            general?: string;
+            /**
+             * @description ad valorem fraction; null unless supported
+             * @example 0.027
+             */
+            rate?: number | null;
+            supported?: boolean;
+            /** @description always true: additional duties not included */
+            mfn_only?: boolean;
+            /** @description always true: not from the researched table */
+            live?: boolean;
+            /** @example https://hts.usitc.gov/reststop/search?keyword=8516.79.00 */
+            source?: string;
+            /** Format: date-time */
+            fetched_at?: string;
+            /** @description says that additional duties (Section 301, forced-labor, 232) are not included, and why there is no rate when unsupported */
+            note?: string;
+        };
         /** @description User inputs, illustrative — editable. Kept on the case and reused to price scenarios. */
         Economics: {
             illustrative?: boolean;
@@ -1531,6 +2132,8 @@ export interface components {
             duty_rates_note?: string;
             /** @description Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52) */
             duty_rates_from_table?: string[];
+            /** @description Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win; never column 2 or US origins). MFN only: Section 301, forced-labor and 232 duties are not included (D65) */
+            duty_rates_live_mfn?: string[];
             /** @description group -> plant id -> yearly USD */
             group_costs?: {
                 [key: string]: {
@@ -1600,8 +2203,11 @@ export interface components {
         };
         ExportResponse: components["schemas"]["Meta"] & {
             case_id?: string;
-            /** @enum {string} */
-            format?: "markdown";
+            /**
+             * @description The format rendered; content is Markdown text in both.
+             * @enum {string}
+             */
+            format?: "markdown" | "cfr177";
             content?: string;
         };
         Ruling: {
@@ -1705,6 +2311,8 @@ export interface components {
     };
     parameters: {
         CaseID: string;
+        /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+        UserToken: string;
     };
     requestBodies: never;
     headers: never;

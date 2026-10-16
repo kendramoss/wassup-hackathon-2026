@@ -186,7 +186,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 			s += fmt.Sprintf("; CBP's ruling %s (%s) was on the previous BOM and no longer applies", k.Ruling, k.Country)
 		}
 		latest.CurrentOrigin = nil
-		latest.Record(u.on(store.Event{Kind: "bom_updated", Summary: s,
+		record(r.Context(), latest, u.on(store.Event{Kind: "bom_updated", Summary: s,
 			Provider: pr.Trace.Provider, Model: pr.Trace.ModelID, Prompt: pr.Trace.PromptVersion}, start))
 		return nil
 	})
