@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
@@ -139,7 +140,8 @@ func TestBOMVersionMotorCountryChange(t *testing.T) {
 	// Without apply the case is unchanged.
 	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
 	if after["prediction"].(map[string]any)["origin_country"] != "China" || len(after["history"].([]any)) != len(before["history"].([]any)) ||
-		after["updated_at"] != before["updated_at"] || after["plan"] == nil || motorCountry(after) != "China" {
+		after["updated_at"] != before["updated_at"] || after["plan"] == nil || motorCountry(after) != "China" ||
+		after["current_origin"].(map[string]any)["ruling"] != "N328954" {
 		t.Errorf("a comparison changed the case: %v", after)
 	}
 
@@ -166,6 +168,80 @@ func TestBOMVersionMotorCountryChange(t *testing.T) {
 	}
 	if !strings.Contains(after["facts"].(string), "electric motor") || after["product"].(map[string]any)["hts"] != "8419.89.95" {
 		t.Errorf("applied facts/product = %v / %v", after["facts"], after["product"])
+	}
+	// CBP ruled China (N328954) on the old BOM, not this one: the case drops
+	// it, so a plan search no longer tells the verifier CBP has ruled.
+	if after["current_origin"] != nil || !strings.Contains(ev["summary"].(string), "CBP's ruling N328954 (China) was on the previous BOM") {
+		t.Errorf("applied current_origin = %v, event %v", after["current_origin"], ev["summary"])
+	}
+	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	if hs.planner.got.CurrentOrigin != nil {
+		t.Errorf("plan search after apply got current origin %+v", hs.planner.got.CurrentOrigin)
+	}
+	if out["facts_basis"] != "case" {
+		t.Errorf("facts_basis = %v for a case made from its product", out["facts_basis"])
+	}
+}
+
+// TestBOMVersionCaseWordedFacts: a case made from CBP's facts plus the product
+// (the heat-gun demo) was predicted from CBP's wording, and the rendered facts
+// alone can give another origin (D16). The alert compares the old and new
+// BOMs both rendered, so a change that does not matter is not an alert.
+func TestBOMVersionCaseWordedFacts(t *testing.T) {
+	hs := bomHarness(t, nil)
+	hs.engine.byFacts = func(facts string) string { // the engine reads rendered facts as Thailand
+		if strings.HasPrefix(facts, "The merchandise under consideration") {
+			return "Thailand"
+		}
+		return ""
+	}
+	var demo demos.Demo
+	for _, d := range mustDemos(t) {
+		if d.ID == "heatgun-2022" {
+			demo = d
+		}
+	}
+	_, c := hs.do(t, "POST", "/v1/cases/predict", string(demo.Predict))
+	id := c["id"].(string)
+	if c["prediction"].(map[string]any)["origin_country"] != "China" {
+		t.Fatalf("CBP's facts should give China: %v", c["prediction"])
+	}
+	noKnob := heatGunBOM(t, "component,knob,China,China suppliers,switch_cord_minor_parts,\n", "")
+	calls := hs.engine.calls
+	code, out := hs.uploadBOM(t, id, noKnob, "", nil)
+	if code != http.StatusOK || len(out["changes"].([]any)) != 1 {
+		t.Fatalf("knob dropped: %d %v", code, out)
+	}
+	if out["origin_changed"] != false || out["old_origin"] != "Thailand" || out["new_origin"] != "Thailand" ||
+		out["facts_basis"] != "rendered" || out["case_origin"] != "China" {
+		t.Errorf("a dropped knob is not a supplier change alert: %v", out)
+	}
+	// Two engine calls: the old BOM rendered (the baseline) and the new one.
+	if hs.engine.calls != calls+2 {
+		t.Errorf("engine calls = %d, want %d", hs.engine.calls, calls+2)
+	}
+
+	// Applied, the case's facts become the rendered BOM, CBP's ruling on the
+	// old BOM is dropped, and the history says both.
+	code, out = hs.uploadBOM(t, id, noKnob, "true", nil)
+	if code != http.StatusOK || out["applied"] != true || out["origin_changed"] != false {
+		t.Fatalf("apply %d %v", code, out)
+	}
+	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
+	h := after["history"].([]any)
+	ev := h[len(h)-1].(map[string]any)
+	if s := ev["summary"].(string); !strings.Contains(s, "origin Thailand, was China") || !strings.Contains(s, "the old BOM, rendered, gives Thailand") ||
+		!strings.Contains(s, "N328954") || after["current_origin"] != nil || !strings.HasPrefix(after["facts"].(string), "The merchandise under consideration") {
+		t.Errorf("applied case: event %v, current_origin %v, facts %.60q", ev, after["current_origin"], after["facts"])
+	}
+
+	// The case's facts are now the rendered BOM: no baseline call, the case's
+	// own prediction is the "before".
+	calls = hs.engine.calls
+	code, out = hs.uploadBOM(t, id, heatGunBOM(t, "component,knob,China,China suppliers,switch_cord_minor_parts,\n", "",
+		"electric motor,China,China suppliers", "electric motor,Thailand,Rayong plant"), "", nil)
+	if code != http.StatusOK || out["facts_basis"] != "case" || out["old_origin"] != "Thailand" || hs.engine.calls != calls+1 {
+		t.Errorf("rendered case: %d %v (engine calls %d -> %d)", code, out, calls, hs.engine.calls)
 	}
 }
 

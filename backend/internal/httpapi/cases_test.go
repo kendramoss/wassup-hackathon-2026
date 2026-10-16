@@ -41,7 +41,10 @@ type fakeEngine struct {
 	// byProduct, if set, gives the origin from the structured product (BOM
 	// versions); "" falls through to the rules below.
 	byProduct func(domain.Product) string
-	calls     int
+	// byFacts, if set, gives the origin from the facts' wording (rendered or
+	// CBP's), after byProduct; "" falls through.
+	byFacts func(string) string
+	calls   int
 }
 
 func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, error) {
@@ -58,6 +61,11 @@ func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, e
 	}
 	if f.byProduct != nil && c.Product != nil {
 		if o := f.byProduct(*c.Product); o != "" {
+			origin = o
+		}
+	}
+	if f.byFacts != nil {
+		if o := f.byFacts(c.Facts); o != "" {
 			origin = o
 		}
 	}

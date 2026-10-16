@@ -497,8 +497,8 @@ paths:
       description: |
         D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants with the same name keep the case's plant IDs.
         The new product is compared with the case's: components added or removed, a component made in another country or at another plant, operations added, removed or moved to another plant. Groups and capabilities are not compared (they change the plan search, not the origin).
-        When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
-        Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
+        When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). If the case's facts are not the rendered old product (CBP's wording, a drafted description, clarify answers), the old product is rendered and predicted too (a second engine call) so origin_changed compares two BOMs, not two wordings (facts_basis: rendered). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
+        Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers, and current_origin: CBP's ruling was on the old BOM); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
         required: true
@@ -524,7 +524,7 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [case_id, changes, warnings, product, old_origin, new_origin, new_confidence, origin_changed, triage, repredicted, applied]
+                required: [case_id, changes, warnings, product, old_origin, new_origin, new_confidence, origin_changed, triage, repredicted, applied, facts_basis, case_origin]
                 properties:
                   case_id: { type: string }
                   changes:
@@ -542,11 +542,16 @@ paths:
                         summary: { type: string, example: "electric motor: made in Thailand, was China (plant Rayong plant, was China suppliers)" }
                   warnings: { type: array, items: { type: string }, description: What the plan search will lack, as for import }
                   product: { $ref: "#/components/schemas/Product" }
-                  old_origin: { type: string, description: The case's current predicted origin }
+                  old_origin: { type: string, description: "The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered" }
                   old_confidence: { type: number }
+                  facts_basis:
+                    type: string
+                    enum: [case, rendered]
+                    description: "case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new."
+                  case_origin: { type: string, description: "The case's own predicted origin (equals old_origin when facts_basis is case)" }
                   new_origin: { type: string, description: Predicted origin for the new BOM (old_origin when nothing changed) }
                   new_confidence: { type: number }
-                  origin_changed: { type: boolean }
+                  origin_changed: { type: boolean, description: new_origin differs from old_origin (both from the same kind of facts) }
                   triage: { $ref: "#/components/schemas/Triage" }
                   prediction: { description: "The new prediction; absent when nothing changed", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
                   repredicted: { type: boolean, description: false when no change could affect the origin (no model call) }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bom"
@@ -14,6 +15,13 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+)
+
+// What old_origin was predicted from (D67): the case's own facts, or the old
+// product rendered with the template like the new one.
+const (
+	factsCase     = "case"
+	factsRendered = "rendered"
 )
 
 // bomVersion compares a newer bill of materials with the case's product
@@ -73,6 +81,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		"old_origin": sc.Prediction.Origin, "old_confidence": sc.Prediction.Confidence,
 		"new_origin": sc.Prediction.Origin, "new_confidence": sc.Prediction.Confidence,
 		"origin_changed": false, "triage": sc.Triage, "repredicted": false, "applied": false,
+		"facts_basis": factsCase, "case_origin": sc.Prediction.Origin,
 	}
 	if len(changes) == 0 { // nothing that can change the origin: no model call, nothing to save
 		a.respond(w, http.StatusOK, out)
@@ -89,26 +98,55 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	// The new BOM is predicted from rendered facts. When the case's own facts
+	// are something else (CBP's wording for a demo, a drafted description,
+	// clarify answers), the case's prediction is not a fair "before": the
+	// wording alone can move the origin (D16: the heat gun is Thailand on
+	// rendered facts, China on CBP's). The old product is then rendered and
+	// predicted too, as the plan search's baseline is, and the alert compares
+	// rendered old with rendered new.
+	var base *domain.Case
+	if oldFacts := planner.Render(*sc.Product, tm); strings.TrimSpace(oldFacts) != strings.TrimSpace(sc.Facts) {
+		base = &domain.Case{ID: sc.ID, Date: date, Facts: oldFacts, Product: sc.Product, Exclude: sc.Exclude}
+	}
 	// The comparison is predicted like a scenario (router, engine, triage);
 	// an applied version gets the full analysis, clarify included, as predict.
 	next := sc
-	var label *router.Label
+	var label, baseLabel *router.Label
+	var basePred domain.Prediction
+	var baseErr error
+	var wg sync.WaitGroup
+	if base != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			basePred, baseLabel, _, _, baseErr = a.classify(r.Context(), *base)
+		}()
+	}
 	if apply {
-		if err := a.analyse(r, &next, c); err != nil {
-			a.fail(w, r, err)
-			return
-		}
+		err = a.analyse(r, &next, c)
 		label = next.Router
 	} else {
-		pred, l, tr, _, err := a.classify(r.Context(), c)
-		if err != nil {
-			a.fail(w, r, err)
-			return
-		}
-		next.Prediction, next.Triage, label = pred, tr, l
+		var pred domain.Prediction
+		var tr domain.Triage
+		pred, label, tr, _, err = a.classify(r.Context(), c)
+		next.Prediction, next.Triage = pred, tr
+	}
+	wg.Wait()
+	if err == nil {
+		err = baseErr
+	}
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	oldOrigin := sc.Prediction.Origin
+	if base != nil {
+		oldOrigin = basePred.Origin
+		out["facts_basis"], out["old_origin"], out["old_confidence"] = factsRendered, basePred.Origin, basePred.Confidence
 	}
 	out["new_origin"], out["new_confidence"], out["triage"], out["repredicted"] = next.Prediction.Origin, next.Prediction.Confidence, next.Triage, true
-	out["origin_changed"] = domain.NormalizeCountry(next.Prediction.Origin) != domain.NormalizeCountry(sc.Prediction.Origin)
+	out["origin_changed"] = domain.NormalizeCountry(next.Prediction.Origin) != domain.NormalizeCountry(oldOrigin)
 	out["prediction"] = next.Prediction
 	if !apply {
 		a.respond(w, http.StatusOK, out)
@@ -120,10 +158,16 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 	if next.Clarify != nil {
 		u.trace(next.Clarify.Trace)
 	}
+	if base != nil {
+		u.trace(basePred.Trace)
+		u.label(baseLabel)
+	}
 	pr := next.Prediction
-	ev := u.on(store.Event{Kind: "bom_updated", Summary: fmt.Sprintf("new BOM, %d change(s); origin %s, was %s; confidence %.2f, %s",
-		len(changes), pr.Origin, sc.Prediction.Origin, pr.Confidence, next.Triage.Route),
-		Provider: pr.Trace.Provider, Model: pr.Trace.ModelID, Prompt: pr.Trace.PromptVersion}, start)
+	summary := fmt.Sprintf("new BOM, %d change(s); origin %s, was %s; confidence %.2f, %s",
+		len(changes), pr.Origin, sc.Prediction.Origin, pr.Confidence, next.Triage.Route)
+	if base != nil {
+		summary += fmt.Sprintf("; the old BOM, rendered, gives %s; the facts are now rendered from the BOM, not the case's own wording", basePred.Origin)
+	}
 	now := time.Now().UTC()
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
 		latest.Product, latest.Facts, latest.UpdatedAt = &p, facts, now
@@ -134,7 +178,16 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		// scenarios are the user's own setups and stay.
 		latest.Answers, latest.OriginalFacts = nil, ""
 		latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
-		latest.Record(ev)
+		// CBP's ruling was on the previous BOM. Kept, a plan search would tell
+		// the verifier CBP had ruled on this product (D17), scenarios would
+		// start from it and the draft would cite it.
+		s := summary
+		if k := latest.CurrentOrigin; k != nil && k.Country != "" {
+			s += fmt.Sprintf("; CBP's ruling %s (%s) was on the previous BOM and no longer applies", k.Ruling, k.Country)
+		}
+		latest.CurrentOrigin = nil
+		latest.Record(u.on(store.Event{Kind: "bom_updated", Summary: s,
+			Provider: pr.Trace.Provider, Model: pr.Trace.ModelID, Prompt: pr.Trace.PromptVersion}, start))
 		return nil
 	})
 	if err != nil {
