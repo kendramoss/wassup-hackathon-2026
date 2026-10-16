@@ -33,6 +33,17 @@ import (
 // MaxRows caps a BOM so an upload cannot be unbounded.
 const MaxRows = 500
 
+// Limits on reading an Excel file (D57): an .xlsx is a zip, and a small
+// upload can unzip to gigabytes or pad rows out to column XFD. Reading stops
+// at maxSheetRows rows and maxSheetCols columns; the unzip limits bound
+// memory before that.
+const (
+	maxUnzipBytes    = 32 << 20
+	maxUnzipXMLBytes = 16 << 20
+	maxSheetRows     = 1000
+	maxSheetCols     = 64
+)
+
 // ErrInvalid wraps domain.ErrInvalid for BOM problems the user must fix.
 var ErrInvalid = fmt.Errorf("bom: %w", domain.ErrInvalid)
 
@@ -44,7 +55,7 @@ func ReadRows(r io.Reader) ([][]string, error) {
 		return nil, fmt.Errorf("bom: read: %w", err)
 	}
 	if bytes.HasPrefix(b, []byte("PK\x03\x04")) {
-		f, err := excelize.OpenReader(bytes.NewReader(b))
+		f, err := excelize.OpenReader(bytes.NewReader(b), excelize.Options{UnzipSizeLimit: maxUnzipBytes, UnzipXMLSizeLimit: maxUnzipXMLBytes})
 		if err != nil {
 			return nil, fmt.Errorf("%w: not a readable Excel file: %v", ErrInvalid, err)
 		}
@@ -53,8 +64,26 @@ func ReadRows(r io.Reader) ([][]string, error) {
 		if len(sheets) == 0 {
 			return nil, fmt.Errorf("%w: the Excel file has no sheets", ErrInvalid)
 		}
-		rows, err := f.GetRows(sheets[0])
+		rs, err := f.Rows(sheets[0])
 		if err != nil {
+			return nil, fmt.Errorf("%w: read sheet %q: %v", ErrInvalid, sheets[0], err)
+		}
+		defer rs.Close()
+		var rows [][]string
+		for rs.Next() {
+			if len(rows) >= maxSheetRows {
+				return nil, fmt.Errorf("%w: the sheet has more than %d rows", ErrInvalid, maxSheetRows)
+			}
+			cols, err := rs.Columns()
+			if err != nil {
+				return nil, fmt.Errorf("%w: read sheet %q: %v", ErrInvalid, sheets[0], err)
+			}
+			if len(cols) > maxSheetCols {
+				cols = cols[:maxSheetCols]
+			}
+			rows = append(rows, cols)
+		}
+		if err := rs.Error(); err != nil {
 			return nil, fmt.Errorf("%w: read sheet %q: %v", ErrInvalid, sheets[0], err)
 		}
 		return rows, nil

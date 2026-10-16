@@ -33,7 +33,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/predict", a.limit(light, a.predict))
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
 		mux.HandleFunc("GET /v1/cases", a.listCases)
-		mux.HandleFunc("POST /v1/products/import", a.importProduct)
+		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
 		mux.HandleFunc("POST /v1/cases/{id}/scenarios", a.limit(light, a.scenarios))
 		mux.HandleFunc("POST /v1/cases/{id}/compare-targets", a.limit(heavy, a.compareTargets))
