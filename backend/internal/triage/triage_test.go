@@ -33,6 +33,31 @@ func TestDecide(t *testing.T) {
 	}
 }
 
+func TestPharma(t *testing.T) {
+	tests := []struct {
+		name   string
+		conf   float64
+		fast   float64
+		want   domain.Route
+		reason string
+	}{
+		{"no bar: always review", 0.99, 0, domain.RouteNeedsReview, "an expert reviews every pharmaceutical case"},
+		{"at the bar", 0.95, 0.95, domain.RouteAuto, "≥ 0.95"},
+		{"below the bar", 0.94, 0.95, domain.RouteNeedsReview, "below 0.95"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Pharma(domain.Prediction{Origin: "India", Confidence: tt.conf}, tt.fast)
+			if got.Route != tt.want || !strings.HasPrefix(got.Reason, PharmaPrefix) || !strings.Contains(got.Reason, tt.reason) {
+				t.Errorf("Pharma = %+v", got)
+			}
+			if err := got.Validate(); err != nil {
+				t.Error(err)
+			}
+		})
+	}
+}
+
 func TestWithClarify(t *testing.T) {
 	review := domain.Triage{Route: domain.RouteNeedsReview, Reason: "confidence 0.80 below 0.95"}
 	if got := WithClarify(review, true, 2); got.Route != domain.RouteNeedsInfo || got.Validate() != nil {

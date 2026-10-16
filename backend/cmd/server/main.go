@@ -199,6 +199,22 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
+	var pharmaEng *engine.Engine
+	if cfg.PharmaEngine {
+		ids, err := corpus.LoadIDList(cfg.PharmaRulings)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		var ppool []domain.Ruling
+		for _, id := range ids {
+			if r, ok := pool.Get(id); ok {
+				ppool = append(ppool, r)
+			}
+		}
+		pharmaEng = engine.New(model, retrieval.NewBM25(ppool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
+		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
+	}
 	dutyTable, err := duty.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -234,14 +250,20 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
 	var predictor httpapi.Predictor = eng
-	var textile httpapi.Predictor
+	var textile, pharma httpapi.Predictor
 	if textileEng != nil {
 		textile = textileEng
+	}
+	if pharmaEng != nil {
+		pharma = pharmaEng
 	}
 	if engineBlobs != nil {
 		predictor = engine.NewCache(eng, engineBlobs)
 		if textileEng != nil {
 			textile = engine.NewCache(textileEng, engineBlobs)
+		}
+		if pharmaEng != nil { // the key includes the prompt version, so no clash with the other engines
+			pharma = engine.NewCache(pharmaEng, engineBlobs)
 		}
 	}
 	ds, err := demos.Load()
@@ -276,6 +298,8 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Duty:            dutyTable,
 		Textile:         textile,
 		TextileFastPath: cfg.TextileFastPath,
+		Pharma:          pharma,
+		PharmaFastPath:  cfg.PharmaFastPath,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }

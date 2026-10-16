@@ -126,3 +126,34 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestPharmaConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.PharmaEngine || c.PharmaFastPath != 0 || c.PharmaRulings != "data/pharma_rulings.json" {
+		t.Fatalf("pharma defaults = %v %v %q %v", c.PharmaEngine, c.PharmaFastPath, c.PharmaRulings, err)
+	}
+	tests := []struct {
+		env    map[string]string
+		on     bool
+		fast   float64
+		wantOK bool
+	}{
+		{map[string]string{"PHARMA_ENGINE": "on"}, true, 0, true},
+		{map[string]string{"PHARMA_ENGINE": "ON", "PHARMA_FAST_PATH": "0.97"}, true, 0.97, true},
+		{map[string]string{"PHARMA_ENGINE": "off", "PHARMA_FAST_PATH": "1"}, false, 1, true},
+		{map[string]string{"PHARMA_ENGINE": "maybe"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "1.5"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "-0.1"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "high"}, false, 0, false},
+	}
+	for _, tt := range tests {
+		got, err := FromEnv(getenv(merge(vertexEnv(), tt.env)))
+		if (err == nil) != tt.wantOK {
+			t.Errorf("%v: err = %v, want ok %v", tt.env, err, tt.wantOK)
+			continue
+		}
+		if tt.wantOK && (got.PharmaEngine != tt.on || got.PharmaFastPath != tt.fast) {
+			t.Errorf("%v = engine %v fast %v", tt.env, got.PharmaEngine, got.PharmaFastPath)
+		}
+	}
+}

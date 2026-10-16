@@ -40,6 +40,21 @@ func Textile(p domain.Prediction, fastPath float64) domain.Triage {
 	return domain.Triage{Route: domain.RouteNeedsReview, Reason: TextilePrefix + ": a new regime without a held-out result yet; an expert reviews every textile case"}
 }
 
+// PharmaPrefix starts the reason of every pharmaceutical-regime decision (D62).
+const PharmaPrefix = "pharmaceutical rules (active ingredient)"
+
+// Pharma routes a prediction made under the pharmaceutical rules, as Textile
+// does: with fastPath 0 (the default) every case goes to review.
+func Pharma(p domain.Prediction, fastPath float64) domain.Triage {
+	if fastPath > 0 && p.Confidence >= fastPath {
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("%s: confidence %.2f ≥ %.2f", PharmaPrefix, p.Confidence, fastPath)}
+	}
+	if fastPath > 0 {
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("%s: confidence %.2f below %.2f", PharmaPrefix, p.Confidence, fastPath)}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: PharmaPrefix + ": a new regime without a held-out result yet; an expert reviews every pharmaceutical case"}
+}
+
 // WithClarify refines a needs_review decision with the clarify review: when
 // no earlier ruling is on point and there are questions to ask, the case
 // goes back to the requester first (needs_info). Auto decisions and
