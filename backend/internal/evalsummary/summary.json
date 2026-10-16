@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T18:32:19Z",
+  "generated_at": "2026-10-16T20:27:27Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -348,6 +348,101 @@
       "split": "demo",
       "development_only": true,
       "source": "eval/results/plan-heatgun-2022-local-litellm.json"
+    },
+    {
+      "key": "textile_final_accuracy",
+      "label": "Textile rules, held-out (71 rulings, 2026, textile-v1) accuracy",
+      "value": 0.8592,
+      "ci_low": 0.7598,
+      "ci_high": 0.9217,
+      "n": 71,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl"
+    },
+    {
+      "key": "textile_final_conf95_accuracy",
+      "label": "Textile rules, held-out (71 rulings, 2026, textile-v1): accuracy when confidence ≥ 0.95 (the textile auto-accept bar)",
+      "value": 0.9524,
+      "ci_low": 0.8421,
+      "ci_high": 0.9868,
+      "n": 42,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl"
+    },
+    {
+      "key": "textile_final_conf95_coverage",
+      "label": "Textile rules, held-out (71 rulings, 2026, textile-v1): share auto-accepted (confidence ≥ 0.95)",
+      "value": 0.5915,
+      "n": 71,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl"
+    },
+    {
+      "key": "textile_v2_dev_accuracy",
+      "label": "Textile rules, development (99 rulings, Jul–Dec 2025, textile-v2 in production) accuracy",
+      "value": 0.8687,
+      "ci_low": 0.7882,
+      "ci_high": 0.9216,
+      "n": 99,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl"
+    },
+    {
+      "key": "textile_v2_dev_conf95_accuracy",
+      "label": "Textile rules, development (99 rulings, Jul–Dec 2025, textile-v2 in production): accuracy when confidence ≥ 0.95 (the textile auto-accept bar)",
+      "value": 0.9706,
+      "ci_low": 0.899,
+      "ci_high": 0.9919,
+      "n": 68,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl"
+    },
+    {
+      "key": "textile_v2_dev_conf95_coverage",
+      "label": "Textile rules, development (99 rulings, Jul–Dec 2025, textile-v2 in production): share auto-accepted (confidence ≥ 0.95)",
+      "value": 0.6869,
+      "n": 99,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl"
+    },
+    {
+      "key": "router_out_of_scope_recall",
+      "label": "Router (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine",
+      "value": 0.8837,
+      "ci_low": 0.7552,
+      "ci_high": 0.9493,
+      "n": 43,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/scope-window-dev-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "router_textile_routing",
+      "label": "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine",
+      "value": 0.8788,
+      "ci_low": 0.7267,
+      "ci_high": 0.9518,
+      "n": 33,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/scope-window-dev-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "router_false_out_of_scope",
+      "label": "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope",
+      "value": 0.05,
+      "ci_low": 0.0138,
+      "ci_high": 0.165,
+      "n": 40,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/scope-window-dev-router-v2-vertex.jsonl"
     }
   ]
 }

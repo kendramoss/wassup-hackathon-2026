@@ -100,6 +100,40 @@ async function idToken(audience: string): Promise<string> {
   return res.text();
 }
 
+// MAX_BODY caps a proxied request body (security review L1, D58). The
+// largest legitimate body is a BOM or portfolio upload, which the backend
+// caps at 5 MB; this leaves room for multipart overhead. Without it the
+// proxy buffered anything up to Cloud Run's 32 MiB into memory.
+export const MAX_BODY = 6 << 20;
+
+// readCapped reads a request body, or returns null once it passes max bytes
+// (a declared Content-Length is checked first; a chunked body is counted).
+export async function readCapped(request: Request, max = MAX_BODY): Promise<ArrayBuffer | null> {
+  const declared = Number(request.headers.get("content-length"));
+  if (declared > max) return null;
+  if (!request.body) return new ArrayBuffer(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(size);
+  let at = 0;
+  for (const c of chunks) {
+    out.set(c, at);
+    at += c.byteLength;
+  }
+  return out.buffer;
+}
+
 // Forwards a browser request to the backend's /v1 API unchanged (method,
 // body, content type, Accept) and returns the backend's response as-is,
 // errors included, so the client sees the API's {code, message} bodies and
@@ -121,11 +155,19 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
   }
   const search = new URL(request.url).search;
   const method = request.method.toUpperCase();
+  let body: ArrayBuffer | undefined;
+  if (method !== "GET" && method !== "HEAD") {
+    const b = await readCapped(request);
+    if (b === null) {
+      return Response.json({ code: "invalid_input", message: `the upload is larger than ${MAX_BODY >> 20} MB` }, { status: 413 });
+    }
+    body = b;
+  }
   try {
     const res = await fetch(`${backendUrl}/v1/${path}${search}`, {
       method,
       headers,
-      body: method === "GET" || method === "HEAD" ? undefined : await request.arrayBuffer(),
+      body,
       signal: request.signal,
       cache: "no-store",
     });

@@ -54,6 +54,14 @@ export function AccuracyPage() {
   const change = get("change_detection_heldout");
   const changeBase = get("change_detection_always_change_baseline");
   const movePrec = get("verifier_unknown-a_precision");
+  // Other regimes (D51, D53, D60): textile held-out and the router's routing.
+  const texAcc = get("textile_final_accuracy");
+  const texAuto = get("textile_final_conf95_accuracy");
+  const texCov = get("textile_final_conf95_coverage");
+  const texV2 = get("textile_v2_dev_accuracy");
+  const routeOut = get("router_out_of_scope_recall");
+  const routeTex = get("router_textile_routing");
+  const routeFalse = get("router_false_out_of_scope");
   const moveRec = get("verifier_unknown-a_recall");
 
   // The squares, worked out from the rates (DESIGN.md: 288 / 12 / 52 / 25).
@@ -89,7 +97,7 @@ export function AccuracyPage() {
         : it.development_only
           ? { label: "development set", tone: "ask" }
           : { label: "official", tone: "ok" };
-  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "change_detection_heldout", "verifier_unknown-a_precision"];
+  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
   const value = (it: Item) =>
     it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
@@ -205,6 +213,33 @@ export function AccuracyPage() {
               no difference ({pct(PROXY.from)} → {pct(PROXY.to)}, McNemar).
             </Card>
           </div>
+
+          {(texAcc || routeOut) && (
+            <section className="mt-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="eyebrow">Beyond substantial transformation</h2>
+                <span className="ml-auto text-[11px] text-dim">textile held-out · router on the development window</span>
+              </div>
+              <div className="mt-3 grid gap-5 md:grid-cols-3">
+                {texAcc && (
+                  <Card title="Textile rules (19 CFR 102.21)" big={pct(texAcc.value)}>
+                    on {texAcc.n} held-out 2026 textile rulings ({ci(texAcc)}). {pct(texAuto?.value)} right when sure enough to auto-accept, on {pct(texCov?.value, 0)} of them.
+                    {texV2 ? ` The prompt now in use scored ${pct(texV2.value)} on the development set.` : ""}
+                  </Card>
+                )}
+                {routeOut && (
+                  <Card title="Knows what it can't answer" big={pct(routeOut.value)}>
+                    of pharmaceutical and USMCA rulings kept away from the origin engine ({ci(routeOut)}, n {routeOut.n}). Those go to a person.
+                  </Card>
+                )}
+                {routeTex && (
+                  <Card title="Textiles to the textile rules" big={pct(routeTex.value)}>
+                    of textile rulings routed to the textile engine ({ci(routeTex)}, n {routeTex.n}); {pct(routeFalse?.value, 0)} of ordinary cases wrongly sent out of scope.
+                  </Card>
+                )}
+              </div>
+            </section>
+          )}
 
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <h2 className="eyebrow">What we don&apos;t claim</h2>

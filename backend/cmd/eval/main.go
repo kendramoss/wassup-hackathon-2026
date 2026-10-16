@@ -1274,6 +1274,16 @@ func summaryCmd(args []string) error {
 				item{Key: "plan_heatgun_wall_s", Label: "Full plan, heat gun demo: wall time (s, via proxy)", Value: float64(int(p.Stats.WallSeconds + 0.5)), Split: "demo", DevelopmentOnly: true, Source: src})
 		}
 	}
+	textileItems, err := textileSummaryItems(*resultsDir)
+	if err != nil {
+		return err
+	}
+	items = append(items, textileItems...)
+	scopeItems, err := scopeSummaryItems(*resultsDir, "../eval/splits/splits_textile.json")
+	if err != nil {
+		return err
+	}
+	items = append(items, scopeItems...)
 	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
 		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items}
 	b, _ := json.MarshalIndent(out, "", "  ")
@@ -1700,4 +1710,105 @@ func textilePool(store *corpus.Store, ids []string) []domain.Ruling {
 		}
 	}
 	return out
+}
+
+// textileSummaryItems reports the textile regime (D51, D53): textile-v1 on
+// the held-out 2026 textile split (scored once) and textile-v2, the prompt in
+// production, on dev. Skipped when the files are missing.
+func textileSummaryItems(dir string) ([]evalsummary.Item, error) {
+	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
+	var items []evalsummary.Item
+	add := func(file, split, prefix, label string, dev bool) error {
+		path := filepath.Join(dir, file)
+		if _, err := os.Stat(path); err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip textile %s: %v\n", file, err)
+			return nil
+		}
+		rows, err := readRows(path, nil)
+		if err != nil {
+			return err
+		}
+		s := evalkit.Summarize(rows)
+		src := "eval/results/" + file
+		items = append(items, evalsummary.Item{Key: prefix + "_accuracy", Label: label + " accuracy", Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: split, DevelopmentOnly: dev, Source: src})
+		p, lo, hi := evalkit.Wilson(s.AtLeast95.K, s.AtLeast95.N)
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_accuracy", Label: label + ": accuracy when confidence ≥ 0.95 (the textile auto-accept bar)", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: split, DevelopmentOnly: dev, Source: src})
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_coverage", Label: label + ": share auto-accepted (confidence ≥ 0.95)", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: split, DevelopmentOnly: dev, Source: src})
+		return nil
+	}
+	if err := add("textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl", "final", "textile_final",
+		"Textile rules, held-out (71 rulings, 2026, textile-v1)", false); err != nil {
+		return nil, err
+	}
+	if err := add("textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl", "dev", "textile_v2_dev",
+		"Textile rules, development (99 rulings, Jul–Dec 2025, textile-v2 in production)", true); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+// scopeSummaryItems reports how the router routes cases outside the
+// substantial-transformation regime, from the Vertex dev-window scope check
+// (D60): out-of-scope recall, textile routing and false out-of-scope.
+func scopeSummaryItems(dir, textileSplits string) ([]evalsummary.Item, error) {
+	const file = "scope-window-dev-router-v2-vertex.jsonl"
+	f, err := os.Open(filepath.Join(dir, file))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "summary: skip router scope: %v\n", err)
+		return nil, nil
+	}
+	defer f.Close()
+	textile := map[string]bool{}
+	if sp, err := corpus.LoadSplits(textileSplits); err == nil {
+		for _, id := range sp.Textile {
+			textile[id] = true
+		}
+	}
+	var oosK, oosN, texK, texN, falseK, falseN int
+	sc := bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 1<<20), 1<<24)
+	for sc.Scan() {
+		var r struct {
+			Ruling string `json:"ruling"`
+			Gold   string `json:"gold_regime"`
+			Router *struct {
+				Regime string `json:"regime"`
+			} `json:"router"`
+		}
+		if json.Unmarshal(sc.Bytes(), &r) != nil || r.Router == nil {
+			continue
+		}
+		reg := r.Router.Regime
+		switch {
+		case r.Gold == "pharma_api" || (r.Gold == "part102_tariff_shift" && !textile[r.Ruling]):
+			oosN++
+			if reg != "substantial_transformation" {
+				oosK++
+			}
+		case r.Gold == "part102_tariff_shift":
+			texN++
+			if reg == router.RegimeTextile {
+				texK++
+			}
+		case r.Gold == "substantial_transformation":
+			falseN++
+			if reg == "usmca_part102" || reg == "pharma_api" {
+				falseK++
+			}
+		}
+	}
+	if err := sc.Err(); err != nil {
+		return nil, err
+	}
+	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
+	src := "eval/results/" + file
+	item := func(key, label string, k, n int) evalsummary.Item {
+		p, lo, hi := evalkit.Wilson(k, n)
+		return evalsummary.Item{Key: key, Label: label, Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n, Split: "dev", DevelopmentOnly: true, Source: src}
+	}
+	return []evalsummary.Item{
+		item("router_out_of_scope_recall", "Router (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
+		item("router_textile_routing", "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
+		item("router_false_out_of_scope", "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
+	}, nil
 }
