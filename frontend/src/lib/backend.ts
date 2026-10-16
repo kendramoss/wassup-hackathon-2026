@@ -4,38 +4,63 @@ export class BackendError extends Error {
   constructor(
     message: string,
     public status: number,
+    public retryAfter?: string | null,
   ) {
     super(message);
   }
+}
+
+// Cloud Run appends the browser to X-Forwarded-For, so the rightmost entry is
+// the visitor. Without it every caller shares one rate-limit bucket (D45).
+export function clientIP(request: Request): string | undefined {
+  const parts = (request.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.at(-1);
 }
 
 // Backend statuses that describe the user's request; their message is shown
 // as-is. Anything else (auth failures, crashes) is our problem, not theirs.
 const userErrors = new Set([400, 409, 413, 429]);
 
-// POSTs body to path on the backend. On Cloud Run (K_SERVICE is set) the
-// backend is private, so this authenticates with an ID token for this
-// service's identity; locally it calls the backend as-is.
+// Calls path on the backend. method defaults to POST (the chat routes).
+// On Cloud Run (K_SERVICE is set) the backend is private, so this
+// authenticates with an ID token for this service's identity; locally it
+// calls the backend as-is.
 //
 // The token's audience must be the backend's service URL. BACKEND_AUDIENCE
 // overrides it when BACKEND_URL is a revision tag URL (previews), which Cloud
 // Run doesn't accept as an audience.
-export async function callBackend(path: string, body: string, signal?: AbortSignal): Promise<Response> {
+export async function callBackend(
+  path: string,
+  body: string,
+  signal?: AbortSignal,
+  options?: { method?: string; request?: Request },
+): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
   if (!backendUrl) {
     throw new BackendError("BACKEND_URL is not set", 500);
   }
 
+  const method = options?.method ?? "POST";
   const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const ip = options?.request ? clientIP(options.request) : undefined;
+  if (ip) headers["X-Client-IP"] = ip;
   if (process.env.K_SERVICE) {
     headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
   }
 
-  const res = await fetch(`${backendUrl}${path}`, { method: "POST", headers, body, signal });
+  const res = await fetch(`${backendUrl}${path}`, {
+    method,
+    headers,
+    body: method === "GET" || method === "HEAD" ? undefined : body,
+    signal,
+  });
   if (!res.ok) {
     const text = (await res.text()).trim();
     if (userErrors.has(res.status)) {
-      throw new BackendError(text, res.status);
+      throw new BackendError(text, res.status, res.headers.get("retry-after"));
     }
     console.error(`backend ${path} returned ${res.status}: ${text.slice(0, 500)}`);
     throw new BackendError("The agent is unavailable right now. Try again in a moment.", 502);
@@ -46,7 +71,17 @@ export async function callBackend(path: string, body: string, signal?: AbortSign
 // Turns any error from callBackend into a JSON error response.
 export function errorResponse(err: unknown): Response {
   if (err instanceof BackendError) {
-    return Response.json({ error: err.message }, { status: err.status });
+    const headers = new Headers();
+    if (err.retryAfter) headers.set("Retry-After", err.retryAfter);
+    // 429 keeps the API body, including details.retry_after_s.
+    if (err.status === 429) {
+      try {
+        return Response.json(JSON.parse(err.message), { status: 429, headers });
+      } catch {
+        /* not JSON; fall through with the text */
+      }
+    }
+    return Response.json({ error: err.message }, { status: err.status, headers });
   }
   console.error("chat proxy:", err);
   return Response.json({ error: "Could not reach the agent. Try again in a moment." }, { status: 502 });
@@ -79,19 +114,32 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
     const v = request.headers.get(h);
     if (v) headers[h] = v;
   }
+  const ip = clientIP(request);
+  if (ip) headers["X-Client-IP"] = ip;
   if (process.env.K_SERVICE) {
     headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
   }
   const search = new URL(request.url).search;
+  const method = request.method.toUpperCase();
   try {
     const res = await fetch(`${backendUrl}/v1/${path}${search}`, {
-      method: request.method,
+      method,
       headers,
-      body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer(),
+      body: method === "GET" || method === "HEAD" ? undefined : await request.arrayBuffer(),
       signal: request.signal,
       cache: "no-store",
     });
+    // DELETE answers 204 with no body. Parsing it, or inventing a JSON
+    // content type, turns a success into a client error.
+    if (res.status === 204 || res.status === 205) {
+      const empty = new Headers();
+      const retry = res.headers.get("retry-after");
+      if (retry) empty.set("Retry-After", retry);
+      return new Response(null, { status: res.status, headers: empty });
+    }
     const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json" });
+    const retry = res.headers.get("retry-after");
+    if (retry) out.set("Retry-After", retry);
     if (out.get("Content-Type")?.startsWith("text/event-stream")) {
       // no-transform keeps Next's compression from buffering the stream.
       out.set("Cache-Control", "no-cache, no-transform");

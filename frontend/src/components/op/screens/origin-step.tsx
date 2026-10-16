@@ -8,7 +8,7 @@ import { AskDrawer } from "../ask-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
-import { Button, ButtonLink, Country, Dimension, Flag, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Flag, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
 
 export function OriginStep() {
@@ -212,12 +212,17 @@ function Conflict({ c }: { c: CaseResponse }) {
     <Panel tone="ask">
       <h2 className="text-lg tracking-[-0.02em]">{copy.result.conflict}</h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        {[
-          [k.ruling_a, k.holding_a],
-          [k.ruling_b, k.holding_b],
-        ].map(([r, h]) => (
-          <div key={r} className="border border-line bg-white p-3 text-[13px]">
-            {r && <RulingLink id={r} />}
+        {(
+          [
+            ["a", k.ruling_a, k.holding_a],
+            ["b", k.ruling_b, k.holding_b],
+          ] as const
+        ).map(([side, r, h]) => (
+          <div key={side} className="border border-line bg-white p-3 text-[13px]">
+            <div className="flex flex-wrap items-center gap-2">
+              {r && <RulingLink id={r} />}
+              {k.leans === side && <Chip tone="ask">Closer to this case</Chip>}
+            </div>
             <p className="duo mt-1">{h}</p>
           </div>
         ))}

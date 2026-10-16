@@ -5,7 +5,7 @@ import { callBackend, errorResponse } from "@/lib/backend";
 // cancels the backend call too.
 export async function POST(request: Request) {
   try {
-    const res = await callBackend("/chat/stream", await request.text(), request.signal);
+    const res = await callBackend("/chat/stream", await request.text(), request.signal, { request });
     return new Response(res.body, {
       headers: {
         "Content-Type": "text/event-stream",

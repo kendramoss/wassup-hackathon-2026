@@ -75,6 +75,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res);
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 

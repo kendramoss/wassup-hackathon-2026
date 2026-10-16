@@ -92,7 +92,8 @@ export function CasesHome() {
                   <tr key={c.id} className="border-b border-line last:border-0 hover:bg-paper">
                     <td className="px-3.5 py-3">
                       <Link href={href} className="block font-medium hover:underline">
-                        {c.product_name}
+                        {c.display_name || c.product_name}
+                        {c.pinned ? <Chip className="ml-2 align-middle">Demo</Chip> : null}
                       </Link>
                       <span className="text-xs text-dim">Case date {formatDate(c.date)}</span>
                     </td>
