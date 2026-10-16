@@ -70,7 +70,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
       ) : (
         children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })
       )}
-      {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onCase={setData} />}
+      {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onChat={(chat) => setData((d) => (d ? ({ ...d, chat } as CaseResponse) : d))} />}
     </ActionSlotProvider>
   );
 }
