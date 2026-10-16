@@ -351,6 +351,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
+		BOMVersions:     cfg.BOMVersions == "on",
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,

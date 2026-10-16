@@ -105,6 +105,10 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// BOMVersions is on or off (default): on serves POST
+	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
+	// product and re-predicted (D67).
+	BOMVersions string
 	// DailySpendCapUSD stops new model-calling requests once the UTC day's
 	// estimated model spend reaches it (D59); 0 disables the cap.
 	DailySpendCapUSD float64
@@ -199,6 +203,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateGlobalPerMin:   e.integer("RATE_GLOBAL_PER_MIN", 120),
 		RateLookupPerMin:   e.integer("RATE_LOOKUP_PER_MIN", 30),
 		CasesListLimit:     e.integer("CASES_LIST_LIMIT", 200),
+		BOMVersions:        strings.ToLower(e.str("BOM_VERSIONS", "off")),
 		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
 		AdminToken:         e.str("ADMIN_TOKEN", ""),
 		TextileRulings:     e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
@@ -319,6 +324,9 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	if c.BOMVersions != "on" && c.BOMVersions != "off" {
+		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)

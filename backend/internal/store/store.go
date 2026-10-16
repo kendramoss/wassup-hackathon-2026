@@ -72,7 +72,7 @@ const MaxHistory = 200
 // one line, and the model and prompt versions behind it.
 type Event struct {
 	At       time.Time `json:"at"`
-	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics | pinned | unpinned | renamed
+	Kind     string    `json:"kind"` // predicted | answered | plan_searched | scenarios | targets_compared | watched | asked | exported | economics | pinned | unpinned | renamed | bom_updated
 	Summary  string    `json:"summary"`
 	Provider string    `json:"llm_provider,omitempty"`
 	Model    string    `json:"model_id,omitempty"`

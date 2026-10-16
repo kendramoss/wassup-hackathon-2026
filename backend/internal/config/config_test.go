@@ -252,3 +252,20 @@ func TestExportCFR177Config(t *testing.T) {
 		t.Errorf("EXPORT_CFR177=maybe: %v", err)
 	}
 }
+
+func TestBOMVersionsConfig(t *testing.T) {
+	for _, tt := range []struct {
+		value, want string
+		ok          bool
+	}{
+		{"", "off", true}, {"off", "off", true}, {"ON", "on", true}, {"true", "", false}, {"maybe", "", false},
+	} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"BOM_VERSIONS": tt.value})))
+		switch {
+		case tt.ok && (err != nil || c.BOMVersions != tt.want):
+			t.Errorf("BOM_VERSIONS=%q: got %q, %v; want %q", tt.value, c.BOMVersions, err, tt.want)
+		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BOM_VERSIONS must be on or off")):
+			t.Errorf("BOM_VERSIONS=%q accepted: %v", tt.value, err)
+		}
+	}
+}
