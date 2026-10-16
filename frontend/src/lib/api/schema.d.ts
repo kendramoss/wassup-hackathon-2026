@@ -1380,6 +1380,8 @@ export interface components {
             };
             /** @description Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics) */
             economics?: components["schemas"]["Economics"];
+            /** @description Optional name for the case on Cases home (D48); batch rows pass their name here */
+            display_name?: string;
         };
         Prediction: {
             origin_country?: string;

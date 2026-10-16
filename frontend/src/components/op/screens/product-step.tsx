@@ -172,10 +172,18 @@ export function ProductStep() {
   const submit = async () => {
     setBusy(true);
     setError(null);
-    const body: PredictRequest = { date, exclude_rulings: extra.exclude_rulings, current_origin: extra.current_origin, economics: hasAnyMoney(economics) ? economics : undefined };
+    // display_name names the case on Cases home, so a pasted description
+    // never shows there as truncated facts.
+    const body: PredictRequest = {
+      date,
+      display_name: name.trim() || undefined,
+      exclude_rulings: extra.exclude_rulings,
+      current_origin: extra.current_origin,
+      economics: hasAnyMoney(economics) ? economics : undefined,
+    };
     if (tab === "paste") {
       // The backend rejects a product with no components, so a pasted
-      // description goes in as facts only; the name is set right after.
+      // description goes in as facts only.
       body.facts = facts;
     } else {
       body.product = { ...product, name: name.trim() };
@@ -184,8 +192,6 @@ export function ProductStep() {
     }
     try {
       const c = await api.predict(body);
-      // Name the case, so the Cases list never shows truncated facts.
-      if (tab === "paste" && name.trim() && c.id) await api.rename(c.id, name.trim()).catch(() => {});
       if (demoId && c.id) rememberDemo(c.id, demoId);
       router.push(`/cases/${encodeURIComponent(c.id!)}/origin`);
     } catch (e) {
