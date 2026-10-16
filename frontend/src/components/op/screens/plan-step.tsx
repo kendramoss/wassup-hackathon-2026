@@ -424,7 +424,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
             <tr>
               {["Move", "Outcome", "Why", "Precedent check", "Net per year", ""].map((h, i) => (
                 <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
-                  {h}
+                  {h || <span className="sr-only">Draft</span>}
                 </th>
               ))}
             </tr>

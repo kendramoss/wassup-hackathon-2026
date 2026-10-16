@@ -6,6 +6,7 @@ import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/a
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
+import { checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
@@ -39,9 +40,6 @@ export function CasesHome() {
           <p className="duo mt-1 text-dim">Predict the origin CBP would likely assign, then plan a move that earlier rulings support.</p>
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
-          <ButtonLink variant="ghost" href="/triage">
-            Triage a portfolio
-          </ButtonLink>
           <ButtonLink href="/cases/new">{copy.cases.newCase}</ButtonLink>
         </div>
       </div>
@@ -141,8 +139,7 @@ function DemoCard({ c }: { c: CaseSummary }) {
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
-            <span className="text-ok">Plan:</span> {best.description} · check {conf(best.verdict?.confidence)}
-            {best.verdict?.confidence === BAR ? " (exactly at the bar)" : ""} · {money(best.net_per_year)}/yr
+            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr
           </>
         ) : full?.plan ? (
           <span className="text-ask">No plan cleared the {BAR} bar</span>
