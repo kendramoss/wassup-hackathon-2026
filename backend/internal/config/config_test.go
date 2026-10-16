@@ -117,7 +117,10 @@ func TestTextileConfig(t *testing.T) {
 	if err != nil || !on.TextileEngine || on.TextileFastPath != 0.95 {
 		t.Errorf("textile on = %+v %v", on.TextileEngine, err)
 	}
-	for _, bad := range []map[string]string{{"TEXTILE_ENGINE": "maybe"}, {"TEXTILE_FAST_PATH": "1.5"}} {
+	if on.TextilePrompt != "v1" {
+		t.Errorf("textile prompt default = %q", on.TextilePrompt)
+	}
+	for _, bad := range []map[string]string{{"TEXTILE_ENGINE": "maybe"}, {"TEXTILE_FAST_PATH": "1.5"}, {"TEXTILE_PROMPT": "v3"}} {
 		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
 			t.Errorf("%v accepted", bad)
 		}

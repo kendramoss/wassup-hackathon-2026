@@ -229,3 +229,31 @@ Engine on the heat-gun **current setup**: Thailand 0.78 from the structured prod
 ## Not yet measured
 - Official Vertex AI numbers (blocked on GCP access).
 - Held-out test of the verifier and planner (needs CBP rulings published after 25 Sep 2026).
+
+## Textile prompt variants on dev (LiteLLM proxy, 16 Oct; D53)
+
+Same 99 dev cases as D51; proxy runs compare with each other, not with the Vertex rows.
+
+| Variant | Accuracy (95% CI) | ≥ 0.95: n, accuracy | vs textile-v1 (McNemar) | Cost / case |
+|---|---|---|---|---|
+| textile-v1 | 78/99 = 78.8% (69.7–85.7) | 67, 95.5% | — | $0.0091 |
+| textile-v1, K = 8 | 79/99 = 79.8% (70.8–86.5) | 68, 94.1% | — | $0.0114 |
+| textile-v1 + precedent reasoning | 84/99 = 84.8% (76.5–90.6) | 66, 95.5% | fixed 9, broke 3, p = 0.15 | $0.0109 |
+| **textile-v2 + precedent reasoning** | **85/99 = 85.9% (77.7–91.4)** | 66, 95.5% | **fixed 8, broke 1, p = 0.039** | $0.0109 |
+
+Chosen on dev with the held-out already spent on v1, so no independent test yet (D53).
+
+### Same comparison on Vertex (16 Oct 2026)
+
+`go run ./cmd/eval run -regime textile -textile-prompt v2 -reasoning -split dev`, then `eval compare` against `results/textile-dev-gemini-4-argon-prec-textile-v1-vertex.jsonl`. Held-out was not run.
+
+| | Vertex textile-v1 | Vertex textile-v2 + reasoning |
+|---|---|---|
+| Accuracy | 79/99 = 79.8% (70.8–86.5) | **86/99 = 86.9% (78.8–92.2)** |
+| ≥ 0.95 | 64/67 = 95.5% | 66/68 = 97.1% (89.9–99.2) |
+| McNemar vs v1 | — | fixed 8, broke 1, p = 0.039 |
+| Cost / case | $0.0092 promo | $0.0111 promo · $0.0222 list |
+| Latency p50 / p95 | 5.5 s / 68.1 s | 7.2 s / 76.6 s |
+
+Rows: `results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl`. Five calls returned 429 or 504 and were retried; the file has one row per ruling. `TEXTILE_PROMPT` stays v1.
+

@@ -149,6 +149,7 @@ func run(args []string) error {
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
+	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
 	regime := fl.String("regime", "st", "st (substantial transformation) or textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51)")
 	_ = fl.Parse(args)
 	if *regime != "st" && *regime != "textile" {
@@ -256,11 +257,15 @@ func run(args []string) error {
 		eng = engine.New(model, retr, opts)
 	}
 	if *regime == "textile" {
-		if *useRules || *useReasoning || *retrievalMode != "bm25" {
-			return errors.New("-regime textile supports plain bm25 runs only")
+		if *useRules || *retrievalMode != "bm25" {
+			return errors.New("-regime textile supports bm25 runs, optionally with -reasoning")
+		}
+		sys, ver := engine.TextileSystem, engine.TextileVersion
+		if *textilePrompt == "v2" {
+			sys, ver = engine.TextileSystem2, engine.TextileVersion2
 		}
 		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
-			Votes: *votes, VoteBelow: *voteBelow, System: engine.TextileSystem, Version: engine.TextileVersion})
+			Votes: *votes, VoteBelow: *voteBelow, System: sys, Version: ver, PrecedentReasoning: *useReasoning})
 	}
 	var rt *router.Router
 	if *useRouter {
@@ -269,7 +274,14 @@ func run(args []string) error {
 
 	name := fmt.Sprintf("%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.PromptVersion, cfg.LLMProvider)
 	if *regime == "textile" {
-		name = fmt.Sprintf("textile-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.TextileVersion, cfg.LLMProvider)
+		tv := engine.TextileVersion
+		if *textilePrompt == "v2" {
+			tv = engine.TextileVersion2
+		}
+		name = fmt.Sprintf("textile-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, tv, cfg.LLMProvider)
+		if cfg.PrecedentK != 5 {
+			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
+		}
 	}
 	if *retrievalMode != "bm25" {
 		name = fmt.Sprintf("%s-%s-%s%d-%s-%s", *split, cfg.EngineModel, *retrievalMode, *candidates, engine.PromptVersion, cfg.LLMProvider)
@@ -462,6 +474,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	prompt := engine.PromptVersion
 	if strings.HasPrefix(name, "textile-") {
 		prompt = engine.TextileVersion
+		if strings.Contains(name, engine.TextileVersion2) {
+			prompt = engine.TextileVersion2
+		}
 	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": split == "final",

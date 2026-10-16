@@ -108,6 +108,10 @@ type Config struct {
 	TextileEngine   bool
 	TextileRulings  string
 	TextileFastPath float64
+	// TextilePrompt is v1 or v2 (textile-v2: CBP's reasoning shown with each
+	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
+	TextilePrompt    string
+	TextileReasoning string
 }
 
 // Load reads the configuration from the process environment.
@@ -148,6 +152,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
 		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
+		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
+		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
 	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
@@ -206,6 +212,9 @@ func (c Config) validate() error {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
 		}
+	}
+	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
+		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)

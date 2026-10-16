@@ -159,9 +159,18 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 				tpool = append(tpool, r)
 			}
 		}
-		textile = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
-			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.TextileSystem, Version: engine.TextileVersion})
-		logger.Info("textile engine on", "precedents", len(tpool), "fast_path", cfg.TextileFastPath)
+		opts := engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			System: engine.TextileSystem, Version: engine.TextileVersion}
+		if cfg.TextilePrompt == "v2" {
+			reasons, err := corpus.LoadReasoning(cfg.TextileReasoning)
+			if err != nil {
+				return httpapi.Deps{}, err
+			}
+			tpool = corpus.WithReasoning(tpool, reasons)
+			opts.System, opts.Version, opts.PrecedentReasoning = engine.TextileSystem2, engine.TextileVersion2, true
+		}
+		textile = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
+		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
 	dutyTable, err := duty.Load()
 	if err != nil {

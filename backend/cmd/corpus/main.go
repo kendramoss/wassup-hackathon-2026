@@ -54,6 +54,8 @@ func main() {
 		err = compare(os.Args[2:])
 	case "embed":
 		err = embed(os.Args[2:])
+	case "reasoning":
+		err = reasoningFile(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
