@@ -243,3 +243,17 @@ Same 99 dev cases as D51; proxy runs compare with each other, not with the Verte
 
 Chosen on dev with the held-out already spent on v1, so no independent test yet (D53).
 
+### Same comparison on Vertex (16 Oct 2026)
+
+`go run ./cmd/eval run -regime textile -textile-prompt v2 -reasoning -split dev`, then `eval compare` against `results/textile-dev-gemini-4-argon-prec-textile-v1-vertex.jsonl`. Held-out was not run.
+
+| | Vertex textile-v1 | Vertex textile-v2 + reasoning |
+|---|---|---|
+| Accuracy | 79/99 = 79.8% (70.8–86.5) | **86/99 = 86.9% (78.8–92.2)** |
+| ≥ 0.95 | 64/67 = 95.5% | 66/68 = 97.1% (89.9–99.2) |
+| McNemar vs v1 | — | fixed 8, broke 1, p = 0.039 |
+| Cost / case | $0.0092 promo | $0.0111 promo · $0.0222 list |
+| Latency p50 / p95 | 5.5 s / 68.1 s | 7.2 s / 76.6 s |
+
+Rows: `results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl`. Five calls returned 429 or 504 and were retried; the file has one row per ruling. `TEXTILE_PROMPT` stays v1.
+
