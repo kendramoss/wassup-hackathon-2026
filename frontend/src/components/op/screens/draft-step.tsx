@@ -6,10 +6,10 @@ import ReactMarkdown from "react-markdown";
 import { api, type ExportResponse } from "@/lib/api/client";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main } from "../chrome";
-import { Button, ButtonLink, Panel, PanelHead, Spinner } from "../ui";
+import { Button, Panel, PanelHead, Spinner } from "../ui";
 
 export function DraftStep() {
-  return <CaseShell step={4}>{(ctx) => <Draft {...ctx} />}</CaseShell>;
+  return <CaseShell tab="draft">{(ctx) => <Draft {...ctx} />}</CaseShell>;
 }
 
 // The backend's draft leaves bracketed placeholders for the requester; the
@@ -134,9 +134,6 @@ function Draft({ id, c, setCase }: CaseCtx) {
         </div>
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/plan`}>
-          ← Back to plan
-        </ButtonLink>
         <div className="ml-auto flex flex-wrap gap-2.5">
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown

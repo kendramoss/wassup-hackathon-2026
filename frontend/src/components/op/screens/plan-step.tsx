@@ -13,7 +13,7 @@ import { planTarget } from "../plan-target";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
-  return <CaseShell step={3}>{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
+  return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
 }
 
 type Row = { key: string; description: string; plan?: Plan; started?: boolean };
@@ -183,9 +183,6 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
         )}
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/origin`}>
-          ← Back to origin
-        </ButtonLink>
         {result?.stats ? <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} /> : null}
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
           {searching && (

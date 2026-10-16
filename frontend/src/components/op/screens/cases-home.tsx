@@ -8,7 +8,7 @@ import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format
 import { currentOrigin } from "../case-shell";
 import { checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
-import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
+import { Button, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 const caseHref = (c: Pick<CaseSummary, "id" | "step">) =>
   `/cases/${encodeURIComponent(c.id)}/${["product", "origin", "origin", "plan", "draft"][stepIndex[c.step] ?? 1]}`;
@@ -39,9 +39,6 @@ export function CasesHome() {
           <h1 className="text-[28px] tracking-[-0.05em]">{copy.cases.title}</h1>
           <p className="duo mt-1 text-dim">Predict the origin CBP would likely assign, then plan a move that earlier rulings support.</p>
         </div>
-        <div className="ml-auto flex flex-wrap items-center gap-2.5">
-          <ButtonLink href="/cases/new">{copy.cases.newCase}</ButtonLink>
-        </div>
       </div>
 
       {error ? (
@@ -55,8 +52,25 @@ export function CasesHome() {
         </div>
       )}
 
+      {cases && (
+        <section className="mt-8" aria-labelledby="yours-h">
+          <h2 id="yours-h" className="eyebrow mb-3">
+            Your cases {yours.length ? `· ${yours.length}` : ""}
+          </h2>
+          {yours.length === 0 ? (
+            <p className="duo border border-dashed border-guide bg-sheet px-5 py-4 text-dim">
+              {copy.cases.empty}{" "}
+              <Link href="/cases/new" className="text-ok underline underline-offset-2">
+                Start a case
+              </Link>
+            </p>
+          ) : (
+            <YourCases cases={yours} onChange={(next) => setCases([...pinned, ...next])} />
+          )}
+        </section>
+      )}
       {pinned.length > 0 && (
-        <section className="mt-8" aria-labelledby="demos-h">
+        <section className="mt-12" aria-labelledby="demos-h">
           <h2 id="demos-h" className="eyebrow mb-3">
             Demos · real CBP facts
           </h2>
@@ -69,7 +83,7 @@ export function CasesHome() {
       )}
 
       {cases && pinned.length === 0 && demos && demos.length > 0 && (
-        <section className="mt-8" aria-labelledby="load-h">
+        <section className="mt-12" aria-labelledby="load-h">
           <h2 id="load-h" className="eyebrow mb-3">
             {copy.cases.demos}
           </h2>
@@ -90,23 +104,6 @@ export function CasesHome() {
         </section>
       )}
 
-      {cases && (
-        <section className="mt-10" aria-labelledby="yours-h">
-          <h2 id="yours-h" className="eyebrow mb-3">
-            Your cases {yours.length ? `· ${yours.length}` : ""}
-          </h2>
-          {yours.length === 0 ? (
-            <p className="duo border border-dashed border-guide bg-sheet px-5 py-4 text-dim">
-              {copy.cases.empty}{" "}
-              <Link href="/cases/new" className="text-ok underline underline-offset-2">
-                Start a case
-              </Link>
-            </p>
-          ) : (
-            <YourCases cases={yours} onChange={(next) => setCases([...pinned, ...next])} />
-          )}
-        </section>
-      )}
     </Main>
   );
 }

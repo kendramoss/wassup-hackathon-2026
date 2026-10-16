@@ -11,7 +11,7 @@ import { moveKey } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Ruler, cx } from "../ui";
 
 export function CompareView() {
-  return <CaseShell step={3}>{(ctx) => <Compare {...ctx} />}</CaseShell>;
+  return <CaseShell tab="plan">{(ctx) => <Compare {...ctx} />}</CaseShell>;
 }
 
 const statusTag: Record<string, React.ReactNode> = {

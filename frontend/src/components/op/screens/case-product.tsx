@@ -12,7 +12,7 @@ import { ButtonLink, Country, Panel, PanelHead, Spinner } from "../ui";
 // place; "Start a new case" copies nothing and keeps this one intact.
 export function CaseProduct() {
   return (
-    <CaseShell step={1}>
+    <CaseShell tab="product">
       {({ id, c }) => (
         <>
           <Main className="flex max-w-[1240px] flex-col gap-6">
@@ -42,9 +42,6 @@ export function CaseProduct() {
             </Panel>
           </Main>
           <Footer>
-            <ButtonLink variant="ghost" href="/cases/new">
-              Start a new case
-            </ButtonLink>
             <div className="ml-auto">
               <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>Likely origin →</ButtonLink>
             </div>
@@ -59,7 +56,7 @@ export function CaseProduct() {
 export function CaseRedirect() {
   const { id } = useParams<{ id: string }>();
   return (
-    <CaseShell step={2}>
+    <CaseShell tab="origin">
       {({ c }) => <Go to={`/cases/${encodeURIComponent(id)}/${["product", "product", "origin", "plan", "draft"][stepIndex[c.step ?? "origin"] ?? 2]}`} />}
     </CaseShell>
   );

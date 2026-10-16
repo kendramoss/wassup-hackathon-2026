@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { stepIndex, stepNames } from "@/lib/format";
-import { Button, cx } from "./ui";
+import { stepIndex } from "@/lib/format";
+import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
 // prerenders in the static shell of dynamic routes.
@@ -24,55 +24,91 @@ export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) 
           {copy.nav.accuracy}
         </Link>
       </nav>
+      <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5">
+        {copy.cases.newCase}
+      </ButtonLink>
     </header>
   );
 }
 
-const stepHref = (id: string, n: number) => `/cases/${encodeURIComponent(id)}/${["", "product", "origin", "plan", "draft"][n]}`;
+export type CaseTab = "product" | "origin" | "scenarios" | "plan" | "draft";
 
-// Product → Origin → Plan → Draft for broker. Steps up to the case's furthest
-// step are links; the case name opens the switcher.
-export function StepBar({ caseId, current, reached, title }: { caseId?: string; current: number; reached: number; title: ReactNode }) {
+const tabs: { key: CaseTab; label: string; step: number; path: string }[] = [
+  { key: "product", label: "Product", step: 1, path: "product" },
+  { key: "origin", label: "Origin", step: 2, path: "origin" },
+  { key: "scenarios", label: "What if", step: 2, path: "scenarios" },
+  { key: "plan", label: "Plan", step: 3, path: "plan" },
+  { key: "draft", label: "Draft for broker", step: 4, path: "draft" },
+];
+
+export const tabStep: Record<CaseTab, number> = { product: 1, origin: 2, scenarios: 2, plan: 3, draft: 4 };
+
+// Case tabs: every case action one click away, each a separate quiet button
+// (bordered, never filled) so "+ New case" stays the loudest control. A tick
+// marks steps the case has done; tabs a new case can't open yet are inert.
+export function CaseTabs({
+  caseId,
+  current,
+  reached,
+  title,
+  onAsk,
+}: {
+  caseId?: string;
+  current: CaseTab;
+  reached: number;
+  title: ReactNode;
+  onAsk?: () => void;
+}) {
   return (
-    <nav aria-label="Case steps" className="no-print flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-2 border-b border-line bg-paper px-4 py-2 text-sm sm:px-10">
-      <ol className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        {stepNames.map((name, i) => {
-          const n = i + 1;
-          const done = n < current || (n !== current && n <= reached);
-          const on = n === current;
-          const box = (
-            <span
-              className={cx(
-                "grid size-[22px] place-items-center rounded-[2px] border-[1.5px] font-mono text-[11px]",
-                on && "border-ink bg-ink text-paper",
-                done && !on && "border-ok bg-ok text-white",
-                !on && !done && "border-line",
-              )}
-              aria-hidden="true"
-            >
-              {done && !on ? "✓" : n}
-            </span>
+    <nav aria-label="Case" className="no-print flex min-h-[52px] flex-wrap items-center gap-x-2 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:px-10">
+      <ul className="flex flex-wrap items-center gap-1.5">
+        {tabs.map((t) => {
+          const on = t.key === current;
+          const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
+          const done = !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
+          const cls = cx(
+            "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
+            on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-dashed border-line text-faint",
           );
-          const label = (
-            <span className={cx("flex items-center gap-2", on ? "font-semibold text-ink" : done ? "text-dim" : "text-dim")}>
-              {box}
-              {name}
-            </span>
+          const inner = (
+            <>
+              {done && (
+                <span aria-hidden="true" className="text-ok">
+                  ✓
+                </span>
+              )}
+              {t.label}
+              {done && <span className="sr-only">(done)</span>}
+            </>
           );
           return (
-            <li key={name} className="flex items-center gap-3" aria-current={on ? "step" : undefined}>
-              {i > 0 && <span className="hidden h-px w-10 bg-line sm:block" aria-hidden="true" />}
-              {caseId && n <= Math.max(reached, 1) && !on && n !== 1 ? <Link href={stepHref(caseId, n)}>{label}</Link> : label}
+            <li key={t.key}>
+              {on || !open ? (
+                <span className={cls} aria-current={on ? "page" : undefined} aria-disabled={!on && !open ? true : undefined}>
+                  {inner}
+                </span>
+              ) : (
+                <Link className={cls} href={`/cases/${encodeURIComponent(caseId!)}/${t.path}`}>
+                  {inner}
+                </Link>
+              )}
             </li>
           );
         })}
-      </ol>
-      <div className="ml-auto">
+      </ul>
+      <div className="ml-auto flex flex-wrap items-center gap-3">
+        {onAsk && (
+          <button type="button" onClick={onAsk} className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
+            Ask about this case
+          </button>
+        )}
         <CaseSwitcher caseId={caseId} title={title} />
       </div>
     </nav>
   );
 }
+
+const stepHref = (id: string, n: number) => `/cases/${encodeURIComponent(id)}/${["", "product", "origin", "plan", "draft"][n]}`;
 
 function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) {
   const [open, setOpen] = useState(false);

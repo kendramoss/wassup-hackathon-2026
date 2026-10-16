@@ -4,7 +4,6 @@ import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
-import { AskDrawer } from "../ask-drawer";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main } from "../chrome";
@@ -13,11 +12,10 @@ import { Button, ButtonLink, Country, Dimension, Flag, Panel, RulingLink, Ruler,
 import { planTarget } from "../plan-target";
 
 export function OriginStep() {
-  return <CaseShell step={2}>{(ctx) => <Result {...ctx} />}</CaseShell>;
+  return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
 }
 
 function Result({ id, c, setCase }: CaseCtx) {
-  const [asking, setAsking] = useState(false);
   const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
@@ -27,7 +25,7 @@ function Result({ id, c, setCase }: CaseCtx) {
     <>
       <VerdictBand c={c} />
       <WatchStrip c={c} setCase={setCase} />
-      <Main className={cx("grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]", asking && "lg:opacity-60")}>
+      <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
         <div className="flex min-w-0 flex-col gap-8">
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {c.clarify?.questions?.length ? <Questions c={c} setCase={setCase} /> : null}
@@ -88,16 +86,7 @@ function Result({ id, c, setCase }: CaseCtx) {
         </aside>
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/product`}>
-          ← Product
-        </ButtonLink>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/scenarios`}>
-          {copy.result.scenarios}
-        </ButtonLink>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
-          <Button variant="ghost" onClick={() => setAsking(true)} aria-expanded={asking}>
-            {copy.result.ask}
-          </Button>
           {c.clarify?.questions?.length ? <span className="hidden text-xs text-dim sm:inline">{copy.result.optional}</span> : null}
           {c.product?.plants?.length ? (
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan${target ? `?target=${encodeURIComponent(target)}` : ""}`}>
@@ -108,7 +97,6 @@ function Result({ id, c, setCase }: CaseCtx) {
           )}
         </div>
       </Footer>
-      {asking && <AskDrawer c={c} onClose={() => setAsking(false)} onCase={setCase} />}
       {history && <HistoryDrawer c={c} onClose={() => setHistory(false)} />}
     </>
   );

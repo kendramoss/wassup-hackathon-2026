@@ -10,7 +10,7 @@ import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, Spinner, StatusChip, cx } from "../ui";
 
 export function ScenariosView() {
-  return <CaseShell step={2}>{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
+  return <CaseShell tab="scenarios">{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
 }
 
 type Draft = { label: string; mode: "move" | "facts"; groups: string[]; plant: string; facts: string };
@@ -101,9 +101,6 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         {!editing && sc.length > 0 && product && <Matrix sc={sc} c={c} />}
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/origin`}>
-          ← Back to origin
-        </ButtonLink>
         <span className="text-xs text-dim">{copy.money}</span>
         <div className="ml-auto">
           {product?.plants?.length ? <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan`}>Search plans →</ButtonLink> : null}
