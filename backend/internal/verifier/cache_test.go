@@ -88,3 +88,39 @@ func TestCacheInSharedBlobs(t *testing.T) {
 		t.Error("a failed cache read must not silently re-verify")
 	}
 }
+
+type flakyChecker struct {
+	mu                sync.Mutex
+	toolErrors, calls int
+}
+
+func (f *flakyChecker) Verify(context.Context, Task) (Result, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.calls++
+	return Result{Verdict: domain.Verdict{PrecedentSupported: false, Confidence: 0.3}, ToolErrors: f.toolErrors}, nil
+}
+
+func TestCacheSkipsVerdictsMadeWithoutEvidence(t *testing.T) {
+	blobs := &memBlobs{m: map[string][]byte{}}
+	inner := &flakyChecker{toolErrors: 1} // CROSS failed mid-check
+	c := NewCacheIn(inner, blobs, "m")
+	task := Task{FactsA: "a", FactsB: "b", Target: "Thailand"}
+	c.Verify(context.Background(), task)
+	if len(blobs.m) != 0 {
+		t.Fatal("a verdict reached during a tool failure was cached")
+	}
+	inner.toolErrors = 0 // CROSS back
+	c.Verify(context.Background(), task)
+	if r, _ := c.Verify(context.Background(), task); !r.Cached || inner.calls != 2 {
+		t.Errorf("clean verdict not cached: cached %v, calls %d", r.Cached, inner.calls)
+	}
+}
+
+func TestMajorityCarriesToolErrors(t *testing.T) {
+	m := NewMajority(&flakyChecker{toolErrors: 1}, 3).(*Majority)
+	r, err := m.Verify(context.Background(), Task{})
+	if err != nil || r.ToolErrors != 3 {
+		t.Errorf("majority = %d tool errors, %v", r.ToolErrors, err)
+	}
+}

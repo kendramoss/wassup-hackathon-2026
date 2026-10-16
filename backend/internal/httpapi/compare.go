@@ -32,7 +32,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusServiceUnavailable, "internal", "planner is not configured", nil)
 		return
 	}
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return

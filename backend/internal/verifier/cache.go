@@ -82,6 +82,9 @@ func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 	if err != nil {
 		return r, err
 	}
+	if r.ToolErrors > 0 { // reached without some evidence: let the next run verify again
+		return r, nil
+	}
 	if b, err := json.Marshal(r); err == nil {
 		_ = c.blobs.Put(ctx, key, b) // best effort
 	}

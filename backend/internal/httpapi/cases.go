@@ -100,6 +100,12 @@ type Deps struct {
 	// review.
 	Textile         Predictor
 	TextileFastPath float64
+	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
+	// others, newest first (0: 200; D58).
+	CasesListLimit int
+	// CaseOwnership limits each visitor to the pinned demos and their own
+	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
+	CaseOwnership bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -237,7 +243,8 @@ func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (s
 	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName}
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
+		Owner: ownerOf(r)}
 	if err := a.analyse(r, &sc, c); err != nil {
 		return store.Case{}, err
 	}
@@ -329,7 +336,7 @@ func toClarify(as []store.Answer) []clarify.Answer {
 // analysis on the same case.
 func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	sc, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -541,14 +548,18 @@ type caseSummary struct {
 }
 
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
-	cs, err := a.d.Cases.List(r.Context())
+	limit := a.d.CasesListLimit
+	if limit <= 0 {
+		limit = 200
+	}
+	cs, err := store.ListRecent(r.Context(), a.d.Cases, limit)
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
 	rows := make([]caseSummary, 0, len(cs))
 	for _, c := range cs {
-		if c.ID == HealthProbeID {
+		if c.ID == HealthProbeID || !a.visible(r, c) {
 			continue
 		}
 		rows = append(rows, summaryRow(c))
@@ -588,7 +599,7 @@ func firstWords(s string, n int) string {
 }
 
 func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -607,7 +618,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusServiceUnavailable, "internal", "planner is not configured", nil)
 		return
 	}
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -791,7 +802,7 @@ type exportRequest struct {
 }
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
-	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	c, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -922,6 +933,15 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 	dto, ok := a.rulingMemo[id]
 	a.rulingMu.Unlock()
 	if !ok {
+		// Only a fetch from CROSS counts against the lookup limit (D58): a
+		// visitor enumerating IDs could get our user agent blocked by CBP,
+		// which would break the precedent checks and Ask.
+		if a.limiter != nil && !a.isAdmin(r) {
+			if allowed, wait := a.limiter.allow(clientKey(r), lookup); !allowed {
+				a.tooMany(w, wait)
+				return
+			}
+		}
 		cr, err := a.d.Rulings.Ruling(r.Context(), id)
 		if err != nil {
 			a.fail(w, r, err)

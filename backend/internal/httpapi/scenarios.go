@@ -34,7 +34,7 @@ type scenariosRequest struct {
 // case, side by side, and replaces the case's previous scenarios.
 func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	sc, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -161,7 +161,7 @@ func (a *api) scenarioFacts(s scenarioInput, family string) (string, error) {
 
 // watch re-runs one case with today's precedents.
 func (a *api) watch(w http.ResponseWriter, r *http.Request) {
-	sc, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
+	sc, err := a.loadCase(r)
 	if err != nil {
 		a.fail(w, r, err)
 		return

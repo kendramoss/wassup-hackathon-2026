@@ -60,6 +60,9 @@ type Case struct {
 	// DisplayName is the user's name for the case on Cases home; the
 	// product name stays as entered.
 	DisplayName string `json:"display_name,omitempty"`
+	// Owner is a hash of the visitor ID that created the case (D58); empty
+	// for cases made before ownership or without a visitor ID. Never returned.
+	Owner string `json:"owner,omitempty"`
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.
@@ -182,6 +185,43 @@ func (c Case) Step() string {
 type Answer struct {
 	Question string `json:"question"`
 	Answer   string `json:"answer"`
+}
+
+// RecentLister is a store that can list pinned cases plus the n newest
+// others without reading every case (Firestore, D58).
+type RecentLister interface {
+	ListRecent(ctx context.Context, n int) ([]Case, error)
+}
+
+// ListRecent lists every pinned case plus the n most recently updated
+// others, pinned first, using the store's own query when it has one.
+func ListRecent(ctx context.Context, cs Cases, n int) ([]Case, error) {
+	if rl, ok := cs.(RecentLister); ok {
+		return rl.ListRecent(ctx, n)
+	}
+	all, err := cs.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return capRecent(all, n), nil
+}
+
+// capRecent sorts cases pinned first then newest, and keeps every pinned
+// case plus the first n others.
+func capRecent(cs []Case, n int) []Case {
+	sortNewest(cs)
+	out := cs[:0]
+	others := 0
+	for _, c := range cs {
+		if !c.Pinned {
+			if others >= n {
+				continue
+			}
+			others++
+		}
+		out = append(out, c)
+	}
+	return out
 }
 
 // Cases stores cases.
