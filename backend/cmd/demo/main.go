@@ -213,12 +213,27 @@ func bestOf(p planResult) (string, string) {
 		b := p.Plans[0]
 		return fmt.Sprintf("%s (check %.2f, net $%.0f/yr)", b.Description, b.Verdict.Confidence, b.Net), "shown"
 	}
-	for _, x := range p.Rejected {
-		if x.Kind == "below_confidence_bar" && x.Verdict != nil {
-			return fmt.Sprintf("%s (check %.2f, below the bar)", x.Description, x.Verdict.Confidence), "below_bar"
-		}
+	if x := closestMove(p); x != nil {
+		return fmt.Sprintf("%s (check %.2f, below the bar)", x.Description, x.Verdict.Confidence), "below_bar"
 	}
 	return "", "no_plan"
+}
+
+// closestMove is the below-bar move with the highest precedent check, the
+// one the Plan screen calls "closest" (ties: the first in the list, as the
+// frontend's stable sort keeps it).
+func closestMove(p planResult) *plan {
+	var best *plan
+	for i := range p.Rejected {
+		x := &p.Rejected[i]
+		if x.Kind != "below_confidence_bar" || x.Verdict == nil {
+			continue
+		}
+		if best == nil || x.Verdict.Confidence > best.Verdict.Confidence {
+			best = x
+		}
+	}
+	return best
 }
 
 func seed(args []string) error {
