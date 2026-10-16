@@ -107,6 +107,7 @@ export function ProductStep() {
   const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
+  const [askName, setAskName] = useState(false);
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -315,7 +316,12 @@ export function ProductStep() {
                   setImported(r);
                   setProduct(r.product);
                   if (r.family) setFamily(r.family);
-                  if (!name && r.product.name) setName(r.product.name);
+                  // The file name ("heatgun bom") is no product name and would
+                  // land in the ruling letter (#85): ask for one instead.
+                  if (!name.trim()) {
+                    setAskName(true);
+                    setTimeout(() => document.querySelector<HTMLElement>("[data-field=name]")?.focus(), 0);
+                  }
                 }}
                 onEdit={() => setTab("parts")}
                 onUseText={(text) => {
@@ -328,7 +334,7 @@ export function ProductStep() {
 
           {/* After the input: name, family and date (an import fills the name). */}
           <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
-            <Field label={copy.product.name}>
+            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
               {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
             </Field>
             <Field label={copy.product.family}>

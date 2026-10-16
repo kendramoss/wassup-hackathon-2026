@@ -85,6 +85,13 @@ func Markdown(in Input) string {
 			cites = append(cites, fmt.Sprintf("- %s ([rulings.cbp.gov](%s)).", id, domain.RulingURL(id)))
 		}
 	}
+	// Nothing cited (#91): list the rulings the engine read, for the broker
+	// to keep or drop, before falling back to a placeholder.
+	if len(cites) == 0 {
+		for _, id := range in.Prediction.Precedents {
+			cites = append(cites, fmt.Sprintf("- %s — read by Origin Proof, not cited; [CONFIRM RELEVANCE] ([rulings.cbp.gov](%s)).", id, domain.RulingURL(id)))
+		}
+	}
 	if len(cites) == 0 {
 		cites = append(cites, "- [ADD RELEVANT EARLIER RULINGS]")
 	}
