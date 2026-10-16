@@ -795,7 +795,7 @@ components:
         route: { type: string, enum: [auto, needs_review, needs_info], description: "needs_info: no earlier ruling on point; answer clarify.questions via /answers" }
         reason:
           type: string
-          description: 'Starts with "out of scope: " for regimes the tool does not cover (pharma_api; textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), or with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61).'
+          description: 'Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62).'
     RouterLabel:
       type: object
       properties:

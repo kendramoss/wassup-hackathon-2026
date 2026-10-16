@@ -122,6 +122,12 @@ type Deps struct {
 	// USMCA case to review.
 	USMCA         Predictor
 	USMCAFastPath float64
+	// Pharma, when set, predicts cases the router labels pharma_api with the
+	// pharmaceutical prompt (origin follows the active ingredient) instead of
+	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;
+	// 0 sends every pharmaceutical case to review.
+	Pharma         Predictor
+	PharmaFastPath float64
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
@@ -316,6 +322,13 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	if label != nil && label.Regime == router.RegimePharma && a.d.Pharma != nil {
+		pres, err := a.d.Pharma.Predict(ctx, c)
+		if err == nil { // in scope; clarify is skipped, as for textile (not evaluated on this regime)
+			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
+		}
+		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
 	inScope, scopeReason := true, ""
 	if label != nil {

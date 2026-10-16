@@ -273,3 +273,20 @@ Rows: `results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.js
 Always-Mexico is 28/72 = 38.9%, always-Canada 24/72 = 33.3%. Rows: `results/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm.jsonl` and `results/usmca-dev-gemini-4-argon-prec-engine-v1-litellm.jsonl` (same pool and cases, engine-v1 prompt).
 
 Of the 18 usmca-v1 misses, 3 are label problems rather than model errors: H345343 and H342474 (the two manual rows, copied from `labels.jsonl`) hold the Section 301 origin, while CBP's marking origin, the question Part 102 answers, is Mexico in both; N342959's "evidence" is a facts sentence ("German origin Module frames"), not a holding. 12 of the 18 predict the country that made a main material or component (South Korea for cast covers, China for film and spouts, Germany for coated paper, the United States for cereal and potato flakes) where CBP found the tariff shift met in Mexico or Canada: the model under-applies (a)(3).
+
+## Pharmaceutical regime (active ingredient) — LiteLLM proxy, development only (17 Oct 2026; D62)
+
+`pharma-v1`, Gemini 4 Argon, plain BM25, K = 5, precedents limited to pharmaceutical (`pharma_api`) rulings dated before the case. Split frozen in `eval/splits/splits_pharma.json` (pool 187, dev 35 = Jul–Dec 2025, final 56 = 2026). **Proxy, development only**: not an official number; re-run on Vertex AI. Held-out was not run. The "fast path" line in the raw eval report uses the substantial-transformation bar of 0.92; the pharma numbers below are separate.
+
+| Run (dev, 35) | Accuracy (95% CI) | ≥ 0.95 coverage | ≥ 0.95 accuracy (95% CI) | Cost / case (promo) | Latency p50 / p95 |
+|---|---|---:|---|---|---|
+| **pharma-v1** | **33/35 = 94.3% (81.4–98.4)** | 32/35 = 91.4% | **32/32 = 100% (89.3–100)** | $0.0070 | 6.0 s / 20.1 s |
+| engine-v1 (substantial-transformation prompt, all precedents) | 33/35 = 94.3% (81.4–98.4) | 34/35 = 97.1% | 32/34 = 94.1% (80.9–98.4) | $0.0064 | 5.5 s / 13.5 s |
+
+Always-India (the dev majority) is 13/35 = 37.1%. McNemar pharma-v1 vs engine-v1: fixed 1, broke 1. The two prompts are equally accurate here; the difference is calibration. engine-v1's two misses are at 0.98 (N351305 Malaysia for Malaysia/Vietnam; N353822 Brazil for United States, the cough drops whose US menthol is the active ingredient). pharma-v1 gets N353822 right and its two misses are below 0.95.
+
+Cumulative accuracy by confidence (pharma-v1, dev): ≥ 1.00 15/15; ≥ 0.99 30/30; ≥ 0.95 32/32 = 100% (89.3–100); ≥ 0.90 33/34 = 97.1% (85.1–99.5); ≥ 0.85 33/35 = 94.3%. The lowest confidence with ≥ 95% dev accuracy is **0.90** (33/34, 34 of 35 cases). No score falls between 0.90 and 0.95, so 0.91–0.95 select the same 32 cases. Zero call errors.
+
+Dev misses (2), both Dermasil creams whose CBP holding is "Malaysia or Vietnam" (bulk cream made in either country): N351305 predicted Malaysia at 0.90, N351352 predicted Malaysia at 0.85. These are cosmetics, not drugs, and the router (Vertex dev-window scope file) labels them `substantial_transformation`, so in production they would not reach the pharma engine. The router labels the other 33 dev rulings `pharma_api`.
+
+Commands: `go run ./cmd/eval run -regime pharma -split dev`; the engine-v1 row is `eval run -splits ../eval/splits/splits_pharma.json -split dev` (written as `dev-...-engine-v1-litellm.jsonl` and renamed with a `pharma-` prefix so it does not overwrite the main dev file). Rows: `results/pharma-dev-gemini-4-argon-prec-pharma-v1-litellm.jsonl`, `results/pharma-dev-gemini-4-argon-prec-engine-v1-litellm.jsonl`. The `git_revision` in RUNLOG is a local scratch merge with the LiteLLM provider, not a pushed commit.

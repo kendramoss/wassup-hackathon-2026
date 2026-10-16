@@ -51,7 +51,7 @@ const System = routerMD + regimeAddendum
 var (
 	Routes      = []string{"set_kit", "commodity", "assembly", "scenario"}
 	Subfamilies = []string{"electronics", "motorised", "metal_tools_parts", "battery_solar", "filters", "furniture_fixtures", "medical", "apparel_textile_goods", "other"}
-	Regimes     = []string{"substantial_transformation", RegimeTextile, "usmca_part102", "pharma_api", "unclear"}
+	Regimes     = []string{"substantial_transformation", RegimeTextile, "usmca_part102", RegimePharma, "unclear"}
 )
 
 // Schema constrains the router's answer to the allowed values.
@@ -87,6 +87,10 @@ const RegimeTextile = "textile_102_21"
 // RegimeUSMCA is the label for USMCA preference or Canada/Mexico marking
 // questions decided under the Part 102 tariff-shift rules (19 CFR 102.11).
 const RegimeUSMCA = "usmca_part102"
+
+// RegimePharma is the label for drugs whose origin turns on the active
+// pharmaceutical ingredient (D62).
+const RegimePharma = "pharma_api"
 
 // OutOfScopeRegimes are routed to review: origin prediction covers the
 // substantial-transformation regime only.

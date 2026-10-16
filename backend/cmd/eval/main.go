@@ -150,13 +150,18 @@ func run(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
-	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51) or usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61)")
+	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
 	_ = fl.Parse(args)
-	if *regime != "st" && *regime != "textile" && *regime != "usmca" {
-		return fmt.Errorf("-regime must be st, textile or usmca, got %q", *regime)
+	if *regime != "st" && *regime != "textile" && *regime != "usmca" && *regime != "pharma" {
+		return fmt.Errorf("-regime must be st, textile, usmca or pharma, got %q", *regime)
 	}
-	if *regime == "textile" && *splitsPath == "../eval/splits/splits_final.json" {
-		*splitsPath = "../eval/splits/splits_textile.json"
+	if *splitsPath == "../eval/splits/splits_final.json" {
+		switch *regime {
+		case "textile":
+			*splitsPath = "../eval/splits/splits_textile.json"
+		case "pharma":
+			*splitsPath = "../eval/splits/splits_pharma.json"
+		}
 	}
 	if *regime == "usmca" {
 		// Its own labels: most Part 102 rulings predate labels.jsonl (2023+).
@@ -224,9 +229,15 @@ func run(args []string) error {
 	}
 	pool := store.Rulings()
 	if *regime == "textile" {
-		pool = textilePool(store, splits.Textile)
+		pool = regimePool(store, splits.Textile)
 		if len(pool) == 0 {
 			return errors.New("textile: the splits file lists no textile rulings")
+		}
+	}
+	if *regime == "pharma" {
+		pool = regimePool(store, splits.Pharma)
+		if len(pool) == 0 {
+			return errors.New("pharma: the splits file lists no pharmaceutical rulings")
 		}
 	}
 	var retr retrieval.Retriever
@@ -284,6 +295,13 @@ func run(args []string) error {
 		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
 			Votes: *votes, VoteBelow: *voteBelow, System: engine.USMCASystem, Version: engine.USMCAVersion})
 	}
+	if *regime == "pharma" {
+		if *useRules || *useReasoning || *retrievalMode != "bm25" {
+			return errors.New("-regime pharma supports plain bm25 runs")
+		}
+		eng = engine.New(model, retr, engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens,
+			Votes: *votes, VoteBelow: *voteBelow, System: engine.PharmaSystem, Version: engine.PharmaVersion})
+	}
 	var rt *router.Router
 	if *useRouter {
 		rt = router.New(model, cfg.RouterModel, 2000)
@@ -302,6 +320,12 @@ func run(args []string) error {
 	}
 	if *regime == "usmca" {
 		name = fmt.Sprintf("usmca-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.USMCAVersion, cfg.LLMProvider)
+		if cfg.PrecedentK != 5 {
+			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
+		}
+	}
+	if *regime == "pharma" {
+		name = fmt.Sprintf("pharma-%s-%s-%s-%s-%s", *split, cfg.EngineModel, *cond, engine.PharmaVersion, cfg.LLMProvider)
 		if cfg.PrecedentK != 5 {
 			name += fmt.Sprintf("-k%d", cfg.PrecedentK)
 		}
@@ -503,6 +527,9 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 	}
 	if strings.HasPrefix(name, "usmca-") {
 		prompt = engine.USMCAVersion
+	}
+	if strings.HasPrefix(name, "pharma-") {
+		prompt = engine.PharmaVersion
 	}
 	entry := map[string]any{
 		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": split == "final",
@@ -1726,9 +1753,9 @@ func clarifyCmd(args []string) error {
 	return nil
 }
 
-// textilePool is the textile engine's precedents: the listed rulings that
-// have facts and a label (D51).
-func textilePool(store *corpus.Store, ids []string) []domain.Ruling {
+// regimePool is a regime engine's precedents (textile, D51; pharma, D62):
+// the listed rulings that have facts and a label.
+func regimePool(store *corpus.Store, ids []string) []domain.Ruling {
 	var out []domain.Ruling
 	for _, id := range ids {
 		if r, ok := store.Get(id); ok {
