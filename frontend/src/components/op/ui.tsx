@@ -74,7 +74,7 @@ export function Ruler({
         <div className="absolute inset-x-0 top-[14px] border-t border-ink" />
         {[0, 0.5, 1].map((x) => (
           <div key={x} className="absolute top-[9px] h-[10px] border-l border-ink" style={{ left: `${x * 100}%` }}>
-            <span className="absolute left-[-10px] top-[13px] text-[10px] text-dim">{x === 0.5 ? ".5" : x}</span>
+            <span className="absolute left-[-10px] top-[13px] text-[11px] text-dim">{x === 0.5 ? ".5" : x}</span>
           </div>
         ))}
         {value !== null && value !== undefined && (
@@ -84,7 +84,7 @@ export function Ruler({
           />
         )}
         <div className="absolute top-0 h-[28px] border-l-[1.5px] border-dashed border-ok" style={{ left: `${BAR * 100}%` }}>
-          <b className="absolute right-1 top-[-16px] whitespace-nowrap text-[10px] font-medium text-ok">{label}</b>
+          <b className="absolute right-1 top-[-16px] whitespace-nowrap text-[11px] font-medium text-ok">{label}</b>
         </div>
       </div>
       {caption && <div className="mt-0.5 text-xs text-dim">{caption}</div>}
@@ -134,13 +134,16 @@ const btn = {
 type BtnProps = { variant?: "primary" | "ghost"; className?: string };
 
 export function Button({ variant = "primary", className, disabled, ...props }: ComponentProps<"button"> & BtnProps) {
+  // aria-disabled looks disabled but stays focusable, so a keyboard or
+  // screen-reader user can reach it and hear why (#100).
+  const off = disabled || props["aria-disabled"] === true || props["aria-disabled"] === "true";
   return (
     <button
       type="button"
       disabled={disabled}
       className={cx(
         "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[2px] border px-4 py-2 text-sm font-medium",
-        disabled ? btn.off : btn[variant],
+        off ? btn.off : btn[variant],
         className,
       )}
       {...props}
@@ -187,7 +190,7 @@ export function StatusChip({ route }: { route: string | null | undefined }) {
 }
 
 export function Dimension({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cx("text-[10px] tracking-[0.02em] text-dimension", className)}>{children}</span>;
+  return <span className={cx("text-[11px] tracking-[0.02em] text-dimension", className)}>{children}</span>;
 }
 
 // A horizontally scrolling table wrapper that keyboard users can scroll.

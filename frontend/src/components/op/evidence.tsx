@@ -31,7 +31,7 @@ export function RulingsList({ rulings, cited = [] }: { rulings: PrecedentRef[]; 
           </div>
           <span className="shrink-0 text-right">
             <RulingLink id={r.id} className={cx(isCited.has(r.id) ? "" : "text-ink")} />
-            {isCited.has(r.id) && <em className="block text-[10.5px] not-italic uppercase tracking-[0.06em] text-ok">cited</em>}
+            {isCited.has(r.id) && <em className="block text-[11px] not-italic uppercase tracking-[0.06em] text-ok">cited</em>}
           </span>
         </li>
       ))}

@@ -339,7 +339,7 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
             <thead>
               <tr>
                 {["Product", "Likely origin", "Status", "Cost", ""].map((h, i) => (
-                  <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                  <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                     {h || <span className="sr-only">Open</span>}
                   </th>
                 ))}

@@ -407,7 +407,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
         <thead>
           <tr>
             {["Move", "Outcome", "Precedent check", "Net per year"].map((h) => (
-              <th key={h} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+              <th key={h} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                 {h}
               </th>
             ))}
@@ -514,7 +514,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
           <thead>
             <tr>
               {["Move", "Outcome", "Precedent check", "Net per year", ""].map((h, i) => (
-                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                   {h || <span className="sr-only">Draft</span>}
                 </th>
               ))}

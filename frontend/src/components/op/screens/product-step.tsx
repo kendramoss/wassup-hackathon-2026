@@ -14,6 +14,7 @@ import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 
 type Tab = "parts" | "paste" | "bom";
+const tabOrder: Tab[] = ["parts", "paste", "bom"];
 
 // Operation groups of the planner templates, offered as suggestions.
 const groupSuggestions = [
@@ -199,6 +200,11 @@ export function ProductStep() {
   else if (tab === "paste" && facts.trim().length <= 20) missing = "Paste a description (a sentence or more)";
   else if (tab !== "paste" && !product.components.some((c) => c.name.trim() && c.made_in.trim())) missing = "Add a part and where it's made";
   const ready = missing === null;
+  // Not ready: the button stays focusable and takes you to what's missing.
+  const showMissing = () => {
+    const field = name.trim() === "" ? "[data-field=name]" : missing === "Add the case date" ? "[data-field=date]" : "#step1-panel textarea, #step1-panel input";
+    document.querySelector<HTMLElement>(field)?.focus();
+  };
   const tiers = unlocks(tab, facts, product, economics);
   const countries = [...new Set((product.plants ?? []).map((p) => p.country.trim()).filter(Boolean))];
   const groups = productGroups(product);
@@ -219,14 +225,31 @@ export function ProductStep() {
             )}
           </p>
 
+          {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
           <div role="tablist" aria-label="How to describe the product" className="mt-7 inline-flex flex-wrap border border-edge bg-sheet">
-            {(["parts", "paste", "bom"] as Tab[]).map((t) => (
+            {tabOrder.map((t) => (
               <button
                 key={t}
+                id={`step1-tab-${t}`}
                 role="tab"
                 type="button"
                 aria-selected={tab === t}
+                aria-controls="step1-panel"
+                tabIndex={tab === t ? 0 : -1}
                 onClick={() => setTab(t)}
+                onKeyDown={(e) => {
+                  const i = tabOrder.indexOf(t);
+                  const next =
+                    e.key === "ArrowRight" ? tabOrder[(i + 1) % tabOrder.length]
+                    : e.key === "ArrowLeft" ? tabOrder[(i + tabOrder.length - 1) % tabOrder.length]
+                    : e.key === "Home" ? tabOrder[0]
+                    : e.key === "End" ? tabOrder[tabOrder.length - 1]
+                    : null;
+                  if (!next) return;
+                  e.preventDefault();
+                  setTab(next);
+                  document.getElementById(`step1-tab-${next}`)?.focus();
+                }}
                 className={cx("min-h-10 px-4 text-[13px]", tab === t ? "bg-ink text-paper" : "text-body hover:bg-wash")}
               >
                 {copy.product.tabs[t]}
@@ -247,7 +270,7 @@ export function ProductStep() {
             </div>
           )}
 
-          <div className="mt-7" role="tabpanel">
+          <div className="mt-7" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
             {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -306,7 +329,7 @@ export function ProductStep() {
           {/* After the input: name, family and date (an import fills the name). */}
           <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
             <Field label={copy.product.name}>
-              {(id) => <input id={id} className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
             </Field>
             <Field label={copy.product.family}>
               {(id) => (
@@ -324,7 +347,7 @@ export function ProductStep() {
               )}
             </Field>
             <Field label={copy.product.date} help={copy.product.dateHelp}>
-              {(id) => <input id={id} type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
             </Field>
           </div>
           {/* Below the input it describes: what it unlocks so far. */}
@@ -393,7 +416,7 @@ export function ProductStep() {
                   {missing}
                 </span>
               ) : null}
-              <Button onClick={submit} disabled={!ready || busy} aria-describedby={missing ? "go-why" : undefined}>
+              <Button onClick={ready ? submit : showMissing} disabled={busy} aria-disabled={!ready} aria-describedby={missing ? "go-why" : undefined}>
                 {copy.product.go} →
               </Button>
             </div>
@@ -528,7 +551,7 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
               <thead>
                 <tr>
                   {["Part", "Made at", "Country", "Group"].map((h) => (
-                    <th key={h} scope="col" className="pb-2 pr-2 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                    <th key={h} scope="col" className="pb-2 pr-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                       {h}
                     </th>
                   ))}
