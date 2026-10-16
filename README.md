@@ -88,9 +88,10 @@ Model access is configured by environment only:
 
 | Provider | Use | Env |
 |---|---|---|
-| `vertex` | deployment and official numbers | `LLM_PROVIDER=vertex GOOGLE_CLOUD_PROJECT=… GOOGLE_CLOUD_LOCATION=global` + `gcloud auth application-default login` |
-| `litellm` | local development only (refuses to start on Cloud Run) | `LLM_PROVIDER=litellm LITELLM_BASE_URL=… LITELLM_API_KEY=…` (never in files, CI or logs) |
-| `fake` | offline tests | `LLM_PROVIDER=fake` |
+| `vertex` (default) | development, evals and deployment | `GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global` + `gcloud auth application-default login` |
+| `fake` | offline tests and UI work (fixed answer, no model calls) | `LLM_PROVIDER=fake` |
+
+The LiteLLM proxy used before Vertex access was removed (D49). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
 ```bash
 make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
@@ -106,7 +107,7 @@ Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confir
 
 | Path | What |
 |---|---|
-| `backend/` | Go API and CLIs. Packages: `domain`, `config`, `llm` (LiteLLM, Vertex, fake), `corpus`, `retrieval`, `engine`, `router`, `triage`, `planner` (+ `templates/`), `verifier` (ADK), `clarify`, `cross`, `export`, `store`, `httpapi`, `evalkit`, `evalsummary` |
+| `backend/` | Go API and CLIs. Packages: `domain`, `config`, `llm` (Vertex, fake), `corpus`, `retrieval`, `engine`, `router`, `triage`, `planner` (+ `templates/`), `verifier` (ADK), `clarify`, `cross`, `export`, `store`, `httpapi`, `evalkit`, `evalsummary` |
 | `frontend/` | Next.js app (being rebuilt for Origin Proof) |
 | `eval/` | Splits, labels, flip pairs (sha256-pinned), result files, `RESULTS.md` |
 | `docs/` | `ARCHITECTURE.md`, `DECISIONS.md`, `PROMPTS.md`, `api/openapi.yaml`, `DUTY-SOURCES.md`, `NUMBERS.md`, `SETUP-GCP.md` |

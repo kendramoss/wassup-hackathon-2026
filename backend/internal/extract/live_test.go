@@ -21,7 +21,15 @@ func TestLiveHeatGun(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	model := llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
+	if cfg.LLMProvider != config.ProviderVertex {
+		t.Fatalf("EXTRACT_LIVE_MODEL needs LLM_PROVIDER=vertex, got %q (D49)", cfg.LLMProvider)
+	}
+	model, err := llm.NewVertex(context.Background(), llm.VertexOptions{
+		Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	var rec struct{ Facts string }
 	b, _ := os.ReadFile("../../../eval/results/predict-heatgun-2022-litellm.json")
 	_ = json.Unmarshal(b, &rec)

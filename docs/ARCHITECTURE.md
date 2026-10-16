@@ -19,7 +19,7 @@ eval (Go CLI) → engine/verifier on frozen splits → eval/results/*.jsonl + ev
 | `cmd/server` | Gate A | wiring, `-smoke` |
 | `internal/domain` | Gate A | pure types + validation, country normalisation |
 | `internal/config` | Gate A | env config, defaults, validation |
-| `internal/llm` | Gate A | `Model` interface; LiteLLM, Vertex, Fake; retry + logging decorators |
+| `internal/llm` | Gate A | `Model` interface; Vertex, Fake (LiteLLM removed, D49); retry + logging decorators |
 | `internal/httpapi` | Gate A | routing, request IDs, error JSON `{code, message, details}` |
 | `internal/cross` | Gate B | CROSS client (`/api/ruling/<id>`) |
 | `internal/corpus`, `cmd/corpus` | Gate B | facts splitter (byte-identical port), labels, splits, in-memory store; fetch/build/compare CLI |
