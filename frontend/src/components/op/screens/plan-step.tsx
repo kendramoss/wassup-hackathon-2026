@@ -7,11 +7,11 @@ import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney } from "../money-drawer";
 import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
-import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
   return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
@@ -19,7 +19,7 @@ export function PlanStep() {
 
 type Row = { key: string; description: string; plan?: Plan; started?: boolean };
 
-function PlanScreen({ id, c, setCase }: CaseCtx) {
+function PlanScreen({ id, c, setCase, ask }: CaseCtx) {
   const params = useSearchParams();
   const router = useRouter();
   const target = params.get("target") ?? planTarget(c) ?? "";
@@ -123,14 +123,26 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
     const plants = c.product?.plants?.length ?? 0;
     return (
       <>
-        <Main className="flex flex-col gap-3">
-          <p className="eyebrow">Step 3 · Plan</p>
-          <h1 className="text-xl tracking-[-0.04em]">Plan a move</h1>
-          <p className="duo max-w-[72ch] text-sm text-dim">
-            {plants
-              ? "The plan search moves work between your plants. Every plant on this case is in the origin country, so there is nowhere to move to. Add a plant in another country."
-              : "The plan search moves work between your plants, so it needs parts and plants. This case was started from a pasted description. Turn the description into parts and plants on a new case; this one stays as it is."}
-          </p>
+        <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex flex-col gap-3">
+            <p className="eyebrow">Step 3 of 4 · Plan</p>
+            <h1 className="text-xl tracking-[-0.04em]">Plan a move</h1>
+            <p className="duo max-w-[72ch] text-sm text-dim">
+              {plants
+                ? "The plan search moves work between your plants. Every plant on this case is in the origin country, so there is nowhere to move to. Add a plant in another country."
+                : "The plan search moves work between your plants, so it needs parts and plants. This case was started from a pasted description. Turn the description into parts and plants on a new case; this one stays as it is."}
+            </p>
+          </div>
+          <NextSteps
+            steps={[
+              { label: plants ? "Add a plant in another country" : "Add parts and plants", href: `/cases/new?from=${encodeURIComponent(id)}` },
+              { label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` },
+            ]}
+            suggestions={[
+              { label: "Ask about this case", onClick: ask },
+              { label: "Try a what-if scenario", href: `/cases/${encodeURIComponent(id)}/scenarios` },
+            ]}
+          />
         </Main>
         <Footer>
           <Next>{plants ? "Add a plant in another country." : "Turn the description into parts and plants."}</Next>
@@ -177,38 +189,57 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
         {/* #4: the decision first (band above), then the moves and why the
             best one is supported side by side; the diagram explains, so it
             comes after. Money inputs open in a drawer. */}
+        {/* Top to bottom: the decision (band), every move searched, then why
+            (left) beside what to do next (right); the rest folds (17 Oct). */}
+        {result && <AllMoves result={result} onDraft={draft} />}
         {result && (
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0">
-              <AllMoves result={result} onDraft={draft} />
-              {result.stats ? (
-                <p className="mt-2">
-                  <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} />
-                </p>
-              ) : null}
-            </div>
-            <aside aria-label="Why it's supported" className="flex min-w-0 flex-col gap-5">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="flex min-w-0 flex-col gap-6">
               {lead && <WhySupported plan={lead} />}
-              <section aria-label="Money inputs" className="text-[13px]">
-                <h3 className="eyebrow mb-1">Money · illustrative</h3>
-                <p className="duo">
-                  {economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "No import value yet"}
-                  {Object.keys(economics.duty_rates ?? {}).length ? ` · duty ${Object.entries(economics.duty_rates ?? {}).map(([k, v]) => `${k} ${Math.round(v * 1000) / 10}%`).join(", ")}` : ""}{" "}
-                  <button type="button" className="text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
-                    Edit
-                  </button>
-                </p>
-              </section>
-            </aside>
+              <div>
+                {lead && c.product && (
+                  <Fold title={`fig.2 — ${best ? "best plan" : "closest move"}, by plant`} meta={best ? "moved in blue" : "below the bar"}>
+                    <PlantDiagram product={c.product} plan={lead} below={!best} />
+                  </Fold>
+                )}
+                <Fold title="Money · illustrative" meta={economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "no import value yet"}>
+                  <p className="duo text-[13px]">
+                    {economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "No import value yet"}
+                    {Object.keys(economics.duty_rates ?? {}).length ? ` · duty ${Object.entries(economics.duty_rates ?? {}).map(([k, v]) => `${k} ${Math.round(v * 1000) / 10}%`).join(", ")}` : ""}{" "}
+                    <button type="button" className="text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
+                      Edit
+                    </button>
+                  </p>
+                </Fold>
+                {result.backtest ? (
+                  <Fold title="fig.3 — backtest against CBP's actual ruling">
+                    <BacktestPanel bt={result.backtest as Record<string, unknown>} />
+                  </Fold>
+                ) : null}
+                {result.stats ? (
+                  <Fold title="Search details" meta={`${(result.stats as Record<string, number>).moves_searched} moves searched`}>
+                    <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} />
+                  </Fold>
+                ) : null}
+              </div>
+            </div>
+            <NextSteps
+              steps={[
+                best
+                  ? { label: copy.plan.draft, onClick: () => draft(moveKey(best)) }
+                  : closest
+                    ? { label: copy.plan.draftClosest, onClick: () => draft(moveKey(closest)) }
+                    : { label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` },
+                { label: copy.plan.compare, href: `/cases/${encodeURIComponent(id)}/compare` },
+              ]}
+              suggestions={[
+                { label: "Change the money inputs", onClick: () => setShowMoney(true) },
+                { label: "Ask about this case", onClick: ask },
+                { label: "Try your own what-ifs", href: `/cases/${encodeURIComponent(id)}/scenarios` },
+              ]}
+            />
           </div>
         )}
-        {result && lead && c.product && (
-          <Panel className="shadow-none">
-            <PanelHead right={best ? "moved in blue" : <span className="text-ask">below the bar</span>}>fig.2 — {best ? "best plan" : "closest move"}, by plant</PanelHead>
-            <PlantDiagram product={c.product} plan={lead} below={!best} />
-          </Panel>
-        )}
-        {result?.backtest ? <BacktestPanel bt={result.backtest as Record<string, unknown>} /> : null}
         {showMoney && (
           <MoneyDrawer onClose={() => setShowMoney(false)}>
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
@@ -258,7 +289,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             // today's setup (#84), as the Draft tab already allowed.
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : (
-            !searching && <span className="text-xs text-dim">The draft opens after the search</span>
+            null
           )}
         </div>
       </Footer>
@@ -304,7 +335,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
   return (
     <Band left={below ? `fig.1 — no plan cleared the bar · 0 of ${total} moves shown` : `fig.1 — best plan · ${shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
-        <p className={cx("eyebrow", below && "text-ask")}>{below ? copy.plan.none : copy.plan.best}</p>
+        <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           {below ? "Closest: make " : "Make "}
           {sentence(plan)} in <To country={target} />
@@ -341,7 +372,7 @@ function NoneBand({ target }: { target: string }) {
   return (
     <Band left="fig.1 — no supported plan">
       <div>
-        <p className="eyebrow text-ask">No plan reached {target}</p>
+        <p className="eyebrow text-ask">Step 3 of 4 · No plan reached {target}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
       </div>
     </Band>
@@ -353,7 +384,7 @@ function StartBand({ target, c }: { target: string; c: CaseResponse }) {
   return (
     <Band left="fig.1 — plan a move">
       <div>
-        <p className="eyebrow">Step 3 · Plan</p>
+        <p className="eyebrow">Step 3 of 4 · Plan</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Which operations would have to move for the origin to become <To country={target} />?
         </h1>
@@ -369,7 +400,7 @@ function SearchingBand({ target, progress }: { target: string; progress: { done:
   return (
     <Band left="fig.1 — searching" right="moves run in parallel">
       <div>
-        <p className="eyebrow">{copy.plan.searching}</p>
+        <p className="eyebrow">Step 3 of 4 · {copy.plan.searching}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Checking each move to <To country={target} /> against earlier CBP rulings
         </h1>
@@ -576,8 +607,7 @@ function BacktestPanel({ bt }: { bt: Record<string, unknown> }) {
   const moved = list("moved_by_plan");
   const actual = list("actual_moved");
   return (
-    <Panel>
-      <PanelHead right={typeof bt.source === "string" ? bt.source : undefined}>fig.3 — backtest against CBP&apos;s actual ruling</PanelHead>
+    <div>
       <p className="duo text-[13px]">
         The manufacturer&apos;s real change moved {actual.length} parts. This plan moves {moved.length} of them.
       </p>
@@ -588,7 +618,8 @@ function BacktestPanel({ bt }: { bt: Record<string, unknown> }) {
           </span>
         ))}
       </div>
-    </Panel>
+      {typeof bt.source === "string" ? <p className="mt-2 text-xs text-dim">Source: {bt.source}</p> : null}
+    </div>
   );
 }
 
