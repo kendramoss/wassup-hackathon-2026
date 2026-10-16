@@ -11,7 +11,7 @@ import { ErrorBox, Main } from "../chrome";
 import { Button, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 const caseHref = (c: Pick<CaseSummary, "id" | "step">) =>
-  `/cases/${encodeURIComponent(c.id)}/${["product", "origin", "origin", "plan", "draft"][stepIndex[c.step] ?? 1]}`;
+  `/cases/${encodeURIComponent(c.id)}/${["product", "product", "origin", "plan", "draft"][stepIndex[c.step] ?? 2]}`;
 
 // Cases home (DESIGN.md, locked 16 Oct, option 2): pinned demos as cards,
 // then "Your cases" as a table with a ⋯ menu (Open, Rename, Delete).

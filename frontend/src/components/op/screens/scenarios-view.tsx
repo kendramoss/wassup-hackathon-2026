@@ -190,7 +190,7 @@ function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: 
 }
 
 function prettyLabel(label?: string) {
-  return (label ?? "").replace(/[a-z]+(?:_[a-z]+)+|pcba/g, (g) => groupName(g));
+  return (label ?? "").replace(/[a-z]+(?:_[a-z]+)+|\bpcba\b/g, (g) => groupName(g));
 }
 
 function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
@@ -249,8 +249,11 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   );
 }
 
-function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
+function Matrix({ sc: all, c }: { sc: Scenario[]; c: CaseResponse }) {
   const parts = c.product!.components;
+  // The fixed "Today" column already shows the current setup, so a product
+  // scenario that moves nothing would repeat it.
+  const sc = all.filter((s) => !(s.product && (s.comparison?.moved?.length ?? 0) === 0));
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Where each part is made</h2>
@@ -266,7 +269,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
               </th>
               {sc.map((s, i) => (
                 <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
-                  {s.label}
+                  {prettyLabel(s.label)}
                 </th>
               ))}
             </tr>

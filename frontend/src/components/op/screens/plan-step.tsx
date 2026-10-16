@@ -471,7 +471,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   return (
     <section className="min-w-0">
       <h2 className="eyebrow mb-2.5">
-        Moves searched · {every.length} · best first
+        Moves searched · {every.length} · {result.plans?.length ? "best first" : "closest first by precedent check"}
       </h2>
       <div className="relative overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse border border-line bg-sheet text-[13px]">
