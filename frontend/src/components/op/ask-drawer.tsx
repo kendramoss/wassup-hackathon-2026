@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -103,7 +104,7 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
               <b className="font-medium text-ink">Earlier:</b> {t.question} · <span className="text-ok">{t.cited_rulings?.length ?? 0} rulings cited · show answer</span>
             </button>
           ) : (
-            <TurnView key={i} t={t} detail={detail} />
+            <TurnView key={i} t={t} detail={detail} caseId={c.id!} />
           ),
         )}
         {pending && (
@@ -185,7 +186,7 @@ function Q({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TurnView({ t, detail }: { t: Turn; detail: Record<string, PrecedentRef> }) {
+function TurnView({ t, detail, caseId }: { t: Turn; detail: Record<string, PrecedentRef>; caseId: string }) {
   const cited = t.cited_rulings ?? [];
   return (
     <div>
@@ -200,7 +201,17 @@ function TurnView({ t, detail }: { t: Turn; detail: Record<string, PrecedentRef>
             </p>
             {w.decisive_step && <p className="duo clamp-2 mt-1 text-xs text-dim">{w.decisive_step}</p>}
           </div>
-          <Ruler value={w.confidence} label={String(BAR)} width={150} caption={`confidence ${conf(w.confidence)}`} />
+          <div className="grid content-between gap-2">
+            <Ruler value={w.confidence} label={String(BAR)} width={150} caption={`confidence ${conf(w.confidence)}`} />
+            {w.change && (
+              <Link
+                href={`/cases/${encodeURIComponent(caseId)}/scenarios?add=${encodeURIComponent(w.change)}`}
+                className="text-xs text-ok hover:underline"
+              >
+                Add as a scenario →
+              </Link>
+            )}
+          </div>
         </div>
       ))}
       <Answer text={t.answer ?? ""} ids={cited} />

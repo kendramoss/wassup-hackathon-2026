@@ -19,10 +19,11 @@ export const copy = {
   },
 
   product: {
-    title: "Describe the product",
-    lede: "Paste what you would tell CBP: the parts, where each is made, and what happens at each plant. Or enter parts and plants to unlock the plan search.",
+    title: "Describe your product",
+    lede: "Where each part is made and what each plant can do. Or paste what you would tell CBP.",
     tabs: { parts: "Parts and plants", paste: "Paste a description", bom: "Import BOM" },
     name: "Product name",
+    family: "Product family",
     date: "Case date",
     dateHelp: "Only CBP rulings dated before this date are used.",
     facts: "What you would tell CBP",
