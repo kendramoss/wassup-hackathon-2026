@@ -2,6 +2,8 @@ package verifier
 
 import (
 	"context"
+	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -40,5 +42,49 @@ func TestCacheReturnsTheSameVerdict(t *testing.T) {
 	other, _ := NewCache(inner, dir, "other-model")
 	if _, _ = other.Verify(context.Background(), task); inner.calls != 2 {
 		t.Errorf("a different model must not reuse verdicts: calls=%d", inner.calls)
+	}
+}
+
+type memBlobs struct {
+	mu   sync.Mutex
+	m    map[string][]byte
+	fail error
+}
+
+func (b *memBlobs) Get(_ context.Context, k string) ([]byte, bool, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.fail != nil {
+		return nil, false, b.fail
+	}
+	v, ok := b.m[k]
+	return v, ok, nil
+}
+
+func (b *memBlobs) Put(_ context.Context, k string, v []byte) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if _, ok := b.m[k]; !ok {
+		b.m[k] = v
+	}
+	return nil
+}
+
+func TestCacheInSharedBlobs(t *testing.T) {
+	blobs := &memBlobs{m: map[string][]byte{}}
+	inner := &countingChecker{}
+	a, b := NewCacheIn(inner, blobs, "m"), NewCacheIn(inner, blobs, "m") // two instances
+	task := Task{FactsA: "a", FactsB: "b", Target: "Thailand"}
+	r1, err := a.Verify(context.Background(), task)
+	if err != nil || r1.Cached {
+		t.Fatalf("first = %+v %v", r1, err)
+	}
+	r2, err := b.Verify(context.Background(), task)
+	if err != nil || !r2.Cached || r2.Verdict != r1.Verdict || inner.calls != 1 {
+		t.Errorf("other instance = %+v %v, inner calls %d", r2, err, inner.calls)
+	}
+	blobs.fail = errors.New("permission denied")
+	if _, err := a.Verify(context.Background(), task); err == nil {
+		t.Error("a failed cache read must not silently re-verify")
 	}
 }
