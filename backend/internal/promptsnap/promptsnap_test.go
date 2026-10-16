@@ -89,8 +89,9 @@ func TestDiff(t *testing.T) {
 // prompt the snapshot covers must be non-empty and carry a version.
 func TestTakeCoversEveryPrompt(t *testing.T) {
 	s := Take()
-	for _, name := range []string{"engine.system", "engine.user", "engine.rules", "engine.textile", "engine.textile2",
-		"router.system", "clarify.system", "clarify.answers", "verifier.system", "verifier.task", "caseagent.system"} {
+	for _, name := range []string{"engine.system", "engine.user", "engine.user_reasoning", "engine.rules", "engine.textile", "engine.textile2",
+		"router.system", "router.user", "clarify.system", "clarify.review", "clarify.answers", "extract.request",
+		"verifier.system", "verifier.task", "verifier.request", "caseagent.system", "caseagent.request"} {
 		e, ok := s.Prompts[name]
 		if !ok || e.Version == "" || len(e.SHA256) != 64 {
 			t.Errorf("%s = %+v", name, e)
@@ -109,6 +110,48 @@ func TestTakeCoversEveryPrompt(t *testing.T) {
 	cur := snap(map[string]Entry{p.Name: {Version: p.Version, SHA256: fingerprint(p.Text + ".")}})
 	if got := Diff(old, cur); len(got) != 1 || got[0].Kind != Unbumped {
 		t.Errorf("edited %s without a bump: %+v", p.Name, got)
+	}
+}
+
+// The rendered and captured entries must hold the parts the review found
+// unhashed: the reasoning line, the review and router user messages, the
+// extract system prompt and schema, and every agent tool's description.
+func TestPromptsHoldWhatTheModelIsSent(t *testing.T) {
+	text := map[string]string{}
+	for _, p := range Prompts() {
+		text[p.Name] = p.Text
+	}
+	tests := []struct {
+		name string
+		want []string
+	}{
+		{"engine.user_reasoning", []string{"CBP REASONING: The motor imparts the essential character."}},
+		{"router.user", []string{"CASE FACTS:\n" + fixtureFacts}},
+		{"clarify.review", []string{"PREDICTION: origin China (confidence 0.82)", "EARLIER CBP RULINGS:\n[N300001 | 2025-01-02]"}},
+		{"extract.request", []string{"into a parts list", `"schema_name":"product_draft"`, "stated_component_count", `OPERATION GROUPS:\n- motor: Motor`}},
+		{"verifier.request", []string{"at most 6 calls", `Your internal name is \"move_verifier\"`, "VARIANT B FACTS:",
+			`"name":"search_rulings","description":"Search earlier CBP rulings (only rulings dated before this case are returned).`,
+			`"name":"read_ruling","description":"Read the facts and CBP's analysis/holding of an earlier ruling."`, "e.g. N351460 or H337371"}},
+		{"caseagent.request", []string{"trade-compliance lead", `Your internal name is \"case_agent\"`, "QUESTION: Why China?",
+			`"name":"get_case","description":"The case: facts, prediction, review route, plans and scenarios."`,
+			`"name":"search_rulings","description":"Search earlier CBP rulings (dated before the case).`,
+			`"name":"read_ruling","description":"Read the facts and CBP's analysis and holding of an earlier ruling."`,
+			`"name":"what_if","description":"Re-run the origin prediction on revised facts.`, "the full revised facts"}},
+	}
+	for _, tt := range tests {
+		got, ok := text[tt.name]
+		if !ok {
+			t.Errorf("%s missing", tt.name)
+			continue
+		}
+		for _, w := range tt.want {
+			if !strings.Contains(got, w) {
+				t.Errorf("%s does not contain %q:\n%s", tt.name, w, got)
+			}
+		}
+	}
+	if text["engine.user_reasoning"] == text["engine.user"] {
+		t.Error("engine.user_reasoning renders the same text as engine.user")
 	}
 }
 

@@ -58,6 +58,13 @@ func RenderUser(facts string, precedents []domain.Ruling) string {
 // ReasoningVersion names the precedent-reasoning variant of the user message.
 const ReasoningVersion = "reasoning-v1"
 
+// RenderUserWithReasoning is RenderUser with each precedent's CBP reasoning
+// added, as the engine sends it when Options.PrecedentReasoning is set
+// (textile-v2 in production).
+func RenderUserWithReasoning(facts string, precedents []domain.Ruling) string {
+	return renderUser(facts, precedents, true)
+}
+
 func renderUser(facts string, precedents []domain.Ruling, withReasoning bool) string {
 	user := "FACTS (ruling request, analysis removed):\n" + corpus.Truncate(facts, FactsRunes)
 	if len(precedents) == 0 {

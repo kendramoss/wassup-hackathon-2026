@@ -1,6 +1,10 @@
 {
   "_doc": "SHA-256 of every model prompt and the version it is recorded under (D72). Regenerate with: cd backend \u0026\u0026 go test ./internal/promptsnap -update. The test refuses to update while a prompt's text changed and its version did not.",
   "prompts": {
+    "caseagent.request": {
+      "version": "case-agent-v1",
+      "sha256": "be7be27c1106f769f86cda0332789e60a172a15e4758c0daa14c53ec8be4d483"
+    },
     "caseagent.system": {
       "version": "case-agent-v1",
       "sha256": "cdfcc7e393d4a571cee10e4de8d9ee6a71cc208a420ff8da68aa3313fc9ae41d"
@@ -8,6 +12,10 @@
     "clarify.answers": {
       "version": "answers-v2",
       "sha256": "cedd9bddc6b8792bc0b5cf6065ee6d655d804b9175984dcc0525914d064d0458"
+    },
+    "clarify.review": {
+      "version": "clarify-v2",
+      "sha256": "5272f2e7a70fe6cf9a07558037e1b219e40468edc14359a0898180473cd81b9d"
     },
     "clarify.system": {
       "version": "clarify-v2",
@@ -33,9 +41,25 @@
       "version": "engine-v1",
       "sha256": "9ac7d337e0c4ebf53445921c2b9a19accaf8d28fdcc53588c5625747141b248a"
     },
+    "engine.user_reasoning": {
+      "version": "engine-v1+reasoning-v1",
+      "sha256": "02724b55eb3856638f8d372cfb6f37ca2cf6c445710110f837714191812f0e42"
+    },
+    "extract.request": {
+      "version": "extract-v3",
+      "sha256": "1ebb50b968f0d7ca9be1977490fd13d30090e90712f22465d4826dee338e2235"
+    },
     "router.system": {
       "version": "router-v2",
       "sha256": "7b6bfeec948b5b66a03cf58b6a0d17e2fb9475e1c9825bfbfa686f6b37c91904"
+    },
+    "router.user": {
+      "version": "router-v2",
+      "sha256": "c4c3da4bf4fbed52add80e98461fac65c6b761effb5d5cedc2b3c97c7217fecb"
+    },
+    "verifier.request": {
+      "version": "verifier-v1",
+      "sha256": "a7f55ee58d85ca338528fdee8c9d8b2c4b3cd32bc0b8f57ee07e60759c7f5767"
     },
     "verifier.system": {
       "version": "verifier-v1",
