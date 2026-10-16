@@ -20,6 +20,8 @@ const out = ".ui-check";
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 } };
 
 async function launch() {
+  // PW_CHROME: a browser binary to use instead (e.g. Playwright's headless shell).
+  if (process.env.PW_CHROME) return chromium.launch({ executablePath: process.env.PW_CHROME });
   const channels = process.env.BROWSER ? [process.env.BROWSER] : ["chrome", "msedge"];
   for (const channel of channels) {
     try {
