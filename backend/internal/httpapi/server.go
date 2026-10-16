@@ -29,6 +29,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		a = &api{d: d, rulingMemo: map[string]rulingDTO{}}
 		if d.Limits != (Limits{}) {
 			a.limiter = newLimiter(d.Limits)
+			if d.RateStore != nil {
+				a.shared = newSharedLimiter(d.Limits, d.RateStore)
+			}
 		}
 		mux.HandleFunc("POST /v1/cases/predict", a.limit(light, a.predict))
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))

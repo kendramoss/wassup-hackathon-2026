@@ -26,6 +26,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -89,6 +90,10 @@ type Deps struct {
 	Logger         *slog.Logger
 	// Limits caps model-calling endpoints per client (zero: no limits).
 	Limits Limits
+	// RateStore, when set, enforces Limits with counters shared by every
+	// instance instead of per instance (D70; RATE_LIMIT_STORE=firestore).
+	// On a store error a request falls back to this instance's limits.
+	RateStore ratelimit.Store
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
@@ -121,6 +126,7 @@ const maxBody = 256 << 10
 type api struct {
 	d          Deps
 	limiter    *limiter
+	shared     *sharedLimiter // nil unless Deps.RateStore is set
 	rulingMu   sync.Mutex
 	rulingMemo map[string]rulingDTO
 }
@@ -942,7 +948,7 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 		// visitor enumerating IDs could get our user agent blocked by CBP,
 		// which would break the precedent checks and Ask.
 		if a.limiter != nil && !a.isAdmin(r) {
-			if allowed, wait := a.limiter.allow(clientKey(r), lookup); !allowed {
+			if allowed, wait := a.allow(r, lookup); !allowed {
 				a.tooMany(w, wait)
 				return
 			}

@@ -159,7 +159,7 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 		if a.limiter != nil && !a.isAdmin(r) {
-			if ok, wait := a.limiter.allow(clientKey(r), c); !ok {
+			if ok, wait := a.allow(r, c); !ok {
 				a.tooMany(w, wait)
 				return
 			}
