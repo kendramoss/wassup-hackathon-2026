@@ -27,10 +27,33 @@ Untuned Gemini 3.5 Flash, dev only, adjustments applied, n = 463 (D44): 90.5% (8
 
 Official held-out Vertex engine (D39, already on demo): 90.2% (86.8–92.8). Not re-scored.
 
+## Staging
+
+Kendra granted `roles/secretmanager.secretAccessor` on `origin-proof-admin-token` to `agent-backend`. `anasqumhiyeh@gmail.com` still cannot read the secret (`secretmanager.versions.access` denied), so `gcloud secrets versions access` cannot supply `ADMIN_TOKEN`. A new version was added and the service redeployed so the seed and the revision share it. The value was not printed. Version 2 was disabled because its value was not kept. Version 1 is still enabled and is not what the serving revision uses.
+
+Serving revision `origin-proof-api-staging-00004-62n` at `https://origin-proof-api-staging-guxax2teha-uc.a.run.app`. Env: `LLM_PROVIDER=vertex`, `CASES_STORE=firestore`, `VERIFIER_CACHE_DIR=/tmp/verifier-cache`, timeout 300s, `ADMIN_TOKEN=origin-proof-admin-token:latest`. Production was not deployed.
+
+Smoke (`scripts/smoke.sh`, identity token and admin token):
+
+```
+ok    GET /health                        200    0.1 s
+ok    GET /health?deep=1                 200    2.2 s
+      checks: case_store 562 ms, model 2074 ms
+ok    GET /v1/demos/heatgun-2022         200    0.1 s
+ok    POST /v1/cases/predict (heat gun)  201   35.1 s
+      case_5574475b9a24: China 0.90 (needs_info), vertex gemini-4-argon
+ok    GET /v1/cases/{id}                 200    0.1 s
+ok    GET /v1/cases                      200    0.1 s
+      listed: True
+ok    POST /v1/cases/{id}/plan (~30 s)   200   58.1 s
+      6 moves, 0 shown, 0/6 checks cached
+all checks passed against https://origin-proof-api-staging-guxax2teha-uc.a.run.app
+```
+
+That smoke case was deleted. One seed, not repeated. Heat gun China 0.78 needs info, plan below the bar (check 0.85). LiDAR Thailand 0.95 auto, plan below the bar (check 0.85). Dryer latches Thailand 0.98 / China 0.98, both auto. All four cases pinned. Vertex row is in `docs/DEMO.md` section 4.
+
 ## Blocked
 
-- **Staging secret IAM.** Secret `origin-proof-admin-token` was created (version 1). The value was not printed. Granting `roles/secretmanager.secretAccessor` on that secret to `agent-backend` failed: `Permission 'secretmanager.secrets.setIamPolicy' denied` for `anasqumhiyeh@gmail.com` (`roles/editor`). `Kendra.ting@gmail.com` is `roles/owner`.
-- **Staging deploy.** `gcloud run deploy origin-proof-api-staging` built a container, then failed creating the revision: `Permission denied on secret: projects/88903435351/secrets/origin-proof-admin-token/versions/latest` for `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com`. Failed revision `origin-proof-api-staging-00002-h59` did not take traffic. Ready revision is still `origin-proof-api-staging-00001-sgq`. `GET /health` with an identity token returned 200 (`version` that revision). Anonymous `GET /health` returned 403. `scripts/smoke.sh` was not run. The demo was not seeded. No Vertex row was filled in `docs/DEMO.md` section 4. Store and provider were not switched.
 - **staticcheck toolchain.** First attempt: `go run honnef.co/go/tools/cmd/staticcheck@2026.2.2 ./...` downloaded Go 1.26.9 and exited 1 with `unknown field rfd in struct literal of type splicePipe` and `file requires newer Go version go1.27 (application built with go1.26)`. Re-run pinned to Go 1.27.0 exited 0 with no findings.
 
 ## Inventory differences (did not change the stack)
@@ -50,9 +73,9 @@ Proxy now accepts PUT, PATCH, and DELETE, but no screen calls rename, economics,
 
 ## Next
 
-1. Kendra grants `roles/secretmanager.secretAccessor` on secret `origin-proof-admin-token` to `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` only. Then redeploy `origin-proof-api-staging` from this branch with the same env plus `--set-secrets ADMIN_TOKEN=origin-proof-admin-token:latest`, run `scripts/smoke.sh`, seed once, and fill the Vertex row in `docs/DEMO.md` section 4.
-2. **Laptop note:** after D49, local `make run` needs Vertex Application Default Credentials (`gcloud auth application-default login`) and `GOOGLE_CLOUD_PROJECT`. There is no LiteLLM fallback. Do not work around that with a proxy.
-3. Decide how #59 and #55 stack. They both start from `feat/origin-proof-frontend` and touch the proxy.
+1. **Laptop note:** after D49, local `make run` needs Vertex Application Default Credentials (`gcloud auth application-default login`) and `GOOGLE_CLOUD_PROJECT`. There is no LiteLLM fallback. Do not work around that with a proxy.
+2. Decide how #59 and #55 stack. They both start from `feat/origin-proof-frontend` and touch the proxy.
+3. Delete this file before the final merge to `main`.
 
 ## Merge order
 

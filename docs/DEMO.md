@@ -64,3 +64,15 @@ Heat-gun scenarios: as today China 0.65 (now matches CBP; run 1 gave Thailand 0.
 
 The two runs disagree on the heat gun's plan (0.75 vs 0.92) and on the as-today scenario. That is the run-to-run variation in section 2: the 0.92 sits exactly on the bar. Design both the shown-plan and no-plan screens; the recording-day run (Vertex) decides which one the video shows, and neither proxy run should be presented as the official outcome.
 
+### Vertex (16 Oct, staging, one seed)
+One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-62n` (engine `gemini-4-argon`, `LLM_PROVIDER=vertex`). Not repeated. Files: `eval/results/demo-seed-heatgun-{predict,plan,scenarios}-vertex.json`, summary `eval/results/demo-seed-vertex.json`. The four cases are pinned.
+
+| Demo | Prediction | CBP held | Plan |
+|---|---|---|---|
+| Heat gun (CBP facts) | China 0.78, needs info (no ruling on point; 3 questions; a conflict, no lean) | China (N328954) | none shown; closest PCBA and switch, cord and minor parts in Thailand, check 0.85 |
+| LiDAR | Thailand 0.95, auto | Thailand (N359371, scenario I) | none shown; closest boards to Vietnam, check 0.85 |
+| Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
+| Dryer latch, assembled | China 0.98, auto | China | n/a |
+
+Heat gun extras: as today Thailand 0.75 net $0 (differs from CBP), motor-fan in Thailand 0.98 net $380k, motor-fan + PCBA 0.98 net $320k; watch unchanged; ask cited N351922 and N348083; countries: Malaysia below the bar, Thailand below the bar, Vietnam no plan. Repeat search: identical verdicts, 6/6 cached, 135.8 s. The heat-gun plan is below the bar, so the video uses the no-plan screen.
+
