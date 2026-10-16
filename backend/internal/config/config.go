@@ -40,6 +40,13 @@ const (
 	VerdictsOff       = "off"
 )
 
+// Rate limiter stores for RATE_LIMIT_STORE (D70).
+const (
+	RateLocal     = "local"
+	RateMemory    = "memory"
+	RateFirestore = "firestore"
+)
+
 // Config is the validated runtime configuration. Secret fields are excluded
 // from String so the config can be logged.
 type Config struct {
@@ -100,6 +107,11 @@ type Config struct {
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
 	// RateLookupPerMin caps ruling fetches from CROSS per client (D58).
 	RateLookupPerMin int
+	// RateLimitStore is where the limits are counted (D70): local (default,
+	// each instance its own buckets), firestore (fixed-window counters shared
+	// by all instances; falls back to local on a store error) or memory (the
+	// shared limiter in one process, for trying it locally).
+	RateLimitStore string
 	// CasesListLimit caps GET /v1/cases: pinned cases plus the newest others (D58).
 	CasesListLimit int
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
@@ -213,6 +225,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateHeavyPerMin:    e.integer("RATE_HEAVY_PER_MIN", 4),
 		RateGlobalPerMin:   e.integer("RATE_GLOBAL_PER_MIN", 120),
 		RateLookupPerMin:   e.integer("RATE_LOOKUP_PER_MIN", 30),
+		RateLimitStore:     strings.ToLower(e.str("RATE_LIMIT_STORE", RateLocal)),
 		CasesListLimit:     e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:        strings.ToLower(e.str("BOM_VERSIONS", "off")),
 		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
@@ -382,6 +395,15 @@ func (c Config) validate() error {
 	}
 	if c.RateGlobalPerMin > 0 && c.RateGlobalPerMin < 20 { // one batch request takes 20 (httpapi.MaxBatch)
 		bad("RATE_GLOBAL_PER_MIN must be 0 (off) or at least 20, got %d", c.RateGlobalPerMin)
+	}
+	switch c.RateLimitStore {
+	case RateFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when RATE_LIMIT_STORE=firestore")
+		}
+	case RateLocal, RateMemory:
+	default:
+		bad("RATE_LIMIT_STORE must be local, firestore or memory, got %q", c.RateLimitStore)
 	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")

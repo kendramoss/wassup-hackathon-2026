@@ -55,6 +55,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
@@ -355,6 +356,21 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		keys = apikey.New(ks)
 		logger.Info("API keys on", "store", fmt.Sprintf("%T", ks))
 	}
+	// Rate limits shared by all instances (D70); local keeps each
+	// instance's own buckets.
+	var rateStore ratelimit.Store
+	switch cfg.RateLimitStore {
+	case config.RateFirestore:
+		fc, err := store.NewFirestoreCounters(context.Background(), cfg.GCPProject, cfg.FirestoreDatabase)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		rateStore = fc
+		logger.Info("rate limits shared in Firestore", "collection", store.RateLimitCollection)
+	case config.RateMemory:
+		rateStore = ratelimit.NewMemory()
+		logger.Info("rate limits counted in fixed windows in memory")
+	}
 	return httpapi.Deps{
 		Demos:           ds,
 		Engine:          predictor,
@@ -376,6 +392,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		VerifierModel:   cfg.VerifierModel,
 		Logger:          logger,
 		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
+		RateStore:       rateStore,
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
 		BOMVersions:     cfg.BOMVersions == "on",

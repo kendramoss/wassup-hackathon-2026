@@ -108,6 +108,32 @@ func TestCasesStoreDefaults(t *testing.T) {
 	}
 }
 
+func TestRateLimitStore(t *testing.T) {
+	tests := []struct {
+		name string
+		env  map[string]string
+		want string // the store; empty means a config error
+	}{
+		{"local by default", vertexEnv(), RateLocal},
+		{"local by default on Cloud Run", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}, RateLocal},
+		{"firestore", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "Firestore"}), RateFirestore},
+		{"memory", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "memory"}), RateMemory},
+		{"firestore needs a project", map[string]string{"LLM_PROVIDER": "fake", "RATE_LIMIT_STORE": "firestore"}, ""},
+		{"unknown", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "redis"}), ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := FromEnv(getenv(tt.env))
+			switch {
+			case tt.want == "" && (err == nil || !strings.Contains(err.Error(), "RATE_LIMIT_STORE")):
+				t.Errorf("error %v, want one naming RATE_LIMIT_STORE", err)
+			case tt.want != "" && (err != nil || c.RateLimitStore != tt.want):
+				t.Errorf("store = %q %v, want %q", c.RateLimitStore, err, tt.want)
+			}
+		})
+	}
+}
+
 func TestTextileConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.TextileEngine || c.TextileFastPath != 0 || c.TextileRulings != "data/textile_rulings.json" {
