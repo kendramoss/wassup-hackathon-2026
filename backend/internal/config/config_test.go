@@ -126,3 +126,20 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestDutyLiveMFNConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.DutyLiveMFN || c.DutyLiveMFNTTL != 24*time.Hour || c.DutyLiveMFNTimeout != 5*time.Second {
+		t.Fatalf("live MFN defaults = %v %s %s %v", c.DutyLiveMFN, c.DutyLiveMFNTTL, c.DutyLiveMFNTimeout, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"DUTY_LIVE_MFN": "on", "DUTY_LIVE_MFN_TTL": "6h", "DUTY_LIVE_MFN_TIMEOUT": "3s"})))
+	if err != nil || !on.DutyLiveMFN || on.DutyLiveMFNTTL != 6*time.Hour || on.DutyLiveMFNTimeout != 3*time.Second {
+		t.Errorf("live MFN on = %v %s %s %v", on.DutyLiveMFN, on.DutyLiveMFNTTL, on.DutyLiveMFNTimeout, err)
+	}
+	for _, bad := range []map[string]string{{"DUTY_LIVE_MFN": "yes please"}, {"DUTY_LIVE_MFN_TTL": "0s"}, {"DUTY_LIVE_MFN_TTL": "soon"},
+		{"DUTY_LIVE_MFN_TIMEOUT": "-1s"}, {"DUTY_LIVE_MFN_TIMEOUT": "2m"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "DUTY_LIVE_MFN") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}

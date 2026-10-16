@@ -122,6 +122,13 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// DutyLiveMFN (on|off, default off) looks up the MFN (column 1 general)
+	// rate on the USITC HTS for subheadings the sourced duty table does not
+	// cover, caching each answer for DutyLiveMFNTTL; each fetch waits at most
+	// DutyLiveMFNTimeout (D65).
+	DutyLiveMFN        bool
+	DutyLiveMFNTTL     time.Duration
+	DutyLiveMFNTimeout time.Duration
 }
 
 // Load reads the configuration from the process environment.
@@ -149,24 +156,26 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:        e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:          e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:            e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch:    strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
-		CasesDir:          e.dir("CASES_DIR", "../data/cases"),
-		FirestoreDatabase: e.str("FIRESTORE_DATABASE", "(default)"),
-		VerifierCacheDir:  e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
-		RateLightPerMin:   e.integer("RATE_LIGHT_PER_MIN", 20),
-		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
-		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
-		RateLookupPerMin:  e.integer("RATE_LOOKUP_PER_MIN", 30),
-		CasesListLimit:    e.integer("CASES_LIST_LIMIT", 200),
-		DailySpendCapUSD:  e.float("DAILY_SPEND_CAP_USD", 0),
-		AdminToken:        e.str("ADMIN_TOKEN", ""),
-		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
-		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
-		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
-		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		LabelsPath:         e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:           e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:             e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:     strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		CasesDir:           e.dir("CASES_DIR", "../data/cases"),
+		FirestoreDatabase:  e.str("FIRESTORE_DATABASE", "(default)"),
+		VerifierCacheDir:   e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		RateLightPerMin:    e.integer("RATE_LIGHT_PER_MIN", 20),
+		RateHeavyPerMin:    e.integer("RATE_HEAVY_PER_MIN", 4),
+		RateGlobalPerMin:   e.integer("RATE_GLOBAL_PER_MIN", 120),
+		RateLookupPerMin:   e.integer("RATE_LOOKUP_PER_MIN", 30),
+		CasesListLimit:     e.integer("CASES_LIST_LIMIT", 200),
+		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
+		AdminToken:         e.str("ADMIN_TOKEN", ""),
+		TextileRulings:     e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
+		TextileFastPath:    e.float("TEXTILE_FAST_PATH", 0),
+		TextilePrompt:      strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
+		TextileReasoning:   e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
+		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -181,6 +190,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("DUTY_LIVE_MFN", "off")); v {
+	case "on", "true", "1":
+		c.DutyLiveMFN = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("DUTY_LIVE_MFN must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -283,6 +299,12 @@ func (c Config) validate() error {
 	}
 	if c.LLMMaxRetries < 0 {
 		bad("LLM_MAX_RETRIES must not be negative, got %d", c.LLMMaxRetries)
+	}
+	if c.DutyLiveMFNTTL <= 0 {
+		bad("DUTY_LIVE_MFN_TTL must be positive, got %s", c.DutyLiveMFNTTL)
+	}
+	if c.DutyLiveMFNTimeout <= 0 || c.DutyLiveMFNTimeout > 30*time.Second {
+		bad("DUTY_LIVE_MFN_TIMEOUT must be positive and at most 30s (it delays a plan search), got %s", c.DutyLiveMFNTimeout)
 	}
 	if c.LLMTimeout <= 0 {
 		bad("LLM_TIMEOUT must be positive, got %s", c.LLMTimeout)

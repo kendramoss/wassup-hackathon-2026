@@ -95,6 +95,10 @@ type Deps struct {
 	// Duty, when set, fills duty rates the user did not give from the sourced
 	// table, for products with an HTS number (D52).
 	Duty *duty.Table
+	// LiveMFN, when set (DUTY_LIVE_MFN=on), fills the MFN rate from the
+	// USITC HTS for subheadings the table does not cover; the table always
+	// wins (D65).
+	LiveMFN *duty.Live
 	// Textile, when set, predicts cases the router labels textile_102_21
 	// under 19 CFR 102.21 instead of leaving them out of scope (D51).
 	// TextileFastPath is its auto-accept bar; 0 sends every textile case to
@@ -642,7 +646,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
 		econ = *c.Economics
 	}
-	econ = a.priced(econ, c.Product)
+	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), true)
 	req := planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
@@ -677,38 +681,115 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
 }
 
-// economicsFrom keeps the latest economics the user gave (an empty request
-// value leaves the stored one).
 // economicsPriced is the case's economics with the duty rates a plan search
-// would use (sourced table rates filled in, D52), for display; nil without
-// economics.
+// would use (sourced table rates filled in, D52; live MFN rates already
+// fetched, D65), for display; nil without economics. It never waits on the
+// HTS: a live rate shows once a plan, scenarios or compare call fetched it.
 func (a *api) economicsPriced(c store.Case) *planner.Economics {
 	if c.Economics == nil {
 		return nil
 	}
-	e := a.priced(*c.Economics, c.Product)
+	e := a.priced(context.Background(), *c.Economics, c.Product, caseOrigins(c), false)
 	return &e
 }
 
-// priced fills duty rates the user did not give from the sourced table, for
-// a product with an HTS number. Without economics there is nothing to price.
-func (a *api) priced(e planner.Economics, p *domain.Product) planner.Economics {
+// priced fills duty rates the user did not give, for a product with an HTS
+// number: from the sourced table when it has the line (D52), else, with
+// Deps.LiveMFN, the live MFN rate for each of origins (D65). fetch false
+// uses only live rates already cached. Without economics there is nothing
+// to price; a failed live lookup leaves the rates as given.
+func (a *api) priced(ctx context.Context, e planner.Economics, p *domain.Product, origins []string, fetch bool) planner.Economics {
 	if a.d.Duty == nil || p == nil || p.HTS == "" || e.AnnualImportValueUSD <= 0 {
 		return e
+	}
+	if _, ok := a.d.Duty.Line(p.HTS); !ok {
+		return a.pricedLive(ctx, e, p.HTS, origins, fetch)
 	}
 	rates, filled := a.d.Duty.Fill(e.DutyRates, p.HTS)
 	if len(filled) == 0 {
 		return e
 	}
 	e.DutyRates, e.DutyRatesFromTable = rates, filled
-	note := a.d.Duty.Note(p.HTS, filled)
-	if e.DutyRatesNote != "" {
-		note = e.DutyRatesNote + " " + note
-	}
-	e.DutyRatesNote = note
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, a.d.Duty.Note(p.HTS, filled))
 	return e
 }
 
+// pricedLive fills the live MFN rate for the origins the user gave no rate
+// for. It asks the HTS only when some origin is missing a rate.
+func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, origins []string, fetch bool) planner.Economics {
+	if a.d.LiveMFN == nil || !missingRate(e, origins) {
+		return e
+	}
+	var m duty.MFN
+	var err error
+	if fetch {
+		m, err = a.d.LiveMFN.MFN(ctx, hts)
+	} else {
+		var ok bool
+		if m, ok, err = a.d.LiveMFN.Cached(hts); !ok {
+			return e
+		}
+	}
+	if err != nil {
+		if !errors.Is(err, duty.ErrNoRate) {
+			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", RequestID(ctx), "hts", hts, "err", err)
+		}
+		return e
+	}
+	rates, filled := m.Fill(e.DutyRates, origins)
+	if len(filled) > 0 {
+		e.DutyRates, e.DutyRatesLiveMFN = rates, filled
+	}
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNote(filled))
+	return e
+}
+
+// missingRate reports whether any of origins has no duty rate (column 2
+// origins never get a live rate, so they do not count).
+func missingRate(e planner.Economics, origins []string) bool {
+	for _, o := range origins {
+		n := domain.NormalizeCountry(o)
+		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.Column2[n] {
+			return true
+		}
+	}
+	return false
+}
+
+func joinNote(user, add string) string {
+	if user == "" {
+		return add
+	}
+	return user + " " + add
+}
+
+// caseOrigins are the countries a case's duty could be owed at: its current
+// and predicted origin, and its plants' and components' countries.
+func caseOrigins(c store.Case) []string {
+	var out []string
+	if c.CurrentOrigin != nil {
+		out = append(out, c.CurrentOrigin.Country)
+	}
+	out = append(out, domain.CountryParts(c.Prediction.Origin)...)
+	return append(out, productCountries(c.Product)...)
+}
+
+func productCountries(p *domain.Product) []string {
+	if p == nil {
+		return nil
+	}
+	var out []string
+	for _, pl := range p.Plants {
+		out = append(out, pl.Country)
+	}
+	for _, c := range p.Components {
+		out = append(out, c.MadeIn)
+	}
+	return out
+}
+
+// economicsFrom keeps the latest economics the user gave (an empty request
+// value leaves the stored one).
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
 	if e.AnnualImportValueUSD > 0 {
 		return &e

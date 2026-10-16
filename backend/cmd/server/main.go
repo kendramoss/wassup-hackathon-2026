@@ -203,6 +203,11 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	var liveMFN *duty.Live
+	if cfg.DutyLiveMFN {
+		liveMFN = duty.NewLive("origin-proof (Google Cloud AI Builder Cup 2026 prototype)", cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
+		logger.Info("live MFN duty rates on", "source", duty.DefaultHTSBaseURL, "ttl", cfg.DutyLiveMFNTTL, "timeout", cfg.DutyLiveMFNTimeout)
+	}
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -274,6 +279,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
+		LiveMFN:         liveMFN,
 		Textile:         textile,
 		TextileFastPath: cfg.TextileFastPath,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},

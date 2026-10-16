@@ -55,6 +55,9 @@ type Economics struct {
 	// DutyRatesFromTable lists the origins whose rate came from the sourced
 	// duty table rather than the user (D52).
 	DutyRatesFromTable []string `json:"duty_rates_from_table,omitempty"`
+	// DutyRatesLiveMFN lists the origins whose rate is the live HTS MFN rate
+	// (column 1 general only, no additional duties; D65).
+	DutyRatesLiveMFN []string `json:"duty_rates_live_mfn,omitempty"`
 	// GroupCosts is the annual cost of performing an operation group at a
 	// plant: group ID -> plant ID -> USD.
 	GroupCosts map[string]map[string]float64 `json:"group_costs"`
