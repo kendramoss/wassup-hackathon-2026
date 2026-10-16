@@ -187,7 +187,13 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
+	// as server-sent stage events when asked for text/event-stream (D71).
+	StreamPredict string
 }
+
+// StreamPredictOn reports whether STREAM_PREDICT is on.
+func (c Config) StreamPredictOn() bool { return c.StreamPredict == "on" }
 
 // Load reads the configuration from the process environment.
 func Load() (Config, error) { return FromEnv(os.Getenv) }
@@ -302,6 +308,14 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	}
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
+	case "on", "true", "1":
+		c.StreamPredict = "on"
+	case "off", "false", "0":
+		c.StreamPredict = "off"
+	default:
+		c.StreamPredict = v // refused by validate
+	}
 	defStore := CasesFile
 	if c.OnCloudRun {
 		defStore = CasesFirestore // local disk is lost on restart there
@@ -378,6 +392,9 @@ func (c Config) validate() error {
 	}
 	if c.HTSSuggest && !strings.HasSuffix(c.HTSIndex, ".json") {
 		bad("HTS_INDEX must be a .json file written by \"corpus hts-index\", got %q", c.HTSIndex)
+	}
+	if c.StreamPredict != "on" && c.StreamPredict != "off" {
+		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)

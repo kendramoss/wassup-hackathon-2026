@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -173,6 +172,10 @@ type Deps struct {
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
 	APIKeys *apikey.Keys
+	// StreamPredict lets POST /v1/cases/predict answer as server-sent events
+	// (stage events, then the case) when the client sends Accept:
+	// text/event-stream (D71). Off by default: JSON as before.
+	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -265,6 +268,10 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if a.d.StreamPredict && wantsStream(r) {
+		a.predictStream(w, r, in, start)
+		return
+	}
 	sc, err := a.createCase(r, in, start)
 	if err != nil {
 		a.fail(w, r, err)
@@ -273,52 +280,50 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusCreated, a.caseFields(sc))
 }
 
+// predictStream runs predict as server-sent events (D71): stage {name:
+// router|precedents|engine|clarify, status: started|done, ms} as each step
+// starts and finishes (ms since the request began for started, the step's
+// duration for done), then done (the same body as the 201 JSON response:
+// the case is created) or error {code, message, retryable}. Comments
+// (": keep-alive") are sent every keepAlive. Input errors are plain JSON
+// responses before the stream opens.
+func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRequest, start time.Time) {
+	sc, c, err := a.newCase(r, in)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	s := openStream(w)
+	defer s.close()
+	st := newStages(start, func(name, status string, ms int64) {
+		s.send("stage", map[string]any{"name": name, "status": status, "ms": ms})
+	})
+	sc, err = a.analyseAndSave(r, sc, c, start, st)
+	if err != nil {
+		status, code, msg := a.errorFor(r, err)
+		s.send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
+		return
+	}
+	out := a.meta()
+	for k, v := range a.caseFields(sc) {
+		out[k] = v
+	}
+	s.send("done", out)
+}
+
 // createCase validates a predict request, analyses it and saves the case.
 func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (store.Case, error) {
-	facts := strings.TrimSpace(in.Facts)
-	if in.Product != nil {
-		if err := in.Product.Validate(); err != nil {
-			return store.Case{}, err
-		}
-		if facts == "" {
-			tm, ok := a.d.Templates[in.Family]
-			if !ok {
-				return store.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
-			}
-			facts = planner.Render(*in.Product, tm)
-		}
-	}
-	for _, id := range in.Exclude {
-		if !domain.ValidRulingID(id) {
-			return store.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
-		}
-	}
-	// Feed facts in the format the engine was benchmarked on: corpus facts
-	// files (and rendered products) end with one newline (D20).
-	if facts != "" && !strings.HasSuffix(facts, "\n") {
-		facts += "\n"
-	}
-	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
-	if err := c.Validate(); err != nil {
+	sc, c, err := a.newCase(r, in)
+	if err != nil {
 		return store.Case{}, err
 	}
-	if in.Economics != nil {
-		if err := validateEconomics(*in.Economics); err != nil {
-			return store.Case{}, err
-		}
-	}
-	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
-	if utf8.RuneCountInString(displayName) > MaxDisplayName {
-		return store.Case{}, fmt.Errorf("%w: display_name is longer than %d characters", domain.ErrInvalid, MaxDisplayName)
-	}
-	now := time.Now().UTC()
-	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
-		Owner: ownerOf(r)}
-	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
-		sc.Owner, sc.Workspace = u.owner, u.workspace
-	}
-	if err := a.analyse(r, &sc, c); err != nil {
+	return a.analyseAndSave(r, sc, c, start, nil)
+}
+
+// analyseAndSave analyses a new case, records the prediction and saves it.
+// st, when set, is told each step as it runs.
+func (a *api) analyseAndSave(r *http.Request, sc store.Case, c domain.Case, start time.Time, st *stages) (store.Case, error) {
+	if err := a.analyse(r, &sc, c, st); err != nil {
 		return store.Case{}, err
 	}
 	record(r.Context(), &sc, predictionEvent("predicted", sc, start))
@@ -328,15 +333,66 @@ func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (s
 	return sc, nil
 }
 
+// newCase validates a predict request and builds the case to analyse.
+func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Case, error) {
+	facts := strings.TrimSpace(in.Facts)
+	if in.Product != nil {
+		if err := in.Product.Validate(); err != nil {
+			return store.Case{}, domain.Case{}, err
+		}
+		if facts == "" {
+			tm, ok := a.d.Templates[in.Family]
+			if !ok {
+				return store.Case{}, domain.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
+			}
+			facts = planner.Render(*in.Product, tm)
+		}
+	}
+	for _, id := range in.Exclude {
+		if !domain.ValidRulingID(id) {
+			return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
+		}
+	}
+	// Feed facts in the format the engine was benchmarked on: corpus facts
+	// files (and rendered products) end with one newline (D20).
+	if facts != "" && !strings.HasSuffix(facts, "\n") {
+		facts += "\n"
+	}
+	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
+	if err := c.Validate(); err != nil {
+		return store.Case{}, domain.Case{}, err
+	}
+	if in.Economics != nil {
+		if err := validateEconomics(*in.Economics); err != nil {
+			return store.Case{}, domain.Case{}, err
+		}
+	}
+	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
+	if utf8.RuneCountInString(displayName) > MaxDisplayName {
+		return store.Case{}, domain.Case{}, fmt.Errorf("%w: display_name is longer than %d characters", domain.ErrInvalid, MaxDisplayName)
+	}
+	now := time.Now().UTC()
+	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
+		Owner: ownerOf(r)}
+	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
+		sc.Owner, sc.Workspace = u.owner, u.workspace
+	}
+	return sc, c, nil
+}
+
 // classify runs router and engine concurrently and decides triage. The router
-// labels scope only; it never changes the engine's answer.
-func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
+// labels scope only; it never changes the engine's answer. st, when set, is
+// told each step as it runs (nil: not reported); it never changes the result.
+func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
 	var label *router.Label
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
+		st.begin("router")
 		go func() {
 			defer wg.Done()
+			defer st.end("router") // a failed router is done too: scope unknown
 			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
 				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
@@ -345,27 +401,40 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 			label = &l
 		}()
 	}
-	res, err := a.d.Engine.Predict(ctx, c)
+	ectx := ctx
+	if st != nil {
+		ectx = engine.WithProgress(ctx, st.engineProgress)
+	}
+	res, err := a.d.Engine.Predict(ectx, c)
+	if err == nil {
+		st.end(engine.StageEngine) // a cached prediction reports no stages of its own
+	}
 	wg.Wait()
 	if err != nil {
 		return domain.Prediction{}, nil, domain.Triage{}, false, err
 	}
 	if label != nil && label.Regime == router.RegimeTextile && a.d.Textile != nil {
-		tres, err := a.d.Textile.Predict(ctx, c)
+		// The textile engine reports its own precedents and engine stages
+		// again; settle closes them if it fails (the engine's answer stands).
+		tres, err := a.d.Textile.Predict(ectx, c)
+		st.settle()
 		if err == nil { // in scope, but clarify (substantial transformation) does not apply
 			return tres.Prediction, label, triage.Textile(tres.Prediction, a.d.TextileFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
+	// The USMCA and pharma engines report their stages as textile does.
 	if label != nil && label.Regime == router.RegimeUSMCA && a.d.USMCA != nil {
-		ures, err := a.d.USMCA.Predict(ctx, c)
+		ures, err := a.d.USMCA.Predict(ectx, c)
+		st.settle()
 		if err == nil { // in scope, but clarify (substantial transformation) does not apply
 			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
 	if label != nil && label.Regime == router.RegimePharma && a.d.Pharma != nil {
-		pres, err := a.d.Pharma.Predict(ctx, c)
+		pres, err := a.d.Pharma.Predict(ectx, c)
+		st.settle()
 		if err == nil { // in scope; clarify is skipped, as for textile (not evaluated on this regime)
 			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
 		}
@@ -384,9 +453,9 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 
 // analyse runs router and engine (concurrently), triage and, below the fast
 // path, the clarify review; it fills sc. The router and clarify never change
-// the engine's answer.
-func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
-	pred, label, tr, inScope, err := a.classify(r.Context(), c)
+// the engine's answer. st, when set, is told each step as it runs.
+func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages) error {
+	pred, label, tr, inScope, err := a.classify(r.Context(), c, st)
 	if err != nil {
 		return err
 	}
@@ -399,7 +468,9 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
 				ps = append(ps, p)
 			}
 		}
+		st.begin("clarify")
 		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, pred, ps)
+		st.end("clarify") // a failed review is done too: the case stays needs_review
 		if err != nil {
 			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
 		} else {
@@ -466,7 +537,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sc.Facts, sc.UpdatedAt = facts, time.Now().UTC()
-	if err := a.analyse(r, &sc, c); err != nil {
+	if err := a.analyse(r, &sc, c, nil); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -745,7 +816,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if strings.Contains(r.Header.Get("Accept"), "text/event-stream") {
+	if wantsStream(r) {
 		a.planStream(w, r, c, req)
 		return
 	}
@@ -886,51 +957,14 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 	return old
 }
 
-// keepAlive is how often an idle plan stream sends an SSE comment, so proxies
-// and Cloud Run keep the connection open.
-var keepAlive = 10 * time.Second
-
 // planStream runs the plan search as server-sent events: start {target,
 // moves}, baseline {plan}, move_started {key}, move_done {key, plan}, then
 // done (the same body as the JSON response) or error {code, message,
 // retryable}. Comments (": keep-alive") are sent every keepAlive.
 func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request) {
-	rc := http.NewResponseController(w)
-	_ = rc.SetWriteDeadline(time.Time{}) // the search outlives the server's default write timeout
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("X-Accel-Buffering", "no")
-	w.WriteHeader(http.StatusOK)
-	var mu sync.Mutex
-	write := func(chunk string) {
-		mu.Lock()
-		defer mu.Unlock()
-		_, _ = io.WriteString(w, chunk)
-		_ = rc.Flush()
-	}
-	send := func(event string, v any) {
-		b, _ := json.Marshal(v)
-		write("event: " + event + "\ndata: " + string(b) + "\n\n")
-	}
-	// The keep-alive writer must have exited before the handler returns: a
-	// ResponseWriter may not be used after that (it raced with the test
-	// recorder's reads, and on a real server it could write to a reused
-	// connection).
-	stop, stopped := make(chan struct{}), make(chan struct{})
-	defer func() { close(stop); <-stopped }()
-	go func() {
-		defer close(stopped)
-		t := time.NewTicker(keepAlive)
-		defer t.Stop()
-		for {
-			select {
-			case <-t.C:
-				write(": keep-alive\n\n")
-			case <-stop:
-				return
-			}
-		}
-	}()
+	s := openStream(w)
+	defer s.close()
+	send := s.send
 	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) {
 		switch e.Kind {
 		case planner.EventStarted:

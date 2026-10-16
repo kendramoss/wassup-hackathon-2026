@@ -120,16 +120,16 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			basePred, baseLabel, _, _, baseErr = a.classify(r.Context(), *base)
+			basePred, baseLabel, _, _, baseErr = a.classify(r.Context(), *base, nil)
 		}()
 	}
 	if apply {
-		err = a.analyse(r, &next, c)
+		err = a.analyse(r, &next, c, nil)
 		label = next.Router
 	} else {
 		var pred domain.Prediction
 		var tr domain.Triage
-		pred, label, tr, _, err = a.classify(r.Context(), c)
+		pred, label, tr, _, err = a.classify(r.Context(), c, nil)
 		next.Prediction, next.Triage = pred, tr
 	}
 	wg.Wait()

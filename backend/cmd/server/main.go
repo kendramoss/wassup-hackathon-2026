@@ -400,6 +400,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Users:           users,
 		Workspaces:      workspaces,
 		APIKeys:         keys,
+		StreamPredict:   cfg.StreamPredictOn(),
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
