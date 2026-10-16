@@ -177,6 +177,51 @@ export async function streamPlan(
     onEvent({ event: "done", data: await res.json() });
     return;
   }
+  await readEvents(res, (event, data) => onEvent({ event, data } as PlanEvent));
+}
+
+// Predict steps (POST /v1/cases/predict with Accept: text/event-stream, D71).
+export type PredictStage = { name: "router" | "precedents" | "engine" | "clarify"; status: "started" | "done"; ms: number };
+
+// streamPredict runs predict and reports each step as the backend streams it.
+// A backend with STREAM_PREDICT off answers plain JSON: then onStage is
+// never called and the case comes back as from api.predict.
+export async function streamPredict(body: PredictRequest, onStage: (s: PredictStage) => void): Promise<CaseResponse> {
+  let res: Response;
+  try {
+    res = await fetch("/api/v1/cases/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
+  }
+  if (!res.ok) throw await toError(res);
+  if (!res.headers.get("content-type")?.startsWith("text/event-stream")) return res.json() as Promise<CaseResponse>;
+  // Set from the callback, so an object (TypeScript doesn't follow closures).
+  const got: { case?: CaseResponse; error?: ApiError } = {};
+  try {
+    await readEvents(res, (event, data) => {
+      if (event === "stage") onStage(data as PredictStage);
+      else if (event === "done") got.case = data as CaseResponse;
+      else if (event === "error") {
+        const e = data as { code: ApiErrorBody["code"]; message: string; retryable: boolean };
+        got.error = new ApiError(e.message, 502, e.code, e.retryable);
+      }
+    });
+  } catch {
+    // The connection dropped mid-stream: reported below unless the case arrived.
+  }
+  if (got.error) throw got.error;
+  if (!got.case) throw new ApiError("The connection closed before the analysis finished. Try again.", 0, "network", true);
+  return got.case;
+}
+
+// readEvents reads a server-sent event body and calls onEvent with each
+// event's name and parsed JSON data (EventSource can't POST).
+async function readEvents(res: Response, onEvent: (event: string, data: unknown) => void): Promise<void> {
   const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
   let buf = "";
   for (;;) {
@@ -195,11 +240,13 @@ export async function streamPlan(
         else if (line.startsWith("data:")) data.push(line.slice(5).replace(/^ /, ""));
       }
       if (data.length === 0) continue;
+      let parsed: unknown;
       try {
-        onEvent({ event, data: JSON.parse(data.join("\n")) } as PlanEvent);
+        parsed = JSON.parse(data.join("\n"));
       } catch {
-        // ignore a malformed event rather than dropping the stream
+        continue; // ignore a malformed event rather than dropping the stream
       }
+      onEvent(event, parsed);
     }
   }
 }

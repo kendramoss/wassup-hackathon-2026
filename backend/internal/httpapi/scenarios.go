@@ -79,7 +79,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			pred, label, tr, _, err := a.classify(r.Context(), cases[i])
+			pred, label, tr, _, err := a.classify(r.Context(), cases[i], nil)
 			out[i].Prediction, out[i].Triage, labels[i], errs[i] = pred, tr, label, err
 		}(i)
 	}

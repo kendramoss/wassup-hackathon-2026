@@ -122,7 +122,13 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
+	// as server-sent stage events when asked for text/event-stream (D71).
+	StreamPredict string
 }
+
+// StreamPredictOn reports whether STREAM_PREDICT is on.
+func (c Config) StreamPredictOn() bool { return c.StreamPredict == "on" }
 
 // Load reads the configuration from the process environment.
 func Load() (Config, error) { return FromEnv(os.Getenv) }
@@ -181,6 +187,14 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
+	case "on", "true", "1":
+		c.StreamPredict = "on"
+	case "off", "false", "0":
+		c.StreamPredict = "off"
+	default:
+		c.StreamPredict = v // refused by validate
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -241,6 +255,9 @@ func (c Config) validate() error {
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
+	}
+	if c.StreamPredict != "on" && c.StreamPredict != "off" {
+		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
 	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)

@@ -64,7 +64,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Predict origin for a case (creates the case) */
+        /**
+         * Predict origin for a case (creates the case)
+         * @description With `STREAM_PREDICT=on` on the server (off by default, D71), send `Accept: text/event-stream` to receive the analysis as server-sent events instead of one JSON response:
+         *     - `stage` {name: router|precedents|engine|clarify, status: started|done, ms}: each step as it starts and finishes. `ms` is milliseconds since the request began for `started`, and the step's duration for `done`. The router runs beside precedents and engine; clarify runs only below the fast path. A cached prediction reports `engine` started and done at once, with no `precedents`. On a textile case (D51) `precedents` and `engine` run a second time for the textile engine.
+         *     - `done`: the same body as the 201 JSON response (the case is created and saved), or `error` {code, message, retryable} (no case is saved).
+         *     - `: keep-alive` comment lines every 10 s.
+         *     The stream itself answers 200. Input errors (400), rate limits (429) and the spend cap (503) are returned as normal JSON responses before the stream starts. With the flag off the header is ignored and the response is JSON as before.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1282,7 +1289,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached";
             message: string;
             details?: unknown;
         };

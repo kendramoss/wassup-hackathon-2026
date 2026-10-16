@@ -108,6 +108,42 @@ func TestCasesStoreDefaults(t *testing.T) {
 	}
 }
 
+func TestStreamPredictConfig(t *testing.T) {
+	tests := []struct {
+		value string
+		on    bool
+		want  string // fragment of the error; empty means valid
+	}{
+		{"", false, ""},
+		{"off", false, ""},
+		{"on", true, ""},
+		{"ON", true, ""},
+		{"true", true, ""},
+		{"0", false, ""},
+		{"stream", false, `STREAM_PREDICT must be on or off, got "stream"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.value, func(t *testing.T) {
+			env := vertexEnv()
+			if tt.value != "" {
+				env["STREAM_PREDICT"] = tt.value
+			}
+			c, err := FromEnv(getenv(env))
+			switch {
+			case tt.want == "" && err != nil:
+				t.Fatalf("unexpected error: %v", err)
+			case tt.want != "" && (err == nil || !strings.Contains(err.Error(), tt.want)):
+				t.Fatalf("error %v, want it to contain %q", err, tt.want)
+			case tt.want == "" && c.StreamPredictOn() != tt.on:
+				t.Errorf("StreamPredictOn = %v, want %v", c.StreamPredictOn(), tt.on)
+			}
+		})
+	}
+	if err := (Config{LLMProvider: ProviderFake, StreamPredict: "maybe"}).validate(); err == nil || !strings.Contains(err.Error(), "STREAM_PREDICT") {
+		t.Errorf("validate accepted STREAM_PREDICT=maybe: %v", err)
+	}
+}
+
 func TestTextileConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.TextileEngine || c.TextileFastPath != 0 || c.TextileRulings != "data/textile_rulings.json" {
