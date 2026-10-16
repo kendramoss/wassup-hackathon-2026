@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
@@ -177,6 +178,8 @@ type predictRequest struct {
 	// Economics are optional money inputs, kept on the case for plan,
 	// scenarios and compare-targets calls that omit their own.
 	Economics *planner.Economics `json:"economics"`
+	// DisplayName optionally names the case on Cases home (as PATCH does).
+	DisplayName string `json:"display_name"`
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
@@ -228,9 +231,13 @@ func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (s
 			return store.Case{}, err
 		}
 	}
+	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
+	if utf8.RuneCountInString(displayName) > MaxDisplayName {
+		return store.Case{}, fmt.Errorf("%w: display_name is longer than %d characters", domain.ErrInvalid, MaxDisplayName)
+	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
-		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics}
+		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName}
 	if err := a.analyse(r, &sc, c); err != nil {
 		return store.Case{}, err
 	}

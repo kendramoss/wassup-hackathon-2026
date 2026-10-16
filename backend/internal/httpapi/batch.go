@@ -80,7 +80,7 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 				rows[i].Error = &msg
 				return
 			}
-			sc, err := a.createCase(r, predictRequest{Date: planner.Date{Time: d}, Facts: it.Facts}, time.Now())
+			sc, err := a.createCase(r, predictRequest{Date: planner.Date{Time: d}, Facts: it.Facts, DisplayName: it.Name}, time.Now())
 			if err != nil {
 				_, _, msg := a.errorFor(r, err)
 				rows[i].Error = &msg
