@@ -9,7 +9,7 @@ import { chromium } from "playwright-core";
 
 const base = (process.argv[2] ?? "http://localhost:8100").replace(/\/$/, "");
 const C = process.argv[3] ?? "case_354b8919d82e";
-const pages = ["/", "/cases/new", `/cases/${C}/product`, `/cases/${C}/origin`, `/cases/${C}/scenarios`, `/cases/${C}/plan`, `/cases/${C}/compare`, `/cases/${C}/draft`, "/accuracy"];
+const pages = ["/cases", "/cases/new", `/cases/${C}/product`, `/cases/${C}/origin`, `/cases/${C}/scenarios`, `/cases/${C}/plan`, `/cases/${C}/compare`, `/cases/${C}/draft`, "/accuracy"];
 const viewports = { desktop: { width: 1366, height: 768 }, mobile: { width: 390, height: 844 } };
 
 // Runs in the page: returns "covered" findings for everything currently laid out.
@@ -57,7 +57,7 @@ for (const [vp, viewport] of Object.entries(viewports)) {
     }
     if (path.endsWith("/origin")) states.push(["history drawer", async () => page.getByRole("button", { name: /^History/ }).first().click()]);
     if (path.endsWith("/plan")) states.push(["money drawer", async () => page.getByRole("button", { name: "Edit" }).first().click()]);
-    if (path === "/") states.push(["row menu", async () => page.getByRole("button", { name: /^Actions for/ }).first().click()]);
+    if (path === "/cases") states.push(["row menu", async () => page.getByRole("button", { name: /^Actions for/ }).first().click()]);
     for (const [state, open] of states) {
       await page.goto(base + path, { waitUntil: "networkidle" });
       await page.waitForTimeout(250);

@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Plan" };
 export default function Page() {
   return (
     <>
-      <AppBar />
+      <AppBar active="cases" />
       <Suspense>
         <PlanStep />
       </Suspense>

@@ -14,7 +14,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 const args = process.argv.slice(2);
 const base = (args.find((a) => a.startsWith("http")) ?? "http://localhost:3000").replace(/\/$/, "");
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/accuracy");
+if (paths.length === 0) paths.push("/", "/cases", "/accuracy");
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 } };

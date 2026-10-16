@@ -6,7 +6,7 @@
 import { chromium } from "playwright-core";
 const base = (process.argv[2] ?? "http://localhost:8100").replace(/\/$/, "");
 const C = process.argv[3] ?? "case_354b8919d82e";
-const pages = ["/", "/cases/new", `/cases/${C}/origin`, `/cases/${C}/scenarios`, `/cases/${C}/plan`, `/cases/${C}/draft`, "/accuracy"];
+const pages = ["/cases", "/cases/new", `/cases/${C}/origin`, `/cases/${C}/scenarios`, `/cases/${C}/plan`, `/cases/${C}/draft`, "/accuracy"];
 const b = await chromium.launch({ channel: process.env.BROWSER ?? "chrome" });
 const issues = [];
 for (const [vp, viewport] of Object.entries({ desktop: { width: 1366, height: 768 }, mobile: { width: 390, height: 844 } })) {
@@ -49,7 +49,7 @@ for (const [vp, viewport] of Object.entries({ desktop: { width: 1366, height: 76
     }
   }
   // Menus: Esc closes and focus returns to the button.
-  for (const [path, btn] of [["/", 'button[aria-label^="Actions for"]'], [`/cases/${C}/origin`, "nav[aria-label=Case] button[aria-expanded]"]]) {
+  for (const [path, btn] of [["/cases", 'button[aria-label^="Actions for"]'], [`/cases/${C}/origin`, "nav[aria-label=Case] button[aria-expanded]"]]) {
     await p.goto(base + path, { waitUntil: "networkidle" });
     const t = p.locator(btn).last();
     if (!(await t.count())) continue;
