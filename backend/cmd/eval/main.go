@@ -38,6 +38,11 @@
 //	    precedents the engine saw) and report how its flags relate to errors.
 //	eval report -in FILE [-in FILE ...] [-adjust FILE]
 //	    Print the Markdown summary of existing result files.
+//	eval slice [-in FILE] [-pick]
+//	    Regression slice (D72): run the engine on the 30 committed dev rulings
+//	    of eval/splits/slice30.json (needs EVAL_SLICE=on) or take an existing
+//	    result file, and fail when it falls below
+//	    eval/results/slice30-baseline.json by more than the tolerance.
 //
 // Model and provider come from the same environment as the server
 // (LLM_PROVIDER, ENGINE_MODEL, ROUTER_MODEL, PRECEDENT_K, ...). Run from backend/.
@@ -120,6 +125,8 @@ func main() {
 		err = tuneSplitCmd(os.Args[2:])
 	case "tunedata":
 		err = tuneDataCmd(os.Args[2:])
+	case "slice":
+		err = sliceCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

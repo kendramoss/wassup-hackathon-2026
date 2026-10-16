@@ -1,0 +1,6 @@
+{"ruling":"N100001","split":"slice30","gold":"China","pred":"China","correct":true,"confidence":0.98}
+{"ruling":"N100002","split":"slice30","gold":"Vietnam","pred":"Vietnam","correct":true,"confidence":0.97}
+{"ruling":"N100003","split":"slice30","gold":"Mexico","pred":"Mexico","correct":true,"confidence":0.96}
+{"ruling":"N100004","split":"slice30","gold":"Japan","pred":"Japan","correct":true,"confidence":0.95}
+{"ruling":"N100005","split":"slice30","gold":"Thailand","pred":"Thailand","correct":true,"confidence":0.96}
+{"ruling":"N100006","split":"slice30","gold":"China","pred":"Taiwan","correct":false,"confidence":0.96}

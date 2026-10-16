@@ -126,3 +126,29 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestEvalSliceConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.EvalSlice || c.EvalSliceMaxDrop != 2 || c.EvalSliceBandMin != 0.95 {
+		t.Fatalf("eval slice defaults = %v %d %v %v", c.EvalSlice, c.EvalSliceMaxDrop, c.EvalSliceBandMin, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_SLICE": "ON", "EVAL_SLICE_MAX_DROP": "0", "EVAL_SLICE_BAND_MIN": "1"})))
+	if err != nil || !on.EvalSlice || on.EvalSliceMaxDrop != 0 || on.EvalSliceBandMin != 1 {
+		t.Errorf("eval slice on = %v %d %v %v", on.EvalSlice, on.EvalSliceMaxDrop, on.EvalSliceBandMin, err)
+	}
+	tests := []struct {
+		env  map[string]string
+		want string
+	}{
+		{map[string]string{"EVAL_SLICE": "sometimes"}, "EVAL_SLICE must be on or off"},
+		{map[string]string{"EVAL_SLICE_MAX_DROP": "-1"}, "EVAL_SLICE_MAX_DROP must be 0 or more"},
+		{map[string]string{"EVAL_SLICE_MAX_DROP": "two"}, "not an integer"},
+		{map[string]string{"EVAL_SLICE_BAND_MIN": "0"}, "EVAL_SLICE_BAND_MIN must be in (0, 1]"},
+		{map[string]string{"EVAL_SLICE_BAND_MIN": "95"}, "EVAL_SLICE_BAND_MIN must be in (0, 1]"},
+	}
+	for _, tt := range tests {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), tt.env))); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: error %v, want %q", tt.env, err, tt.want)
+		}
+	}
+}
