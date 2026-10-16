@@ -80,13 +80,17 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
       const r = await api.ask(id, q);
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
-      const last = r.chat?.at(-1);
+      // A demo answers without saving, so its chat lacks this turn: add it here.
+      const next = c.pinned
+        ? [...chat, { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], at: new Date().toISOString() }]
+        : (r.chat ?? []);
+      const last = next.at(-1);
       if (last) extras.set(turnKey(id, last), { whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls });
       setOpen(null);
       setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);
       inflight.delete(id);
       emit();
-      onChat(r.chat ?? []);
+      onChat(next);
     } catch (e) {
       inflight.delete(id);
       emit();
@@ -118,7 +122,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         <>
           <b className="font-medium text-ink">◆ {copy.result.ask}</b>
           {/* Clearing is final, so it asks first, and waits for a pending answer (#116). */}
-          {turns.length > 0 && !pending && (
+          {turns.length > 0 && !pending && !c.pinned && (
             <span className="ml-auto flex items-center gap-3 text-xs normal-case tracking-normal">
               {confirming ? (
                 <>
@@ -184,7 +188,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
               </div>
             </div>
           )}
-          {error ? <ErrorBox error={error} onRetry={() => ask(question)} /> : null}
+          {error ? <ErrorBox error={error} onRetry={() => ask(question)} demoTitle={c.display_name} /> : null}
         </div>
 
         {suggestions.length > 0 && (

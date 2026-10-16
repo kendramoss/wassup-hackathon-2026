@@ -100,15 +100,17 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		a.planUsage(&u, res)
 	}
 	ev := u.on(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")}, start)
-	now := time.Now().UTC()
-	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
-		latest.Targets, latest.UpdatedAt = cmp, now
-		latest.Economics = economicsFrom(in.Economics, latest.Economics)
-		latest.Record(ev)
-		return nil
-	}); err != nil {
-		a.fail(w, r, err)
-		return
+	if !a.demoReadOnly(r, c) {
+		now := time.Now().UTC()
+		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			latest.Targets, latest.UpdatedAt = cmp, now
+			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			latest.Record(ev)
+			return nil
+		}); err != nil {
+			a.fail(w, r, err)
+			return
+		}
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": cmp.Ranked})
 }

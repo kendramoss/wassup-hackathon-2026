@@ -80,7 +80,8 @@
           "plant": "th",
           "group": "final_assembly"
         }
-      ]
+      ],
+      "hts": "9015.80.20"
     },
     "family": "lidar_modules",
     "exclude_rulings": [
@@ -97,12 +98,7 @@
     "economics": {
       "illustrative": true,
       "annual_import_value_usd": 5000000,
-      "duty_rates": {
-        "Thailand": 0.1,
-        "Vietnam": 0.05,
-        "China": 0.35
-      },
-      "duty_rates_note": "Illustrative placeholder, not a real rate.",
+      "duty_rates_note": "Duty rates come from the sourced table for HTS 9015.80.20 (classification inferred, docs/DUTY-SOURCES.md, D52); the import value and group costs are illustrative.",
       "group_costs": {
         "main_boards": {
           "th": 400000,

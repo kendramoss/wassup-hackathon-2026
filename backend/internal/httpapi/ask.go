@@ -43,6 +43,11 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	readOnly := a.demoReadOnly(r, c)
+	if in.Reset && readOnly {
+		a.refuseDemoEdit(w, r, c)
+		return
+	}
 	q := strings.TrimSpace(in.Question)
 	if q == "" {
 		if !in.Reset {
@@ -88,6 +93,16 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	u.trace(ans.Trace)
 	ev := u.on(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
 		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion}, start)
+	// On a demo case the visitor gets the answer, but it is not saved to the
+	// case's chat, so the next viewer does not see it (D57).
+	if readOnly {
+		chat := append(append([]store.ChatTurn{}, c.Chat...), turn)
+		if len(chat) > MaxChat {
+			chat = chat[len(chat)-MaxChat:]
+		}
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "reply": ans, "cited_detail": a.precedentRefs(ans.Cited), "chat": chatField(chat)})
+		return
+	}
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		if in.Reset {
 			latest.Chat = nil

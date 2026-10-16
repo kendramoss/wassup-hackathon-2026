@@ -9,19 +9,20 @@ import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
-// prerenders in the static shell of dynamic routes.
-export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) {
-  const onAccuracy = active === "accuracy";
+// prerenders in the static shell of dynamic routes. Cases lives at /cases;
+// the landing page (/) passes "none".
+export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "none"; sticky?: boolean }) {
+  const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
   return (
-    <header className="no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10">
+    <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10", sticky && "sticky top-0 z-30")}>
       <Link href="/" className="text-[19px] font-semibold tracking-[-0.03em]">
         Origin <i className="not-italic text-ok">Proof</i>
       </Link>
       <nav aria-label="Main" className="flex gap-5 text-sm">
-        <Link href="/" aria-current={!onAccuracy ? "page" : undefined} className={cx(!onAccuracy ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink")}>
+        <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
           {copy.nav.cases}
         </Link>
-        <Link href="/accuracy" aria-current={onAccuracy ? "page" : undefined} className={cx(onAccuracy ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink")}>
+        <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
           {copy.nav.accuracy}
         </Link>
       </nav>
@@ -253,7 +254,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
             {cases === null && <li className="px-2 py-1.5 text-dim">Loading cases…</li>}
           </ul>
           <div className="mt-1 flex justify-between border-t border-line px-2 pt-2">
-            <Link href="/" className="text-ok">All cases</Link>
+            <Link href="/cases" className="text-ok">All cases</Link>
             <Link href="/cases/new" className="text-ok">{copy.cases.newCase}</Link>
           </div>
         </div>
@@ -322,8 +323,28 @@ function RateLimitNote({ seconds, onRetry }: { seconds: number; onRetry?: () => 
   );
 }
 
-export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+// Pinned demos are read-only for visitors (backend D57). Says so where an
+// edit would have been, with the way to a case of one's own.
+export function DemoNote({ title, message }: { title?: string | null; message?: string }) {
+  const [demoId, setDemoId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!title) return;
+    api.demos().then((r) => setDemoId(r.demos?.find((d) => d.title === title)?.id ?? null), () => {});
+  }, [title]);
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-1 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+      <span className="duo">{message ?? "This is a pinned demo: you can explore it, but changes here aren't saved."}</span>
+      <Link href={demoId ? `/cases/new?demo=${encodeURIComponent(demoId)}` : "/cases/new"} className="text-ok underline underline-offset-2">
+        Start a new case from this demo →
+      </Link>
+    </div>
+  );
+}
+
+export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetry?: () => void; demoTitle?: string | null }) {
   const e = error instanceof ApiError ? error : null;
+  // 403 "forbidden" (D57): an edit to a pinned demo.
+  if (e?.status === 403 && (e.code as string) === "forbidden") return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
   if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
   const outOfScope = e?.code === "out_of_scope";
   const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");

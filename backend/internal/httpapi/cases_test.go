@@ -483,9 +483,14 @@ func TestListCases(t *testing.T) {
 	if code, out := hs.do(t, "GET", "/v1/cases", ""); code != 200 || len(out["cases"].([]any)) != 0 {
 		t.Fatalf("empty list %d %v", code, out)
 	}
+	// The list sorts on updated_at. Windows' wall clock ticks every ~15.6 ms,
+	// so two steps closer than that get the same time and fall back to the
+	// ID tiebreak (random): wait past a tick between them.
+	tick := func() { time.Sleep(20 * time.Millisecond) }
 	_, a := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
-	time.Sleep(2 * time.Millisecond)
+	tick()
 	_, b := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"A pump body is cast in China and assembled in Vietnam with a Vietnamese motor."}`)
+	tick()
 	hs.do(t, "POST", "/v1/cases/"+a["id"].(string)+"/export", "")
 	_, out := hs.do(t, "GET", "/v1/cases", "")
 	rows := out["cases"].([]any)

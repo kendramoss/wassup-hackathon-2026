@@ -29,6 +29,21 @@ func (a *api) deleteCase(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// demoReadOnly reports whether the request may not change case c: a pinned
+// demo case without the admin token (D57). Endpoints that only add results
+// (plan, scenarios, compare, watch, ask) still answer on a demo case but do
+// not save; edits that change what the demo shows are refused.
+func (a *api) demoReadOnly(r *http.Request, c store.Case) bool { return c.Pinned && !a.isAdmin(r) }
+
+// refuseDemoEdit writes 403 for an edit to a pinned demo case.
+func (a *api) refuseDemoEdit(w http.ResponseWriter, r *http.Request, c store.Case) bool {
+	if a.demoReadOnly(r, c) {
+		writeError(w, http.StatusForbidden, "forbidden", "this is a pinned demo case; start a new case to change it", nil)
+		return true
+	}
+	return false
+}
+
 type renameRequest struct {
 	DisplayName *string `json:"display_name"`
 }

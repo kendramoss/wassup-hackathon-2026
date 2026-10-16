@@ -334,6 +334,9 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if a.refuseDemoEdit(w, r, sc) {
+		return
+	}
 	var in answersRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)
@@ -642,16 +645,18 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	ev := a.planEvent(res)
-	now := time.Now().UTC()
-	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
-		latest.Plan, latest.UpdatedAt = &res, now
-		latest.Economics = economicsFrom(in.Economics, latest.Economics)
-		latest.Record(ev)
-		return nil
-	}); err != nil {
-		a.fail(w, r, err)
-		return
+	if !a.demoReadOnly(r, c) {
+		ev := a.planEvent(res)
+		now := time.Now().UTC()
+		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			latest.Plan, latest.UpdatedAt = &res, now
+			latest.Economics = economicsFrom(in.Economics, latest.Economics)
+			latest.Record(ev)
+			return nil
+		}); err != nil {
+			a.fail(w, r, err)
+			return
+		}
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
 }
@@ -752,7 +757,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			send("move_done", map[string]any{"key": e.Move, "plan": e.Plan, "done": e.Done, "total": e.Total})
 		}
 	})
-	if err == nil {
+	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
