@@ -111,7 +111,7 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		if len(latest.Chat) > MaxChat {
 			latest.Chat = latest.Chat[len(latest.Chat)-MaxChat:]
 		}
-		latest.Record(ev) // asking is not case activity: updated_at stays
+		record(r.Context(), latest, ev) // asking is not case activity: updated_at stays
 		return nil
 	})
 	if err != nil {

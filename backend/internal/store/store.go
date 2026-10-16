@@ -62,7 +62,12 @@ type Case struct {
 	DisplayName string `json:"display_name,omitempty"`
 	// Owner is a hash of the visitor ID that created the case (D58); empty
 	// for cases made before ownership or without a visitor ID. Never returned.
+	// A signed-in user's case holds a hash of their email instead, prefixed
+	// "u_" (D68).
 	Owner string `json:"owner,omitempty"`
+	// Workspace is the team workspace of the signed-in user who created the
+	// case (D68); its members see the case. Empty for anonymous cases.
+	Workspace string `json:"workspace,omitempty"`
 }
 
 // MaxHistory caps a case's audit trail; the oldest events are dropped.
@@ -83,6 +88,9 @@ type Event struct {
 	OutputTokens int     `json:"output_tokens,omitempty"`
 	CostUSD      float64 `json:"cost_usd,omitempty"`
 	LatencyMS    int64   `json:"latency_ms,omitempty"`
+	// Actor is the email of the signed-in user who took the step (D68);
+	// empty for anonymous visitors and with teams off.
+	Actor string `json:"actor,omitempty"`
 }
 
 // Record appends an event to the audit trail.
@@ -203,12 +211,40 @@ func ListRecent(ctx context.Context, cs Cases, n int) ([]Case, error) {
 	if err != nil {
 		return nil, err
 	}
-	return capRecent(all, n), nil
+	return CapRecent(all, n), nil
 }
 
-// capRecent sorts cases pinned first then newest, and keeps every pinned
+// WorkspaceLister is a store that can list one workspace's cases without
+// reading every case (Firestore, D68).
+type WorkspaceLister interface {
+	ListWorkspace(ctx context.Context, workspace string) ([]Case, error)
+}
+
+// ListWorkspace lists the cases of a team workspace, newest first, using
+// the store's own query when it has one.
+func ListWorkspace(ctx context.Context, cs Cases, workspace string) ([]Case, error) {
+	if workspace == "" {
+		return nil, nil
+	}
+	if wl, ok := cs.(WorkspaceLister); ok {
+		return wl.ListWorkspace(ctx, workspace)
+	}
+	all, err := cs.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := all[:0]
+	for _, c := range all {
+		if c.Workspace == workspace {
+			out = append(out, c)
+		}
+	}
+	return out, nil
+}
+
+// CapRecent sorts cases pinned first then newest, and keeps every pinned
 // case plus the first n others.
-func capRecent(cs []Case, n int) []Case {
+func CapRecent(cs []Case, n int) []Case {
 	sortNewest(cs)
 	out := cs[:0]
 	others := 0

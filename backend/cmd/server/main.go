@@ -56,6 +56,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -328,6 +329,19 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		logger.Info("hts suggest on", "rulings", n, "subheadings", subs, "index", cfg.HTSIndex)
 		htsSuggester = s
 	}
+	// Teams (D68): workspaces live next to the cases (Firestore on Cloud Run).
+	var users teams.Verifier
+	var workspaces teams.Store
+	if cfg.Teams {
+		if users, err = teams.NewGoogle(cfg.TeamsAudience); err != nil {
+			return httpapi.Deps{}, err
+		}
+		workspaces = teams.NewMemory()
+		if fs, ok := cases.(*store.Firestore); ok {
+			workspaces = fs.Workspaces()
+		}
+		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", fmt.Sprintf("%T", workspaces))
+	}
 	return httpapi.Deps{
 		Demos:           ds,
 		Engine:          predictor,
@@ -352,6 +366,9 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
 		BOMVersions:     cfg.BOMVersions == "on",
+		Teams:           cfg.Teams,
+		Users:           users,
+		Workspaces:      workspaces,
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
