@@ -454,6 +454,8 @@ export interface paths {
                         target?: string;
                         /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
                         move_key?: string;
+                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. */
+                        preview?: boolean;
                     };
                 };
             };
@@ -1048,6 +1050,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/duty-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sourced duty rates by HTS subheading, with every component and source (D52) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description 8 or 10 digits, dots optional; omit to list every line */
+                    hts?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description One line (with hts) or {lines} (without) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            hts?: string;
+                            description?: string;
+                            /** Format: date */
+                            checked?: string;
+                            hts_revision?: string;
+                            sources_doc?: string;
+                            rates?: {
+                                origin?: string;
+                                /** @description ad valorem fraction, 0.417 = 41.7% */
+                                total?: number;
+                                unverified?: boolean;
+                                components?: {
+                                    name?: string;
+                                    rate?: number;
+                                    heading?: string;
+                                    source?: string;
+                                    verified?: boolean;
+                                    note?: string;
+                                }[];
+                            }[];
+                            lines?: Record<string, never>[];
+                        };
+                    };
+                };
+                404: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/demos": {
         parameters: {
             query?: never;
@@ -1290,6 +1354,11 @@ export interface components {
             plants?: components["schemas"]["Plant"][];
             components: components["schemas"]["Component"][];
             operations?: components["schemas"]["Operation"][];
+            /**
+             * @description Optional tariff subheading; fills duty rates from the sourced table (GET /v1/duty-rates, D52). Not part of the facts.
+             * @example 8419.89.95
+             */
+            hts?: string;
         };
         /** @description Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this). */
         PredictRequest: {
@@ -1329,6 +1398,7 @@ export interface components {
              * @enum {string}
              */
             route?: "auto" | "needs_review" | "needs_info";
+            /** @description Starts with "out of scope: " for regimes the tool does not cover (usmca_part102, pharma_api; textile_102_21 unless the textile engine is on), or with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51). */
             reason?: string;
         };
         RouterLabel: {
@@ -1436,6 +1506,8 @@ export interface components {
                 [key: string]: number;
             };
             duty_rates_note?: string;
+            /** @description Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52) */
+            duty_rates_from_table?: string[];
             /** @description group -> plant id -> yearly USD */
             group_costs?: {
                 [key: string]: {

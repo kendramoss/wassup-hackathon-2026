@@ -726,6 +726,9 @@ type exportRequest struct {
 	// Target, with MoveKey, picks from that country's search in the latest
 	// country comparison instead of the latest plan search.
 	Target string `json:"target"`
+	// Preview renders the draft without recording an export: the Draft
+	// screen previews on every visit and records only on Download or Print.
+	Preview bool `json:"preview"`
 }
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
@@ -792,6 +795,10 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	content := export.Markdown(ex)
+	if in.Preview {
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+		return
+	}
 	now := time.Now().UTC()
 	c.ExportedAt, c.UpdatedAt = &now, now
 	what := "current setup"

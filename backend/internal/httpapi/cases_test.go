@@ -275,6 +275,15 @@ func TestPredictFromProductThenPlanThenExport(t *testing.T) {
 	if code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", ""); code != http.StatusOK || !strings.Contains(ex["content"].(string), "Requester's position") {
 		t.Errorf("export without body: %d", code)
 	}
+	// A preview renders the draft but records nothing.
+	_, before := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":0,"preview":true}`); code != http.StatusOK || !strings.Contains(ex["content"].(string), "Requester's position") {
+		t.Errorf("preview: %d", code)
+	}
+	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if len(after["history"].([]any)) != len(before["history"].([]any)) || after["updated_at"] != before["updated_at"] {
+		t.Errorf("preview changed the case: history %d -> %d", len(before["history"].([]any)), len(after["history"].([]any)))
+	}
 }
 
 func TestPredictOutOfScopeGoesToReview(t *testing.T) {
