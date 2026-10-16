@@ -117,11 +117,28 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
 
   const draft = (key?: string) => router.push(`/cases/${encodeURIComponent(id)}/draft${key ? `?move=${encodeURIComponent(key)}` : ""}`);
 
+  // Nothing to plan towards yet: a pasted case has no plants, or every plant
+  // is in the origin country. A next step, not an error (#81, #98).
   if (!target) {
+    const plants = c.product?.plants?.length ?? 0;
     return (
-      <Main>
-        <ErrorBox error={new Error("No target country: add a plant in another country on the Product step.")} />
-      </Main>
+      <>
+        <Main className="flex flex-col gap-3">
+          <p className="eyebrow">Step 3 · Plan</p>
+          <h1 className="text-xl tracking-[-0.04em]">Plan a move</h1>
+          <p className="duo max-w-[72ch] text-sm text-dim">
+            {plants
+              ? "The plan search moves work between your plants. Every plant on this case is in the origin country, so there is nowhere to move to. Add a plant in another country."
+              : "The plan search moves work between your plants, so it needs parts and plants. This case was started from a pasted description. Turn the description into parts and plants on a new case; this one stays as it is."}
+          </p>
+        </Main>
+        <Footer>
+          <Next>{plants ? "Add a plant in another country." : "Turn the description into parts and plants."}</Next>
+          <div className="ml-auto">
+            <ButtonLink href={`/cases/new?from=${encodeURIComponent(id)}`}>{plants ? "Add a plant →" : "Add parts and plants →"}</ButtonLink>
+          </div>
+        </Footer>
+      </>
     );
   }
 
@@ -216,7 +233,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
               : closest
                 ? "Draft for the closest move. The letter says it's below the bar."
                 : result
-                  ? "Try scenarios or another country: no move found support."
+                  ? "No move found support. Draft for the current setup, or compare other countries."
                   : `Search moves to ${target}.`}
         </Next>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
@@ -236,8 +253,12 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             <>
               <Button onClick={() => draft(moveKey(closest))}>{copy.plan.draftClosest}</Button>
             </>
+          ) : result ? (
+            // Nothing cleared or came close: the letter can still go out for
+            // today's setup (#84), as the Draft tab already allowed.
+            <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : (
-            <Button disabled>{copy.plan.draft}</Button>
+            !searching && <span className="text-xs text-dim">The draft opens after the search</span>
           )}
         </div>
       </Footer>

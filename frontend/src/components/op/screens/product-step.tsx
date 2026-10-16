@@ -91,6 +91,9 @@ export function ProductStep() {
   const router = useRouter();
   const params = useSearchParams();
   const demoId = params.get("demo");
+  // ?from=<case>: a pasted case's description, to turn into parts and plants
+  // so the plan search can run (#81). The old case stays as it is.
+  const fromId = params.get("from");
 
   const [tab, setTab] = useState<Tab>("parts");
   const [name, setName] = useState("");
@@ -129,6 +132,19 @@ export function ProductStep() {
       setExtra({ exclude_rulings: p.exclude_rulings, current_origin: p.current_origin, facts: p.product ? p.facts : undefined });
     }, setError);
   }, [demoId]);
+
+  useEffect(() => {
+    if (!fromId || demoId) return;
+    api.getCase(fromId).then((c) => {
+      setName(c.product?.name || c.display_name || "");
+      if (c.date) setDate(c.date);
+      setFacts(c.facts ?? "");
+      if (c.product?.components?.length) {
+        setProduct(c.product);
+        setTab("parts");
+      } else setTab("paste");
+    }, setError);
+  }, [fromId, demoId]);
 
   // "Turn into parts and plants": the engine drafts the tables from the
   // text (nothing saved); they open on the Parts and plants tab to check.

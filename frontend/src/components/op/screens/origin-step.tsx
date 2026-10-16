@@ -80,7 +80,7 @@ function Result({ id, c, setCase }: CaseCtx) {
       <Footer>
         <Next>
           {!c.product?.plants?.length
-            ? "Add parts and plants on the Product tab to plan a move."
+            ? "To plan a move, turn the description into parts and plants."
             : c.clarify?.questions?.length
               ? `Answer a question below to sharpen this, or plan a move to ${target ?? "another country"}.`
               : route === "auto"
@@ -93,7 +93,7 @@ function Result({ id, c, setCase }: CaseCtx) {
               Plan a move{target ? <> to <Flag country={target} size={12} /> {target}</> : null} →
             </ButtonLink>
           ) : (
-            <span className="text-xs text-dim">Plans need parts and plants (step 1)</span>
+            <ButtonLink href={`/cases/new?from=${encodeURIComponent(id)}`}>Add parts and plants →</ButtonLink>
           )}
         </div>
       </Footer>
