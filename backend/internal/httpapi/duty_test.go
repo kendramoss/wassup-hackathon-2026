@@ -35,7 +35,7 @@ func TestDutyRatesEndpoint(t *testing.T) {
 	if code, out := hs.do(t, "GET", "/v1/duty-rates?hts=6505.00.90", ""); code != http.StatusNotFound || !strings.Contains(out["message"].(string), "6505.00.90") {
 		t.Errorf("unknown = %d %v", code, out)
 	}
-	if code, out := hs.do(t, "GET", "/v1/duty-rates", ""); code != http.StatusOK || len(out["lines"].([]any)) != 1 {
+	if code, out := hs.do(t, "GET", "/v1/duty-rates", ""); code != http.StatusOK || len(out["lines"].([]any)) != 2 {
 		t.Errorf("all = %d %v", code, out)
 	}
 }
