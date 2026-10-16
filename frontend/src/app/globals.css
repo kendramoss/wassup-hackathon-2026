@@ -117,6 +117,26 @@
     outline-offset: 2px;
   }
 
+  /* Tailwind 4 gives buttons the default arrow; show the hand on anything
+     clickable, and "not allowed" on controls that are off. */
+  button,
+  [role="button"],
+  [role="tab"],
+  summary,
+  select,
+  label:has(> input[type="checkbox"], > input[type="radio"]),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"]::file-selector-button {
+    cursor: pointer;
+  }
+  button:disabled,
+  button[aria-disabled="true"],
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
