@@ -676,9 +676,14 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		b, _ := json.Marshal(v)
 		write("event: " + event + "\ndata: " + string(b) + "\n\n")
 	}
-	stop := make(chan struct{})
-	defer close(stop)
+	// The keep-alive writer must have exited before the handler returns: a
+	// ResponseWriter may not be used after that (it raced with the test
+	// recorder's reads, and on a real server it could write to a reused
+	// connection).
+	stop, stopped := make(chan struct{}), make(chan struct{})
+	defer func() { close(stop); <-stopped }()
 	go func() {
+		defer close(stopped)
 		t := time.NewTicker(keepAlive)
 		defer t.Stop()
 		for {

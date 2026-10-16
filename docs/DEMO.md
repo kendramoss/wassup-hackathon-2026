@@ -17,6 +17,8 @@ Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md
    It creates a case for each demo, runs the plan searches, and fills the heat gun's scenarios, ruling watch, one ask and the multi-country comparison. It then repeats the heat-gun plan search and prints `verdicts identical=true`. If it prints a WARNING, the cache is off.
 3. Open `eval/results/demo-seed.json` and write down what the plan screens will show. From now on, replays return these verdicts (in seconds, not ~30 s).
 
+If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavailable`), the seed now waits and retries each request (1, 2, 4 then 8 minutes; `-retries`). To restart a seed that stopped, delete the cases it created (admin token, `DELETE /v1/cases/{id}`) and run it again: every finished prediction and precedent check is cached (D50, D54), so a rerun repeats those answers exactly and only computes what never finished. That is not a re-roll.
+
 ## 2. What the first run decides, and what not to do
 
 The precedent check is not repeatable from run to run (D31, D33): the heat gun's motor-fan + PCBA move has checked 0.92 in one run and 0.65–0.90 in others. The cache records the first verdict; it does not choose one.
