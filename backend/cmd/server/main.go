@@ -199,6 +199,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
+	var precedents httpapi.PrecedentStore = pool
 	var usmcaEng *engine.Engine
 	if cfg.USMCAEngine {
 		ulabels, err := corpus.LoadLabels(cfg.USMCALabels)
@@ -214,6 +215,9 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		}
 		usmcaEng = engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
+		// looks them up here too so their details are not lost.
+		precedents = httpapi.PrecedentStores{pool, upool}
 		logger.Info("USMCA engine on", "precedents", upool.Len(), "prompt", engine.USMCAVersion, "fast_path", cfg.USMCAFastPath)
 	}
 	dutyTable, err := duty.Load()
@@ -278,7 +282,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Agent:           caseagent.New(model, cfg.EngineModel, searcher, predictor),
 		Extractor:       extract.New(model, cfg.EngineModel),
 		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:      pool,
+		Precedents:      precedents,
 		Planner:         planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:         crossClient,
 		Cases:           cases,

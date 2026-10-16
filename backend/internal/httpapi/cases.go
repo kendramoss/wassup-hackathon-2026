@@ -59,6 +59,21 @@ type PrecedentStore interface {
 	Get(id string) (domain.Ruling, bool)
 }
 
+// PrecedentStores looks a ruling up in each store in turn, so rulings shown
+// by an engine with its own pool (the USMCA engine, D61) keep their date,
+// subject and held origin in precedents_detail, watch and the ruling view.
+type PrecedentStores []PrecedentStore
+
+// Get returns the ruling from the first store that has it.
+func (ss PrecedentStores) Get(id string) (domain.Ruling, bool) {
+	for _, s := range ss {
+		if r, ok := s.Get(id); ok {
+			return r, true
+		}
+	}
+	return domain.Ruling{}, false
+}
+
 // RulingSource returns a ruling's text (cross.Client).
 type RulingSource interface {
 	Ruling(ctx context.Context, id string) (cross.Ruling, error)
