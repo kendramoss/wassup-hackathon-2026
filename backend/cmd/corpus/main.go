@@ -12,6 +12,12 @@
 //	    configured LLM provider) into a vector index for hybrid retrieval.
 //	corpus compare -a DIR -b DIR
 //	    Compare two facts directories (port check against the research split).
+//	corpus usmca-fetch [-raw DIR] [-index F] [-since 2015-01-01]
+//	    Collect the CROSS rulings that cite 19 CFR 102.20 or 102.11 (newest
+//	    first, down to -since) into an index and download them (D61).
+//	corpus usmca-label [-raw DIR] [-index F] [-labels F] [-out F] [-facts DIR]
+//	    Label the Part 102 rulings among them (non-textile goods; regex
+//	    holding as in labels.jsonl) and write their facts files (D61).
 //
 // Defaults assume the command runs from backend/.
 package main
@@ -41,7 +47,7 @@ const userAgent = "origin-proof (Google Cloud AI Builder Cup 2026 prototype)"
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare|embed|reasoning|usmca-fetch|usmca-label [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -56,6 +62,10 @@ func main() {
 		err = embed(os.Args[2:])
 	case "reasoning":
 		err = reasoningFile(os.Args[2:])
+	case "usmca-fetch":
+		err = usmcaFetch(os.Args[2:])
+	case "usmca-label":
+		err = usmcaLabel(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

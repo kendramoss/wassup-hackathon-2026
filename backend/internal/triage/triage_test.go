@@ -33,6 +33,27 @@ func TestDecide(t *testing.T) {
 	}
 }
 
+func TestUSMCA(t *testing.T) {
+	for _, tt := range []struct {
+		fast, conf float64
+		want       domain.Route
+		reason     string
+	}{
+		{0, 0.99, domain.RouteNeedsReview, "without a held-out result"},
+		{0.9, 0.95, domain.RouteAuto, "≥ 0.90"},
+		{0.9, 0.9, domain.RouteAuto, "≥ 0.90"},
+		{0.9, 0.89, domain.RouteNeedsReview, "below 0.90"},
+	} {
+		got := USMCA(domain.Prediction{Origin: "Mexico", Confidence: tt.conf}, tt.fast)
+		if got.Route != tt.want || !strings.HasPrefix(got.Reason, USMCAPrefix) || !strings.Contains(got.Reason, tt.reason) {
+			t.Errorf("USMCA(conf %.2f, bar %.2f) = %+v", tt.conf, tt.fast, got)
+		}
+		if err := got.Validate(); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
 func TestWithClarify(t *testing.T) {
 	review := domain.Triage{Route: domain.RouteNeedsReview, Reason: "confidence 0.80 below 0.95"}
 	if got := WithClarify(review, true, 2); got.Route != domain.RouteNeedsInfo || got.Validate() != nil {

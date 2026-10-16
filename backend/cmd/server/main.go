@@ -199,6 +199,27 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
+	var precedents httpapi.PrecedentStore = pool
+	var usmcaEng *engine.Engine
+	if cfg.USMCAEngine {
+		ulabels, err := corpus.LoadLabels(cfg.USMCALabels)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		upool, err := corpus.Load(ulabels, cfg.FactsDir)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		if upool.Len() == 0 {
+			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
+		}
+		usmcaEng = engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
+		// looks them up here too so their details are not lost.
+		precedents = httpapi.PrecedentStores{pool, upool}
+		logger.Info("USMCA engine on", "precedents", upool.Len(), "prompt", engine.USMCAVersion, "fast_path", cfg.USMCAFastPath)
+	}
 	dutyTable, err := duty.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -234,14 +255,20 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
 	var predictor httpapi.Predictor = eng
-	var textile httpapi.Predictor
+	var textile, usmca httpapi.Predictor
 	if textileEng != nil {
 		textile = textileEng
+	}
+	if usmcaEng != nil {
+		usmca = usmcaEng
 	}
 	if engineBlobs != nil {
 		predictor = engine.NewCache(eng, engineBlobs)
 		if textileEng != nil {
 			textile = engine.NewCache(textileEng, engineBlobs)
+		}
+		if usmcaEng != nil {
+			usmca = engine.NewCache(usmcaEng, engineBlobs)
 		}
 	}
 	ds, err := demos.Load()
@@ -255,7 +282,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Agent:           caseagent.New(model, cfg.EngineModel, searcher, predictor),
 		Extractor:       extract.New(model, cfg.EngineModel),
 		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:      pool,
+		Precedents:      precedents,
 		Planner:         planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:         crossClient,
 		Cases:           cases,
@@ -276,6 +303,8 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Duty:            dutyTable,
 		Textile:         textile,
 		TextileFastPath: cfg.TextileFastPath,
+		USMCA:           usmca,
+		USMCAFastPath:   cfg.USMCAFastPath,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }

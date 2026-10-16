@@ -24,11 +24,13 @@ smoke: ## one live Vertex call (Application Default Credentials and GOOGLE_CLOUD
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS
 	cmp eval/data/labels.jsonl backend/data/labels.jsonl
+	cmp eval/data/labels_usmca.jsonl backend/data/labels_usmca.jsonl
 	@if [ -d data/corpus/facts ]; then diff -rq data/corpus/facts backend/data/facts --exclude=split_meta.jsonl && echo "bundled facts match data/corpus/facts"; fi
 
 bundle-corpus: ## copy labels and the built facts corpus into backend/data (baked into the image)
 	mkdir -p backend/data/facts
 	cp eval/data/labels.jsonl backend/data/labels.jsonl
+	cp eval/data/labels_usmca.jsonl backend/data/labels_usmca.jsonl
 	cp data/corpus/facts/*.txt backend/data/facts/
 
 CORPUS_BUCKET ?= gs://wassup-hackathon-2026-origin-proof-corpus

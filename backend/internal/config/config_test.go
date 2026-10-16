@@ -126,3 +126,19 @@ func TestTextileConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestUSMCAConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.USMCAEngine || c.USMCAFastPath != 0 || c.USMCALabels != "data/labels_usmca.jsonl" {
+		t.Fatalf("usmca defaults = %v %v %q %v", c.USMCAEngine, c.USMCAFastPath, c.USMCALabels, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_ENGINE": "on", "USMCA_FAST_PATH": "0.9"})))
+	if err != nil || !on.USMCAEngine || on.USMCAFastPath != 0.9 {
+		t.Errorf("usmca on = %v %v %v", on.USMCAEngine, on.USMCAFastPath, err)
+	}
+	for _, bad := range []map[string]string{{"USMCA_ENGINE": "maybe"}, {"USMCA_FAST_PATH": "1.5"}, {"USMCA_FAST_PATH": "-0.1"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
+			t.Errorf("%v accepted", bad)
+		}
+	}
+}
