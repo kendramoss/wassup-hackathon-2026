@@ -146,6 +146,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
               <li key={c.id}>
                 <Link href={stepHref(c.id, Math.max(stepIndex[c.step] ?? 1, 2))} className="block px-2 py-1.5 hover:bg-wash">
                   {c.display_name || c.product_name}
+                  {c.pinned ? " · Demo" : ""}
                 </Link>
               </li>
             ))}
