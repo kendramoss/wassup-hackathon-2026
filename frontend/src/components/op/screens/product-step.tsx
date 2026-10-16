@@ -234,31 +234,6 @@ export function ProductStep() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
-            <Field label={copy.product.name}>
-              {(id) => <input id={id} className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
-            </Field>
-            <Field label={copy.product.family}>
-              {(id) => (
-                <span className="relative block">
-                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
-                    {families.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.name}
-                      </option>
-                    ))}
-                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
-                  </select>
-                  <Caret />
-                </span>
-              )}
-            </Field>
-            <Field label={copy.product.date} help={copy.product.dateHelp}>
-              {(id) => <input id={id} type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
-            </Field>
-          </div>
-
-
           {drafted && tab === "parts" && (
             <div className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
               <p className="font-medium text-ask">Drafted from your text. Check these before you continue.</p>
@@ -328,6 +303,30 @@ export function ProductStep() {
             )}
           </div>
 
+          {/* After the input: name, family and date (an import fills the name). */}
+          <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+            <Field label={copy.product.name}>
+              {(id) => <input id={id} className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+            </Field>
+            <Field label={copy.product.family}>
+              {(id) => (
+                <span className="relative block">
+                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
+                    {families.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
+                  </select>
+                  <Caret />
+                </span>
+              )}
+            </Field>
+            <Field label={copy.product.date} help={copy.product.dateHelp}>
+              {(id) => <input id={id} type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+            </Field>
+          </div>
           {/* Below the input it describes: what it unlocks so far. */}
           <ul aria-label="What this input unlocks" className="mt-7 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
             {tiers.map((t, i) => (
