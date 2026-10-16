@@ -21,7 +21,7 @@ const fields = [
   { key: "[COMPANY, ADDRESS, CONTACT]", label: "Company, address, contact", area: true },
 ] as const;
 
-function Draft({ id, c, setCase, ask }: CaseCtx) {
+function Draft({ id, c, setCase }: CaseCtx) {
   const params = useSearchParams();
   const move = params.get("move") ?? undefined;
   const target = params.get("target") ?? undefined;
@@ -111,14 +111,7 @@ function Draft({ id, c, setCase, ask }: CaseCtx) {
           </Panel>
           <NextSteps
             inline
-            steps={[
-              { label: "Print the letter", onClick: () => { record(); window.print(); } },
-              { label: "Download Markdown", onClick: download },
-            ]}
-            suggestions={[
-              { label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` },
-              { label: "Ask about this case", onClick: ask },
-            ]}
+            steps={[{ label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` }]}
           />
         </div>
         <div className="min-w-0">
