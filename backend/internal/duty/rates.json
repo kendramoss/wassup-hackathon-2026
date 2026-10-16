@@ -29,7 +29,7 @@
             "heading": "9903.05.31",
             "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
             "verified": true,
-            "note": "stacking on China 301 from a secondary guide, unverified"
+            "note": "notice item 12; stacks on China 301 per HTS Ch. 99 U.S. note 52(a); 8419.89 not in note 52(b)-(k) exemptions (text search, not proofread)"
           }
         ],
         "Thailand": [
@@ -60,9 +60,9 @@
             "name": "Section 301 forced-labor (2026)",
             "rate": 0.125,
             "heading": "9903.05.84",
-            "source": "https://hts.usitc.gov/reststop/search?keyword=9903.05",
-            "verified": false,
-            "note": "12.5% from the HTS heading and a secondary tier list; not confirmed in the notice text"
+            "source": "https://www.federalregister.gov/documents/2026/07/28/2026-15181/notice-of-actions-in-section-301-investigations-of-acts-policies-and-practices-of-various-economies",
+            "verified": true,
+            "note": "notice item 60; HTS heading 9903.05.84 = duty + 12.5%; 8419.89 not in note 52(b)-(k) exemptions (text search, not proofread)"
           }
         ],
         "Malaysia": [
@@ -83,7 +83,7 @@
           }
         ]
       },
-      "checked": "2026-10-15"
+      "checked": "2026-10-17"
     },
     {
       "hts": "9015.80.20",

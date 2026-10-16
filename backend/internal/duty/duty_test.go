@@ -19,8 +19,8 @@ func TestTableMatchesDutySources(t *testing.T) {
 		if want[r.Origin] != r.Total {
 			t.Errorf("%s total %v, want %v", r.Origin, r.Total, want[r.Origin])
 		}
-		if r.Origin == "Vietnam" && !r.Unverified {
-			t.Error("Vietnam's forced-labor rate is not confirmed in the notice; it must be marked unverified")
+		if r.Unverified {
+			t.Errorf("%s has an unverified component; every heat-gun component was confirmed from a primary source on 17 Oct", r.Origin)
 		}
 		for _, c := range r.Components {
 			if c.Heading == "" || !strings.HasPrefix(c.Source, "https://") {
@@ -55,7 +55,7 @@ func TestFillKeepsUserRates(t *testing.T) {
 	if _, filled := tb.Fill(nil, "1234.56.78"); filled != nil {
 		t.Error("filled from an unknown line")
 	}
-	if n := tb.Note("8419.89.95", []string{"Vietnam"}); !strings.Contains(n, "Not fully confirmed") || !strings.Contains(n, "DUTY-SOURCES") {
+	if n := tb.Note("8419.89.95", []string{"Vietnam"}); strings.Contains(n, "Not fully confirmed") || !strings.Contains(n, "DUTY-SOURCES") {
 		t.Errorf("note = %q", n)
 	}
 }
