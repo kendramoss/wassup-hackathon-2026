@@ -279,7 +279,11 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) setOpen(false);
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) {
+        setOpen(false);
+        // Esc returns keyboard focus to the ⋯ button.
+        if (e instanceof KeyboardEvent) ref.current?.querySelector<HTMLButtonElement>("button[aria-expanded]")?.focus();
+      }
     };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", close);
