@@ -72,7 +72,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <p className="eyebrow">Origin · What if…</p>
-            <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Scenarios side by side</h1>
+            <h1 className="mt-1 text-xl tracking-[-0.04em]">Scenarios side by side</h1>
             <p className="duo mt-1 max-w-[80ch] text-sm text-dim">
               Your own what-ifs, each predicted by the origin engine. The case&apos;s answer doesn&apos;t change. For a searched, precedent-checked change, use Plan.
             </p>

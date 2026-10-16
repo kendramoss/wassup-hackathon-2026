@@ -137,8 +137,8 @@ export function ProductStep() {
       <Main>
         <div className="min-w-0 max-w-[880px]">
           <p className="eyebrow">Step 1 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
-          <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
-          <p className="duo mt-1 text-dim">{copy.product.lede}</p>
+          <h1 className="mt-1 text-xl tracking-[-0.04em]">{copy.product.title}</h1>
+          <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">{copy.product.lede}</p>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
             <Field label={copy.product.name}>
@@ -164,25 +164,27 @@ export function ProductStep() {
             ))}
           </div>
 
-          <ul aria-label="What your input unlocks" className="mt-4 grid gap-2 sm:grid-cols-3">
-            {tiers.map((t) => (
-              <li
-                key={t.key}
-                className={cx(
-                  "border px-3 py-2 text-[12.5px]",
-                  t.state === "done" && "border-ok bg-ok-wash",
-                  t.state === "limited" && "border-ask-line bg-ask-wash",
-                  t.state === "missing" && "border-dashed border-guide",
-                )}
-              >
-                <b className={cx("block font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}>
-                  {t.state === "done" ? "✓ " : t.state === "limited" ? "! " : ""}
-                  {t.label}
-                </b>
-                <span className="text-dim">{t.note}</span>
-              </li>
-            ))}
-          </ul>
+          {/* A status line, not boxes: bordered shapes here read as inputs or buttons. */}
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1.5 text-[12.5px]">
+            <span className="eyebrow">What this input unlocks</span>
+            <ul aria-label="What this input unlocks" className="flex flex-wrap gap-x-6 gap-y-1.5">
+              {tiers.map((t) => (
+                <li key={t.key} className="flex items-baseline gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className={cx("w-3 text-center font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}
+                  >
+                    {t.state === "done" ? "✓" : t.state === "limited" ? "!" : "○"}
+                  </span>
+                  <span className={cx("font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-ink")}>{t.label}</span>
+                  <span className="text-dim">
+                    <span className="sr-only">{t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}: </span>
+                    {t.note}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <div className="mt-6" role="tabpanel">
             {tab === "parts" && <PartsEditor product={product} onChange={setProduct} family={family} onFamily={setFamily} />}

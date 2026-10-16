@@ -102,6 +102,16 @@
     letter-spacing: -0.01em;
   }
 
+  /* Keep a focused element clear of the sticky action bar (WCAG 2.4.11). */
+  html {
+    scroll-padding-top: 80px;
+  }
+  @media (max-width: 639px) {
+    html {
+      scroll-padding-top: 16px;
+    }
+  }
+
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;

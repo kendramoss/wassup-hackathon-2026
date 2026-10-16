@@ -18,7 +18,7 @@ export function CaseProduct() {
           <Main className="flex max-w-[1240px] flex-col gap-6">
             <div>
               <p className="eyebrow">Step 1 · Product</p>
-              <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{c.product?.name || "Pasted description"}</h1>
+              <h1 className="mt-1 text-xl tracking-[-0.04em]">{c.product?.name || "Pasted description"}</h1>
               {c.product?.description && <p className="duo mt-1 max-w-[80ch] text-sm text-dim">{c.product.description}</p>}
             </div>
             {c.product?.components?.length ? (

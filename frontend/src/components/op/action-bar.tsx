@@ -25,7 +25,7 @@ export function ActionSlot() {
       ref={set}
       role="region"
       aria-label="Actions"
-      className="no-print sticky top-0 z-20 flex min-h-[56px] flex-wrap items-center gap-3 border-b border-line bg-paper px-4 py-2 empty:hidden sm:px-10"
+      className="no-print z-20 flex min-h-[56px] sm:sticky sm:top-0 flex-wrap items-center gap-3 border-b border-line bg-paper px-4 py-2 empty:hidden sm:px-10"
     />
   );
 }

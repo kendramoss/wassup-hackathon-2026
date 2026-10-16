@@ -70,7 +70,7 @@ export function CaseTabs({
           const done = !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
           const cls = cx(
             "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
-            on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-dashed border-line text-faint",
+            on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-transparent text-dim",
           );
           const inner = (
             <>
@@ -125,7 +125,11 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) setOpen(false);
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) {
+        setOpen(false);
+        // Esc returns keyboard focus to the button that opened the menu.
+        if (e instanceof KeyboardEvent) ref.current?.querySelector<HTMLButtonElement>("button[aria-expanded]")?.focus();
+      }
     };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", close);

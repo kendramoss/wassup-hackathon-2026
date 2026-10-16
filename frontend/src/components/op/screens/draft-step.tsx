@@ -71,7 +71,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
         <div className="no-print flex flex-col gap-5">
           <div>
             <p className="eyebrow">Step 4 · Draft for broker</p>
-            <h1 className="mt-1 text-[26px] tracking-[-0.05em]">Ruling request</h1>
+            <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
             <p className="duo mt-1 text-sm text-dim">
               A draft binding-ruling request under 19 C.F.R. Part 177 {move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
             </p>
