@@ -1,8 +1,11 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"testing"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 )
 
 func TestCaseOwnership(t *testing.T) {
@@ -92,5 +95,26 @@ func TestCaseListIsCapped(t *testing.T) {
 	rows := out["cases"].([]any)
 	if len(rows) != 4 || rows[0].(map[string]any)["id"] != first {
 		t.Errorf("got %d rows (want the pinned case plus 3), first %v", len(rows), rows[0].(map[string]any)["id"])
+	}
+}
+
+func TestDailyBudgetRefusesModelCalls(t *testing.T) {
+	meter := spend.New(spend.NewMemory(), 0.01)
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Spend = meter })
+	_, c := hs.doAs(t, "POST", "/v1/cases/predict", heatGunBody(t), admin)
+	id := c["id"].(string)
+	meter.Add(context.Background(), 0.02) // the day's budget is spent
+	code, out := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	if code != http.StatusServiceUnavailable || out["code"] != "budget_reached" || out["details"].(map[string]any)["retry_after_s"] == nil {
+		t.Errorf("predict over budget = %d %v", code, out)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`); code != http.StatusServiceUnavailable {
+		t.Errorf("plan over budget = %d", code)
+	}
+	if code, _ := hs.do(t, "GET", "/v1/cases/"+id, ""); code != http.StatusOK {
+		t.Errorf("reads must keep working over budget: %d", code)
+	}
+	if code, _ := hs.doAs(t, "POST", "/v1/cases/predict", heatGunBody(t), admin); code != http.StatusCreated {
+		t.Errorf("the admin (the seed) was refused: %d", code)
 	}
 }

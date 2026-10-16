@@ -293,3 +293,46 @@ func (b *FirestoreBlobs) Put(ctx context.Context, key string, v []byte) error {
 	}
 	return err
 }
+
+// SpendCollection holds one document per UTC day with the model spend so
+// far (spend.Store, D59).
+const SpendCollection = "model_spend"
+
+// Spend is the daily spend counter on the same client.
+func (f *Firestore) Spend() *FirestoreSpend {
+	return &FirestoreSpend{col: f.client.Collection(SpendCollection)}
+}
+
+// FirestoreSpend implements spend.Store with an atomic increment per day.
+type FirestoreSpend struct{ col *firestore.CollectionRef }
+
+// Add implements spend.Store.
+func (s *FirestoreSpend) Add(ctx context.Context, day string, usd float64) (float64, error) {
+	ref := s.col.Doc(day)
+	if _, err := ref.Set(ctx, map[string]any{"usd": firestore.Increment(usd), "updated_at": firestore.ServerTimestamp}, firestore.MergeAll); err != nil {
+		return 0, fmt.Errorf("store: add spend: %w", err)
+	}
+	return s.Total(ctx, day)
+}
+
+// Total implements spend.Store.
+func (s *FirestoreSpend) Total(ctx context.Context, day string) (float64, error) {
+	snap, err := s.col.Doc(day).Get(ctx)
+	if status.Code(err) == codes.NotFound {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("store: read spend: %w", err)
+	}
+	v, err := snap.DataAt("usd")
+	if err != nil {
+		return 0, nil
+	}
+	switch n := v.(type) {
+	case float64:
+		return n, nil
+	case int64:
+		return float64(n), nil
+	}
+	return 0, nil
+}

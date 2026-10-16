@@ -152,6 +152,12 @@ func (a *api) isAdmin(r *http.Request) bool {
 // not limited.
 func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if a.d.Spend != nil && !a.isAdmin(r) {
+			if over, total := a.d.Spend.Over(r.Context()); over {
+				a.overBudget(w, r, total)
+				return
+			}
+		}
 		if a.limiter != nil && !a.isAdmin(r) {
 			if ok, wait := a.limiter.allow(clientKey(r), c); !ok {
 				a.tooMany(w, wait)
@@ -171,6 +177,17 @@ func (a *api) adminOnly(h http.HandlerFunc) http.HandlerFunc {
 		}
 		h(w, r)
 	}
+}
+
+// overBudget writes 503 "budget_reached" with Retry-After set to the next
+// UTC day: the demo's daily model budget is spent (D59).
+func (a *api) overBudget(w http.ResponseWriter, r *http.Request, total float64) {
+	secs := int(math.Ceil(a.d.Spend.UntilReset().Seconds()))
+	a.d.Logger.WarnContext(r.Context(), "daily model budget reached", "request_id", RequestID(r.Context()), "spent_usd", total, "cap_usd", a.d.Spend.Cap())
+	w.Header().Set("Retry-After", fmt.Sprint(secs))
+	writeError(w, http.StatusServiceUnavailable, "budget_reached",
+		"today's demo budget for model calls is used up; the demo cases still work, and new analyses open again tomorrow (UTC)",
+		map[string]int{"retry_after_s": secs})
 }
 
 // tooMany writes 429 with Retry-After.

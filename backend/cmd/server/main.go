@@ -52,6 +52,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -124,7 +125,8 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 			if strings.Contains(req.System, "trade-compliance lead") {
 				return llm.Response{Text: "This is the local fake model, so there is no real answer here. With LLM_PROVIDER=vertex the agent reads the case and earlier CBP rulings and answers in plain words."}, nil
 			}
-			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`}, nil
+			// Report some usage so the daily spend cap (D59) can be exercised locally.
+			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
 		}}
 	default:
 		return nil, fmt.Errorf("unknown LLM provider %q", cfg.LLMProvider)
@@ -134,6 +136,21 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 
 // newDeps loads the corpus and builds engine, router, verifier and planner.
 func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.Deps, error) {
+	cases, err := newCases(context.Background(), cfg, logger)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	// Every model call counts toward the daily spend cap (D59), on Firestore
+	// when cases are there so all instances share one total.
+	var spendStore spend.Store = spend.NewMemory()
+	if fs, ok := cases.(*store.Firestore); ok {
+		spendStore = fs.Spend()
+	}
+	meter := spend.New(spendStore, cfg.DailySpendCapUSD)
+	model = meter.Model(model)
+	if cfg.DailySpendCapUSD > 0 {
+		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
+	}
 	labels, err := corpus.LoadLabels(cfg.LabelsPath)
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -187,10 +204,6 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		return httpapi.Deps{}, err
 	}
 	tmpls, err := planner.LoadTemplates()
-	if err != nil {
-		return httpapi.Deps{}, err
-	}
-	cases, err := newCases(context.Background(), cfg, logger)
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
@@ -258,6 +271,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
+		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
 		Textile:         textile,

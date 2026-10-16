@@ -346,6 +346,16 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
   // 403 "forbidden" (D57): an edit to a pinned demo.
   if (e?.status === 403 && (e.code as string) === "forbidden") return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
   if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
+  // 503 "budget_reached" (D59): a calm note, not an error; the demo cases still work.
+  if (e?.code === "budget_reached")
+    return (
+      <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+        <p className="duo">{e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : "Today's demo budget for model calls is used up."}</p>
+        <Link href="/" className="mt-1 inline-block text-ok underline underline-offset-2">
+          Open a demo case →
+        </Link>
+      </div>
+    );
   const outOfScope = e?.code === "out_of_scope";
   const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");
   return (
