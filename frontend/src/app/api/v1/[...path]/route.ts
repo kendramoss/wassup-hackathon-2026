@@ -7,4 +7,4 @@ async function handle(request: Request, ctx: RouteContext<"/api/v1/[...path]">) 
   return proxyBackend(request, path.map(encodeURIComponent).join("/"));
 }
 
-export { handle as GET, handle as POST };
+export { handle as GET, handle as POST, handle as PUT, handle as PATCH, handle as DELETE };

@@ -8,7 +8,7 @@ import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main } from "../chrome";
-import { EconomicsEditor, PlantDiagram, moveKey, rejectionLabels } from "../plan-bits";
+import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
@@ -241,8 +241,7 @@ function To({ country }: { country: string }) {
 }
 
 function sentence(p: Plan) {
-  const d = p.description ?? "";
-  return d.replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "");
+  return movePhrase(p);
 }
 
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
@@ -252,7 +251,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>{below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
-          {below ? "Closest: " : ""}
+          {below ? "Closest: make " : "Make "}
           {sentence(plan)} in <To country={target} />
         </h1>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -277,7 +276,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       </div>
       <div>
         <p className="eyebrow">Precedent check</p>
-        <Ruler value={v} caption={`check confidence ${conf(v)}${below ? " · below the bar" : ""}`} />
+        <Ruler value={v} caption={`check ${conf(v)} · ${checkWords(v)}`} />
       </div>
     </Band>
   );
@@ -393,8 +392,24 @@ function CheckPanel({ plan }: { plan: Plan }) {
         <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-ask">Counter-ruling · distinguish it</p>
         {v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : <span className="text-dim">none found</span>}
       </div>
-      {v.reasoning && <p className="duo mt-3 text-[13px] leading-relaxed text-[#3d3c37]">{v.reasoning}</p>}
+      {v.reasoning && <Reasoning text={v.reasoning} />}
     </Panel>
+  );
+}
+
+// The verifier's reasoning runs to several hundred words: show the first
+// four lines and fold the rest behind "Read the full check".
+function Reasoning({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3">
+      <p className={cx("duo text-[13px] leading-relaxed text-body", !open && "line-clamp-4")}>{text}</p>
+      {text.length > 280 && (
+        <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? "Show less" : "Read the full check →"}
+        </button>
+      )}
+    </div>
   );
 }
 

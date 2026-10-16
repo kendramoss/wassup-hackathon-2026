@@ -106,7 +106,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
             {(cases ?? []).filter((c) => c.id !== caseId).slice(0, 6).map((c) => (
               <li key={c.id}>
                 <Link href={stepHref(c.id, Math.max(stepIndex[c.step] ?? 1, 2))} className="block px-2 py-1.5 hover:bg-wash">
-                  {c.product_name}
+                  {c.display_name || c.product_name}
                 </Link>
               </li>
             ))}
@@ -142,8 +142,38 @@ export function Main({ children, className }: { children: ReactNode; className?:
   );
 }
 
+// Rate limits (429) are not failures: a calm note where the action was,
+// counting down, with the retry re-enabled at zero (DESIGN.md, D45).
+function RateLimitNote({ seconds, onRetry }: { seconds: number; onRetry?: () => void }) {
+  const [left, setLeft] = useState(seconds);
+  useEffect(() => {
+    if (left <= 0) return;
+    const t = setTimeout(() => setLeft((l) => l - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left]);
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-3 border border-dashed border-guide bg-sheet px-4 py-3 text-sm">
+      <span className="duo">
+        {left > 0 ? (
+          <>
+            Too many requests. Try again in <span className="font-mono">{left} s</span>. Nothing is lost.
+          </>
+        ) : (
+          "Ready to try again."
+        )}
+      </span>
+      {onRetry && (
+        <Button variant="ghost" className="min-h-8 px-3 py-1 text-[12.5px]" disabled={left > 0} onClick={onRetry}>
+          {copy.retry}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const e = error instanceof ApiError ? error : null;
+  if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
   const outOfScope = e?.code === "out_of_scope";
   const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");
   return (

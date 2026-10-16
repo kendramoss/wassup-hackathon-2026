@@ -22,6 +22,31 @@ export function groupName(id: string | undefined): string {
   return groupNames[id] ?? id.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 }
 
+// "motor_fan_assembly" → "the motor-fan assembly"; a move's groups joined
+// as a sentence: "the motor-fan assembly and the PCBA".
+const phrases: Record<string, string> = {
+  motor_fan_assembly: "the motor-fan assembly",
+  pcba: "the PCBA",
+  heating_element: "the heating element",
+  housing_moulding: "the housing moulding",
+  switch_cord_minor_parts: "the switch, cord and minor parts",
+  final_assembly: "final assembly",
+};
+
+export function movePhrase(p: Plan): string {
+  const parts = (p.move ?? []).map((m) => phrases[m.group ?? ""] ?? groupName(m.group).toLowerCase());
+  if (parts.length === 0) return (p.description ?? "").replace(/^Make /, "");
+  return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+// The precedent check said as a judgement: exactly at the bar is never a
+// confident pass (DESIGN.md, demo seed run 2).
+export function checkWords(v: number | null | undefined): string {
+  if (v === null || v === undefined) return "not checked";
+  if (Math.abs(v - 0.92) < 0.0005) return "exactly at the 0.92 bar";
+  return v > 0.92 ? "above the 0.92 bar" : "below the 0.92 bar";
+}
+
 export const rejectionLabels: Record<string, string> = {
   current_setup: "Current setup",
   below_confidence_bar: "Below the bar",

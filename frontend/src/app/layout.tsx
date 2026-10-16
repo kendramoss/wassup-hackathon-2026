@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: copy.tagline,
 };
 
-export const viewport: Viewport = { themeColor: "#f3f3ee", colorScheme: "light" };
+export const viewport: Viewport = { themeColor: "#edf2f9", colorScheme: "light" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

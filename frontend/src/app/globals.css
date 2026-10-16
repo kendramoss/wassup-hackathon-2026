@@ -3,32 +3,35 @@
 /* Design tokens. Components use these through the Tailwind colours below
    (bg-bg, text-muted, border-border, ...), never raw colours, so both themes
    come from this one place. */
-/* Design tokens: direction P, paper mono (docs/design/DESIGN.md step 3).
+/* Design tokens: direction P, paper mono (docs/design/DESIGN.md step 3), in
+   palette B "Blueprint" (docs/design/palettes): pale engineering-blue paper,
+   navy ink, one blue accent; "look again" is violet, red only for failures.
    Components use these through Tailwind colours (bg-paper, text-dim, ...),
    never raw colours. P is a light, printable theme by decision, so there is
    no dark variant: the page sets color-scheme: light. The older names (bg,
    fg, muted, ...) map onto the same palette for the /chat page. */
 :root {
-  --paper: #f3f3ee;
-  --sheet: #f9f9f5;
-  --wash: #ebebe4;
-  --grid: #dde4f3;
-  --line: #cfd3dc;
-  --edge: #b9c6e6;
-  --guide: #9fb2e3;
-  --shadow: #a8bcef;
-  --ink: #232320;
-  --dim: #5c5b55;
-  --faint: #7f7d76;
-  --ok: #3a5fc4;
-  --ok-wash: #e5ebfa;
-  --ask: #965606;
-  --ask-wash: #fbefdb;
-  --ask-line: #e3be86;
-  --ask-shadow: #efcd94;
-  --fail: #a1321f;
-  --fail-wash: #fbe7e2;
-  --dimension: #4864b2;
+  --paper: #edf2f9;
+  --sheet: #f9fbfe;
+  --wash: #e2e9f3;
+  --grid: #d3dff0;
+  --line: #c4d0e2;
+  --edge: #9fb4d8;
+  --guide: #8fa7d6;
+  --shadow: #86a3d8;
+  --ink: #13213a;
+  --dim: #47566f;
+  --faint: #6e7c94;
+  --ok: #1d4fc4;
+  --ok-wash: #e2eafa;
+  --ask: #6a3fb0;
+  --ask-wash: #f0e9fb;
+  --ask-line: #c6b2ea;
+  --ask-shadow: #d5c5f2;
+  --fail: #a3201f;
+  --fail-wash: #fbe7e6;
+  --dimension: #3c5aa8;
+  --body: #2b3a55;
 
   --bg: var(--paper);
   --fg: var(--ink);
@@ -63,6 +66,7 @@
   --color-fail: var(--fail);
   --color-fail-wash: var(--fail-wash);
   --color-dimension: var(--dimension);
+  --color-body: var(--body);
   --color-bg: var(--bg);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
@@ -89,9 +93,8 @@
     background-color: var(--paper);
     /* The 20 px graph grid shows only outside the content column: columns
        and panels are solid paper, so text never sits on grid lines. */
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    /* Flat line pattern, no gradient; stroke = --grid (#d3dff0). */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cpath d='M0 .5H20M.5 0V20' stroke='%23d3dff0' fill='none'/%3E%3C/svg%3E");
     background-size: 20px 20px;
     color: var(--ink);
     font-family: var(--font-sans);

@@ -238,7 +238,7 @@ function TurnView({ t, detail }: { t: Turn; detail: Record<string, PrecedentRef>
 function Answer({ text, ids }: { text: string; ids: string[] }) {
   const re = ids.length ? new RegExp(`(${ids.map((i) => i.replace(/[^A-Z0-9]/g, "")).join("|")})`) : null;
   return (
-    <div className="duo mt-2.5 flex flex-col gap-2 text-[13px] leading-relaxed text-[#3d3c37]">
+    <div className="duo mt-2.5 flex flex-col gap-2 text-[13px] leading-relaxed text-body">
       {text
         .split(/\n\s*\n/)
         .filter((p) => p.trim())

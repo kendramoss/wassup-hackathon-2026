@@ -124,7 +124,7 @@ export function PanelHead({ children, right }: { children: ReactNode; right?: Re
 }
 
 const btn = {
-  primary: "bg-ink text-paper border-ink shadow-[3px_3px_0_var(--shadow)] hover:bg-[#3a3a36]",
+  primary: "bg-ink text-paper border-ink shadow-[3px_3px_0_var(--shadow)] hover:bg-body",
   ghost: "bg-sheet text-ink border-line hover:bg-wash",
   off: "bg-wash text-dim border-line cursor-not-allowed",
 };

@@ -92,12 +92,14 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
       cache: "no-store",
     });
     const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json" });
+    const retry = res.headers.get("retry-after");
+    if (retry) out.set("Retry-After", retry);
     if (out.get("Content-Type")?.startsWith("text/event-stream")) {
       // no-transform keeps Next's compression from buffering the stream.
       out.set("Cache-Control", "no-cache, no-transform");
       out.set("X-Accel-Buffering", "no");
     }
-    return new Response(res.body, { status: res.status, headers: out });
+    return new Response(res.status === 204 ? null : res.body, { status: res.status, headers: out });
   } catch (err) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
     console.error(`backend /v1/${path}:`, err);

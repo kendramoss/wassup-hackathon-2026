@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, formatMonth, isProxy } from "@/lib/format";
+import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
 import { AskDrawer } from "../ask-drawer";
+import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
@@ -17,6 +18,7 @@ export function OriginStep() {
 
 function Result({ id, c, setCase }: CaseCtx) {
   const [asking, setAsking] = useState(false);
+  const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
   const route = c.triage?.route;
@@ -74,6 +76,14 @@ function Result({ id, c, setCase }: CaseCtx) {
             {c.model_ids?.engine} · {c.prompt_versions?.engine}
             {c.prompt_versions?.clarify && c.clarify ? ` · ${c.prompt_versions.clarify}` : ""} · read {p.precedents?.length ?? 0} CBP rulings dated before {formatDate(c.date)}
             {isProxy(c.llm_provider) ? ` · ${copy.proxy}` : ""}
+            {c.history?.length ? (
+              <>
+                {" · "}
+                <button type="button" className="text-ok underline underline-offset-2" onClick={() => setHistory(true)}>
+                  History ({c.history.length})
+                </button>
+              </>
+            ) : null}
           </Audit>
         </aside>
       </Main>
@@ -99,6 +109,7 @@ function Result({ id, c, setCase }: CaseCtx) {
         </div>
       </Footer>
       {asking && <AskDrawer c={c} onClose={() => setAsking(false)} onCase={setCase} />}
+      {history && <HistoryDrawer c={c} onClose={() => setHistory(false)} />}
     </>
   );
 }
@@ -206,25 +217,44 @@ function WatchStrip({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse
   );
 }
 
+// Earlier rulings disagree (locked 16 Oct, p-res-conflict.html): the two
+// rulings as halves; the one named by conflict.leans is tinted blue with
+// "this case follows". Only endpoint text.
 function Conflict({ c }: { c: CaseResponse }) {
   const k = c.clarify!.conflict!;
+  const detail = new Map((c.precedents_detail ?? []).map((r) => [r.id, r]));
+  const halves = [
+    { side: "a", id: k.ruling_a, holding: k.holding_a },
+    { side: "b", id: k.ruling_b, holding: k.holding_b },
+  ];
   return (
     <Panel tone="ask">
-      <h2 className="text-lg tracking-[-0.02em]">{copy.result.conflict}</h2>
+      <h2 className="eyebrow text-ask">{copy.result.conflict}</h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
-        {[
-          [k.ruling_a, k.holding_a],
-          [k.ruling_b, k.holding_b],
-        ].map(([r, h]) => (
-          <div key={r} className="border border-line bg-white p-3 text-[13px]">
-            {r && <RulingLink id={r} />}
-            <p className="duo mt-1">{h}</p>
-          </div>
-        ))}
+        {halves.map(({ side, id, holding }) => {
+          const r = id ? detail.get(id) : undefined;
+          const follows = k.leans === side;
+          return (
+            <div key={side} className={cx("border p-3 text-[13px]", follows ? "border-ok bg-ok-wash" : "border-line bg-white")}>
+              {follows && <p className="mb-1.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-ok">This case follows</p>}
+              {r?.subject && <p className="font-medium">{shortSubject(r.subject)}</p>}
+              <p className="mt-0.5 text-xs text-dim">
+                {id && <RulingLink id={id} />}
+                {r?.origin && (
+                  <>
+                    {" "}
+                    · held <Country name={r.origin} />
+                  </>
+                )}
+              </p>
+              <p className="duo mt-2">{holding}</p>
+            </div>
+          );
+        })}
       </div>
       {k.deciding_difference && (
         <p className="duo mt-3 text-[13px]">
-          <span className="text-dim">What decided it: </span>
+          <span className="text-dim">What CBP relied on: </span>
           {k.deciding_difference}
         </p>
       )}
