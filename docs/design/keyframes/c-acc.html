@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 3 key frames: foundations</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+body{background:#ecebe6;padding:56px 48px 120px}
+h1{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.lede{margin-top:12px;max-width:84ch;color:#3d3a35}
+section{margin-top:64px}h2{font-family:var(--serif);font-size:26px;font-weight:600}
+.note{margin-top:6px;color:var(--dim);font-size:14px;max-width:86ch}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:22px;align-items:start}
+figure{background:#fff;border-radius:10px;overflow:hidden}figure img{display:block;width:100%}
+figcaption{padding:12px 14px 14px;font-size:14px;line-height:1.45}
+figcaption b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dim);margin-bottom:4px}
+.rec{color:var(--ok);font-weight:600}
+.check{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;font-size:13px;max-width:1100px}
+.check div::before{content:"✓ ";font-weight:700;color:var(--ok)}.check div.p::before{content:"~ ";color:#c4892a}.check div.x::before{content:"✗ ";color:#b0412e}
+.links{margin-top:8px;font-size:13px}
+@media (max-width:1100px){.row,.check{grid-template-columns:1fr}body{padding:32px 20px 80px}}
+</style></head><body>
+<h1>"How accurate is it?": concepts</h1>
+<p class="lede">The page linked from the top bar on every screen. Official Vertex AI numbers (backend <span class="mono">feat/origin-proof-vertex-eval</span> 39eda27, D39), every one from <span class="mono">docs/NUMBERS.md</span> and served by <span class="mono">GET /v1/eval/summary</span>. Judges will likely open it, so it leads with the held-out result and keeps weak or development-only numbers visibly separate.</p>
+<section><h2>Three concepts</h2><div class="row" style="grid-template-columns:repeat(3,minmax(0,1fr))"><figure><a href="c-acc-report.html"><img src="png/c-acc-report.png" alt=""></a><figcaption><b>A · Report with baselines</b>A large 90.2% with its interval, then bars against every rule of thumb (60.5% best). Fast path, cost and time as three cards; "What we don't claim" at the end.</figcaption></figure><figure><a href="c-acc-dots.html"><img src="png/c-acc-dots.png" alt=""></a><figcaption><b>B · Every ruling as a square</b>377 squares: auto-accepted right (288) and wrong (12), sent to review right (52) and wrong (25). Shows why the 0.92 bar exists in one glance.</figcaption></figure><figure><a href="c-acc-table.html"><img src="png/c-acc-table.png" alt=""></a><figcaption><b>C · Table of record</b>Four headline cards, then every number with interval, n, status (official, baseline, weak, development set) and source file. Built for the Q&A.</figcaption></figure></div>
+<div class="check"><div>Leads with the held-out set, the number that matters; development and weak numbers are tagged, never mixed in</div><div>Every value shows its interval, and n where it's small</div><div>B ties the page to the 0.92 bar users see on every Result screen</div><div>Wording follows NUMBERS.md: no "approved", "verified" or "guaranteed"</div><div class="p">B's four counts are worked out from 96.0% of 300 and 90.2% of 377 (288, 12, 52, 25); the API returns rates, so the page computes them or the backend adds counts</div><div class="p">A alone hides cost of being wrong; C alone reads like a spreadsheet</div></div></section>
+<section><h2>Suggested pick</h2><p class="lede">Combine them: B's squares as the hero (with the overall and fast-path cards), A's baseline bars under it, and C's table as "Every number" at the end with the not-claimed rows. One page, read top to bottom from story to evidence.</p></section>
+</body></html>
