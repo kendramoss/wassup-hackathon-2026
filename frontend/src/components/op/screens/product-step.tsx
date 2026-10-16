@@ -5,7 +5,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { api, type Component, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
-import { CaseTabs, ErrorBox, Footer, Main, Next } from "../chrome";
+import { CaseTabs, ErrorBox, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -164,28 +164,6 @@ export function ProductStep() {
             ))}
           </div>
 
-          {/* A status line, not boxes: bordered shapes here read as inputs or buttons. */}
-          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1.5 text-[12.5px]">
-            <span className="eyebrow">What this input unlocks</span>
-            <ul aria-label="What this input unlocks" className="flex flex-wrap gap-x-6 gap-y-1.5">
-              {tiers.map((t) => (
-                <li key={t.key} className="flex items-baseline gap-1.5">
-                  <span
-                    aria-hidden="true"
-                    className={cx("w-3 text-center font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}
-                  >
-                    {t.state === "done" ? "✓" : t.state === "limited" ? "!" : "○"}
-                  </span>
-                  <span className={cx("font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-ink")}>{t.label}</span>
-                  <span className="text-dim">
-                    <span className="sr-only">{t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}: </span>
-                    {t.note}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           <div className="mt-6" role="tabpanel">
             {tab === "parts" && <PartsEditor product={product} onChange={setProduct} family={family} onFamily={setFamily} />}
             {tab === "paste" && (
@@ -220,28 +198,52 @@ export function ProductStep() {
               />
             )}
           </div>
+          {/* A status line, not boxes: bordered shapes here read as inputs or buttons. */}
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1.5 text-[12.5px]">
+            <span className="eyebrow">What this input unlocks</span>
+            <ul aria-label="What this input unlocks" className="flex flex-wrap gap-x-6 gap-y-1.5">
+              {tiers.map((t) => (
+                <li key={t.key} className="flex items-baseline gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className={cx("w-3 text-center font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}
+                  >
+                    {t.state === "done" ? "✓" : t.state === "limited" ? "!" : "○"}
+                  </span>
+                  <span className={cx("font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-ink")}>{t.label}</span>
+                  <span className="text-dim">
+                    <span className="sr-only">{t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}: </span>
+                    {t.note}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {error ? (
             <div className="mt-6">
               <ErrorBox error={error} onRetry={submit} />
             </div>
           ) : null}
+          {/* Step 1 is a form: its action sits after the fields, not above the heading. */}
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-4">
+        <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
+            <div className="ml-auto flex items-center gap-3">
+              {busy ? (
+                <Spinner label={copy.product.working} />
+              ) : missing ? (
+                <span id="go-why" className="text-[13px] text-dim">
+                  {missing}
+                </span>
+              ) : null}
+              <Button onClick={submit} disabled={!ready || busy} aria-describedby={missing ? "go-why" : undefined}>
+                {copy.product.go} →
+              </Button>
+            </div>
+          </div>
+
         </div>
       </Main>
-      <Footer>
-        <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
-        <div className="ml-auto flex items-center gap-3">
-          {busy ? (
-            <Spinner label={copy.product.working} />
-          ) : missing ? (
-            <span id="go-why" className="text-[13px] text-dim">
-              {missing}
-            </span>
-          ) : null}
-          <Button onClick={submit} disabled={!ready || busy} aria-describedby={missing ? "go-why" : undefined}>
-            {copy.product.go} →
-          </Button>
-        </div>
-      </Footer>
     </>
   );
 }
