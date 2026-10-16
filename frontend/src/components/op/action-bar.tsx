@@ -10,6 +10,9 @@ export const ACTIONS_ON_TOP = true;
 
 const Slot = createContext<{ el: HTMLElement | null; set: (el: HTMLElement | null) => void }>({ el: null, set: () => {} });
 
+// One provider per page (CaseShell, Step 1): Next keeps the previous page
+// mounted but hidden after a client navigation, so a shared slot would let
+// the hidden page's actions land in the visible bar.
 export function ActionSlotProvider({ children }: { children: ReactNode }) {
   const [el, set] = useState<HTMLElement | null>(null);
   return <Slot.Provider value={{ el, set }}>{children}</Slot.Provider>;

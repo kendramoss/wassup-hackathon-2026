@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { ActionSlotProvider } from "@/components/op/action-bar";
+import { SkipLink } from "@/components/op/skip-link";
 import { copy } from "@/lib/copy";
 import "./globals.css";
 
@@ -27,13 +27,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${paperMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:bg-ink focus:px-3 focus:py-2 focus:text-paper"
-        >
-          Skip to content
-        </a>
-        <ActionSlotProvider>{children}</ActionSlotProvider>
+        <SkipLink />
+        {children}
       </body>
     </html>
   );

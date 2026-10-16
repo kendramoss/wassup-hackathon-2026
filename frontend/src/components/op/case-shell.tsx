@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import type { CaseResponse } from "@/lib/api/client";
 import { formatDate, stepIndex } from "@/lib/format";
 import { caseTitle, useCase } from "@/lib/use-case";
+import { ActionSlotProvider } from "./action-bar";
 import { AskDrawer } from "./ask-drawer";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
 import { Spinner } from "./ui";
@@ -37,7 +38,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
     "Loading…"
   );
   return (
-    <>
+    <ActionSlotProvider>
       <CaseTabs caseId={id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country ? () => setAsking(true) : undefined} />
       {error ? (
         <Main>
@@ -51,6 +52,6 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
         children({ id, c: data, setCase: setData, reload })
       )}
       {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onCase={setData} />}
-    </>
+    </ActionSlotProvider>
   );
 }

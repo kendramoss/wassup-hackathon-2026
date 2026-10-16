@@ -5,6 +5,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { api, type Component, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
+import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, ErrorBox, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
@@ -133,7 +134,7 @@ export function ProductStep() {
   const tiers = unlocks(tab, facts, product, Boolean(extra.facts));
 
   return (
-    <>
+    <ActionSlotProvider>
       <CaseTabs current="product" reached={1} title={name || "New case"} />
       <Main>
         <div className="min-w-0 max-w-[880px]">
@@ -245,7 +246,7 @@ export function ProductStep() {
 
         </div>
       </Main>
-    </>
+    </ActionSlotProvider>
   );
 }
 
