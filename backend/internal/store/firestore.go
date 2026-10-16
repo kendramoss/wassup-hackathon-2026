@@ -179,9 +179,15 @@ type verdictDoc struct {
 	At      time.Time `firestore:"cached_at"`
 }
 
+// EngineCollection holds cached engine predictions (D54).
+const EngineCollection = "engine_cache"
+
 // Verdicts returns the verdict cache on the same client.
-func (f *Firestore) Verdicts() *FirestoreBlobs {
-	return &FirestoreBlobs{col: f.client.Collection(VerdictCollection)}
+func (f *Firestore) Verdicts() *FirestoreBlobs { return f.Blobs(VerdictCollection) }
+
+// Blobs returns a blob store in collection on the same client.
+func (f *Firestore) Blobs(collection string) *FirestoreBlobs {
+	return &FirestoreBlobs{col: f.client.Collection(collection)}
 }
 
 // Get implements verifier.Blobs.

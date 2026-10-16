@@ -30,9 +30,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
@@ -147,7 +149,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
 	ver = verifier.NewMajority(ver, cfg.VerifierVotes) // the cache below stores the majority verdict
-	var textile httpapi.Predictor
+	var textileEng *engine.Engine
 	if cfg.TextileEngine {
 		ids, err := corpus.LoadIDList(cfg.TextileRulings)
 		if err != nil {
@@ -169,7 +171,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 			tpool = corpus.WithReasoning(tpool, reasons)
 			opts.System, opts.Version, opts.PrecedentReasoning = engine.TextileSystem2, engine.TextileVersion2, true
 		}
-		textile = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
+		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
 	dutyTable, err := duty.Load()
@@ -184,6 +186,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	var engineBlobs blob.Store
 	switch cfg.VerifierCacheStore {
 	case config.VerdictsFirestore:
 		fs, ok := cases.(*store.Firestore)
@@ -193,14 +196,32 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 			}
 		}
 		ver = verifier.NewCacheIn(ver, fs.Verdicts(), cfg.VerifierModel)
-		logger.Info("verifier verdicts cached in Firestore", "collection", store.VerdictCollection)
+		engineBlobs = fs.Blobs(store.EngineCollection)
+		logger.Info("verifier verdicts and engine predictions cached in Firestore", "collections", []string{store.VerdictCollection, store.EngineCollection})
 	case config.VerdictsFile:
 		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
 		if err != nil {
 			return httpapi.Deps{}, err
 		}
 		ver = vc
-		logger.Info("verifier verdicts cached", "dir", cfg.VerifierCacheDir)
+		dir := filepath.Join(filepath.Dir(filepath.Clean(cfg.VerifierCacheDir)), "engine-cache")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
+		}
+		engineBlobs = blob.Dir{Dir: dir}
+		logger.Info("verifier verdicts and engine predictions cached", "dirs", []string{cfg.VerifierCacheDir, dir})
+	}
+	// Engine predictions are cached in the same store as verdicts (D54).
+	var predictor httpapi.Predictor = eng
+	var textile httpapi.Predictor
+	if textileEng != nil {
+		textile = textileEng
+	}
+	if engineBlobs != nil {
+		predictor = engine.NewCache(eng, engineBlobs)
+		if textileEng != nil {
+			textile = engine.NewCache(textileEng, engineBlobs)
+		}
 	}
 	ds, err := demos.Load()
 	if err != nil {
@@ -208,13 +229,13 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	return httpapi.Deps{
 		Demos:           ds,
-		Engine:          eng,
+		Engine:          predictor,
 		Router:          router.New(model, cfg.RouterModel, 2000),
-		Agent:           caseagent.New(model, cfg.EngineModel, searcher, eng),
+		Agent:           caseagent.New(model, cfg.EngineModel, searcher, predictor),
 		Extractor:       extract.New(model, cfg.EngineModel),
 		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:      pool,
-		Planner:         planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Planner:         planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:         crossClient,
 		Cases:           cases,
 		Templates:       tmpls,
