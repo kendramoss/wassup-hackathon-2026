@@ -93,13 +93,14 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
 		sc.Economics = in.Economics
 	}
-	if e := sc.Economics; e != nil {
+	if sc.Economics != nil {
+		e := a.priced(*sc.Economics, sc.Product) // table rates are not stored on the case
 		current := sc.Prediction.Origin
 		if sc.CurrentOrigin != nil && sc.CurrentOrigin.Country != "" {
 			current = sc.CurrentOrigin.Country
 		}
 		for i := range out {
-			cmp := planner.Compare(*e, sc.Product, out[i].Product, current, out[i].Prediction.Origin)
+			cmp := planner.Compare(e, sc.Product, out[i].Product, current, out[i].Prediction.Origin)
 			out[i].Comparison = &cmp
 		}
 	}

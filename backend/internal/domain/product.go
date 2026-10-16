@@ -53,6 +53,9 @@ type Product struct {
 	Plants      []Plant     `json:"plants"`
 	Components  []Component `json:"components"`
 	Operations  []Operation `json:"operations"`
+	// HTS is the product's tariff subheading (e.g. 8419.89.95), used to look
+	// up sourced duty rates (D52). Optional; not part of the facts.
+	HTS string `json:"hts,omitempty"`
 }
 
 // PlantByID returns the plant with the given ID.

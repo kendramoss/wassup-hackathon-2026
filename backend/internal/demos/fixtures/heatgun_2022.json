@@ -137,7 +137,8 @@
           "plant": "th",
           "group": "final_assembly"
         }
-      ]
+      ],
+      "hts": "8419.89.95"
     },
     "family": "motorised_tools_small_appliances",
     "exclude_rulings": [
@@ -154,11 +155,7 @@
     "economics": {
       "illustrative": true,
       "annual_import_value_usd": 2000000,
-      "duty_rates": {
-        "China": 0.417,
-        "Thailand": 0.167
-      },
-      "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
+      "duty_rates_note": "Duty rates come from the sourced table for HTS 8419.89.95 (docs/DUTY-SOURCES.md, D52); the import value and group costs are illustrative.",
       "group_costs": {
         "motor_fan_assembly": {
           "cn": 300000,

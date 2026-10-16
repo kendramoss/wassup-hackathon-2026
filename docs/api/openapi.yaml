@@ -531,6 +531,45 @@ paths:
               schema: { $ref: "#/components/schemas/Ruling" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/duty-rates:
+    get:
+      summary: Sourced duty rates by HTS subheading, with every component and source (D52)
+      parameters:
+        - { name: hts, in: query, required: false, schema: { type: string, example: "8419.89.95" }, description: "8 or 10 digits, dots optional; omit to list every line" }
+      responses:
+        "200":
+          description: One line (with hts) or {lines} (without)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hts: { type: string }
+                  description: { type: string }
+                  checked: { type: string, format: date }
+                  hts_revision: { type: string }
+                  sources_doc: { type: string }
+                  rates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        origin: { type: string }
+                        total: { type: number, description: "ad valorem fraction, 0.417 = 41.7%" }
+                        unverified: { type: boolean }
+                        components:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name: { type: string }
+                              rate: { type: number }
+                              heading: { type: string }
+                              source: { type: string }
+                              verified: { type: boolean }
+                              note: { type: string }
+                  lines: { type: array, items: { type: object } }
+        "404": { $ref: "#/components/responses/Error" }
   /v1/demos:
     get:
       summary: Demo cases for the UI's "load demo" button
@@ -689,6 +728,7 @@ components:
         plants: { type: array, items: { $ref: "#/components/schemas/Plant" } }
         components: { type: array, items: { $ref: "#/components/schemas/Component" } }
         operations: { type: array, items: { $ref: "#/components/schemas/Operation" } }
+        hts: { type: string, example: "8419.89.95", description: "Optional tariff subheading; fills duty rates from the sourced table (GET /v1/duty-rates, D52). Not part of the facts." }
     PredictRequest:
       type: object
       description: Either `facts` (pasted text, max 12,000 characters) or a structured `product` (+ `family`) is required. When both are given, the engine reads `facts` and the product is kept for plan search (the heat-gun demo does this).
@@ -824,6 +864,7 @@ components:
         annual_import_value_usd: { type: number }
         duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
         duty_rates_note: { type: string }
+        duty_rates_from_table: { type: array, items: { type: string }, description: "Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52)" }
         group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
     PlanRequest:
       type: object

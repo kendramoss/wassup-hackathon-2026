@@ -22,6 +22,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
@@ -175,7 +176,7 @@ func newHarnessWith(t *testing.T, regime string, adjust func(*Deps)) harness {
 			return evalsummary.Summary{Status: "proxy, development only", Items: []evalsummary.Item{{Key: "final_accuracy", Value: 0.899}}}, nil
 		},
 		Demos: mustDemos(t), FastPathConf: 0.92, PlanConfidence: 0.92, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
-		AdminToken: testAdmin,
+		AdminToken: testAdmin, Duty: mustDuty(t),
 	}
 	if adjust != nil {
 		adjust(&d)
@@ -837,4 +838,13 @@ func TestEconomicsOnPredictAndPut(t *testing.T) {
 	if code, _ := hs.do(t, "POST", "/v1/cases/predict", bad); code != 400 {
 		t.Errorf("predict with a percent rate: %d", code)
 	}
+}
+
+func mustDuty(t *testing.T) *duty.Table {
+	t.Helper()
+	tb, err := duty.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return tb
 }

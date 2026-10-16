@@ -159,7 +159,8 @@
         "plant": "th",
         "group": "final_assembly"
       }
-    ]
+    ],
+    "hts": "8419.89.95"
   },
   "economics": {
     "illustrative": true,
