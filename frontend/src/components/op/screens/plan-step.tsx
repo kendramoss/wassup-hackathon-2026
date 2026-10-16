@@ -465,13 +465,16 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   const byCheck = (a: Plan, b: Plan) => (b.verdict?.confidence ?? 0) - (a.verdict?.confidence ?? 0) || (b.net_per_year ?? 0) - (a.net_per_year ?? 0);
   const below = rejected.filter((p) => p.rejection_kind === "below_confidence_bar").sort(byCheck);
   const others = rejected.filter((p) => p.rejection_kind !== "below_confidence_bar" && p.rejection_kind !== "current_setup");
-  const every = [...(result.plans ?? []), ...below, ...others, ...rejected.filter((p) => p.rejection_kind === "current_setup")];
+  const noChange = rejected.filter((p) => p.rejection_kind === "current_setup");
+  const every = [...(result.plans ?? []), ...below, ...others, ...noChange];
+  // Count moves only, as the search band does; "No change" is the baseline.
+  const moves = every.length - noChange.length;
   const [open, setOpen] = useState(false);
   const all = open ? every : every.slice(0, 3);
   return (
     <section className="min-w-0">
       <h2 className="eyebrow mb-2.5">
-        Moves searched · {every.length} · {result.plans?.length ? "best first" : "closest first by precedent check"}
+        Moves searched · {moves} · {result.plans?.length ? "best first" : "closest first by precedent check"}
       </h2>
       <div className="relative overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse border border-line bg-sheet text-[13px]">

@@ -73,8 +73,7 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
     }
   };
 
-  const target = planTarget(c) ?? "Thailand";
-  const suggestions = [`Why not ${target}?`, `What if the motor-fan assembly were made in ${target}?`, "Which ruling matters most?"];
+  const suggestions = starterQuestions(c);
 
   return (
     <Drawer
@@ -158,6 +157,23 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
       </form>
     </Drawer>
   );
+}
+
+// Starter questions come from the case: the plan target, and the first
+// part made in the predicted origin (the one a move would shift).
+function starterQuestions(c: CaseResponse): string[] {
+  const origin = c.prediction?.origin_country;
+  const target = planTarget(c);
+  const part = c.product?.components?.find((p) => p.made_in && p.made_in === origin);
+  const name = part?.name;
+  // "Motor" reads as "the motor"; keep "PCBA" as is.
+  const the = name && /^[A-Z][a-z]/.test(name) ? name[0].toLowerCase() + name.slice(1) : name;
+  const qs: string[] = [];
+  if (target) qs.push(`Why not ${target}?`);
+  else if (origin) qs.push(`Why ${origin}?`);
+  if (target && the) qs.push(`What if the ${the} were made in ${target}?`);
+  qs.push("Which ruling matters most?");
+  return qs;
 }
 
 function Q({ children }: { children: React.ReactNode }) {
