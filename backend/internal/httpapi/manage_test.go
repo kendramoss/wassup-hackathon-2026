@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -234,5 +235,86 @@ func TestCaseShowsPricedEconomics(t *testing.T) {
 	}
 	if r, _ := got["economics"].(map[string]any)["duty_rates"].(map[string]any); len(r) != 0 {
 		t.Errorf("table rates leaked into the stored economics: %v", r)
+	}
+}
+
+func TestPinnedDemoIsReadOnlyForVisitors(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	hs.doAs(t, "PUT", "/v1/cases/"+id+"/pin", `{"pinned":true}`, admin)
+	_, before := hs.do(t, "GET", "/v1/cases/"+id, "")
+
+	// Edits that change what the demo shows are refused.
+	for _, req := range []struct{ method, path, body string }{
+		{"PUT", "/economics", `{"illustrative":true,"annual_import_value_usd":1}`},
+		{"POST", "/answers", `{"answers":[{"question":"Where is the motor made?","answer":"China"}]}`},
+		{"POST", "/ask", `{"reset":true}`},
+	} {
+		if code, _ := hs.do(t, req.method, "/v1/cases/"+id+req.path, req.body); code != http.StatusForbidden {
+			t.Errorf("%s %s = %d, want 403", req.method, req.path, code)
+		}
+	}
+	// Searches still answer but do not save.
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Vietnam"}`); code != http.StatusOK || out["plan"] == nil {
+		t.Errorf("plan on a demo = %d", code)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why China?"}`); code != http.StatusOK {
+		t.Errorf("ask on a demo = %d", code)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"x","facts":"motor in Thailand"}]}`); code != http.StatusOK {
+		t.Errorf("scenarios on a demo = %d", code)
+	}
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/watch", ""); code != http.StatusOK {
+		t.Errorf("watch on a demo = %d", code)
+	}
+	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if after["plan"].(map[string]any)["target"] != "Thailand" || len(after["history"].([]any)) != len(before["history"].([]any)) ||
+		len(after["chat"].([]any)) != 0 || after["scenarios"] != nil && len(after["scenarios"].([]any)) != 0 || after["watch"] != nil {
+		t.Errorf("a visitor changed the demo: plan target %v, history %d -> %d, chat %v, scenarios %v, watch %v",
+			after["plan"].(map[string]any)["target"], len(before["history"].([]any)), len(after["history"].([]any)), after["chat"], after["scenarios"], after["watch"])
+	}
+	// The admin (the seed) can still change it.
+	if code, _ := hs.doAs(t, "PUT", "/v1/cases/"+id+"/economics", `{"illustrative":true,"annual_import_value_usd":1000}`, admin); code != http.StatusOK {
+		t.Errorf("admin economics = %d", code)
+	}
+}
+
+func TestBatchTakesTheWholeHeavyBurst(t *testing.T) {
+	l := newLimiter(Limits{LightPerMin: 100, HeavyPerMin: 4, GlobalPerMin: 1000})
+	if ok, _ := l.allow("a", bulk); !ok {
+		t.Fatal("first batch refused")
+	}
+	if ok, _ := l.allow("a", bulk); ok {
+		t.Error("second batch in the same minute allowed")
+	}
+	if ok, _ := l.allow("a", heavy); ok {
+		t.Error("a plan search right after a batch allowed; the batch should use the heavy burst")
+	}
+}
+
+func TestLimiterKeepsNewClientsWhenFull(t *testing.T) {
+	l := newLimiter(Limits{LightPerMin: 1, HeavyPerMin: 1, GlobalPerMin: 1e6})
+	for i := 0; i < 10001; i++ {
+		l.allow(fmt.Sprintf("10.0.%d.%d", i/256, i%256), light)
+	}
+	if ok, _ := l.allow("192.0.2.1", light); !ok {
+		t.Fatal("first request refused")
+	}
+	if ok, _ := l.allow("192.0.2.1", light); ok {
+		t.Error("a new client was forgotten at once when the map was full, so it was not limited")
+	}
+}
+
+func TestIPv6GroupedBySlash64(t *testing.T) {
+	a := httptest.NewRequest("GET", "/", nil)
+	a.Header.Set("X-Client-IP", "2001:db8:1:2:aaaa::1")
+	b := httptest.NewRequest("GET", "/", nil)
+	b.Header.Set("X-Client-IP", "2001:db8:1:2:bbbb::9")
+	c := httptest.NewRequest("GET", "/", nil)
+	c.Header.Set("X-Client-IP", "203.0.113.7")
+	if clientKey(a) != clientKey(b) || clientKey(c) != "203.0.113.7" {
+		t.Errorf("keys = %q %q %q", clientKey(a), clientKey(b), clientKey(c))
 	}
 }

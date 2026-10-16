@@ -44,6 +44,9 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if a.refuseDemoEdit(w, r, c) {
+		return
+	}
 	var e planner.Economics
 	if err := decode(w, r, &e); err != nil {
 		a.fail(w, r, err)

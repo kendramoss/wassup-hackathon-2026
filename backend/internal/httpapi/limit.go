@@ -70,7 +70,7 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 	if !ok {
 		lr, lb := perMin(l.lim.LightPerMin)
 		hr, hb := perMin(l.lim.HeavyPerMin)
-		cb = &clientBuckets{light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb)}
+		cb = &clientBuckets{light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), seen: now} // seen now, or the cleanup below drops it at once
 		l.clients[key] = cb
 		if len(l.clients) > 10000 { // forget idle clients so the map stays bounded
 			for k, v := range l.clients {
@@ -83,14 +83,14 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 	cb.seen = now
 	l.mu.Unlock()
 
-	b, weight := cb.light, 1
+	b, weight, n := cb.light, 1, 1
 	switch c {
 	case heavy:
 		b, weight = cb.heavy, HeavyWeight
-	case bulk:
-		b, weight = cb.heavy, MaxBatch
+	case bulk: // a whole heavy burst: one batch a minute per client (D57)
+		b, weight, n = cb.heavy, MaxBatch, max(1, l.lim.HeavyPerMin)
 	}
-	rc := b.ReserveN(now, 1)
+	rc := b.ReserveN(now, n)
 	if !rc.OK() || rc.DelayFrom(now) > 0 {
 		wait := rc.DelayFrom(now)
 		rc.CancelAt(now)
@@ -112,13 +112,22 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 // frontend's bucket. Locally it is the connection's address.
 func clientKey(r *http.Request) string {
 	if ip := strings.TrimSpace(r.Header.Get("X-Client-IP")); ip != "" && len(ip) <= 64 {
-		return ip
+		return ipKey(ip)
 	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr
 	}
-	return host
+	return ipKey(host)
+}
+
+// ipKey groups IPv6 addresses by /64, the block one subscriber usually
+// gets, so a client cannot rotate addresses to dodge the limits (D57).
+func ipKey(s string) string {
+	if ip := net.ParseIP(s); ip != nil && ip.To4() == nil {
+		return ip.Mask(net.CIDRMask(64, 128)).String()
+	}
+	return s
 }
 
 // isAdmin reports whether the request carries the admin token in

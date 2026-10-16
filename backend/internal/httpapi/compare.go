@@ -102,9 +102,11 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	c.Record(u.on(store.Event{Kind: "targets_compared", Summary: strings.Join(parts, ", ")}, start))
 	c.Economics = economicsFrom(in.Economics, c.Economics)
-	if err := a.d.Cases.Put(r.Context(), c); err != nil {
-		a.fail(w, r, err)
-		return
+	if !a.demoReadOnly(r, c) {
+		if err := a.d.Cases.Put(r.Context(), c); err != nil {
+			a.fail(w, r, err)
+			return
+		}
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": cmp.Ranked})
 }

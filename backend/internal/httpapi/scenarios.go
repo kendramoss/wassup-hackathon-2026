@@ -113,9 +113,11 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		u.label(labels[i])
 	}
 	sc.Record(u.on(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")}, start))
-	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
-		a.fail(w, r, err)
-		return
+	if !a.demoReadOnly(r, sc) {
+		if err := a.d.Cases.Put(r.Context(), sc); err != nil {
+			a.fail(w, r, err)
+			return
+		}
 	}
 	a.respond(w, http.StatusOK, a.caseFields(sc))
 }
@@ -156,7 +158,7 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: case %s has not been analysed", domain.ErrInvalid, sc.ID))
 		return
 	}
-	if err := a.recheck(r.Context(), &sc); err != nil {
+	if err := a.recheck(r.Context(), &sc, !a.demoReadOnly(r, sc)); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -184,7 +186,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 		go func(c store.Case) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			err := a.recheck(r.Context(), &c)
+			err := a.recheck(r.Context(), &c, true)
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
@@ -205,7 +207,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 // recheck predicts the case again with every precedent dated before today
 // (the original run only saw rulings dated before the case date), records
 // which of the precedents used are newer than the case, and stores the result.
-func (a *api) recheck(ctx context.Context, sc *store.Case) error {
+func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 	caseDate, err := time.Parse(time.DateOnly, sc.Date)
 	if err != nil {
 		return fmt.Errorf("case %s has no valid date: %w", sc.ID, err)
@@ -235,5 +237,8 @@ func (a *api) recheck(ctx context.Context, sc *store.Case) error {
 	u.trace(res.Prediction.Trace)
 	sc.Record(u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
 		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start))
+	if !save {
+		return nil
+	}
 	return a.d.Cases.Put(ctx, *sc)
 }
