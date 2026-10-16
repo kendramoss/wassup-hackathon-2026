@@ -155,21 +155,23 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
 
 // Money above the cards (DESIGN.md, p-scen): the inputs every net below
 // is worked out from, and the drawer to change them.
+// Rates come from economics_priced (D56): what the user typed plus the
+// sourced duty rates the plan search uses. Edits still go to economics.
 function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit: () => void }) {
-  const e = c.economics;
+  const e = (c as CaseResponse & { economics_priced?: Economics | null }).economics_priced ?? c.economics;
   const groups = Object.keys(e?.group_costs ?? {}).length;
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border border-edge bg-sheet px-4 py-3 text-[13px] shadow-[3px_3px_0_var(--shadow)]">
       <span className="text-[11px] uppercase tracking-[0.08em] text-dim">{copy.money}</span>
       {e?.annual_import_value_usd ? <span>{money(e.annual_import_value_usd)} imports a year</span> : <span className="text-dim">No import value yet</span>}
       {Object.entries(e?.duty_rates ?? {}).map(([k, v]) => (
-        <span key={k}>
+        <span key={k} title={e?.duty_rates_note ?? undefined}>
           <Country name={k} /> {pct(v)}
         </span>
       ))}
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
       <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
-        {e ? "Edit inputs" : "+ Add money inputs"}
+        {c.economics ? "Edit inputs" : "+ Add money inputs"}
       </button>
     </div>
   );

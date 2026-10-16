@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult } from "@/lib/api/client";
+import { api, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
@@ -158,7 +158,14 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
       {searching ? (
         <SearchingBand target={target} progress={progress} />
       ) : result && lead ? (
-        <PlanBand plan={lead} target={target} below={!best} shown={result.plans?.length ?? 0} total={(result.plans?.length ?? 0) + (result.rejected?.length ?? 0)} />
+        <PlanBand
+          plan={lead}
+          target={target}
+          below={!best}
+          shown={result.plans?.length ?? 0}
+          // The search's own count; the "No change" baseline isn't a move.
+          total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
+        />
       ) : result ? (
         <NoneBand target={target} />
       ) : (
@@ -207,7 +214,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
                 </Fold>
                 {result.backtest ? (
                   <Fold title="Backtest against CBP's actual ruling">
-                    <BacktestPanel bt={result.backtest as Record<string, unknown>} />
+                    <BacktestPanel bt={result.backtest as Record<string, unknown>} closest={best ? undefined : closest} product={c.product ?? undefined} />
                   </Fold>
                 ) : null}
                 {result.stats ? (
@@ -245,7 +252,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
       <Footer>
         <Next>
           {searching
-            ? "Checking each move against earlier CBP rulings. Usually ~30 s."
+            ? "Checking each move against earlier CBP rulings. This can take a minute or two."
             : best
               ? "Draft the ruling request for your broker."
               : closest
@@ -584,14 +591,26 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   );
 }
 
-function BacktestPanel({ bt }: { bt: Record<string, unknown> }) {
+// With no plan over the bar the backend compares CBP's change with nothing,
+// so compare it with the closest move the page highlights instead.
+function BacktestPanel({ bt, closest, product }: { bt: Record<string, unknown>; closest?: Plan; product?: Product }) {
   const list = (k: string) => (Array.isArray(bt[k]) ? (bt[k] as string[]) : []);
-  const moved = list("moved_by_plan");
   const actual = list("actual_moved");
+  const groups = new Set((closest?.move ?? []).map((m) => m.group));
+  const moved = closest
+    ? (product?.components ?? []).filter((c) => c.group && groups.has(c.group)).map((c) => c.name).filter((n) => actual.includes(n))
+    : list("moved_by_plan");
   return (
     <div>
       <p className="duo text-[13px]">
-        The manufacturer&apos;s real change moved {actual.length} parts. This plan moves {moved.length} of them.
+        The manufacturer&apos;s real change moved {actual.length} parts.{" "}
+        {closest ? (
+          <>
+            No plan cleared the bar; the closest move ({movePhrase(closest)}) moves {moved.length} of them.
+          </>
+        ) : (
+          <>This plan moves {moved.length} of them.</>
+        )}
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {actual.map((a) => (
