@@ -215,7 +215,7 @@ export function ProductStep() {
       <CaseTabs current="product" reached={1} title={name || "New case"} />
       <Main>
         <div className="min-w-0 max-w-[1020px]">
-          <p className="eyebrow">Step 1 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
+          <p className="eyebrow">Step 1 of 4 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
           <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
           <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">
             {copy.product.lede}{" "}

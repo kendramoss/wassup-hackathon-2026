@@ -16,6 +16,8 @@ export type CaseCtx = {
   c: CaseResponse;
   setCase: (c: CaseResponse) => void;
   reload: () => void;
+  // Opens the Ask drawer (also offered as a suggestion on screens).
+  ask: () => void;
 };
 
 // The case as the API stores it also carries current_origin (CBP's holding on
@@ -66,7 +68,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
           <Spinner label="Loading the case…" />
         </Main>
       ) : (
-        children({ id, c: data, setCase: setData, reload })
+        children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })
       )}
       {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onCase={setData} />}
     </ActionSlotProvider>

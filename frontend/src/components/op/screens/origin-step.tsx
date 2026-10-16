@@ -6,84 +6,105 @@ import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main, Next } from "../chrome";
+import { ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
-import { Button, ButtonLink, Country, Dimension, Flag, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
 
 export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
 }
 
-function Result({ id, c, setCase }: CaseCtx) {
+function Result({ id, c, setCase, ask }: CaseCtx) {
   const [history, setHistory] = useState(false);
   const p = c.prediction ?? {};
   const target = planTarget(c);
   const route = c.triage?.route;
+  const qs = c.clarify?.questions?.length ?? 0;
+  const cited = p.cited_rulings?.length ?? 0;
+  const enc = encodeURIComponent(id);
 
   return (
     <>
       <VerdictBand c={c} />
-      {/* Hierarchy: the verdict, then the one thing to do (left, the only
-          shadowed panel), then evidence as a flat column of summaries. */}
-      <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px]">
+      {/* Top to bottom: the verdict, then why (left) beside what to do next
+          (right); details people may want fold into accordions (17 Oct). */}
+      <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-6">
-          {c.clarify?.questions?.length ? (
-            <Questions c={c} setCase={setCase} />
-          ) : p.reasoning ? (
-            <Panel>
-              <h2 className="eyebrow mb-2">{route === "auto" ? `Auto-accepted · ${conf(p.confidence)} is at or above the ${BAR} bar` : "Why"}</h2>
-              <p className="duo text-sm leading-relaxed">{p.reasoning}</p>
-            </Panel>
+          {qs ? <Questions c={c} setCase={setCase} /> : null}
+          {p.reasoning ? (
+            <section aria-label="Why">
+              <h2 className="eyebrow mb-1.5">{route === "auto" ? `Why · auto-accepted, ${conf(p.confidence)} is at or above the ${BAR} bar` : "Why"}</h2>
+              <p className="duo max-w-[75ch] text-sm leading-relaxed">{p.reasoning}</p>
+            </section>
           ) : null}
-          {c.clarify?.conflict ? <Conflict c={c} /> : null}
-          {c.answers?.length ? (
-            <details className="border border-line px-4 py-3">
-              <summary className="cursor-pointer text-[13px] text-dim">Your answers · {c.answers.length}</summary>
-              <ul className="duo mt-3 flex flex-col gap-2 text-[13px]">
-                {c.answers.map((a, i) => (
-                  <li key={i}>
-                    <span className="text-dim">{a.question}</span>
-                    <br />
-                    {a.answer}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ) : null}
-        </div>
-        <aside aria-label="Evidence" className="flex min-w-0 flex-col gap-5">
-          <h2 className="eyebrow text-ok">Evidence</h2>
           {p.key_factors?.length ? (
-            <div>
-              <h3 className="eyebrow mb-1">{copy.result.keyFactors}</h3>
-              <p className="duo text-sm">{p.key_factors.join("; ")}</p>
-            </div>
+            <section aria-label={copy.result.keyFactors}>
+              <h2 className="eyebrow mb-1.5">{copy.result.keyFactors}</h2>
+              <p className="duo max-w-[75ch] text-sm">{p.key_factors.join("; ")}</p>
+            </section>
           ) : null}
-          {c.precedents_detail?.length ? <RulingsSummary c={c} /> : null}
-          <WatchLine c={c} setCase={setCase} />
-          {/* Plain words first; model and prompt ids sit behind "Run details" (#93). */}
-          <Audit>
-            Read {p.precedents?.length ?? 0} CBP rulings dated before {formatDate(c.date)}
-            {isProxy(c.llm_provider) ? ` · ${copy.proxy}` : ""}
-            {c.history?.length ? (
-              <>
-                {" · "}
-                <button type="button" className="text-ok underline underline-offset-2" onClick={() => setHistory(true)}>
-                  History ({c.history.length})
-                </button>
-              </>
+          {c.watch?.status === "changed" ? <WatchLine c={c} setCase={setCase} /> : null}
+          <div>
+            {c.precedents_detail?.length ? (
+              <Fold title={copy.result.rulings} meta={`${c.precedents_detail.length} read${cited ? `, ${cited} cited` : ""}`}>
+                <RulingsSummary c={c} />
+              </Fold>
             ) : null}
-          </Audit>
-          <details className="duo text-xs text-dim">
-            <summary className="inline-flex min-h-6 cursor-pointer items-center hover:text-ink">Run details</summary>
-            <p className="mt-1">
-              Model {c.model_ids?.engine} · prompt {c.prompt_versions?.engine}
-              {c.prompt_versions?.clarify && c.clarify ? ` · questions ${c.prompt_versions.clarify}` : ""}
-              {c.triage?.route ? ` · route ${c.triage.route}` : ""}
-            </p>
-          </details>
-        </aside>
+            {c.clarify?.conflict ? <Conflict c={c} /> : null}
+            {c.answers?.length ? (
+              <Fold title="Your answers" meta={c.answers.length}>
+                <ul className="duo flex flex-col gap-2 text-[13px]">
+                  {c.answers.map((a, i) => (
+                    <li key={i}>
+                      <span className="text-dim">{a.question}</span>
+                      <br />
+                      {a.answer}
+                    </li>
+                  ))}
+                </ul>
+              </Fold>
+            ) : null}
+            {c.watch?.status !== "changed" ? (
+              <Fold title="Ruling watch" meta={c.watch ? `unchanged, ${formatDate(c.watch.checked_at)}` : "not re-checked"}>
+                <WatchLine c={c} setCase={setCase} />
+              </Fold>
+            ) : null}
+            {/* Plain words first; model and prompt ids sit here (#93). */}
+            <Fold title="Run details" meta={c.history?.length ? `history ${c.history.length}` : undefined}>
+              <Audit>
+                Read {p.precedents?.length ?? 0} CBP rulings dated before {formatDate(c.date)}
+                {isProxy(c.llm_provider) ? ` · ${copy.proxy}` : ""}
+                {c.history?.length ? (
+                  <>
+                    {" · "}
+                    <button type="button" className="text-ok underline underline-offset-2" onClick={() => setHistory(true)}>
+                      History ({c.history.length})
+                    </button>
+                  </>
+                ) : null}
+              </Audit>
+              <p className="duo mt-1 text-xs text-dim">
+                Model {c.model_ids?.engine} · prompt {c.prompt_versions?.engine}
+                {c.prompt_versions?.clarify && c.clarify ? ` · questions ${c.prompt_versions.clarify}` : ""}
+                {c.triage?.route ? ` · route ${c.triage.route}` : ""}
+              </p>
+            </Fold>
+          </div>
+        </div>
+        <NextSteps
+          steps={[
+            c.product?.plants?.length
+              ? { label: `Plan a move${target ? ` to ${target}` : ""}`, href: `/cases/${enc}/plan${target ? `?target=${encodeURIComponent(target)}` : ""}` }
+              : { label: "Add parts and plants", href: `/cases/new?from=${enc}` },
+            { label: route === "auto" ? "Draft a ruling request" : "Have a broker review: draft a ruling request", href: `/cases/${enc}/draft` },
+          ]}
+          suggestions={[
+            ...(qs ? [{ label: `Answer ${qs === 1 ? "the question" : `the ${qs} questions`} to sharpen this`, onClick: () => document.getElementById("q0")?.focus() }] : []),
+            { label: "Ask about this case", onClick: ask },
+            { label: "Try a what-if scenario", href: `/cases/${enc}/scenarios` },
+          ]}
+        />
       </Main>
       <Footer>
         <Next>
@@ -119,7 +140,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[auto_minmax(0,1fr)_260px] lg:gap-11">
         <Dimension className="absolute left-4 top-3 sm:left-10">fig.1 — likely origin</Dimension>
         <div>
-          <p className="eyebrow">{copy.result.eyebrow}</p>
+          <StepEyebrow tab="origin">{copy.result.eyebrow}</StepEyebrow>
           <h1 className="mt-1 flex items-center gap-4 text-[56px] font-normal leading-none tracking-[-0.06em] sm:text-[84px]">
             <Flag country={p.origin_country} size={58} />
             {p.origin_country || "—"}
@@ -171,7 +192,7 @@ function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
   const changed = w?.status === "changed";
   return (
     <section aria-label="Ruling watch" className={cx("duo text-[13px]", changed && "border border-ask-line bg-ask-wash p-3")}>
-      <h3 className="eyebrow mb-1">Ruling watch</h3>
+      {changed && <h3 className="eyebrow mb-1">Ruling watch</h3>}
       <p>
         {!w && <>Not re-checked against rulings after {formatDate(c.date)}.</>}
         {w && !changed && <>Unchanged with today&apos;s rulings ({formatDate(w.checked_at)}).</>}
@@ -203,10 +224,6 @@ function RulingsSummary({ c }: { c: CaseResponse }) {
   const [open, setOpen] = useState(shown.length === 0);
   return (
     <section aria-label={copy.result.rulings}>
-      <h3 className="eyebrow mb-1">
-        {copy.result.rulings} · {all.length}
-        {cited.length ? `, ${cited.length} cited` : ""}
-      </h3>
       <RulingsList rulings={open ? all : shown} cited={cited} />
       {all.length > shown.length && (
         <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
@@ -229,12 +246,8 @@ function Conflict({ c }: { c: CaseResponse }) {
     { side: "b", id: k.ruling_b, holding: k.holding_b },
   ];
   return (
-    <details className="border border-line px-4 py-3">
-      <summary className="cursor-pointer text-[13px]">
-        <span className="font-medium text-ask">{copy.result.conflict}</span>
-        <span className="text-dim"> · why the confidence is lower</span>
-      </summary>
-      <div className="mt-3 grid gap-4 sm:grid-cols-2">
+    <Fold title={<span className="text-ask">{copy.result.conflict}</span>} meta="why the confidence is lower">
+      <div className="grid gap-4 sm:grid-cols-2">
         {halves.map(({ side, id, holding }) => {
           const r = id ? detail.get(id) : undefined;
           const follows = k.leans === side;
@@ -262,7 +275,7 @@ function Conflict({ c }: { c: CaseResponse }) {
           {k.deciding_difference}
         </p>
       )}
-    </details>
+    </Fold>
   );
 }
 

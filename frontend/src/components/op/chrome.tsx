@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
-import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot } from "./action-bar";
+import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "./action-bar";
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
@@ -62,9 +62,11 @@ export function CaseTabs({
   title: ReactNode;
   onAsk?: () => void;
 }) {
+  // One sticky row, read left to right: the steps, then the case menu and
+  // Ask, then the step's main button (17 Oct).
   return (
-    <>
-    <nav aria-label="Case" className="no-print flex min-h-[52px] flex-wrap items-center gap-x-2 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:px-10">
+    <div className="no-print z-20 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
+    <nav aria-label="Case">
       <ul className="flex flex-wrap items-center gap-1.5">
         {tabs.map((t) => {
           const on = t.key === current;
@@ -82,6 +84,7 @@ export function CaseTabs({
                   ✓
                 </span>
               )}
+              {!t.optional && <span className="font-mono text-[11px] text-dim">{t.step}</span>}
               {t.label}
               {t.optional && <span className="text-[11px] text-dim">· optional</span>}
               {done && <span className="sr-only">(done)</span>}
@@ -102,17 +105,82 @@ export function CaseTabs({
           );
         })}
       </ul>
+    </nav>
       <div className="ml-auto flex flex-wrap items-center gap-3">
+        <CaseSwitcher caseId={caseId} title={title} />
         {onAsk && (
           <button type="button" onClick={onAsk} className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
             Ask about this case
           </button>
         )}
-        <CaseSwitcher caseId={caseId} title={title} />
+        <ActionSlot />
       </div>
-    </nav>
-    <ActionSlot />
-    </>
+    </div>
+  );
+}
+
+// "Step 2 of 4 · Origin" above a screen's heading; the scenario sandbox
+// says it is optional instead.
+export function StepEyebrow({ tab, children }: { tab: CaseTab; children?: ReactNode }) {
+  const t = tabs.find((x) => x.key === tab)!;
+  return (
+    <p className="eyebrow">
+      {t.optional ? "Optional" : `Step ${t.step} of 4`} · {children ?? t.label}
+    </p>
+  );
+}
+
+type Item = { label: ReactNode; href?: string; onClick?: () => void };
+
+// The right-hand column of a case screen: what to do next (the screen's
+// <Next> sentence lands here, then links), then optional suggestions.
+export function NextSteps({ steps = [], suggestions = [], inline }: { steps?: Item[]; suggestions?: Item[]; inline?: boolean }) {
+  const { setNext } = useNextSlot();
+  return (
+    <aside aria-label="Next steps" className={cx("no-print flex min-w-0 flex-col gap-5", !inline && "lg:border-l lg:border-line lg:pl-8")}>
+      <section>
+        <h2 className="eyebrow mb-2 text-ok">Next steps</h2>
+        <div ref={setNext} className="duo text-[13px] text-body empty:hidden" />
+        {steps.length > 0 && <Items items={steps} arrow />}
+      </section>
+      {suggestions.length > 0 && (
+        <section>
+          <h2 className="eyebrow mb-1">Suggestions</h2>
+          <Items items={suggestions} />
+        </section>
+      )}
+    </aside>
+  );
+}
+
+function Items({ items, arrow }: { items: Item[]; arrow?: boolean }) {
+  const cls = "flex min-h-9 w-full items-center gap-2 border-b border-line py-1.5 text-left text-[13px] text-ok hover:underline";
+  return (
+    <ul className="mt-1.5">
+      {items.map((it, i) => {
+        const inner = (
+          <>
+            <span aria-hidden="true" className="w-3 text-dim">
+              {arrow ? "→" : "·"}
+            </span>
+            <span className="min-w-0">{it.label}</span>
+          </>
+        );
+        return (
+          <li key={i}>
+            {it.href ? (
+              <Link href={it.href} className={cls}>
+                {inner}
+              </Link>
+            ) : (
+              <button type="button" onClick={it.onClick} className={cls}>
+                {inner}
+              </button>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -144,8 +212,8 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   }, [open]);
   return (
     <div className="relative" ref={ref}>
-      <button type="button" className="text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        {title} <span aria-hidden="true">▾</span>
+      <button type="button" className="flex items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <span className="max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
       </button>
       {open && (
         <div className="absolute right-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
@@ -170,10 +238,18 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   );
 }
 
-// The next step sits in a fixed footer.
+// Set inside the tabs row, where a <Next> sentence has no room.
+const InBar = createContext(false);
+
+// The screen's buttons: in the tabs row (ACTIONS_ON_TOP) or a fixed footer.
 export function Footer({ children }: { children: ReactNode }) {
   const slot = useActionSlot();
-  if (ACTIONS_ON_TOP && slot) return <Portal to={slot}>{children}</Portal>;
+  if (ACTIONS_ON_TOP && slot)
+    return (
+      <Portal to={slot}>
+        <InBar.Provider value={true}>{children}</InBar.Provider>
+      </Portal>
+    );
   if (ACTIONS_ON_TOP) return null; // the slot mounts with the tabs; actions appear there
   return (
     <>
@@ -251,8 +327,20 @@ export function Elapsed({ since }: { since: number }) {
   return <span className="font-mono">{Math.max(0, Math.round((now - since) / 1000))} s</span>;
 }
 
-// The next course of action, said in words at the left of the action bar.
+// The next course of action in words: at the top of the Next steps column
+// when the screen has one, otherwise inline where it is rendered (Step 1).
 export function Next({ children }: { children: ReactNode }) {
+  const { next } = useNextSlot();
+  const inBar = useContext(InBar);
+  if (next)
+    return (
+      <Portal to={next}>
+        <p className="mb-1">{children}</p>
+      </Portal>
+    );
+  // The tabs row holds buttons only; without a column the screen's own text
+  // already says what the button does.
+  if (inBar) return null;
   return (
     <p className="duo min-w-0 text-[13px] text-body">
       <span className="mr-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ok">Next</span>

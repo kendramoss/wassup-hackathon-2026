@@ -125,6 +125,23 @@ export function PanelHead({ children, right }: { children: ReactNode; right?: Re
   );
 }
 
+// An accordion for details people may want but don't need to act: a ▸ row
+// with a title and a short count or status, ruled off from its neighbours.
+export function Fold({ title, meta, open, id, children }: { title: ReactNode; meta?: ReactNode; open?: boolean; id?: string; children: ReactNode }) {
+  return (
+    <details id={id} open={open} className="group border-b border-line first-of-type:border-t">
+      <summary className="flex min-h-11 list-none items-center gap-2.5 text-[13px] text-ink hover:text-ok [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="inline-block w-3 text-dim transition-transform group-open:rotate-90">
+          ▸
+        </span>
+        <span className="font-medium">{title}</span>
+        {meta ? <span className="text-dim">· {meta}</span> : null}
+      </summary>
+      <div className="pb-4 pl-5.5">{children}</div>
+    </details>
+  );
+}
+
 const btn = {
   primary: "bg-ink text-paper border-ink shadow-[3px_3px_0_var(--shadow)] hover:bg-body",
   ghost: "bg-sheet text-ink border-line hover:bg-wash",

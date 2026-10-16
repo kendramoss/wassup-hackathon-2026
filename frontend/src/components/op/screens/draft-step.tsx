@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type ExportResponse } from "@/lib/api/client";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main, Next } from "../chrome";
+import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { Button, Panel, PanelHead, Spinner } from "../ui";
 
 export function DraftStep() {
@@ -21,7 +21,7 @@ const fields = [
   { key: "[COMPANY, ADDRESS, CONTACT]", label: "Company, address, contact", area: true },
 ] as const;
 
-function Draft({ id, c, setCase }: CaseCtx) {
+function Draft({ id, c, setCase, ask }: CaseCtx) {
   const params = useSearchParams();
   const move = params.get("move") ?? undefined;
   const target = params.get("target") ?? undefined;
@@ -75,7 +75,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
       <Main className="grid gap-10 lg:grid-cols-[360px_minmax(0,1fr)]">
         <div className="no-print flex flex-col gap-5">
           <div>
-            <p className="eyebrow">Step 4 · Draft for broker</p>
+            <p className="eyebrow">Step 4 of 4 · Draft for broker</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
             <p className="duo mt-1 text-sm text-dim">
               A draft binding-ruling request under 19 C.F.R. Part 177 {move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
@@ -109,6 +109,17 @@ function Draft({ id, c, setCase }: CaseCtx) {
             </form>
             <p className="mt-3 text-xs text-dim">Fills the bracketed placeholders in the letter. Nothing here is sent anywhere.</p>
           </Panel>
+          <NextSteps
+            inline
+            steps={[
+              { label: "Print the letter", onClick: () => { record(); window.print(); } },
+              { label: "Download Markdown", onClick: download },
+            ]}
+            suggestions={[
+              { label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` },
+              { label: "Ask about this case", onClick: ask },
+            ]}
+          />
         </div>
         <div className="min-w-0">
           {error ? <ErrorBox error={error} onRetry={load} /> : null}

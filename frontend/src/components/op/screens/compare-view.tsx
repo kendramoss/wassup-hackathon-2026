@@ -6,9 +6,9 @@ import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { moveKey } from "../plan-bits";
-import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Ruler, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
 export function CompareView() {
   return <CaseShell tab="plan">{(ctx) => <Compare {...ctx} />}</CaseShell>;
@@ -28,7 +28,7 @@ function storedRanking(c: CaseResponse): TargetSummary[] | null {
   return t?.ranked ?? null;
 }
 
-function Compare({ id, c }: CaseCtx) {
+function Compare({ id, c, ask }: CaseCtx) {
   const router = useRouter();
   const origin = c.prediction?.origin_country;
   const options = useMemo(() => [...new Set((c.product?.plants ?? []).map((p) => p.country).filter(Boolean))], [c.product]);
@@ -95,7 +95,7 @@ function Compare({ id, c }: CaseCtx) {
           ) : top?.best ? (
             <>
               <div>
-                <p className={cx("eyebrow", !anyPlan && "text-ask")}>{anyPlan ? "Best country" : "No country cleared the 0.92 bar"}</p>
+                <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : "No country cleared the 0.92 bar"}</p>
                 <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">
                   {anyPlan ? "" : "Closest: "}
                   {(top.best.description ?? "").replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "")} in{" "}
@@ -131,7 +131,7 @@ function Compare({ id, c }: CaseCtx) {
             </>
           ) : (
             <div>
-              <p className="eyebrow">{copy.plan.compare}</p>
+              <p className="eyebrow">Step 3 of 4 · {copy.plan.compare}</p>
               <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">One plan search per country, in parallel, ranked.</h1>
               {ranked && <p className="duo mt-2 text-sm text-ask">No country found a precedent-supported move.</p>}
             </div>
@@ -243,9 +243,27 @@ function Compare({ id, c }: CaseCtx) {
             </table>
           </div>
         )}
-        <p className="duo max-w-[90ch] text-[12.5px] text-dim">
-          Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
-        </p>
+        {/* Then how to read it (left) beside what to do next (right), 17 Oct. */}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
+            <Fold title="How the ranking works">
+              <p className="duo max-w-[90ch] text-[13px] text-dim">
+                Moves only go to plants your product lists; a country with no capable plant ranks last rather than being invented. Money is illustrative — editable on the Plan step. Precedent checks vary between runs.
+              </p>
+            </Fold>
+          </div>
+          <NextSteps
+            steps={[
+              ...(top?.best && (top.status === "plan" || top.status === "below_bar") && !since
+                ? [{ label: `Draft for ${top.target}`, onClick: () => draft(top) }]
+                : top && !since
+                  ? [{ label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` }]
+                  : []),
+              { label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` },
+            ]}
+            suggestions={[{ label: "Ask about this case", onClick: ask }]}
+          />
+        </div>
       </Main>
       <Footer>
         <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/plan`}>
@@ -265,9 +283,7 @@ function Compare({ id, c }: CaseCtx) {
             <Button onClick={() => draft(top)}>Draft for {top.target} →</Button>
           ) : since ? null : top ? (
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
-          ) : (
-            <span className="text-xs text-dim">Compare first, then draft the best plan</span>
-          )}
+          ) : null}
         </div>
       </Footer>
     </>
