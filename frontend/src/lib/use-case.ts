@@ -20,6 +20,5 @@ export function useCase(id: string) {
 
 export function caseTitle(c: CaseResponse | null): string {
   if (!c) return "Loading…";
-  const name = c.product?.name || (c.facts ?? "").split(/\s+/).slice(0, 6).join(" ") + "…";
-  return name;
+  return c.display_name || c.product?.name || (c.facts ?? "").split(/\s+/).slice(0, 6).join(" ") + "…";
 }

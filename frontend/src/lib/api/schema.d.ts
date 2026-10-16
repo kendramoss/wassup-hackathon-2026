@@ -11,10 +11,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Liveness check (not /healthz — Cloud Run reserves paths ending in "z") */
+        /**
+         * Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
+         * @description With deep=1 it also writes, reads and deletes a probe case and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    deep?: "1";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -27,12 +32,17 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            /** @example ok */
-                            status?: string;
-                            llm_provider?: string;
-                            version?: string;
-                        };
+                        "application/json": components["schemas"]["Health"];
+                    };
+                };
+                429: components["responses"]["Error"];
+                /** @description A dependency check failed (deep=1) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Health"];
                     };
                 };
             };
@@ -78,7 +88,94 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Triage a portfolio (up to 20 products) in one call
+         * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        items: {
+                            name?: string;
+                            facts: string;
+                            /**
+                             * Format: date
+                             * @description Default today
+                             */
+                            date?: string;
+                        }[];
+                    };
+                    "multipart/form-data": {
+                        /** Format: binary */
+                        file: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description One row per product, in order, and counts */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Meta"] & {
+                            rows: {
+                                /** @description The given name */
+                                name: string;
+                                case_id?: string;
+                                predicted_origin?: string;
+                                confidence?: number;
+                                /** @enum {string} */
+                                triage_route?: "auto" | "needs_review" | "needs_info";
+                                out_of_scope: boolean;
+                                /** @description triage.reason */
+                                reason?: string;
+                                cost_usd?: number;
+                                /** @description null when the product was analysed */
+                                error: string | null;
+                            }[];
+                            summary: {
+                                total?: number;
+                                auto?: number;
+                                needs_review?: number;
+                                needs_info?: number;
+                                /** @description Included in needs_review */
+                                out_of_scope?: number;
+                                failed?: number;
+                                cost_usd?: number;
+                                latency_ms?: number;
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                429: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -94,7 +191,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List all cases, most recently updated first */
+        /** List all cases, pinned (seeded demos) first, then most recently updated */
         get: {
             parameters: {
                 query?: never;
@@ -158,6 +255,115 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        /**
+         * Delete a case
+         * @description Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Rename a case (its display name on Cases home)
+         * @description Sets display_name; product_name stays as entered. Whitespace is collapsed; 1–200 characters. Pinned cases need the admin token (403 otherwise). No model call; recorded in history as renamed; updated_at is unchanged (D48).
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        display_name: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The updated case row */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CaseSummary"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+            };
+        };
+        trace?: never;
+    };
+    "/v1/cases/{id}/pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Pin or unpin a case (admin token required)
+         * @description Pinned cases list first and cannot be deleted without the admin token. The demo seed pins the cases it creates. Recorded in history; updated_at is unchanged.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        pinned: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description The case */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CaseResponse"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -210,6 +416,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
         };
@@ -311,6 +518,8 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+                502: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -333,8 +542,8 @@ export interface paths {
          * @description Does not create a case: send the returned product (with the family) to POST /v1/cases/predict.
          *     One row per component, or per operation with type "operation". Headers (case-insensitive, aliases accepted):
          *     name (component / part / item), country (made in / origin), plant (factory / site / supplier; defaults to the country),
-         *     group (operation group, matched to the family template by id or name), type, plant_capabilities (groups the row's plant could also perform, ";"-separated).
-         *     Up to 500 rows, 5 MB. Sample: backend/testdata/heatgun_bom.csv.
+         *     group (operation group, matched to the family template by id or name), type (component, operation, or plant: a plant that makes nothing today, named in the name column, with its plant_capabilities), plant_capabilities (groups the row's plant could also perform, ";"-separated).
+         *     Up to 500 rows, 5 MB. Samples: backend/testdata/heatgun_bom.csv, backend/testdata/lidar_bom.csv.
          */
         post: {
             parameters: {
@@ -379,6 +588,78 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/extract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Draft an editable structured product from pasted facts text (nothing is saved)
+         * @description The engine model lists the parts, countries and assembly steps the text states, paragraph by paragraph (paragraphs split on blank lines, cited 1-based). Code then checks groups against the family template, names unnamed plants "<Country> plant" (name_guessed), and asks what else each plant could make (the plan search needs capabilities).
+         *     Parts mentioned without a stated country are not guessed: they are listed in one warning. Send the edited product with the facts to POST /v1/cases/predict. ~15 s through the proxy.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        facts: string;
+                        /** @description needed for groups and capability questions */
+                        family?: string;
+                        /** @description product name; defaults to the name in the text */
+                        name?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The draft */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            product?: components["schemas"]["Product"];
+                            plants?: {
+                                id?: string;
+                                name?: string;
+                                country?: string;
+                                capabilities?: string[];
+                                name_guessed?: boolean;
+                            }[];
+                            components?: components["schemas"]["DraftRow"][];
+                            operations?: components["schemas"]["DraftRow"][];
+                            warnings?: string[];
+                            questions?: {
+                                plant_id?: string;
+                                ask?: string;
+                                options?: string[];
+                            }[];
+                            paragraphs?: number;
+                            trace?: Record<string, never>;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+                502: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -441,9 +722,60 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/economics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace the case's money inputs (no model calls)
+         * @description Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Economics"];
+                };
+            };
+            responses: {
+                /** @description Stored */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            case_id?: string;
+                            economics?: components["schemas"]["Economics"];
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+            };
+        };
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -522,6 +854,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
         };
@@ -579,6 +912,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
         };
@@ -623,6 +957,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
         };
@@ -641,7 +976,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Re-check every analysed case (for a scheduler) */
+        /** Re-check every analysed case (for a scheduler; admin token required) */
         post: {
             parameters: {
                 query?: never;
@@ -664,6 +999,7 @@ export interface paths {
                         };
                     };
                 };
+                403: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -847,10 +1183,27 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Health: {
+            /** @enum {string} */
+            status?: "ok" | "degraded";
+            llm_provider?: string;
+            version?: string;
+            /** @description deep=1 only; keys case_store and model */
+            checks?: {
+                [key: string]: {
+                    ok?: boolean;
+                    latency_ms?: number;
+                    /** @example rpc error: code = PermissionDenied desc = Missing or insufficient permissions. */
+                    error?: string;
+                };
+            };
+        };
         CaseSummary: {
             id: string;
             /** @description Structured product name, or the first words of the facts for a facts-only case */
             product_name: string;
+            /** @description The user's name for the case (PATCH /v1/cases/{id}), else product_name. Show this on Cases home. */
+            display_name: string;
             /**
              * Format: date
              * @description Case date
@@ -874,6 +1227,8 @@ export interface components {
              */
             watch_status: "unchanged" | "changed" | null;
             scenario_count: number;
+            /** @description A seeded demo case; listed first */
+            pinned: boolean;
         };
         Error: {
             /** @enum {string} */
@@ -954,6 +1309,8 @@ export interface components {
                 country?: string;
                 ruling?: string;
             };
+            /** @description Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics) */
+            economics?: components["schemas"]["Economics"];
         };
         Prediction: {
             origin_country?: string;
@@ -1004,6 +1361,8 @@ export interface components {
             updated_at?: string;
             /** @enum {string} */
             step?: "product" | "origin" | "plan" | "export";
+            pinned?: boolean;
+            display_name?: string;
             /** @description The earlier rulings in prediction.precedents, in the same order, with CBP's held origin */
             precedents_detail?: components["schemas"]["PrecedentRef"][];
             scenarios?: {
@@ -1017,6 +1376,24 @@ export interface components {
             }[];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
+            /** @description Audit trail, oldest first (last 200) */
+            history?: {
+                /** Format: date-time */
+                at?: string;
+                /** @enum {string} */
+                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed";
+                summary?: string;
+                llm_provider?: string;
+                model_id?: string;
+                prompt_version?: string;
+                /** @description Summed over every model call in the step; absent when no model was called */
+                input_tokens?: number;
+                output_tokens?: number;
+                /** @description Estimated at the eval's promo prices (eval/RESULTS.md); cached precedent checks cost nothing. For asked, the agent model only (not its what-if engine calls). */
+                cost_usd?: number;
+                /** @description Wall time of the step */
+                latency_ms?: number;
+            }[];
             /** @description null until re-checked */
             watch?: {
                 /** Format: date-time */
@@ -1042,6 +1419,11 @@ export interface components {
                 ruling_b?: string;
                 holding_b?: string;
                 deciding_difference?: string;
+                /**
+                 * @description Which of the two rulings this case's facts are closer to on the deciding difference; null when the facts do not say (clarify-v2). The UI marks that ruling, or nothing when null.
+                 * @enum {string|null}
+                 */
+                leans?: "a" | "b" | null;
             };
             questions?: string[];
         };
@@ -1156,6 +1538,17 @@ export interface components {
             illustrative?: boolean;
             /** @description predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate */
             origin_differs_from_current?: boolean;
+        };
+        DraftRow: {
+            name?: string;
+            made_in?: string;
+            plant?: string;
+            /** @description template group id, or empty */
+            group?: string;
+            /** @description 1-based paragraph of the facts; 0 if the model cited none */
+            source_paragraph?: number;
+            /** @description no valid group from the text; pick one */
+            group_guessed?: boolean;
         };
         TargetSummary: {
             rank?: number;

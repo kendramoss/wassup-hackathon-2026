@@ -42,3 +42,6 @@ next-env.d.ts
 
 # npm run ui-check output
 /.ui-check/
+
+# copied from pdfjs-dist by scripts/copy-flags.mjs
+/public/pdf.worker.min.mjs

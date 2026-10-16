@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { ActionSlotProvider } from "@/components/op/action-bar";
 import { copy } from "@/lib/copy";
 import "./globals.css";
 
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   description: copy.tagline,
 };
 
-export const viewport: Viewport = { themeColor: "#f3f3ee", colorScheme: "light" };
+export const viewport: Viewport = { themeColor: "#edf2f9", colorScheme: "light" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        {children}
+        <ActionSlotProvider>{children}</ActionSlotProvider>
       </body>
     </html>
   );

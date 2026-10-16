@@ -20,17 +20,17 @@ export const copy = {
 
   product: {
     title: "Describe the product",
-    lede: "Parts, where each is made, and what happens at each plant. Nothing is analysed until you ask.",
+    lede: "Paste what you would tell CBP: the parts, where each is made, and what happens at each plant. Or enter parts and plants to unlock the plan search.",
     tabs: { parts: "Parts and plants", paste: "Paste a description", bom: "Import BOM" },
     name: "Product name",
     date: "Case date",
     dateHelp: "Only CBP rulings dated before this date are used.",
-    facts: "Description",
+    facts: "What you would tell CBP",
     factsHelp: "Components, where each is made, and the processing in each country, as you would write to CBP.",
     go: "Find the likely origin",
     working: "Finding the likely origin…",
-    bomDrop: "Drop a CSV or .xlsx bill of materials, or choose a file",
-    bomGuide: "Columns: name and country (required); plant, group, type, plant_capabilities (optional).",
+    bomDrop: "Drop a bill of materials (CSV, Excel or PDF), or choose a file",
+    bomGuide: "Columns: name and country (required); plant, group, type, plant_capabilities (optional). A PDF needs those as a table with a header row.",
     bomSample: "Download sample (heat gun)",
   },
 

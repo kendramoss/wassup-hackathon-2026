@@ -5,11 +5,11 @@ import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type ExportResponse } from "@/lib/api/client";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main } from "../chrome";
-import { Button, ButtonLink, Panel, PanelHead, Spinner } from "../ui";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
+import { Button, Panel, PanelHead, Spinner } from "../ui";
 
 export function DraftStep() {
-  return <CaseShell step={4}>{(ctx) => <Draft {...ctx} />}</CaseShell>;
+  return <CaseShell tab="draft">{(ctx) => <Draft {...ctx} />}</CaseShell>;
 }
 
 // The backend's draft leaves bracketed placeholders for the requester; the
@@ -71,7 +71,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
         <div className="no-print flex flex-col gap-5">
           <div>
             <p className="eyebrow">Step 4 · Draft for broker</p>
-            <h1 className="mt-1 text-[26px] tracking-[-0.05em]">Ruling request</h1>
+            <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
             <p className="duo mt-1 text-sm text-dim">
               A draft binding-ruling request under 19 C.F.R. Part 177 {move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
             </p>
@@ -134,9 +134,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
         </div>
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/plan`}>
-          ← Back to plan
-        </ButtonLink>
+        <Next>Fill in the requester, then print or download the letter and send it to your customs broker.</Next>
         <div className="ml-auto flex flex-wrap gap-2.5">
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown

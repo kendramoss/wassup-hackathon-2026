@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { stepIndex } from "@/lib/format";
 import { CaseShell } from "../case-shell";
-import { Footer, Main } from "../chrome";
+import { Footer, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { ButtonLink, Country, Panel, PanelHead, Spinner } from "../ui";
 
@@ -12,13 +12,13 @@ import { ButtonLink, Country, Panel, PanelHead, Spinner } from "../ui";
 // place; "Start a new case" copies nothing and keeps this one intact.
 export function CaseProduct() {
   return (
-    <CaseShell step={1}>
+    <CaseShell tab="product">
       {({ id, c }) => (
         <>
           <Main className="flex max-w-[1240px] flex-col gap-6">
             <div>
               <p className="eyebrow">Step 1 · Product</p>
-              <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{c.product?.name || "Pasted description"}</h1>
+              <h1 className="mt-1 text-xl tracking-[-0.04em]">{c.product?.name || "Pasted description"}</h1>
               {c.product?.description && <p className="duo mt-1 max-w-[80ch] text-sm text-dim">{c.product.description}</p>}
             </div>
             {c.product?.components?.length ? (
@@ -42,9 +42,7 @@ export function CaseProduct() {
             </Panel>
           </Main>
           <Footer>
-            <ButtonLink variant="ghost" href="/cases/new">
-              Start a new case
-            </ButtonLink>
+            <Next>See the likely origin and the earlier rulings behind it.</Next>
             <div className="ml-auto">
               <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>Likely origin →</ButtonLink>
             </div>
@@ -59,7 +57,7 @@ export function CaseProduct() {
 export function CaseRedirect() {
   const { id } = useParams<{ id: string }>();
   return (
-    <CaseShell step={2}>
+    <CaseShell tab="origin">
       {({ c }) => <Go to={`/cases/${encodeURIComponent(id)}/${["product", "product", "origin", "plan", "draft"][stepIndex[c.step ?? "origin"] ?? 2]}`} />}
     </CaseShell>
   );

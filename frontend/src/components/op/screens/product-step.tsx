@@ -5,7 +5,9 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { api, type Component, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
-import { ErrorBox, Footer, Main, StepBar } from "../chrome";
+import { CaseTabs, ErrorBox, Footer, Main, Next } from "../chrome";
+import { groupName } from "../plan-bits";
+import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 
 type Tab = "parts" | "paste" | "bom";
@@ -22,19 +24,48 @@ const groupSuggestions = [
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-const emptyProduct = (): Product => ({
-  name: "",
-  plants: [{ id: "p1", name: "", country: "", capabilities: [] }],
-  components: [{ name: "", made_in: "" }],
-  operations: [],
-});
+// No empty rows on arrival: the parts tab starts with "+ Add" prompts.
+const emptyProduct = (): Product => ({ name: "", plants: [], components: [], operations: [] });
+
+type Tier = { key: string; label: string; state: "done" | "limited" | "missing"; note: string };
+
+// What each kind of input unlocks (DESIGN.md step 1, the "unlocks" strip).
+function unlocks(tab: Tab, facts: string, product: Product, hasMoney: boolean): Tier[] {
+  const plants = product.plants ?? [];
+  const parts = product.components.filter((c) => c.name.trim() && c.made_in.trim());
+  const countries = new Set(plants.map((p) => p.country.trim()).filter(Boolean));
+  const extra = plants.some((p) => (p.capabilities ?? []).length > 0);
+  const origin = tab === "paste" ? facts.trim().length > 20 : parts.length > 0;
+  const plan = tab !== "paste" && countries.size >= 2 && extra;
+  return [
+    {
+      key: "origin",
+      label: "Likely origin",
+      state: origin ? "done" : "missing",
+      note: origin ? (tab === "paste" ? "from your description" : `${parts.length} parts`) : tab === "paste" ? "paste a description" : "add a part and where it's made",
+    },
+    {
+      key: "plan",
+      label: "Plan search",
+      state: plan ? "done" : tab !== "paste" && countries.size === 1 ? "limited" : "missing",
+      note: plan
+        ? `${countries.size} countries`
+        : tab === "paste"
+          ? "needs parts and plants"
+          : countries.size < 2
+            ? "add a plant in a second country"
+            : "mark what a plant could also make",
+    },
+    { key: "money", label: "Money per move", state: hasMoney ? "done" : "missing", note: hasMoney ? "illustrative" : "add later on the Plan step" },
+  ];
+}
 
 export function ProductStep() {
   const router = useRouter();
   const params = useSearchParams();
   const demoId = params.get("demo");
 
-  const [tab, setTab] = useState<Tab>("parts");
+  const [tab, setTab] = useState<Tab>("paste");
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
@@ -91,19 +122,23 @@ export function ProductStep() {
     }
   };
 
-  const ready =
-    name.trim() !== "" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
-    (tab === "paste" ? facts.trim().length > 20 : product.components.some((c) => c.name.trim() && c.made_in.trim()));
+  // The main button says what's still missing instead of just looking off.
+  let missing: string | null = null;
+  if (name.trim() === "") missing = "Add a product name";
+  else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) missing = "Add the case date";
+  else if (tab === "paste" && facts.trim().length <= 20) missing = "Paste a description (a sentence or more)";
+  else if (tab !== "paste" && !product.components.some((c) => c.name.trim() && c.made_in.trim())) missing = "Add a part and where it's made";
+  const ready = missing === null;
+  const tiers = unlocks(tab, facts, product, Boolean(extra.facts));
 
   return (
     <>
-      <StepBar current={1} reached={1} title={name || "New case"} />
+      <CaseTabs current="product" reached={1} title={name || "New case"} />
       <Main>
         <div className="min-w-0 max-w-[880px]">
           <p className="eyebrow">Step 1 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
-          <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
-          <p className="duo mt-1 text-dim">{copy.product.lede}</p>
+          <h1 className="mt-1 text-xl tracking-[-0.04em]">{copy.product.title}</h1>
+          <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">{copy.product.lede}</p>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
             <Field label={copy.product.name}>
@@ -115,7 +150,7 @@ export function ProductStep() {
           </div>
 
           <div role="tablist" aria-label="How to describe the product" className="mt-8 flex flex-wrap gap-1 border-b border-line">
-            {(Object.keys(copy.product.tabs) as Tab[]).map((t) => (
+            {(["paste", "parts", "bom"] as Tab[]).map((t) => (
               <button
                 key={t}
                 role="tab"
@@ -127,6 +162,28 @@ export function ProductStep() {
                 {copy.product.tabs[t]}
               </button>
             ))}
+          </div>
+
+          {/* A status line, not boxes: bordered shapes here read as inputs or buttons. */}
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1.5 text-[12.5px]">
+            <span className="eyebrow">What this input unlocks</span>
+            <ul aria-label="What this input unlocks" className="flex flex-wrap gap-x-6 gap-y-1.5">
+              {tiers.map((t) => (
+                <li key={t.key} className="flex items-baseline gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className={cx("w-3 text-center font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}
+                  >
+                    {t.state === "done" ? "✓" : t.state === "limited" ? "!" : "○"}
+                  </span>
+                  <span className={cx("font-medium", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-ink")}>{t.label}</span>
+                  <span className="text-dim">
+                    <span className="sr-only">{t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}: </span>
+                    {t.note}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="mt-6" role="tabpanel">
@@ -156,6 +213,10 @@ export function ProductStep() {
                   if (!name && r.product.name) setName(r.product.name);
                 }}
                 onEdit={() => setTab("parts")}
+                onUseText={(text) => {
+                  setFacts(text.slice(0, 12000));
+                  setTab("paste");
+                }}
               />
             )}
           </div>
@@ -167,10 +228,16 @@ export function ProductStep() {
         </div>
       </Main>
       <Footer>
-        <span className="text-xs text-dim">Nothing is analysed until you continue</span>
+        <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
         <div className="ml-auto flex items-center gap-3">
-          {busy && <Spinner label={copy.product.working} />}
-          <Button onClick={submit} disabled={!ready || busy}>
+          {busy ? (
+            <Spinner label={copy.product.working} />
+          ) : missing ? (
+            <span id="go-why" className="text-[13px] text-dim">
+              {missing}
+            </span>
+          ) : null}
+          <Button onClick={submit} disabled={!ready || busy} aria-describedby={missing ? "go-why" : undefined}>
             {copy.product.go} →
           </Button>
         </div>
@@ -194,120 +261,193 @@ function Field({ label, help, children }: { label: string; help?: string; childr
   );
 }
 
+// Plant IDs are made for the user ("th", "th2", …) and never shown.
+function plantId(taken: string[]) {
+  let n = taken.length + 1;
+  while (taken.includes(`p${n}`)) n++;
+  return `p${n}`;
+}
+
 function PartsEditor({ product, onChange, family, onFamily }: { product: Product; onChange: (p: Product) => void; family: string; onFamily: (f: string) => void }) {
   const plants = product.plants ?? [];
   const ops = product.operations ?? [];
   const setPlants = (p: Plant[]) => onChange({ ...product, plants: p });
   const setComps = (c: Component[]) => onChange({ ...product, components: c });
   const setOps = (o: Operation[]) => onChange({ ...product, operations: o });
-  const listId = useId();
+  const groups = [...new Set([...groupSuggestions, ...[...product.components, ...ops].map((x) => x.group).filter((g): g is string => Boolean(g))])];
+  // Picking where a part is made fills its country from the plant.
+  const pickPlant = (i: number, id: string) => {
+    const pl = plants.find((p) => p.id === id);
+    setComps(product.components.map((c, j) => (j === i ? { ...c, plant: id || undefined, made_in: pl?.country || c.made_in } : c)));
+  };
 
   return (
-    <div className="flex min-w-0 flex-col gap-7">
-      <datalist id={listId}>
-        {groupSuggestions.map((g) => (
-          <option key={g} value={g} />
-        ))}
-      </datalist>
+    <div className="flex min-w-0 flex-col gap-6">
       <Panel className="min-w-0">
-        <PanelHead right={`${plants.length} plants`}>Plants</PanelHead>
-        <Rows
-          head={["ID", "Name", "Country", "Can also make (groups, ; separated)"]}
-          rows={plants.map((p, i) => [
-            <Cell key="id" label="Plant ID" value={p.id} onChange={(v) => setPlants(plants.map((x, j) => (j === i ? { ...x, id: v } : x)))} />,
-            <Cell key="n" label="Plant name" value={p.name ?? ""} onChange={(v) => setPlants(plants.map((x, j) => (j === i ? { ...x, name: v } : x)))} />,
-            <Cell key="c" label="Plant country" value={p.country} onChange={(v) => setPlants(plants.map((x, j) => (j === i ? { ...x, country: v } : x)))} />,
-            <Cell
-              key="cap"
-              label="Capabilities"
-              value={(p.capabilities ?? []).join("; ")}
-              onChange={(v) => setPlants(plants.map((x, j) => (j === i ? { ...x, capabilities: v.split(";").map((s) => s.trim()).filter(Boolean) } : x)))}
-            />,
-          ])}
-          onRemove={(i) => setPlants(plants.filter((_, j) => j !== i))}
-          onAdd={() => setPlants([...plants, { id: `p${plants.length + 1}`, name: "", country: "", capabilities: [] }])}
-          addLabel="+ Add plant"
-        />
+        <PanelHead right={plants.length ? `${plants.length} plants` : undefined}>Plants</PanelHead>
+        {plants.length === 0 && <p className="duo mb-1 text-[13px] text-dim">Where the product, or any part of it, is made: your plants and your suppliers.</p>}
+        <ul className="flex flex-col gap-3">
+          {plants.map((p, i) => (
+            <li key={p.id} className="border border-line bg-white p-3">
+              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <input
+                  aria-label="Plant name"
+                  placeholder="Plant name, e.g. Rayong plant"
+                  className={cx(input, "py-1.5")}
+                  value={p.name ?? ""}
+                  onChange={(e) => setPlants(plants.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+                />
+                <input
+                  aria-label="Plant country"
+                  placeholder="Country"
+                  className={cx(input, "py-1.5")}
+                  value={p.country}
+                  onChange={(e) => setPlants(plants.map((x, j) => (j === i ? { ...x, country: e.target.value } : x)))}
+                />
+                <RemoveButton label={`Remove ${p.name || "plant"}`} onClick={() => setPlants(plants.filter((_, j) => j !== i))} />
+              </div>
+              <fieldset className="mt-2.5">
+                <legend className="text-[11px] text-dim">Could also make (used by the plan search)</legend>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {groups.map((g) => {
+                    const on = (p.capabilities ?? []).includes(g);
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() =>
+                          setPlants(plants.map((x, j) => (j === i ? { ...x, capabilities: on ? (x.capabilities ?? []).filter((c) => c !== g) : [...(x.capabilities ?? []), g] } : x)))
+                        }
+                        className={cx("min-h-7 rounded-[2px] border px-2 text-xs", on ? "border-ok bg-ok-wash text-ok" : "border-line text-dim hover:text-ink")}
+                      >
+                        {on ? "✓ " : ""}
+                        {groupName(g)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </li>
+          ))}
+        </ul>
+        <AddButton onClick={() => setPlants([...plants, { id: plantId(plants.map((x) => x.id)), name: "", country: "", capabilities: [] }])}>+ Add a plant</AddButton>
       </Panel>
+
       <Panel className="min-w-0">
-        <PanelHead right={`${product.components.length} parts`}>Parts</PanelHead>
-        <Rows
-          head={["Part", "Made in", "Plant", "Group"]}
-          rows={product.components.map((c, i) => [
-            <Cell key="n" label="Part name" value={c.name} onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: v } : x)))} />,
-            <Cell key="m" label="Made in" value={c.made_in} onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: v } : x)))} />,
-            <Cell key="p" label="Plant ID" value={c.plant ?? ""} onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, plant: v || undefined } : x)))} />,
-            <Cell key="g" label="Group" list={listId} value={c.group ?? ""} onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))} />,
-          ])}
-          onRemove={(i) => setComps(product.components.filter((_, j) => j !== i))}
-          onAdd={() => setComps([...product.components, { name: "", made_in: "" }])}
-          addLabel="+ Add part"
-        />
+        <PanelHead right={product.components.length ? `${product.components.length} parts` : undefined}>Parts</PanelHead>
+        {product.components.length === 0 && <p className="duo mb-1 text-[13px] text-dim">Each component and where it&apos;s made.</p>}
+        {product.components.length > 0 && (
+          <div className="relative overflow-x-auto">
+            <table className="w-full min-w-[620px] border-collapse text-sm">
+              <thead>
+                <tr>
+                  {["Part", "Made at", "Country", "Group"].map((h) => (
+                    <th key={h} scope="col" className="pb-2 pr-2 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
+                      {h}
+                    </th>
+                  ))}
+                  <th className="w-8">
+                    <span className="sr-only">Remove</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {product.components.map((c, i) => (
+                  <tr key={i}>
+                    <td className="py-1 pr-2">
+                      <input aria-label="Part name" className={cx(input, "py-1.5")} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+                    </td>
+                    <td className="py-1 pr-2">
+                      <select aria-label="Made at" className={cx(input, "py-1.5")} value={c.plant ?? ""} onChange={(e) => pickPlant(i, e.target.value)}>
+                        <option value="">A supplier not listed</option>
+                        {plants.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name || "Unnamed plant"}
+                            {p.country ? ` · ${p.country}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="py-1 pr-2">
+                      <input aria-label="Country it's made in" className={cx(input, "py-1.5")} value={c.made_in} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: e.target.value } : x)))} />
+                    </td>
+                    <td className="py-1 pr-2">
+                      <select
+                        aria-label="Operation group"
+                        className={cx(input, "py-1.5")}
+                        value={c.group ?? ""}
+                        onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: e.target.value || undefined } : x)))}
+                      >
+                        <option value="">None</option>
+                        {groups.map((g) => (
+                          <option key={g} value={g}>
+                            {groupName(g)}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <RemoveButton label={`Remove ${c.name || "part"}`} onClick={() => setComps(product.components.filter((_, j) => j !== i))} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <AddButton onClick={() => setComps([...product.components, { name: "", made_in: "" }])}>+ Add a part</AddButton>
       </Panel>
-      <Panel className="min-w-0">
-        <PanelHead right={`${ops.length} steps`}>Processing at each plant</PanelHead>
-        <Rows
-          head={["Operation", "Plant", "Group"]}
-          rows={ops.map((o, i) => [
-            <Cell key="n" label="Operation" value={o.name} onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, name: v } : x)))} />,
-            <Cell key="p" label="Plant ID" value={o.plant} onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, plant: v } : x)))} />,
-            <Cell key="g" label="Group" list={listId} value={o.group ?? ""} onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))} />,
-          ])}
-          onRemove={(i) => setOps(ops.filter((_, j) => j !== i))}
-          onAdd={() => setOps([...ops, { name: "", plant: plants[0]?.id ?? "" }])}
-          addLabel="+ Add operation"
-        />
-      </Panel>
-      <div className="max-w-sm">
-        <Field label="Product family" help="Picks the planner template for the plan search.">
-          {(id) => <input id={id} className={input} value={family} onChange={(e) => onFamily(e.target.value)} />}
-        </Field>
-      </div>
+
+      <details className="border border-line bg-sheet px-5 py-3" open={ops.length > 0}>
+        <summary className="cursor-pointer text-[13px] text-dim">Processing at each plant and product family (optional){ops.length ? ` · ${ops.length} steps` : ""}</summary>
+        <ul className="mt-3 flex flex-col gap-2">
+          {ops.map((o, i) => (
+            <li key={i} className="grid gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <input aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cx(input, "py-1.5")} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+              <select aria-label="At plant" className={cx(input, "py-1.5")} value={o.plant} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, plant: e.target.value } : x)))}>
+                {plants.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name || "Unnamed plant"}
+                  </option>
+                ))}
+              </select>
+              <select aria-label="Operation group" className={cx(input, "py-1.5")} value={o.group ?? ""} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, group: e.target.value || undefined } : x)))}>
+                <option value="">None</option>
+                {groups.map((g) => (
+                  <option key={g} value={g}>
+                    {groupName(g)}
+                  </option>
+                ))}
+              </select>
+              <RemoveButton label="Remove step" onClick={() => setOps(ops.filter((_, j) => j !== i))} />
+            </li>
+          ))}
+        </ul>
+        {plants.length > 0 ? <AddButton onClick={() => setOps([...ops, { name: "", plant: plants[0].id }])}>+ Add a processing step</AddButton> : <p className="mt-2 text-xs text-dim">Add a plant first.</p>}
+        <div className="mt-4 max-w-sm">
+          <Field label="Product family" help="Picks the planner template for the plan search.">
+            {(id) => <input id={id} className={input} value={family} onChange={(e) => onFamily(e.target.value)} />}
+          </Field>
+        </div>
+      </details>
     </div>
   );
 }
 
-function Cell({ label, value, onChange, list }: { label: string; value: string; onChange: (v: string) => void; list?: string }) {
-  return <input aria-label={label} list={list} className={cx(input, "py-1.5")} value={value} onChange={(e) => onChange(e.target.value)} />;
+function AddButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} className="mt-3 min-h-8 text-[13px] text-ok hover:underline">
+      {children}
+    </button>
+  );
 }
 
-function Rows({ head, rows, onRemove, onAdd, addLabel }: { head: string[]; rows: ReactNode[][]; onRemove: (i: number) => void; onAdd: () => void; addLabel: string }) {
+function RemoveButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <div className="relative overflow-x-auto">
-      <table className="w-full min-w-[620px] border-collapse text-sm">
-        <thead>
-          <tr>
-            {head.map((h) => (
-              <th key={h} scope="col" className="pb-2 pr-2 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
-                {h}
-              </th>
-            ))}
-            <th className="w-8">
-              <span className="sr-only">Remove</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((cells, i) => (
-            <tr key={i}>
-              {cells.map((c, j) => (
-                <td key={j} className="py-1 pr-2">
-                  {c}
-                </td>
-              ))}
-              <td>
-                <button type="button" aria-label="Remove row" onClick={() => onRemove(i)} className="px-2 text-dim hover:text-fail">
-                  ×
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button type="button" onClick={onAdd} className="mt-2 text-[13px] text-ok hover:underline">
-        {addLabel}
-      </button>
-    </div>
+    <button type="button" aria-label={label} onClick={onClick} className="inline-grid size-8 place-items-center text-dim hover:text-fail">
+      ×
+    </button>
   );
 }
 
@@ -317,26 +457,44 @@ function BomImport({
   imported,
   onImported,
   onEdit,
+  onUseText,
 }: {
   name: string;
   family: string;
   imported: ImportResponse | null;
   onImported: (r: ImportResponse) => void;
   onEdit: () => void;
+  onUseText: (text: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [pdfText, setPdfText] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const inputId = useId();
 
   const upload = async (f: File) => {
+    const productName = name.trim() || f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
     setFile(f);
     setBusy(true);
     setError(null);
+    setPdfText(null);
+    // PDFs are read in the browser: the table becomes CSV for the same import.
+    if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
+      try {
+        const { csv } = await pdfToBomCsv(f);
+        onImported(await api.importCsv({ csv, name: productName, family: family || undefined }));
+      } catch (e) {
+        if (e instanceof PdfTableError) setPdfText(e.text);
+        setError(e);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const form = new FormData();
     form.append("file", f);
-    if (name) form.append("name", name);
+    form.append("name", productName);
     if (family) form.append("family", family);
     try {
       onImported(await api.importBom(form));
@@ -369,10 +527,32 @@ function BomImport({
       >
         <span className="text-sm">{file ? `${file.name} · replace file` : copy.product.bomDrop}</span>
         <span className="duo mt-2 block text-xs text-dim">{copy.product.bomGuide}</span>
-        <input id={inputId} type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        <input id={inputId} type="file" accept=".csv,.xlsx,.pdf,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       </label>
       {busy && <Spinner label="Importing…" />}
       {error ? <ErrorBox error={error} /> : null}
+      {pdfText && pdfText.trim().length > 20 && (
+        <p className="duo text-[13px]">
+          No parts table found, but the PDF has text.{" "}
+          <button type="button" className="text-ok underline underline-offset-2" onClick={() => onUseText(pdfText)}>
+            Use its text as the description
+          </button>
+        </p>
+      )}
+      <p className="text-xs text-dim">
+        Test files (heat gun, 17 rows):{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
+          CSV
+        </a>{" "}
+        ·{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.xlsx" download>
+          Excel
+        </a>{" "}
+        ·{" "}
+        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
+          PDF
+        </a>
+      </p>
       {imported && p && (
         <Panel>
           <PanelHead right="Ready for the plan search">Imported</PanelHead>

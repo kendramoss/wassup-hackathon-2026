@@ -38,6 +38,9 @@ export type ExportResponse = Json<"/v1/cases/{id}/export", "post">;
 export type CompareResponse = Json<"/v1/cases/{id}/compare-targets", "post">;
 export type AskResponse = Json<"/v1/cases/{id}/ask", "post">;
 export type WatchRunResponse = Json<"/v1/watch/run", "post">;
+export type ExtractResponse = Json<"/v1/products/extract", "post">;
+export type BatchResponse = Json<"/v1/cases/batch", "post">;
+export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
@@ -47,8 +50,10 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code: ApiErrorBody["code"] | "network",
+    public code: ApiErrorBody["code"] | "network" | "rate_limited",
     public retryable: boolean,
+    // Seconds to wait before retrying (429 rate_limited), from Retry-After.
+    public retryAfter?: number,
   ) {
     super(message);
   }
@@ -57,11 +62,15 @@ export class ApiError extends Error {
 const retryableCodes = new Set(["model_unavailable", "model_bad_response", "internal", "network"]);
 
 async function toError(res: Response): Promise<ApiError> {
-  let body: Partial<ApiErrorBody> & { error?: string } = {};
+  let body: Partial<Omit<ApiErrorBody, "code">> & { code?: string; error?: string; details?: { retry_after_s?: number } } = {};
   try {
     body = await res.json();
   } catch {}
-  const code = body.code ?? (res.status >= 500 ? "internal" : "invalid_input");
+  if (res.status === 429 || body.code === "rate_limited") {
+    const after = Number(res.headers.get("Retry-After")) || body.details?.retry_after_s || 30;
+    return new ApiError(body.message ?? "Too many requests.", 429, "rate_limited", true, after);
+  }
+  const code = (body.code ?? (res.status >= 500 ? "internal" : "invalid_input")) as ApiErrorBody["code"];
   const message = body.message ?? body.error ?? `The API returned ${res.status}.`;
   return new ApiError(message, res.status, code, retryableCodes.has(code));
 }
@@ -75,12 +84,13 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res);
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
-function post<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+function post<T>(path: string, body?: unknown, signal?: AbortSignal, method = "POST"): Promise<T> {
   return call<T>(path, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
     signal,
@@ -111,6 +121,12 @@ export const api = {
   ruling: (id: string) => call<Ruling>(`/rulings/${enc(id)}`),
   evalSummary: () => call<EvalSummary>("/eval/summary"),
   importBom: (form: FormData) => call<ImportResponse>("/products/import", { method: "POST", body: form }),
+  importCsv: (body: { csv: string; name?: string; family?: string }) => post<ImportResponse>("/products/import", body),
+  extract: (body: { facts: string; family?: string; name?: string }, signal?: AbortSignal) => post<ExtractResponse>("/products/extract", body, signal),
+  batch: (form: FormData, signal?: AbortSignal) => call<BatchResponse>("/cases/batch", { method: "POST", body: form, signal }),
+  rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
+  deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
+  putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
 };
 
 // Plan search events (POST /v1/cases/{id}/plan with Accept: text/event-stream).

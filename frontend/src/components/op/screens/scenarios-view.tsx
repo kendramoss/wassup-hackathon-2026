@@ -5,12 +5,12 @@ import { api, type CaseResponse, type Product, type Scenario } from "@/lib/api/c
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main } from "../chrome";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
-import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, Spinner, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 export function ScenariosView() {
-  return <CaseShell step={2}>{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
+  return <CaseShell tab="scenarios">{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
 }
 
 type Draft = { label: string; mode: "move" | "facts"; groups: string[]; plant: string; facts: string };
@@ -72,7 +72,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <p className="eyebrow">Origin · What if…</p>
-            <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Scenarios side by side</h1>
+            <h1 className="mt-1 text-xl tracking-[-0.04em]">Scenarios side by side</h1>
             <p className="duo mt-1 max-w-[80ch] text-sm text-dim">
               Your own what-ifs, each predicted by the origin engine. The case&apos;s answer doesn&apos;t change. For a searched, precedent-checked change, use Plan.
             </p>
@@ -101,10 +101,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         {!editing && sc.length > 0 && product && <Matrix sc={sc} c={c} />}
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/origin`}>
-          ← Back to origin
-        </ButtonLink>
-        <span className="text-xs text-dim">{copy.money}</span>
+        <Next>{product?.plants?.length ? "Search precedent-checked plans for the move that looks best." : "Compare what-ifs, then add parts and plants to search real plans."}</Next>
         <div className="ml-auto">
           {product?.plants?.length ? <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan`}>Search plans →</ButtonLink> : null}
         </div>
@@ -192,6 +189,10 @@ function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: 
   );
 }
 
+function prettyLabel(label?: string) {
+  return (label ?? "").replace(/[a-z]+(?:_[a-z]+)+|pcba/g, (g) => groupName(g));
+}
+
 function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   const cur = currentOrigin(c)?.country ?? c.prediction?.origin_country;
   const nets = sc.map((s) => s.comparison?.net_usd ?? -Infinity);
@@ -207,7 +208,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
         return (
           <Panel key={i} className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-[15px] font-medium">{s.label}</h2>
+              <h2 className="text-[15px] font-medium">{prettyLabel(s.label)}</h2>
               {nets[i] === bestNet && Number.isFinite(bestNet) && bestNet > 0 && <Chip tone="ok">highest net</Chip>}
               {confs[i] === bestConf && sc.length > 1 && <Chip>highest confidence</Chip>}
             </div>
@@ -215,10 +216,12 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
               <Flag country={p.origin_country} size={30} />
               {p.origin_country}
             </p>
-            <StatusChip route={s.triage?.route} />
+            <span className="self-start">
+              <StatusChip route={s.triage?.route} />
+            </span>
             <Ruler value={p.confidence} label={`${BAR} auto-accept`} width={220} caption={`confidence ${conf(p.confidence)}`} />
             {p.decisive_step && <p className="duo clamp-2 text-[13px]">{p.decisive_step}</p>}
-            {cmp?.origin_differs_from_current && cur && (
+            {cmp?.origin_differs_from_current && cur && (nothingMoves || !s.product) && (
               <p className="duo text-[13px] text-ask">
                 △ Differs from CBP: <Country name={cur} />
               </p>
@@ -251,7 +254,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   return (
     <section>
       <h2 className="eyebrow mb-2.5">Where each part is made</h2>
-      <div className="relative overflow-x-auto">
+      <ScrollX label="Where each part is made">
         <table className="w-full min-w-[640px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <thead>
             <tr>
@@ -301,7 +304,7 @@ function Matrix({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
             </tr>
           </tbody>
         </table>
-      </div>
+      </ScrollX>
     </section>
   );
 }

@@ -7,13 +7,13 @@ import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main } from "../chrome";
-import { EconomicsEditor, PlantDiagram, moveKey, rejectionLabels } from "../plan-bits";
+import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
-import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
-  return <CaseShell step={3}>{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
+  return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
 }
 
 type Row = { key: string; description: string; plan?: Plan; started?: boolean };
@@ -153,39 +153,61 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
           </div>
         )}
         {searching && <LiveTable rows={rows} baseline={baseline} lit={lit} />}
-        {result && lead && c.product && (
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
-            <Panel>
-              <PanelHead right={best ? "moved in blue" : <span className="text-ask">below the bar</span>}>fig.2 — {best ? "best plan" : "closest move"}, by plant</PanelHead>
-              <PlantDiagram product={c.product} plan={lead} below={!best} />
-            </Panel>
-            <CheckPanel plan={lead} />
+        {/* #4: the decision first (band above), then the moves and why the
+            best one is supported side by side; the diagram explains, so it
+            comes after. Money inputs open in a drawer. */}
+        {result && (
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <AllMoves result={result} onDraft={draft} />
+            <aside aria-label="Why it's supported" className="flex min-w-0 flex-col gap-5">
+              {lead && <WhySupported plan={lead} />}
+              <section aria-label="Money inputs" className="text-[13px]">
+                <h3 className="eyebrow mb-1">Money · illustrative</h3>
+                <p className="duo">
+                  {economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "No import value yet"}
+                  {Object.keys(economics.duty_rates ?? {}).length ? ` · duty ${Object.entries(economics.duty_rates ?? {}).map(([k, v]) => `${k} ${Math.round(v * 1000) / 10}%`).join(", ")}` : ""}{" "}
+                  <button type="button" className="text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
+                    Edit
+                  </button>
+                </p>
+              </section>
+            </aside>
           </div>
         )}
-        {result && <AllMoves result={result} onDraft={draft} />}
+        {result && lead && c.product && (
+          <Panel className="shadow-none">
+            <PanelHead right={best ? "moved in blue" : <span className="text-ask">below the bar</span>}>fig.2 — {best ? "best plan" : "closest move"}, by plant</PanelHead>
+            <PlantDiagram product={c.product} plan={lead} below={!best} />
+          </Panel>
+        )}
         {result?.backtest ? <BacktestPanel bt={result.backtest as Record<string, unknown>} /> : null}
-        {result && (
-          <div>
-            <button type="button" className="text-[13px] text-ok hover:underline" onClick={() => setShowMoney((s) => !s)} aria-expanded={showMoney}>
-              {showMoney ? "Hide money inputs" : "Inputs are illustrative · edit costs and duty"}
-            </button>
-            {showMoney && (
-              <div className="mt-4 flex flex-col gap-4">
-                <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
-                <div>
-                  <Button variant="ghost" onClick={run}>
-                    Search again with these inputs
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+        {showMoney && (
+          <MoneyDrawer onClose={() => setShowMoney(false)}>
+            <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowMoney(false);
+                run();
+              }}
+            >
+              Search again with these inputs
+            </Button>
+          </MoneyDrawer>
         )}
       </Main>
       <Footer>
-        <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/origin`}>
-          ← Back to origin
-        </ButtonLink>
+        <Next>
+          {searching
+            ? "Checking each move against earlier CBP rulings. Usually ~30 s."
+            : best
+              ? "Draft the ruling request for your broker."
+              : closest
+                ? "Draft for the closest move (the letter says it's below the bar), or try scenarios."
+                : result
+                  ? "Try scenarios or another country: no move found support."
+                  : `Search moves to ${target}.`}
+        </Next>
         {result?.stats ? <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} /> : null}
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
           {searching && (
@@ -241,8 +263,7 @@ function To({ country }: { country: string }) {
 }
 
 function sentence(p: Plan) {
-  const d = p.description ?? "";
-  return d.replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "");
+  return movePhrase(p);
 }
 
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
@@ -252,7 +273,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>{below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
-          {below ? "Closest: " : ""}
+          {below ? "Closest: make " : "Make "}
           {sentence(plan)} in <To country={target} />
         </h1>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -277,7 +298,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       </div>
       <div>
         <p className="eyebrow">Precedent check</p>
-        <Ruler value={v} caption={`check confidence ${conf(v)}${below ? " · below the bar" : ""}`} />
+        <Ruler value={v} caption={`check ${conf(v)} · ${checkWords(v)}`} />
       </div>
     </Band>
   );
@@ -380,36 +401,78 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
   );
 }
 
-function CheckPanel({ plan }: { plan: Plan }) {
+// Why the lead move is (or nearly is) supported: flat, summarised; the
+// verifier's full reasoning folds behind "Read the full check".
+function WhySupported({ plan }: { plan: Plan }) {
   const v = plan.verdict ?? {};
   return (
-    <Panel>
-      <PanelHead right={`verifier · ${conf(v.confidence)} · bar ${BAR}`}>Precedent check</PanelHead>
-      <div className="border-b border-line py-2.5 text-[13px]">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-ok">Supports</p>
-        {v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : <span className="text-dim">none found</span>}
-      </div>
-      <div className="border-b border-line py-2.5 text-[13px]">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-ask">Counter-ruling · distinguish it</p>
-        {v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : <span className="text-dim">none found</span>}
-      </div>
-      {v.reasoning && <p className="duo mt-3 text-[13px] leading-relaxed text-[#3d3c37]">{v.reasoning}</p>}
-    </Panel>
+    <section aria-label="Precedent check" className="text-[13px]">
+      <h3 className="eyebrow mb-1">Why it&apos;s supported</h3>
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
+        <dt className="text-dim">Check</dt>
+        <dd>
+          {conf(v.confidence)} · {checkWords(v.confidence)}
+        </dd>
+        <dt className="text-dim">Supports</dt>
+        <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : "none found"}</dd>
+        <dt className="text-dim">Counter</dt>
+        <dd>{v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : "none found"}</dd>
+      </dl>
+      {v.reasoning && <Reasoning text={v.reasoning} />}
+    </section>
+  );
+}
+
+function MoneyDrawer({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  return (
+    <Drawer
+      label="Money inputs"
+      onClose={onClose}
+      width={600}
+      header={
+        <>
+          <b className="font-medium text-ink">◆ Money inputs</b>
+          <span>illustrative — editable</span>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4 p-5">{children}</div>
+    </Drawer>
+  );
+}
+
+// The verifier's reasoning runs to several hundred words: show the first
+// four lines and fold the rest behind "Read the full check".
+function Reasoning({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3">
+      <p className={cx("duo text-[13px] leading-relaxed text-body", !open && "line-clamp-4")}>{text}</p>
+      {text.length > 280 && (
+        <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? "Show less" : "Read the full check →"}
+        </button>
+      )}
+    </div>
   );
 }
 
 function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: string) => void }) {
-  const all = [...(result.plans ?? []), ...(result.rejected ?? [])];
+  const every = [...(result.plans ?? []), ...(result.rejected ?? [])];
+  const [open, setOpen] = useState(false);
+  const all = open ? every : every.slice(0, 3);
   return (
-    <section>
-      <h2 className="eyebrow mb-2.5">Every move searched · best first</h2>
+    <section className="min-w-0">
+      <h2 className="eyebrow mb-2.5">
+        Moves searched · {every.length} · best first
+      </h2>
       <div className="relative overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse border border-edge bg-sheet text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+        <table className="w-full min-w-[680px] border-collapse border border-line bg-sheet text-[13px]">
           <thead>
             <tr>
               {["Move", "Outcome", "Why", "Precedent check", "Net per year", ""].map((h, i) => (
                 <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
-                  {h}
+                  {h || <span className="sr-only">Draft</span>}
                 </th>
               ))}
             </tr>
@@ -453,7 +516,12 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
           </tbody>
         </table>
       </div>
-      {result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
+      {every.length > 3 && (
+        <button type="button" className="mt-2 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          {open ? "Show the top 3" : `${every.length - 3} more moves`}
+        </button>
+      )}
+      {open && result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
     </section>
   );
 }

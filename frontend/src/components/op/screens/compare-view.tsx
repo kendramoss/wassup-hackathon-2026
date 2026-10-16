@@ -6,12 +6,12 @@ import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main } from "../chrome";
+import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { moveKey } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Ruler, cx } from "../ui";
 
 export function CompareView() {
-  return <CaseShell step={3}>{(ctx) => <Compare {...ctx} />}</CaseShell>;
+  return <CaseShell tab="plan">{(ctx) => <Compare {...ctx} />}</CaseShell>;
 }
 
 const statusTag: Record<string, React.ReactNode> = {
@@ -251,6 +251,7 @@ function Compare({ id, c }: CaseCtx) {
         <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/plan`}>
           ← Back to plan
         </ButtonLink>
+        <Next>{since ? "Searching each country in parallel. Usually ~30–40 s." : ranked ? `Draft for ${top?.best ? top.target : "a country"}, or go back to the plan.` : "Pick 2–4 countries and compare them."}</Next>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
           {since && (
             <Button variant="ghost" onClick={() => abort.current?.abort()}>

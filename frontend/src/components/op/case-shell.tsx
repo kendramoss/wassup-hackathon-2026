@@ -1,11 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { CaseResponse } from "@/lib/api/client";
 import { formatDate, stepIndex } from "@/lib/format";
 import { caseTitle, useCase } from "@/lib/use-case";
-import { ErrorBox, Main, StepBar } from "./chrome";
+import { AskDrawer } from "./ask-drawer";
+import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
 import { Spinner } from "./ui";
 
 export type CaseCtx = {
@@ -22,9 +23,11 @@ export function currentOrigin(c: CaseResponse): { country?: string; ruling?: str
 }
 
 // Loads the case from the URL and renders the step bar around a screen.
-export function CaseShell({ step, children }: { step: number; children: (ctx: CaseCtx) => ReactNode }) {
+export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: CaseCtx) => ReactNode }) {
   const { id } = useParams<{ id: string }>();
   const { data, error, reload, setData } = useCase(id);
+  const [asking, setAsking] = useState(false);
+  const step = tabStep[tab];
   const reached = data ? (stepIndex[data.step ?? "origin"] ?? 2) : step;
   const title = data ? (
     <>
@@ -35,7 +38,7 @@ export function CaseShell({ step, children }: { step: number; children: (ctx: Ca
   );
   return (
     <>
-      <StepBar caseId={id} current={step} reached={Math.max(reached, step)} title={title} />
+      <CaseTabs caseId={id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country ? () => setAsking(true) : undefined} />
       {error ? (
         <Main>
           <ErrorBox error={error} onRetry={reload} />
@@ -47,6 +50,7 @@ export function CaseShell({ step, children }: { step: number; children: (ctx: Ca
       ) : (
         children({ id, c: data, setCase: setData, reload })
       )}
+      {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onCase={setData} />}
     </>
   );
 }
