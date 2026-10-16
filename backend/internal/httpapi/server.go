@@ -65,6 +65,11 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.addMember)
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.joinWorkspace)
 		}
+		if d.APIKeys != nil {
+			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
+			mux.HandleFunc("GET /v1/admin/api-keys", a.adminOnly(a.listAPIKeys))
+			mux.HandleFunc("DELETE /v1/admin/api-keys/{id}", a.adminOnly(a.disableAPIKey))
+		}
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
 	if a != nil {
@@ -79,7 +84,10 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	})
 	var h http.Handler = mux
 	if a != nil && a.d.Teams {
-		h = a.withUser(mux)
+		h = a.withUser(h)
+	}
+	if a != nil && a.d.APIKeys != nil {
+		h = a.withAPIKeys(h)
 	}
 	return withRequestLog(logger, h)
 }

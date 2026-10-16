@@ -15,6 +15,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -163,6 +164,10 @@ type Deps struct {
 	Teams      bool
 	Users      teams.Verifier
 	Workspaces teams.Store
+	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
+	// daily request quota, cases owned by the key) and serves the admin key
+	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
+	APIKeys *apikey.Keys
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -208,7 +213,9 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
 		return http.StatusBadRequest, "invalid_input", err.Error()
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound):
+	case errors.Is(err, apikey.ErrBadRequest):
+		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", RequestID(r.Context()), "err", err)
