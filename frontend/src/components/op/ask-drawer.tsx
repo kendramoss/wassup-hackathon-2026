@@ -35,8 +35,13 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
     };
   }, []);
 
+  // Bring the newest question to the top of the log, so a short answer
+  // isn't scrolled out of view under empty space (#87).
   useEffect(() => {
-    log.current?.scrollTo({ top: log.current.scrollHeight });
+    const box = log.current;
+    const latest = box?.querySelectorAll<HTMLElement>("[data-latest]");
+    const el = latest?.[latest.length - 1];
+    if (box && el) box.scrollTop += el.getBoundingClientRect().top - box.getBoundingClientRect().top - 16;
   }, [turns, pending]);
 
   const ask = async (q: string) => {
@@ -91,71 +96,75 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
         </>
       }
     >
-      <div ref={log} className="flex h-full flex-col gap-5 overflow-y-auto px-5 py-4" aria-live="polite">
-        {turns.length === 0 && !pending && (
-          <p className="duo text-[13px] text-dim">
-            Ask why the engine landed where it did, or try a change (&ldquo;what if …&rdquo;). The agent reads this case and earlier CBP rulings dated before{" "}
-            {formatDate(c.date)}; a what-if re-runs the origin engine on the changed facts.
-          </p>
-        )}
-        {turns.map((t, i) =>
-          i < turns.length - 1 && open !== i ? (
-            <button key={i} type="button" onClick={() => setOpen(i)} className="duo border-b border-line pb-3 text-left text-xs text-dim">
-              <b className="font-medium text-ink">Earlier:</b> {t.question} · <span className="text-ok">{t.cited_rulings?.length ?? 0} rulings cited · show answer</span>
-            </button>
-          ) : (
-            <TurnView key={i} t={t} detail={detail} caseId={c.id!} />
-          ),
-        )}
-        {pending && (
-          <div>
-            <Q>{pending.q}</Q>
-            <div className="mt-2.5 border border-dashed border-guide px-3.5 py-3 text-[12.5px] text-dim" role="status">
-              <span className="float-right">
-                <Elapsed since={pending.since} />
-              </span>
-              <b className="font-medium text-ink">Reading the case and earlier rulings…</b>
-              <br />
-              usually 15–40 s · a what-if re-runs the origin engine on changed facts
-              <div className="relative mt-2.5 h-[3px] overflow-hidden bg-wash">
-                <i className="absolute inset-y-0 w-1/3 animate-[slide_1.6s_ease-in-out_infinite] bg-ok" />
+      <div className="flex h-full flex-col">
+        <div ref={log} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4" aria-live="polite">
+          {turns.length === 0 && !pending && (
+            <p className="duo text-[13px] text-dim">
+              Ask why the engine landed where it did, or try a change (&ldquo;what if …&rdquo;). The agent reads this case and earlier CBP rulings dated before{" "}
+              {formatDate(c.date)}; a what-if re-runs the origin engine on the changed facts.
+            </p>
+          )}
+          {turns.map((t, i) =>
+            i < turns.length - 1 && open !== i ? (
+              <button key={i} type="button" onClick={() => setOpen(i)} className="duo border-b border-line pb-3 text-left text-xs text-dim">
+                <b className="font-medium text-ink">Earlier:</b> {t.question} · <span className="text-ok">{t.cited_rulings?.length ?? 0} rulings cited · show answer</span>
+              </button>
+            ) : (
+              <div key={i} data-latest={i === turns.length - 1 ? "" : undefined}>
+                <TurnView t={t} detail={detail} caseId={c.id!} />
+              </div>
+            ),
+          )}
+          {pending && (
+            <div data-latest="">
+              <Q>{pending.q}</Q>
+              <div className="mt-2.5 border border-dashed border-guide px-3.5 py-3 text-[12.5px] text-dim" role="status">
+                <span className="float-right">
+                  <Elapsed since={pending.since} />
+                </span>
+                <b className="font-medium text-ink">Reading the case and earlier rulings…</b>
+                <br />
+                usually 15–40 s · a what-if re-runs the origin engine on changed facts
+                <div className="relative mt-2.5 h-[3px] overflow-hidden bg-wash">
+                  <i className="absolute inset-y-0 w-1/3 animate-[slide_1.6s_ease-in-out_infinite] bg-ok" />
+                </div>
               </div>
             </div>
+          )}
+          {error ? <ErrorBox error={error} onRetry={() => ask(question)} /> : null}
+        </div>
+
+        {!pending && (
+          <div className="flex flex-wrap gap-2 px-5 pb-3">
+            {suggestions.map((s) => (
+              <button key={s} type="button" onClick={() => ask(s)} className="border border-line bg-paper px-2 py-1 text-[11.5px] text-dim hover:text-ink">
+                {s}
+              </button>
+            ))}
           </div>
         )}
-        {error ? <ErrorBox error={error} onRetry={() => ask(question)} /> : null}
+        <form
+          className="flex gap-2.5 border-t border-dashed border-guide px-5 py-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            ask(question);
+          }}
+        >
+          <input
+            ref={input}
+            aria-label="Your question"
+            maxLength={2000}
+            className="min-w-0 flex-1 rounded-[2px] border border-line bg-white px-3 py-2 text-[13px] placeholder:text-faint disabled:bg-paper"
+            placeholder={pending ? "Wait for the answer…" : "Ask about this case, or “what if …”"}
+            value={question}
+            disabled={Boolean(pending)}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+          <Button type="submit" disabled={Boolean(pending) || !question.trim()}>
+            Ask
+          </Button>
+        </form>
       </div>
-
-      {!pending && (
-        <div className="flex flex-wrap gap-2 px-5 pb-3">
-          {suggestions.map((s) => (
-            <button key={s} type="button" onClick={() => ask(s)} className="border border-line bg-paper px-2 py-1 text-[11.5px] text-dim hover:text-ink">
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-      <form
-        className="flex gap-2.5 border-t border-dashed border-guide px-5 py-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          ask(question);
-        }}
-      >
-        <input
-          ref={input}
-          aria-label="Your question"
-          maxLength={2000}
-          className="min-w-0 flex-1 rounded-[2px] border border-line bg-white px-3 py-2 text-[13px] placeholder:text-faint disabled:bg-paper"
-          placeholder={pending ? "Wait for the answer…" : "Ask about this case, or “what if …”"}
-          value={question}
-          disabled={Boolean(pending)}
-          onChange={(e) => setQuestion(e.target.value)}
-        />
-        <Button type="submit" disabled={Boolean(pending) || !question.trim()}>
-          Ask
-        </Button>
-      </form>
     </Drawer>
   );
 }
