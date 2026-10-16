@@ -11,7 +11,7 @@ import { Button, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
 // c-batch.html; frames p-batch-upload, p-batch-running, p-batch).
 
 type Row = BatchResponse["rows"][number];
-type Preview = { name: string; facts: string }[];
+type Preview = { name: string; facts: string; date: string }[];
 
 const MAX = 20;
 const OUT = /^out of scope:\s*/i;
@@ -54,8 +54,13 @@ function preview(text: string): Preview {
   const h = head.map((c) => c.trim().toLowerCase());
   const ni = h.findIndex((c) => c === "name" || c === "product" || c === "sku");
   const fi = h.findIndex((c) => c === "facts" || c === "description");
+  const di = h.findIndex((c) => c === "date" || c === "case date");
   if (fi < 0) return [];
-  return body.map((r) => ({ name: (ni >= 0 ? r[ni] : "")?.trim() ?? "", facts: r[fi]?.trim() ?? "" }));
+  return body.map((r) => ({
+    name: (ni >= 0 ? r[ni] : "")?.trim() ?? "",
+    facts: r[fi]?.trim() ?? "",
+    date: (di >= 0 ? r[di] : "")?.trim() ?? "",
+  }));
 }
 
 // What to do next first: more facts, expert review, out of scope, then auto;
@@ -101,10 +106,17 @@ export function TriagePage() {
     setError(null);
     setSince(Date.now());
     abort.current = new AbortController();
-    const form = new FormData();
-    form.append("file", file);
     try {
-      setResult(await api.batch(form, abort.current.signal));
+      // A CSV is already parsed for the preview. Send those rows, including
+      // one with empty facts, so that row comes back failed. The file upload
+      // drops empty facts rows. Excel has no preview and still goes as a file.
+      const result = rows
+        ? await api.batchItems(
+            rows.map((r) => ({ name: r.name, facts: r.facts, ...(r.date ? { date: r.date } : {}) })),
+            abort.current.signal,
+          )
+        : await api.batch(file, abort.current.signal);
+      setResult(result);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) setError(e);
     } finally {
