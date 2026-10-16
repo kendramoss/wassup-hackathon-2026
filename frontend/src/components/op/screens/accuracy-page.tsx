@@ -39,7 +39,7 @@ export function AccuracyPage() {
       </p>
       {data?.status && (
         <p className="mt-3">
-          <Chip className="whitespace-normal" tone={/proxy|development/i.test(data.status) ? "ask" : "ok"}>
+          <Chip className="whitespace-normal" tone={/^official/i.test(data.status) ? "ok" : "ask"}>
             {data.status}
           </Chip>
         </p>
