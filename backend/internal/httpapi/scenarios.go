@@ -104,7 +104,6 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			out[i].Comparison = &cmp
 		}
 	}
-	sc.Scenarios, sc.UpdatedAt = out, time.Now().UTC()
 	var parts []string
 	var u usage
 	for i, s := range out {
@@ -112,12 +111,21 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		u.trace(s.Prediction.Trace)
 		u.label(labels[i])
 	}
-	sc.Record(u.on(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")}, start))
-	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
+	ev := u.on(store.Event{Kind: "scenarios", Summary: strings.Join(parts, "; ")}, start)
+	now := time.Now().UTC()
+	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
+		if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+			latest.Economics = in.Economics
+		}
+		latest.Scenarios, latest.UpdatedAt = out, now
+		latest.Record(ev)
+		return nil
+	})
+	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(sc))
+	a.respond(w, http.StatusOK, a.caseFields(saved))
 }
 
 // scenarioFacts is a scenario's facts text: given directly, or rendered from
@@ -230,10 +238,19 @@ func (a *api) recheck(ctx context.Context, sc *store.Case) error {
 		status = store.WatchChanged
 	}
 	// A background check is not case activity: UpdatedAt (list order) stays.
-	sc.Watch = &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer}
+	watch := &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer}
 	var u usage
 	u.trace(res.Prediction.Trace)
-	sc.Record(u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
-		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start))
-	return a.d.Cases.Put(ctx, *sc)
+	ev := u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
+		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start)
+	saved, err := a.d.Cases.Update(ctx, sc.ID, func(latest *store.Case) error {
+		latest.Watch = watch
+		latest.Record(ev)
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	*sc = saved
+	return nil
 }

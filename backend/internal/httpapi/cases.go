@@ -371,12 +371,18 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	}
 	ev := predictionEvent("answered", sc, start)
 	ev.Summary = fmt.Sprintf("%d answer(s) added; ", len(in.Answers)) + ev.Summary
-	sc.Record(ev)
-	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
+	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
+		latest.OriginalFacts, latest.Answers = sc.OriginalFacts, sc.Answers
+		latest.Facts, latest.UpdatedAt = sc.Facts, sc.UpdatedAt
+		latest.Prediction, latest.Router, latest.Triage, latest.Clarify = sc.Prediction, sc.Router, sc.Triage, sc.Clarify
+		latest.Record(ev)
+		return nil
+	})
+	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(sc))
+	a.respond(w, http.StatusOK, a.caseFields(saved))
 }
 
 // precedentRef is one earlier ruling the engine was shown, with CBP's held
@@ -416,7 +422,8 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
-		"scenarios": a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
+		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
+		"scenarios":    a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(c.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 	}
 }
@@ -470,6 +477,22 @@ func chatField(t []store.ChatTurn) []store.ChatTurn {
 		return []store.ChatTurn{}
 	}
 	return t
+}
+
+// citedRulingIDs is every ruling cited in the conversation, first mention first.
+func citedRulingIDs(chat []store.ChatTurn) []string {
+	seen := map[string]bool{}
+	ids := []string{}
+	for _, t := range chat {
+		for _, id := range t.Cited {
+			if id == "" || seen[id] {
+				continue
+			}
+			seen[id] = true
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }
 
 // targetsField is the ranked comparison without the full per-target results,
@@ -619,10 +642,14 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	c.Plan, c.UpdatedAt = &res, time.Now().UTC()
-	c.Economics = economicsFrom(in.Economics, c.Economics)
-	c.Record(a.planEvent(res))
-	if err := a.d.Cases.Put(r.Context(), c); err != nil {
+	ev := a.planEvent(res)
+	now := time.Now().UTC()
+	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		latest.Plan, latest.UpdatedAt = &res, now
+		latest.Economics = economicsFrom(in.Economics, latest.Economics)
+		latest.Record(ev)
+		return nil
+	}); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -726,10 +753,14 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		}
 	})
 	if err == nil {
-		c.Plan, c.UpdatedAt = &res, time.Now().UTC()
-		c.Economics = economicsFrom(req.Economics, c.Economics)
-		c.Record(a.planEvent(res))
-		err = a.d.Cases.Put(r.Context(), c)
+		ev := a.planEvent(res)
+		now := time.Now().UTC()
+		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			latest.Plan, latest.UpdatedAt = &res, now
+			latest.Economics = economicsFrom(req.Economics, latest.Economics)
+			latest.Record(ev)
+			return nil
+		})
 	}
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
@@ -825,7 +856,6 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := time.Now().UTC()
-	c.ExportedAt, c.UpdatedAt = &now, now
 	what := "current setup"
 	if chosen != nil {
 		what = chosen.Description
@@ -833,8 +863,11 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			what += fmt.Sprintf(" (below the bar, check %.2f)", ex.BelowBar.Confidence)
 		}
 	}
-	c.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
-	if err := a.d.Cases.Put(r.Context(), c); err != nil {
+	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		latest.ExportedAt, latest.UpdatedAt = &now, now
+		latest.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
+		return nil
+	}); err != nil {
 		a.fail(w, r, err)
 		return
 	}

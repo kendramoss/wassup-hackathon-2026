@@ -60,7 +60,7 @@ func TestAskReadsCaseRunsWhatIfAndChecksCitations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(ans.WhatIfs) != 1 || ans.WhatIfs[0].Origin != "Thailand" || len(e.seen) != 1 || !e.seen[0].Date.Equal(date) || e.seen[0].Exclude[0] != "N328954" {
+	if len(ans.WhatIfs) != 1 || ans.WhatIfs[0].Origin != "Thailand" || ans.WhatIfs[0].Facts != "Heat gun; motor made in Thailand." || len(e.seen) != 1 || !e.seen[0].Date.Equal(date) || e.seen[0].Exclude[0] != "N328954" {
 		t.Errorf("what-if = %+v, engine saw %+v", ans.WhatIfs, e.seen)
 	}
 	if strings.Join(ans.Cited, ",") != "N350001" || strings.Join(ans.Dropped, ",") != "N999999" {

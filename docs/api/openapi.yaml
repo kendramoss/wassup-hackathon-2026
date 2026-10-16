@@ -440,12 +440,12 @@ paths:
                       answer: { type: string }
                       cited_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer that the agent saw in a tool result or the case" }
                       dropped_rulings: { type: array, items: { type: string }, description: "ruling numbers in the answer it never saw (do not show as citations)" }
-                      what_ifs: { type: array, items: { type: object, properties: { change: { type: string }, origin: { type: string }, confidence: { type: number }, decisive_step: { type: string } } } }
-                      steps: { type: array, items: { type: object, properties: { tool: { type: string }, arg: { type: string } } } }
+                      what_ifs: { type: array, items: { $ref: "#/components/schemas/WhatIf" } }
+                      steps: { type: array, items: { $ref: "#/components/schemas/ChatStep" } }
                       model_calls: { type: integer }
                       trace: { type: object }
                   cited_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
-                  chat: { type: array, items: { type: object, properties: { question: { type: string }, answer: { type: string }, cited_rulings: { type: array, items: { type: string } }, at: { type: string, format: date-time } } } }
+                  chat: { type: array, items: { $ref: "#/components/schemas/ChatTurn" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
@@ -752,6 +752,29 @@ components:
           description: Optional money inputs, kept on the case for plan, scenarios and compare-targets calls that omit their own (also editable later with PUT /v1/cases/{id}/economics)
           allOf: [{ $ref: "#/components/schemas/Economics" }]
         display_name: { type: string, maxLength: 200, description: "Optional name for the case on Cases home (D48); batch rows pass their name here" }
+    WhatIf:
+      type: object
+      description: One re-run of the origin engine on revised facts
+      properties:
+        change: { type: string }
+        origin: { type: string }
+        confidence: { type: number }
+        decisive_step: { type: string }
+        facts: { type: string, description: The revised facts the engine re-ran }
+    ChatStep:
+      type: object
+      properties:
+        tool: { type: string }
+        arg: { type: string }
+    ChatTurn:
+      type: object
+      properties:
+        question: { type: string }
+        answer: { type: string }
+        cited_rulings: { type: array, items: { type: string } }
+        at: { type: string, format: date-time }
+        what_ifs: { type: array, items: { $ref: "#/components/schemas/WhatIf" } }
+        steps: { type: array, items: { $ref: "#/components/schemas/ChatStep" } }
     Prediction:
       type: object
       properties:
@@ -801,6 +824,14 @@ components:
               type: array
               description: The earlier rulings in prediction.precedents, in the same order, with CBP's held origin
               items: { $ref: "#/components/schemas/PrecedentRef" }
+            cited_detail:
+              type: array
+              description: Rulings cited in the conversation, first mention first, with CBP's held origin
+              items: { $ref: "#/components/schemas/PrecedentRef" }
+            chat:
+              type: array
+              description: Conversation with the case agent, oldest first (last 20). Each turn keeps its what-ifs and steps.
+              items: { $ref: "#/components/schemas/ChatTurn" }
             scenarios:
               type: array
               items:

@@ -78,3 +78,49 @@ func TestStoresDeleteAndPinnedFirst(t *testing.T) {
 		t.Errorf("path traversal not rejected: %v", err)
 	}
 }
+
+func TestUpdateAppliesOnlyItsChange(t *testing.T) {
+	f, err := NewFile(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	now := time.Now().UTC()
+	for _, s := range []Cases{NewMemory(), f} {
+		if err := s.Put(ctx, Case{ID: "case_a", Facts: "f", UpdatedAt: now}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := s.Update(ctx, "missing", func(*Case) error { return nil }); !errors.Is(err, ErrNotFound) {
+			t.Errorf("%T missing = %v", s, err)
+		}
+		if _, err := s.Update(ctx, "case_a", func(c *Case) error {
+			c.Facts = "nope"
+			return errors.New("stop")
+		}); err == nil {
+			t.Errorf("%T fn error was ignored", s)
+		}
+		if c, _ := s.Get(ctx, "case_a"); c.Facts != "f" {
+			t.Errorf("%T fn error wrote %q", s, c.Facts)
+		}
+		if _, err := s.Update(ctx, "case_a", func(c *Case) error {
+			c.Chat = append(c.Chat, ChatTurn{Question: "q", Answer: "a"})
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		exp := now
+		if _, err := s.Update(ctx, "case_a", func(c *Case) error {
+			c.ExportedAt = &exp
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		c, err := s.Get(ctx, "case_a")
+		if err != nil || c.Facts != "f" || c.ExportedAt == nil || len(c.Chat) != 1 || c.Chat[0].Question != "q" {
+			t.Errorf("%T merged = %+v %v", s, c, err)
+		}
+	}
+	if _, err := f.Update(ctx, "../etc/passwd", func(*Case) error { return nil }); !errors.Is(err, ErrNotFound) {
+		t.Errorf("path traversal not rejected: %v", err)
+	}
+}

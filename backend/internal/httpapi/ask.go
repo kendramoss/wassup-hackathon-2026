@@ -43,25 +43,32 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if in.Reset {
-		c.Chat = nil
-	}
 	q := strings.TrimSpace(in.Question)
 	if q == "" {
 		if !in.Reset {
 			a.fail(w, r, fmt.Errorf("%w: question is required", domain.ErrInvalid))
 			return
 		}
-		if err := a.d.Cases.Put(r.Context(), c); err != nil {
+		saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			latest.Chat = nil
+			return nil
+		})
+		if err != nil {
 			a.fail(w, r, err)
 			return
 		}
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "chat": []store.ChatTurn{}})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": saved.ID, "chat": chatField(saved.Chat)})
 		return
 	}
 	if len([]rune(q)) > 2000 {
 		a.fail(w, r, fmt.Errorf("%w: question is longer than 2,000 characters", domain.ErrInvalid))
 		return
+	}
+	// The model sees the conversation as it was when the question was
+	// asked. The saved turn is applied to whatever the case is when the
+	// answer comes back, so an export during the ask is not overwritten.
+	if in.Reset {
+		c.Chat = nil
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
 	hist := make([]caseagent.Turn, len(c.Chat))
@@ -74,21 +81,43 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	c.Chat = append(c.Chat, store.ChatTurn{Question: q, Answer: ans.Answer, Cited: ans.Cited, At: time.Now().UTC()})
-	if len(c.Chat) > MaxChat {
-		c.Chat = c.Chat[len(c.Chat)-MaxChat:]
-	}
+	turn := chatTurn(q, ans)
 	// Usage is the agent model's own calls; engine calls made by its
 	// what_if tool are not included.
 	var u usage
 	u.trace(ans.Trace)
-	c.Record(u.on(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
-		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion}, start))
-	if err := a.d.Cases.Put(r.Context(), c); err != nil { // asking is not case activity: updated_at stays
+	ev := u.on(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
+		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion}, start)
+	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if in.Reset {
+			latest.Chat = nil
+		}
+		latest.Chat = append(latest.Chat, turn)
+		if len(latest.Chat) > MaxChat {
+			latest.Chat = latest.Chat[len(latest.Chat)-MaxChat:]
+		}
+		latest.Record(ev) // asking is not case activity: updated_at stays
+		return nil
+	})
+	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "reply": ans, "cited_detail": a.precedentRefs(ans.Cited), "chat": c.Chat})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": saved.ID, "reply": ans, "cited_detail": a.precedentRefs(ans.Cited), "chat": chatField(saved.Chat)})
+}
+
+// chatTurn stores the answer with the what-ifs (including revised facts)
+// and the steps the agent took.
+func chatTurn(q string, ans caseagent.Answer) store.ChatTurn {
+	whats := make([]store.ChatWhatIf, len(ans.WhatIfs))
+	for i, w := range ans.WhatIfs {
+		whats[i] = store.ChatWhatIf{Change: w.Change, Origin: w.Origin, Confidence: w.Confidence, Decisive: w.Decisive, Facts: w.Facts}
+	}
+	steps := make([]store.ChatStep, len(ans.Steps))
+	for i, s := range ans.Steps {
+		steps[i] = store.ChatStep{Tool: s.Tool, Arg: s.Arg}
+	}
+	return store.ChatTurn{Question: q, Answer: ans.Answer, Cited: ans.Cited, At: time.Now().UTC(), WhatIfs: whats, Steps: steps}
 }
 
 // agentCaseText is what the agent's get_case tool returns.

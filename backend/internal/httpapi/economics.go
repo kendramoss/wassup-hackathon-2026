@@ -53,12 +53,16 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	c.Economics, c.UpdatedAt = &e, time.Now().UTC()
-	c.Record(store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
-		e.AnnualImportValueUSD, len(e.DutyRates), len(e.GroupCosts))})
-	if err := a.d.Cases.Put(r.Context(), c); err != nil {
+	now := time.Now().UTC()
+	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		latest.Economics, latest.UpdatedAt = &e, now
+		latest.Record(store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
+			e.AnnualImportValueUSD, len(e.DutyRates), len(e.GroupCosts))})
+		return nil
+	})
+	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"case_id": c.ID, "economics": c.Economics})
+	writeJSON(w, http.StatusOK, map[string]any{"case_id": saved.ID, "economics": saved.Economics})
 }

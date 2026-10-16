@@ -74,12 +74,14 @@ type Input struct {
 	Exclude []string
 }
 
-// WhatIf is one re-run of the engine on revised facts.
+// WhatIf is one re-run of the engine on revised facts. Facts is that
+// revision, so it can be saved with the turn and reused as a scenario (#115).
 type WhatIf struct {
 	Change     string  `json:"change"`
 	Origin     string  `json:"origin"`
 	Confidence float64 `json:"confidence"`
 	Decisive   string  `json:"decisive_step"`
+	Facts      string  `json:"facts,omitempty"`
 }
 
 // Step is one tool call.
@@ -205,7 +207,7 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 				return out{}, err
 			}
 			p := res.Prediction
-			w := WhatIf{Change: x.Change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep}
+			w := WhatIf{Change: x.Change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: facts}
 			mu.Lock()
 			ans.WhatIfs = append(ans.WhatIfs, w)
 			mu.Unlock()

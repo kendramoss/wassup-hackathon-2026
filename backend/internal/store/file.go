@@ -56,6 +56,42 @@ func (f *File) Put(_ context.Context, c Case) error {
 	return os.Rename(tmp, p)
 }
 
+// Update implements Cases. The write lock is held across the read, fn, and rename.
+func (f *File) Update(_ context.Context, id string, fn func(*Case) error) (Case, error) {
+	p, err := f.path(id)
+	if err != nil {
+		return Case{}, err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	b, err := os.ReadFile(p)
+	if errors.Is(err, fs.ErrNotExist) {
+		return Case{}, ErrNotFound
+	}
+	if err != nil {
+		return Case{}, fmt.Errorf("store: read %s: %w", id, err)
+	}
+	var c Case
+	if err := json.Unmarshal(b, &c); err != nil {
+		return Case{}, fmt.Errorf("store: decode %s: %w", id, err)
+	}
+	if err := fn(&c); err != nil {
+		return Case{}, err
+	}
+	b, err = json.Marshal(c)
+	if err != nil {
+		return Case{}, fmt.Errorf("store: encode %s: %w", id, err)
+	}
+	tmp := p + ".tmp"
+	if err := os.WriteFile(tmp, b, 0o644); err != nil {
+		return Case{}, fmt.Errorf("store: write %s: %w", id, err)
+	}
+	if err := os.Rename(tmp, p); err != nil {
+		return Case{}, err
+	}
+	return c, nil
+}
+
 // Get implements Cases.
 func (f *File) Get(_ context.Context, id string) (Case, error) {
 	p, err := f.path(id)

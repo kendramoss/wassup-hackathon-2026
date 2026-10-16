@@ -105,14 +105,23 @@ func (f *fakePlanner) Plan(_ context.Context, r planner.Request) (planner.Result
 }
 
 type fakeAgent struct {
-	mu   sync.Mutex
-	last caseagent.Input
+	mu    sync.Mutex
+	last  caseagent.Input
+	hold  chan struct{} // Ask signals entry, then waits for release
+	reply *caseagent.Answer
 }
 
 func (f *fakeAgent) Ask(_ context.Context, in caseagent.Input) (caseagent.Answer, error) {
+	if f.hold != nil {
+		f.hold <- struct{}{}
+		<-f.hold
+	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.last = in
+	if f.reply != nil {
+		return *f.reply, nil
+	}
 	return caseagent.Answer{Answer: "Because the motor is Chinese, as in N350001.", Cited: []string{"N350001"}, WhatIfs: []caseagent.WhatIf{}, Steps: []caseagent.Step{{Tool: "get_case"}}}, nil
 }
 
@@ -737,6 +746,81 @@ func TestAskKeepsConversation(t *testing.T) {
 	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":""}`); code != 400 {
 		t.Errorf("empty question %d", code)
+	}
+}
+
+// An export that finishes while Ask is still in the model must still be on
+// the case when the answer is saved (#111).
+func TestAskDoesNotClobberExport(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	hs.agent.hold = make(chan struct{})
+	type result struct {
+		code int
+		out  map[string]any
+	}
+	ch := make(chan result, 1)
+	go func() {
+		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why China?"}`)
+		ch <- result{code, out}
+	}()
+	<-hs.agent.hold
+	if code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", ""); code != 200 {
+		t.Fatalf("export during ask %d %v", code, ex)
+	}
+	hs.agent.hold <- struct{}{}
+	got := <-ch
+	if got.code != 200 || len(got.out["chat"].([]any)) != 1 {
+		t.Fatalf("ask %d %v", got.code, got.out)
+	}
+	_, after := hs.do(t, "GET", "/v1/cases/"+id, "")
+	chat, _ := after["chat"].([]any)
+	if after["step"] != "export" || len(chat) != 1 {
+		t.Fatalf("case after both: step %v chat %v", after["step"], after["chat"])
+	}
+}
+
+func TestAskStoresWhatIfsStepsAndCitedDetail(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	hs.agent.reply = &caseagent.Answer{
+		Answer: "Moving the motor would make it Thailand.",
+		Cited:  []string{"N350009"},
+		WhatIfs: []caseagent.WhatIf{{
+			Change: "motor in Thailand", Origin: "Thailand", Confidence: 0.91,
+			Decisive: "The motor is made in Thailand.", Facts: "Heat gun; motor made in Thailand.",
+		}},
+		Steps: []caseagent.Step{{Tool: "what_if", Arg: "motor in Thailand"}},
+	}
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"What if the motor were made in Thailand?"}`)
+	if code != 200 {
+		t.Fatalf("ask %d %v", code, out)
+	}
+	turn := out["chat"].([]any)[0].(map[string]any)
+	w := turn["what_ifs"].([]any)[0].(map[string]any)
+	step := turn["steps"].([]any)[0].(map[string]any)
+	if w["facts"] != "Heat gun; motor made in Thailand." || w["origin"] != "Thailand" || step["tool"] != "what_if" {
+		t.Fatalf("stored turn = %v", turn)
+	}
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	again := got["chat"].([]any)[0].(map[string]any)
+	if again["what_ifs"].([]any)[0].(map[string]any)["facts"] != "Heat gun; motor made in Thailand." {
+		t.Fatalf("reloaded turn = %v", again)
+	}
+	var cited bool
+	for _, d := range got["cited_detail"].([]any) {
+		m := d.(map[string]any)
+		if m["id"] == "N350009" && m["subject"] == "Air fryer" {
+			cited = true
+		}
+	}
+	if !cited {
+		t.Errorf("cited_detail = %v", got["cited_detail"])
+	}
+	if got["updated_at"] != c["updated_at"] {
+		t.Errorf("ask moved updated_at from %v to %v", c["updated_at"], got["updated_at"])
 	}
 }
 

@@ -72,6 +72,45 @@ func (f *Firestore) Put(ctx context.Context, c Case) error {
 	return nil
 }
 
+// Update implements Cases. fn runs inside a transaction, so two writers
+// each apply their own change to the latest case instead of one Set
+// replacing the other.
+func (f *Firestore) Update(ctx context.Context, id string, fn func(*Case) error) (Case, error) {
+	if !caseIDPattern.MatchString(id) {
+		return Case{}, ErrNotFound
+	}
+	var out Case
+	err := f.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		snap, err := tx.Get(f.col.Doc(id))
+		if status.Code(err) == codes.NotFound {
+			return ErrNotFound
+		}
+		if err != nil {
+			return err
+		}
+		c, err := decodeSnapshot(snap)
+		if err != nil {
+			return err
+		}
+		if err := fn(&c); err != nil {
+			return err
+		}
+		b, err := gzipJSON(c)
+		if err != nil {
+			return fmt.Errorf("store: encode %s: %w", id, err)
+		}
+		out = c
+		return tx.Set(f.col.Doc(id), firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Case: b})
+	})
+	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return Case{}, ErrNotFound
+		}
+		return Case{}, fmt.Errorf("store: update %s: %w", id, err)
+	}
+	return out, nil
+}
+
 // Get implements Cases.
 func (f *Firestore) Get(ctx context.Context, id string) (Case, error) {
 	if !caseIDPattern.MatchString(id) {
