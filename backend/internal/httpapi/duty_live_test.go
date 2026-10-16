@@ -171,3 +171,27 @@ func TestPlanLiveMFNFallsBackQuietly(t *testing.T) {
 		t.Errorf("fully priced plan = %d, %d new fetches", code, calls.Load()-n)
 	}
 }
+
+// A reshoring target of the United States is not imported, so it gets no
+// MFN rate and does not by itself send the plan to the HTS.
+func TestPlanLiveMFNSkipsUSOrigin(t *testing.T) {
+	live, calls := fakeHTS(t)
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.LiveMFN = live })
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunWithHTS(t, "8516.79.00"))
+	id := c["id"].(string)
+	body := `{"target":"United States","economics":{"illustrative":true,"annual_import_value_usd":1000000,"duty_rates":{"Thailand":0.2,"China":0.3}}}`
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/plan", body); code != http.StatusOK {
+		t.Fatalf("plan = %d %v", code, out)
+	}
+	if e := hs.planner.got.Economics; calls.Load() != 0 || len(e.DutyRates) != 2 || len(e.DutyRatesLiveMFN) != 0 {
+		t.Errorf("US target: %d fetches, rates = %v live = %v", calls.Load(), e.DutyRates, e.DutyRatesLiveMFN)
+	}
+	body = `{"target":"USA","economics":{"illustrative":true,"annual_import_value_usd":1000000,"duty_rates":{"Thailand":0.2}}}`
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/plan", body); code != http.StatusOK {
+		t.Fatalf("plan = %d %v", code, out)
+	}
+	e := hs.planner.got.Economics
+	if e.DutyRates["China"] != 0.027 || len(e.DutyRates) != 2 || strings.Join(e.DutyRatesLiveMFN, ",") != "China" {
+		t.Errorf("US target filled: rates = %v live = %v", e.DutyRates, e.DutyRatesLiveMFN)
+	}
+}

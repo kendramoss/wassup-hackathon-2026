@@ -744,12 +744,12 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 	return e
 }
 
-// missingRate reports whether any of origins has no duty rate (column 2
-// origins never get a live rate, so they do not count).
+// missingRate reports whether any of origins has no duty rate (column 2 and
+// US origins never get a live rate, so they do not count).
 func missingRate(e planner.Economics, origins []string) bool {
 	for _, o := range origins {
 		n := domain.NormalizeCountry(o)
-		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.Column2[n] {
+		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.NoLiveRate(n) {
 			return true
 		}
 	}

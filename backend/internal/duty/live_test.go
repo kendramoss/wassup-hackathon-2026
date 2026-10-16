@@ -235,6 +235,12 @@ func TestMFNFill(t *testing.T) {
 			t.Errorf("note %q lacks %q", note, want)
 		}
 	}
+	// A US plant, current origin or reshoring target is not imported: no
+	// MFN rate for it, however the country is written.
+	us, filled := m.Fill(nil, []string{"USA", "United States", "u.s.", "Puerto Rico", "Mexico"})
+	if len(us) != 1 || us["Mexico"] != 0.042 || strings.Join(filled, ",") != "Mexico" {
+		t.Errorf("US origins filled: %v %v", us, filled)
+	}
 	compound := MFN{HTS: "6505.00.90", General: "20.7¢/kg + 7.5%", Note: "general rate is specific or compound"}
 	if out, filled := compound.Fill(nil, []string{"China"}); out != nil || filled != nil {
 		t.Errorf("unsupported rate filled: %v %v", out, filled)

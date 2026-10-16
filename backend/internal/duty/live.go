@@ -267,9 +267,20 @@ func roundRate(r float64) float64 { return math.Round(r*1e6) / 1e6 }
 // trade relations. A live MFN rate is never filled for them.
 var Column2 = map[string]bool{"Cuba": true, "North Korea": true, "Russia": true, "Russian Federation": true, "Belarus": true}
 
+// customsTerritory is where the goods are imported to: the customs territory
+// of the United States (HTS General Note 2: the states, DC and Puerto Rico).
+// Goods made there are not imported, so they owe no MFN duty on entry.
+var customsTerritory = map[string]bool{"United States": true, "Puerto Rico": true}
+
+// NoLiveRate reports whether a live MFN rate must never be filled for the
+// normalised origin n: a column 2 origin, or a US one. A US plant or target
+// is left unpriced (rather than given the import rate) so a plan never shows
+// an MFN duty on goods that are not imported.
+func NoLiveRate(n string) bool { return Column2[n] || customsTerritory[n] }
+
 // Fill returns rates with the MFN rate added for each origin the user gave
-// no rate for, except column 2 origins. It reports the origins it filled;
-// nothing is filled unless the rate is Supported.
+// no rate for, except column 2 and US origins (NoLiveRate). It reports the
+// origins it filled; nothing is filled unless the rate is Supported.
 func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float64, []string) {
 	if !m.Supported || m.Rate == nil {
 		return rates, nil
@@ -283,7 +294,7 @@ func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float6
 	var filled []string
 	for _, o := range origins {
 		n := domain.NormalizeCountry(o)
-		if n == "" || given[n] || Column2[n] {
+		if n == "" || given[n] || NoLiveRate(n) {
 			continue
 		}
 		given[n] = true

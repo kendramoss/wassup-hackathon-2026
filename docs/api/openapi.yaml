@@ -929,7 +929,7 @@ components:
         duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
         duty_rates_note: { type: string }
         duty_rates_from_table: { type: array, items: { type: string }, description: "Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52)" }
-        duty_rates_live_mfn: { type: array, items: { type: string }, description: "Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win). MFN only: Section 301, forced-labor and 232 duties are not included (D65)" }
+        duty_rates_live_mfn: { type: array, items: { type: string }, description: "Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win; never column 2 or US origins). MFN only: Section 301, forced-labor and 232 duties are not included (D65)" }
         group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
     PlanRequest:
       type: object
