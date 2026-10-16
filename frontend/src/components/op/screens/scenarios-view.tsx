@@ -5,7 +5,7 @@ import { api, type CaseResponse, type Product, type Scenario } from "@/lib/api/c
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main } from "../chrome";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
@@ -101,7 +101,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         {!editing && sc.length > 0 && product && <Matrix sc={sc} c={c} />}
       </Main>
       <Footer>
-        <span className="text-xs text-dim">{copy.money}</span>
+        <Next>{product?.plants?.length ? "Search precedent-checked plans for the move that looks best." : "Compare what-ifs, then add parts and plants to search real plans."}</Next>
         <div className="ml-auto">
           {product?.plants?.length ? <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan`}>Search plans →</ButtonLink> : null}
         </div>

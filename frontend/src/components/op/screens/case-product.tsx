@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { stepIndex } from "@/lib/format";
 import { CaseShell } from "../case-shell";
-import { Footer, Main } from "../chrome";
+import { Footer, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { ButtonLink, Country, Panel, PanelHead, Spinner } from "../ui";
 
@@ -42,6 +42,7 @@ export function CaseProduct() {
             </Panel>
           </Main>
           <Footer>
+            <Next>See the likely origin and the earlier rulings behind it.</Next>
             <div className="ml-auto">
               <ButtonLink href={`/cases/${encodeURIComponent(id)}/origin`}>Likely origin →</ButtonLink>
             </div>

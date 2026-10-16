@@ -7,10 +7,10 @@ import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main } from "../chrome";
+import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
-import { Button, ButtonLink, Chip, Country, Dimension, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
   return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
@@ -197,6 +197,17 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
         )}
       </Main>
       <Footer>
+        <Next>
+          {searching
+            ? "Checking each move against earlier CBP rulings. Usually ~30 s."
+            : best
+              ? "Draft the ruling request for your broker."
+              : closest
+                ? "Draft for the closest move (the letter says it's below the bar), or try scenarios."
+                : result
+                  ? "Try scenarios or another country: no move found support."
+                  : `Search moves to ${target}.`}
+        </Next>
         {result?.stats ? <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} /> : null}
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
           {searching && (
@@ -413,24 +424,20 @@ function WhySupported({ plan }: { plan: Plan }) {
 }
 
 function MoneyDrawer({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
-  const close = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    close.current?.focus();
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", esc);
-    return () => document.removeEventListener("keydown", esc);
-  }, [onClose]);
   return (
-    <div role="dialog" aria-modal="false" aria-label="Money inputs" className="fixed inset-x-0 bottom-0 top-[108px] z-30 flex flex-col border-l border-edge bg-sheet shadow-[-4px_0_0_var(--shadow)] sm:left-auto sm:w-[600px]">
-      <div className="flex items-center gap-3 border-b border-dashed border-guide px-5 py-3.5 text-[11px] uppercase tracking-[0.08em] text-dim">
-        <b className="font-medium text-ink">◆ Money inputs</b>
-        <span>illustrative — editable</span>
-        <button ref={close} type="button" aria-label="Close" className="ml-auto px-1 text-base text-dim hover:text-ink" onClick={onClose}>
-          ✕
-        </button>
-      </div>
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-5">{children}</div>
-    </div>
+    <Drawer
+      label="Money inputs"
+      onClose={onClose}
+      width={600}
+      header={
+        <>
+          <b className="font-medium text-ink">◆ Money inputs</b>
+          <span>illustrative — editable</span>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4 p-5">{children}</div>
+    </Drawer>
   );
 }
 

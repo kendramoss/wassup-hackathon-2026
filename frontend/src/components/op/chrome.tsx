@@ -140,7 +140,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
         {title} <span aria-hidden="true">▾</span>
       </button>
       {open && (
-        <div className="absolute right-0 z-20 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+        <div className="absolute right-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <ul>
             {(cases ?? []).filter((c) => c.id !== caseId).slice(0, 6).map((c) => (
               <li key={c.id}>
@@ -241,4 +241,14 @@ export function Elapsed({ since }: { since: number }) {
     return () => clearInterval(t);
   }, []);
   return <span className="font-mono">{Math.max(0, Math.round((now - since) / 1000))} s</span>;
+}
+
+// The next course of action, said in words at the left of the action bar.
+export function Next({ children }: { children: ReactNode }) {
+  return (
+    <p className="duo min-w-0 text-[13px] text-body">
+      <span className="mr-2 text-[10.5px] font-medium uppercase tracking-[0.08em] text-ok">Next</span>
+      {children}
+    </p>
+  );
 }

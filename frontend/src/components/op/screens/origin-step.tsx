@@ -6,7 +6,7 @@ import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main } from "../chrome";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Country, Dimension, Flag, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
@@ -78,8 +78,16 @@ function Result({ id, c, setCase }: CaseCtx) {
         </aside>
       </Main>
       <Footer>
+        <Next>
+          {!c.product?.plants?.length
+            ? "Add parts and plants on the Product tab to plan a move."
+            : c.clarify?.questions?.length
+              ? `Answer a question below to sharpen this, or plan a move to ${target ?? "another country"}.`
+              : route === "auto"
+                ? `Plan a move to ${target ?? "another country"}, or try a what-if.`
+                : `Plan a move to ${target ?? "another country"}, or have a broker review this origin.`}
+        </Next>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
-          {c.clarify?.questions?.length ? <span className="hidden text-xs text-dim sm:inline">{copy.result.optional}</span> : null}
           {c.product?.plants?.length ? (
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan${target ? `?target=${encodeURIComponent(target)}` : ""}`}>
               Plan a move{target ? <> to <Flag country={target} size={12} /> {target}</> : null} →

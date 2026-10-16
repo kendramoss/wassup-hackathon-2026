@@ -1,7 +1,9 @@
+"use client";
+
 // Drawing-sheet primitives (DESIGN.md step 3): spec-dialog panels with hard
 // offset shadows, 2 px corners, the confidence ruler with the 0.92 bar, flags.
 import Link from "next/link";
-import type { ComponentProps, ReactNode } from "react";
+import { useEffect, useRef, type ComponentProps, type ReactNode } from "react";
 import { flagCodes } from "@/lib/countries";
 import { BAR, conf } from "@/lib/format";
 
@@ -216,5 +218,65 @@ export function RulingLink({ id, className }: { id: string; className?: string }
     >
       {id}
     </a>
+  );
+}
+
+// A right-hand drawer that is a real modal: full height above everything
+// (no half-covered action bar), a dimmed backdrop that closes it, focus kept
+// inside while open and returned to the opener on close (WCAG 2.4.3, 2.1.2).
+export function Drawer({ label, onClose, width = 540, header, footer, children }: { label: string; onClose: () => void; width?: number; header: ReactNode; footer?: ReactNode; children: ReactNode }) {
+  const panel = useRef<HTMLDivElement>(null);
+  // Screens pass a new onClose each render; keep the latest without
+  // re-running the open/close effect (which moves focus).
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  });
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const first = panel.current?.querySelector<HTMLElement>("button, a[href], input, textarea, select");
+    first?.focus();
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close.current();
+      if (e.key !== "Tab" || !panel.current) return;
+      const f = [...panel.current.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), textarea, select, summary")];
+      if (f.length === 0) return;
+      if (e.shiftKey && document.activeElement === f[0]) {
+        e.preventDefault();
+        f[f.length - 1].focus();
+      } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+        e.preventDefault();
+        f[0].focus();
+      }
+    };
+    document.addEventListener("keydown", key);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", key);
+      document.body.style.overflow = "";
+      opener?.focus();
+    };
+  }, []);
+  return (
+    <div className="fixed inset-0 z-50">
+      <button type="button" aria-label="Close" tabIndex={-1} className="absolute inset-0 h-full w-full cursor-default bg-ink/30" onClick={onClose} />
+      <div
+        ref={panel}
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-edge bg-sheet shadow-[-4px_0_0_var(--shadow)]"
+        style={{ maxWidth: width }}
+      >
+        <div className="flex items-center gap-3 border-b border-dashed border-guide px-5 py-3.5 text-[11px] uppercase tracking-[0.08em] text-dim">
+          {header}
+          <button type="button" aria-label="Close" className="ml-auto inline-grid size-8 place-items-center text-base text-dim hover:text-ink" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        {footer}
+      </div>
+    </div>
   );
 }

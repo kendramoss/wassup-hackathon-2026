@@ -5,7 +5,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { api, type Component, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
-import { CaseTabs, ErrorBox, Footer, Main } from "../chrome";
+import { CaseTabs, ErrorBox, Footer, Main, Next } from "../chrome";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -226,7 +226,7 @@ export function ProductStep() {
         </div>
       </Main>
       <Footer>
-        <span className="text-xs text-dim">Nothing is analysed until you continue</span>
+        <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
         <div className="ml-auto flex items-center gap-3">
           {busy ? (
             <Spinner label={copy.product.working} />
@@ -472,6 +472,7 @@ function BomImport({
   const inputId = useId();
 
   const upload = async (f: File) => {
+    const productName = name.trim() || f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
     setFile(f);
     setBusy(true);
     setError(null);
@@ -480,7 +481,7 @@ function BomImport({
     if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
       try {
         const { csv } = await pdfToBomCsv(f);
-        onImported(await api.importCsv({ csv, name: name || undefined, family: family || undefined }));
+        onImported(await api.importCsv({ csv, name: productName, family: family || undefined }));
       } catch (e) {
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
@@ -491,7 +492,7 @@ function BomImport({
     }
     const form = new FormData();
     form.append("file", f);
-    if (name) form.append("name", name);
+    form.append("name", productName);
     if (family) form.append("family", family);
     try {
       onImported(await api.importBom(form));

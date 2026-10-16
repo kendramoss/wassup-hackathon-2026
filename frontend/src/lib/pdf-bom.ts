@@ -69,18 +69,20 @@ function csvCell(v: string) {
 
 export async function pdfToBomCsv(file: File): Promise<{ csv: string; rows: number }> {
   const { pages, text } = await readItems(file);
-  let columns: { key: string; x: number }[] | null = null;
+  // Every header cell is a column (so "Line", "Part no." and "Qty" keep their
+  // x ranges); only the importer's columns are written out. A line with text
+  // in the first column starts a row; any other line continues the row above
+  // (wrapped cells, or cells on a slightly different baseline).
+  let columns: { key: string | null; x: number }[] | null = null;
   const rows: string[][] = [];
   for (const items of pages) {
     for (const line of groupLines(items)) {
-      const keys = line.map((i) => ({ key: canonical(i.str), x: i.x }));
-      const header = keys.filter((k): k is { key: string; x: number } => k.key !== null);
-      if (header.length >= 2 && header.some((h) => h.key === "name") && header.some((h) => h.key === "country")) {
-        columns = header; // a repeated header on the next page resets nothing
+      const keys = line.map((i) => canonical(i.str));
+      if (keys.includes("name") && keys.includes("country")) {
+        columns = line.map((i, k) => ({ key: keys[k], x: i.x }));
         continue;
       }
       if (!columns) continue;
-      // Each item belongs to the last column that starts at or left of it.
       const cells = columns.map(() => "");
       for (const it of line) {
         let c = 0;
@@ -96,9 +98,13 @@ export async function pdfToBomCsv(file: File): Promise<{ csv: string; rows: numb
       }
     }
   }
-  if (!columns || rows.length === 0) {
+  const keep = (columns ?? []).map((c, k) => ({ key: c.key, k })).filter((c): c is { key: string; k: number } => c.key !== null);
+  // Drop trailing text after the table (a footer note has no country).
+  const country = keep.find((c) => c.key === "country")?.k ?? -1;
+  const body = rows.filter((r) => r[country]?.trim());
+  if (!columns || body.length === 0) {
     throw new PdfTableError("This PDF has no table with name and country columns.", text);
   }
-  const csv = [columns.map((c) => c.key).join(","), ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
-  return { csv, rows: rows.length };
+  const csv = [keep.map((c) => c.key).join(","), ...body.map((r) => keep.map((c) => csvCell(r[c.k] ?? "")).join(","))].join("\n");
+  return { csv, rows: body.length };
 }

@@ -5,7 +5,7 @@ import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf }
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { Elapsed, ErrorBox } from "./chrome";
-import { Button, Country, Flag, RulingLink, Ruler, cx } from "./ui";
+import { Button, Country, Drawer, Flag, RulingLink, Ruler, cx } from "./ui";
 import { planTarget } from "./plan-target";
 
 type Turn = ChatTurn & { whatIfs?: WhatIf[]; steps?: { tool?: string; arg?: string }[]; calls?: number };
@@ -28,13 +28,11 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
 
   useEffect(() => {
     input.current?.focus();
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", esc);
+
     return () => {
-      document.removeEventListener("keydown", esc);
       abort.current?.abort();
     };
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     log.current?.scrollTo({ top: log.current.scrollHeight });
@@ -79,27 +77,21 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
   const suggestions = [`Why not ${target}?`, `What if the motor-fan assembly were made in ${target}?`, "Which ruling matters most?"];
 
   return (
-    <div
-      role="dialog"
-      aria-modal="false"
-      aria-label={copy.result.ask}
-      className="fixed inset-x-0 bottom-0 top-[108px] z-30 flex flex-col border-l border-edge bg-sheet shadow-[-4px_0_0_var(--shadow)] sm:left-auto sm:w-[540px]"
-    >
-      <div className="flex items-center gap-3 border-b border-dashed border-guide px-5 py-3.5 text-[11px] uppercase tracking-[0.08em] text-dim">
-        <b className="font-medium text-ink">◆ {copy.result.ask}</b>
-        <div className="ml-auto flex items-center gap-3 text-xs normal-case tracking-normal">
+    <Drawer
+      label={copy.result.ask}
+      onClose={onClose}
+      header={
+        <>
+          <b className="font-medium text-ink">◆ {copy.result.ask}</b>
           {turns.length > 0 && (
-            <button type="button" className="text-ok hover:underline" onClick={reset}>
+            <button type="button" className="ml-auto text-xs normal-case tracking-normal text-ok hover:underline" onClick={reset}>
               Clear conversation
             </button>
           )}
-          <button type="button" aria-label="Close" className="px-1 text-base text-dim hover:text-ink" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <div ref={log} className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-4" aria-live="polite">
+        </>
+      }
+    >
+      <div ref={log} className="flex h-full flex-col gap-5 overflow-y-auto px-5 py-4" aria-live="polite">
         {turns.length === 0 && !pending && (
           <p className="duo text-[13px] text-dim">
             Ask why the engine landed where it did, or try a change (&ldquo;what if …&rdquo;). The agent reads this case and earlier CBP rulings dated before{" "}
@@ -164,7 +156,7 @@ export function AskDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void
           Ask
         </Button>
       </form>
-    </div>
+    </Drawer>
   );
 }
 

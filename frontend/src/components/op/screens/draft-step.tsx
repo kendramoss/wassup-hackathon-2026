@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type ExportResponse } from "@/lib/api/client";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { ErrorBox, Footer, Main } from "../chrome";
+import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { Button, Panel, PanelHead, Spinner } from "../ui";
 
 export function DraftStep() {
@@ -134,6 +134,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
         </div>
       </Main>
       <Footer>
+        <Next>Fill in the requester, then print or download the letter and send it to your customs broker.</Next>
         <div className="ml-auto flex flex-wrap gap-2.5">
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown
