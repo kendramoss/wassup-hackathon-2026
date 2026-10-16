@@ -106,7 +106,7 @@ export const api = {
   answers: (id: string, answers: { question: string; answer: string }[]) =>
     post<CaseResponse>(`/cases/${enc(id)}/answers`, { answers }),
   plan: (id: string, body: PlanRequest) => post<{ case_id?: string; plan?: PlanResult }>(`/cases/${enc(id)}/plan`, body),
-  exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string }) =>
+  exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string; preview?: boolean }) =>
     post<ExportResponse>(`/cases/${enc(id)}/export`, body),
   scenarios: (id: string, body: { scenarios: { label?: string; facts?: string; product?: Product }[]; economics?: Economics }) =>
     post<CaseResponse>(`/cases/${enc(id)}/scenarios`, body),

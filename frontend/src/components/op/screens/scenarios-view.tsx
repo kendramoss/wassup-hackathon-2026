@@ -37,16 +37,25 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     [product],
   );
   const origin = c.prediction?.origin_country;
-  const other = product?.plants?.find((p) => p.country !== origin)?.id ?? product?.plants?.[0]?.id ?? "";
+  const otherPlant = product?.plants?.find((p) => p.country !== origin) ?? product?.plants?.[0];
+  const other = otherPlant?.id ?? "";
+  // Only groups that are not already made at that plant: moving the rest
+  // changes nothing (#83, the heat gun's housing and heating element).
+  const movable = groups.filter((g) =>
+    [...(product?.components ?? []), ...(product?.operations ?? [])].some((x) => x.group === g && x.plant !== other),
+  );
+  const to = otherPlant?.country ? ` to ${otherPlant.country}` : "";
   // "Add as a scenario" from Ask: the what-if becomes a facts draft, kept
   // beside the first two so the case stays at three scenarios at most.
   const add = useSearchParams().get("add")?.trim();
   const [drafts, setDrafts] = useState<Draft[]>(() => {
     const base: Draft[] = product?.plants?.length
       ? [
-          { label: "As today", mode: "move", groups: [], plant: other, facts: "" },
-          { label: `${groupName(groups[0])} moved`, mode: "move", groups: groups.slice(0, 1), plant: other, facts: "" },
-          { label: `${groupName(groups[0])} + ${groupName(groups[1])} moved`, mode: "move", groups: groups.slice(0, 2), plant: other, facts: "" },
+          { label: "As today", mode: "move" as const, groups: [], plant: other, facts: "" },
+          ...(movable.length >= 1 ? [{ label: `${groupName(movable[0])} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
+          ...(movable.length >= 2
+            ? [{ label: `${groupName(movable[0])} + ${groupName(movable[1])} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
+            : []),
         ]
       : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];
     if (!add) return base;
@@ -89,10 +98,11 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
       <Main className="flex flex-col gap-8">
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <p className="eyebrow">Origin · What if…</p>
+            <p className="eyebrow">Optional · Try scenarios</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Scenarios side by side</h1>
             <p className="duo mt-1 max-w-[80ch] text-sm text-dim">
-              Your own what-ifs, each predicted by the origin engine. The case&apos;s answer doesn&apos;t change. For a searched, precedent-checked change, use Plan.
+              Try your own changes and see the likely origin of each, side by side. The case&apos;s answer doesn&apos;t change. You don&apos;t need this step:
+              Plan searches the moves for you and checks each against earlier rulings.
             </p>
           </div>
           {!editing && (

@@ -47,7 +47,7 @@ export const copy = {
     keyFactors: "Key factor",
     rulings: "Earlier CBP rulings read",
     ask: "Ask about this case",
-    scenarios: "What if…",
+    scenarios: "Try scenarios",
   },
 
   plan: {

@@ -263,8 +263,10 @@ function Compare({ id, c }: CaseCtx) {
           )}
           {top?.best && (top.status === "plan" || top.status === "below_bar") && !since ? (
             <Button onClick={() => draft(top)}>Draft for {top.target} →</Button>
+          ) : since ? null : top ? (
+            <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : (
-            <Button disabled>Draft this plan →</Button>
+            <span className="text-xs text-dim">Compare first, then draft the best plan</span>
           )}
         </div>
       </Footer>
