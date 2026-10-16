@@ -266,6 +266,14 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
   );
 }
 
+// "No change" is the baseline, not a move: "3 more moves and No change"
+// keeps the count in line with "Moves searched" (#90).
+function moreLabel(hidden: number, withBaseline: boolean): string {
+  const moves = withBaseline ? hidden - 1 : hidden;
+  if (!withBaseline) return `${moves} more ${moves === 1 ? "move" : "moves"}`;
+  return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and No change` : "Show No change";
+}
+
 function Band({ children, left, right }: { children: React.ReactNode; left: string; right?: string }) {
   return (
     <section aria-label="Plan summary" className="border-b border-dashed border-guide">
@@ -555,7 +563,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
       </div>
       {every.length > 3 && (
         <button type="button" className="mt-2 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          {open ? "Show the top 3" : `${every.length - 3} more moves`}
+          {open ? "Show the top 3" : moreLabel(every.length - 3, noChange.length > 0)}
         </button>
       )}
       {open && result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}

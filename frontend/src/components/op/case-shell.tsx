@@ -2,7 +2,8 @@
 
 import { useParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import type { CaseResponse } from "@/lib/api/client";
+import Link from "next/link";
+import { ApiError, type CaseResponse } from "@/lib/api/client";
 import { formatDate, stepIndex } from "@/lib/format";
 import { caseTitle, useCase } from "@/lib/use-case";
 import { ActionSlotProvider } from "./action-bar";
@@ -29,18 +30,34 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
   const { data, error, reload, setData } = useCase(id);
   const [asking, setAsking] = useState(false);
   const step = tabStep[tab];
+  const gone = error instanceof ApiError && error.status === 404;
   const reached = data ? (stepIndex[data.step ?? "origin"] ?? 2) : step;
   const title = data ? (
     <>
       {caseTitle(data)} <span className="text-dim">· {formatDate(data.date)}</span>
     </>
+  ) : gone ? (
+    "Case not found"
   ) : (
     "Loading…"
   );
   return (
     <ActionSlotProvider>
-      <CaseTabs caseId={id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country ? () => setAsking(true) : undefined} />
-      {error ? (
+      <CaseTabs caseId={gone ? undefined : id} current={tab} reached={Math.max(reached, step)} title={title} onAsk={data?.prediction?.origin_country ? () => setAsking(true) : undefined} />
+      {gone ? (
+        // A deleted case or a mistyped link: say so and offer the way back (#88).
+        <Main className="flex flex-col gap-3">
+          <h1 className="text-xl tracking-[-0.04em]">Case not found</h1>
+          <p className="duo max-w-[72ch] text-sm text-dim">
+            There is no case <span className="font-mono">{id}</span>. It may have been deleted, or the link is incomplete.
+          </p>
+          <p>
+            <Link href="/" className="text-sm text-ok underline underline-offset-2">
+              ← Back to your cases
+            </Link>
+          </p>
+        </Main>
+      ) : error ? (
         <Main>
           <ErrorBox error={error} onRetry={reload} />
         </Main>

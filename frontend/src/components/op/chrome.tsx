@@ -69,7 +69,7 @@ export function CaseTabs({
         {tabs.map((t) => {
           const on = t.key === current;
           const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
-          const done = !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
+          const done = Boolean(caseId) && !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
           const cls = cx(
             "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
             on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-transparent text-dim",
