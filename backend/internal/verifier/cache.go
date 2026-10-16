@@ -5,11 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/fs"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"os"
-	"path/filepath"
 	"slices"
 	"time"
 )
@@ -19,45 +17,12 @@ type Checker interface {
 	Verify(ctx context.Context, t Task) (Result, error)
 }
 
-// Blobs stores cached verdicts by key. DirBlobs keeps them on local disk;
-// store.FirestoreBlobs shares them between Cloud Run instances and survives
-// restarts (D50).
-type Blobs interface {
-	Get(ctx context.Context, key string) ([]byte, bool, error)
-	Put(ctx context.Context, key string, b []byte) error
-}
+// Blobs stores cached verdicts by key (blob.Dir on disk, store.FirestoreBlobs
+// shared between Cloud Run instances, D50).
+type Blobs = blob.Store
 
 // DirBlobs stores each blob as <dir>/<key>.json.
-type DirBlobs struct{ Dir string }
-
-// Get implements Blobs.
-func (d DirBlobs) Get(_ context.Context, key string) ([]byte, bool, error) {
-	b, err := os.ReadFile(filepath.Join(d.Dir, key+".json"))
-	if errors.Is(err, fs.ErrNotExist) {
-		return nil, false, nil
-	}
-	if err != nil {
-		return nil, false, err
-	}
-	return b, true, nil
-}
-
-// Put implements Blobs (atomically: write a temp file, then rename).
-func (d DirBlobs) Put(_ context.Context, key string, b []byte) error {
-	tmp, err := os.CreateTemp(d.Dir, ".tmp-*")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmp.Name())
-	if _, err := tmp.Write(b); err != nil {
-		tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	return os.Rename(tmp.Name(), filepath.Join(d.Dir, key+".json"))
-}
+type DirBlobs = blob.Dir
 
 // Cache stores verdicts so the same task gets the same verdict on every run.
 // The model is called at temperature 0, but the agent's tool path still

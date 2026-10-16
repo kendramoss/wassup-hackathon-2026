@@ -14,6 +14,9 @@ type Trace struct {
 	InputTokens   int    `json:"input_tokens"`
 	OutputTokens  int    `json:"output_tokens"`
 	LatencyMS     int64  `json:"latency_ms"`
+	// Cached is true when the prediction was replayed from the engine cache
+	// (D54): no model call, no tokens.
+	Cached bool `json:"cached,omitempty"`
 }
 
 // Prediction is the origin the engine expects CBP to assign.

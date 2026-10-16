@@ -19,7 +19,7 @@ func TestDefaults(t *testing.T) {
 	}
 	if c.LLMProvider != ProviderVertex || c.EngineModel != "gemini-4-argon" || c.RouterModel != "gemini-3.8-flash" ||
 		c.PrecedentK != 5 || c.FastPathConfidence != 0.92 || c.PlanConfidence != 0.92 || c.VerifierMaxToolCalls != 6 ||
-		c.LLMTimeout != 90*time.Second || c.GCPLocation != "global" || c.Port != "8080" {
+		c.LLMTimeout != 30*time.Second || c.GCPLocation != "global" || c.Port != "8080" {
 		t.Errorf("unexpected defaults: %+v", c)
 	}
 	if c.RateLightPerMin != 20 || c.RateHeavyPerMin != 4 || c.RateGlobalPerMin != 120 || c.AdminToken != "" {

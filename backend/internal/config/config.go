@@ -129,7 +129,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		EngineModel:          e.str("ENGINE_MODEL", "gemini-4-argon"),
 		RouterModel:          e.str("ROUTER_MODEL", "gemini-3.8-flash"),
 		VerifierModel:        e.str("VERIFIER_MODEL", "gemini-4-argon"),
-		LLMTimeout:           e.duration("LLM_TIMEOUT", 90*time.Second),
+		LLMTimeout:           e.duration("LLM_TIMEOUT", 30*time.Second), // per attempt; 4 attempts fit Cloud Run's 300 s (D54)
 		LLMMaxRetries:        e.integer("LLM_MAX_RETRIES", 3),
 		MaxOutputTokens:      e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
 		PrecedentK:           e.integer("PRECEDENT_K", 5),
