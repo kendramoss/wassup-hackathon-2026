@@ -50,7 +50,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code: ApiErrorBody["code"] | "network" | "rate_limited",
+    public code: ApiErrorBody["code"] | "network" | "rate_limited" | "budget_reached",
     public retryable: boolean,
     // Seconds to wait before retrying (429 rate_limited), from Retry-After.
     public retryAfter?: number,
@@ -69,6 +69,10 @@ async function toError(res: Response): Promise<ApiError> {
   if (res.status === 429 || body.code === "rate_limited") {
     const after = Number(res.headers.get("Retry-After")) || body.details?.retry_after_s || 30;
     return new ApiError(body.message ?? "Too many requests.", 429, "rate_limited", true, after);
+  }
+  // 503 "budget_reached" (D59): the day's model budget is spent; not retryable today.
+  if (body.code === "budget_reached") {
+    return new ApiError(body.message ?? "Today's demo budget for model calls is used up.", res.status, "budget_reached", false, body.details?.retry_after_s);
   }
   const code = (body.code ?? (res.status >= 500 ? "internal" : "invalid_input")) as ApiErrorBody["code"];
   const message = body.message ?? body.error ?? `The API returned ${res.status}.`;

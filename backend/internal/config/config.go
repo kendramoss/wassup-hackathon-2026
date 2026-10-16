@@ -105,6 +105,9 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// DailySpendCapUSD stops new model-calling requests once the UTC day's
+	// estimated model spend reaches it (D59); 0 disables the cap.
+	DailySpendCapUSD float64
 	// AdminToken lets the demo seed bypass the limits, pin demo cases and
 	// delete pinned ones. Empty: nobody is admin.
 	AdminToken string
@@ -158,6 +161,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
 		RateLookupPerMin:  e.integer("RATE_LOOKUP_PER_MIN", 30),
 		CasesListLimit:    e.integer("CASES_LIST_LIMIT", 200),
+		DailySpendCapUSD:  e.float("DAILY_SPEND_CAP_USD", 0),
 		AdminToken:        e.str("ADMIN_TOKEN", ""),
 		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
@@ -228,6 +232,9 @@ func (c Config) validate() error {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
 		}
+	}
+	if c.DailySpendCapUSD < 0 {
+		bad("DAILY_SPEND_CAP_USD must be 0 (no cap) or positive, got %v", c.DailySpendCapUSD)
 	}
 	if c.CasesListLimit < 1 {
 		bad("CASES_LIST_LIMIT must be positive, got %d", c.CasesListLimit)

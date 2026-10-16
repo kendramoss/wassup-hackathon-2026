@@ -27,6 +27,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
@@ -103,6 +104,10 @@ type Deps struct {
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
+	// Spend, when set, refuses model-calling requests once the day's model
+	// spend reaches its cap (D59). The admin token is not exempt from
+	// counting, only from the refusal.
+	Spend *spend.Meter
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
