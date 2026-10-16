@@ -107,3 +107,19 @@ func TestCasesStoreDefaults(t *testing.T) {
 		t.Errorf("Cloud Run default = %q %v", run.CasesStore, err)
 	}
 }
+
+func TestTextileConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.TextileEngine || c.TextileFastPath != 0 || c.TextileRulings != "data/textile_rulings.json" {
+		t.Fatalf("textile defaults = %v %v %q %v", c.TextileEngine, c.TextileFastPath, c.TextileRulings, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEXTILE_ENGINE": "on", "TEXTILE_FAST_PATH": "0.95"})))
+	if err != nil || !on.TextileEngine || on.TextileFastPath != 0.95 {
+		t.Errorf("textile on = %+v %v", on.TextileEngine, err)
+	}
+	for _, bad := range []map[string]string{{"TEXTILE_ENGINE": "maybe"}, {"TEXTILE_FAST_PATH": "1.5"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
+			t.Errorf("%v accepted", bad)
+		}
+	}
+}
