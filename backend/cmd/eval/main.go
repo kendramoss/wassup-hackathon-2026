@@ -365,8 +365,6 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {
 	var base llm.Model
 	switch cfg.LLMProvider {
-	case config.ProviderLiteLLM:
-		base = llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
 	case config.ProviderVertex:
 		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 		if err != nil {
@@ -779,9 +777,6 @@ func planCmd(args []string) error {
 		return err
 	}
 	fmt.Printf("## Plan %s → %s (%s, verifier search %s)\n\n", req.CaseID, res.Target, cfg.LLMProvider, *searchMode)
-	if cfg.LLMProvider == config.ProviderLiteLLM {
-		fmt.Println("**Proxy, development only.**")
-	}
 	b0 := res.Baseline.Prediction
 	fmt.Printf("- Current setup: engine predicts **%s** (confidence %.2f), cited %v\n", b0.Origin, b0.Confidence, b0.CitedRulings)
 	fmt.Printf("- Shown (precedent-supported, verifier confidence ≥ %.2f):\n", cfg.PlanConfidence)
@@ -1029,9 +1024,6 @@ func flipsCmd(args []string) error {
 		return fmt.Sprintf("%d/%d = %.0f%% (%.0f–%.0f)", k, n, 100*p, 100*lo, 100*hi)
 	}
 	fmt.Printf("## Verifier on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", mode, cfg.LLMProvider)
-	if cfg.LLMProvider == config.ProviderLiteLLM {
-		fmt.Println("**Proxy, development only.**")
-	}
 	n := len(rows) - errs
 	fmt.Printf("- Items: %d (pre-2026; %d failed runs)\n", len(rows), errs)
 	fmt.Printf("- Precision when it says the move changes origin: %s\n", fmtP(tp, tp+fp))
@@ -1317,8 +1309,6 @@ func multiScenarioCmd(args []string) error {
 
 func newEmbedder(ctx context.Context, cfg config.Config) (llm.Embedder, error) {
 	switch cfg.LLMProvider {
-	case config.ProviderLiteLLM:
-		return llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout), nil
 	case config.ProviderVertex:
 		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 	}

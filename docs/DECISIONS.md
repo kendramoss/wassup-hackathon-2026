@@ -222,3 +222,8 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 
 ## D48 — Rename a case (16 Oct)
 - `PATCH /v1/cases/{id}` with `display_name` (whitespace collapsed, 1–200 characters) returns the updated Cases-home row. A separate `display_name` keeps `product_name` as entered, since that name is part of the facts the engine read. Rows and the case response always carry `display_name` (the user's name, else the product name). Pinned demo cases need the admin token, as for delete. Recorded as `renamed` in the history; no model call; `updated_at` is unchanged.
+
+## D49 — LiteLLM proxy removed; Vertex AI is the only model provider (16 Oct)
+- D3 used a LiteLLM (OpenAI-compatible) proxy because the team had no Vertex access. Vertex is now set up (#37, D37), so the proxy provider is gone: `internal/llm/litellm.go` and its tests are deleted, along with `LITELLM_BASE_URL` / `LITELLM_API_KEY`, the LiteLLM embedder, and the provider cases in the server, eval and corpus commands.
+- `LLM_PROVIDER` now defaults to `vertex` (Gemini on Vertex AI with Application Default Credentials; `GOOGLE_CLOUD_PROJECT` required, `GOOGLE_CLOUD_LOCATION=global` because Gemini 4 Argon and 3.8 Flash are only on the global endpoint). `fake` stays for tests and offline UI work and is still refused on Cloud Run. `LLM_PROVIDER=litellm` is now a config error that names this decision.
+- Recorded results are unchanged. Files named `*-litellm.*`, the eval summary's "proxy, development only" status and the report's proxy banner describe how those numbers were produced. The official engine numbers are the Vertex re-run (D39). No new model calls were made for this removal.

@@ -139,7 +139,7 @@ jobs:
 
   # The backend is private (only frontend@ may call it), so check that its new
   # revision started and is serving: config validation runs at startup and a
-  # bad config (e.g. LLM_PROVIDER=litellm on Cloud Run) fails the revision.
+  # bad config (e.g. LLM_PROVIDER=fake on Cloud Run) fails the revision.
   # Then check the public frontend answers. Replace with an end-to-end
   # /v1/cases/predict call once the frontend proxies it (Gate D).
   smoke-test:
