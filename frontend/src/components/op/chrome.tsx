@@ -24,7 +24,6 @@ export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) 
           {copy.nav.accuracy}
         </Link>
       </nav>
-      <span className="ml-auto hidden text-[13px] text-dim md:block">{copy.disclaimer}</span>
     </header>
   );
 }

@@ -192,6 +192,10 @@ function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: 
   );
 }
 
+function prettyLabel(label?: string) {
+  return (label ?? "").replace(/[a-z]+(?:_[a-z]+)+|pcba/g, (g) => groupName(g));
+}
+
 function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   const cur = currentOrigin(c)?.country ?? c.prediction?.origin_country;
   const nets = sc.map((s) => s.comparison?.net_usd ?? -Infinity);
@@ -207,7 +211,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
         return (
           <Panel key={i} className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-[15px] font-medium">{s.label}</h2>
+              <h2 className="text-[15px] font-medium">{prettyLabel(s.label)}</h2>
               {nets[i] === bestNet && Number.isFinite(bestNet) && bestNet > 0 && <Chip tone="ok">highest net</Chip>}
               {confs[i] === bestConf && sc.length > 1 && <Chip>highest confidence</Chip>}
             </div>
@@ -215,10 +219,12 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
               <Flag country={p.origin_country} size={30} />
               {p.origin_country}
             </p>
-            <StatusChip route={s.triage?.route} />
+            <span className="self-start">
+              <StatusChip route={s.triage?.route} />
+            </span>
             <Ruler value={p.confidence} label={`${BAR} auto-accept`} width={220} caption={`confidence ${conf(p.confidence)}`} />
             {p.decisive_step && <p className="duo clamp-2 text-[13px]">{p.decisive_step}</p>}
-            {cmp?.origin_differs_from_current && cur && (
+            {cmp?.origin_differs_from_current && cur && (nothingMoves || !s.product) && (
               <p className="duo text-[13px] text-ask">
                 △ Differs from CBP: <Country name={cur} />
               </p>
