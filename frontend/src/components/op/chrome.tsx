@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
@@ -26,7 +26,7 @@ export function AppBar({ active = "cases" }: { active?: "cases" | "accuracy" }) 
         </Link>
       </nav>
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
-      <div id="case-crumb" className="flex min-w-0 items-center border-line empty:hidden sm:border-l sm:pl-5" />
+      <div data-case-crumb="" className="flex min-w-0 items-center border-line empty:hidden sm:border-l sm:pl-5" />
       <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5">
         {copy.cases.newCase}
       </ButtonLink>
@@ -188,12 +188,24 @@ function Items({ items, arrow }: { items: Item[]; arrow?: boolean }) {
   );
 }
 
-// Renders the case menu into the app bar's breadcrumb slot. The slot is
-// static markup, so it is read once on the client (null on the server).
-const noSubscribe = () => () => {};
+// Renders the case menu into this page's app bar. Next keeps the previous
+// page mounted but hidden after a client navigation, so there is one slot
+// per page: the nearest one before these tabs is this page's.
 function Crumb({ children }: { children: ReactNode }) {
-  const el = useSyncExternalStore(noSubscribe, () => document.getElementById("case-crumb"), () => null);
-  return el ? <Portal to={el}>{children}</Portal> : null;
+  const [el, setEl] = useState<HTMLElement | null>(null);
+  const find = useCallback((marker: HTMLElement | null) => {
+    if (!marker) return;
+    const before = [...document.querySelectorAll<HTMLElement>("[data-case-crumb]")].filter(
+      (s) => s.compareDocumentPosition(marker) & Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    setEl(before.at(-1) ?? null);
+  }, []);
+  return (
+    <>
+      <span ref={find} hidden />
+      {el ? <Portal to={el}>{children}</Portal> : null}
+    </>
+  );
 }
 
 const stepHref = (id: string, n: number) => `/cases/${encodeURIComponent(id)}/${["", "product", "origin", "plan", "draft"][n]}`;
