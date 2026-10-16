@@ -359,6 +359,53 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/products/hts-suggest:
+    post:
+      summary: Suggest up to 3 HTS subheadings from CBP rulings that state one (off unless HTS_SUGGEST=on, D64)
+      description: |
+        BM25 finds the 10 indexed rulings most like the product (815 rulings whose text states the subheading CBP applied, 449 distinct 8-digit subheadings; `backend/data/hts_index.json`), groups them by subheading and keeps the 3 best (summed scores). One router-model call (constrained JSON) gives each a short reason, citing only rulings retrieved for that subheading. If that call fails the candidates are still returned with `reasons_unavailable: true`.
+        A suggestion, not a classification: every response carries the note "suggestion only — confirm the classification with a licensed broker". Rate-limited as light. 404 when HTS_SUGGEST is off.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: "`facts` (pasted text) or a structured `product`; facts win when both are given"
+              properties:
+                facts: { type: string, maxLength: 12000 }
+                product: { $ref: "#/components/schemas/Product" }
+      responses:
+        "200":
+          description: Candidates, best first (empty when no indexed ruling shares a term with the product)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    maxItems: 3
+                    items:
+                      type: object
+                      properties:
+                        hts: { type: string, example: "8419.89.95", description: "8-digit subheading" }
+                        supporting_rulings:
+                          type: array
+                          items: { type: object, properties: { id: { type: string }, date: { type: string, format: date }, subject: { type: string }, url: { type: string } } }
+                        reason: { type: string, description: "empty when reasons_unavailable" }
+                        cited: { type: array, items: { type: string }, description: "supporting rulings the reason relies on" }
+                        duty_rates_available: { type: boolean, description: "GET /v1/duty-rates?hts= has sourced rates for it" }
+                  note: { type: string, example: "suggestion only — confirm the classification with a licensed broker" }
+                  reasons_unavailable: { type: boolean }
+                  trace: { type: object, nullable: true }
+                  llm_provider: { type: string }
+                  prompt_version: { type: string, example: hts-suggest-v1 }
+                  disclaimer: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
       summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them

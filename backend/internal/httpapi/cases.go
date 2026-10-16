@@ -142,6 +142,9 @@ type Deps struct {
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
+	// D64); nil leaves the route unregistered (404).
+	HTS HTSSuggester
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }

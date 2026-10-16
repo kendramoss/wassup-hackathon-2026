@@ -18,6 +18,7 @@
 //	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
 //	GET  /v1/eval/summary        results-page numbers
 //	GET  /v1/demos[/{id}]        demo cases for the UI
+//	POST /v1/products/hts-suggest  candidate HTS subheadings (HTS_SUGGEST=on, D64)
 package main
 
 import (
@@ -47,6 +48,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
@@ -307,6 +309,20 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		familyBars = &b
 		logger.Info("auto-accept bars by subfamily", "bars", b.Bars, "global", cfg.FastPathConfidence)
 	}
+	var htsSuggester httpapi.HTSSuggester
+	if cfg.HTSSuggest {
+		x, err := hts.LoadIndex(cfg.HTSIndex)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		s, err := hts.New(model, cfg.RouterModel, x, cfg.FactsDir, func(code string) bool { _, ok := dutyTable.Line(code); return ok })
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		n, subs := s.Coverage()
+		logger.Info("hts suggest on", "rulings", n, "subheadings", subs, "index", cfg.HTSIndex)
+		htsSuggester = s
+	}
 	return httpapi.Deps{
 		Demos:           ds,
 		Engine:          predictor,
@@ -340,6 +356,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Pharma:          pharma,
 		PharmaFastPath:  cfg.PharmaFastPath,
 		FamilyBars:      familyBars,
+		HTS:             htsSuggester,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }
