@@ -5,6 +5,8 @@
 package triage
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -14,14 +16,74 @@ import (
 // Decide routes a prediction. inScope and scopeReason come from the router's
 // regime label (true, "" when no label is available).
 func Decide(p domain.Prediction, threshold float64, inScope bool, scopeReason string) domain.Triage {
+	return decide(p, threshold, "", inScope, scopeReason)
+}
+
+// decide is Decide with an optional note naming the bar used.
+func decide(p domain.Prediction, threshold float64, bar string, inScope bool, scopeReason string) domain.Triage {
+	if bar != "" {
+		bar = " (" + bar + ")"
+	}
 	switch {
 	case !inScope:
 		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "out of scope: " + scopeReason}
 	case p.Confidence >= threshold:
-		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("confidence %.2f ≥ %.2f and in scope", p.Confidence, threshold)}
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("confidence %.2f ≥ %.2f%s and in scope", p.Confidence, threshold, bar)}
 	default:
-		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("confidence %.2f below %.2f", p.Confidence, threshold)}
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("confidence %.2f below %.2f%s", p.Confidence, threshold, bar)}
 	}
+}
+
+// familyBarsJSON is written by `eval calibrate` (D63): the auto-accept bar
+// per router subfamily, fitted on the dev split only.
+//
+//go:embed family_bars.json
+var familyBarsJSON []byte
+
+// FamilyBars are auto-accept bars per router subfamily (D63). A subfamily
+// without a fitted bar (too few dev cases, or never 95% accurate) uses the
+// global bar.
+type FamilyBars struct {
+	Rule   string             `json:"rule"`
+	Source string             `json:"source"`
+	Bars   map[string]float64 `json:"bars"`
+}
+
+// LoadFamilyBars decodes the embedded bars.
+func LoadFamilyBars() (FamilyBars, error) {
+	var b FamilyBars
+	if err := json.Unmarshal(familyBarsJSON, &b); err != nil {
+		return FamilyBars{}, fmt.Errorf("triage: family bars: %w", err)
+	}
+	for fam, v := range b.Bars {
+		if v <= 0 || v > 1 {
+			return FamilyBars{}, fmt.Errorf("triage: family bar %s = %v, want (0, 1]", fam, v)
+		}
+	}
+	return b, nil
+}
+
+// Bar returns subfamily's bar, or global when it has none.
+func (b FamilyBars) Bar(subfamily string, global float64) (bar float64, fitted bool) {
+	if v, ok := b.Bars[subfamily]; ok {
+		return v, true
+	}
+	return global, false
+}
+
+// DecideByFamily is Decide with the router subfamily's bar instead of the
+// global one; the reason names which bar applied. subfamily is "" when the
+// router gave no label.
+func DecideByFamily(p domain.Prediction, bars FamilyBars, subfamily string, global float64, inScope bool, scopeReason string) domain.Triage {
+	bar, fitted := bars.Bar(subfamily, global)
+	note := subfamily + " family bar"
+	switch {
+	case subfamily == "":
+		note = "global bar; no router subfamily"
+	case !fitted:
+		note = "global bar; no " + subfamily + " family bar"
+	}
+	return decide(p, bar, note, inScope, scopeReason)
 }
 
 // TextilePrefix starts the reason of every textile-regime decision (D51).

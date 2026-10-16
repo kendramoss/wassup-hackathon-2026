@@ -54,6 +54,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -297,6 +298,15 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	var familyBars *triage.FamilyBars
+	if cfg.FamilyBars() {
+		b, err := triage.LoadFamilyBars()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		familyBars = &b
+		logger.Info("auto-accept bars by subfamily", "bars", b.Bars, "global", cfg.FastPathConfidence)
+	}
 	return httpapi.Deps{
 		Demos:           ds,
 		Engine:          predictor,
@@ -329,6 +339,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		USMCAFastPath:   cfg.USMCAFastPath,
 		Pharma:          pharma,
 		PharmaFastPath:  cfg.PharmaFastPath,
+		FamilyBars:      familyBars,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }

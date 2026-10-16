@@ -173,3 +173,23 @@ func TestPharmaConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestFastPathByFamily(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.FastPathByFamily != "off" || c.FamilyBars() {
+		t.Fatalf("default = %q %v %v", c.FastPathByFamily, c.FamilyBars(), err)
+	}
+	for _, tt := range []struct {
+		v    string
+		want bool
+		bad  bool
+	}{{"on", true, false}, {"ON", true, false}, {"off", false, false}, {"true", false, true}, {"family", false, true}} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"FAST_PATH_BY_FAMILY": tt.v})))
+		switch {
+		case tt.bad && (err == nil || !strings.Contains(err.Error(), "FAST_PATH_BY_FAMILY must be on or off")):
+			t.Errorf("%q accepted: %v", tt.v, err)
+		case !tt.bad && (err != nil || c.FamilyBars() != tt.want):
+			t.Errorf("%q = %v %v, want %v", tt.v, c.FamilyBars(), err, tt.want)
+		}
+	}
+}
