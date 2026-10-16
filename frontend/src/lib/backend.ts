@@ -64,3 +64,46 @@ async function idToken(audience: string): Promise<string> {
   }
   return res.text();
 }
+
+// Forwards a browser request to the backend's /v1 API unchanged (method,
+// body, content type, Accept) and returns the backend's response as-is,
+// errors included, so the client sees the API's {code, message} bodies and
+// server-sent events stream through.
+export async function proxyBackend(request: Request, path: string): Promise<Response> {
+  const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
+  if (!backendUrl) {
+    return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, { status: 500 });
+  }
+  const headers: Record<string, string> = {};
+  for (const h of ["content-type", "accept"]) {
+    const v = request.headers.get(h);
+    if (v) headers[h] = v;
+  }
+  if (process.env.K_SERVICE) {
+    headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
+  }
+  const search = new URL(request.url).search;
+  try {
+    const res = await fetch(`${backendUrl}/v1/${path}${search}`, {
+      method: request.method,
+      headers,
+      body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer(),
+      signal: request.signal,
+      cache: "no-store",
+    });
+    const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json" });
+    if (out.get("Content-Type")?.startsWith("text/event-stream")) {
+      // no-transform keeps Next's compression from buffering the stream.
+      out.set("Cache-Control", "no-cache, no-transform");
+      out.set("X-Accel-Buffering", "no");
+    }
+    return new Response(res.body, { status: res.status, headers: out });
+  } catch (err) {
+    if (request.signal.aborted) return new Response(null, { status: 499 });
+    console.error(`backend /v1/${path}:`, err);
+    return Response.json(
+      { code: "model_unavailable", message: "Could not reach the Origin Proof API. Try again in a moment." },
+      { status: 502 },
+    );
+  }
+}
