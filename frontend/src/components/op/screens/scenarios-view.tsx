@@ -242,6 +242,9 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   const confs = sc.map((s) => s.prediction?.confidence ?? 0);
   const bestNet = Math.max(...nets);
   const bestConf = Math.max(...confs);
+  // A chip only marks a clear winner; on a tie it says nothing (#89).
+  const oneBestConf = confs.filter((x) => x === bestConf).length === 1;
+  const oneBestNet = nets.filter((x) => x === bestNet).length === 1;
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       {sc.map((s, i) => {
@@ -252,8 +255,8 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
           <Panel key={i} className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-[15px] font-medium">{prettyLabel(s.label)}</h2>
-              {nets[i] === bestNet && Number.isFinite(bestNet) && bestNet > 0 && <Chip tone="ok">highest net</Chip>}
-              {confs[i] === bestConf && sc.length > 1 && <Chip>highest confidence</Chip>}
+              {nets[i] === bestNet && oneBestNet && Number.isFinite(bestNet) && bestNet > 0 && <Chip tone="ok">highest net</Chip>}
+              {confs[i] === bestConf && oneBestConf && sc.length > 1 && <Chip>highest confidence</Chip>}
             </div>
             <p className="flex items-center gap-3 text-[40px] leading-none tracking-[-0.06em]">
               <Flag country={p.origin_country} size={30} />
