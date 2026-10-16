@@ -17,6 +17,18 @@ func TestDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if c.FallbackEngineModel != "" || c.EngineAttempts != 0 || c.FallbackFastPath != 0 || c.FallbackEngineLocation != "us" {
+		t.Errorf("fallback defaults = %q attempts %d fast %v loc %q", c.FallbackEngineModel, c.EngineAttempts, c.FallbackFastPath, c.FallbackEngineLocation)
+	}
+	fb := merge(vertexEnv(), map[string]string{"FALLBACK_ENGINE_MODEL": "tuned-flash"})
+	if on, err := FromEnv(getenv(fb)); err != nil || on.EngineAttempts != 2 || on.FallbackFastPath != 0 {
+		t.Errorf("fallback on = attempts %d fast %v err %v", on.EngineAttempts, on.FallbackFastPath, err)
+	}
+	fb["ENGINE_ATTEMPTS"] = "1"
+	fb["FALLBACK_FAST_PATH"] = "0.97"
+	if on, err := FromEnv(getenv(fb)); err != nil || on.EngineAttempts != 1 || on.FallbackFastPath != 0.97 {
+		t.Errorf("explicit fallback = attempts %d fast %v err %v", on.EngineAttempts, on.FallbackFastPath, err)
+	}
 	if c.LLMProvider != ProviderVertex || c.EngineModel != "gemini-4-argon" || c.RouterModel != "gemini-3.8-flash" ||
 		c.PrecedentK != 5 || c.FastPathConfidence != 0.92 || c.PlanConfidence != 0.92 || c.VerifierMaxToolCalls != 6 ||
 		c.LLMTimeout != 30*time.Second || c.GCPLocation != "global" || c.Port != "8080" {

@@ -49,7 +49,14 @@ func TestTuneTarget(t *testing.T) {
 	wrong := right
 	wrong.Pred = "Vietnam"
 	got = tuneTargetFor(wrong, r, "CBP reasoning.")
-	if got.Origin != "China" || got.DecisiveStep != r.Holding || got.Flip != nil || got.Confidence != correctedConfidence {
+	if got.Origin != "China" || got.DecisiveStep != r.Holding || got.Flip != nil || got.Confidence != absentCorrectedConfidence {
 		t.Errorf("corrected target = %+v", got)
+	}
+	// The 0.97 on the wrong row is confidence in Vietnam, not in CBP's China.
+	if correctedTargetConfidence(wrong, "China") != absentCorrectedConfidence {
+		t.Errorf("wrong-origin confidence was reused: %v", correctedTargetConfidence(wrong, "China"))
+	}
+	if correctedTargetConfidence(right, "China") != 0.97 {
+		t.Errorf("engine confidence for CBP's origin = %v", correctedTargetConfidence(right, "China"))
 	}
 }

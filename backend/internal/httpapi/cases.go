@@ -97,6 +97,9 @@ type Deps struct {
 	Summary      func() (evalsummary.Summary, error)
 	Demos        []demos.Demo
 	FastPathConf float64
+	// FallbackFastPath is the auto-accept bar for a prediction whose
+	// trace.model_id is not EngineModel. 0 always reviews (D56).
+	FallbackFastPath float64
 	// PlanConfidence is the verifier bar for shown plans (named in below-bar drafts).
 	PlanConfidence float64
 	Provider       string
@@ -419,7 +422,11 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 		tres, err := a.d.Textile.Predict(ectx, c)
 		st.settle()
 		if err == nil { // in scope, but clarify (substantial transformation) does not apply
-			return tres.Prediction, label, triage.Textile(tres.Prediction, a.d.TextileFastPath), false, nil
+			tr := triage.Textile(tres.Prediction, a.d.TextileFastPath)
+			if triage.AnsweredByFallback(tres.Prediction.Trace.ModelID, a.d.EngineModel) {
+				tr = triage.Fallback(tres.Prediction, a.d.FallbackFastPath, true, "")
+			}
+			return tres.Prediction, label, tr, false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
@@ -448,7 +455,11 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 	if a.d.FamilyBars != nil {
 		return res.Prediction, label, triage.DecideByFamily(res.Prediction, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope, nil
 	}
-	return res.Prediction, label, triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason), inScope, nil
+	tr := triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason)
+	if triage.AnsweredByFallback(res.Prediction.Trace.ModelID, a.d.EngineModel) {
+		tr = triage.Fallback(res.Prediction, a.d.FallbackFastPath, inScope, scopeReason)
+	}
+	return res.Prediction, label, tr, inScope, nil
 }
 
 // analyse runs router and engine (concurrently), triage and, below the fast
@@ -461,6 +472,12 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	}
 	sc.Prediction, sc.Router, sc.Triage = pred, label, tr
 	sc.Clarify = nil
+	// A fallback answer stays on the fallback reason. Clarify would rewrite
+	// needs_review into needs_info, and it calls the primary model, which
+	// just failed.
+	if triage.AnsweredByFallback(pred.Trace.ModelID, a.d.EngineModel) {
+		return nil
+	}
 	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {
 		var ps []domain.Ruling
 		for _, id := range pred.Precedents {

@@ -45,6 +45,7 @@ type fakeEngine struct {
 	// CBP's), after byProduct; "" falls through.
 	byFacts func(string) string
 	calls   int
+	modelID string // trace.model_id; empty means the primary engine
 }
 
 func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, error) {
@@ -72,8 +73,12 @@ func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, e
 	if f.later != "" && c.Date.After(time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)) {
 		origin = f.later
 	}
+	modelID := f.modelID
+	if modelID == "" {
+		modelID = "gemini-4-argon"
+	}
 	return engine.Result{Prediction: domain.Prediction{Origin: origin, Confidence: f.conf, KeyFactors: []string{"motor"}, CitedRulings: []string{"N350001"}, Precedents: []string{"N350001", "N350002"},
-		Trace: domain.Trace{Provider: "fake", ModelID: "gemini-4-argon", PromptVersion: "engine-v1", InputTokens: 3000, OutputTokens: 200}}}, nil
+		Trace: domain.Trace{Provider: "fake", ModelID: modelID, PromptVersion: "engine-v1", InputTokens: 3000, OutputTokens: 200}}}, nil
 }
 
 type fakeRouter struct{ regime string }
@@ -244,6 +249,29 @@ func heatGunBody(t *testing.T) string {
 	body, _ := json.Marshal(map[string]any{"date": fx["date"], "product": fx["product"], "family": fx["family"],
 		"exclude_rulings": fx["exclude_rulings"], "current_origin": fx["current_origin"]})
 	return string(body)
+}
+
+func TestFallbackPredictionNeedsReview(t *testing.T) {
+	const id = "projects/p/locations/us/endpoints/9"
+	eng := &fakeEngine{conf: 0.99, modelID: id}
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Engine = eng })
+	code, out := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	if code != http.StatusCreated {
+		t.Fatalf("predict status %d: %v", code, out)
+	}
+	tr := out["triage"].(map[string]any)
+	want := "answered by the fallback model (" + id + ") because the primary engine was unavailable"
+	if tr["route"] != "needs_review" || tr["reason"] != want {
+		t.Errorf("triage = %v", tr)
+	}
+	pred := out["prediction"].(map[string]any)
+	trace := pred["trace"].(map[string]any)
+	if trace["model_id"] != id {
+		t.Errorf("trace.model_id = %v", trace["model_id"])
+	}
+	if out["clarify"] != nil {
+		t.Errorf("clarify ran on a fallback answer: %v", out["clarify"])
+	}
 }
 
 func TestPredictFromProductThenPlanThenExport(t *testing.T) {

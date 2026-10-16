@@ -27,7 +27,7 @@ type Cache struct {
 // NewCache wraps e with a prediction cache in blobs.
 func NewCache(e *Engine, blobs blob.Store) *Cache { return &Cache{inner: e, blobs: blobs} }
 
-func (c *Cache) key(k domain.Case) string {
+func (c *Cache) key(model string, k domain.Case) string {
 	ex := slices.Clone(k.Exclude)
 	slices.Sort(ex)
 	b, _ := json.Marshal(struct {
@@ -35,7 +35,7 @@ func (c *Cache) key(k domain.Case) string {
 		K, Votes                      int
 		VoteBelow                     float64
 		Exclude                       []string
-	}{c.inner.opts.Model, c.inner.promptVersion(), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex})
+	}{model, c.inner.promptVersion(), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex})
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
 }
@@ -55,7 +55,10 @@ func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
 	if domain.ValidRulingID(k.ID) || k.Facts == "" || k.Date.IsZero() {
 		return c.inner.Predict(ctx, k)
 	}
-	key := c.key(k)
+	// Look up the primary model's key. A fallback answer is stored under the
+	// model that answered, so it does not satisfy this lookup and a later
+	// primary success is not blocked (D56).
+	key := c.key(c.inner.opts.Model, k)
 	if b, ok, err := c.blobs.Get(ctx, key); err != nil {
 		return Result{}, fmt.Errorf("engine: read cache: %w", err)
 	} else if ok {
@@ -70,8 +73,12 @@ func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
 	if err != nil {
 		return res, err
 	}
+	answered := res.Prediction.Trace.ModelID
+	if answered == "" {
+		answered = c.inner.opts.Model
+	}
 	if b, err := json.Marshal(cached{Prediction: res.Prediction, Flip: res.Flip, Votes: res.Votes, VoteCounts: res.VoteCounts}); err == nil {
-		_ = c.blobs.Put(ctx, key, b) // best effort
+		_ = c.blobs.Put(ctx, c.key(answered, k), b) // best effort; fallback model id ≠ primary key
 	}
 	return res, nil
 }
