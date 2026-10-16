@@ -158,7 +158,14 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             comes after. Money inputs open in a drawer. */}
         {result && (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <AllMoves result={result} onDraft={draft} />
+            <div className="min-w-0">
+              <AllMoves result={result} onDraft={draft} />
+              {result.stats ? (
+                <p className="mt-2">
+                  <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} />
+                </p>
+              ) : null}
+            </div>
             <aside aria-label="Why it's supported" className="flex min-w-0 flex-col gap-5">
               {lead && <WhySupported plan={lead} />}
               <section aria-label="Money inputs" className="text-[13px]">
@@ -203,12 +210,11 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             : best
               ? "Draft the ruling request for your broker."
               : closest
-                ? "Draft for the closest move (the letter says it's below the bar), or try scenarios."
+                ? "Draft for the closest move. The letter says it's below the bar."
                 : result
                   ? "Try scenarios or another country: no move found support."
                   : `Search moves to ${target}.`}
         </Next>
-        {result?.stats ? <Stats stats={result.stats as Record<string, number>} proxy={isProxy(c.llm_provider)} /> : null}
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
           {searching && (
             <Button variant="ghost" onClick={() => abort.current?.abort()}>
@@ -220,16 +226,10 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
               {copy.plan.compare}
             </ButtonLink>
           )}
-          {result && !best && (
-            <ButtonLink variant="ghost" href={`/cases/${encodeURIComponent(id)}/scenarios`}>
-              Try scenarios
-            </ButtonLink>
-          )}
           {best ? (
             <Button onClick={() => draft(moveKey(best))}>{copy.plan.draft}</Button>
           ) : closest ? (
             <>
-              <span className="hidden text-xs text-dim sm:inline">The draft says it&apos;s below the bar</span>
               <Button onClick={() => draft(moveKey(closest))}>{copy.plan.draftClosest}</Button>
             </>
           ) : (
@@ -458,7 +458,8 @@ function Reasoning({ text }: { text: string }) {
 }
 
 function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: string) => void }) {
-  const every = [...(result.plans ?? []), ...(result.rejected ?? [])];
+  const rejected = result.rejected ?? [];
+  const every = [...(result.plans ?? []), ...rejected.filter((p) => p.rejection_kind !== "current_setup"), ...rejected.filter((p) => p.rejection_kind === "current_setup")];
   const [open, setOpen] = useState(false);
   const all = open ? every : every.slice(0, 3);
   return (
@@ -467,10 +468,10 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
         Moves searched · {every.length} · best first
       </h2>
       <div className="relative overflow-x-auto">
-        <table className="w-full min-w-[680px] border-collapse border border-line bg-sheet text-[13px]">
+        <table className="w-full min-w-[560px] border-collapse border border-line bg-sheet text-[13px]">
           <thead>
             <tr>
-              {["Move", "Outcome", "Why", "Precedent check", "Net per year", ""].map((h, i) => (
+              {["Move", "Outcome", "Precedent check", "Net per year", ""].map((h, i) => (
                 <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[10.5px] font-medium uppercase tracking-[0.08em] text-dim">
                   {h || <span className="sr-only">Draft</span>}
                 </th>
@@ -483,22 +484,24 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
               const grey = !p.shown;
               return (
                 <tr key={key || "baseline"} className={cx("border-b border-line last:border-0", grey && "text-dim")}>
-                  <td className="duo px-3.5 py-2.5 text-ink">{p.description}</td>
-                  <td className="px-3.5 py-2.5">{outcome(p)}</td>
-                  <td className="duo max-w-[34ch] px-3.5 py-2.5 text-xs">
-                    {p.shown ? (
-                      <>
-                        Supported by {p.verdict?.supporting_ruling ? <RulingLink id={p.verdict.supporting_ruling} /> : "an earlier ruling"}
-                        {p.verdict?.counter_ruling ? (
-                          <>
-                            ; counter <RulingLink id={p.verdict.counter_ruling} />
-                          </>
-                        ) : null}
-                      </>
-                    ) : (
-                      p.rejection_reason
-                    )}
+                  <td className="duo px-3.5 py-2.5 text-ink">
+                    {p.description}
+                    <span className="mt-0.5 block text-xs text-dim">
+                      {p.shown ? (
+                        <>
+                          Supported by {p.verdict?.supporting_ruling ? <RulingLink id={p.verdict.supporting_ruling} /> : "an earlier ruling"}
+                          {p.verdict?.counter_ruling ? (
+                            <>
+                              ; counter <RulingLink id={p.verdict.counter_ruling} />
+                            </>
+                          ) : null}
+                        </>
+                      ) : (
+                        p.rejection_reason
+                      )}
+                    </span>
                   </td>
+                  <td className="px-3.5 py-2.5">{outcome(p)}</td>
                   <td className="px-3.5 py-2.5">
                     <MiniRuler value={p.verdict?.confidence} />
                   </td>
