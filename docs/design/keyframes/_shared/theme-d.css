@@ -1,0 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+/* D · Research report (after Elicit): the result is a white page on a grey desk; deep-teal serif titles */
+:root{--paper:#eceef0;--sheet:#ffffff;--ink:#1d2427;--dim:#556166;--faint:#737e82;--line:#dde2e5;--wash:#f1f4f5;
+--ok:#0f5d5a;--ok-wash:#e3f0ef;--ask:#8a4b06;--ask-wash:#fcf1df;--ask-line:#ebcb93;--ask-bar:#cf8a24;
+--serif:"Newsreader",Georgia,serif;--sans:"Inter",sans-serif;--mono:"IBM Plex Mono",monospace;--r:6px}
+.verdict{color:var(--ok);font-weight:500!important;margin-top:8px}
+main>section{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:40px 44px;box-shadow:0 1px 2px rgba(20,30,35,.06)}
+.bar,.steps{background:var(--sheet)!important}

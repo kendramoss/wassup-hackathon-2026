@@ -1,50 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { site } from "@/lib/site";
+import localFont from "next/font/local";
+import { SkipLink } from "@/components/op/skip-link";
+import { copy } from "@/lib/copy";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// Paper Mono (SIL OFL 1.1, fonts/PaperMono-OFL.txt), bundled.
+const paperMono = localFont({
+  variable: "--font-paper-mono",
+  display: "swap",
+  src: [
+    { path: "./fonts/PaperMono-Light.woff2", weight: "300", style: "normal" },
+    { path: "./fonts/PaperMono-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/PaperMono-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/PaperMono-SemiBold.woff2", weight: "600", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {
-  title: { default: site.name, template: `%s · ${site.name}` },
-  description: site.tagline,
+  title: { default: copy.name, template: `%s · ${copy.name}` },
+  description: copy.tagline,
 };
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
-};
-
-// Applies a saved theme before first paint, so there's no light flash.
-const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+export const viewport: Viewport = { themeColor: "#edf2f9", colorScheme: "light" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang="en" className={`${paperMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg"
-        >
-          Skip to content
-        </a>
+        <SkipLink />
         {children}
       </body>
     </html>

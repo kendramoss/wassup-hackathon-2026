@@ -1,0 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap");
+/* C · Spec sheet: engineering drawing — white, graphite, mono labels, hairlines, one signal orange */
+:root{--paper:#ffffff;--sheet:#ffffff;--ink:#18181b;--dim:#57575f;--faint:#8a8a93;--line:#e4e4e7;--wash:#f4f4f5;
+--ok:#0f6b5f;--ok-wash:#e6f2f0;--ask:#a6400f;--ask-wash:#fdeee6;--ask-line:#f2c4ac;--ask-bar:#e2581f;
+--serif:"Inter Tight",sans-serif;--sans:"Inter",sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;--r:2px}
+.verdict{font-weight:700!important;letter-spacing:-.04em!important}
+.eyebrow,.ev h4,.ev h4{font-family:var(--mono)!important;letter-spacing:.04em!important}
+.lead{font-family:var(--sans)!important;font-size:17px!important}
+aside{box-shadow:none!important}

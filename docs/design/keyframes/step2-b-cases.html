@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>b · Cases list</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+main{max-width:1040px;margin:0 auto;padding:48px 40px 80px}
+.top{display:flex;align-items:end}.top h1{font-family:var(--serif);font-size:40px;font-weight:600;letter-spacing:-.02em}.top .btn{margin-left:auto}
+.sub{color:var(--dim);margin-top:6px}
+table{width:100%;border-collapse:collapse;margin-top:28px;background:var(--sheet);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--paper)}
+td{padding:16px 18px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}tr:last-child td{border-bottom:0}
+td.p b{display:block;font-weight:600}td.p span{color:var(--dim);font-size:13px}
+td.o{font-family:var(--serif);font-size:20px;font-weight:600}td.o.none{color:var(--faint);font-family:var(--sans);font-size:14px;font-weight:400}
+.stepdots{font-size:13px;color:var(--dim)}.open{color:var(--ok);font-weight:600;font-size:13px;text-align:right}
+h2{font-family:var(--serif);font-size:22px;font-weight:600;margin-top:52px}
+.demos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.demo{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px;font-size:14px;display:flex;flex-direction:column;gap:8px}
+.demo b{font-weight:600;line-height:1.35}.demo span{font-size:13px;color:var(--dim)}.demo .go{margin-top:auto;color:var(--ok);font-weight:600;font-size:13px}
+</style></head><body>
+<div class="bar"><span class="mark">Origin <i>Proof</i></span><nav><span class="on">Cases</span><span>How accurate is it?</span></nav><span class="right">Not a ruling. Confirm with a licensed customs broker.</span></div>
+<main>
+<div class="top"><div><h1>Cases</h1><p class="sub">Each case is one product: its likely origin, the plans found and the draft for your broker.</p></div><span class="btn">+ New case</span></div>
+<table><tr><th>Product</th><th>Likely origin</th><th>Status</th><th>Where you left off</th><th></th></tr>
+<tr><td class="p"><b>Kobalt 12.5-amp heat gun</b><span>Case date 14 Jan 2026</span></td><td class="o">China</td><td><span class="chip ask">Needs expert review</span></td><td class="stepdots">Step 2 of 4 · Origin</td><td class="open">Open →</td></tr>
+<tr><td class="p"><b>Dryer door latch</b><span>Case date 18 Jul 2025</span></td><td class="o none">Not analysed yet</td><td><span class="chip">Draft</span></td><td class="stepdots">Step 1 of 4 · Product</td><td class="open">Continue →</td></tr>
+</table>
+<h2>Or start from a demo</h2>
+<p class="sub">Real products from CBP rulings, with the facts already filled in.</p>
+<div class="demos">
+<div class="demo"><b>Heat gun, 2022 setup (Kobalt 12.5-amp)</b><span>CBP held China, <span class="mono">N328954</span></span><span class="go">Load →</span></div>
+<div class="demo"><b>Dryer door latch, Chinese parts assembled in Thailand</b><span>CBP held China</span><span class="go">Load →</span></div>
+<div class="demo"><b>Dryer door latch, housing and lever moulded in Thailand</b><span>CBP held Thailand</span><span class="go">Load →</span></div>
+<div class="demo"><b>LiDAR module, all core PCBAs made in Thailand</b><span>CBP held Thailand, <span class="mono">N359371</span></span><span class="go">Load →</span></div>
+</div></main></body></html>

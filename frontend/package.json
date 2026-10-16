@@ -3,14 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-flags.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-flags.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ui-check": "node scripts/ui-check.mjs"
+    "ui-check": "node scripts/ui-check.mjs",
+    "gen:api": "openapi-typescript ../docs/api/openapi.yaml -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
+    "flag-icons": "^7.2.3",
     "next": "16.4.0",
+    "pdfjs-dist": "^4.10.38",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
@@ -24,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "openapi-typescript": "^7.13.0",
     "playwright-core": "^1.64.0",
     "tailwindcss": "^4",
     "typescript": "^5"

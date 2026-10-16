@@ -1,0 +1,123 @@
+<!doctype html><html lang="en"><head><style>@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");</style><meta charset="utf-8"><title>Step 3 · f · draft for broker</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style><style>/* inlined from _shared/theme-f.css */
+/* F · Dark reading room (after Claude, Gemini, Adaline dark): charcoal page, light serif verdict, mint for supported, amber for look again */
+:root{--paper:#181817;--sheet:#212120;--ink:#ecebe6;--dim:#a8a59d;--faint:#7d7a73;--line:#34332f;--wash:#2a2a28;
+--ok:#7cc8a4;--ok-wash:#1f3329;--ask:#efb257;--ask-wash:#352a18;--ask-line:#5c4720;--ask-bar:#e0a040;
+--serif:"Source Serif 4",Georgia,serif;--sans:"Inter",sans-serif;--mono:"IBM Plex Mono",monospace;--r:8px}
+.btn{background:var(--ink)!important;color:#141413!important;border-color:var(--ink)!important}
+.btn.ghost{background:transparent!important;color:var(--ink)!important;border-color:var(--line)!important}
+.btn.off{background:var(--wash)!important;color:var(--faint)!important;border-color:var(--line)!important}
+.st.on .d{background:var(--ink)!important;border-color:var(--ink)!important;color:#141413!important}
+.st.done .d{color:#141413!important}
+.q .field{background:var(--paper)!important}
+
+</style>
+<style>
+.steps{display:flex;padding:0 40px;height:52px;align-items:center;border-bottom:1px solid var(--line);font-size:14px}
+.st{display:flex;align-items:center;gap:8px;color:var(--faint)}.st .d{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-family:var(--mono)}
+.st.done{color:var(--dim)}.st.done .d{background:var(--ok);border-color:var(--ok)}.st.on{color:var(--ink);font-weight:600}
+.sep{flex:0 0 56px;height:1px;background:var(--line);margin:0 14px}.case{margin-left:auto;font-size:13px;color:var(--dim)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px;max-width:1240px;margin:0 auto;padding:40px 40px 80px}
+.desk{background:#121211;border:1px solid var(--line);border-radius:var(--r);padding:36px}
+.paper{background:#faf8f3;color:#1b1a17;max-width:720px;margin:0 auto;padding:64px 72px;border-radius:3px;box-shadow:0 18px 50px rgba(0,0,0,.45);font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.6}
+.paper p{margin:0 0 14px}.paper h2{font-size:17px;font-weight:600;margin:26px 0 8px;font-family:"Source Serif 4",serif}
+.paper ul{margin:0 0 14px 20px}.paper li{margin-bottom:4px}.paper a{color:#1f5f46}
+.paper .mono{font-family:"IBM Plex Mono",monospace;font-size:14px}
+.paper .banner{font-family:Inter,sans-serif;font-size:13px;background:#fbf0dc;border-left:3px solid #c98a28;padding:10px 14px;color:#5a3a06;margin-bottom:28px}
+.paper mark{background:#fdf0c2;color:#6b4a00;padding:0 3px;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+aside{display:flex;flex-direction:column;gap:22px;align-self:start;position:sticky;top:20px}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:12px}
+.acts{display:flex;flex-direction:column;gap:10px}.acts .btn{text-align:center}
+.todo li{list-style:none;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.todo li span{font-family:var(--mono);font-size:12px;color:var(--ask)}
+</style></head><body>
+<div class="bar"><span class="mark">Origin <i>Proof</i></span><nav><span class="on">Cases</span><span>How accurate is it?</span></nav><span class="right">Not a ruling. Confirm with a licensed customs broker.</span></div>
+<div class="steps"><span class="st done"><span class="d">✓</span>Product</span><span class="sep"></span><span class="st done"><span class="d">✓</span>Origin</span><span class="sep"></span><span class="st done"><span class="d">✓</span>Plan</span><span class="sep"></span><span class="st on"><span class="d" style="background:var(--ink);border-color:var(--ink);color:#141413">4</span>Draft for broker</span><span class="case">Kobalt 12.5-amp heat gun · plan: motor-fan and PCBA to Thailand</span></div>
+<main><div class="desk"><div class="paper"><p class="banner"><b>Draft for review by a licensed customs broker or counsel.</b> Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling. This draft was generated by Origin Proof from the facts below; check every fact and citation before filing.</p>
+<p>U.S. Customs and Border Protection<br>National Commodity Specialist Division<br>New York, NY</p>
+<p><b>RE: Request for a binding country of origin ruling — Kobalt 12.5-amp heat gun, model 5208257</b></p>
+<p>Dear Sir or Madam:</p>
+<p>Pursuant to 19 C.F.R. Part 177, <mark>[REQUESTER NAME]</mark> respectfully requests a binding ruling on the country of origin of Kobalt 12.5-amp heat gun, model 5208257 for purposes of marking and the application of trade remedies, including Section 301 duties.</p>
+<p>CBP previously ruled on the current production setup: origin China (<span class="mono">N328954</span>). This request concerns a proposed change to that setup: make Motor-fan assembly and PCBA (SMT) in Thailand.</p>
+<h2>Facts</h2>
+<p>The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.</p>
+<p>The main housing, front cover, heating element, electric motor, fan, motor support and printed circuit board assembly (PCBA) are produced in Thailand. The switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China.</p>
+<p>In Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle.</p>
+<p>In Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA.</p>
+<p>Final assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.</p>
+<h2>Issue</h2>
+<p>What is the country of origin of Kobalt 12.5-amp heat gun, model 5208257, produced as described above, under the substantial-transformation test?</p>
+<h2>Requester&#x27;s position</h2>
+<p>The requester submits that the merchandise is a product of Thailand, based on these key factors: heating element, electric motor-fan assembly, and PCBA. <mark>[REQUESTER TO CONFIRM AND EXPAND WITH COUNSEL.]</mark></p>
+<h2>Earlier CBP rulings considered</h2>
+<ul><li><span class="mono">N347421</span> — a comparable change where CBP found the origin moved (<a href="https://rulings.cbp.gov/ruling/N347421">rulings.cbp.gov</a>).</li><li><span class="mono">N345859</span> — a similar change that did not alter origin; distinguish it (<a href="https://rulings.cbp.gov/ruling/N345859">rulings.cbp.gov</a>).</li><li><span class="mono">N342124</span> (<a href="https://rulings.cbp.gov/ruling/N342124">rulings.cbp.gov</a>).</li><li><span class="mono">N345938</span> (<a href="https://rulings.cbp.gov/ruling/N345938">rulings.cbp.gov</a>).</li></ul>
+<h2>Attachments</h2>
+<ul><li>Bill of materials with country of origin of each component</li><li>Process flow and photographs of each manufacturing step</li><li><mark>[OTHER SUPPORTING DOCUMENTS]</mark></li></ul>
+<p>Sincerely,</p>
+<p><mark>[NAME]</mark><br><mark>[TITLE]</mark><br><mark>[COMPANY, ADDRESS, CONTACT]</mark></p></div></div>
+<aside><div class="card"><h4>Send to your broker</h4><div class="acts"><span class="btn">Print or save as PDF</span><span class="btn ghost">Download Markdown</span><span class="btn ghost">Copy as text</span></div><p class="fine" style="margin-top:12px">Prints exactly as shown: light page, no app around it.</p></div>
+<div class="card"><h4>Fill before sending · 4 places</h4><ul class="todo"><li><span>[REQUESTER NAME]</span><br>Your company's legal name</li><li><span>[REQUESTER TO CONFIRM…]</span><br>Your position, with counsel</li><li><span>[OTHER SUPPORTING DOCUMENTS]</span><br>BOM, process flow, photos</li><li><span>[NAME] [TITLE] [COMPANY…]</span><br>Signature block</li></ul></div>
+<p class="notice">Generated from the facts and rulings in this case. Check every fact and citation before filing.</p></aside></main>
+</body></html>

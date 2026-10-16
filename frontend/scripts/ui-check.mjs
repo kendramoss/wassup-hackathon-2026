@@ -2,7 +2,7 @@
 // on each. Use it after any UI change and look at the pictures.
 //
 //   npm run ui-check                         # against http://localhost:3000
-//   npm run ui-check -- https://<url> /chat  # another site or other paths
+//   npm run ui-check -- https://<url> /accuracy  # another site or other paths
 //
 // Writes PNGs and report.json to .ui-check/ and exits 1 if axe finds
 // violations or a page logs console errors. Uses an installed Chrome or Edge
@@ -14,7 +14,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 const args = process.argv.slice(2);
 const base = (args.find((a) => a.startsWith("http")) ?? "http://localhost:3000").replace(/\/$/, "");
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/chat");
+if (paths.length === 0) paths.push("/", "/accuracy");
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 } };

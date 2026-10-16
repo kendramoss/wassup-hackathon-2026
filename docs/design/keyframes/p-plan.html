@@ -1,0 +1,89 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Step 3 key frames: foundations</title><style>/* inlined from _shared/kf.css */
+/* Provisional look for step-2 key frames only. Colour and type are decided in step 3. */
+:root {
+  --paper: #fbfaf6; --sheet: #ffffff; --ink: #191917; --dim: #6f6b63; --faint: #a19c92;
+  --line: #e4e1d8; --wash: #f3f1ea;
+  --ok: #24614a; --ok-wash: #e7f0eb;
+  --ask: #8a5a12; --ask-wash: #fbf1df; --ask-line: #ecd3a6; --ask-bar: #d79a35; --r: 8px;
+  --serif: "Iowan Old Style", "Charter", Georgia, serif;
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.dim { color: var(--dim); }
+a { color: inherit; }
+
+/* app bar */
+.bar { height: 56px; display: flex; align-items: center; gap: 28px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.mark { font-family: var(--serif); font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.mark i { font-style: normal; color: var(--ok); }
+.bar nav { display: flex; gap: 22px; font-size: 14px; color: var(--dim); }
+.bar nav .on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+.bar .right { margin-left: auto; font-size: 13px; color: var(--dim); }
+
+/* headline block */
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.verdict { font-family: var(--serif); font-size: 64px; line-height: 1.02; letter-spacing: -.025em; font-weight: 600; }
+.verdict small { display: block; font-family: var(--sans); font-size: 15px; letter-spacing: 0; font-weight: 400; color: var(--dim); margin-top: 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--sheet); }
+.chip.ask { background: var(--ask-wash); border-color: var(--ask-line); color: var(--ask); font-weight: 600; }
+.chip.ok { background: var(--ok-wash); border-color: #c4dccf; color: var(--ok); font-weight: 600; }
+.lead { font-family: var(--serif); font-size: 19px; line-height: 1.5; max-width: 60ch; margin-top: 18px; }
+
+/* follow-up questions */
+.ask-box { background: var(--sheet); border: 1px solid var(--ask-line); border-left: 4px solid var(--ask-bar); border-radius: var(--r); padding: 22px 24px; }
+.ask-box h3 { font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.ask-box p.why { font-size: 14px; color: var(--dim); margin-top: 4px; max-width: 62ch; }
+.q { margin-top: 16px; }
+.q label { display: block; font-size: 14px; font-weight: 600; }
+.q .field { margin-top: 6px; height: 40px; border: 1px solid var(--line); border-radius: calc(var(--r) - 2px); background: var(--paper); padding: 9px 12px; color: var(--faint); font-size: 14px; }
+.q .field.filled { color: var(--ink); background: var(--sheet); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.btn { font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: calc(var(--r) - 2px); background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.off { background: var(--wash); color: var(--faint); border-color: var(--line); }
+.fine { font-size: 13px; color: var(--dim); }
+
+/* evidence */
+.ev h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+.ev ul { list-style: none; }
+.ev li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.ev li:last-child { border-bottom: 1px solid var(--line); }
+.rul { display: flex; justify-content: space-between; gap: 12px; }
+.rul b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.more { font-size: 13px; color: var(--ok); font-weight: 600; margin-top: 12px; display: inline-block; }
+.notice { font-size: 12.5px; color: var(--dim); font-style: italic; }
+
+/* locked / upcoming sections */
+.locked { border: 1px dashed var(--line); border-radius: 8px; padding: 18px 22px; color: var(--faint); background: transparent; }
+.locked b { color: var(--dim); }
+
+</style>
+<style>
+body{background:#ecebe6;padding:56px 48px 120px}
+h1{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:-.02em}
+.lede{margin-top:12px;max-width:84ch;color:#3d3a35}
+section{margin-top:64px}h2{font-family:var(--serif);font-size:26px;font-weight:600}
+.note{margin-top:6px;color:var(--dim);font-size:14px;max-width:86ch}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:22px;align-items:start}
+figure{background:#fff;border-radius:10px;overflow:hidden}figure img{display:block;width:100%}
+figcaption{padding:12px 14px 14px;font-size:14px;line-height:1.45}
+figcaption b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--dim);margin-bottom:4px}
+.rec{color:var(--ok);font-weight:600}
+.check{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;font-size:13px;max-width:1100px}
+.check div::before{content:"✓ ";font-weight:700;color:var(--ok)}.check div.p::before{content:"~ ";color:#c4892a}.check div.x::before{content:"✗ ";color:#b0412e}
+.links{margin-top:8px;font-size:13px}
+@media (max-width:1100px){.row,.check{grid-template-columns:1fr}body{padding:32px 20px 80px}}
+</style></head><body>
+<h1>Plan screen (step 3), paper mono</h1>
+<p class="lede">From the recorded heat-gun plan run (<span class="mono">eval/results/plan-heatgun-2022-local-litellm.json</span>, proxy): the best plan, all six searched moves with their outcomes, the precedent check, the economics (illustrative inputs: $2M imports, 41.7% → 16.7% duty) and the backtest against CBP's real ruling N357771. Plant groups come from the planner template; plants from the product. This run predates <span class="mono">rejection_kind</span>, so the row labels are derived from each row's reason text.</p>
+<section><h2>Components</h2><p class="note">Best-plan band (the move, precedent-supported, reaches Thailand 0.98, net $320k/yr, check confidence as a ruler at the 0.92 bar) · fig.2 operations by plant (moved groups in blue, arrows from China) · precedent check (supporting ruling, counter-ruling to distinguish, verifier reasoning) · all searched moves table with check-vs-bar mini rulers and status tags · fig.3 backtest · footer with search stats and editable inputs.</p></section>
+<section><h2>q1 · Band, diagram, then the table <span class="rec" style="font-family:var(--sans);font-size:15px">Recommended</span></h2><div class="row"><figure><a href="p-plan-q1.html"><img src="png/p-plan-q1.png" alt=""></a><figcaption><b>First screen</b>The move as a drawing: what goes where.</figcaption></figure><figure><a href="p-plan-q1.html"><img src="png/p-plan-q1-full.png" alt=""></a><figcaption><b>Whole page</b>Table and backtest below.</figcaption></figure></div>
+<div class="check"><div>The diagram shows the plan in one look: two groups move from China to Rayong</div><div>Evidence (supporting and counter-ruling) beside the diagram, one glance away</div><div>Greyed rows say why each move isn't shown; four save more but have weaker evidence, which is honest</div><div class="p">The table starts below the fold</div></div></section>
+<section><h2>q2 · Band, then the table first</h2><div class="row"><figure><a href="p-plan-q2.html"><img src="png/p-plan-q2.png" alt=""></a><figcaption><b>First screen</b>All six moves on the first screen.</figcaption></figure><figure><a href="p-plan-q2.html"><img src="png/p-plan-q2-full.png" alt=""></a><figcaption><b>Whole page</b>Diagram, evidence and backtest below.</figcaption></figure></div>
+<div class="check"><div>Shows the search itself: six moves, one passed</div><div>Best for a compliance lead comparing options</div><div class="p">Rows that save more but sit below the bar compete with the shown plan for attention</div><div class="x">The diagram, the most visual part of the demo, falls below the fold</div></div></section>
+<section><h2>Searching state (~30 s)</h2><div class="row"><figure><a href="p-plan-searching.html"><img src="png/p-plan-searching.png" alt=""></a><figcaption><b>Searching</b>Rows fill in as each move is checked; Draft is disabled until done.</figcaption></figure><figcaption style="background:#fff;border-radius:10px;padding:16px;font-size:14px"><b style="font-family:var(--mono);font-size:12px;color:var(--dim)">needs a backend change</b>The plan endpoint answers once, after ~30 s, with no progress, so rows can't fill in live today. Options: (1) the backend streams each move as it finishes (server-sent events); best on video, about half a day; (2) the frontend shows elapsed time and "usually ~30 s" with the moves greyed out until the answer arrives; no backend change.</figcaption></div></section>
+</body></html>
