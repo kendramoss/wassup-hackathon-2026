@@ -5,12 +5,21 @@ For Anas. Delete this file before the final merge to `main`. Nothing here was pu
 ## Done
 
 - Inventory matched the backend stack (ancestry checked with `git merge-base --is-ancestor`). Actual GitHub PR numbers, which the map gives as stack position or issue number: #34 skeleton, #35 engine, #41 planner, #40 api, #43 accuracy, #45 compare-agent, #47 gcp (issue #37), #48 tuning (issue #38), #50 demo. Authors match (Mizore66 / kendramoss).
-- `feat/origin-proof-flash-baseline` is `feat/origin-proof-demo` plus cherry-picks `76b1720` and `1ec1191`. D44 kept that number and now includes the staging note from `STATUS.md`. That file is not on the branch tip.
+- `feat/origin-proof-flash-baseline` is `feat/origin-proof-demo` plus cherry-picks `76b1720` and `1ec1191`. D44 kept that number and now includes the staging note from `STATUS.md`. That file is not on the flash-baseline tip.
 - `feat/origin-proof-vertex-only` is the flash baseline plus Kendra's LiteLLM removal, renumbered **D39 → D49**. Rate limits and `ADMIN_TOKEN` kept. Recorded `*-litellm.*` results and the "proxy, development only" labels were not rewritten. Live call sites after her branch (`extract` live test, `make run` / `make demo-seed` in `docs/DEMO.md`) now say Vertex.
 - `cd backend && go test -race ./...` passed. `go vet ./...` passed. `staticcheck ./...` passed when run as `GOTOOLCHAIN=go1.27.0 go run honnef.co/go/tools/cmd/staticcheck@2026.2.2 ./...`. The same `go run` under the default toolchain switched to Go 1.26.9 and failed to compile (see Blocked).
 - `feat/origin-proof-frontend-api` is Kendra's `feat/origin-proof-frontend` plus the proxy/type fixes. `npm ci`, `npm run build`, and `npm run lint` passed.
 - `feat/origin-proof-design-docs` is `main` plus merge commits of `feat/origin-proof-design-compare-ask`, then `feat/origin-proof-palettes`, then `feat/origin-proof-frontend-design`. Only conflict: `docs/design/DESIGN.md`. Kept the newer file, `4e660aa` (2026-10-16 04:51 +0800, portfolio triage) over `09efec8` (2026-10-16 01:30 +0800). No code in that branch.
 - Production workflow on this branch only: `deploy.yml` now passes `--set-secrets ADMIN_TOKEN=origin-proof-admin-token:latest` and `--timeout=300`. `CASES_STORE=firestore` and `VERIFIER_CACHE_DIR=/tmp/verifier-cache` were already there. Production was not deployed.
+- Pushed the four branches and opened the PRs. Commented on #52. Left #52 open.
+- `agent-backend` has `roles/datastore.user` (confirmed on the project IAM policy). Firestore saves should work. The README line that still says the grant is missing was not edited.
+
+## Pull requests
+
+- #57 `feat/origin-proof-flash-baseline` → `feat/origin-proof-demo`
+- #58 `feat/origin-proof-vertex-only` → `feat/origin-proof-flash-baseline` (this branch)
+- #59 `feat/origin-proof-frontend-api` → `feat/origin-proof-frontend`
+- #60 `feat/origin-proof-design-docs` → `main`
 
 ## Numbers (not re-run)
 
@@ -20,19 +29,20 @@ Official held-out Vertex engine (D39, already on demo): 90.2% (86.8–92.8). Not
 
 ## Blocked
 
-- **GitHub write.** `git push` of these four branches failed: `fatal: could not read Username for 'https://github.com': terminal prompts disabled`. `gh` is not logged in, `GH_TOKEN` is unset, and `https://api.github.com/user` with the session token returns 401 Bad credentials. No PRs were opened. Kendra's #52 was not commented on. Her branch `feat/origin-proof-vertex` was not force-pushed.
-- **Staging.** `gcloud: command not found`. No `~/.config/gcloud` and no Application Default Credentials file. `http://metadata.google.internal` failed with `Could not resolve host`. Secret `origin-proof-admin-token` was not created, `origin-proof-api-staging` was not redeployed, `scripts/smoke.sh` was not run, and the demo was not seeded. No Vertex row was filled in `docs/DEMO.md` section 4.
+- **Staging secret IAM.** Secret `origin-proof-admin-token` was created (version 1). The value was not printed. Granting `roles/secretmanager.secretAccessor` on that secret to `agent-backend` failed: `Permission 'secretmanager.secrets.setIamPolicy' denied` for `anasqumhiyeh@gmail.com` (`roles/editor`). `Kendra.ting@gmail.com` is `roles/owner`.
+- **Staging deploy.** `gcloud run deploy origin-proof-api-staging` built a container, then failed creating the revision: `Permission denied on secret: projects/88903435351/secrets/origin-proof-admin-token/versions/latest` for `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com`. Failed revision `origin-proof-api-staging-00002-h59` did not take traffic. Ready revision is still `origin-proof-api-staging-00001-sgq`. `GET /health` with an identity token returned 200 (`version` that revision). Anonymous `GET /health` returned 403. `scripts/smoke.sh` was not run. The demo was not seeded. No Vertex row was filled in `docs/DEMO.md` section 4. Store and provider were not switched.
 - **staticcheck toolchain.** First attempt: `go run honnef.co/go/tools/cmd/staticcheck@2026.2.2 ./...` downloaded Go 1.26.9 and exited 1 with `unknown field rfd in struct literal of type splicePipe` and `file requires newer Go version go1.27 (application built with go1.26)`. Re-run pinned to Go 1.27.0 exited 0 with no findings.
 
 ## Inventory differences (did not change the stack)
 
 - Frontend PR #51 (`feat/origin-proof-frontend`, issue #44) has base `feat/origin-proof-design-compare-ask`, not `main`. Git says `main` is an ancestor and the design branch is not. Left #51's base alone.
 - Palette PR #53 was already squash-merged into `feat/origin-proof-design-compare-ask` (`244d3c6`). The original branch `502eae2` is not an ancestor of that commit. Merging it again onto the design-docs branch was clean.
-- Flash commits `76b1720` and `1ec1191` are not on a branch tip. They are reachable from the public repo by SHA. `Mizore66/wassup-hackathon-2026` still returns 404 without a GitHub login.
+- Flash commits `76b1720` and `1ec1191` are not on a branch tip. They are reachable from the public repo by SHA.
+- **New since the map:** #55 `feat/origin-proof-ux` (kendramoss, opened 2026-10-16 02:37 UTC) bases `feat/origin-proof-frontend`. Title: "Frontend UX pass: Blueprint palette and Mizore66's locked designs". It edits the same proxy files as #59 (`route.ts`, `backend.ts`, `schema.d.ts`, Cases home, chrome, origin step). #59 was not retargeted onto it.
 
-## Files that differ between this design branch and #44
+## Files that differ between the design branch and #44
 
-Content differs (17): `docs/design/DESIGN.md`, `keyframes/p-ask-waiting.html`, `p-ask.html`, `p-bom-empty.html`, `p-bom-ok.html`, `p-bom-warn.html`, `p-cases.html`, `p-plan-q1.html`, `p-scen.html`, and the matching `png/` files for those eight keyframes except DESIGN.md. 151 other `docs/design` files are on this branch and not on #44 (palette frames and the later keyframes). Nothing under `docs/design` is only on #44. Not resolved.
+Content differs (17): `docs/design/DESIGN.md`; keyframes `p-ask-waiting.html`, `p-ask.html`, `p-bom-empty.html`, `p-bom-ok.html`, `p-bom-warn.html`, `p-cases.html`, `p-plan-q1.html`, `p-scen.html`; and the matching `png/` for those eight keyframes. 151 other `docs/design` files are on the design branch and not on #44 (later keyframes and palette frames A–E). Nothing under `docs/design` is only on #44. Not resolved.
 
 ## Not built
 
@@ -40,18 +50,18 @@ Proxy now accepts PUT, PATCH, and DELETE, but no screen calls rename, economics,
 
 ## Next
 
-1. Push the four branches and open the PRs below. Comment on #52 that `feat/origin-proof-vertex-only` supersedes it (rebased onto the newest backend, D49) and leave #52 open for Kendra.
-2. Whoever has gcloud and Secret Manager access: create `origin-proof-admin-token` (32+ characters, do not print it), grant `agent-backend` `roles/secretmanager.secretAccessor` on that secret only, redeploy `origin-proof-api-staging` from this branch with the existing env plus `--set-secrets ADMIN_TOKEN=origin-proof-admin-token:latest`, run `scripts/smoke.sh`, seed once, and fill the Vertex row in `docs/DEMO.md` section 4.
-3. **Laptop note:** after D49, local `make run` needs Vertex Application Default Credentials (`gcloud auth application-default login`) and `GOOGLE_CLOUD_PROJECT`. There is no LiteLLM fallback. Do not work around that with a proxy.
+1. Kendra grants `roles/secretmanager.secretAccessor` on secret `origin-proof-admin-token` to `agent-backend@wassup-hackathon-2026.iam.gserviceaccount.com` only. Then redeploy `origin-proof-api-staging` from this branch with the same env plus `--set-secrets ADMIN_TOKEN=origin-proof-admin-token:latest`, run `scripts/smoke.sh`, seed once, and fill the Vertex row in `docs/DEMO.md` section 4.
+2. **Laptop note:** after D49, local `make run` needs Vertex Application Default Credentials (`gcloud auth application-default login`) and `GOOGLE_CLOUD_PROJECT`. There is no LiteLLM fallback. Do not work around that with a proxy.
+3. Decide how #59 and #55 stack. They both start from `feat/origin-proof-frontend` and touch the proxy.
 
-## Merge order, after the branches exist on GitHub
+## Merge order
 
 Top down, merge commits only, one push to `main` at the end. Do not squash or rebase.
 
-1. `feat/origin-proof-vertex-only` → `feat/origin-proof-flash-baseline` → `feat/origin-proof-demo` (#50)
+1. #58 → #57 → #50 (`feat/origin-proof-demo`)
 2. #50 → #48 → #47 → #45 → #43 → #40 → #41 → #35 → #34, each into its base
-3. #34 → `main` last. That is the only push to `main`.
-4. Then `feat/origin-proof-design-docs` → `main`
-5. Then `feat/origin-proof-frontend-api` into #51, then #51 → `main`. Retarget #51 onto `main` first, or the merge lands on the design branch. Kendra has to approve that retarget and the merge of her frontend branch. She also has to approve merging #48 and #47 (her tuning and GCP PRs) and closing #52.
+3. #34 → `main` last. That is the only push to `main` from the backend stack.
+4. Then #60 → `main`
+5. Then #59 into #51, then #51 → `main`. Retarget #51 onto `main` first, or the merge lands on the design branch.
 
-Kendra's approval: #52 (close, do not merge), #48, #47, #51 (and the frontend-api merge into it), and the design-docs PR only where it takes her frames. Anas approves the final merge to `main`.
+Kendra's approval: close #52 (do not merge it), merge #48 and #47, retarget and merge #51, and merge #59 into her frontend branch. #60 takes her design frames. #55 is hers and overlaps #59. Anas approves the final merge to `main`.
