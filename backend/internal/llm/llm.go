@@ -52,6 +52,13 @@ type Tool struct {
 	Parameters  map[string]any `json:"parameters"`
 }
 
+// Seed is sent with every model call (D76). Temperature 0 alone did not make
+// Gemini repeatable: the same verifier request returned different tool calls
+// on 5 of 5 tries, and a fixed seed made all 5 identical. The seed is best
+// effort on Google's side, so the verdict cache stays the repeatability
+// guarantee; the seed makes fresh runs agree far more often.
+const Seed = 20261017
+
 // Request is one model call. Temperature is always 0: implementations must
 // not expose a way to change it.
 type Request struct {

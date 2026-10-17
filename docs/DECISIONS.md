@@ -462,3 +462,22 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 ## D78 — Pause between model calls (17 Oct)
 - Production's first tub-light plan (`case_100715a11651`, `backend-00043-bvb`) predicted China 0.98, then the three moves the engine called Thailand never got a precedent check: each verifier call died with Vertex HTTP 504 "Deadline expired" after four attempts. The planner runs the baseline and every move together (`PLANNER_CONCURRENCY` 8), so one search puts the engine and several verifier loops on Vertex at once.
 - **Decision:** `LLM_CALL_GAP` (default 0; production 8s) makes every model client — engine, flash fallback, verifier — share one gate. The next call starts only after the previous one has returned and the gap has elapsed. Cloud Run's request timeout is 900s so a paced plan search can finish. The bar, the prompt and the heat-gun verdict are unchanged.
+
+## D76 — A fixed seed on every model call (17 Oct)
+- **Why the check picked different rulings run to run.** Temperature 0 is not enough on Gemini. The verifier's first request, captured and sent unchanged 5 times, came back with 5 different sets of searches. Each different search turned up different rulings, so each run anchored on a different supporting ruling (D75). With a fixed seed, the same request returned the same searches 5 of 5 times, and 19 of 20 in a second test.
+- **Change.** `llm.Seed` (20261017) is sent as `generationConfig.seed` on every Vertex call: engine, verifier, router, clarify, agent and fallback.
+- **Measured** (dev flip pairs, known-a, verifier-v2, LiteLLM proxy with the same seed, two runs; heat-gun pair excluded):
+
+  | | unseeded (D74/D75 runs) | seeded |
+  |---|---|---|
+  | identical verdict, rulings and confidence | 13 of 54 | **21 of 54** |
+  | different supporting ruling or verdict | 10 of 54 | 9 of 54 |
+  | real changes shown at ≥ 0.92 | 16 and 21 of 46 | 17 and 18 of 46 |
+  | wrong at ≥ 0.92 | 0 | 0 |
+
+  Results: `eval/results/flips-dev-verifier-v2-seed-run{1,2}-known-a-litellm.*`.
+- **What the seed does not fix.** Google documents the seed as best effort. A trace of single pairs showed seeded runs that matched turn for turn, then differed at one turn (for example one run with 100 output tokens and the others with 101), and from there the agent searched and read differently. This persists with thinking off. The serving side is not bit-for-bit repeatable, and a multi-turn agent turns a one-token difference into a different ruling. The production guarantee that the same input gets the same answer remains the verdict cache (D31, D50). The seed makes a fresh run more likely to agree with an earlier one.
+- Cached verdicts are kept (the cache key does not include the seed), so the demo's stored verdict is not re-rolled.
+- **Engine, dev, seeded** (LiteLLM proxy, same engine-v1, BM25, K = 5): 424/469 = 90.4% (87.4–92.8), against unseeded 422/469 on the same proxy. McNemar: fixed 4, broke 2, exact p = 0.69. The ≥ 0.95 band is 325/337 = 96.4% (unseeded 324/338). 9 of 469 answers differ from the unseeded run, about the same as LiteLLM vs Vertex unseeded (7 of 469). Rows: `eval/results/dev-gemini-4-argon-prec-engine-v1-seed-litellm.jsonl`.
+- **Heat-gun baseline** (the plan search's prediction from the structured product, not the predict step's CBP text): Thailand 0.72–0.78 both seeded and unseeded, as in every earlier plan run (D74, D75, the Vertex demo seed). This is not a change from the seed. The plan starts from CBP's holding (China, N328954) through `current_origin`.
+- **Tub-light verdicts re-checked once with the seed (17 Oct, Anas's call).** Production's tub-light plan on `backend-00044-q8k`, unseeded, checked LED PCBA → Thailand at 0.90 on H304910. Two unseeded proxy runs gave the same 0.90 on H304910. Three seeded proxy runs gave 0.94–0.96 on N345899 (D77). This is an exception to "don't re-roll demo verdicts" (D56), recorded here. Only the tub light's three cached verdicts are deleted and checked once with the seed; the result stands whatever it is. The heat gun's verdicts are not touched.
