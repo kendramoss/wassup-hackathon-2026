@@ -159,9 +159,15 @@ func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Mod
 	}
 	primary := llm.WithLogging(llm.WithRetry(base, cfg.EngineAttempts-1, time.Second), logger)
 	var fb llm.Model
+	// The fallback gets its own budget. A short LLM_TIMEOUT is what makes the
+	// primary hit a deadline; the one fallback call still has time to answer.
+	fbTimeout := cfg.LLMTimeout
+	if fbTimeout < 60*time.Second {
+		fbTimeout = 60 * time.Second
+	}
 	switch cfg.LLMProvider {
 	case config.ProviderVertex:
-		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.FallbackEngineLocation, Timeout: cfg.LLMTimeout})
+		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.FallbackEngineLocation, Timeout: fbTimeout})
 		if err != nil {
 			return nil, err
 		}
