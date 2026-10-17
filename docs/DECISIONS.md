@@ -612,3 +612,26 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Below 0.85, support is still right when given, but the check rarely gives it there.
   - The cost of the bar is recall: about 30% of real-change pairs are shown in every run.
 - Tests: band edges (0.92 is inclusive, 1.0 is in the top band), Wilson, the pair-level rule, dev/2026 separation, v1/v3 files excluded, errors excluded. `summary.json` regenerated; the 50 existing items are unchanged.
+
+## D87 — Cost and time estimate before a plan search (18 Oct)
+- A fresh plan search took 8+ minutes before D79, and the frontend could only say "usually 1–2 minutes". `POST /v1/cases/{id}/plan/estimate` takes the plan body and answers with no model call: moves to search, how many engine predictions and verdicts are already stored, and a range for model calls, cost (USD, promo prices) and wall time.
+- **How:** the planner enumerates the same moves and renders the same facts as `Plan`, then reads the caches read-only. It uses `engine.Cache.Peek`, `verifier.Cache.Peek` and `nearmiss.Cache.Has`, the same keys `Predict`, `Verify` and `Advise` use, which now call the same lookup.
+  - A stored verdict, or a stored prediction that misses the target, costs nothing.
+  - A move with no stored prediction may or may not need a check: from 50% (tub light, 3 of 6 moves reach the target) to 100% (heat gun, 6 of 6).
+  - The panel (D83) adds 2 views on 29–42% of checks: the share in [0.89, 0.95) on the dev and 2026 flip pairs.
+  - Near-miss advice (D81) adds up to 2 calls.
+  - Wall time is the longest chain of one move's calls, or the calls queued through `LLM_MAX_IN_FLIGHT` (D79), whichever is longer.
+  - The constants and their sources are in `planner/estimate.go`.
+- **Access:** same ownership as the plan route. It takes from the light rate-limit bucket, not the heavy one, so the estimate does not use up the search it is for. The spend cap does not refuse it, because it spends nothing. The route exists only when the planner can estimate.
+- **Sanity check against measured fresh searches** (LiteLLM, no panel, no in-flight cap, as those runs used):
+
+  | | estimate | measured |
+  |---|---|---|
+  | heat gun, cost | $0.10–0.22 | $0.15–0.22 (5 runs: `plan-heatgun-2022-*`) |
+  | heat gun, wall | 26–50 s | 30–34 s |
+  | tub light, cost | $0.10–0.22 | $0.12–0.14 (4 runs: `plan-tublight-2025-*`) |
+  | tub light, wall | 26–50 s | 35–51 s |
+
+  Every measured cost is inside the range. The heat gun's measured costs sit in the top half (every move reached the target). The tub light's sit near the bottom (3 of 6 did). The tub light's slowest run (51 s) was 1 s above the range.
+  - With production's settings (panel on, near-miss on, 4 in flight), a fresh 6-move search estimates $0.13–0.38 and 34–132 s.
+  - The range assumes a healthy provider; under 429/504 a search can take several times longer (D78, D79), and the response says so.

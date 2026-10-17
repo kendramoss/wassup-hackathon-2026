@@ -360,7 +360,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			pharma = engine.NewCache(pharmaEng, engineBlobs)
 		}
 	}
-	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves}
+	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves,
+		Panel: cfg.VerifierPanel == "on", MaxInFlight: cfg.LLMMaxInFlight}
 	if cfg.NearMissAdvice {
 		// Advice on the closest moves just under the plan bar (D81), cached
 		// beside the verdicts (keys are prefixed, so no clash).

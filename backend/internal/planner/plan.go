@@ -47,6 +47,12 @@ type Options struct {
 	// matches; nil means no fallback.
 	FollowAdvice bool
 	Mapper       GroupMapper
+
+	// Panel and MaxInFlight tell Estimate how the server's checker and model
+	// gate are set up (VERIFIER_PANEL, LLM_MAX_IN_FLIGHT; D83, D79, D87).
+	// Plan does not read them.
+	Panel       bool
+	MaxInFlight int
 }
 
 // GroupMapper names the template groups a piece of advice asks to move

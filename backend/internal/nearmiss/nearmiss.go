@@ -236,3 +236,14 @@ func (c *Cache) Advise(ctx context.Context, t Task) (domain.NearMiss, error) {
 	}
 	return n, nil
 }
+
+// Has reports whether advice for t is stored, without a model call. The
+// plan-search estimate uses it read-only (D87).
+func (c *Cache) Has(ctx context.Context, t Task) (bool, error) {
+	b, ok, err := c.blobs.Get(ctx, c.key(t))
+	if err != nil || !ok {
+		return false, err
+	}
+	var n domain.NearMiss
+	return json.Unmarshal(b, &n) == nil && n.Difference != "", nil
+}

@@ -243,6 +243,35 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/plan/estimate:
+    post:
+      summary: Estimate a plan search's cost and time before running it (no model call)
+      description: |
+        Takes the same body as `POST /v1/cases/{id}/plan` and makes no model call (D87). It counts the moves the
+        search would make and reads the engine and verdict caches: a move already searched costs nothing. For
+        the rest it gives a range from measured searches, with the server's settings (precedent panel D83,
+        near-miss advice D81, model calls in flight D79). Same ownership rules as the plan route. It uses the
+        light rate-limit bucket and is not refused by the daily spend cap, since it spends nothing.
+        The range assumes a healthy model provider; under 429/504 a search can take several times longer.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlanRequest" }
+      responses:
+        "200":
+          description: Estimate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id: { type: string }
+                  estimate: { $ref: "#/components/schemas/PlanEstimate" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/export:
     post:
       summary: Draft a CBP ruling request for the case (Markdown)
@@ -1335,6 +1364,30 @@ components:
             Only with FOLLOW_ADVICE=on (D85): true on the one move per search added by following a near miss's advice. It is the
             advised move plus the groups its would_match names, searched because no earlier move covered it, and checked once like
             any other move (engine, then precedent check). It may be shown, below the bar or rejected. Absent otherwise.
+
+    Range:
+      type: object
+      properties:
+        min: { type: number }
+        max: { type: number }
+    PlanEstimate:
+      type: object
+      properties:
+        target: { type: string }
+        moves: { type: integer, description: "Moves the search would make." }
+        engine_calls: { type: integer, description: "Engine predictions: the current setup plus one per move." }
+        engine_cached: { type: integer, description: "Of engine_calls, how many are already stored (cost nothing)." }
+        checks_cached: { type: integer, description: "Moves with a stored prediction reaching the target and a stored verdict." }
+        checks_skipped: { type: integer, description: "Moves with a stored prediction that misses the target (no check runs)." }
+        checks_fresh: { $ref: "#/components/schemas/Range", description: "Precedent checks that may run." }
+        near_miss_calls: { $ref: "#/components/schemas/Range" }
+        model_calls: { $ref: "#/components/schemas/Range" }
+        cost_usd: { $ref: "#/components/schemas/Range", description: "Model cost at promo prices." }
+        wall_seconds: { $ref: "#/components/schemas/Range" }
+        panel: { type: boolean }
+        near_miss: { type: boolean }
+        max_in_flight: { type: integer }
+        note: { type: string }
     PlanResult:
       type: object
       properties:

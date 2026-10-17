@@ -51,6 +51,12 @@ type Planner interface {
 	PlanWithProgress(ctx context.Context, req planner.Request, progress func(planner.Event)) (planner.Result, error)
 }
 
+// Estimator estimates a plan search without model calls (planner.Planner,
+// D87). A Planner without it has no estimate route.
+type Estimator interface {
+	Estimate(ctx context.Context, req planner.Request) (planner.Estimate, error)
+}
+
 // Clarifier reviews low-confidence predictions (clarify.Clarifier).
 type Clarifier interface {
 	Review(ctx context.Context, facts string, p domain.Prediction, precedents []domain.Ruling) (clarify.Result, error)
@@ -816,22 +822,8 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if c.Product == nil || c.Family == "" {
-		a.fail(w, r, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid))
-		return
-	}
-	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ := in.Economics
-	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
-		econ = *c.Economics
-	}
-	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), true)
-	req := planner.Request{
-		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
-		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
-		ActualChange: in.ActualChange,
-	}
-	if err := req.Validate(); err != nil {
+	req, err := a.planRequestFor(r, c, in, true)
+	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -858,6 +850,61 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
+}
+
+// planRequestFor builds the planner request for a case and a plan body.
+// fetch false prices duty rates from the table and cached live rates only.
+func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (planner.Request, error) {
+	if c.Product == nil || c.Family == "" {
+		return planner.Request{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
+	}
+	date, _ := time.Parse(time.DateOnly, c.Date)
+	econ := in.Economics
+	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
+		econ = *c.Economics
+	}
+	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
+	req := planner.Request{
+		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
+		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
+		ActualChange: in.ActualChange,
+	}
+	return req, req.Validate()
+}
+
+// planEstimate is POST /v1/cases/{id}/plan/estimate: the moves a plan
+// search with this body would make, how many are already cached, and a cost
+// and wall-time range, with no model call (D87). It has the plan route's
+// ownership rules. It takes from the light rate-limit bucket, not the heavy
+// one, so checking the estimate does not use up the plan search it is for,
+// and the spend cap does not apply: it only reads the caches.
+func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
+	est, ok := a.d.Planner.(Estimator)
+	if !ok {
+		writeError(w, http.StatusServiceUnavailable, "internal", "plan estimates are not configured", nil)
+		return
+	}
+	c, err := a.loadCase(r)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	var in planRequest
+	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	req, err := a.planRequestFor(r, c, in, false)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	e, err := est.Estimate(r.Context(), req)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "estimate": e})
 }
 
 // economicsPriced is the case's economics with the duty rates a plan search
