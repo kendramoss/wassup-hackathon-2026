@@ -222,7 +222,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
-                Each move is predicted by the origin engine and checked against earlier CBP rulings. The search takes {copy.plan.usually}. A plan is shown when its precedent check is at least {BAR}.
+                Each move is predicted by the origin engine and checked against earlier CBP rulings. {copy.plan.usuallySentence} A plan is shown when its precedent check is at least {BAR}.
               </p>
             </div>
             <div>

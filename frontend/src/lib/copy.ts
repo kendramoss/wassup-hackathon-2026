@@ -77,6 +77,7 @@ export const copy = {
     supported: "Precedent-supported",
     searching: "Searching moves",
     usually: "usually 1–2 minutes; longer if the model provider is busy",
+    usuallySentence: "The search usually takes 1–2 minutes; longer if the model provider is busy.",
     slow: "Taking longer than usual. The model provider may be busy; the search keeps going.",
     cut: "The search stopped before it finished. Try again: moves already checked are kept, so it picks up where it left off.",
     draft: "Draft the ruling request →",
