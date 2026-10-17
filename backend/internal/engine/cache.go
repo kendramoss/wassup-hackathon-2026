@@ -52,22 +52,13 @@ type cached struct {
 // A case whose ID is a ruling number is not cached: its precedents exclude
 // that ruling, which the key does not cover (eval rows only).
 func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
-	if domain.ValidRulingID(k.ID) || k.Facts == "" || k.Date.IsZero() {
+	if !cacheable(k) {
 		return c.inner.Predict(ctx, k)
 	}
-	// Look up the primary model's key. A fallback answer is stored under the
-	// model that answered, so it does not satisfy this lookup and a later
-	// primary success is not blocked (D56).
-	key := c.key(c.inner.opts.Model, k)
-	if b, ok, err := c.blobs.Get(ctx, key); err != nil {
-		return Result{}, fmt.Errorf("engine: read cache: %w", err)
+	if r, ok, err := c.Peek(ctx, k); err != nil {
+		return Result{}, err
 	} else if ok {
-		var v cached
-		if json.Unmarshal(b, &v) == nil && v.Prediction.Origin != "" {
-			p := v.Prediction
-			p.Trace.InputTokens, p.Trace.OutputTokens, p.Trace.LatencyMS, p.Trace.Cached = 0, 0, 0, true
-			return Result{Prediction: p, Flip: v.Flip, Votes: v.Votes, VoteCounts: v.VoteCounts}, nil
-		}
+		return r, nil
 	}
 	res, err := c.inner.Predict(ctx, k)
 	if err != nil {
@@ -81,4 +72,30 @@ func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
 		_ = c.blobs.Put(ctx, c.key(answered, k), b) // best effort; fallback model id ≠ primary key
 	}
 	return res, nil
+}
+
+func cacheable(k domain.Case) bool {
+	return !domain.ValidRulingID(k.ID) && k.Facts != "" && !k.Date.IsZero()
+}
+
+// Peek returns the stored prediction for k without calling the model; ok is
+// false when none is stored or k is not cached. It reads the primary
+// model's key: a fallback answer is stored under the model that answered,
+// so it does not satisfy this lookup and a later primary success is not
+// blocked (D56). The plan-search estimate uses it read-only (D87).
+func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
+	if !cacheable(k) {
+		return Result{}, false, nil
+	}
+	b, ok, err := c.blobs.Get(ctx, c.key(c.inner.opts.Model, k))
+	if err != nil {
+		return Result{}, false, fmt.Errorf("engine: read cache: %w", err)
+	}
+	var v cached
+	if !ok || json.Unmarshal(b, &v) != nil || v.Prediction.Origin == "" {
+		return Result{}, false, nil
+	}
+	p := v.Prediction
+	p.Trace.InputTokens, p.Trace.OutputTokens, p.Trace.LatencyMS, p.Trace.Cached = 0, 0, 0, true
+	return Result{Prediction: p, Flip: v.Flip, Votes: v.Votes, VoteCounts: v.VoteCounts}, true, nil
 }

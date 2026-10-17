@@ -552,3 +552,26 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
 - **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
 - The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).
+
+## D87 — Cost and time estimate before a plan search (18 Oct)
+- A fresh plan search took 8+ minutes before D79, and the frontend could only say "usually 1–2 minutes". `POST /v1/cases/{id}/plan/estimate` takes the plan body and answers with no model call: moves to search, how many engine predictions and verdicts are already stored, and a range for model calls, cost (USD, promo prices) and wall time.
+- **How:** the planner enumerates the same moves and renders the same facts as `Plan`, then reads the caches read-only. It uses `engine.Cache.Peek`, `verifier.Cache.Peek` and `nearmiss.Cache.Has`, the same keys `Predict`, `Verify` and `Advise` use, which now call the same lookup.
+  - A stored verdict, or a stored prediction that misses the target, costs nothing.
+  - A move with no stored prediction may or may not need a check: from 50% (tub light, 3 of 6 moves reach the target) to 100% (heat gun, 6 of 6).
+  - The panel (D83) adds 2 views on 29–42% of checks: the share in [0.89, 0.95) on the dev and 2026 flip pairs.
+  - Near-miss advice (D81) adds up to 2 calls.
+  - Wall time is the longest chain of one move's calls, or the calls queued through `LLM_MAX_IN_FLIGHT` (D79), whichever is longer.
+  - The constants and their sources are in `planner/estimate.go`.
+- **Access:** same ownership as the plan route. It takes from the light rate-limit bucket, not the heavy one, so the estimate does not use up the search it is for. The spend cap does not refuse it, because it spends nothing. The route exists only when the planner can estimate.
+- **Sanity check against measured fresh searches** (LiteLLM, no panel, no in-flight cap, as those runs used):
+
+  | | estimate | measured |
+  |---|---|---|
+  | heat gun, cost | $0.10–0.22 | $0.15–0.22 (5 runs: `plan-heatgun-2022-*`) |
+  | heat gun, wall | 26–50 s | 30–34 s |
+  | tub light, cost | $0.10–0.22 | $0.12–0.14 (4 runs: `plan-tublight-2025-*`) |
+  | tub light, wall | 26–50 s | 35–51 s |
+
+  Every measured cost is inside the range. The heat gun's measured costs sit in the top half (every move reached the target). The tub light's sit near the bottom (3 of 6 did). The tub light's slowest run (51 s) was 1 s above the range.
+  - With production's settings (panel on, near-miss on, 4 in flight), a fresh 6-move search estimates $0.13–0.38 and 34–132 s.
+  - The range assumes a healthy provider; under 429/504 a search can take several times longer (D78, D79), and the response says so.

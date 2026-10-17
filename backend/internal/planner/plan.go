@@ -38,6 +38,11 @@ type Options struct {
 	NearMiss      nearmiss.Adviser
 	NearMissFloor float64
 	NearMissMax   int
+	// Panel and MaxInFlight tell Estimate how the server's checker and model
+	// gate are set up (VERIFIER_PANEL, LLM_MAX_IN_FLIGHT; D83, D79, D87).
+	// Plan does not read them.
+	Panel       bool
+	MaxInFlight int
 }
 
 // Near-miss defaults (D81).
