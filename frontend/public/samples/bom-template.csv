@@ -1,0 +1,4 @@
+name,country,plant,group,type,plant_capabilities
+Main housing,Thailand,Rayong plant,housing_moulding,component,motor_fan_assembly; pcba
+Motor-fan assembly,China,Shenzhen supplier,motor_fan_assembly,component,
+Final assembly,Thailand,Rayong plant,final_assembly,operation,

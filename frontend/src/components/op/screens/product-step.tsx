@@ -666,6 +666,39 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
   );
 }
 
+const formatSize = (n: number) => (n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
+
+function UploadIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square">
+      <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" />
+      <path d="M4 14v6h16v-6" />
+    </svg>
+  );
+}
+
+function StatusBadge({ required }: { required: boolean }) {
+  return (
+    <span
+      className={cx(
+        "inline-flex items-center rounded-[2px] border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap",
+        required ? "border-ink bg-ink text-paper" : "border-line bg-paper text-dim",
+      )}
+    >
+      {required ? "Required" : "Optional"}
+    </span>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5" />
+      <path d="M4 14v6h16v-6" />
+    </svg>
+  );
+}
+
 function BomImport({
   name,
   family,
@@ -731,17 +764,40 @@ function BomImport({
           e.preventDefault();
           setDrag(true);
         }}
-        onDragLeave={() => setDrag(false)}
+        onDragLeave={(e) => {
+          // Moving over a child fires dragleave on the label too.
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDrag(false);
+        }}
         onDrop={(e) => {
           e.preventDefault();
           setDrag(false);
           const f = e.dataTransfer.files[0];
           if (f) upload(f);
         }}
-        className={cx("block cursor-pointer border border-dashed px-6 py-8 text-center", drag ? "border-ok bg-ok-wash" : "border-guide bg-sheet")}
+        className={cx(
+          "group flex cursor-pointer flex-col items-center gap-3 border-[1.5px] px-6 py-9 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+          drag ? "border-solid border-ok bg-ok-wash" : "border-dashed border-guide bg-sheet hover:border-dim",
+        )}
       >
-        <span className="text-sm">{file ? `${file.name} · replace file` : copy.product.bomDrop}</span>
-        <span className="duo mt-2 block text-xs text-dim">{copy.product.bomGuide}</span>
+        <span
+          aria-hidden="true"
+          className={cx(
+            "grid size-12 place-items-center border bg-paper transition-transform",
+            drag ? "-translate-y-1 border-ok text-ok" : "border-line text-ink group-hover:-translate-y-0.5",
+          )}
+        >
+          <UploadIcon />
+        </span>
+        <span className="text-[15px] font-medium text-ink">{drag ? copy.product.bomDropActive : file ? file.name : copy.product.bomDrop}</span>
+        <span className="duo text-xs text-dim">{file && !drag ? `${formatSize(file.size)} · ${copy.product.bomFormats}` : copy.product.bomFormats}</span>
+        <span className="flex items-center gap-3 text-xs text-dim">
+          <span className="h-px w-8 bg-line" />
+          or
+          <span className="h-px w-8 bg-line" />
+        </span>
+        <span className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[2px] border border-ink bg-ink px-5 py-2 text-sm font-medium text-paper shadow-[3px_3px_0_var(--shadow)] group-hover:bg-body">
+          {file ? copy.product.bomReplace : copy.product.bomBrowse}
+        </span>
         <input id={inputId} type="file" accept=".csv,.xlsx,.pdf,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       </label>
       {busy && <Spinner label="Importing…" />}
@@ -754,20 +810,60 @@ function BomImport({
           </button>
         </p>
       )}
-      <p className="text-xs text-dim">
-        Test files (heat gun, 17 rows):{" "}
-        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
-          CSV
-        </a>{" "}
-        ·{" "}
-        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.xlsx" download>
-          Excel
-        </a>{" "}
-        ·{" "}
-        <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
-          PDF
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs text-dim">
+        <p>
+          {copy.product.bomSamples}{" "}
+          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
+            CSV
+          </a>{" "}
+          ·{" "}
+          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.xlsx" download>
+            Excel
+          </a>{" "}
+          ·{" "}
+          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
+            PDF
+          </a>
+        </p>
+        <a className="inline-flex items-center gap-1.5 text-ok underline underline-offset-2" href="/samples/bom-template.csv" download>
+          <DownloadIcon />
+          {copy.product.bomTemplate}
         </a>
-      </p>
+      </div>
+      <section aria-labelledby={`${inputId}-cols`}>
+        <h3 id={`${inputId}-cols`} className="mb-2 text-[11px] font-medium uppercase tracking-[.06em] text-dim">
+          {copy.product.bomColumnsTitle}
+        </h3>
+        {/* A table from sm up; stacked rows on phones, where four columns would be too narrow. */}
+        <table className="w-full border-collapse border border-line bg-sheet text-left text-[13px] max-sm:block">
+          <thead className="max-sm:sr-only">
+            <tr className="border-b border-line bg-wash text-[11px] uppercase tracking-[.06em] text-dim">
+              <th scope="col" className="px-3 py-2 font-medium">Field</th>
+              <th scope="col" className="px-3 py-2 font-medium">Status</th>
+              <th scope="col" className="px-3 py-2 font-medium">Format</th>
+              <th scope="col" className="px-3 py-2 font-medium">Example</th>
+            </tr>
+          </thead>
+          <tbody className="max-sm:block">
+            {copy.product.bomColumns.map((c) => (
+              <tr key={c.field} className="border-b border-line last:border-b-0 max-sm:grid max-sm:grid-cols-[1fr_auto] max-sm:gap-x-3 max-sm:gap-y-1 max-sm:px-3 max-sm:py-2.5">
+                <th scope="row" className="whitespace-nowrap px-3 py-2 font-medium text-ink max-sm:p-0">
+                  <code>{c.field}</code>
+                </th>
+                <td className="px-3 py-2 max-sm:p-0 max-sm:text-right">
+                  <StatusBadge required={c.required} />
+                </td>
+                <td className="duo px-3 py-2 text-body max-sm:col-span-2 max-sm:p-0">{c.format}</td>
+                <td className="px-3 py-2 text-dim max-sm:col-span-2 max-sm:p-0">
+                  <span className="sm:hidden">e.g. </span>
+                  <code>{c.example}</code>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="duo mt-2 text-xs text-dim">{copy.product.bomColumnsNote}</p>
+      </section>
       {imported && p && (
         <Panel>
           <PanelHead right="Ready for the plan search">Imported</PanelHead>
