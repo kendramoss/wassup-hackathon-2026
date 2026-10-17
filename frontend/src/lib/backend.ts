@@ -1,3 +1,5 @@
+import { newVisitorId, visitorFromCookieHeader, visitorSetCookie } from "./visitor";
+
 // Server-only helpers for calling the Go backend from route handlers.
 
 export class BackendError extends Error {
@@ -138,7 +140,18 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // body, content type, Accept) and returns the backend's response as-is,
 // errors included, so the client sees the API's {code, message} bodies and
 // server-sent events stream through.
+// Sends the visitor ID (lib/visitor.ts) as X-Visitor-ID. A page load has
+// usually set the cookie already (src/proxy.ts); a first request straight to
+// the API gets one here.
 export async function proxyBackend(request: Request, path: string): Promise<Response> {
+  const known = visitorFromCookieHeader(request.headers.get("cookie"));
+  const id = known ?? newVisitorId();
+  const res = await forward(request, path, id);
+  if (!known) res.headers.append("Set-Cookie", visitorSetCookie(request, id));
+  return res;
+}
+
+async function forward(request: Request, path: string, visitorId: string): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
   if (!backendUrl) {
     return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, { status: 500 });
@@ -150,6 +163,7 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
   }
   const ip = clientIP(request);
   if (ip) headers["X-Client-IP"] = ip;
+  headers["X-Visitor-ID"] = visitorId;
   if (process.env.K_SERVICE) {
     headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
   }
