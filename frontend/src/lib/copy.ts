@@ -91,6 +91,26 @@ export const copy = {
     closestEvidence: "Precedent check: closest move",
     // A greyed row's reason, instead of the API's "precedent-supported but
     // verifier confidence 0.90 is below 0.92" (one name for the check).
+    // The precedent check's search path (D80), folded under each checked row.
+    trail: {
+      title: "How the check found this",
+      count: (s: number, r: number) => `${s} ${s === 1 ? "search" : "searches"}, ${r} read`,
+      searches: "Searches",
+      searched: "Searched",
+      returned: "returned",
+      nothing: "returned nothing",
+      read: "Read",
+      notFound: "not found",
+    },
+    // Near-miss advice (D81) under a row that fell short of the bar.
+    nearMiss: {
+      label: "Advice · not a check",
+      note: "It doesn't change the bar or the verdict.",
+      short: "Why it fell short:",
+      wouldMatch: "Would match",
+      theRuling: "the supporting ruling",
+      if: "if:",
+    },
     agreement: (views: string, agree: string) => `${views} views, ${agree} agree`,
     belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
   },

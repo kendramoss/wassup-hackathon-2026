@@ -601,7 +601,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
           <thead className="max-sm:sr-only">
             <tr>
               {["Move", "Outcome", "Precedent check", "Net per year", ""].map((h, i) => (
-                <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                <th key={i} scope="col" className="whitespace-nowrap border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                   {h || <span className="sr-only">Draft</span>}
                 </th>
               ))}
@@ -638,6 +638,8 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                         p.rejection_reason
                       )}
                     </span>
+                    {p.near_miss && <NearMiss nm={p.near_miss} fallbackRuling={p.verdict?.supporting_ruling} />}
+                    <CheckTrail trail={p.verdict?.trail} />
                   </td>
                   <td className="px-3.5 py-2.5 max-sm:p-0">{outcome(p)}</td>
                   <td className="px-3.5 py-2.5 max-sm:col-start-1 max-sm:p-0">
@@ -674,6 +676,96 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
       )}
       {open && result.duty_rates_note && <p className="duo mt-2 text-xs text-dim">Duty rates: {result.duty_rates_note}</p>}
     </section>
+  );
+}
+
+type Trail = NonNullable<NonNullable<Plan["verdict"]>["trail"]>;
+
+// How the precedent check found its rulings (D80): the searches it ran with
+// the rulings each returned, then the rulings it read. Verdicts cached
+// before D80 carry no trail, and then there is no fold.
+function CheckTrail({ trail }: { trail: Trail | undefined }) {
+  if (!trail?.length) return null;
+  const searches = trail.filter((t) => t.tool === "search");
+  const reads = trail.filter((t) => t.tool === "read");
+  const T = copy.plan.trail;
+  return (
+    <details className="group mt-2 text-xs text-dim">
+      <summary className="min-h-6 cursor-pointer list-none py-0.5 [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="mr-1.5 inline-block w-2.5 text-ok transition-transform group-open:rotate-90">
+          ▸
+        </span>
+        <span className="text-ok hover:underline">{T.title}</span> · {T.count(searches.length, reads.length)}
+      </summary>
+      <div className="mt-1.5 flex flex-col gap-2 border-l border-line pl-3">
+        {searches.length > 0 && (
+          <ol aria-label={T.searches} className="flex flex-col gap-1">
+            {searches.map((s, i) => (
+              <li key={i}>
+                <span className="text-ink">{T.searched}</span> <span className="duo">“{s.query}”</span>
+                <span className="block">
+                  {s.rulings?.length ? (
+                    <>
+                      {T.returned}{" "}
+                      {s.rulings.map((r, j) => (
+                        <span key={r}>
+                          {j > 0 && ", "}
+                          <RulingLink id={r} />
+                        </span>
+                      ))}
+                    </>
+                  ) : (
+                    T.nothing
+                  )}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        {reads.length > 0 && (
+          <p>
+            <span className="text-ink">{T.read}</span>{" "}
+            {reads.map((r, j) => {
+              const id = r.rulings?.[0];
+              return (
+                <span key={j}>
+                  {j > 0 && ", "}
+                  {id ? <RulingLink id={id} /> : `${r.query ?? ""} (${T.notFound})`}
+                </span>
+              );
+            })}
+          </p>
+        )}
+      </div>
+    </details>
+  );
+}
+
+// Near-miss advice (D81): on at most two rows under the bar, what differs
+// from the supporting ruling and what would match it. Advice only, from one
+// more model call; it changes neither the check, the bar nor the row.
+function NearMiss({ nm, fallbackRuling }: { nm: NonNullable<Plan["near_miss"]>; fallbackRuling?: string }) {
+  const ruling = nm.ruling || fallbackRuling;
+  const N = copy.plan.nearMiss;
+  if (!nm.difference && !nm.would_match) return null;
+  return (
+    <div className="duo mt-2 border-l-2 border-ask-line pl-3 text-xs text-dim">
+      <p className="mb-0.5 text-[11px] uppercase tracking-[0.06em] text-ask">{N.label}</p>
+      {nm.difference && (
+        <p>
+          <span className="text-ink">{N.short}</span> {nm.difference}
+        </p>
+      )}
+      {nm.would_match && (
+        <p className="mt-0.5">
+          <span className="text-ink">
+            {N.wouldMatch} {ruling ? <RulingLink id={ruling} /> : N.theRuling} {N.if}
+          </span>{" "}
+          {nm.would_match}
+        </p>
+      )}
+      <p className="mt-0.5 text-[11px]">{N.note}</p>
+    </div>
   );
 }
 
