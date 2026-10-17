@@ -222,6 +222,8 @@ paths:
         - `baseline` {plan: Plan}: the current setup, any time before `done`.
         - `move_started` {key, done, total}: work began on that move.
         - `move_done` {key, plan: Plan, done, total}: one per move, with economics, shown, rejection_kind and verdict filled in.
+        - With FOLLOW_ADVICE=on (D85), after the listed moves: at most one more `move_started` / `move_done` pair for a move
+          that was not in `start` (its plan has `from_advice: true`); `total` grows by one from that `move_started` on.
         - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
         - `: keep-alive` comment lines every 10 s.
         Input errors (400/404) are returned as normal JSON responses before the stream starts.
@@ -1296,7 +1298,12 @@ components:
     Plan:
       type: object
       properties:
-        move: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
+        move:
+          type: array
+          description: |
+            The operation groups moved, 1 to 4. The search lists every single and pair, then three-group moves while the
+            total stays at most PLAN_MAX_MOVES (default 12; D84). A move followed from near-miss advice can add one more group (D85).
+          items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } }
         description: { type: string }
         prediction: { $ref: "#/components/schemas/Prediction" }
         verdict: { $ref: "#/components/schemas/Verdict" }
@@ -1322,6 +1329,12 @@ components:
             would_match: { type: string, example: "Make the PCBA in Thailand as well." }
             ruling: { type: string, description: "The supporting ruling compared (the verdict's supporting_ruling)" }
             trace: { type: object, description: "Model, prompt_version near-miss-v1, tokens; cached true when replayed" }
+        from_advice:
+          type: boolean
+          description: |
+            Only with FOLLOW_ADVICE=on (D85): true on the one move per search added by following a near miss's advice. It is the
+            advised move plus the groups its would_match names, searched because no earlier move covered it, and checked once like
+            any other move (engine, then precedent check). It may be shown, below the bar or rejected. Absent otherwise.
     PlanResult:
       type: object
       properties:
@@ -1387,7 +1400,8 @@ components:
         status: { type: string, enum: [plan, below_bar, no_plan, no_plant] }
         best: { description: "best shown plan, or the closest below-bar plan; null otherwise", allOf: [{ $ref: "#/components/schemas/Plan" }] }
         shown_count: { type: integer }
-        moves_searched: { type: integer }
+        moves_searched: { type: integer, description: "Includes the move followed from advice, if any" }
+        advice_followed: { type: integer, description: "Moves added by following near-miss advice (0 or 1, D85); omitted when 0" }
     MoveRef:
       type: object
       required: [key, description, move]

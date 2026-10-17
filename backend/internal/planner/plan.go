@@ -38,7 +38,25 @@ type Options struct {
 	NearMiss      nearmiss.Adviser
 	NearMissFloor float64
 	NearMissMax   int
+	// MaxMoves caps the moves searched; three-group moves are added only
+	// while the total stays within it (D84). 0 searches singles and pairs.
+	MaxMoves int
+	// FollowAdvice, with NearMiss, searches one more move per search: the
+	// advised near miss plus the groups its advice names (D85). Mapper is
+	// the fallback when no group name, operation or component in the advice
+	// matches; nil means no fallback.
+	FollowAdvice bool
+	Mapper       GroupMapper
 }
+
+// GroupMapper names the template groups a piece of advice asks to move
+// (nearmiss.Mapper), for when the text names none of them literally.
+type GroupMapper interface {
+	MapGroups(ctx context.Context, advice string, groups []domain.OperationGroup) ([]string, llm.Usage, error)
+}
+
+// DefaultMaxMoves is PLAN_MAX_MOVES' default (D84).
+const DefaultMaxMoves = 12
 
 // Near-miss defaults (D81).
 const (
@@ -141,6 +159,7 @@ type Stats struct {
 	NearMissCalls  int     `json:"near_miss_calls,omitempty"` // advice model calls made (cached answers not counted)
 	NearMissInTok  int     `json:"near_miss_input_tokens,omitempty"`
 	NearMissOutTok int     `json:"near_miss_output_tokens,omitempty"`
+	AdviceFollowed int     `json:"advice_followed,omitempty"` // moves added from near-miss advice (D85)
 	WallSeconds    float64 `json:"wall_seconds"`
 }
 
@@ -179,13 +198,25 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 		res.Stats.EngineInTok += u.InputTokens
 		res.Stats.EngineOutTok += u.OutputTokens
 	}
+	addVerifier := func(vr verifier.Result) {
+		mu.Lock()
+		defer mu.Unlock()
+		res.Stats.VerifierRuns++
+		if vr.Cached {
+			res.Stats.VerifierCached++
+		}
+		res.Stats.VerifierModel += vr.ModelCalls
+		res.Stats.ToolCalls += len(vr.Steps)
+		res.Stats.VerifierInTok += vr.Usage.InputTokens
+		res.Stats.VerifierOutTok += vr.Usage.OutputTokens
+	}
 
-	moves := Enumerate(req.Product, tm, target)
+	moves := EnumerateUpTo(req.Product, tm, target, req.Economics.GroupCosts, p.opts.MaxMoves)
 	res.Stats.MovesSearched = len(moves)
-	done := 0
+	done, total := 0, len(moves)
 	emit := func(e Event) { // callers hold mu
 		if progress != nil {
-			e.Done, e.Total = done, len(moves)
+			e.Done, e.Total = done, total
 			progress(e)
 		}
 	}
@@ -256,50 +287,10 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			mu.Lock()
 			emit(Event{Kind: EventMoveStarted, Move: m.Key()})
 			mu.Unlock()
-			variant := Apply(req.Product, m)
-			facts := Render(variant, tm, groupsOf(m)...)
-			r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
+			pl, err := p.check(ctx, req, tm, m, refs[i].Description, baseFacts, target, knownA, knownRuling, addEngine, addVerifier)
 			if err != nil {
-				errs[i] = fmt.Errorf("planner: move %s: %w", m.Key(), err)
+				errs[i] = err
 				return
-			}
-			addEngine(r.Usage)
-			pl := domain.Plan{Move: m, Description: refs[i].Description, VariantFacts: facts, Prediction: r.Prediction}
-			if r.Prediction.Origin != target {
-				pl.RejectionReason = fmt.Sprintf("engine predicts origin %s, not %s", r.Prediction.Origin, target)
-				pl.RejectionKind = domain.RejectOtherOrigin
-				complete(i, pl)
-				return
-			}
-			vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time,
-				Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
-			mu.Lock()
-			res.Stats.VerifierRuns++
-			if vr.Cached {
-				res.Stats.VerifierCached++
-			}
-			res.Stats.VerifierModel += vr.ModelCalls
-			res.Stats.ToolCalls += len(vr.Steps)
-			res.Stats.VerifierInTok += vr.Usage.InputTokens
-			res.Stats.VerifierOutTok += vr.Usage.OutputTokens
-			mu.Unlock()
-			if err != nil {
-				pl.RejectionReason = "precedent check failed: " + err.Error()
-				pl.RejectionKind = domain.RejectCheckFailed
-				complete(i, pl)
-				return
-			}
-			v := vr.Verdict
-			pl.Verdict = &v
-			switch {
-			case !v.PrecedentSupported:
-				pl.RejectionReason = "no earlier ruling found where CBP held this kind of change decisive"
-				pl.RejectionKind = domain.RejectNoPrecedent
-			case v.Confidence < p.opts.PlanConfidence:
-				pl.RejectionReason = fmt.Sprintf("precedent-supported but verifier confidence %.2f is below %.2f", v.Confidence, p.opts.PlanConfidence)
-				pl.RejectionKind = domain.RejectBelowConfidence
-			default:
-				pl.Shown = true
 			}
 			complete(i, pl)
 		}(i, m)
@@ -315,11 +306,104 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			res.Rejected = append(res.Rejected, pl)
 		}
 	}
+	order(&res)
+	if baseOrigin != target {
+		b := res.Baseline
+		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", b.Prediction.Origin)
+		b.RejectionKind = domain.RejectCurrentSetup
+		if knownA != "" {
+			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, b.Prediction.Origin)
+		}
+		res.Rejected = append([]domain.Plan{b}, res.Rejected...)
+	}
+	p.adviseNearMisses(ctx, req, &res)
+	if p.opts.FollowAdvice && p.opts.NearMiss != nil {
+		if m, ok := p.followable(ctx, req, tm, target, moves, &res); ok {
+			key := m.Key()
+			mu.Lock()
+			total++
+			res.Stats.MovesSearched++
+			emit(Event{Kind: EventMoveStarted, Move: key})
+			mu.Unlock()
+			pl, err := p.check(ctx, req, tm, m, Describe(req.Product, tm, m), baseFacts, target, knownA, knownRuling, addEngine, addVerifier)
+			if err == nil { // a failed followed move leaves the search as it was
+				pl.FromAdvice = true
+				pl.DutyEffectYear, pl.AddedCostYear = economics(req, m, baseOrigin, pl.Prediction.Origin)
+				pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
+				if pl.Shown {
+					res.Plans = append(res.Plans, pl)
+				} else {
+					res.Rejected = append(res.Rejected, pl)
+				}
+				res.Stats.AdviceFollowed++
+				order(&res)
+				mu.Lock()
+				done++
+				emit(Event{Kind: EventMoveDone, Move: key, Plan: &pl})
+				mu.Unlock()
+			}
+		}
+	}
+	if req.ActualChange != nil {
+		res.Backtest = backtest(req, res.Plans)
+	}
+	res.Stats.InputTokens = res.Stats.EngineInTok + res.Stats.VerifierInTok + res.Stats.NearMissInTok
+	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok + res.Stats.NearMissOutTok
+	res.Stats.WallSeconds = time.Since(start).Seconds()
+	mu.Lock()
+	r := res
+	emit(Event{Kind: EventDone, Result: &r})
+	mu.Unlock()
+	return res, nil
+}
+
+// check predicts one move and, when the engine says it reaches the target,
+// verifies it against precedent. Economics are filled in by the caller.
+func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.Move, desc, baseFacts, target, knownA, knownRuling string,
+	addEngine func(llm.Usage), addVerifier func(verifier.Result)) (domain.Plan, error) {
+	variant := Apply(req.Product, m)
+	facts := Render(variant, tm, groupsOf(m)...)
+	r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
+	if err != nil {
+		return domain.Plan{}, fmt.Errorf("planner: move %s: %w", m.Key(), err)
+	}
+	addEngine(r.Usage)
+	pl := domain.Plan{Move: m, Description: desc, VariantFacts: facts, Prediction: r.Prediction}
+	if r.Prediction.Origin != target {
+		pl.RejectionReason = fmt.Sprintf("engine predicts origin %s, not %s", r.Prediction.Origin, target)
+		pl.RejectionKind = domain.RejectOtherOrigin
+		return pl, nil
+	}
+	vr, err := p.verifier.Verify(ctx, verifier.Task{FactsA: baseFacts, FactsB: facts, Target: target, Before: req.Date.Time,
+		Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
+	addVerifier(vr)
+	if err != nil {
+		pl.RejectionReason = "precedent check failed: " + err.Error()
+		pl.RejectionKind = domain.RejectCheckFailed
+		return pl, nil
+	}
+	v := vr.Verdict
+	pl.Verdict = &v
+	switch {
+	case !v.PrecedentSupported:
+		pl.RejectionReason = "no earlier ruling found where CBP held this kind of change decisive"
+		pl.RejectionKind = domain.RejectNoPrecedent
+	case v.Confidence < p.opts.PlanConfidence:
+		pl.RejectionReason = fmt.Sprintf("precedent-supported but verifier confidence %.2f is below %.2f", v.Confidence, p.opts.PlanConfidence)
+		pl.RejectionKind = domain.RejectBelowConfidence
+	default:
+		pl.Shown = true
+	}
+	return pl, nil
+}
+
+// order sorts shown plans by net (best first) and rejected ones closest call
+// first: precedent-supported but below the confidence bar (best net first),
+// then other verified moves, then moves the engine says miss the target. The
+// current setup, when present, stays first.
+func order(res *Result) {
 	sort.SliceStable(res.Plans, func(i, j int) bool { return res.Plans[i].NetYear > res.Plans[j].NetYear })
-	// Rejected, closest calls first: precedent-supported but below the
-	// confidence bar (best net first), then other verified moves, then moves
-	// the engine says miss the target; the current setup is prepended below.
-	rank := map[domain.RejectionKind]int{domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
+	rank := map[domain.RejectionKind]int{domain.RejectCurrentSetup: -1, domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
 	sort.SliceStable(res.Rejected, func(i, j int) bool {
 		a, b := res.Rejected[i], res.Rejected[j]
 		if rank[a.RejectionKind] != rank[b.RejectionKind] {
@@ -330,27 +414,6 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 		}
 		return false
 	})
-	if baseOrigin != target {
-		b := res.Baseline
-		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", b.Prediction.Origin)
-		b.RejectionKind = domain.RejectCurrentSetup
-		if knownA != "" {
-			b.RejectionReason = fmt.Sprintf("current setup: CBP held %s (%s); engine predicts %s", knownA, knownRuling, b.Prediction.Origin)
-		}
-		res.Rejected = append([]domain.Plan{b}, res.Rejected...)
-	}
-	if req.ActualChange != nil {
-		res.Backtest = backtest(req, res.Plans)
-	}
-	p.adviseNearMisses(ctx, req, &res)
-	res.Stats.InputTokens = res.Stats.EngineInTok + res.Stats.VerifierInTok + res.Stats.NearMissInTok
-	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok + res.Stats.NearMissOutTok
-	res.Stats.WallSeconds = time.Since(start).Seconds()
-	mu.Lock()
-	r := res
-	emit(Event{Kind: EventDone, Result: &r})
-	mu.Unlock()
-	return res, nil
 }
 
 // adviseNearMisses adds near-miss advice to the closest below-bar moves:
