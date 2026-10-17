@@ -194,7 +194,8 @@ function Draft({ id, c, setCase }: CaseCtx) {
               >
                 {body.replace(fillIn, (m) => "`" + m + "`")}
               </ReactMarkdown>
-              <p className="mt-8 border-t border-line pt-3 text-xs text-dim">{draft.disclaimer}</p>
+              {/* The letter's body usually opens with the same notice; print it once. */}
+              {draft.disclaimer && !body.includes(draft.disclaimer.slice(0, 40)) && <p className="mt-8 border-t border-line pt-3 text-xs text-dim">{draft.disclaimer}</p>}
             </article>
           )}
         </div>
