@@ -12,6 +12,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -31,7 +32,19 @@ type Options struct {
 	PlanConfidence float64
 	// Concurrency limits parallel model calls.
 	Concurrency int
+	// NearMiss, when set, explains the closest moves whose check is at least
+	// NearMissFloor but under PlanConfidence: at most NearMissMax per search
+	// (D81). Advice only; nil (the default) adds nothing.
+	NearMiss      nearmiss.Adviser
+	NearMissFloor float64
+	NearMissMax   int
 }
+
+// Near-miss defaults (D81).
+const (
+	DefaultNearMissFloor = 0.85
+	DefaultNearMissMax   = 2
+)
 
 // Event kinds, in order: started, baseline (any time before done),
 // move_started and move_done once per move, done.
@@ -74,6 +87,12 @@ type Planner struct {
 func New(templates map[string]Template, e Predictor, v Checker, opts Options) *Planner {
 	if opts.Concurrency < 1 {
 		opts.Concurrency = 1
+	}
+	if opts.NearMissFloor <= 0 {
+		opts.NearMissFloor = DefaultNearMissFloor
+	}
+	if opts.NearMissMax <= 0 {
+		opts.NearMissMax = DefaultNearMissMax
 	}
 	return &Planner{templates: templates, engine: e, verifier: v, opts: opts}
 }
@@ -119,6 +138,9 @@ type Stats struct {
 	EngineOutTok   int     `json:"engine_output_tokens"`
 	VerifierInTok  int     `json:"verifier_input_tokens"`
 	VerifierOutTok int     `json:"verifier_output_tokens"`
+	NearMissCalls  int     `json:"near_miss_calls,omitempty"` // advice model calls made (cached answers not counted)
+	NearMissInTok  int     `json:"near_miss_input_tokens,omitempty"`
+	NearMissOutTok int     `json:"near_miss_output_tokens,omitempty"`
 	WallSeconds    float64 `json:"wall_seconds"`
 }
 
@@ -320,14 +342,61 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	if req.ActualChange != nil {
 		res.Backtest = backtest(req, res.Plans)
 	}
-	res.Stats.InputTokens = res.Stats.EngineInTok + res.Stats.VerifierInTok
-	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok
+	p.adviseNearMisses(ctx, req, &res)
+	res.Stats.InputTokens = res.Stats.EngineInTok + res.Stats.VerifierInTok + res.Stats.NearMissInTok
+	res.Stats.OutputTokens = res.Stats.EngineOutTok + res.Stats.VerifierOutTok + res.Stats.NearMissOutTok
 	res.Stats.WallSeconds = time.Since(start).Seconds()
 	mu.Lock()
 	r := res
 	emit(Event{Kind: EventDone, Result: &r})
 	mu.Unlock()
 	return res, nil
+}
+
+// adviseNearMisses adds near-miss advice to the closest below-bar moves:
+// highest check first (ties keep list order), check at least NearMissFloor,
+// at most NearMissMax. A failed advice call leaves that move without advice;
+// it never fails the search or changes a verdict.
+func (p *Planner) adviseNearMisses(ctx context.Context, req Request, res *Result) {
+	if p.opts.NearMiss == nil {
+		return
+	}
+	var idx []int
+	for i, pl := range res.Rejected {
+		if pl.RejectionKind == domain.RejectBelowConfidence && pl.Verdict != nil &&
+			pl.Verdict.Confidence >= p.opts.NearMissFloor && pl.Verdict.Confidence < p.opts.PlanConfidence &&
+			domain.ValidRulingID(pl.Verdict.SupportingRuling) {
+			idx = append(idx, i)
+		}
+	}
+	sort.SliceStable(idx, func(a, b int) bool {
+		return res.Rejected[idx[a]].Verdict.Confidence > res.Rejected[idx[b]].Verdict.Confidence
+	})
+	if len(idx) > p.opts.NearMissMax {
+		idx = idx[:p.opts.NearMissMax]
+	}
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for _, i := range idx {
+		wg.Add(1)
+		go func(pl *domain.Plan) {
+			defer wg.Done()
+			n, err := p.opts.NearMiss.Advise(ctx, nearmiss.Task{Facts: pl.VariantFacts, Ruling: pl.Verdict.SupportingRuling,
+				Before: req.Date.Time, Exclude: req.Exclude})
+			if err != nil {
+				return
+			}
+			pl.NearMiss = &n
+			if !n.Trace.Cached {
+				mu.Lock()
+				res.Stats.NearMissCalls++
+				res.Stats.NearMissInTok += n.Trace.InputTokens
+				res.Stats.NearMissOutTok += n.Trace.OutputTokens
+				mu.Unlock()
+			}
+		}(&res.Rejected[i])
+	}
+	wg.Wait()
 }
 
 func (p *Planner) caseFor(req Request, key, facts string) domain.Case {

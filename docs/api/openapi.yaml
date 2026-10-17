@@ -1311,6 +1311,17 @@ components:
           description: |
             Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
             render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
+        near_miss:
+          type: object
+          description: |
+            Only with NEAR_MISS_ADVICE=on (D81), on at most two `below_confidence_bar` moves per search whose check is at least 0.85:
+            what differs between this move and its supporting ruling on the point CBP relied on, and what change to the setup
+            would match the ruling. One extra model call each, cached. Advice only: it never changes the verdict, the bar or `shown`.
+          properties:
+            difference: { type: string, example: "In N325810 the PCBA was also made in Thailand; in your setup it stays in China." }
+            would_match: { type: string, example: "Make the PCBA in Thailand as well." }
+            ruling: { type: string, description: "The supporting ruling compared (the verdict's supporting_ruling)" }
+            trace: { type: object, description: "Model, prompt_version near-miss-v1, tokens; cached true when replayed" }
     PlanResult:
       type: object
       properties:

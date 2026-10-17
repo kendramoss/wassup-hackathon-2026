@@ -49,6 +49,14 @@
       "version": "extract-v3",
       "sha256": "1ebb50b968f0d7ca9be1977490fd13d30090e90712f22465d4826dee338e2235"
     },
+    "nearmiss.system": {
+      "version": "near-miss-v1",
+      "sha256": "c684ade85b7064912e7581a49572d03bfc99f34e1201f7b1825f7adb48520786"
+    },
+    "nearmiss.user": {
+      "version": "near-miss-v1",
+      "sha256": "f241528022c3e6aa43da6f986d1e0a2effef64c414203fe4d86dbccbab595945"
+    },
     "router.system": {
       "version": "router-v2",
       "sha256": "7b6bfeec948b5b66a03cf58b6a0d17e2fb9475e1c9825bfbfa686f6b37c91904"

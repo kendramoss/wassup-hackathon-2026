@@ -125,6 +125,18 @@ type Plan struct {
 	Shown           bool          `json:"shown"`
 	RejectionReason string        `json:"rejection_reason,omitempty"`
 	RejectionKind   RejectionKind `json:"rejection_kind,omitempty"`
+	// NearMiss, for the closest moves just under the plan bar, says what
+	// differs from the supporting ruling and what would match it (D81).
+	// Advice only: it does not change the verdict or Shown.
+	NearMiss *NearMiss `json:"near_miss,omitempty"`
+}
+
+// NearMiss explains a move whose precedent check is just under the bar.
+type NearMiss struct {
+	Difference string `json:"difference"`
+	WouldMatch string `json:"would_match"`
+	Ruling     string `json:"ruling"`
+	Trace      Trace  `json:"trace"`
 }
 
 // RejectionKind classifies why a plan is not shown, so the UI can style it

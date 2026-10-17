@@ -327,6 +327,22 @@ func TestDutyLiveMFNConfig(t *testing.T) {
 	}
 }
 
+func TestNearMissAdviceConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.NearMissAdvice {
+		t.Fatalf("NEAR_MISS_ADVICE default = %v %v, want off", c.NearMissAdvice, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"NEAR_MISS_ADVICE": v})))
+		if err != nil || c.NearMissAdvice != want {
+			t.Errorf("NEAR_MISS_ADVICE=%s = %v %v, want %v", v, c.NearMissAdvice, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"NEAR_MISS_ADVICE": "maybe"}))); err == nil || !strings.Contains(err.Error(), "NEAR_MISS_ADVICE") {
+		t.Errorf("NEAR_MISS_ADVICE=maybe: %v", err)
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {

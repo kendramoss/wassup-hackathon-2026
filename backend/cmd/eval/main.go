@@ -84,6 +84,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -866,15 +867,20 @@ func planCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	pl := planner.New(tmpls, eng, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency})
+	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}
+	if cfg.NearMissAdvice {
+		planOpts.NearMiss = nearmiss.New(model, cfg.VerifierModel, searcher, 1500) // D81, uncached here
+	}
+	pl := planner.New(tmpls, eng, ver, planOpts)
 	res, err := pl.Plan(ctx, req)
 	if err != nil {
 		return err
 	}
 	cost := evalkit.Cost(evalkit.PromoPrices, cfg.EngineModel, res.Stats.EngineInTok, res.Stats.EngineOutTok) +
-		evalkit.Cost(evalkit.PromoPrices, cfg.VerifierModel, res.Stats.VerifierInTok, res.Stats.VerifierOutTok)
+		evalkit.Cost(evalkit.PromoPrices, cfg.VerifierModel, res.Stats.VerifierInTok+res.Stats.NearMissInTok, res.Stats.VerifierOutTok+res.Stats.NearMissOutTok)
 	costList := evalkit.Cost(evalkit.ListPrices, cfg.EngineModel, res.Stats.EngineInTok, res.Stats.EngineOutTok) +
-		evalkit.Cost(evalkit.ListPrices, cfg.VerifierModel, res.Stats.VerifierInTok, res.Stats.VerifierOutTok)
+		evalkit.Cost(evalkit.ListPrices, cfg.VerifierModel, res.Stats.VerifierInTok+res.Stats.NearMissInTok, res.Stats.VerifierOutTok+res.Stats.NearMissOutTok)
+	nearCost := evalkit.Cost(evalkit.PromoPrices, cfg.VerifierModel, res.Stats.NearMissInTok, res.Stats.NearMissOutTok)
 	out := struct {
 		planner.Result
 		Provider    string  `json:"llm_provider"`
@@ -904,6 +910,9 @@ func planCmd(args []string) error {
 			extra = fmt.Sprintf(" (verifier: supported=%t conf %.2f, supporting %q, counter %q)", p.Verdict.PrecedentSupported, p.Verdict.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling)
 		}
 		fmt.Printf("  - ✗ %s — %s%s\n", p.Description, p.RejectionReason, extra)
+		if n := p.NearMiss; n != nil {
+			fmt.Printf("    - near miss vs %s: %s Would match: %s\n", n.Ruling, n.Difference, n.WouldMatch)
+		}
 	}
 	if res.Backtest != nil {
 		fmt.Printf("- Backtest vs %s: plan moved %v; actual change also moved %v\n", res.Backtest.Source, res.Backtest.MovedByPlan, res.Backtest.NotMovedByPlan)
@@ -911,6 +920,9 @@ func planCmd(args []string) error {
 	s := res.Stats
 	fmt.Printf("- Full-plan cost: %d moves, %d engine calls, %d verifier runs (%d model calls, %d tool calls), %d in / %d out tokens, $%.3f promo / $%.3f list, %.0f s wall\n",
 		s.MovesSearched, s.EngineCalls, s.VerifierRuns, s.VerifierModel, s.ToolCalls, s.InputTokens, s.OutputTokens, cost, costList, s.WallSeconds)
+	if s.NearMissCalls > 0 {
+		fmt.Printf("- Near-miss advice: %d calls, %d in / %d out tokens, $%.4f promo\n", s.NearMissCalls, s.NearMissInTok, s.NearMissOutTok, nearCost)
+	}
 	fmt.Println("- Saved:", path)
 	return nil
 }
