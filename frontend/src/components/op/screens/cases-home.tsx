@@ -77,16 +77,7 @@ export function CasesHome() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {demos.map((d) => (
-              <Link
-                key={d.id}
-                href={`/cases/new?demo=${encodeURIComponent(d.id ?? "")}`}
-                className="flex flex-col gap-2 rounded-[2px] border border-edge bg-sheet p-4 text-sm hover:shadow-[4px_4px_0_var(--shadow)]"
-              >
-                <b className="font-medium leading-snug">{d.title}</b>
-                <span className="duo text-[13px] text-dim">{d.description}</span>
-                {d.cbp_held && <span className="text-xs text-dim">CBP held {d.cbp_held}</span>}
-                <span className="mt-auto text-[13px] text-ok">Load demo →</span>
-              </Link>
+              <LoadDemoCard key={d.id} d={d} />
             ))}
           </div>
         </section>
@@ -109,6 +100,38 @@ export function CasesHome() {
         </section>
       )}
     </Main>
+  );
+}
+
+// A demo not yet run here (no pinned case): the same card shape as DemoCard,
+// with what CBP held as the headline instead of a prediction.
+function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
+  // cbp_held reads "China (N328954)" or "Thailand (N359371, scenario I)".
+  const m = /^([^(]+?)s*(?:((.*)))?$/.exec(d.cbp_held ?? "");
+  return (
+    <Link
+      href={`/cases/new?demo=${encodeURIComponent(d.id ?? "")}`}
+      className="flex flex-col gap-2.5 rounded-[2px] border border-edge bg-sheet p-4 text-sm shadow-[4px_4px_0_var(--shadow)] hover:bg-white"
+    >
+      <span className="flex items-start justify-between gap-2">
+        <b className="font-medium leading-snug">{d.title}</b>
+        <Chip className="shrink-0">Demo</Chip>
+      </span>
+      {m && (
+        <span className="flex flex-col gap-1">
+          <span className="eyebrow">CBP held</span>
+          <span className="text-[26px] leading-none tracking-[-0.05em]">
+            <Country name={m[1]} size={18} />
+          </span>
+          {m[2] && <span className="text-xs text-dim">{m[2]}</span>}
+        </span>
+      )}
+      {d.description && <span className="duo line-clamp-2 text-xs text-dim" title={d.description}>{d.description}</span>}
+      <span className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2 text-xs">
+        <span className="text-ok">Load demo →</span>
+        {d.has_plan && <Chip tone="ok">Plan included</Chip>}
+      </span>
+    </Link>
   );
 }
 
