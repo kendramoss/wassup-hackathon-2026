@@ -111,6 +111,7 @@ export function ProductStep() {
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [busySince, setBusySince] = useState(0);
   const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
@@ -171,6 +172,7 @@ export function ProductStep() {
 
   const submit = async () => {
     setBusy(true);
+    setBusySince(Date.now());
     setError(null);
     // display_name names the case on Cases home, so a pasted description
     // never shows there as truncated facts.
@@ -424,20 +426,27 @@ export function ProductStep() {
           ) : null}
           {/* Step 1 is a form: its action sits after the fields, not above the heading. */}
           <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-            <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
+            <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It usually takes under a minute."}</Next>
             <div className="ml-auto flex items-center gap-3">
-              {busy ? (
-                <Spinner label={copy.product.working} />
-              ) : missing ? (
+              {!busy && missing ? (
                 <span id="go-why" className="text-[13px] text-dim">
                   {missing}
                 </span>
               ) : null}
-              <Button onClick={ready ? submit : showMissing} disabled={busy} aria-disabled={!ready} aria-describedby={missing ? "go-why" : undefined}>
-                {copy.product.go} →
+              {/* Busy keeps the dark button (a grey one reads as broken) and ignores clicks. */}
+              <Button onClick={busy ? undefined : ready ? submit : showMissing} aria-busy={busy || undefined} aria-disabled={!busy && !ready} aria-describedby={busy ? "go-status" : missing ? "go-why" : undefined}>
+                {busy ? (
+                  <>
+                    <span className="size-2 rotate-45 bg-paper motion-safe:animate-pulse" aria-hidden="true" />
+                    Finding… <Elapsed since={busySince} />
+                  </>
+                ) : (
+                  <>{copy.product.go} →</>
+                )}
               </Button>
             </div>
           </div>
+          {busy && <PredictStatus since={busySince} date={date} />}
         </div>
       </Main>
       {moneyOpen && (
@@ -464,6 +473,41 @@ const input =
 // Table cells edit in place: quiet until hovered or focused.
 const cell =
   "h-9 w-full rounded-[2px] border border-transparent bg-transparent px-2 text-[13px] text-ink placeholder:text-faint hover:border-line focus:border-ok focus:bg-white";
+
+// While the prediction runs: what the engine is doing, how long it usually
+// takes, and a plain note if it runs long, so a quiet screen never reads as
+// a stuck one (#144).
+function PredictStatus({ since, date }: { since: number; date: string }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const secs = Math.max(0, Math.round((now - since) / 1000));
+  const slow = secs >= 60;
+  return (
+    <div id="go-status" role="status" aria-live="polite" className={cx("mt-4 border px-4 py-3.5 text-[13px]", slow ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
+      <p className={cx("flex items-center gap-2 font-medium", slow ? "text-ask" : "text-ok")}>
+        <span className={cx("size-2 rotate-45 motion-safe:animate-pulse", slow ? "bg-ask" : "bg-ok")} aria-hidden="true" />
+        {slow ? "Taking longer than usual. Still working." : "Working on it. This usually takes under a minute."}
+        <span className="ml-auto font-normal tabular-nums text-dim" aria-hidden="true">
+          {secs} s
+        </span>
+      </p>
+      <div className="relative mt-2.5 h-1 overflow-hidden bg-white" aria-hidden="true">
+        <div className={cx("absolute inset-y-0 w-1/3 motion-safe:animate-[slide_1.6s_ease-in-out_infinite]", slow ? "bg-ask" : "bg-ok")} />
+      </div>
+      <ol className="duo mt-3 flex list-decimal flex-col gap-1 pl-5 text-body">
+        <li>Reading your product: each part, where it is made, what each plant does.</li>
+        <li>Finding earlier CBP rulings dated before {date || "the case date"} on similar products.</li>
+        <li>Weighing those rulings to predict the origin CBP would likely assign.</li>
+      </ol>
+      <p className="duo mt-2 text-xs text-dim">
+        {slow ? "The model may be busy. You can keep waiting; if it fails, an error with a retry appears here." : "You will be taken to the result when it is ready."}
+      </p>
+    </div>
+  );
+}
 
 // A numbered section heading for Step 1's form, so the order to fill it in
 // is visible at a glance.
