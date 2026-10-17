@@ -213,6 +213,12 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// NearMissAdvice (on|off, default off) adds near-miss advice to the
+	// closest plan moves just under the plan bar: what differs from the
+	// supporting ruling and what would match it (D81). One model call each,
+	// at most two per search; it never changes a verdict.
+	NearMissAdvice bool
+	nearMissAdvice string // as given, checked by validate
 	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
 	// as server-sent stage events when asked for text/event-stream (D71).
 	StreamPredict string
@@ -351,6 +357,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("DUTY_LIVE_MFN must be on or off, got %q", v))
 	}
+	c.nearMissAdvice = strings.ToLower(e.str("NEAR_MISS_ADVICE", "off"))
+	c.NearMissAdvice = c.nearMissAdvice == "on" || c.nearMissAdvice == "true" || c.nearMissAdvice == "1"
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
@@ -437,6 +445,11 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	switch c.nearMissAdvice {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("NEAR_MISS_ADVICE must be on or off, got %q", c.nearMissAdvice)
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
