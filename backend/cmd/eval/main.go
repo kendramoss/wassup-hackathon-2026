@@ -472,6 +472,7 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 	default:
 		return nil, fmt.Errorf("eval needs a real model provider, got %q", cfg.LLMProvider)
 	}
+	base = llm.WithPace(base, cfg.LLMCallGap, llm.NewGate())
 	return llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, 2*time.Second), logger), nil
 }
 

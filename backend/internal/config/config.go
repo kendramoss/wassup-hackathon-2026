@@ -84,6 +84,11 @@ type Config struct {
 	LLMTimeout      time.Duration
 	LLMMaxRetries   int
 	MaxOutputTokens int
+	// LLMCallGap is the pause after one model call returns before the next
+	// starts, shared by the engine, its fallback and the verifier (D78).
+	// 0 (the default) does not pace; production sets 8s so a plan search
+	// does not pile calls onto Vertex.
+	LLMCallGap time.Duration
 
 	// Engine, triage and planner tunables.
 	PrecedentK           int
@@ -243,6 +248,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		FallbackFastPath:       e.float("FALLBACK_FAST_PATH", 0),
 		LLMTimeout:             e.duration("LLM_TIMEOUT", 30*time.Second), // per attempt; 4 attempts fit Cloud Run's 300 s (D54)
 		LLMMaxRetries:          e.integer("LLM_MAX_RETRIES", 3),
+		LLMCallGap:             e.duration("LLM_CALL_GAP", 0),
 		MaxOutputTokens:        e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
 		PrecedentK:             e.integer("PRECEDENT_K", 5),
 		FastPathConfidence:     e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
@@ -525,6 +531,9 @@ func (c Config) validate() error {
 	if c.LLMTimeout <= 0 {
 		bad("LLM_TIMEOUT must be positive, got %s", c.LLMTimeout)
 	}
+	if c.LLMCallGap < 0 {
+		bad("LLM_CALL_GAP must be zero or positive, got %s", c.LLMCallGap)
+	}
 	if c.EngineAttempts < 0 {
 		bad("ENGINE_ATTEMPTS must be 0 (default) or positive, got %d", c.EngineAttempts)
 	}
@@ -549,9 +558,9 @@ func (c Config) String() string {
 	if c.FallbackEngineModel != "" {
 		fallback = fmt.Sprintf("%s@%s attempts=%d fast_path=%.2f", c.FallbackEngineModel, c.FallbackEngineLocation, c.EngineAttempts, c.FallbackFastPath)
 	}
-	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s cases=%s",
+	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s call_gap=%s cloud_run=%t verifier_search=%s facts=%s cases=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, fallback, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore)
 }
 
 // env parses typed values and collects parse errors.
