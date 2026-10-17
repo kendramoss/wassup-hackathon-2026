@@ -983,6 +983,7 @@ func flipsCmd(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
+	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier (D73)")
 	_ = fl.Parse(args)
 	cfg, err := config.Load()
 	if err != nil {
@@ -1021,7 +1022,10 @@ func flipsCmd(args []string) error {
 			f.Close()
 			return err
 		}
-		if it.Date < "2026-01-01" { // DEV ONLY: the 2026 flip items are spent
+		// Dev is the pre-2026 pairs; the 2026 pairs are held out for the
+		// verifier (the research run used them only for change detection
+		// from scratch, a different task).
+		if (it.Date < "2026-01-01") != *final {
 			items = append(items, it)
 		}
 	}
@@ -1033,7 +1037,11 @@ func flipsCmd(args []string) error {
 	if *knownA {
 		mode = "known-a"
 	}
-	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-dev-verifier-%s-%s.jsonl", mode, cfg.LLMProvider))
+	split := "dev"
+	if *final {
+		split = "final"
+	}
+	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-%s-verifier-%s-%s.jsonl", split, mode, cfg.LLMProvider))
 	out, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -1134,9 +1142,13 @@ func flipsCmd(args []string) error {
 		p, lo, hi := evalkit.Wilson(k, n)
 		return fmt.Sprintf("%d/%d = %.0f%% (%.0f–%.0f)", k, n, 100*p, 100*lo, 100*hi)
 	}
-	fmt.Printf("## Verifier on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", mode, cfg.LLMProvider)
+	if *final {
+		fmt.Printf("## Verifier on held-out 2026 flip pairs (%s, %s) — HELD OUT, scored once\n\n", mode, cfg.LLMProvider)
+	} else {
+		fmt.Printf("## Verifier on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", mode, cfg.LLMProvider)
+	}
 	n := len(rows) - errs
-	fmt.Printf("- Items: %d (pre-2026; %d failed runs)\n", len(rows), errs)
+	fmt.Printf("- Items: %d (%s; %d failed runs)\n", len(rows), map[bool]string{false: "pre-2026", true: "2026"}[*final], errs)
 	fmt.Printf("- Precision when it says the move changes origin: %s\n", fmtP(tp, tp+fp))
 	fmt.Printf("- Recall (real changes caught): %s\n", fmtP(tp, tp+fn))
 	fmt.Printf("- Specificity (no-change pairs correctly rejected): %s\n", fmtP(tn, tn+fp))
