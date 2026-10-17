@@ -983,6 +983,8 @@ func flipsCmd(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
+	prompt := fl.String("verifier", "v1", "verifier prompt: v1 or v2 (D74)")
+	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier")
 	_ = fl.Parse(args)
 	cfg, err := config.Load()
 	if err != nil {
@@ -1006,7 +1008,7 @@ func flipsCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: *prompt})
 
 	f, err := os.Open(*flipsPath)
 	if err != nil {
@@ -1021,7 +1023,13 @@ func flipsCmd(args []string) error {
 			f.Close()
 			return err
 		}
-		if it.Date < "2026-01-01" { // DEV ONLY: the 2026 flip items are spent
+		// Dev is the pre-2026 pairs; -confirm-final scores the 2026 pairs.
+		// The heat-gun pair (the demo product) is never scored, so no
+		// verifier change can be fitted to the demo (D74).
+		if it.ID == "BA-N328954-N357771" {
+			continue
+		}
+		if (it.Date < "2026-01-01") != *final {
 			items = append(items, it)
 		}
 	}
@@ -1033,7 +1041,15 @@ func flipsCmd(args []string) error {
 	if *knownA {
 		mode = "known-a"
 	}
-	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-dev-verifier-%s-%s.jsonl", mode, cfg.LLMProvider))
+	split := "dev"
+	if *final {
+		split = "final"
+	}
+	name := "verifier"
+	if *prompt == "v2" {
+		name = "verifier-v2"
+	}
+	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-%s-%s-%s-%s.jsonl", split, name, mode, cfg.LLMProvider))
 	out, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -1134,15 +1150,33 @@ func flipsCmd(args []string) error {
 		p, lo, hi := evalkit.Wilson(k, n)
 		return fmt.Sprintf("%d/%d = %.0f%% (%.0f–%.0f)", k, n, 100*p, 100*lo, 100*hi)
 	}
-	fmt.Printf("## Verifier on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", mode, cfg.LLMProvider)
+	if *final {
+		fmt.Printf("## %s on held-out 2026 flip pairs (%s, %s) — HELD OUT, scored once\n\n", name, mode, cfg.LLMProvider)
+	} else {
+		fmt.Printf("## %s on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", name, mode, cfg.LLMProvider)
+	}
 	n := len(rows) - errs
-	fmt.Printf("- Items: %d (pre-2026; %d failed runs)\n", len(rows), errs)
+	fmt.Printf("- Items: %d (%s, heat-gun pair excluded; %d failed runs)\n", len(rows), map[bool]string{false: "pre-2026", true: "2026"}[*final], errs)
 	fmt.Printf("- Precision when it says the move changes origin: %s\n", fmtP(tp, tp+fp))
 	fmt.Printf("- Recall (real changes caught): %s\n", fmtP(tp, tp+fn))
 	fmt.Printf("- Specificity (no-change pairs correctly rejected): %s\n", fmtP(tn, tn+fp))
 	fmt.Printf("- Precedent-supported (change + cited supporting ruling it actually read): correct %s\n", fmtP(stp, stp+sfp))
 	if n > 0 {
 		fmt.Printf("- Cost per verification: $%.3f (promo)\n", cost/float64(n))
+	}
+	// Precedent-supported verdicts by confidence: how many would clear the
+	// plan bar, and whether they were real changes (D74).
+	for _, bar := range []float64{config.DefaultPlanBar, 0.85} {
+		var k, m int
+		for _, r := range rows {
+			if r.Error == "" && r.PrecedentSupported && r.Confidence >= bar {
+				m++
+				if r.OriginChanged {
+					k++
+				}
+			}
+		}
+		fmt.Printf("- Precedent-supported with confidence ≥ %.2f: %d of %d real changes (%s)\n", bar, m, tp+fn, fmtP(k, m))
 	}
 	fmt.Println("- Saved:", outPath)
 	return nil

@@ -155,14 +155,14 @@ func TestVerifyEnforcesToolBudget(t *testing.T) {
 
 func TestKnownOriginAInTask(t *testing.T) {
 	tk := task()
-	if strings.Contains(tk.UserMessage(), "already ruled") || tk.promptVersion() != PromptVersion {
+	if strings.Contains(tk.UserMessage(), "already ruled") || tk.promptVersion(PromptVersion) != PromptVersion {
 		t.Error("unknown A must leave the research task text unchanged")
 	}
 	tk.KnownOriginA, tk.KnownRulingA = "China", "N328954"
 	if !strings.HasSuffix(tk.UserMessage(), "CBP has already ruled on variant A: origin China (N328954; that ruling is not available to you).") {
 		t.Errorf("message = %q", tk.UserMessage())
 	}
-	if tk.promptVersion() != "verifier-v1+known-a" {
-		t.Errorf("version = %q", tk.promptVersion())
+	if tk.promptVersion(PromptVersion) != "verifier-v1+known-a" {
+		t.Errorf("version = %q", tk.promptVersion(PromptVersion))
 	}
 }

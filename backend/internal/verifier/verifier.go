@@ -50,6 +50,30 @@ func System(maxToolCalls int) string {
 	return Principles + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
 }
 
+// PromptVersion2 is verifier-v2 (D74): verifier-v1 plus an explicit search
+// for a counter-ruling and a confidence scale tied to the evidence read.
+// Developed on the pre-2026 flip pairs only.
+const PromptVersion2 = "verifier-v2"
+
+// Evidence2 is added to the v1 method for verifier-v2. v1 left confidence
+// unanchored: on the dev flip pairs every precedent-supported verdict was
+// right (62/62) yet most were scored 0.75–0.90, so confidence said little.
+const Evidence2 = `
+6. COUNTER-SEARCH: before answering, run at least one search aimed at a counter-ruling: the same kind of component or operation moving, with CBP holding that origin did NOT change. Read the closest result if it looks on point.
+7. CONFIDENCE comes from the evidence you READ, not from how plausible the answer feels:
+   - 0.95–0.98: you read an earlier ruling on the same kind of product where CBP held that this same component or operation moving decided origin; the facts match on the point CBP relied on; and your counter-search found nothing on point.
+   - 0.90–0.94: the same, but the anchor is a closely analogous product (same function and the same kind of deciding component), or a counter-ruling exists but differs on a fact CBP itself said mattered.
+   - 0.80–0.89: the anchor shares the deciding component but differs in something CBP might weigh (for example more or fewer other operations stay in the old country).
+   - 0.60–0.79: only distant analogues or general doctrine.
+   - below 0.60: no relevant ruling found.
+   The same scale applies when your answer is that origin does not change.
+`
+
+// System2 renders the verifier-v2 instruction.
+func System2(maxToolCalls int) string {
+	return Principles + Evidence2 + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
+}
+
 // Task is one move to verify: two variants of the same product.
 type Task struct {
 	FactsA, FactsB string
@@ -82,12 +106,12 @@ func (t Task) UserMessage() string {
 	return msg
 }
 
-// promptVersion is the version recorded for a task.
-func (t Task) promptVersion() string {
+// promptVersion is the version recorded for a task under base version v.
+func (t Task) promptVersion(v string) string {
 	if t.KnownOriginA != "" {
-		return PromptVersion + "+known-a"
+		return v + "+known-a"
 	}
-	return PromptVersion
+	return v
 }
 
 // Step is one tool call the agent made.
@@ -120,6 +144,16 @@ type Options struct {
 	Model           string
 	MaxToolCalls    int
 	MaxOutputTokens int
+	// Prompt is "v1" (default) or "v2" (D74).
+	Prompt string
+}
+
+// Version is the verifier's prompt version (cache keys and traces use it).
+func (v *Verifier) Version() string {
+	if v.opts.Prompt == "v2" {
+		return PromptVersion2
+	}
+	return PromptVersion
 }
 
 // Verifier runs the precedent-first agent.
@@ -217,6 +251,9 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	m := &adkModel{m: v.model, id: v.opts.Model, maxTokens: v.opts.MaxOutputTokens}
 	var toolCalls, modelCalls int
 	system := System(v.opts.MaxToolCalls)
+	if v.opts.Prompt == "v2" {
+		system = System2(v.opts.MaxToolCalls)
+	}
 	a, err := llmagent.New(llmagent.Config{
 		Name:        "move_verifier",
 		Description: "Checks a proposed production move against earlier CBP rulings.",
@@ -311,7 +348,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		SupportingRuling: keep(ans.SupportingRuling),
 		CounterRuling:    keep(ans.CounterRuling),
 		Reasoning:        ans.Reasoning,
-		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: t.promptVersion(),
+		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: t.promptVersion(v.Version()),
 			InputTokens: m.usage.InputTokens, OutputTokens: m.usage.OutputTokens},
 	}
 	if ans.Confidence != nil {
