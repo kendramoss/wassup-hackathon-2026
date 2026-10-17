@@ -34,8 +34,9 @@ type Group = {
 };
 
 export type HeatGun = {
-  // ex: 0 assembled … 1 exploded; mv: 0 … 1 the plan's groups moved to Thailand.
-  frame: (ex: number, mv: number, dt: number, elapsed: number) => void;
+  // ex: 0 assembled … 1 exploded; mv: 0 … 1 the plan's groups moved to
+  // Thailand; cbp: 0 … 1 the rest of CBP's real 2026 change (N357771) moved too.
+  frame: (ex: number, mv: number, dt: number, elapsed: number, cbp?: number) => void;
   resize: () => void;
   dispose: () => void;
 };
@@ -43,6 +44,9 @@ export type HeatGun = {
 // The heat-gun's closest move on production (D74 run, check 0.90): the
 // motor-fan assembly. Keep in step with landing copy and the live demo.
 const MOVING: GroupKey[] = ["motor"];
+// What the manufacturer also moved in its real 2026 setup (N357771), shown
+// in the last stage only, so "2026 · CBP held Thailand" is drawn truthfully.
+const CBP_MOVED: GroupKey[] = ["pcba"];
 // Compact groups flip as they cross; the switch, cord and minor parts are
 // spread across the gun (cord, end cap, knob), so a flip would swing them
 // through the body. They only lift.
@@ -427,7 +431,7 @@ export function createHeatGun({
   const lineCol = new THREE.Color(), fillCol = new THREE.Color();
   const inkHex = token("--ink"), okHex = token("--ok");
 
-  function frame(ex: number, mv: number, _dt: number, elapsed: number) {
+  function frame(ex: number, mv: number, _dt: number, elapsed: number, cbp = 0) {
     if (!reduce) model.rotation.y = Math.sin(elapsed * 0.35) * 0.08; // gentle idle turn
 
     ray.setFromCamera(mouse, camera);
@@ -436,8 +440,9 @@ export function createHeatGun({
 
     const w = host.clientWidth, h = host.clientHeight;
     for (const g of all) {
-      const moving = MOVING.includes(g.key);
-      const t = moving ? mv : 0;
+      const later = CBP_MOVED.includes(g.key);
+      const moving = MOVING.includes(g.key) || later;
+      const t = MOVING.includes(g.key) ? mv : later ? cbp : 0;
       g.node.position.copy(g.pivot).addScaledVector(g.explode, ex);
       if (moving && !reduce) {
         g.node.position.y += Math.sin(Math.PI * t) * 0.4; // lifts across to Thailand

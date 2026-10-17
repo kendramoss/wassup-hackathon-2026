@@ -76,12 +76,12 @@ One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-
 | Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
 | Dryer latch, assembled | China 0.98, auto | China | n/a |
 
-**verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. The landing names this LiteLLM plan. The production run below is the demo's stored result.
+**verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. The landing named this LiteLLM plan until production's run (below) showed none over the bar; it now states production's closest move. The production run below is the demo's stored result.
 
 ### Production (Vertex, 17 Oct, verifier-v2, one run each)
 Revision `backend-00038-zw2` after merge `41ce826` ([PR #186](https://github.com/kendramoss/wassup-hackathon-2026/pull/186)). Prompt `verifier-v2+known-a`, model `gemini-4-argon`. Each search ran once and was not repeated. Engine token counts were 0 (predictions reused from the engine cache). Verifier checks were not.
 
-**Heat gun** `case_878d76540b91`, plan body from `GET /v1/demos/heatgun-2022`. HTTP 200 in 17.7 s. Stats: 6 moves searched, 7 engine calls, 6 verifier runs, **verifier_cached 0**, 20 verifier model calls, 36 tool calls, 17.4 s. **No plan cleared 0.92.** The Plan screen's closest row is motor-fan assembly in Thailand, check 0.90, N325810, no counter-ruling, net $380k/yr. The landing's move (motor-fan assembly + switch, cord and minor parts) checked 0.75 on N345859, so the landing was left unchanged.
+**Heat gun** `case_878d76540b91`, plan body from `GET /v1/demos/heatgun-2022`. HTTP 200 in 17.7 s. Stats: 6 moves searched, 7 engine calls, 6 verifier runs, **verifier_cached 0**, 20 verifier model calls, 36 tool calls, 17.4 s. **No plan cleared 0.92.** The Plan screen's closest row is motor-fan assembly in Thailand, check 0.90, N325810, no counter-ruling, net $380k/yr. The landing's move (motor-fan assembly + switch, cord and minor parts) checked 0.75 on N345859, so the landing was then changed to state production's result (closest move, motor-fan assembly, 0.90, N325810; #150).
 
 | Move | Result | Check | For | Against | Net | Predicted origin |
 |---|---|---|---|---|---|---|

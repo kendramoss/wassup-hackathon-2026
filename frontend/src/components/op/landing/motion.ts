@@ -310,13 +310,14 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       shown1 = reduce ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
       const ex = ramp(shown1, 0.12, 0.36) - ramp(shown1, 0.8, 0.95);
       const mvv = ramp(shown1, 0.46, 0.7);
+      const cbpv = ramp(shown1, 0.78, 0.9); // the rest of CBP's 2026 change, last stage only
       const step = shown1 < 0.2 ? 0 : shown1 < 0.44 ? 1 : shown1 < 0.76 ? 2 : 3;
       steps.forEach((li, i) => li.classList.toggle("on", i === step));
       caption.textContent = L.captions[step];
       tbstate.textContent = L.sheetStates[step];
       setStamp(shown1 > 0.76);
       plannote.classList.toggle("on", shown1 > 0.5 && shown1 < 0.97);
-      gun?.frame(ex, mvv, dt, (now_ - start) / 1000);
+      gun?.frame(ex, mvv, dt, (now_ - start) / 1000, cbpv);
     }
     if (near(f2) || near(bridge)) {
       const p = fig2Progress();
