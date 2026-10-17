@@ -108,7 +108,7 @@ function Compare({ id, c }: CaseCtx) {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {anyPlan ? <Chip tone="ok">{copy.plan.supported}</Chip> : <Chip tone="ask">● Below the bar · {conf(top.best.verdict?.confidence)}</Chip>}
                   <Chip>
-                    Reaches <Country name={top.best.prediction?.origin_country} /> · {conf(top.best.prediction?.confidence)}
+                    Reaches <Country name={top.best.prediction?.origin_country} /> · origin {conf(top.best.prediction?.confidence)}
                   </Chip>
                 </div>
               </div>
@@ -209,7 +209,7 @@ function Compare({ id, c }: CaseCtx) {
                         <td className="duo max-w-[34ch] px-3.5 py-3.5 text-ink">
                           {t.best ? t.best.description : `No move to ${t.target} found precedent support`}
                           <span className="mt-1 block text-[11.5px] text-dim">
-                            {t.best ? `Reaches ${t.best.prediction?.origin_country} · ${conf(t.best.prediction?.confidence)} · ` : ""}
+                            {t.best ? `Reaches ${t.best.prediction?.origin_country} · origin ${conf(t.best.prediction?.confidence)} · ` : ""}
                             {t.moves_searched} moves searched
                           </span>
                         </td>

@@ -445,7 +445,7 @@ export function ProductStep() {
                           Drafting… <Elapsed since={drafting.since} />
                         </>
                       ) : (
-                        "✦ Turn into parts and plants"
+                        "Turn into parts and plants"
                       )}
                     </button>
                   )}

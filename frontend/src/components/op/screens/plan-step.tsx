@@ -385,7 +385,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">● Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           <Chip>
-            Reaches <Country name={plan.prediction?.origin_country} /> · {conf(plan.prediction?.confidence)}
+            Reaches <Country name={plan.prediction?.origin_country} /> · origin {conf(plan.prediction?.confidence)}
           </Chip>
         </div>
       </div>
