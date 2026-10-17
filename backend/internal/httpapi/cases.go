@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -26,9 +26,11 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -57,6 +59,21 @@ type Clarifier interface {
 // PrecedentStore looks up rulings shown to the engine.
 type PrecedentStore interface {
 	Get(id string) (domain.Ruling, bool)
+}
+
+// PrecedentStores looks a ruling up in each store in turn, so rulings shown
+// by an engine with its own pool (the USMCA engine, D61) keep their date,
+// subject and held origin in precedents_detail, watch and the ruling view.
+type PrecedentStores []PrecedentStore
+
+// Get returns the ruling from the first store that has it.
+func (ss PrecedentStores) Get(id string) (domain.Ruling, bool) {
+	for _, s := range ss {
+		if r, ok := s.Get(id); ok {
+			return r, true
+		}
+	}
+	return domain.Ruling{}, false
 }
 
 // RulingSource returns a ruling's text (cross.Client).
@@ -89,18 +106,42 @@ type Deps struct {
 	Logger         *slog.Logger
 	// Limits caps model-calling endpoints per client (zero: no limits).
 	Limits Limits
+	// RateStore, when set, enforces Limits with counters shared by every
+	// instance instead of per instance (D70; RATE_LIMIT_STORE=firestore).
+	// On a store error a request falls back to this instance's limits.
+	RateStore ratelimit.Store
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
 	// Duty, when set, fills duty rates the user did not give from the sourced
 	// table, for products with an HTS number (D52).
 	Duty *duty.Table
+	// LiveMFN, when set (DUTY_LIVE_MFN=on), fills the MFN rate from the
+	// USITC HTS for subheadings the table does not cover; the table always
+	// wins (D65).
+	LiveMFN *duty.Live
 	// Textile, when set, predicts cases the router labels textile_102_21
 	// under 19 CFR 102.21 instead of leaving them out of scope (D51).
 	// TextileFastPath is its auto-accept bar; 0 sends every textile case to
 	// review.
 	Textile         Predictor
 	TextileFastPath float64
+	// USMCA, when set, predicts cases the router labels usmca_part102 under
+	// the Part 102 rules (19 CFR 102.11 / 102.20) instead of leaving them out
+	// of scope (D61). USMCAFastPath is its auto-accept bar; 0 sends every
+	// USMCA case to review.
+	USMCA         Predictor
+	USMCAFastPath float64
+	// Pharma, when set, predicts cases the router labels pharma_api with the
+	// pharmaceutical prompt (origin follows the active ingredient) instead of
+	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;
+	// 0 sends every pharmaceutical case to review.
+	Pharma         Predictor
+	PharmaFastPath float64
+	// FamilyBars, when set (FAST_PATH_BY_FAMILY=on), replaces FastPathConf
+	// with the bar of the router's subfamily; the triage reason names it
+	// (D63). Nil keeps the global bar.
+	FamilyBars *triage.FamilyBars
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
@@ -108,9 +149,33 @@ type Deps struct {
 	// spend reaches its cap (D59). The admin token is not exempt from
 	// counting, only from the refusal.
 	Spend *spend.Meter
+	// ExportCFR177 lets export take "format": "cfr177", the ruling-request
+	// letter laid out on 19 CFR 177.2 (D66). Off: the field is refused.
+	ExportCFR177 bool
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
+	// D64); nil leaves the route unregistered (404).
+	HTS HTSSuggester
+	// BOMVersions serves POST /v1/cases/{id}/bom-version: a newer BOM
+	// diffed against the case's product and re-predicted (D67). Off by
+	// default (the route is not registered).
+	BOMVersions bool
+	// Teams turns on sign-in and team workspaces (D68): X-User-Token is
+	// verified by Users, and Workspaces maps the user to their workspace.
+	// Off by default; anonymous requests keep CaseOwnership's rules.
+	Teams      bool
+	Users      teams.Verifier
+	Workspaces teams.Store
+	// APIKeys, when set, accepts X-API-Key (its own rate-limit buckets, a
+	// daily request quota, cases owned by the key) and serves the admin key
+	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
+	APIKeys *apikey.Keys
+	// StreamPredict lets POST /v1/cases/predict answer as server-sent events
+	// (stage events, then the case) when the client sends Accept:
+	// text/event-stream (D71). Off by default: JSON as before.
+	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
 }
@@ -121,6 +186,7 @@ const maxBody = 256 << 10
 type api struct {
 	d          Deps
 	limiter    *limiter
+	shared     *sharedLimiter // nil unless Deps.RateStore is set
 	rulingMu   sync.Mutex
 	rulingMemo map[string]rulingDTO
 }
@@ -156,7 +222,9 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	switch {
 	case errors.Is(err, domain.ErrInvalid), errors.Is(err, planner.ErrUnknownFamily):
 		return http.StatusBadRequest, "invalid_input", err.Error()
-	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound):
+	case errors.Is(err, apikey.ErrBadRequest):
+		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
 		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", RequestID(r.Context()), "err", err)
@@ -200,6 +268,10 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if a.d.StreamPredict && wantsStream(r) {
+		a.predictStream(w, r, in, start)
+		return
+	}
 	sc, err := a.createCase(r, in, start)
 	if err != nil {
 		a.fail(w, r, err)
@@ -208,24 +280,77 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusCreated, a.caseFields(sc))
 }
 
+// predictStream runs predict as server-sent events (D71): stage {name:
+// router|precedents|engine|clarify, status: started|done, ms} as each step
+// starts and finishes (ms since the request began for started, the step's
+// duration for done), then done (the same body as the 201 JSON response:
+// the case is created) or error {code, message, retryable}. Comments
+// (": keep-alive") are sent every keepAlive. Input errors are plain JSON
+// responses before the stream opens.
+func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRequest, start time.Time) {
+	sc, c, err := a.newCase(r, in)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	s := openStream(w)
+	defer s.close()
+	st := newStages(start, func(name, status string, ms int64) {
+		s.send("stage", map[string]any{"name": name, "status": status, "ms": ms})
+	})
+	sc, err = a.analyseAndSave(r, sc, c, start, st)
+	if err != nil {
+		status, code, msg := a.errorFor(r, err)
+		s.send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
+		return
+	}
+	out := a.meta()
+	for k, v := range a.caseFields(sc) {
+		out[k] = v
+	}
+	s.send("done", out)
+}
+
 // createCase validates a predict request, analyses it and saves the case.
 func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (store.Case, error) {
+	sc, c, err := a.newCase(r, in)
+	if err != nil {
+		return store.Case{}, err
+	}
+	return a.analyseAndSave(r, sc, c, start, nil)
+}
+
+// analyseAndSave analyses a new case, records the prediction and saves it.
+// st, when set, is told each step as it runs.
+func (a *api) analyseAndSave(r *http.Request, sc store.Case, c domain.Case, start time.Time, st *stages) (store.Case, error) {
+	if err := a.analyse(r, &sc, c, st); err != nil {
+		return store.Case{}, err
+	}
+	record(r.Context(), &sc, predictionEvent("predicted", sc, start))
+	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
+		return store.Case{}, err
+	}
+	return sc, nil
+}
+
+// newCase validates a predict request and builds the case to analyse.
+func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Case, error) {
 	facts := strings.TrimSpace(in.Facts)
 	if in.Product != nil {
 		if err := in.Product.Validate(); err != nil {
-			return store.Case{}, err
+			return store.Case{}, domain.Case{}, err
 		}
 		if facts == "" {
 			tm, ok := a.d.Templates[in.Family]
 			if !ok {
-				return store.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
+				return store.Case{}, domain.Case{}, fmt.Errorf("%w: family %q has no template; known: %s", domain.ErrInvalid, in.Family, a.families())
 			}
 			facts = planner.Render(*in.Product, tm)
 		}
 	}
 	for _, id := range in.Exclude {
 		if !domain.ValidRulingID(id) {
-			return store.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
+			return store.Case{}, domain.Case{}, fmt.Errorf("%w: exclude_rulings: %q is not a CBP ruling number", domain.ErrInvalid, id)
 		}
 	}
 	// Feed facts in the format the engine was benchmarked on: corpus facts
@@ -235,40 +360,39 @@ func (a *api) createCase(r *http.Request, in predictRequest, start time.Time) (s
 	}
 	c := domain.Case{ID: newCaseID(), Date: in.Date.Time, Facts: facts, Product: in.Product, Exclude: in.Exclude}
 	if err := c.Validate(); err != nil {
-		return store.Case{}, err
+		return store.Case{}, domain.Case{}, err
 	}
 	if in.Economics != nil {
 		if err := validateEconomics(*in.Economics); err != nil {
-			return store.Case{}, err
+			return store.Case{}, domain.Case{}, err
 		}
 	}
 	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
 	if utf8.RuneCountInString(displayName) > MaxDisplayName {
-		return store.Case{}, fmt.Errorf("%w: display_name is longer than %d characters", domain.ErrInvalid, MaxDisplayName)
+		return store.Case{}, domain.Case{}, fmt.Errorf("%w: display_name is longer than %d characters", domain.ErrInvalid, MaxDisplayName)
 	}
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
 		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
 		Owner: ownerOf(r)}
-	if err := a.analyse(r, &sc, c); err != nil {
-		return store.Case{}, err
+	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
+		sc.Owner, sc.Workspace = u.owner, u.workspace
 	}
-	sc.Record(predictionEvent("predicted", sc, start))
-	if err := a.d.Cases.Put(r.Context(), sc); err != nil {
-		return store.Case{}, err
-	}
-	return sc, nil
+	return sc, c, nil
 }
 
 // classify runs router and engine concurrently and decides triage. The router
-// labels scope only; it never changes the engine's answer.
-func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
+// labels scope only; it never changes the engine's answer. st, when set, is
+// told each step as it runs (nil: not reported); it never changes the result.
+func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
 	var label *router.Label
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
+		st.begin("router")
 		go func() {
 			defer wg.Done()
+			defer st.end("router") // a failed router is done too: scope unknown
 			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
 				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
@@ -277,30 +401,61 @@ func (a *api) classify(ctx context.Context, c domain.Case) (domain.Prediction, *
 			label = &l
 		}()
 	}
-	res, err := a.d.Engine.Predict(ctx, c)
+	ectx := ctx
+	if st != nil {
+		ectx = engine.WithProgress(ctx, st.engineProgress)
+	}
+	res, err := a.d.Engine.Predict(ectx, c)
+	if err == nil {
+		st.end(engine.StageEngine) // a cached prediction reports no stages of its own
+	}
 	wg.Wait()
 	if err != nil {
 		return domain.Prediction{}, nil, domain.Triage{}, false, err
 	}
 	if label != nil && label.Regime == router.RegimeTextile && a.d.Textile != nil {
-		tres, err := a.d.Textile.Predict(ctx, c)
+		// The textile engine reports its own precedents and engine stages
+		// again; settle closes them if it fails (the engine's answer stands).
+		tres, err := a.d.Textile.Predict(ectx, c)
+		st.settle()
 		if err == nil { // in scope, but clarify (substantial transformation) does not apply
 			return tres.Prediction, label, triage.Textile(tres.Prediction, a.d.TextileFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
 	}
-	inScope, scopeReason := true, ""
+	// The USMCA and pharma engines report their stages as textile does.
+	if label != nil && label.Regime == router.RegimeUSMCA && a.d.USMCA != nil {
+		ures, err := a.d.USMCA.Predict(ectx, c)
+		st.settle()
+		if err == nil { // in scope, but clarify (substantial transformation) does not apply
+			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
+		}
+		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	if label != nil && label.Regime == router.RegimePharma && a.d.Pharma != nil {
+		pres, err := a.d.Pharma.Predict(ectx, c)
+		st.settle()
+		if err == nil { // in scope; clarify is skipped, as for textile (not evaluated on this regime)
+			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
+		}
+		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	inScope, scopeReason, subfamily := true, "", ""
 	if label != nil {
 		inScope, scopeReason = label.Scope()
+		subfamily = label.Subfamily
+	}
+	if a.d.FamilyBars != nil {
+		return res.Prediction, label, triage.DecideByFamily(res.Prediction, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope, nil
 	}
 	return res.Prediction, label, triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason), inScope, nil
 }
 
 // analyse runs router and engine (concurrently), triage and, below the fast
 // path, the clarify review; it fills sc. The router and clarify never change
-// the engine's answer.
-func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
-	pred, label, tr, inScope, err := a.classify(r.Context(), c)
+// the engine's answer. st, when set, is told each step as it runs.
+func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages) error {
+	pred, label, tr, inScope, err := a.classify(r.Context(), c, st)
 	if err != nil {
 		return err
 	}
@@ -313,7 +468,9 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case) error {
 				ps = append(ps, p)
 			}
 		}
+		st.begin("clarify")
 		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, pred, ps)
+		st.end("clarify") // a failed review is done too: the case stays needs_review
 		if err != nil {
 			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
 		} else {
@@ -380,7 +537,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sc.Facts, sc.UpdatedAt = facts, time.Now().UTC()
-	if err := a.analyse(r, &sc, c); err != nil {
+	if err := a.analyse(r, &sc, c, nil); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -390,7 +547,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		latest.OriginalFacts, latest.Answers = sc.OriginalFacts, sc.Answers
 		latest.Facts, latest.UpdatedAt = sc.Facts, sc.UpdatedAt
 		latest.Prediction, latest.Router, latest.Triage, latest.Clarify = sc.Prediction, sc.Router, sc.Triage, sc.Clarify
-		latest.Record(ev)
+		record(r.Context(), latest, ev)
 		return nil
 	})
 	if err != nil {
@@ -558,15 +715,22 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 		limit = 200
 	}
 	cs, err := store.ListRecent(r.Context(), a.d.Cases, limit)
+	if err == nil {
+		cs, err = a.workspaceCases(r.Context(), cs)
+	}
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	rows := make([]caseSummary, 0, len(cs))
+	shown := make([]store.Case, 0, len(cs))
 	for _, c := range cs {
-		if c.ID == HealthProbeID || !a.visible(r, c) {
-			continue
+		if c.ID != HealthProbeID && a.visible(r, c) {
+			shown = append(shown, c)
 		}
+	}
+	shown = store.CapRecent(shown, limit) // a no-op unless workspace cases were added
+	rows := make([]caseSummary, 0, len(shown))
+	for _, c := range shown {
 		rows = append(rows, summaryRow(c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
@@ -642,7 +806,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
 		econ = *c.Economics
 	}
-	econ = a.priced(econ, c.Product)
+	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), true)
 	req := planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
@@ -652,7 +816,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	if strings.Contains(r.Header.Get("Accept"), "text/event-stream") {
+	if wantsStream(r) {
 		a.planStream(w, r, c, req)
 		return
 	}
@@ -667,7 +831,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
-			latest.Record(ev)
+			record(r.Context(), latest, ev)
 			return nil
 		}); err != nil {
 			a.fail(w, r, err)
@@ -677,38 +841,115 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
 }
 
-// economicsFrom keeps the latest economics the user gave (an empty request
-// value leaves the stored one).
 // economicsPriced is the case's economics with the duty rates a plan search
-// would use (sourced table rates filled in, D52), for display; nil without
-// economics.
+// would use (sourced table rates filled in, D52; live MFN rates already
+// fetched, D65), for display; nil without economics. It never waits on the
+// HTS: a live rate shows once a plan, scenarios or compare call fetched it.
 func (a *api) economicsPriced(c store.Case) *planner.Economics {
 	if c.Economics == nil {
 		return nil
 	}
-	e := a.priced(*c.Economics, c.Product)
+	e := a.priced(context.Background(), *c.Economics, c.Product, caseOrigins(c), false)
 	return &e
 }
 
-// priced fills duty rates the user did not give from the sourced table, for
-// a product with an HTS number. Without economics there is nothing to price.
-func (a *api) priced(e planner.Economics, p *domain.Product) planner.Economics {
+// priced fills duty rates the user did not give, for a product with an HTS
+// number: from the sourced table when it has the line (D52), else, with
+// Deps.LiveMFN, the live MFN rate for each of origins (D65). fetch false
+// uses only live rates already cached. Without economics there is nothing
+// to price; a failed live lookup leaves the rates as given.
+func (a *api) priced(ctx context.Context, e planner.Economics, p *domain.Product, origins []string, fetch bool) planner.Economics {
 	if a.d.Duty == nil || p == nil || p.HTS == "" || e.AnnualImportValueUSD <= 0 {
 		return e
+	}
+	if _, ok := a.d.Duty.Line(p.HTS); !ok {
+		return a.pricedLive(ctx, e, p.HTS, origins, fetch)
 	}
 	rates, filled := a.d.Duty.Fill(e.DutyRates, p.HTS)
 	if len(filled) == 0 {
 		return e
 	}
 	e.DutyRates, e.DutyRatesFromTable = rates, filled
-	note := a.d.Duty.Note(p.HTS, filled)
-	if e.DutyRatesNote != "" {
-		note = e.DutyRatesNote + " " + note
-	}
-	e.DutyRatesNote = note
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, a.d.Duty.Note(p.HTS, filled))
 	return e
 }
 
+// pricedLive fills the live MFN rate for the origins the user gave no rate
+// for. It asks the HTS only when some origin is missing a rate.
+func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, origins []string, fetch bool) planner.Economics {
+	if a.d.LiveMFN == nil || !missingRate(e, origins) {
+		return e
+	}
+	var m duty.MFN
+	var err error
+	if fetch {
+		m, err = a.d.LiveMFN.MFN(ctx, hts)
+	} else {
+		var ok bool
+		if m, ok, err = a.d.LiveMFN.Cached(hts); !ok {
+			return e
+		}
+	}
+	if err != nil {
+		if !errors.Is(err, duty.ErrNoRate) {
+			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", RequestID(ctx), "hts", hts, "err", err)
+		}
+		return e
+	}
+	rates, filled := m.Fill(e.DutyRates, origins)
+	if len(filled) > 0 {
+		e.DutyRates, e.DutyRatesLiveMFN = rates, filled
+	}
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNote(filled))
+	return e
+}
+
+// missingRate reports whether any of origins has no duty rate (column 2 and
+// US origins never get a live rate, so they do not count).
+func missingRate(e planner.Economics, origins []string) bool {
+	for _, o := range origins {
+		n := domain.NormalizeCountry(o)
+		if _, ok := e.DutyRate(n); n != "" && !ok && !duty.NoLiveRate(n) {
+			return true
+		}
+	}
+	return false
+}
+
+func joinNote(user, add string) string {
+	if user == "" {
+		return add
+	}
+	return user + " " + add
+}
+
+// caseOrigins are the countries a case's duty could be owed at: its current
+// and predicted origin, and its plants' and components' countries.
+func caseOrigins(c store.Case) []string {
+	var out []string
+	if c.CurrentOrigin != nil {
+		out = append(out, c.CurrentOrigin.Country)
+	}
+	out = append(out, domain.CountryParts(c.Prediction.Origin)...)
+	return append(out, productCountries(c.Product)...)
+}
+
+func productCountries(p *domain.Product) []string {
+	if p == nil {
+		return nil
+	}
+	var out []string
+	for _, pl := range p.Plants {
+		out = append(out, pl.Country)
+	}
+	for _, c := range p.Components {
+		out = append(out, c.MadeIn)
+	}
+	return out
+}
+
+// economicsFrom keeps the latest economics the user gave (an empty request
+// value leaves the stored one).
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
 	if e.AnnualImportValueUSD > 0 {
 		return &e
@@ -716,51 +957,14 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 	return old
 }
 
-// keepAlive is how often an idle plan stream sends an SSE comment, so proxies
-// and Cloud Run keep the connection open.
-var keepAlive = 10 * time.Second
-
 // planStream runs the plan search as server-sent events: start {target,
 // moves}, baseline {plan}, move_started {key}, move_done {key, plan}, then
 // done (the same body as the JSON response) or error {code, message,
 // retryable}. Comments (": keep-alive") are sent every keepAlive.
 func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request) {
-	rc := http.NewResponseController(w)
-	_ = rc.SetWriteDeadline(time.Time{}) // the search outlives the server's default write timeout
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("X-Accel-Buffering", "no")
-	w.WriteHeader(http.StatusOK)
-	var mu sync.Mutex
-	write := func(chunk string) {
-		mu.Lock()
-		defer mu.Unlock()
-		_, _ = io.WriteString(w, chunk)
-		_ = rc.Flush()
-	}
-	send := func(event string, v any) {
-		b, _ := json.Marshal(v)
-		write("event: " + event + "\ndata: " + string(b) + "\n\n")
-	}
-	// The keep-alive writer must have exited before the handler returns: a
-	// ResponseWriter may not be used after that (it raced with the test
-	// recorder's reads, and on a real server it could write to a reused
-	// connection).
-	stop, stopped := make(chan struct{}), make(chan struct{})
-	defer func() { close(stop); <-stopped }()
-	go func() {
-		defer close(stopped)
-		t := time.NewTicker(keepAlive)
-		defer t.Stop()
-		for {
-			select {
-			case <-t.C:
-				write(": keep-alive\n\n")
-			case <-stop:
-				return
-			}
-		}
-	}()
+	s := openStream(w)
+	defer s.close()
+	send := s.send
 	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) {
 		switch e.Kind {
 		case planner.EventStarted:
@@ -779,7 +983,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(req.Economics, latest.Economics)
-			latest.Record(ev)
+			record(r.Context(), latest, ev)
 			return nil
 		})
 	}
@@ -804,7 +1008,16 @@ type exportRequest struct {
 	// Preview renders the draft without recording an export: the Draft
 	// screen previews on every visit and records only on Download or Print.
 	Preview bool `json:"preview"`
+	// Format is "markdown" (default, the generic draft) or "cfr177" (the
+	// letter laid out on 19 CFR 177.2, when EXPORT_CFR177 is on; D66).
+	Format string `json:"format"`
 }
+
+// Export formats.
+const (
+	formatMarkdown = "markdown"
+	formatCFR177   = "cfr177"
+)
 
 func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	c, err := a.loadCase(r)
@@ -819,11 +1032,24 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	format := strings.ToLower(strings.TrimSpace(in.Format))
+	switch {
+	case format == "" || format == formatMarkdown:
+		format = formatMarkdown
+	case format == formatCFR177 && a.d.ExportCFR177:
+	case format == formatCFR177:
+		a.fail(w, r, fmt.Errorf("%w: format cfr177 is not enabled on this server", domain.ErrInvalid))
+		return
+	default:
+		a.fail(w, r, fmt.Errorf("%w: format must be markdown or cfr177, got %q", domain.ErrInvalid, in.Format))
+		return
+	}
 	name := ""
 	if c.Product != nil {
 		name = c.Product.Name
 	}
-	ex := export.Input{ProductName: name, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
+	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction,
+		Textile: c.Router != nil && c.Router.Regime == router.RegimeTextile}
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
@@ -862,6 +1088,10 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	}
 	if p := chosen; p != nil {
 		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
+		if c.Product != nil { // the letter lists where things are made after the move
+			moved := planner.Apply(*c.Product, p.Move)
+			ex.Product = &moved
+		}
 		if p.Verdict != nil {
 			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
 			if p.RejectionKind == domain.RejectBelowConfidence {
@@ -870,10 +1100,13 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	content := export.Markdown(ex)
+	if format == formatCFR177 {
+		content = export.CFR177(ex)
+	}
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
 		return
 	}
 	now := time.Now().UTC()
@@ -886,13 +1119,17 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.ExportedAt, latest.UpdatedAt = &now, now
-		latest.Record(store.Event{Kind: "exported", Summary: "draft ruling request for " + what})
+		summary := "draft ruling request for " + what
+		if format == formatCFR177 {
+			summary = "19 CFR 177.2 ruling-request letter for " + what
+		}
+		record(r.Context(), latest, store.Event{Kind: "exported", Summary: summary})
 		return nil
 	}); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": "markdown", "content": content})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
 }
 
 // draftablePlan finds a plan by move key: any shown plan, or a rejected plan
@@ -942,7 +1179,7 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 		// visitor enumerating IDs could get our user agent blocked by CBP,
 		// which would break the precedent checks and Ask.
 		if a.limiter != nil && !a.isAdmin(r) {
-			if allowed, wait := a.limiter.allow(clientKey(r), lookup); !allowed {
+			if allowed, wait := a.allow(r, lookup); !allowed {
 				a.tooMany(w, wait)
 				return
 			}

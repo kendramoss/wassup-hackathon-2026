@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -196,6 +197,57 @@ func TestTextileRegime(t *testing.T) {
 		if len(hs.clar.facts) != 0 {
 			t.Errorf("clarify ran on a textile case")
 		}
+	}
+}
+
+type pharmaEngine struct {
+	conf float64
+	err  error
+}
+
+func (e pharmaEngine) Predict(context.Context, domain.Case) (engine.Result, error) {
+	if e.err != nil {
+		return engine.Result{}, e.err
+	}
+	return engine.Result{Prediction: domain.Prediction{Origin: "India", Confidence: e.conf, Precedents: []string{"N350001"},
+		Trace: domain.Trace{ModelID: "gemini-4-argon", PromptVersion: engine.PharmaVersion}}}, nil
+}
+
+func TestPharmaRegime(t *testing.T) {
+	tablets := `{"date":"2026-03-01","facts":"Metoprolol tablets: API made in India, tableted and packaged in Malaysia."}`
+	tests := []struct {
+		name    string
+		regime  string
+		pharma  Predictor
+		fast    float64
+		origin  string // the fake substantial-transformation engine answers China
+		route   string
+		prefix  string
+		version string
+	}{
+		{"engine off: out of scope", "pharma_api", nil, 0, "China", "needs_review", "out of scope", "engine-v1"},
+		{"no bar: review", "pharma_api", pharmaEngine{conf: 0.97}, 0, "India", "needs_review", triage.PharmaPrefix, engine.PharmaVersion},
+		{"above the bar: auto", "pharma_api", pharmaEngine{conf: 0.97}, 0.95, "India", "auto", triage.PharmaPrefix, engine.PharmaVersion},
+		{"below the bar: review", "pharma_api", pharmaEngine{conf: 0.97}, 0.99, "India", "needs_review", triage.PharmaPrefix, engine.PharmaVersion},
+		{"engine error: out of scope", "pharma_api", pharmaEngine{err: errors.New("model down")}, 0.95, "China", "needs_review", "out of scope", "engine-v1"},
+		{"other regime untouched", "substantial_transformation", pharmaEngine{conf: 0.97}, 0.95, "China", "auto", "confidence", "engine-v1"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hs := newHarnessWith(t, tt.regime, func(d *Deps) { d.Pharma, d.PharmaFastPath = tt.pharma, tt.fast })
+			code, out := hs.do(t, "POST", "/v1/cases/predict", tablets)
+			if code != http.StatusCreated {
+				t.Fatalf("predict = %d %v", code, out)
+			}
+			p, tr := out["prediction"].(map[string]any), out["triage"].(map[string]any)
+			pv := p["trace"].(map[string]any)["prompt_version"]
+			if p["origin_country"] != tt.origin || tr["route"] != tt.route || !strings.HasPrefix(tr["reason"].(string), tt.prefix) || pv != tt.version {
+				t.Errorf("prediction %v (%v), triage %v", p["origin_country"], pv, tr)
+			}
+			if tt.prefix == triage.PharmaPrefix && (out["clarify"] != nil || len(hs.clar.facts) != 0) {
+				t.Error("clarify ran on a pharmaceutical case")
+			}
+		})
 	}
 }
 

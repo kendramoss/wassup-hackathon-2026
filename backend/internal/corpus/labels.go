@@ -75,6 +75,9 @@ type Splits struct {
 	// Textile lists every textile (19 CFR 102.21) ruling, the textile
 	// engine's precedent pool (eval/splits/splits_textile.json, D51).
 	Textile []string `json:"textile,omitempty"`
+	// Pharma lists every pharmaceutical (pharma_api) ruling, the pharma
+	// engine's precedent pool (eval/splits/splits_pharma.json, D62).
+	Pharma []string `json:"pharma,omitempty"`
 }
 
 // LoadSplits reads the splits file.

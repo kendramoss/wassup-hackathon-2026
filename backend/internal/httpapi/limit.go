@@ -119,8 +119,12 @@ func (l *limiter) allow(key string, c class) (bool, time.Duration) {
 // clientKey identifies the caller. Deployed, only the frontend can invoke the
 // backend (it is not public), and the frontend's proxy forwards the browser's
 // address as X-Client-IP; without it every visitor would share the
-// frontend's bucket. Locally it is the connection's address.
+// frontend's bucket. Locally it is the connection's address. A request with
+// an API key gets the key's buckets instead, wherever it comes from (D69).
 func clientKey(r *http.Request) string {
+	if k, ok := keyFrom(r.Context()); ok {
+		return "apikey:" + k.ID
+	}
 	if ip := strings.TrimSpace(r.Header.Get("X-Client-IP")); ip != "" && len(ip) <= 64 {
 		return ipKey(ip)
 	}
@@ -159,7 +163,7 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 		if a.limiter != nil && !a.isAdmin(r) {
-			if ok, wait := a.limiter.allow(clientKey(r), c); !ok {
+			if ok, wait := a.allow(r, c); !ok {
 				a.tooMany(w, wait)
 				return
 			}

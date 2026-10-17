@@ -261,6 +261,24 @@ func TestPrecedentReasoningInUserMessage(t *testing.T) {
 	}
 }
 
+// RenderUserWithReasoning is what promptsnap hashes for textile-v2; it must
+// be exactly what Predict sends with PrecedentReasoning on.
+func TestRenderUserWithReasoningIsSent(t *testing.T) {
+	ps := []domain.Ruling{{ID: "N100001", Date: day("2025-01-01"), Facts: "knit gaiters", Holding: "Vietnam", Reasoning: "CBP weighed the knitting."}}
+	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	e := New(f, retrieval.NewBM25(ps, PrecedentText), Options{Model: "m", K: 1, System: TextileSystem2, Version: TextileVersion2, PrecedentReasoning: true})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "c", Date: day("2026-01-01"), Facts: "knit gaiters"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := f.Calls()[0].Messages[0].Content, RenderUserWithReasoning("knit gaiters", ps); got != want {
+		t.Errorf("sent:\n%s\nwant:\n%s", got, want)
+	}
+	if res.Prediction.Trace.PromptVersion != TextileVersion2+"+"+ReasoningVersion {
+		t.Errorf("version %q", res.Prediction.Trace.PromptVersion)
+	}
+}
+
 func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
 	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
 	e := New(f, nil, Options{Model: "m", System: TextileSystem, Version: TextileVersion})
@@ -270,5 +288,19 @@ func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
 	}
 	if res.Prediction.Trace.PromptVersion != TextileVersion || !strings.Contains(f.Calls()[0].System, "102.21") {
 		t.Errorf("version %q, system %.60q", res.Prediction.Trace.PromptVersion, f.Calls()[0].System)
+	}
+}
+
+func TestUSMCAPromptReplacesSystemAndVersion(t *testing.T) {
+	f := llm.FakeText(`{"origin_country":"Mexico","essential_character":"(a)(3) shift to 8309","decisive_step":"stamped in Mexico","flip":null,"confidence":0.9,"reasoning":"r"}`)
+	e := New(f, nil, Options{Model: "m", System: USMCASystem, Version: USMCAVersion})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "c", Date: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), Facts: "bolt seals"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sys := f.Calls()[0].System
+	if res.Prediction.Trace.PromptVersion != USMCAVersion || res.Prediction.Origin != "Mexico" || !strings.Contains(sys, "102.11") ||
+		!strings.Contains(sys, "102.20") || strings.Contains(sys, "substantial-transformation test") {
+		t.Errorf("version %q, origin %q, system %.80q", res.Prediction.Trace.PromptVersion, res.Prediction.Origin, sys)
 	}
 }

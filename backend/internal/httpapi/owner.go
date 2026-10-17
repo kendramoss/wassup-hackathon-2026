@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -17,8 +18,12 @@ import (
 
 var visitorIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{16,128}$`)
 
-// ownerOf returns the owner hash for the request's visitor ID, or "".
+// ownerOf returns the owner hash for the request's API key (D69) or visitor
+// ID, or "".
 func ownerOf(r *http.Request) string {
+	if k, ok := keyFrom(r.Context()); ok {
+		return keyOwner(k)
+	}
 	id := r.Header.Get("X-Visitor-ID")
 	if !visitorIDPattern.MatchString(id) {
 		return ""
@@ -27,9 +32,21 @@ func ownerOf(r *http.Request) string {
 	return hex.EncodeToString(h[:16])
 }
 
-// visible reports whether the request may see case c.
+// visible reports whether the request may see case c. A signed-in user's
+// visibility is in teamVisible (D68); a case made by a signed-in user is
+// never visible to anonymous visitors. A request with an API key, and a case
+// created with one, follow ownership even with CaseOwnership off (D69).
 func (a *api) visible(r *http.Request, c store.Case) bool {
-	if !a.d.CaseOwnership || c.Pinned || a.isAdmin(r) {
+	if c.Pinned || a.isAdmin(r) {
+		return true
+	}
+	if id := identityOf(r.Context()); id.email != "" {
+		return teamVisible(r, id, c)
+	}
+	if teamCase(c) {
+		return false
+	}
+	if _, withKey := keyFrom(r.Context()); !a.d.CaseOwnership && !withKey && !strings.HasPrefix(c.Owner, keyOwnerPrefix) {
 		return true
 	}
 	o := ownerOf(r)

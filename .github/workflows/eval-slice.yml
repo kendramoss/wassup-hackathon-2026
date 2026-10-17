@@ -1,0 +1,71 @@
+# Live regression slice (D72): the engine on 30 fixed dev rulings
+# (eval/splits/slice30.json) on Vertex, compared with the committed baseline
+# (eval/results/slice30-baseline.json). Fails when the run has more than
+# EVAL_SLICE_MAX_DROP fewer correct cases, or its accuracy at confidence
+# >= 0.95 is under EVAL_SLICE_BAND_MIN. Not run on PRs: they have no model
+# credentials, and the Workload Identity provider only issues tokens to main.
+# PRs get the offline guard instead (internal/promptsnap, in ci.yml's go test).
+# About 30 engine and 30 router calls, roughly $0.30 a run.
+name: Eval slice
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/internal/engine/**'
+      - 'backend/internal/router/**'
+      - 'backend/internal/clarify/**'
+      - 'backend/internal/verifier/**'
+
+# One run at a time; a newer push supersedes a queued one.
+concurrency:
+  group: eval-slice
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: wassup-hackathon-2026
+  WIF_PROVIDER: projects/88903435351/locations/global/workloadIdentityPools/github/providers/github-actions
+  # Needs roles/aiplatform.user to call Gemini; scripts/setup-github-deploy.sh does not grant it (D72).
+  EVAL_SA: github-deployer@wassup-hackathon-2026.iam.gserviceaccount.com
+
+jobs:
+  slice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.EVAL_SA }}
+      - name: Run the slice and compare with the baseline
+        env:
+          EVAL_SLICE: 'on'
+          LLM_PROVIDER: vertex
+          GOOGLE_CLOUD_PROJECT: ${{ env.PROJECT }}
+          GOOGLE_CLOUD_LOCATION: global
+        run: |
+          set -o pipefail
+          go run ./cmd/eval slice -out "$RUNNER_TEMP/slice/slice30.jsonl" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Keep the rows
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: eval-slice-${{ github.sha }}
+          path: ${{ runner.temp }}/slice/
+          if-no-files-found: ignore
+          retention-days: 30

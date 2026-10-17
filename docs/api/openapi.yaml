@@ -13,14 +13,26 @@ info:
 
     Rate limits (D45): endpoints that call a model are limited per client (the
     frontend forwards the browser's address as `X-Client-IP`): light ones (predict,
-    answers, ask, extract, scenarios, watch) 20 a minute, heavy ones (plan,
+    answers, ask, extract, import, scenarios, watch, bom-version) 20 a minute, heavy ones (plan,
     compare-targets) 4 a minute, plus a global cap. Over the limit: 429
     `rate_limited` with `Retry-After` and `details.retry_after_s`. Requests with
     the admin token (`X-Admin-Token` header) are not limited.
 
+    By default each server instance counts its own limits. With `RATE_LIMIT_STORE=firestore`
+    (D70) the same limits are counted in one-minute windows shared by every instance, and
+    `Retry-After` is the time until the current window ends; if that store is unavailable the
+    instance falls back to its own limits.
+
     Ruling lookups (`GET /v1/rulings/{id}`) have their own per-client limit (30 fetches a minute; a ruling already fetched is free), separate from the model budget (D58).
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
+
+    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin. The admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
+
+    API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
+security:
+  - {}
+  - ApiKey: []
 servers:
   - url: http://localhost:8080
     description: Local (`make run`)
@@ -46,6 +58,12 @@ paths:
   /v1/cases/predict:
     post:
       summary: Predict origin for a case (creates the case)
+      description: |
+        With `STREAM_PREDICT=on` on the server (off by default, D71), send `Accept: text/event-stream` to receive the analysis as server-sent events instead of one JSON response:
+        - `stage` {name: router|precedents|engine|clarify, status: started|done, ms}: each step as it starts and finishes. `ms` is milliseconds since the request began for `started`, and the step's duration for `done`. The router runs beside precedents and engine; clarify runs only below the fast path. A cached prediction reports `engine` started and done at once, with no `precedents`. On a textile case (D51) `precedents` and `engine` run a second time for the textile engine.
+        - `done`: the same body as the 201 JSON response (the case is created and saved), or `error` {code, message, retryable} (no case is saved).
+        - `: keep-alive` comment lines every 10 s.
+        The stream itself answers 200. Input errors (400), rate limits (429) and the spend cap (503) are returned as normal JSON responses before the stream starts. With the flag off the header is ignored and the response is JSON as before.
       requestBody:
         required: true
         content:
@@ -226,6 +244,13 @@ paths:
   /v1/cases/{id}/export:
     post:
       summary: Draft a CBP ruling request for the case (Markdown)
+      description: >-
+        Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a
+        letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials
+        and processing by country, question, position with the earlier rulings, prior consideration,
+        documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the
+        case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400.
+        Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
         required: false
@@ -246,6 +271,11 @@ paths:
                 preview:
                   type: boolean
                   description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print."
+                format:
+                  type: string
+                  enum: [markdown, cfr177]
+                  default: markdown
+                  description: "markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66)."
       responses:
         "200":
           description: Draft
@@ -359,6 +389,53 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/products/hts-suggest:
+    post:
+      summary: Suggest up to 3 HTS subheadings from CBP rulings that state one (off unless HTS_SUGGEST=on, D64)
+      description: |
+        BM25 finds the 10 indexed rulings most like the product (815 rulings whose text states the subheading CBP applied, 449 distinct 8-digit subheadings; `backend/data/hts_index.json`), groups them by subheading and keeps the 3 best (summed scores). One router-model call (constrained JSON) gives each a short reason, citing only rulings retrieved for that subheading. If that call fails the candidates are still returned with `reasons_unavailable: true`.
+        A suggestion, not a classification: every response carries the note "suggestion only — confirm the classification with a licensed broker". Rate-limited as light. 404 when HTS_SUGGEST is off.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: "`facts` (pasted text) or a structured `product`; facts win when both are given"
+              properties:
+                facts: { type: string, maxLength: 12000 }
+                product: { $ref: "#/components/schemas/Product" }
+      responses:
+        "200":
+          description: Candidates, best first (empty when no indexed ruling shares a term with the product)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    maxItems: 3
+                    items:
+                      type: object
+                      properties:
+                        hts: { type: string, example: "8419.89.95", description: "8-digit subheading" }
+                        supporting_rulings:
+                          type: array
+                          items: { type: object, properties: { id: { type: string }, date: { type: string, format: date }, subject: { type: string }, url: { type: string } } }
+                        reason: { type: string, description: "empty when reasons_unavailable" }
+                        cited: { type: array, items: { type: string }, description: "supporting rulings the reason relies on" }
+                        duty_rates_available: { type: boolean, description: "GET /v1/duty-rates?hts= has sourced rates for it" }
+                  note: { type: string, example: "suggestion only — confirm the classification with a licensed broker" }
+                  reasons_unavailable: { type: boolean }
+                  trace: { type: object, nullable: true }
+                  llm_provider: { type: string }
+                  prompt_version: { type: string, example: hts-suggest-v1 }
+                  disclaimer: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
       summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
@@ -491,6 +568,77 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/bom-version:
+    post:
+      summary: Compare a newer bill of materials with the case's product (supplier change alert; off unless BOM_VERSIONS=on)
+      description: |
+        D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants with the same name keep the case's plant IDs.
+        The new product is compared with the case's: components added or removed, a component made in another country or at another plant, operations added, removed or moved to another plant. Groups and capabilities are not compared (they change the plan search, not the origin).
+        When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). If the case's facts are not the rendered old product (CBP's wording, a drafted description, clarify answers), the old product is rendered and predicted too (a second engine call) so origin_changed compares two BOMs, not two wordings (facts_basis: rendered). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
+        Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers, and current_origin: CBP's ruling was on the old BOM); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: CSV or .xlsx (first sheet) }
+                apply: { type: string, enum: ["true", "false"], description: "default false" }
+          application/json:
+            schema:
+              type: object
+              required: [csv]
+              properties:
+                csv: { type: string }
+                apply: { type: boolean, default: false }
+      responses:
+        "200":
+          description: The changes and the comparison of origins
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [case_id, changes, warnings, product, old_origin, new_origin, new_confidence, origin_changed, triage, repredicted, applied, facts_basis, case_origin]
+                properties:
+                  case_id: { type: string }
+                  changes:
+                    type: array
+                    items:
+                      type: object
+                      required: [kind, name, summary]
+                      properties:
+                        kind: { type: string, enum: [component_added, component_removed, country_changed, plant_changed, operation_added, operation_removed, operation_moved] }
+                        name: { type: string, description: Component or operation name }
+                        from_country: { type: string }
+                        to_country: { type: string }
+                        from_plant: { type: string, description: Plant name }
+                        to_plant: { type: string, description: Plant name }
+                        summary: { type: string, example: "electric motor: made in Thailand, was China (plant Rayong plant, was China suppliers)" }
+                  warnings: { type: array, items: { type: string }, description: What the plan search will lack, as for import }
+                  product: { $ref: "#/components/schemas/Product" }
+                  old_origin: { type: string, description: "The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered" }
+                  old_confidence: { type: number }
+                  facts_basis:
+                    type: string
+                    enum: [case, rendered]
+                    description: "case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new."
+                  case_origin: { type: string, description: "The case's own predicted origin (equals old_origin when facts_basis is case)" }
+                  new_origin: { type: string, description: Predicted origin for the new BOM (old_origin when nothing changed) }
+                  new_confidence: { type: number }
+                  origin_changed: { type: boolean, description: new_origin differs from old_origin (both from the same kind of facts) }
+                  triage: { $ref: "#/components/schemas/Triage" }
+                  prediction: { description: "The new prediction; absent when nothing changed", allOf: [{ $ref: "#/components/schemas/Prediction" }] }
+                  repredicted: { type: boolean, description: false when no change could affect the origin (no model call) }
+                  applied: { type: boolean }
+                  case: { description: "The updated case, when applied", allOf: [{ $ref: "#/components/schemas/CaseResponse" }] }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/watch:
     post:
       summary: Re-check the prediction with every precedent available today
@@ -541,11 +689,16 @@ paths:
   /v1/duty-rates:
     get:
       summary: Sourced duty rates by HTS subheading, with every component and source (D52)
+      description: >-
+        The sourced table always wins. With DUTY_LIVE_MFN=on (default off), a subheading the table does not have is
+        answered with its live MFN (column 1 general) rate from the USITC HTS as `{hts, description, live_mfn}` (D65).
+        A live fetch (not a cached answer) counts against the per-client lookup limit (429). A missing line or a
+        failed fetch is 404, never 5xx.
       parameters:
         - { name: hts, in: query, required: false, schema: { type: string, example: "8419.89.95" }, description: "8 or 10 digits, dots optional; omit to list every line" }
       responses:
         "200":
-          description: One line (with hts) or {lines} (without)
+          description: One line (with hts) or {lines} (without), or a live MFN rate (D65)
           content:
             application/json:
               schema:
@@ -576,7 +729,9 @@ paths:
                               verified: { type: boolean }
                               note: { type: string }
                   lines: { type: array, items: { type: object } }
+                  live_mfn: { $ref: "#/components/schemas/LiveMFN" }
         "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/demos:
     get:
       summary: Demo cases for the UI's "load demo" button
@@ -624,6 +779,92 @@ paths:
                   predict: { $ref: "#/components/schemas/PredictRequest" }
                   plan: { oneOf: [{ $ref: "#/components/schemas/PlanRequest" }, { type: "null" }] }
         "404": { $ref: "#/components/responses/Error" }
+  /v1/workspaces:
+    post:
+      summary: Create a team workspace (TEAMS=on; sign-in required)
+      description: The caller becomes its admin and only member. A user can be in one workspace (409 conflict if already in one). Served only with TEAMS=on (404 otherwise). D68.
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [name], properties: { name: { type: string, minLength: 1, maxLength: 100, description: Whitespace is collapsed } } }
+      responses:
+        "201":
+          description: The workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/mine:
+    get:
+      summary: The signed-in user, their workspace and pending invitations (TEAMS=on)
+      parameters: [{ $ref: "#/components/parameters/UserToken" }]
+      responses:
+        "200":
+          description: The user's email, workspace (null when they have none) and pending invitations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [email, workspace, invites]
+                properties:
+                  email: { type: string, format: email }
+                  workspace: { oneOf: [{ $ref: "#/components/schemas/Workspace" }, { type: "null" }] }
+                  invites:
+                    type: array
+                    maxItems: 20
+                    description: Workspaces that have invited the user and that they have not joined
+                    items:
+                      type: object
+                      required: [workspace_id, name, invited_by, created_at]
+                      properties:
+                        workspace_id: { type: string }
+                        name: { type: string }
+                        invited_by: { type: string, format: email, description: The workspace's admin }
+                        created_at: { type: string, format: date-time, description: When the workspace was created }
+        "401": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members:
+    post:
+      summary: Invite a member by email (the workspace's admin only; TEAMS=on)
+      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email, description: Lower-cased } } }
+      responses:
+        "200":
+          description: The updated workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/join:
+    post:
+      summary: Accept an invitation to a workspace (TEAMS=on)
+      description: The caller must have been invited by email (`GET /v1/workspaces/mine` lists invitations). 404 without an invitation or for an unknown workspace; 409 if the caller is already in a workspace or it has 50 members. Only cases created after joining belong to the workspace. No request body.
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The workspace joined
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
@@ -633,12 +874,83 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/EvalSummary" }
+  /v1/admin/api-keys:
+    post:
+      summary: Issue an API key (admin token required; API_KEYS=on only)
+      description: Returns the key once, in `key`. Only its SHA-256 is stored, so it cannot be shown again; issue a new one if it is lost (D69).
+      security: [{ AdminToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, daily_quota]
+              properties:
+                name: { type: string, maxLength: 100, description: Who the key is for }
+                daily_quota: { type: integer, minimum: 1, maximum: 1000000, description: Requests a UTC day }
+      responses:
+        "201":
+          description: The key, shown once, and its record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, api_key]
+                properties:
+                  key: { type: string, pattern: "^op_[A-Za-z0-9_-]{43}$", description: "Send as X-API-Key. Not stored; shown only here." }
+                  api_key: { $ref: "#/components/schemas/APIKey" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    get:
+      summary: List API keys without secrets (admin token required)
+      security: [{ AdminToken: [] }]
+      responses:
+        "200":
+          description: Every key, newest first, disabled ones included
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [api_keys]
+                properties:
+                  api_keys: { type: array, items: { $ref: "#/components/schemas/APIKey" } }
+        "403": { $ref: "#/components/responses/Error" }
+  /v1/admin/api-keys/{id}:
+    delete:
+      summary: Disable an API key for good (admin token required)
+      description: The record stays in the list with `disabled` true; requests with the key then get 401.
+      security: [{ AdminToken: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f]{16}$" } }
+      responses:
+        "204": { description: Disabled }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
 components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        A broker's key, `op_` plus 43 characters, issued by the admin (D69; only with API_KEYS=on). Optional: requests without it are served as before. A key gets its own rate-limit buckets (instead of the X-Client-IP ones), a request quota per UTC day (over it: 429 `quota_exceeded` with Retry-After at the next UTC day), and owns the cases it creates. An unknown or disabled key gets 401 `unauthorized`. Model calls still count toward the daily spend cap (503 `budget_reached`).
+    AdminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+      description: The deployment's admin token (seeding, pinning, issuing API keys). Never sent from the browser.
   parameters:
     CaseID:
       name: id
       in: path
       required: true
+      schema: { type: string }
+    UserToken:
+      name: X-User-Token
+      in: header
+      required: true
+      description: The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint.
       schema: { type: string }
   responses:
     Error:
@@ -691,9 +1003,31 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded]
         message: { type: string }
         details: {}
+    Workspace:
+      type: object
+      description: A team workspace (D68); its members see each other's cases.
+      required: [id, name, members, invited, created_by, created_at, admin]
+      properties:
+        id: { type: string, example: ws_3f9a2c1b7d4e }
+        name: { type: string }
+        members: { type: array, items: { type: string, format: email }, description: Users who created or joined it }
+        invited: { type: array, items: { type: string, format: email }, description: Pending invitations, not yet members }
+        created_by: { type: string, format: email, description: The workspace's admin }
+        created_at: { type: string, format: date-time }
+        admin: { type: boolean, description: The caller is the admin }
+    APIKey:
+      type: object
+      description: A stored API key; the secret and its hash are never returned (D69).
+      required: [id, name, created_at, daily_quota, disabled]
+      properties:
+        id: { type: string, pattern: "^[0-9a-f]{16}$" }
+        name: { type: string }
+        created_at: { type: string, format: date-time }
+        daily_quota: { type: integer, description: Requests a UTC day }
+        disabled: { type: boolean }
     Meta:
       type: object
       required: [model_ids, prompt_versions, llm_provider, disclaimer]
@@ -795,7 +1129,7 @@ components:
         route: { type: string, enum: [auto, needs_review, needs_info], description: "needs_info: no earlier ruling on point; answer clarify.questions via /answers" }
         reason:
           type: string
-          description: 'Starts with "out of scope: " for regimes the tool does not cover (usmca_part102, pharma_api; textile_102_21 unless the textile engine is on), or with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51).'
+          description: 'Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). With FAST_PATH_BY_FAMILY=on (off by default, D63) the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)".'
     RouterLabel:
       type: object
       properties:
@@ -849,7 +1183,7 @@ components:
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
-            economics_priced: { description: "economics with the sourced duty rates a plan search would use filled in (D52, D56); null without economics. Display only.", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            economics_priced: { description: "economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only.", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             history:
               type: array
               description: Audit trail, oldest first (last 200)
@@ -857,7 +1191,7 @@ components:
                 type: object
                 properties:
                   at: { type: string, format: date-time }
-                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed] }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed, bom_updated] }
                   summary: { type: string }
                   llm_provider: { type: string }
                   model_id: { type: string }
@@ -866,6 +1200,7 @@ components:
                   output_tokens: { type: integer }
                   cost_usd: { type: number, description: "Estimated at the eval's promo prices (eval/RESULTS.md); cached precedent checks cost nothing. For asked, the agent model only (not its what-if engine calls)." }
                   latency_ms: { type: integer, description: Wall time of the step }
+                  actor: { type: string, format: email, description: "The signed-in user who took the step (TEAMS=on, D68); absent for anonymous visitors" }
             watch:
               type: [object, "null"]
               description: null until re-checked
@@ -896,6 +1231,23 @@ components:
               enum: [a, b, null]
               description: Which of the two rulings this case's facts are closer to on the deciding difference; null when the facts do not say (clarify-v2). The UI marks that ruling, or nothing when null.
         questions: { type: array, maxItems: 3, items: { type: string } }
+    LiveMFN:
+      type: object
+      description: >-
+        The column 1 general (MFN) rate of one subheading, fetched live from the USITC HTS and cached (D65). Only plain
+        ad valorem rates ("4.2%", "Free") get a rate; specific or compound rates are reported as printed with
+        supported false. Never includes Section 301, forced-labor or 232 duties, or special (FTA/GSP) rates.
+      properties:
+        hts: { type: string, example: "8516.79.00" }
+        description: { type: string }
+        general: { type: string, example: "2.7%", description: "the rate as printed in the HTS" }
+        rate: { type: [number, "null"], example: 0.027, description: "ad valorem fraction; null unless supported" }
+        supported: { type: boolean }
+        mfn_only: { type: boolean, description: "always true: additional duties not included" }
+        live: { type: boolean, description: "always true: not from the researched table" }
+        source: { type: string, example: "https://hts.usitc.gov/reststop/search?keyword=8516.79.00" }
+        fetched_at: { type: string, format: date-time }
+        note: { type: string, description: "says that additional duties (Section 301, forced-labor, 232) are not included, and why there is no rate when unsupported" }
     Economics:
       type: object
       description: User inputs, illustrative — editable. Kept on the case and reused to price scenarios.
@@ -905,6 +1257,7 @@ components:
         duty_rates: { type: object, additionalProperties: { type: number }, description: "Total ad-valorem rate by origin, 0.25 = 25%" }
         duty_rates_note: { type: string }
         duty_rates_from_table: { type: array, items: { type: string }, description: "Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52)" }
+        duty_rates_live_mfn: { type: array, items: { type: string }, description: "Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win; never column 2 or US origins). MFN only: Section 301, forced-labor and 232 duties are not included (D65)" }
         group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
     PlanRequest:
       type: object
@@ -971,7 +1324,7 @@ components:
         - type: object
           properties:
             case_id: { type: string }
-            format: { type: string, enum: [markdown] }
+            format: { type: string, enum: [markdown, cfr177], description: The format rendered; content is Markdown text in both. }
             content: { type: string }
     Ruling:
       type: object

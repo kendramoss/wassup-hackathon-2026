@@ -27,9 +27,11 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
         </Link>
       </nav>
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
-      <div data-case-crumb="" className="flex min-w-0 items-center border-line empty:hidden sm:border-l sm:pl-5" />
-      <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5">
-        {copy.cases.newCase}
+      {/* Hidden on phones, where the page heading names the case (#95). */}
+      <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden sm:flex sm:border-l sm:pl-5" />
+      <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5" aria-label={copy.cases.newCase}>
+        <span className="sm:hidden" aria-hidden="true">+ New</span>
+        <span className="hidden sm:inline" aria-hidden="true">{copy.cases.newCase}</span>
       </ButtonLink>
     </header>
   );
@@ -69,15 +71,15 @@ export function CaseTabs({
   // Ask, then the step's main button (17 Oct).
   return (
     <div className="no-print z-20 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
-    <nav aria-label="Case">
-      <ul className="flex flex-wrap items-center gap-1.5">
+    <nav aria-label="Case" className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
+      <ul className="flex items-center gap-1.5 whitespace-nowrap sm:flex-wrap">
         {tabs.map((t) => {
           const on = t.key === current;
           const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
           const done = Boolean(caseId) && !on && t.step < 4 && t.step <= reached && t.key !== "scenarios";
           const cls = cx(
             "inline-flex min-h-8 items-center gap-1.5 rounded-[2px] border px-3 py-1",
-            on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "border-transparent text-dim",
+            on ? "border-ink bg-white font-medium text-ink" : open ? "border-line bg-sheet text-dim hover:border-edge hover:text-ink" : "cursor-not-allowed border-dashed border-line text-faint",
             t.optional && !on && open && "border-dashed bg-transparent",
           );
           const inner = (
@@ -91,12 +93,13 @@ export function CaseTabs({
               {t.label}
               {t.optional && <span className="text-[11px] text-dim">· optional</span>}
               {done && <span className="sr-only">(done)</span>}
+              {!on && !open && <span className="sr-only">(after step 1)</span>}
             </>
           );
           return (
             <li key={t.key} className={cx(t.optional && "sm:ml-3 sm:border-l sm:border-line sm:pl-4")}>
               {on || !open ? (
-                <span className={cls} aria-current={on ? "page" : undefined} aria-disabled={!on && !open ? true : undefined}>
+                <span className={cls} aria-current={on ? "page" : undefined} aria-disabled={!on && !open ? true : undefined} title={!on && !open ? "Opens after step 1" : undefined}>
                   {inner}
                 </span>
               ) : (
@@ -109,13 +112,17 @@ export function CaseTabs({
         })}
       </ul>
     </nav>
-      <Crumb>
-        <CaseSwitcher caseId={caseId} title={title} />
-      </Crumb>
+      {/* A new case has nothing to switch from yet (#94, #97). */}
+      {caseId && (
+        <Crumb>
+          <CaseSwitcher caseId={caseId} title={title} />
+        </Crumb>
+      )}
       <div className="ml-auto flex flex-wrap items-center gap-3">
         {onAsk && (
-          <button type="button" onClick={onAsk} className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
-            Ask about this case
+          <button type="button" onClick={onAsk} aria-label="Ask about this case" className="inline-flex min-h-8 items-center rounded-[2px] border border-line bg-sheet px-3 py-1 text-dim hover:border-edge hover:text-ink">
+            <span className="sm:hidden">Ask</span>
+            <span className="hidden sm:inline">Ask about this case</span>
           </button>
         )}
         <ActionSlot />
@@ -237,7 +244,7 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   }, [open]);
   return (
     <div className="relative" ref={ref}>
-      <button type="button" className="flex items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+      <button type="button" className="flex min-h-8 items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span className="max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
       </button>
       {open && (
@@ -351,7 +358,7 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
     return (
       <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
         <p className="duo">{e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : "Today's demo budget for model calls is used up."}</p>
-        <Link href="/" className="mt-1 inline-block text-ok underline underline-offset-2">
+        <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
           Open a demo case →
         </Link>
       </div>

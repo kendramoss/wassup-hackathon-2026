@@ -221,6 +221,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
             Ask
           </Button>
         </form>
+        {/* The agent gets the last 6 turns; the thread keeps up to 20 (#118). */}
+        {turns.length >= 6 && <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim">Ask remembers your last 6 questions.</p>}
       </div>
     </Drawer>
   );
@@ -292,6 +294,14 @@ function TurnView({ t, caseId }: { t: Turn; caseId: string }) {
             {w.change && (
               <Link
                 href={`/cases/${encodeURIComponent(caseId)}/scenarios?add=${encodeURIComponent(w.change)}`}
+                // The scenario runs on the facts this card ran on, not the
+                // original text plus a one-line change (#115). Too long for
+                // the URL, so they go through session storage.
+                onClick={() => {
+                  try {
+                    if (w.facts) sessionStorage.setItem(`op-whatif:${caseId}:${w.change}`, w.facts);
+                  } catch {}
+                }}
                 className="text-xs text-ok hover:underline"
               >
                 Add as a scenario →

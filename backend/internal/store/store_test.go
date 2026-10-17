@@ -138,3 +138,28 @@ func TestListRecentKeepsPinnedAndCaps(t *testing.T) {
 		t.Errorf("ListRecent = %+v %v", cs, err)
 	}
 }
+
+func TestListWorkspace(t *testing.T) {
+	f, err := NewFile(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	now := time.Now().UTC()
+	for _, s := range []Cases{NewMemory(), f} {
+		_ = s.Put(ctx, Case{ID: "case_a1", Workspace: "ws_a", UpdatedAt: now.Add(-time.Hour)})
+		_ = s.Put(ctx, Case{ID: "case_a2", Workspace: "ws_a", UpdatedAt: now})
+		_ = s.Put(ctx, Case{ID: "case_b", Workspace: "ws_b", UpdatedAt: now})
+		_ = s.Put(ctx, Case{ID: "case_anon", UpdatedAt: now})
+		cs, err := ListWorkspace(ctx, s, "ws_a")
+		if err != nil || len(cs) != 2 || cs[0].ID != "case_a2" || cs[1].ID != "case_a1" {
+			t.Errorf("%T ws_a = %+v %v", s, cs, err)
+		}
+		if cs, err := ListWorkspace(ctx, s, ""); err != nil || len(cs) != 0 {
+			t.Errorf("%T empty workspace listed %d cases (the anonymous ones) %v", s, len(cs), err)
+		}
+		if c, _ := s.Get(ctx, "case_b"); c.Workspace != "ws_b" {
+			t.Errorf("%T workspace not persisted: %q", s, c.Workspace)
+		}
+	}
+}

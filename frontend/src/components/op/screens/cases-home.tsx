@@ -91,8 +91,9 @@ export function CasesHome() {
             <p className="duo border border-dashed border-guide bg-sheet px-5 py-4 text-dim">
               {copy.cases.empty}{" "}
               <Link href="/cases/new" className="text-ok underline underline-offset-2">
-                Start a case
+                {copy.cases.newCase}
               </Link>
+              {pinned.length > 0 || (demos?.length ?? 0) > 0 ? ", or open a demo above." : null}
             </p>
           ) : (
             <YourCases cases={yours} onChange={(next) => setCases([...pinned, ...next])} />
@@ -224,7 +225,7 @@ function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange: (c: Ca
                 <tr key={c.id} className="border-b border-line bg-fail-wash">
                   <td colSpan={7} className="px-3.5 py-3">
                     <span className="duo text-fail">
-                      Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed for everyone.
+                      Delete &ldquo;{c.display_name}&rdquo;? Its prediction, plans and drafts are removed.
                     </span>
                     <span className="ml-3 inline-flex gap-2">
                       <Button className="min-h-8 border-fail bg-fail px-3 py-1 text-[12.5px] text-white shadow-none" onClick={() => remove(c.id)}>

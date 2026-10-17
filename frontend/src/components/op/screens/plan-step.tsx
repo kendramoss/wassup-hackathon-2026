@@ -214,7 +214,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
                   <p className="duo text-[13px]">
                     {economics.annual_import_value_usd ? `${money(economics.annual_import_value_usd)} imports a year` : "No import value yet"}
                     {Object.keys(economics.duty_rates ?? {}).length ? ` · duty ${Object.entries(economics.duty_rates ?? {}).map(([k, v]) => `${k} ${Math.round(v * 1000) / 10}%`).join(", ")}` : ""}{" "}
-                    <button type="button" className="text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
+                    <button type="button" className="inline-flex min-h-6 items-center text-ok underline underline-offset-2" onClick={() => setShowMoney(true)} aria-haspopup="dialog">
                       Edit
                     </button>
                   </p>
@@ -332,7 +332,7 @@ function sentence(p: Plan) {
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
   const v = plan.verdict?.confidence;
   return (
-    <Band left={`${below ? 0 : shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
+    <Band left={`${below ? 0 : shown} of ${total} moves cleared the ${BAR} bar`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
@@ -539,9 +539,11 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
       <h2 className="eyebrow mb-2.5">
         Moves searched · {moves} · {result.plans?.length ? "best first" : "closest first by precedent check"}
       </h2>
+      {/* A table from sm up; on phones each move is a card, so the precedent
+          check and net per year stay in view (#96). */}
       <div className="relative overflow-x-auto">
-        <table className="w-full min-w-[560px] border-collapse border border-line bg-sheet text-[13px]">
-          <thead>
+        <table className="w-full border-collapse border border-line bg-sheet text-[13px] max-sm:block sm:min-w-[560px]">
+          <thead className="max-sm:sr-only">
             <tr>
               {["Move", "Outcome", "Precedent check", "Net per year", ""].map((h, i) => (
                 <th key={i} scope="col" className="border-b border-line bg-paper px-3.5 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
@@ -550,13 +552,13 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="max-sm:block">
             {all.map((p) => {
               const key = moveKey(p);
               const grey = !p.shown;
               return (
-                <tr key={key || "baseline"} className={cx("border-b border-line last:border-0", grey && "text-dim")}>
-                  <td className="duo px-3.5 py-2.5 text-ink">
+                <tr key={key || "baseline"} className={cx("border-b border-line last:border-0 max-sm:grid max-sm:grid-cols-[1fr_auto] max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3", grey && "text-dim")}>
+                  <td className="duo px-3.5 py-2.5 text-ink max-sm:col-span-2 max-sm:p-0">
                     {p.description}
                     <span className="mt-0.5 block text-xs text-dim">
                       {p.shown ? (
@@ -573,12 +575,16 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                       )}
                     </span>
                   </td>
-                  <td className="px-3.5 py-2.5">{outcome(p)}</td>
-                  <td className="px-3.5 py-2.5">
+                  <td className="px-3.5 py-2.5 max-sm:p-0">{outcome(p)}</td>
+                  <td className="px-3.5 py-2.5 max-sm:col-start-1 max-sm:p-0">
+                    <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Precedent check</span>
                     <MiniRuler value={p.verdict?.confidence} />
                   </td>
-                  <td className="whitespace-nowrap px-3.5 py-2.5">{money(p.net_per_year)}</td>
-                  <td className="px-3.5 py-2.5 text-right">
+                  <td className="whitespace-nowrap px-3.5 py-2.5 max-sm:col-start-2 max-sm:row-start-2 max-sm:p-0 max-sm:text-right">
+                    <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Net per year</span>
+                    {money(p.net_per_year)}
+                  </td>
+                  <td className="px-3.5 py-2.5 text-right max-sm:col-span-2 max-sm:p-0 max-sm:text-left empty:max-sm:hidden">
                     {(p.shown || p.rejection_kind === "below_confidence_bar") && key ? (
                       <button type="button" className="whitespace-nowrap text-xs text-ok hover:underline" onClick={() => onDraft(key)}>
                         Draft{p.shown ? "" : " (below bar)"} →

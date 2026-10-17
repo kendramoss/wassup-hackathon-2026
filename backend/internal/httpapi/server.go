@@ -29,12 +29,21 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		a = &api{d: d, rulingMemo: map[string]rulingDTO{}}
 		if d.Limits != (Limits{}) {
 			a.limiter = newLimiter(d.Limits)
+			if d.RateStore != nil {
+				a.shared = newSharedLimiter(d.Limits, d.RateStore)
+			}
 		}
 		mux.HandleFunc("POST /v1/cases/predict", a.limit(light, a.predict))
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
 		mux.HandleFunc("GET /v1/cases", a.listCases)
 		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
+		if d.HTS != nil {
+			mux.HandleFunc("POST /v1/products/hts-suggest", a.limit(light, a.htsSuggest))
+		}
+		if d.BOMVersions {
+			mux.HandleFunc("POST /v1/cases/{id}/bom-version", a.limit(light, a.bomVersion))
+		}
 		mux.HandleFunc("POST /v1/cases/{id}/scenarios", a.limit(light, a.scenarios))
 		mux.HandleFunc("POST /v1/cases/{id}/compare-targets", a.limit(heavy, a.compareTargets))
 		mux.HandleFunc("POST /v1/cases/{id}/ask", a.limit(light, a.ask))
@@ -53,6 +62,17 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("GET /v1/duty-rates", a.dutyRates)
 		mux.HandleFunc("GET /v1/demos", a.listDemos)
 		mux.HandleFunc("GET /v1/demos/{id}", a.getDemo)
+		if d.Teams {
+			mux.HandleFunc("POST /v1/workspaces", a.createWorkspace)
+			mux.HandleFunc("GET /v1/workspaces/mine", a.myWorkspace)
+			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.addMember)
+			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.joinWorkspace)
+		}
+		if d.APIKeys != nil {
+			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
+			mux.HandleFunc("GET /v1/admin/api-keys", a.adminOnly(a.listAPIKeys))
+			mux.HandleFunc("DELETE /v1/admin/api-keys/{id}", a.adminOnly(a.disableAPIKey))
+		}
 	}
 	// Not /healthz: Cloud Run reserves paths ending in "z".
 	if a != nil {
@@ -65,7 +85,14 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, http.StatusNotFound, "not_found", "no such endpoint", nil)
 	})
-	return withRequestLog(logger, mux)
+	var h http.Handler = mux
+	if a != nil && a.d.Teams {
+		h = a.withUser(h)
+	}
+	if a != nil && a.d.APIKeys != nil {
+		h = a.withAPIKeys(h)
+	}
+	return withRequestLog(logger, h)
 }
 
 type ctxKey struct{}

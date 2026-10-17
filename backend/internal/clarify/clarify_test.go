@@ -42,8 +42,12 @@ func TestReviewValidatesCitations(t *testing.T) {
 			if r.Trace.PromptVersion != PromptVersion {
 				t.Error("missing prompt version")
 			}
-			if !strings.Contains(f.Calls()[0].Messages[0].Content, "[N352485 | 2025-01-01]") {
+			sent := f.Calls()[0].Messages[0].Content
+			if !strings.Contains(sent, "[N352485 | 2025-01-01]") {
 				t.Error("precedents not in prompt")
+			}
+			if sent != RenderReview("facts", domain.Prediction{Origin: "China", Confidence: 0.8}, precs()) {
+				t.Error("Review does not send RenderReview") // promptsnap hashes RenderReview
 			}
 		})
 	}

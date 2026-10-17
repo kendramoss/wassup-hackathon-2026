@@ -18,6 +18,9 @@
 //	GET  /v1/rulings/{id}        ruling text with rulings.cbp.gov link
 //	GET  /v1/eval/summary        results-page numbers
 //	GET  /v1/demos[/{id}]        demo cases for the UI
+//	POST /v1/products/hts-suggest  candidate HTS subheadings (HTS_SUGGEST=on, D64)
+//	POST|GET /v1/admin/api-keys, DELETE /v1/admin/api-keys/{id}
+//	                             broker API keys (API_KEYS=on, admin token)
 package main
 
 import (
@@ -35,6 +38,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
@@ -47,13 +51,17 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
 
@@ -64,6 +72,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	if err := run(logger, *smoke); err != nil {
 		logger.Error("fatal", "err", err)
+		// The most common first-run failure (#146): signed in to gcloud, but
+		// without the separate application-default credentials Vertex needs.
+		if strings.Contains(err.Error(), "could not find default credentials") {
+			fmt.Fprintln(os.Stderr, "\nVertex AI needs application-default credentials: run `gcloud auth application-default login`.\nFor offline UI work with no model calls, set LLM_PROVIDER=fake.")
+		}
 		os.Exit(1)
 	}
 }
@@ -199,9 +212,51 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
+	var precedents httpapi.PrecedentStore = pool
+	var usmcaEng *engine.Engine
+	if cfg.USMCAEngine {
+		ulabels, err := corpus.LoadLabels(cfg.USMCALabels)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		upool, err := corpus.Load(ulabels, cfg.FactsDir)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		if upool.Len() == 0 {
+			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
+		}
+		usmcaEng = engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
+		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
+		// looks them up here too so their details are not lost.
+		precedents = httpapi.PrecedentStores{pool, upool}
+		logger.Info("USMCA engine on", "precedents", upool.Len(), "prompt", engine.USMCAVersion, "fast_path", cfg.USMCAFastPath)
+	}
+	var pharmaEng *engine.Engine
+	if cfg.PharmaEngine {
+		ids, err := corpus.LoadIDList(cfg.PharmaRulings)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		var ppool []domain.Ruling
+		for _, id := range ids {
+			if r, ok := pool.Get(id); ok {
+				ppool = append(ppool, r)
+			}
+		}
+		pharmaEng = engine.New(model, retrieval.NewBM25(ppool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
+		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
+	}
 	dutyTable, err := duty.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
+	}
+	var liveMFN *duty.Live
+	if cfg.DutyLiveMFN {
+		liveMFN = duty.NewLive("origin-proof (Google Cloud AI Builder Cup 2026 prototype)", cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
+		logger.Info("live MFN duty rates on", "source", duty.DefaultHTSBaseURL, "ttl", cfg.DutyLiveMFNTTL, "timeout", cfg.DutyLiveMFNTimeout)
 	}
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
@@ -234,19 +289,92 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
 	var predictor httpapi.Predictor = eng
-	var textile httpapi.Predictor
+	var textile, usmca, pharma httpapi.Predictor
 	if textileEng != nil {
 		textile = textileEng
+	}
+	if usmcaEng != nil {
+		usmca = usmcaEng
+	}
+	if pharmaEng != nil {
+		pharma = pharmaEng
 	}
 	if engineBlobs != nil {
 		predictor = engine.NewCache(eng, engineBlobs)
 		if textileEng != nil {
 			textile = engine.NewCache(textileEng, engineBlobs)
 		}
+		if usmcaEng != nil {
+			usmca = engine.NewCache(usmcaEng, engineBlobs)
+		}
+		if pharmaEng != nil { // the key includes the prompt version, so no clash with the other engines
+			pharma = engine.NewCache(pharmaEng, engineBlobs)
+		}
 	}
 	ds, err := demos.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
+	}
+	var familyBars *triage.FamilyBars
+	if cfg.FamilyBars() {
+		b, err := triage.LoadFamilyBars()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		familyBars = &b
+		logger.Info("auto-accept bars by subfamily", "bars", b.Bars, "global", cfg.FastPathConfidence)
+	}
+	var htsSuggester httpapi.HTSSuggester
+	if cfg.HTSSuggest {
+		x, err := hts.LoadIndex(cfg.HTSIndex)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		s, err := hts.New(model, cfg.RouterModel, x, cfg.FactsDir, func(code string) bool { _, ok := dutyTable.Line(code); return ok })
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		n, subs := s.Coverage()
+		logger.Info("hts suggest on", "rulings", n, "subheadings", subs, "index", cfg.HTSIndex)
+		htsSuggester = s
+	}
+	// Teams (D68): workspaces live next to the cases (Firestore on Cloud Run).
+	var users teams.Verifier
+	var workspaces teams.Store
+	if cfg.Teams {
+		if users, err = teams.NewGoogle(cfg.TeamsAudience); err != nil {
+			return httpapi.Deps{}, err
+		}
+		workspaces = teams.NewMemory()
+		if fs, ok := cases.(*store.Firestore); ok {
+			workspaces = fs.Workspaces()
+		}
+		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", fmt.Sprintf("%T", workspaces))
+	}
+	// API keys for brokers (D69), in Firestore when cases are there.
+	var keys *apikey.Keys
+	if cfg.APIKeys {
+		var ks apikey.Store = apikey.NewMemory()
+		if fs, ok := cases.(*store.Firestore); ok {
+			ks = fs.APIKeys()
+		}
+		keys = apikey.New(ks)
+		logger.Info("API keys on", "store", fmt.Sprintf("%T", ks))
+	}
+	// Rate limits shared by all instances (D70); local keeps each
+	// instance's own buckets.
+	var rateStore ratelimit.Store
+	switch cfg.RateLimitStore {
+	case config.RateFirestore:
+		fc, err := store.NewFirestoreCounters(context.Background(), cfg.GCPProject, cfg.FirestoreDatabase)
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		rateStore = fc
+		logger.Info("rate limits shared in Firestore", "collection", store.RateLimitCollection)
+	case config.RateMemory:
+		rateStore = ratelimit.NewMemory()
+		logger.Info("rate limits counted in fixed windows in memory")
 	}
 	return httpapi.Deps{
 		Demos:           ds,
@@ -255,7 +383,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		Agent:           caseagent.New(model, cfg.EngineModel, searcher, predictor),
 		Extractor:       extract.New(model, cfg.EngineModel),
 		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:      pool,
+		Precedents:      precedents,
 		Planner:         planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
 		Rulings:         crossClient,
 		Cases:           cases,
@@ -269,13 +397,28 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		VerifierModel:   cfg.VerifierModel,
 		Logger:          logger,
 		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
+		RateStore:       rateStore,
 		CasesListLimit:  cfg.CasesListLimit,
 		CaseOwnership:   cfg.CaseOwnership,
+		BOMVersions:     cfg.BOMVersions == "on",
+		Teams:           cfg.Teams,
+		Users:           users,
+		Workspaces:      workspaces,
+		APIKeys:         keys,
+		StreamPredict:   cfg.StreamPredictOn(),
 		Spend:           meter,
 		AdminToken:      cfg.AdminToken,
 		Duty:            dutyTable,
+		LiveMFN:         liveMFN,
 		Textile:         textile,
 		TextileFastPath: cfg.TextileFastPath,
+		USMCA:           usmca,
+		USMCAFastPath:   cfg.USMCAFastPath,
+		Pharma:          pharma,
+		PharmaFastPath:  cfg.PharmaFastPath,
+		FamilyBars:      familyBars,
+		HTS:             htsSuggester,
+		ExportCFR177:    cfg.ExportCFR177,
 		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }

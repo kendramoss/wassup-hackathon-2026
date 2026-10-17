@@ -24,6 +24,11 @@ type Input struct {
 	// BelowBar, when set, marks a plan whose precedent check scored under the
 	// plan bar; the draft says so near the top.
 	BelowBar *BelowBar
+	// Product, when the case has one, lists components, plants and
+	// operations in the 19 CFR 177.2 letter (with a plan's move applied).
+	Product *domain.Product
+	// Textile asks the 177.2 letter's question under 19 CFR 102.21.
+	Textile bool
 }
 
 // BelowBar is the precedent check's confidence and the bar it missed.
@@ -73,6 +78,15 @@ func Markdown(in Input) string {
 	}
 	b.WriteString(". [REQUESTER TO CONFIRM AND EXPAND WITH COUNSEL.]\n\n")
 	b.WriteString("## Earlier CBP rulings considered\n\n")
+	b.WriteString(strings.Join(citations(in), "\n") + "\n\n")
+	b.WriteString("## Attachments\n\n- Bill of materials with country of origin of each component\n- Process flow and photographs of each manufacturing step\n- [OTHER SUPPORTING DOCUMENTS]\n\n")
+	b.WriteString("Sincerely,\n\n[NAME]\n[TITLE]\n[COMPANY, ADDRESS, CONTACT]\n")
+	return b.String()
+}
+
+// citations lists the earlier rulings as Markdown bullets: the plan's
+// supporting and counter rulings, then the rest the engine cited.
+func citations(in Input) []string {
 	var cites []string
 	if in.Supporting != "" {
 		cites = append(cites, fmt.Sprintf("- %s — a comparable change where CBP found the origin moved ([rulings.cbp.gov](%s)).", in.Supporting, domain.RulingURL(in.Supporting)))
@@ -95,10 +109,7 @@ func Markdown(in Input) string {
 	if len(cites) == 0 {
 		cites = append(cites, "- [ADD RELEVANT EARLIER RULINGS]")
 	}
-	b.WriteString(strings.Join(cites, "\n") + "\n\n")
-	b.WriteString("## Attachments\n\n- Bill of materials with country of origin of each component\n- Process flow and photographs of each manufacturing step\n- [OTHER SUPPORTING DOCUMENTS]\n\n")
-	b.WriteString("Sincerely,\n\n[NAME]\n[TITLE]\n[COMPANY, ADDRESS, CONTACT]\n")
-	return b.String()
+	return cites
 }
 
 func lowerFirst(s string) string {

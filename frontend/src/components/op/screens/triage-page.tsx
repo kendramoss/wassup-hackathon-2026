@@ -135,7 +135,7 @@ export function TriagePage() {
 
   return (
     <Main>
-      <Link href="/" className="text-[13px] text-ok hover:underline">
+      <Link href="/cases" className="text-[13px] text-ok hover:underline">
         ← Cases
       </Link>
       <h1 className="mt-3 text-[28px] tracking-[-0.05em]">Triage a portfolio</h1>
@@ -193,44 +193,83 @@ export function TriagePage() {
             </div>
           ) : null}
 
+          {/* Same upload pattern as the Step 1 BOM import (#157). */}
           <label
             htmlFor={inputId}
             onDragOver={(e) => {
               e.preventDefault();
               setDrag(true);
             }}
-            onDragLeave={() => setDrag(false)}
+            onDragLeave={(e) => {
+              // Moving over a child fires dragleave on the label too.
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDrag(false);
+            }}
             onDrop={(e) => {
               e.preventDefault();
               setDrag(false);
               const f = e.dataTransfer.files[0];
               if (f) pick(f);
             }}
-            className={cx("mt-8 block cursor-pointer border border-dashed px-6 py-7 text-center", drag ? "border-ok bg-ok-wash" : "border-guide bg-sheet")}
+            className={cx(
+              "group mt-8 flex cursor-pointer flex-col items-center gap-3 border-[1.5px] px-6 py-9 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+              drag ? "border-solid border-ok bg-ok-wash" : "border-dashed border-guide bg-sheet hover:border-dim",
+            )}
           >
-            <span className="text-sm">{file ? "Or drop another file" : "Drop a CSV or Excel file, or choose one"}</span>
-            <span className="duo mt-1 block text-xs text-dim">One row per product. Up to {MAX}.</span>
+            <span aria-hidden="true" className={cx("grid size-12 place-items-center border bg-paper transition-transform", drag ? "-translate-y-1 border-ok text-ok" : "border-line text-ink group-hover:-translate-y-0.5")}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square">
+                <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" />
+                <path d="M4 14v6h16v-6" />
+              </svg>
+            </span>
+            <span className="text-[15px] font-medium text-ink">{drag ? "Release to triage" : file ? "Drop another portfolio" : "Drag and drop your portfolio"}</span>
+            <span className="duo text-xs text-dim">CSV or Excel (.xlsx) · one row per product · up to {MAX}</span>
+            <span className="inline-flex min-h-10 items-center justify-center rounded-[2px] border border-ink bg-ink px-5 py-2 text-sm font-medium text-paper shadow-[3px_3px_0_var(--shadow)] group-hover:bg-body">
+              Browse files
+            </span>
             <input id={inputId} type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
           </label>
-          {!file && (
-            <button type="button" onClick={loadSample} className="mt-3 text-[13px] text-ok hover:underline">
-              Try the sample (5 products)
-            </button>
-          )}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[13px]">
+            {!file ? (
+              <button type="button" onClick={loadSample} className="inline-flex min-h-6 items-center text-ok hover:underline">
+                Try the sample (5 products)
+              </button>
+            ) : (
+              <span />
+            )}
+            <a className="inline-flex min-h-6 items-center gap-1.5 text-xs text-ok underline underline-offset-2" href="/samples/portfolio-template.csv" download>
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+                <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5" />
+                <path d="M4 14v6h16v-6" />
+              </svg>
+              Download CSV template
+            </a>
+          </div>
 
-          <table className="mt-6 w-full max-w-[640px] border-collapse text-[13px]">
-            <caption className="eyebrow mb-2 text-left">Columns</caption>
+          <h2 className="eyebrow mb-2 mt-6">Data requirements</h2>
+          <table className="w-full max-w-[760px] border-collapse border border-line bg-sheet text-left text-[13px]">
+            <thead>
+              <tr className="border-b border-line bg-wash text-[11px] uppercase tracking-[.06em] text-dim">
+                <th scope="col" className="px-3 py-2 font-medium">Field</th>
+                <th scope="col" className="px-3 py-2 font-medium">Status</th>
+                <th scope="col" className="px-3 py-2 font-medium">What it holds</th>
+              </tr>
+            </thead>
             <tbody>
-              {[
-                ["name", "required", "what you call the product"],
-                ["facts", "required", "where parts are made and what happens where"],
-                ["date", "", "case date; defaults to today"],
-              ].map(([c, req, what]) => (
-                <tr key={c} className="border-t border-line">
-                  <th scope="row" className="py-2 pr-4 text-left font-medium">
-                    {c} {req && <span className="text-[11px] font-normal text-dim">{req}</span>}
+              {(
+                [
+                  ["name", true, "What you call the product"],
+                  ["facts", true, "Where parts are made and what happens where, as you would tell CBP"],
+                  ["date", false, "Case date (YYYY-MM-DD); defaults to today"],
+                ] as const
+              ).map(([c, req, what]) => (
+                <tr key={c} className="border-b border-line last:border-b-0">
+                  <th scope="row" className="px-3 py-2 font-medium">
+                    <code>{c}</code>
                   </th>
-                  <td className="duo py-2 text-dim">{what}</td>
+                  <td className="px-3 py-2">
+                    <span className={cx("inline-flex rounded-[2px] border px-2 py-0.5 text-[11px] font-medium", req ? "border-ink bg-ink text-paper" : "border-line bg-paper text-dim")}>{req ? "Required" : "Optional"}</span>
+                  </td>
+                  <td className="duo px-3 py-2 text-body">{what}</td>
                 </tr>
               ))}
             </tbody>
@@ -384,7 +423,7 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
         </Button>
         <span className="text-[13px] text-dim">
           All {total - failed} are saved on{" "}
-          <Link href="/" className="text-ok hover:underline">
+          <Link href="/cases" className="text-ok hover:underline">
             Cases
           </Link>
         </span>

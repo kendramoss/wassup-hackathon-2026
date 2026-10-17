@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { api, type Component, type Economics, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
+import {
+  api,
+  streamPredict,
+  type Component,
+  type Economics,
+  type ImportResponse,
+  type Operation,
+  type Plant,
+  type PredictRequest,
+  type PredictStage,
+  type Product,
+} from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
@@ -112,6 +123,7 @@ export function ProductStep() {
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [busySince, setBusySince] = useState(0);
+  const [stages, setStages] = useState<PredictStage[]>([]);
   const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
@@ -192,13 +204,19 @@ export function ProductStep() {
       body.family = family || undefined;
       if (extra.facts) body.facts = extra.facts; // demo or drafted: engine reads the text, product kept for the plan
     }
+    setStages([]);
     try {
-      const c = await api.predict(body);
+      // Streams the steps when the backend has STREAM_PREDICT on; otherwise
+      // answers plain JSON and the spinner alone shows progress.
+      const c = await streamPredict(body, (s) =>
+        setStages((xs) => (xs.some((x) => x.name === s.name) ? xs.map((x) => (x.name === s.name ? s : x)) : [...xs, s])),
+      );
       if (demoId && c.id) rememberDemo(c.id, demoId);
       router.push(`/cases/${encodeURIComponent(c.id!)}/origin`);
     } catch (e) {
       setError(e);
       setBusy(false);
+      setStages([]);
     }
   };
 
@@ -228,7 +246,7 @@ export function ProductStep() {
           <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">
             {copy.product.lede}{" "}
             {!demoId && (
-              <Link href="/" className="text-ok underline underline-offset-2">
+              <Link href="/cases" className="text-ok underline underline-offset-2">
                 Or load a demo.
               </Link>
             )}
@@ -446,7 +464,7 @@ export function ProductStep() {
               </Button>
             </div>
           </div>
-          {busy && <PredictStatus since={busySince} date={date} />}
+          {busy && <PredictStatus since={busySince} date={date} stages={stages} />}
         </div>
       </Main>
       {moneyOpen && (
@@ -477,7 +495,7 @@ const cell =
 // While the prediction runs: what the engine is doing, how long it usually
 // takes, and a plain note if it runs long, so a quiet screen never reads as
 // a stuck one (#144).
-function PredictStatus({ since, date }: { since: number; date: string }) {
+function PredictStatus({ since, date, stages }: { since: number; date: string; stages: PredictStage[] }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -497,11 +515,17 @@ function PredictStatus({ since, date }: { since: number; date: string }) {
       <div className="relative mt-2.5 h-1 overflow-hidden bg-white" aria-hidden="true">
         <div className={cx("absolute inset-y-0 w-1/3 motion-safe:animate-[slide_1.6s_ease-in-out_infinite]", slow ? "bg-ask" : "bg-ok")} />
       </div>
-      <ol className="duo mt-3 flex list-decimal flex-col gap-1 pl-5 text-body">
-        <li>Reading your product: each part, where it is made, what each plant does.</li>
-        <li>Finding earlier CBP rulings dated before {date || "the case date"} on similar products.</li>
-        <li>Weighing those rulings to predict the origin CBP would likely assign.</li>
-      </ol>
+      {/* The backend streams its real steps (D71); until the first arrives,
+          say what they will be. */}
+      {stages.length > 0 ? (
+        <StageList stages={stages} />
+      ) : (
+        <ol className="duo mt-3 flex list-decimal flex-col gap-1 pl-5 text-body">
+          <li>Reading your product: each part, where it is made, what each plant does.</li>
+          <li>Finding earlier CBP rulings dated before {date || "the case date"} on similar products.</li>
+          <li>Weighing those rulings to predict the origin CBP would likely assign.</li>
+        </ol>
+      )}
       <p className="duo mt-2 text-xs text-dim">
         {slow ? "The model may be busy. You can keep waiting; if it fails, an error with a retry appears here." : "You will be taken to the result when it is ready."}
       </p>
@@ -525,6 +549,28 @@ function SectionHead({ n, title, hint }: { n: number; title: string; hint?: stri
         {hint && <p className="duo text-[12.5px] text-dim">{hint}</p>}
       </div>
     </div>
+  );
+}
+
+// The analysis steps as the backend streams them (D71): running steps
+// pulse, finished ones show how long they took. The router runs beside
+// precedents and engine, so two can be running at once.
+function StageList({ stages }: { stages: PredictStage[] }) {
+  return (
+    <ol aria-label="Analysis steps" aria-live="polite" className="mt-3 grid gap-1 text-[13px]">
+      {stages.map((s) => (
+        <li key={s.name} className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className={cx("size-2 shrink-0 rotate-45", s.status === "done" ? "bg-ok" : "animate-pulse border border-ok motion-reduce:animate-none")}
+          />
+          <span className={cx("min-w-0 flex-1", s.status === "done" ? "text-body" : "text-dim")}>{copy.product.stages[s.name] ?? s.name}</span>
+          <span className="font-mono text-[12px] text-faint">
+            {s.status === "done" ? `${(s.ms / 1000).toFixed(1)} s` : <span className="sr-only">running</span>}
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 

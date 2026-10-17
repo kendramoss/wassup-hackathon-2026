@@ -53,3 +53,26 @@ func TestRuling(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchPage(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		if r.URL.Path != "/api/search" || q.Get("term") != "102.20" || q.Get("sortBy") != "DATE_DESC" || q.Get("page") != "3" ||
+			q.Get("pageSize") != "100" || q.Get("collection") != "ALL" {
+			t.Errorf("search request = %s %v", r.URL.Path, q)
+		}
+		_, _ = io.WriteString(w, `{"rulings":[{"rulingNumber":"N364405","rulingDate":"2026-09-17T00:00:00","subject":"bolt seal","tariffs":"8309.90.0080","categories":"Origin"}],"totalHits":1062}`)
+	}))
+	defer srv.Close()
+	c := &HTTPClient{BaseURL: srv.URL, UserAgent: "test-agent", HTTP: srv.Client()}
+	hits, total, err := c.SearchPage(context.Background(), "102.20", 3, 100)
+	if err != nil || total != 1062 || len(hits) != 1 || hits[0].Tariffs != "8309.90.0080" || hits[0].Categories != "Origin" {
+		t.Fatalf("SearchPage = %+v %d %v", hits, total, err)
+	}
+	bad := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusForbidden) }))
+	defer bad.Close()
+	c.BaseURL, c.HTTP = bad.URL, bad.Client()
+	if _, _, err := c.SearchPage(context.Background(), "102.20", 1, 100); err == nil {
+		t.Error("403 accepted")
+	}
+}
