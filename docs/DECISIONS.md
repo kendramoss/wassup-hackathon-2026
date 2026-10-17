@@ -552,3 +552,37 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
 - **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
 - The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).
+
+## D84 — Three-group moves in the plan search (18 Oct)
+- The planner listed single and double moves only (`planner.Enumerate`). CBP's real heat-gun change (N357771, Jan 2026) moved the motor, fan, PCBA and the switch/cord parts together, which is three of the template's groups, so the setup CBP approved was never searched.
+- **`EnumerateUpTo`:** every single and pair as before, in the same order, then three-group moves while the total stays at most `PLAN_MAX_MOVES` (default 12). When not every triple fits, the triples whose groups cost most where they are made now come first (the request's `group_costs`), ties in template order. Singles and pairs keep their keys and order, so their cached verdicts are reused. `domain.MaxGroupsPerMove` is now 4 (a triple plus at most one group from D85). Describe reads "Make A, B and C in Thailand".
+- Heat gun: 6 moves become 7; the new one is motor-fan + PCBA + switch/cord. Tub light: 6 become 7 (LED PCBA + lens + base/harness/seals). LiDAR has two movable groups and is unchanged.
+- **Measured once** (LiteLLM proxy, same `gemini-4-argon`, seeded (D76), verifier-v2 with the panel (D83), near-miss advice and FOLLOW_ADVICE on, `-search cross`, planner concurrency 2, fresh cache; not re-run):
+
+  | Heat gun move | Result | Check | Supporting | Panel |
+  |---|---|---|---|---|
+  | **Motor-fan + PCBA + switch/cord (new triple)** | **shown** | **0.95** | N347421 | — |
+  | Motor-fan + PCBA | below the bar | 0.82 | N346720 | 2/3 |
+  | Motor-fan alone | below the bar | 0.75 | N347421 | — |
+  | Motor-fan + switch/cord | below the bar | 0.75 | N345859 | — |
+  | PCBA alone; switch/cord alone; PCBA + switch/cord | no supporting precedent | 0.65 / 0.75 / 0.65 | — | — |
+
+  The triple is CBP's real 2026 change: the backtest says it moved the motor, fan, PCBA, knob, power cord and back cover. Of N357771's moved parts, only the outer shells were not moved (that group, housing moulding, is already Thai in the 2022 setup). Net $285k/yr (duty $500k, added cost $215k, illustrative). Engine Thailand 1.00. 7 moves, 8 engine calls, 7 verifier runs (29 model calls, 54 tool calls), $0.238 promo, 108 s.
+
+  | Tub light move | Result | Check | Supporting | Panel |
+  |---|---|---|---|---|
+  | LED PCBA | shown | 0.94 | N344188 | 3/3 |
+  | LED PCBA + lens | shown | 0.92 | H304910 | 3/3 |
+  | LED PCBA + base, harness and seals | shown | 0.96 | N344188 | — |
+  | **LED PCBA + lens + base, harness and seals (new triple)** | **shown** | **0.96** | N323710 | — |
+  | Lens, base/harness/seals, or both | engine predicts China | — | — | — |
+
+  7 moves, 4 verifier runs (28 model calls), $0.272 promo, 101 s. LED PCBA + lens moved from 0.90 (production, D77) to 0.92 here; that is this run's panel, not a re-check of production's verdict.
+- Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-triples-follow-litellm.json`. Production's stored verdicts are untouched: singles and pairs keep their cache keys, so turning this on only adds the triple's check to a replayed search.
+
+## D85 — Follow near-miss advice with one more move, off by default (18 Oct)
+- Near-miss advice (D81) names what would match the supporting ruling, but the planner stopped there. `FOLLOW_ADVICE=on` (needs `NEAR_MISS_ADVICE=on`) closes the loop: after advice, it takes the advised near misses, highest check first, and adds the groups the advice's `would_match` names to that move. If the result is a move not already searched (in the target country, groups the plants can perform), it is run once through the normal engine and precedent check and added with `from_advice: true`. At most one per search. It is a new move, never a re-check: a superset that was already searched is skipped.
+- **Mapping:** first deterministic. Group names, component names and pieces of operations are matched as whole words in the advice. Only if none match, one small structured call (`near-miss-map-v1`, ids from the template list only) is the fallback; its tokens count with the advice's.
+- The followed move streams like any other (`move_started`/`move_done`, `total` grows by one) and gets economics. A failed check on it shows as `check_failed` like any move.
+- **Measured** (same runs as D84): **nothing was followed, because there was no near miss to follow.** The heat gun's closest below-bar move checked 0.82, under near-miss advice's 0.85 floor (D81), so no advice was written. The tub light had no below-bar move. With triples in the search, the advice D81 measured on the heat gun (motor-fan + PCBA at 0.90: also make the knob, back cover, support ring, switch and fasteners in Thailand) maps to motor-fan + PCBA + switch/cord. That triple is now searched directly, so following it would be skipped as already searched. The feature matters when the search is capped below the triples or a product has more groups than the cap covers. Tests cover the mapping, the skip, the one-per-search cap, the fallback, the failure path and that existing verdicts are unchanged.
+- Off by default. The near-miss floor and cap are unchanged.
