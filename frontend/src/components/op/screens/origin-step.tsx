@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -48,7 +49,12 @@ function Result({ id, c, setCase }: CaseCtx) {
               ) : null}
             </section>
           ) : null}
+          {/* Locked frames: the disagreement first (p-res-conflict.html),
+              then the questions; below the bar with no questions, the
+              review panel (p-res-review.html). */}
+          {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
+          {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}
           <div>
             <h2 className="eyebrow mb-1.5">Evidence and details</h2>
             {c.precedents_detail?.length ? (
@@ -56,7 +62,6 @@ function Result({ id, c, setCase }: CaseCtx) {
                 <RulingsSummary c={c} />
               </Fold>
             ) : null}
-            {c.clarify?.conflict ? <Conflict c={c} /> : null}
             {c.answers?.length ? (
               <Fold title="Your answers" meta={c.answers.length}>
                 <ul className="duo flex flex-col gap-2 text-[13px]">
@@ -250,8 +255,8 @@ function RulingsSummary({ c }: { c: CaseResponse }) {
 
 // Earlier rulings disagree (locked 16 Oct, p-res-conflict.html): the two
 // rulings as halves; the one named by conflict.leans is tinted blue with
-// "this case follows". Folded by default under the questions: it explains
-// the low confidence, it isn't the next step.
+// "this case follows". An amber ("look again") panel above the questions,
+// as framed; only endpoint text, no labels of ours.
 function Conflict({ c }: { c: CaseResponse }) {
   const k = c.clarify!.conflict!;
   const detail = new Map((c.precedents_detail ?? []).map((r) => [r.id, r]));
@@ -260,8 +265,9 @@ function Conflict({ c }: { c: CaseResponse }) {
     { side: "b", id: k.ruling_b, holding: k.holding_b },
   ];
   return (
-    <Fold title={<span className="text-ask">{copy.result.conflict}</span>} meta="why the confidence is lower">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <Panel tone="ask" aria-label={copy.result.conflict}>
+      <h2 className="text-base font-medium tracking-[-0.02em] text-ask">{copy.result.conflict}</h2>
+      <div className="mt-3 grid gap-4 sm:grid-cols-2">
         {halves.map(({ side, id, holding }) => {
           const r = id ? detail.get(id) : undefined;
           const follows = k.leans === side;
@@ -289,7 +295,31 @@ function Conflict({ c }: { c: CaseResponse }) {
           {k.deciding_difference}
         </p>
       )}
-    </Fold>
+    </Panel>
+  );
+}
+
+// Needs expert review and no questions came back (p-res-review.html): why a
+// broker should look, in the held-out rates (NUMBERS.md, official: 52 of 77
+// under the bar right, 96.0% on the fast path), and what to do next. Not for
+// cases decided under other rule sets: those rates are for the substantial
+// transformation engine.
+function ReviewPanel({ c }: { c: CaseResponse }) {
+  const R = copy.result.review;
+  const enc = encodeURIComponent(c.id ?? "");
+  return (
+    <Panel tone="ask" aria-label={R.title}>
+      <h2 className="text-base font-medium tracking-[-0.02em] text-ask">{R.title}</h2>
+      <p className="duo mt-1.5 text-sm">{R.body(conf(c.prediction?.confidence))}</p>
+      <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
+        <Link href={`/cases/${enc}/draft`} className="text-ok underline underline-offset-2">
+          {R.draft}
+        </Link>
+        <Link href={`/cases/${enc}/product`} className="text-ok underline underline-offset-2">
+          {R.addFacts}
+        </Link>
+      </p>
+    </Panel>
   );
 }
 

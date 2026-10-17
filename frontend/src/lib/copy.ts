@@ -69,6 +69,12 @@ export const copy = {
     nextQuestions: (target: string) => `Add the facts CBP would ask about, or plan a move to ${target}.`,
     suggestAnswer: (n: number) => (n === 1 ? "Answer CBP's likely question" : `Answer CBP's ${n} likely questions`),
     conflict: "Earlier rulings disagree",
+    review: {
+      title: "Below the 0.92 bar · worth a broker's look",
+      body: (c: string) => `Confidence is ${c}. On the 377 held-out rulings, cases under the bar were right 68% of the time, against 96% above it. No follow-up questions came back for this case.`,
+      draft: "Draft a note for the broker →",
+      addFacts: "Add facts",
+    },
     keyFactors: "Key factor",
     rulings: "Earlier CBP rulings read",
     ask: "Ask about this case",
