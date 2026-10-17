@@ -38,6 +38,12 @@ func TestDefaults(t *testing.T) {
 		c.LLMTimeout != 30*time.Second || c.GCPLocation != "global" || c.Port != "8080" {
 		t.Errorf("unexpected defaults: %+v", c)
 	}
+	if c.VerifierPrompt != "v2" {
+		t.Errorf("verifier prompt default = %q, want v2 (D74)", c.VerifierPrompt)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"VERIFIER_PROMPT": "v3"}))); err == nil {
+		t.Error("VERIFIER_PROMPT=v3 accepted")
+	}
 	if c.RateLightPerMin != 20 || c.RateHeavyPerMin != 4 || c.RateGlobalPerMin != 120 || c.AdminToken != "" {
 		t.Errorf("rate/admin defaults = %d %d %d %q", c.RateLightPerMin, c.RateHeavyPerMin, c.RateGlobalPerMin, c.AdminToken)
 	}
