@@ -9,7 +9,7 @@ import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
-import { EconomicsEditor, PlantDiagram, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
+import { EconomicsEditor, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { regimeOf } from "@/lib/regime";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -404,7 +404,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       </div>
       <div>
         <p className="eyebrow">Precedent check</p>
-        <Ruler value={v} caption={`check ${conf(v)} · ${checkWords(v)}`} />
+        <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement), checkWords(v)].filter(Boolean).join(" · ")} />
       </div>
     </Band>
   );
@@ -529,7 +529,7 @@ function WhySupported({ plan }: { plan: Plan }) {
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
         <dt className="text-dim">Check</dt>
         <dd>
-          {conf(v.confidence)} · {checkWords(v.confidence)}
+          {[conf(v.confidence), agreementWords(v.agreement), checkWords(v.confidence)].filter(Boolean).join(" · ")}
         </dd>
         <dt className="text-dim">Supports</dt>
         <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : "none found"}</dd>
@@ -643,7 +643,12 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                   <td className="px-3.5 py-2.5 max-sm:col-start-1 max-sm:p-0">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Precedent check</span>
                     <MiniRuler value={p.verdict?.confidence} />
-                    {p.verdict?.confidence != null && <span className="mt-0.5 block font-mono text-xs tabular-nums text-dim">{conf(p.verdict.confidence)}</span>}
+                    {p.verdict?.confidence != null && (
+                      <span className="mt-0.5 block text-xs text-dim">
+                        <span className="font-mono tabular-nums">{conf(p.verdict.confidence)}</span>
+                        {agreementWords(p.verdict.agreement) ? ` · ${agreementWords(p.verdict.agreement)}` : ""}
+                      </span>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 max-sm:col-start-2 max-sm:row-start-2 max-sm:p-0 max-sm:text-right">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Net per year</span>

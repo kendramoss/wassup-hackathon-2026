@@ -91,6 +91,7 @@ export const copy = {
     closestEvidence: "Precedent check: closest move",
     // A greyed row's reason, instead of the API's "precedent-supported but
     // verifier confidence 0.90 is below 0.92" (one name for the check).
+    agreement: (views: string, agree: string) => `${views} views, ${agree} agree`,
     belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
   },
 
