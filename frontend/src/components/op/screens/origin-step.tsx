@@ -30,22 +30,25 @@ function Result({ id, c, setCase }: CaseCtx) {
       {/* Top to bottom: the verdict, then why (left) beside what to do next
           (right); details people may want fold into accordions (17 Oct). */}
       <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Reading order: the answer's reasons, then what would sharpen it
+            (optional), then the evidence behind it, folded. */}
         <div className="flex min-w-0 flex-col gap-6">
-          {qs ? <Questions c={c} setCase={setCase} /> : null}
-          {p.reasoning ? (
-            <section aria-label="Why">
-              <h2 className="eyebrow mb-1.5">{route === "auto" ? `Why · auto-accepted, ${conf(p.confidence)} is at or above the ${BAR} bar` : "Why"}</h2>
-              <p className="duo max-w-[75ch] text-sm leading-relaxed">{p.reasoning}</p>
-            </section>
-          ) : null}
-          {p.key_factors?.length ? (
-            <section aria-label={copy.result.keyFactors}>
-              <h2 className="eyebrow mb-1.5">{copy.result.keyFactors}</h2>
-              <p className="duo max-w-[75ch] text-sm">{p.key_factors.join("; ")}</p>
-            </section>
-          ) : null}
           {c.watch?.status === "changed" ? <WatchLine c={c} setCase={setCase} /> : null}
+          {p.reasoning || p.key_factors?.length ? (
+            <section aria-label="Why" className="border-l-2 border-ink pl-4">
+              <h2 className="eyebrow mb-1.5">{route === "auto" ? `Why · auto-accepted, ${conf(p.confidence)} is at or above the ${BAR} bar` : "Why"}</h2>
+              {p.reasoning ? <p className="duo max-w-[75ch] text-sm leading-relaxed">{p.reasoning}</p> : null}
+              {p.key_factors?.length ? (
+                <p className="duo mt-3 max-w-[75ch] text-sm">
+                  <span className="eyebrow mr-2">{copy.result.keyFactors}</span>
+                  {p.key_factors.join("; ")}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+          {qs ? <Questions c={c} setCase={setCase} /> : null}
           <div>
+            <h2 className="eyebrow mb-1.5">Evidence and details</h2>
             {c.precedents_detail?.length ? (
               <Fold title={copy.result.rulings} meta={`${c.precedents_detail.length} read${cited ? `, ${cited} cited` : ""}`}>
                 <RulingsSummary c={c} />

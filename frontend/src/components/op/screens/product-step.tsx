@@ -122,6 +122,7 @@ export function ProductStep() {
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [busySince, setBusySince] = useState(0);
   const [stages, setStages] = useState<PredictStage[]>([]);
   const [error, setError] = useState<unknown>(null);
 
@@ -183,6 +184,7 @@ export function ProductStep() {
 
   const submit = async () => {
     setBusy(true);
+    setBusySince(Date.now());
     setError(null);
     // display_name names the case on Cases home, so a pasted description
     // never shows there as truncated facts.
@@ -250,8 +252,37 @@ export function ProductStep() {
             )}
           </p>
 
+          {/* Three numbered sections, top to bottom in the order people fill
+              them: name it, describe it, check what that unlocks and go. An
+              import still fills the name. */}
+          <SectionHead n={1} title="The product" hint="Its name heads the ruling letter; the date limits which rulings are read." />
+          <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
+              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+            </Field>
+            <Field label={copy.product.family}>
+              {(id) => (
+                <span className="relative block">
+                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
+                    {families.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
+                  </select>
+                  <Caret />
+                </span>
+              )}
+            </Field>
+            <Field label={copy.product.date} help={copy.product.dateHelp}>
+              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+            </Field>
+          </div>
+
+          <SectionHead n={2} title="Describe it" hint="Pick one way. Parts and plants unlock the plan search." />
           {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
-          <div role="tablist" aria-label="How to describe the product" className="mt-7 inline-flex flex-wrap border border-edge bg-sheet">
+          <div role="tablist" aria-label="How to describe the product" className="mt-3 inline-flex flex-wrap border border-edge bg-sheet">
             {tabOrder.map((t) => (
               <button
                 key={t}
@@ -295,7 +326,7 @@ export function ProductStep() {
             </div>
           )}
 
-          <div className="mt-7" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
+          <div className="mt-5" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
             {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -356,32 +387,8 @@ export function ProductStep() {
             )}
           </div>
 
-          {/* After the input: name, family and date (an import fills the name). */}
-          <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
-            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
-              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
-            </Field>
-            <Field label={copy.product.family}>
-              {(id) => (
-                <span className="relative block">
-                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
-                    {families.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.name}
-                      </option>
-                    ))}
-                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
-                  </select>
-                  <Caret />
-                </span>
-              )}
-            </Field>
-            <Field label={copy.product.date} help={copy.product.dateHelp}>
-              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
-            </Field>
-          </div>
-          {/* Below the input it describes: what it unlocks so far. */}
-          <ul aria-label="What this input unlocks" className="mt-7 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
+          <SectionHead n={3} title="Check and go" hint="What your input unlocks so far." />
+          <ul aria-label="What this input unlocks" className="mt-3 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
             {tiers.map((t, i) => (
               <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
                 <span
@@ -437,21 +444,27 @@ export function ProductStep() {
           ) : null}
           {/* Step 1 is a form: its action sits after the fields, not above the heading. */}
           <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-            <Next>{missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It takes a few seconds."}</Next>
+            <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It usually takes under a minute."}</Next>
             <div className="ml-auto flex items-center gap-3">
-              {busy ? (
-                <Spinner label={copy.product.working} />
-              ) : missing ? (
+              {!busy && missing ? (
                 <span id="go-why" className="text-[13px] text-dim">
                   {missing}
                 </span>
               ) : null}
-              <Button onClick={ready ? submit : showMissing} disabled={busy} aria-disabled={!ready} aria-describedby={missing ? "go-why" : undefined}>
-                {copy.product.go} →
+              {/* Busy keeps the dark button (a grey one reads as broken) and ignores clicks. */}
+              <Button onClick={busy ? undefined : ready ? submit : showMissing} aria-busy={busy || undefined} aria-disabled={!busy && !ready} aria-describedby={busy ? "go-status" : missing ? "go-why" : undefined}>
+                {busy ? (
+                  <>
+                    <span className="size-2 rotate-45 bg-paper motion-safe:animate-pulse" aria-hidden="true" />
+                    Finding… <Elapsed since={busySince} />
+                  </>
+                ) : (
+                  <>{copy.product.go} →</>
+                )}
               </Button>
             </div>
           </div>
-          {busy && stages.length > 0 && <StageList stages={stages} />}
+          {busy && <PredictStatus since={busySince} date={date} stages={stages} />}
         </div>
       </Main>
       {moneyOpen && (
@@ -479,12 +492,72 @@ const input =
 const cell =
   "h-9 w-full rounded-[2px] border border-transparent bg-transparent px-2 text-[13px] text-ink placeholder:text-faint hover:border-line focus:border-ok focus:bg-white";
 
+// While the prediction runs: what the engine is doing, how long it usually
+// takes, and a plain note if it runs long, so a quiet screen never reads as
+// a stuck one (#144).
+function PredictStatus({ since, date, stages }: { since: number; date: string; stages: PredictStage[] }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const secs = Math.max(0, Math.round((now - since) / 1000));
+  const slow = secs >= 60;
+  return (
+    <div id="go-status" role="status" aria-live="polite" className={cx("mt-4 border px-4 py-3.5 text-[13px]", slow ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
+      <p className={cx("flex items-center gap-2 font-medium", slow ? "text-ask" : "text-ok")}>
+        <span className={cx("size-2 rotate-45 motion-safe:animate-pulse", slow ? "bg-ask" : "bg-ok")} aria-hidden="true" />
+        {slow ? "Taking longer than usual. Still working." : "Working on it. This usually takes under a minute."}
+        <span className="ml-auto font-normal tabular-nums text-dim" aria-hidden="true">
+          {secs} s
+        </span>
+      </p>
+      <div className="relative mt-2.5 h-1 overflow-hidden bg-white" aria-hidden="true">
+        <div className={cx("absolute inset-y-0 w-1/3 motion-safe:animate-[slide_1.6s_ease-in-out_infinite]", slow ? "bg-ask" : "bg-ok")} />
+      </div>
+      {/* The backend streams its real steps (D71); until the first arrives,
+          say what they will be. */}
+      {stages.length > 0 ? (
+        <StageList stages={stages} />
+      ) : (
+        <ol className="duo mt-3 flex list-decimal flex-col gap-1 pl-5 text-body">
+          <li>Reading your product: each part, where it is made, what each plant does.</li>
+          <li>Finding earlier CBP rulings dated before {date || "the case date"} on similar products.</li>
+          <li>Weighing those rulings to predict the origin CBP would likely assign.</li>
+        </ol>
+      )}
+      <p className="duo mt-2 text-xs text-dim">
+        {slow ? "The model may be busy. You can keep waiting; if it fails, an error with a retry appears here." : "You will be taken to the result when it is ready."}
+      </p>
+    </div>
+  );
+}
+
+// A numbered section heading for Step 1's form, so the order to fill it in
+// is visible at a glance.
+function SectionHead({ n, title, hint }: { n: number; title: string; hint?: string }) {
+  return (
+    <div className="mt-9 flex items-baseline gap-3 border-t border-line pt-5">
+      <span aria-hidden="true" className="inline-grid size-6 shrink-0 translate-y-1 place-items-center rounded-full border border-ink text-[12px] text-ink">
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-medium text-ink">
+          <span className="sr-only">{n}. </span>
+          {title}
+        </h2>
+        {hint && <p className="duo text-[12.5px] text-dim">{hint}</p>}
+      </div>
+    </div>
+  );
+}
+
 // The analysis steps as the backend streams them (D71): running steps
 // pulse, finished ones show how long they took. The router runs beside
 // precedents and engine, so two can be running at once.
 function StageList({ stages }: { stages: PredictStage[] }) {
   return (
-    <ol aria-label="Analysis steps" aria-live="polite" className="ml-auto mt-3 grid max-w-[420px] gap-1 text-[13px]">
+    <ol aria-label="Analysis steps" aria-live="polite" className="mt-3 grid gap-1 text-[13px]">
       {stages.map((s) => (
         <li key={s.name} className="flex items-center gap-2">
           <span

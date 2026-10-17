@@ -8,7 +8,7 @@ import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
-import { hasAnyMoney } from "../money-drawer";
+import { hasAnyMoney, moneySummary } from "../money-drawer";
 import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -174,15 +174,22 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
       <Main className="flex flex-col gap-8">
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
         {!result && !searching && (
+          // The action first, then the inputs it uses: money is optional and
+          // illustrative, so it folds under a one-line summary (open when
+          // nothing is filled in yet).
           <div className="flex flex-col gap-6">
-            <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
             <div>
               <Button onClick={run} disabled={!req}>
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
-              <p className="duo mt-2 text-xs text-dim">
+              <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
                 Each move is predicted by the origin engine and checked against earlier CBP rulings; {copy.plan.usually}. A plan is shown when its precedent check is at least {BAR}.
               </p>
+            </div>
+            <div>
+              <Fold title="Money inputs · illustrative, optional" meta={moneySummary(economics) || "none yet: plans show without a net per year"} open={!hasAnyMoney(economics)}>
+                <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} />
+              </Fold>
             </div>
           </div>
         )}
@@ -277,9 +284,12 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
             // Nothing cleared or came close: the letter can still go out for
             // today's setup (#84), as the Draft tab already allowed.
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
-          ) : (
-            null
-          )}
+          ) : !searching ? (
+            // Same place as every other step's main action.
+            <Button onClick={run} disabled={!req}>
+              Search moves to <Flag country={target} size={12} /> {target} →
+            </Button>
+          ) : null}
         </div>
       </Footer>
     </>
