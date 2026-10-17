@@ -120,6 +120,33 @@ func System2(maxToolCalls int) string {
 	return Principles + Evidence2 + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
 }
 
+// Views are second opinions for the panel (D83). Each keeps verifier-v2's
+// method and confidence scale, so confidences stay comparable, and changes
+// only where it looks first.
+const (
+	// ViewSkeptic argues as the CBP import specialist who would deny the
+	// change, and searches hardest for rulings that called it minor.
+	ViewSkeptic = "skeptic"
+	// ViewProduct searches by what the product is rather than by the part
+	// that moved, to find same-product rulings a component search misses.
+	ViewProduct = "product"
+)
+
+// viewText is the instruction each view adds to verifier-v2.
+var viewText = map[string]string{
+	ViewSkeptic: `
+VIEW: You are the CBP import specialist reviewing this request, and your job is to test whether the change is enough. Search first and hardest for earlier rulings where the same kind of component or operation moved and CBP held it minor assembly, simple processing, or otherwise not a substantial transformation. Read the strongest such ruling. Only then look for support. Hold the change to the same burden of proof and confidence scale as above: do not lower confidence for a doubt the rulings you read do not support.
+`,
+	ViewProduct: `
+VIEW: Start from what the product is, not from the part that moved. Search first for earlier rulings on the same kind of finished product (its name, its function), then read how CBP decided origin for those products and which component or operation it held decisive. Only then search by the moved component. Use the same confidence scale as above.
+`,
+}
+
+// SystemView renders verifier-v2 with a view's instruction.
+func SystemView(maxToolCalls int, view string) string {
+	return Principles + Evidence2 + viewText[view] + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
+}
+
 // Task is one move to verify: two variants of the same product.
 type Task struct {
 	FactsA, FactsB string
@@ -192,12 +219,17 @@ type Options struct {
 	MaxOutputTokens int
 	// Prompt is "v1" (default) or "v2" (D74).
 	Prompt string
+	// View, with Prompt v2, is a panel view (ViewSkeptic, ViewProduct; D83).
+	View string
 }
 
 // Version is the verifier's prompt version (cache keys and traces use it).
 func (v *Verifier) Version() string {
 	switch v.opts.Prompt {
 	case "v2":
+		if v.opts.View != "" {
+			return PromptVersion2 + "-" + v.opts.View
+		}
 		return PromptVersion2
 	case "v3":
 		return PromptVersion3
@@ -210,6 +242,23 @@ type Verifier struct {
 	model  llm.Model
 	search Searcher
 	opts   Options
+}
+
+// NewWithPanel returns the production checker: opts' verifier, with the
+// skeptic and product views as a panel near the bar when panel is set
+// (D83). The views need prompt v2.
+func NewWithPanel(model llm.Model, search Searcher, opts Options, panel bool, low, high float64) Checker {
+	first := New(model, search, opts)
+	if !panel {
+		return first
+	}
+	var views []Checker
+	for _, view := range []string{ViewSkeptic, ViewProduct} {
+		o := opts
+		o.View = view
+		views = append(views, New(model, search, o))
+	}
+	return NewPanel(first, views, low, high)
 }
 
 // New returns a verifier.
@@ -249,6 +298,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	var mu sync.Mutex
 	var steps []Step
+	var trail []domain.TrailStep
 	toolErrors := 0
 	failed := func() {
 		mu.Lock()
@@ -256,13 +306,18 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		mu.Unlock()
 	}
 	seen := map[string]bool{} // rulings that appeared in any tool result
-	note := func(s Step, out string) {
+	note := func(s Step, out string, found []string) {
 		mu.Lock()
 		defer mu.Unlock()
 		steps = append(steps, s)
 		for _, id := range rulingRef.FindAllString(out, -1) {
 			seen[id] = true
 		}
+		tool := "search"
+		if s.Tool == "read_ruling" {
+			tool = "read"
+		}
+		trail = append(trail, domain.TrailStep{Tool: tool, Query: s.Arg, Rulings: found})
 	}
 
 	searchTool, err := functiontool.New(functiontool.Config{
@@ -275,7 +330,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			return toolOut{}, err
 		}
 		out := formatHits(hits)
-		note(Step{"search_rulings", a.Query}, out)
+		note(Step{"search_rulings", a.Query}, out, hitIDs(hits))
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -290,7 +345,11 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 			return toolOut{}, err
 		}
-		note(Step{"read_ruling", a.Ruling}, out)
+		var found []string
+		if id := strings.TrimSpace(a.Ruling); out != notFound && domain.ValidRulingID(id) {
+			found = []string{id}
+		}
+		note(Step{"read_ruling", a.Ruling}, out, found)
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -303,6 +362,9 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	switch v.opts.Prompt {
 	case "v2":
 		system = System2(v.opts.MaxToolCalls)
+		if _, ok := viewText[v.opts.View]; ok {
+			system = SystemView(v.opts.MaxToolCalls, v.opts.View)
+		}
 	case "v3":
 		system = System3(v.opts.MaxToolCalls)
 	}
@@ -314,7 +376,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 		} else {
 			out := formatHits(hits)
-			note(Step{"first_search", q}, out)
+			note(Step{"first_search", q}, out, hitIDs(hits))
 			message += "\n\nFIRST SEARCH (run for you, for the change between A and B):\n" + out
 		}
 	}
@@ -412,6 +474,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		SupportingRuling: keep(ans.SupportingRuling),
 		CounterRuling:    keep(ans.CounterRuling),
 		Reasoning:        ans.Reasoning,
+		Trail:            trail,
 		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: t.promptVersion(v.Version()),
 			InputTokens: m.usage.InputTokens, OutputTokens: m.usage.OutputTokens},
 	}

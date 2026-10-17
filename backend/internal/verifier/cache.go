@@ -55,10 +55,15 @@ func NewCacheIn(inner Checker, blobs Blobs, model string) *Cache {
 type versioned interface{ Version() string }
 
 // checkerVersion is inner's prompt version: the Verifier's, through a
-// Majority, else verifier-v1.
+// Majority or a Panel, else verifier-v1. A Panel keeps its first checker's
+// key on purpose (D83): turning the panel on must not re-run verdicts
+// already stored, demo verdicts included (D56); it applies to new checks.
 func checkerVersion(inner Checker) string {
 	if m, ok := inner.(*Majority); ok {
 		inner = m.inner
+	}
+	if p, ok := inner.(*Panel); ok {
+		inner = p.first
 	}
 	if v, ok := inner.(versioned); ok {
 		return v.Version()

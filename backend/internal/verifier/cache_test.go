@@ -3,6 +3,7 @@ package verifier
 import (
 	"context"
 	"errors"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -80,7 +81,7 @@ func TestCacheInSharedBlobs(t *testing.T) {
 		t.Fatalf("first = %+v %v", r1, err)
 	}
 	r2, err := b.Verify(context.Background(), task)
-	if err != nil || !r2.Cached || r2.Verdict != r1.Verdict || inner.calls != 1 {
+	if err != nil || !r2.Cached || !reflect.DeepEqual(r2.Verdict, r1.Verdict) || inner.calls != 1 {
 		t.Errorf("other instance = %+v %v, inner calls %d", r2, err, inner.calls)
 	}
 	blobs.fail = errors.New("permission denied")

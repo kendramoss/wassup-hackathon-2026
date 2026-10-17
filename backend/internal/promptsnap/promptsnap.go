@@ -89,6 +89,8 @@ func Prompts() []Prompt {
 			_, _ = verifier.New(m, noSearch{}, verifier.Options{Model: "m", MaxToolCalls: 6, Prompt: "v2"}).Verify(context.Background(), task)
 		})},
 		{"verifier.system3", verifier.PromptVersion3, verifier.System3(6)},
+		{"verifier.system2-skeptic", verifier.PromptVersion2 + "-" + verifier.ViewSkeptic, verifier.SystemView(6, verifier.ViewSkeptic)},
+		{"verifier.system2-product", verifier.PromptVersion2 + "-" + verifier.ViewProduct, verifier.SystemView(6, verifier.ViewProduct)},
 		{"caseagent.system", caseagent.PromptVersion, caseagent.System},
 		{"caseagent.request", caseagent.PromptVersion, firstRequest(func(m llm.Model) {
 			_, _ = caseagent.New(m, "m", noSearch{}, nil).Ask(context.Background(), caseagent.Input{Question: "Why China?",

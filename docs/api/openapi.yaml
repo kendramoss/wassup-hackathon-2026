@@ -1281,6 +1281,18 @@ components:
         counter_ruling: { type: string }
         confidence: { type: number }
         reasoning: { type: string }
+        agreement: { type: string, description: "When the check ran several times, how many runs gave this answer, e.g. 2/3." }
+        trail:
+          type: array
+          description: |
+            The precedent check's search path, in order (D80): each search with the ruling numbers it returned,
+            and each ruling read. Verdicts cached before D80 have none.
+          items:
+            type: object
+            properties:
+              tool: { type: string, enum: [search, read] }
+              query: { type: string, description: "The search text, or the ruling number asked for." }
+              rulings: { type: array, items: { type: string }, description: "Rulings a search returned, or the ruling read (empty if not found)." }
     Plan:
       type: object
       properties:
