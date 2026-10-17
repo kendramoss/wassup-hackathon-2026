@@ -635,3 +635,4 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   Every measured cost is inside the range. The heat gun's measured costs sit in the top half (every move reached the target). The tub light's sit near the bottom (3 of 6 did). The tub light's slowest run (51 s) was 1 s above the range.
   - With production's settings (panel on, near-miss on, 4 in flight), a fresh 6-move search estimates $0.13–0.38 and 34–132 s.
   - The range assumes a healthy provider; under 429/504 a search can take several times longer (D78, D79), and the response says so.
+- **Merged with D84 (18 Oct):** the estimate counts moves with `EnumerateUpTo`, the same three-group-aware list `Plan` searches. With `PLAN_MAX_MOVES` (default 12) it includes the heat gun's triple, so the heat-gun estimate is 7 moves, not 6.
