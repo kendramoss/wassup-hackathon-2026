@@ -88,15 +88,10 @@ func (c *Cache) key(t Task) string {
 // verdict); a failed write only loses the cache entry.
 func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 	key := c.key(t)
-	if b, ok, err := c.blobs.Get(ctx, key); err != nil {
-		return Result{}, fmt.Errorf("verifier: read cache: %w", err)
+	if r, ok, err := c.lookup(ctx, key); err != nil {
+		return Result{}, err
 	} else if ok {
-		var r Result
-		if json.Unmarshal(b, &r) == nil {
-			r.Steps, r.ModelCalls, r.Cached = nil, 0, true
-			r.Usage.InputTokens, r.Usage.OutputTokens, r.Usage.TotalTokens = 0, 0, 0
-			return r, nil
-		}
+		return r, nil
 	}
 	r, err := c.inner.Verify(ctx, t)
 	if err != nil {
@@ -109,4 +104,26 @@ func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 		_ = c.blobs.Put(ctx, key, b) // best effort
 	}
 	return r, nil
+}
+
+// Peek returns the stored verdict for t without running the agent; ok is
+// false when none is stored. The plan-search estimate uses it read-only
+// (D87).
+func (c *Cache) Peek(ctx context.Context, t Task) (Result, bool, error) {
+	return c.lookup(ctx, c.key(t))
+}
+
+// lookup reads the verdict stored under key.
+func (c *Cache) lookup(ctx context.Context, key string) (Result, bool, error) {
+	b, ok, err := c.blobs.Get(ctx, key)
+	if err != nil {
+		return Result{}, false, fmt.Errorf("verifier: read cache: %w", err)
+	}
+	var r Result
+	if !ok || json.Unmarshal(b, &r) != nil {
+		return Result{}, false, nil
+	}
+	r.Steps, r.ModelCalls, r.Cached = nil, 0, true
+	r.Usage.InputTokens, r.Usage.OutputTokens, r.Usage.TotalTokens = 0, 0, 0
+	return r, true, nil
 }

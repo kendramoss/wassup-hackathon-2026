@@ -343,6 +343,26 @@ func TestNearMissAdviceConfig(t *testing.T) {
 	}
 }
 
+func TestFollowAdviceAndMaxMovesConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.FollowAdvice || c.PlanMaxMoves != 12 {
+		t.Fatalf("defaults: FOLLOW_ADVICE %v, PLAN_MAX_MOVES %d, %v", c.FollowAdvice, c.PlanMaxMoves, err)
+	}
+	c, err = FromEnv(getenv(merge(vertexEnv(), map[string]string{"FOLLOW_ADVICE": "on", "NEAR_MISS_ADVICE": "on", "PLAN_MAX_MOVES": "20"})))
+	if err != nil || !c.FollowAdvice || c.PlanMaxMoves != 20 {
+		t.Errorf("on: %v %d %v", c.FollowAdvice, c.PlanMaxMoves, err)
+	}
+	for env, want := range map[string]map[string]string{
+		"needs NEAR_MISS_ADVICE": {"FOLLOW_ADVICE": "on"},
+		"FOLLOW_ADVICE must be":  {"FOLLOW_ADVICE": "maybe", "NEAR_MISS_ADVICE": "on"},
+		"PLAN_MAX_MOVES":         {"PLAN_MAX_MOVES": "0"},
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), want))); err == nil || !strings.Contains(err.Error(), env) {
+			t.Errorf("%v: %v, want an error naming %q", want, err, env)
+		}
+	}
+}
+
 func TestExportCFR177Config(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.ExportCFR177 {

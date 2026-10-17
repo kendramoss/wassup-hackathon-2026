@@ -172,6 +172,20 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// rateOnly rate-limits a handler that makes no model call (the plan
+// estimate, D87): the spend cap does not apply, since it spends nothing.
+func (a *api) rateOnly(c class, h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if a.limiter != nil && !a.isAdmin(r) {
+			if ok, wait := a.allow(r, c); !ok {
+				a.tooMany(w, wait)
+				return
+			}
+		}
+		h(w, r)
+	}
+}
+
 // adminOnly refuses requests without the admin token.
 func (a *api) adminOnly(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

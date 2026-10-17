@@ -33,10 +33,12 @@ type GroupMove struct {
 // Move is a single or double group move: the unit the planner searches over.
 type Move []GroupMove
 
-// MaxGroupsPerMove limits the search to single and double moves.
-const MaxGroupsPerMove = 2
+// MaxGroupsPerMove limits a move's size: the search lists up to three
+// groups (D84) and a move followed from near-miss advice adds at most one
+// more (D85).
+const MaxGroupsPerMove = 4
 
-// Validate checks the move has 1–2 distinct groups.
+// Validate checks the move has 1 to MaxGroupsPerMove distinct groups.
 func (m Move) Validate() error {
 	var errs problems
 	if len(m) == 0 || len(m) > MaxGroupsPerMove {
@@ -129,6 +131,9 @@ type Plan struct {
 	// differs from the supporting ruling and what would match it (D81).
 	// Advice only: it does not change the verdict or Shown.
 	NearMiss *NearMiss `json:"near_miss,omitempty"`
+	// FromAdvice marks the one move per search added by following a near
+	// miss's advice (D85): checked once like any other move.
+	FromAdvice bool `json:"from_advice,omitempty"`
 }
 
 // NearMiss explains a move whose precedent check is just under the bar.
