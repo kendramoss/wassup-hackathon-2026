@@ -11,7 +11,7 @@ import { Button, ButtonLink, cx } from "./ui";
 // The active section is passed in rather than read from the URL, so the bar
 // prerenders in the static shell of dynamic routes. Cases lives at /cases;
 // the landing page (/) passes "none".
-export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "none"; sticky?: boolean }) {
+export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "api" | "none"; sticky?: boolean }) {
   const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
   return (
     <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10", sticky && "sticky top-0 z-30")}>
@@ -36,6 +36,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
         </Link>
         <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
           {copy.nav.accuracy}
+        </Link>
+        <Link href="/developers" aria-current={active === "api" ? "page" : undefined} className={item(active === "api")}>
+          {copy.nav.api}
         </Link>
       </nav>
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
