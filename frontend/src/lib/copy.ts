@@ -125,7 +125,7 @@ export const copy = {
     squaresHead: "B · every ruling, as a square",
     claimAccuracy: "origin accuracy, vs 60.5% for the best simple rule (most-mentioned country).",
     claimAuto: "correct on the 79.6% it auto-accepts; the rest go to expert review.",
-    bothWays: "every plan is checked both ways",
+    bothWays: "every move is checked both ways, for and against",
     more: "How accurate is it? →",
     whoTitle: "Who it's for",
     who: "For trade-compliance and industrialisation leads at manufacturers moving production out of China.",
