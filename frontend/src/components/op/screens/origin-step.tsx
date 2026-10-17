@@ -38,7 +38,7 @@ function Result({ id, c, setCase }: CaseCtx) {
           {c.watch?.status === "changed" ? <WatchLine c={c} setCase={setCase} /> : null}
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
-              <h2 className="eyebrow mb-1.5">{route === "auto" ? `Why · auto-accepted, ${conf(p.confidence)} is at or above the ${BAR} bar` : "Why"}</h2>
+              <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(conf(p.confidence)) : "Why"}</h2>
               {p.reasoning ? <p className="duo max-w-[75ch] text-sm leading-relaxed">{p.reasoning}</p> : null}
               {p.key_factors?.length ? (
                 <p className="duo mt-3 max-w-[75ch] text-sm">
@@ -100,8 +100,7 @@ function Result({ id, c, setCase }: CaseCtx) {
         <NextSteps
           steps={[{ label: route === "auto" ? "Draft a ruling request" : "Have a broker review: draft a ruling request", href: `/cases/${enc}/draft` }]}
           suggestions={[
-            ...(qs ? [{ label: `Answer ${qs === 1 ? "the question" : `the ${qs} questions`} to sharpen this`, onClick: () => document.getElementById("q0")?.focus() }] : []),
-            { label: "Try a what-if scenario", href: `/cases/${enc}/scenarios` },
+            ...(qs ? [{ label: copy.result.suggestAnswer(qs), onClick: () => document.getElementById("q0")?.focus() }] : []),
           ]}
         />
       </Main>
@@ -112,7 +111,7 @@ function Result({ id, c, setCase }: CaseCtx) {
             : !c.product?.plants?.length
             ? "To plan a move, turn the description into parts and plants."
             : c.clarify?.questions?.length
-              ? `Answer a question below to sharpen this, or plan a move to ${target ?? "another country"}.`
+              ? copy.result.nextQuestions(target ?? "another country")
               : route === "auto"
                 ? `Plan a move to ${target ?? "another country"}, or try a what-if.`
                 : `Plan a move to ${target ?? "another country"}, or have a broker review this origin.`}
@@ -328,7 +327,7 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
     return (
       <Panel tone="ask">
         <h2 className="text-base font-medium tracking-[-0.02em]">
-          {copy.result.questions} <span className="text-[13px] font-normal text-dim">· optional, sharpens the answer</span>
+          {copy.result.questions} <span className="text-[13px] font-normal text-dim">· {copy.result.questionsNote}</span>
         </h2>
         <ol className="duo mt-3 flex list-decimal flex-col gap-2 pl-5 text-sm">
           {qs.map((q) => (
@@ -343,7 +342,7 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
   return (
     <Panel tone="ask">
       <h2 className="text-base font-medium tracking-[-0.02em]">
-        {copy.result.questions} <span className="text-[13px] font-normal text-dim">· optional, sharpens the answer</span>
+        {copy.result.questions} <span className="text-[13px] font-normal text-dim">· {copy.result.questionsNote}</span>
       </h2>
       <p className="duo mt-1 text-[13px] text-dim">
         {c.clarify?.closest_ruling ? (
