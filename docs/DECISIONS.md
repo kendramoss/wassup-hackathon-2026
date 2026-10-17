@@ -552,3 +552,29 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
 - **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
 - The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).
+
+## D86 — Precedent-check calibration on the Accuracy page (18 Oct)
+- The Accuracy page showed the engine's calibration but, for the precedent check, only precision, recall and specificity from one dev run. The 0.92 plan bar had no evidence beside it. Every verifier-v2 flip run is already committed, so the calibration needs no model calls.
+- `GET /v1/eval/summary` has a new `verifier_calibration` object, built by `eval summary` from every `eval/results/flips-{dev,final}-verifier-v2*-<mode>-<provider>.jsonl`. That covers the first runs, run2, seeded, 3-vote and panel runs, in both known-a and unknown-a modes. verifier-v1 and v3 files are left out. Dev and the 2026 pairs are kept separate.
+  - **Bands:** precedent-supported verdicts by confidence (≥ 0.95, 0.92–0.95, 0.85–0.92, < 0.85), with how many were real origin changes and a Wilson 95% CI.
+  - **Shown at the bar:** real vs wrong at ≥ 0.92, with precision and recall CIs.
+  - **Pair level:** repeated runs of the same pairs inflate pooled n, so each pair is also counted once. A real-change pair is shown-correct only if every run that scored it showed it; a no-change pair is wrong if any run showed it.
+  - Rows with a provider error are left out of every count and reported.
+  - The proxy note (same gemini-4-argon as Vertex, D74) and the 2026 contamination caveat (D74, D82) come in the payload.
+- **Numbers** (LiteLLM proxy; heat-gun pair excluded):
+
+  | | dev (54 pairs, 9 runs, 485 verdicts) | 2026 pairs (21 pairs, 4 runs, 83 verdicts) |
+  |---|---|---|
+  | supported at ≥ 0.95 | 76/76 real (95.2–100%) | 10/10 (72.3–100%) |
+  | supported at 0.92–0.95 | 83/83 (95.6–100%) | 13/13 (77.2–100%) |
+  | supported at 0.85–0.92 | 95/97 (92.8–99.4%) | 15/17 (65.7–96.7%) |
+  | supported below 0.85 | 31/31 (89.0–100%) | 5/5 (56.6–100%) |
+  | shown at 0.92, pooled | 159 real, 0 wrong (precision 97.6–100%) | 23 real, 0 wrong (85.7–100%) |
+  | pair level: shown in every run / real-change pairs | 13/46; 11 more shown in some runs; 0 no-change pairs ever shown | 4/13; 4 more in some runs; 0 ever wrong |
+
+- **Reading:**
+  - No verdict at or above the bar has ever been wrong: 182 shown verdicts pooled, 17 pairs at pair level.
+  - The only wrong precedent-supported verdicts sit in the 0.85–0.92 band, 2 on dev and 2 on the 2026 pairs. That band is exactly where the bar cuts.
+  - Below 0.85, support is still right when given, but the check rarely gives it there.
+  - The cost of the bar is recall: about 30% of real-change pairs are shown in every run.
+- Tests: band edges (0.92 is inclusive, 1.0 is in the top band), Wilson, the pair-level rule, dev/2026 separation, v1/v3 files excluded, errors excluded. `summary.json` regenerated; the 50 existing items are unchanged.

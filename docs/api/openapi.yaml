@@ -1424,3 +1424,77 @@ components:
               split: { type: string }
               development_only: { type: boolean }
               source: { type: string }
+        verifier_calibration: { $ref: "#/components/schemas/VerifierCalibration" }
+    VerifierCalibration:
+      type: object
+      description: |
+        How often the precedent check (verifier-v2) was right at each confidence, from the scored flip pairs (D86).
+        Pooled counts add every run of the same pairs, so their n is inflated; `pair_level` counts each pair once.
+      required: [bar, prompt, note, splits]
+      properties:
+        bar: { type: number, description: "The plan bar (0.92): a plan is shown when its check is at or above it." }
+        prompt: { type: string, example: verifier-v2 }
+        note: { type: string, description: "How the runs were made: LiteLLM proxy, same gemini-4-argon model as Vertex AI (D74); heat-gun pair excluded." }
+        splits:
+          type: array
+          description: "dev first, then final."
+          items: { $ref: "#/components/schemas/VerifierSplit" }
+    VerifierSplit:
+      type: object
+      required: [split, label, development_only, runs, pairs, rows, errors, bands, shown, pair_level]
+      properties:
+        split: { type: string, enum: [dev, final] }
+        label: { type: string }
+        development_only: { type: boolean }
+        caveat: { type: string, description: "On final: the 2026 pairs are not a clean held-out test (D74, D82). Show it with the numbers." }
+        runs:
+          type: array
+          items:
+            type: object
+            properties:
+              source: { type: string }
+              mode: { type: string, enum: [known-a, unknown-a], description: "known-a: CBP's origin for the current setup was given to the check." }
+              variant: { type: string, description: "base, run2, seed-run1, seed-vote3-run1, panel-run1, …" }
+              rows: { type: integer }
+              errors: { type: integer }
+        pairs: { type: integer, description: Distinct flip pairs. }
+        rows: { type: integer, description: "Scored verdicts pooled over every run (a pair counts once per run)." }
+        errors: { type: integer, description: Rows with no verdict (provider failures); left out of every count. }
+        bands:
+          type: array
+          description: "Precedent-supported verdicts by confidence, pooled over runs: ≥ 0.95, 0.92–0.95, 0.85–0.92, < 0.85. `correct` is how many were real origin changes."
+          items:
+            type: object
+            properties:
+              label: { type: string }
+              min: { type: number }
+              max: { type: number }
+              correct: { $ref: "#/components/schemas/Rate" }
+        shown:
+          type: object
+          description: "What the 0.92 bar would show, pooled over runs."
+          properties:
+            real: { type: integer }
+            wrong: { type: integer }
+            precision: { $ref: "#/components/schemas/Rate" }
+            recall: { $ref: "#/components/schemas/Rate" }
+        pair_level:
+          type: object
+          description: "Each pair once. A real-change pair is shown-correct only if every run showed it; a no-change pair is wrong if any run showed it."
+          properties:
+            pairs: { type: integer }
+            real_change_pairs: { type: integer }
+            shown_every_run: { type: integer }
+            shown_some_runs: { type: integer }
+            wrong_any_run: { type: integer }
+            precision: { $ref: "#/components/schemas/Rate" }
+            recall: { $ref: "#/components/schemas/Rate" }
+    Rate:
+      type: object
+      description: k of n with a Wilson 95% interval.
+      properties:
+        k: { type: integer }
+        n: { type: integer }
+        value: { type: number }
+        ci_low: { type: number }
+        ci_high: { type: number }

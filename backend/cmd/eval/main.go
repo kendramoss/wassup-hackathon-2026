@@ -1413,8 +1413,12 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	items = append(items, scopeItems...)
+	cal, err := verifierCalibration(*resultsDir, config.DefaultPlanBar)
+	if err != nil {
+		return err
+	}
 	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
-		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items}
+		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items, VerifierCalibration: cal}
 	b, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
 		return err
