@@ -432,7 +432,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		EngineModel:           cfg.EngineModel,
 		RouterModel:           cfg.RouterModel,
 		VerifierModel:         cfg.VerifierModel,
-		VerifierPromptVersion: map[string]string{"v1": verifier.PromptVersion, "v2": verifier.PromptVersion2}[cfg.VerifierPrompt],
+		VerifierPromptVersion: map[string]string{"v1": verifier.PromptVersion, "v2": verifier.PromptVersion2, "v3": verifier.PromptVersion3}[cfg.VerifierPrompt],
 		Logger:                logger,
 		Limits:                httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
 		RateStore:             rateStore,

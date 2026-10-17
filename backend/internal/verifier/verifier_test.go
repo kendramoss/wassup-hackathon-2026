@@ -197,3 +197,15 @@ func TestCacheKeyFollowsPromptVersion(t *testing.T) {
 		t.Error("a single v2 verdict would be reused for a majority")
 	}
 }
+
+func TestChangeQueryIsTheDifference(t *testing.T) {
+	a := "The motor is made in China. Final assembly in Thailand."
+	b := "The motor is made in Thailand by winding the stator. Final assembly in Thailand."
+	q := changeQuery(a, b)
+	if !strings.HasPrefix(q, "winding stator") || changeQuery(a, b) != q {
+		t.Errorf("query = %q; want the words B adds first, and the same every time", q)
+	}
+	if v := New(nil, nil, Options{Prompt: "v3"}); v.Version() != PromptVersion3 || !strings.Contains(System3(6), "first search") {
+		t.Error("v3 version or prompt")
+	}
+}

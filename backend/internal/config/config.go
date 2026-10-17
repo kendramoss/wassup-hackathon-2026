@@ -384,8 +384,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 func (c Config) validate() error {
 	var errs []error
 	bad := func(format string, args ...any) { errs = append(errs, fmt.Errorf(format, args...)) }
-	if c.VerifierPrompt != "v1" && c.VerifierPrompt != "v2" {
-		bad("VERIFIER_PROMPT must be v1 or v2, got %q", c.VerifierPrompt)
+	if c.VerifierPrompt != "v1" && c.VerifierPrompt != "v2" && c.VerifierPrompt != "v3" {
+		bad("VERIFIER_PROMPT must be v1, v2 or v3, got %q", c.VerifierPrompt)
 	}
 	switch c.LLMProvider {
 	case ProviderVertex:

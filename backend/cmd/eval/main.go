@@ -983,7 +983,8 @@ func flipsCmd(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
-	prompt := fl.String("verifier", "v1", "verifier prompt: v1 or v2 (D74)")
+	prompt := fl.String("verifier", "v1", "verifier prompt: v1, v2 (D74) or v3 (D75)")
+	tag := fl.String("tag", "", "suffix for the result file, e.g. run2, to score the same prompt twice")
 	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier")
 	_ = fl.Parse(args)
 	cfg, err := config.Load()
@@ -1046,8 +1047,11 @@ func flipsCmd(args []string) error {
 		split = "final"
 	}
 	name := "verifier"
-	if *prompt == "v2" {
-		name = "verifier-v2"
+	if *prompt != "v1" {
+		name = "verifier-" + *prompt
+	}
+	if *tag != "" {
+		name += "-" + *tag
 	}
 	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-%s-%s-%s-%s.jsonl", split, name, mode, cfg.LLMProvider))
 	out, err := os.Create(outPath)
