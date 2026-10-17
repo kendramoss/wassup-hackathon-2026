@@ -244,7 +244,7 @@ export function ProductStep() {
           <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">
             {copy.product.lede}{" "}
             {!demoId && (
-              <Link href="/" className="text-ok underline underline-offset-2">
+              <Link href="/cases" className="text-ok underline underline-offset-2">
                 Or load a demo.
               </Link>
             )}
