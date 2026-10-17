@@ -76,7 +76,32 @@ One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-
 | Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
 | Dryer latch, assembled | China 0.98, auto | China | n/a |
 
-**verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. Production re-checks once on Vertex after the merge (the cache key includes the prompt version); that run is the demo's result, whatever it shows. The landing names this plan.
+**verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. The landing names this LiteLLM plan. The production run below is the demo's stored result.
+
+### Production (Vertex, 17 Oct, verifier-v2, one run each)
+Revision `backend-00038-zw2` after merge `41ce826` ([PR #186](https://github.com/kendramoss/wassup-hackathon-2026/pull/186)). Prompt `verifier-v2+known-a`, model `gemini-4-argon`. Each search ran once and was not repeated. Engine token counts were 0 (predictions reused from the engine cache). Verifier checks were not.
+
+**Heat gun** `case_878d76540b91`, plan body from `GET /v1/demos/heatgun-2022`. HTTP 200 in 17.7 s. Stats: 6 moves searched, 7 engine calls, 6 verifier runs, **verifier_cached 0**, 20 verifier model calls, 36 tool calls, 17.4 s. **No plan cleared 0.92.** The Plan screen's closest row is motor-fan assembly in Thailand, check 0.90, N325810, no counter-ruling, net $380k/yr. The landing's move (motor-fan assembly + switch, cord and minor parts) checked 0.75 on N345859, so the landing was left unchanged.
+
+| Move | Result | Check | For | Against | Net | Predicted origin |
+|---|---|---|---|---|---|---|
+| Current setup | rejected, current setup (CBP held China, N328954) | — | — | — | $0 | Thailand 0.78 |
+| PCBA (SMT) in Thailand | below the bar | 0.75 | N347421 | none | $440k/yr | Thailand 0.92 |
+| PCBA + switch, cord and minor parts in Thailand | below the bar | 0.78 | H309758 | none | $405k/yr | Thailand 0.95 |
+| Motor-fan assembly in Thailand | below the bar (closest) | 0.90 | N325810 | none | $380k/yr | Thailand 0.96 |
+| Motor-fan assembly + switch, cord and minor parts in Thailand | below the bar | 0.75 | N345859 | none | $345k/yr | Thailand 0.98 |
+| Switch, cord and minor parts in Thailand | no supporting precedent | 0.55 | none | none | $465k/yr | Thailand 0.90 |
+| Motor-fan assembly + PCBA in Thailand | no supporting precedent | 0.85 | none | H309758 | $320k/yr | Thailand 0.98 |
+
+**LiDAR** `case_089ff641030e`, plan body from `GET /v1/demos/lidar-s1`. HTTP 200 in 17.9 s. Stats: 3 moves searched, 4 engine calls, 1 verifier run, **verifier_cached 0**, 3 verifier model calls, 6 tool calls, 17.8 s. **No plan cleared 0.92.** Closest: main boards (TMB and BMB) and RX/TX PCBAs in Vietnam, check 0.85, N322834, no counter-ruling, net $30k/yr, origin Vietnam. Main boards alone, and RX/TX boards alone, were predicted Thailand (not verified); nets $20k and $10k. Current setup stays Thailand.
+
+**Compare countries** `case_2762301d37f6`, body `{"targets":["Thailand","Vietnam","Malaysia"]}`. HTTP 200 in 27.2 s. **No country cleared 0.92.**
+
+| Rank | Country | Status | Searched | Closest | Check | For | Against | Net |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Malaysia | below the bar | 15 | Motor-fan assembly and heating element in Malaysia | 0.90 | N347421 | none | $455k/yr |
+| 2 | Thailand | below the bar | 6 | PCBA (SMT) in Thailand | 0.75 | N347421 | none | $440k/yr |
+| 3 | Vietnam | no plan | 15 | — | — | — | — | — |
 
 "Closest" means what the Plan screen shows: the below-bar move with the highest precedent check (ties keep list order). The seed summary used to print the first below-bar row instead, so the heat-gun row above was corrected on 17 Oct from `demo-seed-heatgun-plan-vertex.json`: the five below-bar moves checked 0.85, 0.85, 0.85, 0.90 (motor-fan + PCBA) and 0.85. `eval/results/demo-seed-vertex.json` still has the old summary line. The LiDAR plan was not dumped, so its row may name an equal-or-lower move than the screen; check the Plan page. Proxy run 1's "closest" lines have the same caveat.
 
