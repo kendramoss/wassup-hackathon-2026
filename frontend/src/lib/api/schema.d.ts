@@ -393,6 +393,8 @@ export interface paths {
          *     - `baseline` {plan: Plan}: the current setup, any time before `done`.
          *     - `move_started` {key, done, total}: work began on that move.
          *     - `move_done` {key, plan: Plan, done, total}: one per move, with economics, shown, rejection_kind and verdict filled in.
+         *     - With FOLLOW_ADVICE=on (D85), after the listed moves: at most one more `move_started` / `move_done` pair for a move
+         *       that was not in `start` (its plan has `from_advice: true`); `total` grows by one from that `move_started` on.
          *     - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
          *     - `: keep-alive` comment lines every 10 s.
          *     Input errors (400/404) are returned as normal JSON responses before the stream starts.
@@ -425,6 +427,62 @@ export interface paths {
                 404: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/plan/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Estimate a plan search's cost and time before running it (no model call)
+         * @description Takes the same body as `POST /v1/cases/{id}/plan` and makes no model call (D87). It counts the moves the
+         *     search would make and reads the engine and verdict caches: a move already searched costs nothing. For
+         *     the rest it gives a range from measured searches, with the server's settings (precedent panel D83,
+         *     near-miss advice D81, model calls in flight D79). Same ownership rules as the plan route. It uses the
+         *     light rate-limit bucket and is not refused by the daily spend cap, since it spends nothing.
+         *     The range assumes a healthy model provider; under 429/504 a search can take several times longer.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["CaseID"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PlanRequest"];
+                };
+            };
+            responses: {
+                /** @description Estimate */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            case_id?: string;
+                            estimate?: components["schemas"]["PlanEstimate"];
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -2175,6 +2233,10 @@ export interface components {
             }[];
         };
         Plan: {
+            /**
+             * @description The operation groups moved, 1 to 4. The search lists every single and pair, then three-group moves while the
+             *     total stays at most PLAN_MAX_MOVES (default 12; D84). A move followed from near-miss advice can add one more group (D85).
+             */
             move?: {
                 group?: string;
                 to_plant?: string;
@@ -2208,6 +2270,40 @@ export interface components {
                 /** @description Model, prompt_version near-miss-v1, tokens; cached true when replayed */
                 trace?: Record<string, never>;
             };
+            /**
+             * @description Only with FOLLOW_ADVICE=on (D85): true on the one move per search added by following a near miss's advice. It is the
+             *     advised move plus the groups its would_match names, searched because no earlier move covered it, and checked once like
+             *     any other move (engine, then precedent check). It may be shown, below the bar or rejected. Absent otherwise.
+             */
+            from_advice?: boolean;
+        };
+        Range: {
+            min?: number;
+            max?: number;
+        };
+        PlanEstimate: {
+            target?: string;
+            /** @description Moves the search would make. */
+            moves?: number;
+            /** @description Engine predictions: the current setup plus one per move. */
+            engine_calls?: number;
+            /** @description Of engine_calls, how many are already stored (cost nothing). */
+            engine_cached?: number;
+            /** @description Moves with a stored prediction reaching the target and a stored verdict. */
+            checks_cached?: number;
+            /** @description Moves with a stored prediction that misses the target (no check runs). */
+            checks_skipped?: number;
+            /** @description Precedent checks that may run. */
+            checks_fresh?: components["schemas"]["Range"];
+            near_miss_calls?: components["schemas"]["Range"];
+            model_calls?: components["schemas"]["Range"];
+            /** @description Model cost at promo prices. */
+            cost_usd?: components["schemas"]["Range"];
+            wall_seconds?: components["schemas"]["Range"];
+            panel?: boolean;
+            near_miss?: boolean;
+            max_in_flight?: number;
+            note?: string;
         };
         PlanResult: {
             target?: string;
@@ -2288,7 +2384,10 @@ export interface components {
             /** @description best shown plan, or the closest below-bar plan; null otherwise */
             best?: components["schemas"]["Plan"];
             shown_count?: number;
+            /** @description Includes the move followed from advice, if any */
             moves_searched?: number;
+            /** @description Moves added by following near-miss advice (0 or 1, D85); omitted when 0 */
+            advice_followed?: number;
         };
         MoveRef: {
             /** @example motor_fan_assembly@th+pcba@th */
@@ -2325,6 +2424,79 @@ export interface components {
                 development_only?: boolean;
                 source?: string;
             }[];
+            verifier_calibration?: components["schemas"]["VerifierCalibration"];
+        };
+        /**
+         * @description How often the precedent check (verifier-v2) was right at each confidence, from the scored flip pairs (D86).
+         *     Pooled counts add every run of the same pairs, so their n is inflated; `pair_level` counts each pair once.
+         */
+        VerifierCalibration: {
+            /** @description The plan bar (0.92): a plan is shown when its check is at or above it. */
+            bar: number;
+            /** @example verifier-v2 */
+            prompt: string;
+            /** @description How the runs were made: LiteLLM proxy, same gemini-4-argon model as Vertex AI (D74); heat-gun pair excluded. */
+            note: string;
+            /** @description dev first, then final. */
+            splits: components["schemas"]["VerifierSplit"][];
+        };
+        VerifierSplit: {
+            /** @enum {string} */
+            split: "dev" | "final";
+            label: string;
+            development_only: boolean;
+            /** @description On final: the 2026 pairs are not a clean held-out test (D74, D82). Show it with the numbers. */
+            caveat?: string;
+            runs: {
+                source?: string;
+                /**
+                 * @description known-a: CBP's origin for the current setup was given to the check.
+                 * @enum {string}
+                 */
+                mode?: "known-a" | "unknown-a";
+                /** @description base, run2, seed-run1, seed-vote3-run1, panel-run1, … */
+                variant?: string;
+                rows?: number;
+                errors?: number;
+            }[];
+            /** @description Distinct flip pairs. */
+            pairs: number;
+            /** @description Scored verdicts pooled over every run (a pair counts once per run). */
+            rows: number;
+            /** @description Rows with no verdict (provider failures); left out of every count. */
+            errors: number;
+            /** @description Precedent-supported verdicts by confidence, pooled over runs: ≥ 0.95, 0.92–0.95, 0.85–0.92, < 0.85. `correct` is how many were real origin changes. */
+            bands: {
+                label?: string;
+                min?: number;
+                max?: number;
+                correct?: components["schemas"]["Rate"];
+            }[];
+            /** @description What the 0.92 bar would show, pooled over runs. */
+            shown: {
+                real?: number;
+                wrong?: number;
+                precision?: components["schemas"]["Rate"];
+                recall?: components["schemas"]["Rate"];
+            };
+            /** @description Each pair once. A real-change pair is shown-correct only if every run showed it; a no-change pair is wrong if any run showed it. */
+            pair_level: {
+                pairs?: number;
+                real_change_pairs?: number;
+                shown_every_run?: number;
+                shown_some_runs?: number;
+                wrong_any_run?: number;
+                precision?: components["schemas"]["Rate"];
+                recall?: components["schemas"]["Rate"];
+            };
+        };
+        /** @description k of n with a Wilson 95% interval. */
+        Rate: {
+            k?: number;
+            n?: number;
+            value?: number;
+            ci_low?: number;
+            ci_high?: number;
         };
     };
     responses: {
