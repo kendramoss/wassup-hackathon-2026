@@ -9,7 +9,7 @@ import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
-import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
+import { EconomicsEditor, PlantDiagram, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { regimeOf } from "@/lib/regime";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -250,7 +250,11 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                   </p>
                 </Fold>
                 {result.backtest ? (
-                  <Fold title="Backtest against CBP's actual ruling">
+                  <Fold
+                    title="Backtest against CBP's actual ruling"
+                    meta={best && backtestMatch(result.backtest).matches ? "matches the real change" : undefined}
+                    open={Boolean(best && backtestMatch(result.backtest).matches)}
+                  >
                     <BacktestPanel bt={result.backtest as Record<string, unknown>} closest={best ? undefined : closest} product={c.product ?? undefined} />
                   </Fold>
                 ) : null}
@@ -637,6 +641,8 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   );
 }
 
+const parts = (n: number) => `${n} ${n === 1 ? "part" : "parts"}`;
+
 // With no plan over the bar the backend compares CBP's change with nothing,
 // so compare it with the closest move the page highlights instead.
 function BacktestPanel({ bt, closest, product }: { bt: Record<string, unknown>; closest?: Plan; product?: Product }) {
@@ -648,12 +654,19 @@ function BacktestPanel({ bt, closest, product }: { bt: Record<string, unknown>; 
     : list("moved_by_plan");
   return (
     <div>
+      {!closest && backtestMatch(bt).matches ? (
+        <p className="mb-2">
+          <Chip tone="ok">Matches CBP&apos;s actual change</Chip>
+        </p>
+      ) : null}
       <p className="duo text-[13px]">
-        The manufacturer&apos;s real change moved {actual.length} parts.{" "}
+        The manufacturer&apos;s real change moved {parts(actual.length)}.{" "}
         {closest ? (
           <>
             No plan cleared the bar; the closest move ({movePhrase(closest)}) moves {moved.length} of them.
           </>
+        ) : moved.length === actual.length ? (
+          <>This plan moves {actual.length === 1 ? "that part" : "all of them"}.</>
         ) : (
           <>This plan moves {moved.length} of them.</>
         )}

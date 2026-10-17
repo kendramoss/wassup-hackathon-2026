@@ -6,7 +6,7 @@ import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/a
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
-import { checkWords, movePhrase } from "../plan-bits";
+import { backtestMatch, checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 import { WorkspacePanel } from "../workspace-panel";
@@ -169,6 +169,7 @@ function DemoCard({ c }: { c: CaseSummary }) {
         {best ? (
           <>
             <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr
+            {backtestMatch(full?.plan?.backtest).matches ? <> · matches CBP&apos;s real change{backtestMatch(full?.plan?.backtest).ruling ? ` (${backtestMatch(full?.plan?.backtest).ruling})` : ""}</> : null}
           </>
         ) : full?.plan ? (
           <span className="text-ask">No plan cleared the {BAR} bar</span>
