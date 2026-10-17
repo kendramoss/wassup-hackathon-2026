@@ -321,14 +321,16 @@ export function createHeatGun({
   }
 
   // ---- PCBA (China) ----------------------------------------------------------
-  const pcba = mkGroup("pcba", "PCBA", "China", 4, V(-0.72, -1.25), V(-1.45, -0.2), [-110, 30]);
+  const pcba = mkGroup("pcba", "PCBA", "China", 4, V(-0.72, -1.25), V(-1.45, -0.2), [-110, -30]);
   {
     part(pcba, new THREE.BoxGeometry(0.05, 0.95, 0.32), { rz: -0.15, hatched: true });
     for (const [y, h] of [[0.28, 0.12], [0.05, 0.2], [-0.22, 0.1]]) part(pcba, new THREE.BoxGeometry(0.08, h, 0.14), { x: 0.06 + y * 0.15, y, rz: -0.15, detail: true });
   }
 
   // ---- Switch, cord and minor parts (China) --------------------------------
-  const minor = mkGroup("minor", "Switch, cord + minor parts", "China", 5, V(-0.25, -0.8), V(1.05, -0.3), [80, 60]);
+  // Exploded up and right far enough that the cord and knob clear the sheet's
+  // footer; callouts 4 and 5 sit apart so they don't stack on a phone.
+  const minor = mkGroup("minor", "Switch, cord + minor parts", "China", 5, V(-0.25, -0.8), V(1.25, 0.02), [80, 100]);
   {
     const t = new THREE.Shape();
     t.moveTo(0, 0.2);
