@@ -1317,7 +1317,7 @@ func summaryCmd(args []string) error {
 		item{Key: "change_detection_balanced_accuracy", Label: "Change detection balanced accuracy (same 22 pairs)", Value: 0.616, N: 22, Split: "final", Source: v2},
 	)
 	for _, mode := range []string{"unknown-a", "known-a"} {
-		f, err := os.Open(filepath.Join(*resultsDir, "flips-dev-verifier-"+mode+"-litellm.jsonl"))
+		f, err := os.Open(filepath.Join(*resultsDir, "flips-dev-verifier-v2-"+mode+"-litellm.jsonl")) // verifier-v2, in production (D74)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "summary: skip verifier %s: %v\n", mode, err)
 			continue
@@ -1348,7 +1348,7 @@ func summaryCmd(args []string) error {
 			}
 		}
 		f.Close()
-		src := "eval/results/flips-dev-verifier-" + mode + "-litellm.jsonl"
+		src := "eval/results/flips-dev-verifier-v2-" + mode + "-litellm.jsonl"
 		lbl := "Move verifier (development set"
 		if mode == "known-a" {
 			lbl += ", CBP origin of current setup given"

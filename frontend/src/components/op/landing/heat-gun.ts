@@ -1,6 +1,7 @@
 // fig.1: the Kobalt heat gun drawn as a 3D blueprint (three.js). Parts are
 // grouped the way the demo case groups them; scroll explodes them, then the
-// motor-fan assembly and PCBA move to Thailand. Lines, not shading: fat
+// plan's groups (motor-fan assembly; switch, cord + minor parts) move to
+// Thailand. Lines, not shading: fat
 // outlines, dashed hidden edges, live silhouettes on the shell, hatched
 // cores. Colours come from the CSS tokens.
 import * as THREE from "three";
@@ -33,13 +34,14 @@ type Group = {
 };
 
 export type HeatGun = {
-  // ex: 0 assembled … 1 exploded; mv: 0 … 1 motor-fan + PCBA moved to Thailand.
+  // ex: 0 assembled … 1 exploded; mv: 0 … 1 the plan's groups moved to Thailand.
   frame: (ex: number, mv: number, dt: number, elapsed: number) => void;
   resize: () => void;
   dispose: () => void;
 };
 
-const MOVING: GroupKey[] = ["motor", "pcba"];
+// The shown heat-gun plan (D74): motor-fan assembly + switch, cord and minor parts.
+const MOVING: GroupKey[] = ["motor", "minor"];
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 export function createHeatGun({

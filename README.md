@@ -63,12 +63,12 @@ The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM2
 - **Follow-up answers** did not move split votes toward CBP's answer on dev (D26). The engine read "not stated" as evidence, so such answers are now left out of the re-analysis. Clarify ships as help for the broker, not as an accuracy gain.
 
 ## Limitations
-- The planner — the distinctive part — is the least validated. The verifier has no held-out test yet (its prompt was written after seeing the held-out flip failures; a clean test needs CBP rulings published after 25 Sep 2026). Demo fixtures were adjusted during development; they are demonstrations, not evaluations.
+- The planner — the distinctive part — is the least validated. The precedent check (verifier-v2, D74) was scored once on the 2026 flip pairs: every precedent-supported verdict was a real origin change (12/12 and 11/11), but part of its prompt was written after the research team saw failures on those pairs, so they are not a clean held-out test; a clean test needs CBP rulings published after 25 Sep 2026. Demo fixtures were adjusted during development; they are demonstrations, not evaluations.
 - Inputs in the benchmark are CBP's restatements of each request, not raw manufacturer BOMs.
 - Labels come from one extraction pipeline plus a second extractor and a 30-item audit, not an expert panel.
 - Origin prediction covers the substantial-transformation regime only. The planner covers one family (motorised tools and small appliances); a second template (LiDAR modules) shows the extension path.
 - Plans model duty effect and user-entered cost only — not feasibility, tooling, capacity or transition costs. Duty rates for the demo are sourced and dated; classification is inferred and should be confirmed by a broker.
-- The precedent check is not deterministic through the development proxy: the same heat-gun move checked 0.95 in one run and 0.92 in the next, and 0.75–0.90 in later runs; a verdict cache keeps repeat searches identical.
+- The precedent check is not deterministic run to run: the same heat-gun move has checked between 0.75 and 0.95 across runs. A verdict cache (Firestore on Cloud Run) keeps repeat searches identical, and the demo shows the first recorded verdict; it is never re-run to get a better one.
 - Cases are saved as files on local disk. Cloud Run is configured for Firestore, and `agent-backend` still needs `roles/datastore.user` before that store can be used (D39). The ruling watch sees new CBP rulings only after the corpus is rebuilt.
 - Precedent support is not a ruling. Plans go to a broker or counsel and, if needed, to CBP.
 

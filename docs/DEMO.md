@@ -76,6 +76,8 @@ One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-
 | Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
 | Dryer latch, assembled | China 0.98, auto | China | n/a |
 
+**verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. Production re-checks once on Vertex after the merge (the cache key includes the prompt version); that run is the demo's result, whatever it shows. The landing names this plan.
+
 "Closest" means what the Plan screen shows: the below-bar move with the highest precedent check (ties keep list order). The seed summary used to print the first below-bar row instead, so the heat-gun row above was corrected on 17 Oct from `demo-seed-heatgun-plan-vertex.json`: the five below-bar moves checked 0.85, 0.85, 0.85, 0.90 (motor-fan + PCBA) and 0.85. `eval/results/demo-seed-vertex.json` still has the old summary line. The LiDAR plan was not dumped, so its row may name an equal-or-lower move than the screen; check the Plan page. Proxy run 1's "closest" lines have the same caveat.
 
 Heat gun extras: as today Thailand 0.75 net $0 (differs from CBP), motor-fan in Thailand 0.98 net $380k, motor-fan + PCBA 0.98 net $320k; watch unchanged; ask cited N351922 and N348083; countries: Malaysia below the bar, Thailand below the bar, Vietnam no plan. Repeat search: identical verdicts, 6/6 cached, 135.8 s. The heat-gun plan is below the bar, so the video uses the no-plan screen.
