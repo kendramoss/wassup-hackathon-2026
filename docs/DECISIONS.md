@@ -503,3 +503,13 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Known-a had 1 proxy timeout (BA-N349038-N360390), counted as an error.
   - What the user sees, plans at ≥ 0.92, is unchanged or better, and nothing wrong clears the bar. Below the bar, 21 pairs is too few to tell the seed's effect from run-to-run noise.
   - Rows: `eval/results/flips-final-verifier-v2-seed-{unknown-a,known-a}-litellm.jsonl`.
+
+## D82 — Clean held-out flip test: no rulings to build it from yet (18 Oct)
+- **Goal.** The 2026 flip pairs are partly contaminated: v1's FlipFinal sentence, which v2 keeps, was written after seeing failures on them (D74). A clean test needs CBP rulings published after the corpus cut-off (25 Sep 2026), built into flip pairs with the research pipeline and scored once with the frozen verifier.
+- **Pipeline reused, unchanged except the date.** `hackathon-research/experiments/origin-proof/scripts/collect_index.py`, with `CUTOFF = "2026-09-26"`, searched the same terms ("substantial transformation", "country of origin", "origin") in DATE_DESC order, 1 request a second, and found 1 candidate. A second probe (21 searches: "printed circuit board", "Vietnam", "Thailand", "Mexico", "substantial transformation", "country of origin", "classification", "tariff", "ruling", "marking", "China", "manufactured", "assembled", across the ALL/NY/HQ collections) found 2 rulings dated after 25 Sep 2026 in all of CROSS:
+  - H335012 (2 Oct 2026): a classification ruling for a colpocamera stand. It only restates the requester's claimed origin (Japan) and holds no origin, so it has no label and no scenarios.
+  - H364652 (15 Oct 2026): a coastwise-transport (Carriers) ruling.
+
+  The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
+- **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
+- The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).
