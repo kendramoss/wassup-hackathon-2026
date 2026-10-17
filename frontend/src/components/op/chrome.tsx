@@ -45,7 +45,12 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
       {/* Hidden on phones, where the page heading names the case (#95). */}
       <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden sm:flex sm:border-l sm:pl-5" />
-      <span className="ml-auto flex items-center gap-4">
+      {/* "Not a ruling" sits on every screen that can show a verdict or a
+          plan (DESIGN.md, p-k2.html); the landing page has it in its footer. */}
+      {active !== "none" && (
+        <p className="order-last w-full text-[11px] text-dim sm:order-none sm:ml-auto sm:w-auto sm:text-xs">{copy.disclaimer}</p>
+      )}
+      <span className={cx("flex items-center gap-4", active === "none" ? "ml-auto" : "ml-auto sm:ml-0")}>
         <SignIn />
         <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
           <span className="sm:hidden" aria-hidden="true">+ New</span>
@@ -90,7 +95,7 @@ export function CaseTabs({
   // Ask, then the step's main button (17 Oct).
   return (
     <div className="no-print z-20 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
-    <nav aria-label="Case" className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
+    <nav aria-label="Case" tabIndex={0} className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
       <ul className="flex items-center gap-1.5 whitespace-nowrap sm:flex-wrap">
         {tabs.map((t) => {
           const on = t.key === current;

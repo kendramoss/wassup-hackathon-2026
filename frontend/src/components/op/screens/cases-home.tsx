@@ -162,13 +162,14 @@ function DemoCard({ c }: { c: CaseSummary }) {
       </span>
       {cur?.country && (
         <span className="text-xs text-dim">
-          CBP held <Country name={cur.country} /> {cur.ruling ? `(${cur.ruling})` : ""}
+          CBP held <Country name={cur.country} />
+          {cur.ruling ? `, ${cur.ruling}` : ""}
         </span>
       )}
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
-            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr
+            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr {copy.plan.illustrativeShort}
             {backtestMatch(full?.plan?.backtest).matches ? <> · matches CBP&apos;s real change{backtestMatch(full?.plan?.backtest).ruling ? ` (${backtestMatch(full?.plan?.backtest).ruling})` : ""}</> : null}
           </>
         ) : full?.plan ? (

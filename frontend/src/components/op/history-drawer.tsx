@@ -27,7 +27,8 @@ function when(iso?: string) {
 // Case history (D41, D45; p-history.html): one row per event with time, kind,
 // summary as returned, model, cost · time and tokens; the case total last.
 export function HistoryDrawer({ c, onClose }: { c: CaseResponse; onClose: () => void }) {
-  const events = c.history ?? [];
+  // "Pinned" is an admin action on demo cases, not a step a visitor took.
+  const events = (c.history ?? []).filter((e) => e.kind !== "pinned");
   const cost = events.reduce((s, e) => s + (e.cost_usd ?? 0), 0);
   const ms = events.reduce((s, e) => s + (e.latency_ms ?? 0), 0);
   return (

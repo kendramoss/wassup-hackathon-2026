@@ -66,7 +66,7 @@ export class ApiError extends Error {
 
 export const SIGNIN_EXPIRED = "op:signin-expired";
 
-const retryableCodes = new Set(["model_unavailable", "model_bad_response", "internal", "network"]);
+const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network"]);
 
 async function toError(res: Response): Promise<ApiError> {
   const err = await readError(res);

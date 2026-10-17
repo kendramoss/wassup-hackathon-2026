@@ -224,7 +224,9 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     if (request.signal.aborted) return new Response(null, { status: 499 });
     console.error(`backend /v1/${path}:`, err);
     return Response.json(
-      { code: "model_unavailable", message: "Could not reach the Origin Proof API. Try again in a moment." },
+      // Not a model failure: the API itself didn't answer, so no "the model
+      // didn't answer" prefix on the page.
+      { code: "backend_unreachable", message: "Couldn't reach the Origin Proof API. Nothing is lost; try again in a moment." },
       { status: 502 },
     );
   }

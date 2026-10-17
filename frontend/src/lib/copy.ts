@@ -64,7 +64,17 @@ export const copy = {
     rerun: "Add answers and re-run",
     rerunHint: "Enabled once one answer adds a fact",
     optional: "Answering is optional",
+    whyAuto: (c: string) => `Why · auto-accepted: ${c}, ${c === "0.92" ? "at" : "above"} the 0.92 bar`,
+    questionsNote: "optional; answers add facts and re-run the analysis",
+    nextQuestions: (target: string) => `Add the facts CBP would ask about, or plan a move to ${target}.`,
+    suggestAnswer: (n: number) => (n === 1 ? "Answer CBP's likely question" : `Answer CBP's ${n} likely questions`),
     conflict: "Earlier rulings disagree",
+    review: {
+      title: "Below the 0.92 bar · worth a broker's look",
+      body: (c: string) => `Confidence is ${c}. On the 377 held-out rulings, cases under the bar were right 68% of the time, against 96% above it. No follow-up questions came back for this case.`,
+      draft: "Draft a note for the broker →",
+      addFacts: "Add facts",
+    },
     keyFactors: "Key factor",
     rulings: "Earlier CBP rulings read",
     ask: "Ask about this case",
@@ -83,7 +93,36 @@ export const copy = {
     draft: "Draft the ruling request →",
     draftClosest: "Draft for the closest move →",
     illustrative: "illustrative — editable",
+    illustrativeShort: "illustrative",
     compare: "Compare countries",
+    // Evidence heading over the lead move: a move under the bar isn't
+    // "supported", it's the closest the check came.
+    whySupported: "Why it's supported",
+    closestEvidence: "Precedent check: closest move",
+    // A greyed row's reason, instead of the API's "precedent-supported but
+    // verifier confidence 0.90 is below 0.92" (one name for the check).
+    // The precedent check's search path (D80), folded under each checked row.
+    trail: {
+      title: "How the check found this",
+      count: (s: number, r: number) => `${s} ${s === 1 ? "search" : "searches"}, ${r} read`,
+      searches: "Searches",
+      searched: "Searched",
+      returned: "returned",
+      nothing: "returned nothing",
+      read: "Read",
+      notFound: "not found",
+    },
+    // Near-miss advice (D81) under a row that fell short of the bar.
+    nearMiss: {
+      label: "Advice · not a check",
+      note: "It doesn't change the bar or the verdict.",
+      short: "Why it fell short:",
+      wouldMatch: "Would match",
+      theRuling: "the supporting ruling",
+      if: "if:",
+    },
+    agreement: (views: string, agree: string) => `${views} views, ${agree} agree`,
+    belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
   },
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or
@@ -123,7 +162,7 @@ export const copy = {
     wires: ["facts", "origin", "moves"],
     fig3: "fig.3 — how accurate is it",
     fig3Title: "Test sheet · 377 held-out CBP rulings",
-    fig3Meta: "Jan–Sep 2026 · none seen in training · Vertex AI",
+    fig3Meta: "Jan–Sep 2026 · held out of the precedent pool · Vertex AI",
     scaleHead: "A · measured on a scale",
     squaresHead: "B · every ruling, as a square",
     claimAccuracy: "origin accuracy, vs 60.5% for the best simple rule (most-mentioned country).",

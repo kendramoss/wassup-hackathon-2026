@@ -63,7 +63,6 @@ export default function Page() {
             Every endpoint, in the OpenAPI spec →
           </a>
         </p>
-        <p className="text-xs text-dim">{copy.landing.footerDisclaimer}</p>
       </Main>
     </>
   );
