@@ -615,7 +615,7 @@ function StageList({ stages }: { stages: PredictStage[] }) {
             className={cx("size-2 shrink-0 rotate-45", s.status === "done" ? "bg-ok" : "animate-pulse border border-ok motion-reduce:animate-none")}
           />
           <span className={cx("min-w-0 flex-1", s.status === "done" ? "text-body" : "text-dim")}>{copy.product.stages[s.name] ?? s.name}</span>
-          <span className="font-mono text-[12px] text-faint">
+          <span className="font-mono text-[12px] text-dim">
             {s.status === "done" ? `${(s.ms / 1000).toFixed(1)} s` : <span className="sr-only">running</span>}
           </span>
         </li>
