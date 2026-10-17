@@ -1,0 +1,12 @@
+{
+  "family": "led_lights",
+  "version": "1",
+  "name": "LED lights and lamps",
+  "note": "Operation groups move between plants together. Costs are illustrative defaults; users edit them. Built from CBP rulings N350085 and N351143.",
+  "groups": [
+    {"id": "led_pcba", "name": "LED PCBA (SMT)", "operations": ["SMT placement of the LED chip and other electronic components on the printed circuit board", "reflow and test the LED PCBA"], "movable": true},
+    {"id": "lens", "name": "Lens moulding", "operations": ["injection-mould the lens from resin"], "movable": true},
+    {"id": "base_harness_seals", "name": "Base, harness and seals", "operations": ["make the plastic lamp base, wiring harness, PVC sealing and O-ring"], "movable": true},
+    {"id": "final_assembly", "name": "Final assembly", "operations": ["fit the lens with the O-ring, mount the PCBA to the lamp base, connect the harness, seal and test"], "movable": false}
+  ]
+}

@@ -444,7 +444,7 @@ func mustDemos(t *testing.T) []demos.Demo {
 func TestDemoFlowThroughTheAPI(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
 	code, list := hs.do(t, "GET", "/v1/demos", "")
-	if code != 200 || len(list["demos"].([]any)) != 4 {
+	if code != 200 || len(list["demos"].([]any)) != 5 {
 		t.Fatalf("list demos %d: %v", code, list)
 	}
 	req := httptest.NewRequest("GET", "/v1/demos/heatgun-2022", nil)

@@ -115,5 +115,5 @@
   },
   "notes": "Demonstration only: the verifier prompt was written after seeing the LiDAR flip results, so this case cannot test it.",
   "cbp_held": "Thailand (N359371, scenario I)",
-  "order": 2
+  "order": 3
 }
