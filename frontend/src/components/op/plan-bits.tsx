@@ -69,6 +69,13 @@ export function checkWords(v: number | null | undefined): string {
   return v > 0.92 ? "above the 0.92 bar" : "below the 0.92 bar";
 }
 
+// verdict.agreement ("2/3") is present only when the three-view panel ran,
+// near the bar (D83): "3 views, 2 agree". Anything else shows nothing.
+export function agreementWords(a: string | null | undefined): string | null {
+  const m = /^(\d+)\s*\/\s*(\d+)$/.exec(a ?? "");
+  return m ? copy.plan.agreement(m[2], m[1]) : null;
+}
+
 export const rejectionLabels: Record<string, string> = {
   current_setup: "Current setup",
   below_confidence_bar: "Below the bar",

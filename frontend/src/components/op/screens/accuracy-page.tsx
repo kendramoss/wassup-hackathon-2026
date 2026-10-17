@@ -102,7 +102,7 @@ export function AccuracyPage() {
       : it.key?.startsWith("change_detection")
         ? { label: "weak" }
         : it.development_only
-          ? { label: "development set", tone: "ask" }
+          ? { label: "development set", tone: undefined }
           : { label: "official", tone: "ok" };
   const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));

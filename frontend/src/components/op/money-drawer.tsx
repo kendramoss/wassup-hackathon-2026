@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { Economics, Product } from "@/lib/api/client";
+import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
 import { groupName } from "./plan-bits";
 import { Button, Country, Drawer, cx } from "./ui";
@@ -113,12 +114,12 @@ export function MoneyDrawer({
       header={
         <>
           <b className="font-medium text-ink">Money inputs</b>
-          <span className="ml-3 border border-ask-line px-1.5 py-0.5 text-[11px] text-ask">illustrative — editable</span>
+          <span className="ml-3 border border-line px-1.5 py-0.5 text-[11px] text-dim">{copy.plan.illustrative}</span>
         </>
       }
       footer={
         <div className="flex items-center gap-3 border-t border-line px-6 py-3.5">
-          <p className="duo mr-auto min-w-0 truncate whitespace-nowrap text-xs text-dim">A rough number is enough to rank moves.</p>
+          <p className="duo mr-auto min-w-0 text-xs text-dim">A rough number is enough to rank moves.</p>
           <Button variant="ghost" className="shrink-0 whitespace-nowrap" onClick={onClose}>
             Cancel
           </Button>
