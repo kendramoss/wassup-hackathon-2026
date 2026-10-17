@@ -12,6 +12,7 @@ import { hasAnyMoney, moneySummary } from "../money-drawer";
 import { EconomicsEditor, PlantDiagram, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { regimeOf } from "@/lib/regime";
+import { Agreement, CheckTrail, NearMiss } from "../check-details";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
@@ -405,6 +406,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
       <div>
         <p className="eyebrow">Precedent check</p>
         <Ruler value={v} caption={`check ${conf(v)} · ${checkWords(v)}`} />
+        <Agreement verdict={plan.verdict} className="mt-1 block" />
       </div>
     </Band>
   );
@@ -530,12 +532,14 @@ function WhySupported({ plan }: { plan: Plan }) {
         <dt className="text-dim">Check</dt>
         <dd>
           {conf(v.confidence)} · {checkWords(v.confidence)}
+          <Agreement verdict={v} className="ml-2" />
         </dd>
         <dt className="text-dim">Supports</dt>
         <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : "none found"}</dd>
         <dt className="text-dim">Counter</dt>
         <dd>{v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : "none found"}</dd>
       </dl>
+      <CheckTrail verdict={v} />
       {v.reasoning && <Reasoning text={v.reasoning} />}
     </section>
   );
@@ -629,11 +633,14 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                         p.rejection_reason
                       )}
                     </span>
+                    <CheckTrail verdict={p.verdict} />
+                    <NearMiss plan={p} className="mt-2" />
                   </td>
                   <td className="px-3.5 py-2.5 max-sm:p-0">{outcome(p)}</td>
                   <td className="px-3.5 py-2.5 max-sm:col-start-1 max-sm:p-0">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Precedent check</span>
                     <MiniRuler value={p.verdict?.confidence} />
+                    <Agreement verdict={p.verdict} className="mt-0.5 block" />
                   </td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 max-sm:col-start-2 max-sm:row-start-2 max-sm:p-0 max-sm:text-right">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Net per year</span>

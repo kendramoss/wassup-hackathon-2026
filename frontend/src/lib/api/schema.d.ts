@@ -2159,6 +2159,20 @@ export interface components {
             counter_ruling?: string;
             confidence?: number;
             reasoning?: string;
+            /** @description When the check ran several times, how many runs gave this answer, e.g. 2/3. */
+            agreement?: string;
+            /**
+             * @description The precedent check's search path, in order (D80): each search with the ruling numbers it returned,
+             *     and each ruling read. Verdicts cached before D80 have none.
+             */
+            trail?: {
+                /** @enum {string} */
+                tool?: "search" | "read";
+                /** @description The search text, or the ruling number asked for. */
+                query?: string;
+                /** @description Rulings a search returned, or the ruling read (empty if not found). */
+                rulings?: string[];
+            }[];
         };
         Plan: {
             move?: {
@@ -2179,6 +2193,21 @@ export interface components {
              * @enum {string}
              */
             rejection_kind?: "current_setup" | "below_confidence_bar" | "no_supporting_precedent" | "engine_other_origin" | "check_failed";
+            /**
+             * @description Only with NEAR_MISS_ADVICE=on (D81), on at most two `below_confidence_bar` moves per search whose check is at least 0.85:
+             *     what differs between this move and its supporting ruling on the point CBP relied on, and what change to the setup
+             *     would match the ruling. One extra model call each, cached. Advice only: it never changes the verdict, the bar or `shown`.
+             */
+            near_miss?: {
+                /** @example In N325810 the PCBA was also made in Thailand; in your setup it stays in China. */
+                difference?: string;
+                /** @example Make the PCBA in Thailand as well. */
+                would_match?: string;
+                /** @description The supporting ruling compared (the verdict's supporting_ruling) */
+                ruling?: string;
+                /** @description Model, prompt_version near-miss-v1, tokens; cached true when replayed */
+                trace?: Record<string, never>;
+            };
         };
         PlanResult: {
             target?: string;
