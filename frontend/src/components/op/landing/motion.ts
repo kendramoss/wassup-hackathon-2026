@@ -192,6 +192,107 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     return clamp01((innerHeight * 0.55 - r.top) / (r.height - innerHeight * 0.45));
   };
 
+  // ---- scroll stops -----------------------------------------------------------
+  // On wide screens a wheel notch or a paging key moves to the next frame
+  // where a figure has settled (or the bridge is centred) instead of stopping
+  // halfway through a tween, and a drag or swipe that ends near a stop eases
+  // onto it. Native scrolling is left alone with reduced motion, on phones,
+  // inside other scrollable areas, and above or below the stops.
+  let stops: number[] = [];
+  function placeStops() {
+    const vh = innerHeight;
+    const top = (el: Element) => el.getBoundingClientRect().top + scrollY;
+    const along = (el: HTMLElement, ps: number[]) => ps.map((p) => top(el) + p * Math.max(0, el.offsetHeight - vh));
+    // fig.1: exploded, parts moved, CBP's 2026 ruling (see frame()).
+    const s1 = along(scrolly, [0.38, 0.72, 1]);
+    // fig.2: just after the wire reaches each sheet (see layoutF2()), then done.
+    const gap = Math.min(330, (stage.clientWidth - 250) / 3), len = 3 * gap + 390;
+    const unease = (d: number) => 0.5 - Math.sin(Math.asin(1 - 2 * d) / 3); // inverse of ease()
+    const s2 = along(f2, [0, 1, 2, 3].map((i) => 0.08 + 0.78 * unease(clamp01((i * gap + 110) / len))).concat(0.92));
+    // fig.3: squares lifting off, half settled, settled (inverse of fig3Progress()).
+    const s3 = [0.15, 0.5, 1].map((t) => top(f3wrap) - (vh * 0.55 - t * (f3wrap.offsetHeight - vh * 0.45)));
+    const end = document.documentElement.scrollHeight - vh;
+    stops = [0, ...s1, top(bridge) + bridge.offsetHeight / 2 - vh / 2, ...s2, ...s3, end]
+      .map((y) => Math.round(Math.min(end, Math.max(0, y))))
+      .sort((a, b) => a - b);
+  }
+  const stepping = () => !reduce && wide() && stops.length > 1;
+  let target: number | null = null, quietTimer = 0, settleTimer = 0;
+  function go(y: number) {
+    target = y;
+    scrollTo({ top: y, behavior: "smooth" });
+  }
+  // A step ends once the page has arrived and the wheel has gone quiet, so a
+  // trackpad's momentum after one flick doesn't run on through several stops.
+  function release() {
+    clearTimeout(quietTimer);
+    quietTimer = window.setTimeout(() => {
+      if (target === null || Math.abs(scrollY - target) < 2) target = null;
+      else release();
+    }, 180);
+  }
+  function step(dir: 1 | -1) {
+    const y = scrollY;
+    const next = dir > 0 ? stops.find((s) => s > y + 2) : [...stops].reverse().find((s) => s < y - 2);
+    if (next === undefined) return false;
+    go(next);
+    return true;
+  }
+  const scrollsItself = (el: EventTarget | null) => {
+    for (let n = el instanceof Element ? el : null; n && n !== root; n = n.parentElement) {
+      const o = getComputedStyle(n).overflowY;
+      if ((o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight) return true;
+    }
+    return !(el instanceof Node && root.contains(el));
+  };
+  function onWheel(e: WheelEvent) {
+    if (!stepping() || e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX) || scrollsItself(e.target)) return;
+    const dir = e.deltaY > 0 ? 1 : -1;
+    if (target !== null) {
+      e.preventDefault();
+      release();
+      return;
+    }
+    if (Math.abs(e.deltaY) < 4) return; // the tail of a trackpad gesture
+    if (step(dir)) {
+      e.preventDefault();
+      release();
+    }
+  }
+  const KEYS: Record<string, 1 | -1> = { PageDown: 1, PageUp: -1, ArrowDown: 1, ArrowUp: -1, " ": 1 };
+  function onKey(e: KeyboardEvent) {
+    const t = e.target as HTMLElement | null;
+    if (!stepping() || e.altKey || e.ctrlKey || e.metaKey || !(e.key in KEYS)) return;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName))) return;
+    const dir = e.key === " " && e.shiftKey ? -1 : KEYS[e.key];
+    if (target !== null || step(dir)) {
+      e.preventDefault();
+      release();
+    }
+  }
+  // Scrollbar drags, swipes and anchor jumps: once scrolling stops, ease onto
+  // a stop that is close by (within a quarter of the screen).
+  function onScroll() {
+    if (target !== null || !stepping()) return;
+    clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(() => {
+      if (target !== null) return;
+      const y = scrollY;
+      const near = stops.reduce((a, s) => (Math.abs(s - y) < Math.abs(a - y) ? s : a), stops[0]);
+      if (Math.abs(near - y) > 2 && Math.abs(near - y) < innerHeight * 0.25) {
+        go(near);
+        release();
+      }
+    }, 220);
+  }
+  placeStops();
+  const stopsRo = new ResizeObserver(placeStops);
+  stopsRo.observe(root);
+  addEventListener("resize", placeStops);
+  addEventListener("wheel", onWheel, { passive: false });
+  addEventListener("keydown", onKey);
+  addEventListener("scroll", onScroll, { passive: true });
+
   // ---- one loop ---------------------------------------------------------------
   const near = (el: Element) => {
     const r = el.getBoundingClientRect();
@@ -245,6 +346,13 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     cancelAnimationFrame(raf);
     ro.disconnect();
     barRo.disconnect();
+    stopsRo.disconnect();
+    clearTimeout(quietTimer);
+    clearTimeout(settleTimer);
+    removeEventListener("resize", placeStops);
+    removeEventListener("wheel", onWheel);
+    removeEventListener("keydown", onKey);
+    removeEventListener("scroll", onScroll);
     gun?.dispose();
     field.replaceChildren();
     wires.forEach((w) => {
