@@ -95,6 +95,9 @@ func Prompts() []Prompt {
 		{"nearmiss.system", nearmiss.PromptVersion, withSchema(nearmiss.System, nearmiss.Schema)},
 		{"nearmiss.user", nearmiss.PromptVersion, nearmiss.RenderUser(task.FactsB, "N300001",
 			"[N300001 | 2025-01-02] Widget\nFACTS: A motor made in China is fitted in Vietnam.\nCBP ANALYSIS AND HOLDING: The motor imparts the essential character; China.")},
+		{"nearmiss.map.system", nearmiss.MapPromptVersion, withSchema(nearmiss.MapSystem, nearmiss.MapSchema)},
+		{"nearmiss.map.user", nearmiss.MapPromptVersion, nearmiss.RenderMap("Make the motor in Vietnam as well.",
+			[]domain.OperationGroup{{ID: "motor", Name: "Motor", Operations: []string{"wind the motor"}, Components: []string{"motor"}}})},
 		{"caseagent.system", caseagent.PromptVersion, caseagent.System},
 		{"caseagent.request", caseagent.PromptVersion, firstRequest(func(m llm.Model) {
 			_, _ = caseagent.New(m, "m", noSearch{}, nil).Ask(context.Background(), caseagent.Input{Question: "Why China?",

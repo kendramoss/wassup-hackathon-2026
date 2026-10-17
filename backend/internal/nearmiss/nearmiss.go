@@ -119,6 +119,76 @@ func (a *Advisor) Advise(ctx context.Context, t Task) (domain.NearMiss, error) {
 			InputTokens: resp.Usage.InputTokens, OutputTokens: resp.Usage.OutputTokens, LatencyMS: resp.Latency.Milliseconds()}}, nil
 }
 
+// MapPromptVersion is the group-mapping prompt (D85).
+const MapPromptVersion = "near-miss-map-v1"
+
+// MapSystem asks which operation groups a piece of advice names. It is the
+// fallback when no group name, component or operation appears in the text.
+const MapSystem = `You map a short piece of manufacturing advice to a fixed list of operation groups. The advice says what to make or do in a different place. Return the ids of the groups from the list whose components or operations the advice asks to move. Use only ids from the list. If the advice names none of them, return an empty list. Return ONLY JSON.`
+
+// MapSchema constrains the mapping answer.
+var MapSchema = map[string]any{
+	"type": "object",
+	"properties": map[string]any{
+		"groups": map[string]any{"type": "array", "items": map[string]any{"type": "string"}},
+	},
+	"required":             []string{"groups"},
+	"additionalProperties": false,
+}
+
+// RenderMap is the user message MapGroups sends.
+func RenderMap(advice string, groups []domain.OperationGroup) string {
+	var b strings.Builder
+	b.WriteString("ADVICE:\n" + corpus.Truncate(advice, 1000) + "\n\nGROUPS:\n")
+	for _, g := range groups {
+		fmt.Fprintf(&b, "- %s: %s", g.ID, g.Name)
+		if len(g.Components) > 0 {
+			b.WriteString("; components: " + strings.Join(g.Components, ", "))
+		}
+		if len(g.Operations) > 0 {
+			b.WriteString("; operations: " + strings.Join(g.Operations, "; "))
+		}
+		b.WriteString("\n")
+	}
+	return b.String()
+}
+
+// Mapper names the groups advice asks to move with one small model call.
+type Mapper struct {
+	model   llm.Model
+	modelID string
+}
+
+// NewMapper returns a mapper.
+func NewMapper(m llm.Model, modelID string) *Mapper { return &Mapper{model: m, modelID: modelID} }
+
+// MapGroups returns the ids of groups the advice names, only ids from groups.
+func (m *Mapper) MapGroups(ctx context.Context, advice string, groups []domain.OperationGroup) ([]string, llm.Usage, error) {
+	resp, err := m.model.Generate(ctx, llm.Request{Model: m.modelID, System: MapSystem,
+		Messages:   []llm.Message{{Role: llm.RoleUser, Content: RenderMap(advice, groups)}},
+		JSONSchema: MapSchema, SchemaName: "near_miss_groups", MaxOutputTokens: 300})
+	if err != nil {
+		return nil, llm.Usage{}, fmt.Errorf("nearmiss: map: %w", err)
+	}
+	var ans struct {
+		Groups []string `json:"groups"`
+	}
+	if err := resp.DecodeJSON(&ans); err != nil {
+		return nil, resp.Usage, fmt.Errorf("nearmiss: map: %w", err)
+	}
+	known := map[string]bool{}
+	for _, g := range groups {
+		known[g.ID] = true
+	}
+	var ids []string
+	for _, id := range ans.Groups {
+		if known[id] && !slices.Contains(ids, id) {
+			ids = append(ids, id)
+		}
+	}
+	return ids, resp.Usage, nil
+}
+
 // Cache stores advice so the same move and ruling get the same text without
 // another model call, in the same store as the verdicts (D50).
 type Cache struct {
