@@ -13,8 +13,8 @@ func TestDemosAreValidRequests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(ds) != 4 {
-		t.Fatalf("demos = %d, want 4", len(ds))
+	if len(ds) != 5 {
+		t.Fatalf("demos = %d, want 5", len(ds))
 	}
 	for _, d := range ds {
 		var p struct {
@@ -42,6 +42,12 @@ func TestDemosAreValidRequests(t *testing.T) {
 	hg := ds[0]
 	if hg.ID != "heatgun-2022" || !strings.Contains(string(hg.Predict), "Each heat gun is assembled in Thailand using 24 components") {
 		t.Errorf("heat gun demo should predict from CBP's 2022 facts text: %s", hg.ID)
+	}
+	var tl struct {
+		Exclude []string `json:"exclude_rulings"`
+	}
+	if ds[1].ID != "tublight-2025" || json.Unmarshal(ds[1].Predict, &tl) != nil || strings.Join(tl.Exclude, ",") != "N350085,N351143" {
+		t.Errorf("tub light demo should exclude both tub-light rulings: %s %v", ds[1].ID, tl.Exclude)
 	}
 	if !Summaries(ds)[0].HasPlan || Summaries(ds)[3].HasPlan {
 		t.Errorf("summaries = %+v", Summaries(ds))

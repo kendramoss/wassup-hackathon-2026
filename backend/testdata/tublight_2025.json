@@ -1,0 +1,132 @@
+{
+  "_source": "CBP ruling N350085 (8 Jul 2025), LED tub light 308D1661P001, all components Chinese, assembled in Thailand: CBP held China. N351143 (4 Aug 2025): the LED PCBA SMT-made in Thailand: CBP held Thailand. Planning date 2025-07-09 = request date of N351143; both rulings excluded.",
+  "case_id": "tublight-2025",
+  "date": "2025-07-09",
+  "family": "led_lights",
+  "target": "Thailand",
+  "product": {
+    "name": "LED tub light 308D1661P001",
+    "description": "A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Bangsaotong plant",
+        "country": "Thailand",
+        "capabilities": [
+          "led_pcba",
+          "lens",
+          "base_harness_seals",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "led_pcba",
+          "lens",
+          "base_harness_seals"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "LED printed circuit board assembly (PCBA), populated with a South Korean LED",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "led_pcba"
+      },
+      {
+        "name": "lens",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lens"
+      },
+      {
+        "name": "lamp base",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "wiring harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "PVC sealing and O-ring",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      }
+    ],
+    "operations": [
+      {
+        "name": "assemble the lens with the O-ring",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "assemble the PCBA to the lamp base",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "assemble the harness (connect the wires with the plug and the light head)",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "seal and test",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1500000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "led_pcba": {
+        "cn": 180000,
+        "th": 230000
+      },
+      "lens": {
+        "cn": 40000,
+        "th": 55000
+      },
+      "base_harness_seals": {
+        "cn": 60000,
+        "th": 85000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350085",
+    "N351143"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350085"
+  },
+  "actual_change": {
+    "_source": "CBP ruling N351143 (4 Aug 2025): CBP held Thailand",
+    "moved_to": "Thailand",
+    "moved_to_thailand": [
+      "LED printed circuit board assembly (PCBA), populated with a South Korean LED"
+    ],
+    "still_from_china": [
+      "lens",
+      "lamp base",
+      "wiring harness",
+      "PVC sealing and O-ring"
+    ]
+  }
+}

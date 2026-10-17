@@ -442,3 +442,19 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Measured on the dev flip pairs (known-a, LiteLLM proxy, two runs each, heat-gun pair excluded):** v2's real changes supported at ≥ 0.92 were 16 and 21 of 46 across two runs; v3's 20 and 21. Precision 97% for both (one wrong verdict, below the bar). Run-to-run agreement on the "shown at 0.92" decision: v2 49/54, v3 51/54; mean confidence change between runs 0.031 vs 0.030. Within noise: v3 does not make the check more repeatable.
 - **Heat gun, two fresh v3 runs:** no plan cleared 0.92 in either; the moves' checks moved between 0.55 and 0.85 with different supporting rulings each time.
 - **Decision:** keep v2 in production (D74) and do not re-roll the demo. The landing states production's result: closest move, motor-fan assembly to Thailand, check 0.90, just under the 0.92 bar, N325810 for, no counter-ruling, which goes to a broker for review. The cache (D50) keeps that verdict for every visitor. Run-to-run variance in the agentic check is a known limitation (README); a fix needs more than prompt changes (for example a majority of several runs, D33, at several times the cost), which is a finals item.
+
+## D77 — A second plan demo with a close precedent: LED tub light (17 Oct)
+- The heat gun's closest move checks 0.90 in every run, with or without the seed (D76) or a 3-vote majority. No earlier ruling is close enough for the 0.95 band. The bar stays 0.92 (D74). Instead, the demo now also has a product where a precedent-supported plan clears the bar.
+- **How it was picked:** dev flip pairs whose real change cleared 0.92 in all 9 verifier runs (v1/v2/v3, seeded, 3-vote). Of those, the LED tub light is a component move the planner can express, the engine predicts both rulings correctly (dev: N350085 China 0.98, N351143 Thailand 0.99), and the same manufacturer asked about both setups a month apart.
+- **The demo** (`tublight-2025`, family template `led_lights`):
+  - Current setup: CBP's July 2025 facts, all Chinese parts assembled in Thailand. CBP held China (N350085).
+  - Target: Thailand. Planning date 9 Jul 2025, the request date of N351143. Both tub-light rulings are excluded.
+  - Three plan runs (LiteLLM proxy, seeded, live CROSS, fresh cache): the engine predicted China 0.98 every time. The same two plans were shown each time:
+    - **LED PCBA (SMT) to Thailand:** check 0.94/0.96/0.96, N345899 for, no counter-ruling. This is exactly CBP's real change (N351143).
+    - **LED PCBA plus base, harness and seals:** 0.96, N344188.
+  - Moving the lens with the PCBA checked 0.90 (below the bar). The moves without the PCBA were predicted China.
+  - Rows: `eval/results/plan-tublight-2025-verifier-v2-seed-run{1,2,3}-litellm.json`.
+- **Caveats, as for the LiDAR demo:**
+  - This pair is in the dev flip pairs that verifier-v2 was written from, so the demo cannot test the verifier.
+  - Duty rates are illustrative: no ruling classifies the tub light, so there is no sourced HTS line.
+- The heat gun stays the first demo and the landing's story (closest move 0.90, under the bar). The tub light is second, ahead of the LiDAR.
