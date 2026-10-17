@@ -40,8 +40,9 @@ export type HeatGun = {
   dispose: () => void;
 };
 
-// The shown heat-gun plan (D74): motor-fan assembly + switch, cord and minor parts.
-const MOVING: GroupKey[] = ["motor", "minor"];
+// The heat-gun's closest move on production (D74 run, check 0.90): the
+// motor-fan assembly. Keep in step with landing copy and the live demo.
+const MOVING: GroupKey[] = ["motor"];
 // Compact groups flip as they cross; the switch, cord and minor parts are
 // spread across the gun (cord, end cap, knob), so a flip would swing them
 // through the body. They only lift.
