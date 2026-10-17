@@ -45,7 +45,12 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
       {/* Hidden on phones, where the page heading names the case (#95). */}
       <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden sm:flex sm:border-l sm:pl-5" />
-      <span className="ml-auto flex items-center gap-4">
+      {/* "Not a ruling" sits on every screen that can show a verdict or a
+          plan (DESIGN.md, p-k2.html); the landing page has it in its footer. */}
+      {active !== "none" && (
+        <p className="order-last w-full text-[11px] text-dim sm:order-none sm:ml-auto sm:w-auto sm:text-xs">{copy.disclaimer}</p>
+      )}
+      <span className={cx("flex items-center gap-4", active === "none" ? "ml-auto" : "ml-auto sm:ml-0")}>
         <SignIn />
         <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
           <span className="sm:hidden" aria-hidden="true">+ New</span>
