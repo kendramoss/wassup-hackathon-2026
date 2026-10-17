@@ -151,6 +151,8 @@ export const api = {
     if (apply) form.append("apply", "true");
     return call<BomVersionResponse>(`/cases/${enc(id)}/bom-version`, { method: "POST", body: form });
   },
+  // No file: a 400 when BOM_VERSIONS is on, a 404 when off; reads nothing.
+  bomVersionProbe: (id: string) => call<void>(`/cases/${enc(id)}/bom-version`, { method: "POST", body: new FormData() }),
   workspacesMine: () => call<WorkspacesMine>("/workspaces/mine"),
   createWorkspace: (name: string) => post<Workspace>("/workspaces", { name }),
   inviteMember: (id: string, email: string) => post<Workspace>(`/workspaces/${enc(id)}/members`, { email }),
