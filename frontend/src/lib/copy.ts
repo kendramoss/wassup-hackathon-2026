@@ -135,6 +135,12 @@ export const copy = {
     repo: "https://github.com/kendramoss/wassup-hackathon-2026",
   },
 
+  signIn: {
+    button: "Sign in with Google",
+    signOut: "Sign out",
+    expired: "Your sign-in expired. Sign in again.",
+  },
+
   money: "Money · illustrative — editable",
   proxy: "proxy run",
   retry: "Try again",

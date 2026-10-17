@@ -6,6 +6,7 @@ import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
 import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "./action-bar";
+import { SignIn } from "./sign-in";
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
@@ -44,10 +45,13 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
       {/* Hidden on phones, where the page heading names the case (#95). */}
       <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden sm:flex sm:border-l sm:pl-5" />
-      <ButtonLink href="/cases/new" className="ml-auto min-h-9 py-1.5" aria-label={copy.cases.newCase}>
-        <span className="sm:hidden" aria-hidden="true">+ New</span>
-        <span className="hidden sm:inline" aria-hidden="true">{copy.cases.newCase}</span>
-      </ButtonLink>
+      <span className="ml-auto flex items-center gap-4">
+        <SignIn />
+        <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
+          <span className="sm:hidden" aria-hidden="true">+ New</span>
+          <span className="hidden sm:inline" aria-hidden="true">{copy.cases.newCase}</span>
+        </ButtonLink>
+      </span>
     </header>
   );
 }
@@ -376,6 +380,19 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
         <Link href="/cases" className="mt-1 inline-block text-ok underline underline-offset-2">
           Open a demo case →
         </Link>
+      </div>
+    );
+  // 401 "unauthenticated" (D68): the Google sign-in expired; the proxy
+  // cleared it, so trying again works signed out, or after signing in.
+  if (e?.status === 401 && (e.code as string) === "unauthenticated")
+    return (
+      <div role="status" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
+        <p className="duo">{copy.signIn.expired}</p>
+        {onRetry && (
+          <Button variant="ghost" className="mt-2" onClick={onRetry}>
+            {copy.retry}
+          </Button>
+        )}
       </div>
     );
   const outOfScope = e?.code === "out_of_scope";

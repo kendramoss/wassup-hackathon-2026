@@ -64,9 +64,18 @@ export class ApiError extends Error {
   }
 }
 
+export const SIGNIN_EXPIRED = "op:signin-expired";
+
 const retryableCodes = new Set(["model_unavailable", "model_bad_response", "internal", "network"]);
 
 async function toError(res: Response): Promise<ApiError> {
+  const err = await readError(res);
+  // The sign-in expired (D68): the header's sign-in button says so.
+  if (err.status === 401 && (err.code as string) === "unauthenticated" && typeof window !== "undefined") window.dispatchEvent(new Event(SIGNIN_EXPIRED));
+  return err;
+}
+
+async function readError(res: Response): Promise<ApiError> {
   let body: Partial<Omit<ApiErrorBody, "code">> & { code?: string; error?: string; details?: { retry_after_s?: number } } = {};
   try {
     body = await res.json();
