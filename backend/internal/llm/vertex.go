@@ -69,7 +69,8 @@ func (v *Vertex) Generate(ctx context.Context, req Request) (Response, error) {
 
 func toGenaiConfig(req Request) *genai.GenerateContentConfig {
 	zero := float32(0)
-	cfg := &genai.GenerateContentConfig{Temperature: &zero, MaxOutputTokens: int32(req.MaxOutputTokens)}
+	seed := int32(Seed)
+	cfg := &genai.GenerateContentConfig{Temperature: &zero, Seed: &seed, MaxOutputTokens: int32(req.MaxOutputTokens)}
 	if req.System != "" {
 		cfg.SystemInstruction = genai.NewContentFromText(req.System, genai.RoleUser)
 	}

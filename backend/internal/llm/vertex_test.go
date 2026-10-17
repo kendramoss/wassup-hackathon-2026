@@ -71,7 +71,7 @@ func TestVertexRequestAndResponse(t *testing.T) {
 		t.Errorf("path = %s", path)
 	}
 	gc := got["generationConfig"].(map[string]any)
-	if gc["temperature"] != 0.0 || gc["responseMimeType"] != "application/json" || gc["maxOutputTokens"] != 500.0 || gc["responseJsonSchema"] == nil {
+	if gc["temperature"] != 0.0 || gc["responseMimeType"] != "application/json" || gc["maxOutputTokens"] != 500.0 || gc["responseJsonSchema"] == nil || gc["seed"] != float64(Seed) {
 		t.Errorf("generationConfig = %v", gc)
 	}
 	if got["systemInstruction"] == nil || got["tools"] == nil {

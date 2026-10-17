@@ -462,3 +462,19 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 ## D78 — Pause between model calls (17 Oct)
 - Production's first tub-light plan (`case_100715a11651`, `backend-00043-bvb`) predicted China 0.98, then the three moves the engine called Thailand never got a precedent check: each verifier call died with Vertex HTTP 504 "Deadline expired" after four attempts. The planner runs the baseline and every move together (`PLANNER_CONCURRENCY` 8), so one search puts the engine and several verifier loops on Vertex at once.
 - **Decision:** `LLM_CALL_GAP` (default 0; production 8s) makes every model client — engine, flash fallback, verifier — share one gate. The next call starts only after the previous one has returned and the gap has elapsed. Cloud Run's request timeout is 900s so a paced plan search can finish. The bar, the prompt and the heat-gun verdict are unchanged.
+
+## D76 — A fixed seed on every model call (17 Oct)
+- **Why the check picked different rulings run to run.** Temperature 0 is not enough on Gemini. The verifier's first request, captured and sent unchanged 5 times, came back with 5 different sets of searches. Each different search turned up different rulings, so each run anchored on a different supporting ruling (D75). With a fixed seed, the same request returned the same searches 5 of 5 times, and 19 of 20 in a second test.
+- **Change.** `llm.Seed` (20261017) is sent as `generationConfig.seed` on every Vertex call: engine, verifier, router, clarify, agent and fallback.
+- **Measured** (dev flip pairs, known-a, verifier-v2, LiteLLM proxy with the same seed, two runs; heat-gun pair excluded):
+
+  | | unseeded (D74/D75 runs) | seeded |
+  |---|---|---|
+  | identical verdict, rulings and confidence | 13 of 54 | **21 of 54** |
+  | different supporting ruling or verdict | 10 of 54 | 9 of 54 |
+  | real changes shown at ≥ 0.92 | 16 and 21 of 46 | 17 and 18 of 46 |
+  | wrong at ≥ 0.92 | 0 | 0 |
+
+  Results: `eval/results/flips-dev-verifier-v2-seed-run{1,2}-known-a-litellm.*`.
+- **What the seed does not fix.** Google documents the seed as best effort. A trace of single pairs showed seeded runs that matched turn for turn, then differed at one turn (for example one run with 100 output tokens and the others with 101), and from there the agent searched and read differently. This persists with thinking off. The serving side is not bit-for-bit repeatable, and a multi-turn agent turns a one-token difference into a different ruling. The production guarantee that the same input gets the same answer remains the verdict cache (D31, D50). The seed makes a fresh run more likely to agree with an earlier one.
+- Cached verdicts are kept (the cache key does not include the seed), so the demo's stored verdict is not re-rolled.
