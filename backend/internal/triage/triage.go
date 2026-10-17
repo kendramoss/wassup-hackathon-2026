@@ -133,6 +133,32 @@ func Pharma(p domain.Prediction, fastPath float64) domain.Triage {
 	return domain.Triage{Route: domain.RouteNeedsReview, Reason: PharmaPrefix + ": a new regime without a held-out result yet; an expert reviews every pharmaceutical case"}
 }
 
+// Fallback routes a prediction the fallback model made, because the primary
+// engine was unavailable (D56). fastPath 0 always reviews, even when
+// confidence would clear the ordinary bar. A positive fastPath auto-accepts
+// only at or above that bar, and only in scope.
+func Fallback(p domain.Prediction, fastPath float64, inScope bool, scopeReason string) domain.Triage {
+	if !inScope {
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "out of scope: " + scopeReason}
+	}
+	if fastPath > 0 && p.Confidence >= fastPath {
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("answered by the fallback model (%s); confidence %.2f ≥ %.2f", p.Trace.ModelID, p.Confidence, fastPath)}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: FallbackReason(p.Trace.ModelID)}
+}
+
+// FallbackReason is the review reason when the fallback model answered and
+// FALLBACK_FAST_PATH does not auto-accept.
+func FallbackReason(modelID string) string {
+	return fmt.Sprintf("answered by the fallback model (%s) because the primary engine was unavailable", modelID)
+}
+
+// AnsweredByFallback reports whether trace.model_id is a model other than
+// the primary engine. An empty trace is not a fallback answer.
+func AnsweredByFallback(modelID, primary string) bool {
+	return modelID != "" && modelID != primary
+}
+
 // WithClarify refines a needs_review decision with the clarify review: when
 // no earlier ruling is on point and there are questions to ask, the case
 // goes back to the requester first (needs_info). Auto decisions and

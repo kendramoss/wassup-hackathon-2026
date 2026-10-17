@@ -64,6 +64,21 @@ type Config struct {
 	EngineModel   string
 	RouterModel   string
 	VerifierModel string
+	// FallbackEngineModel is called once when the engine's primary model
+	// ends in a 429, 503, 504 or deadline (D73). The default is the base
+	// model gemini-3.8-flash. FALLBACK_ENGINE_MODEL=off disables it.
+	// The fallback client uses FallbackEngineLocation (global, where
+	// gemini-3.8-flash is served); the primary client stays on GCPLocation.
+	FallbackEngineModel    string
+	FallbackEngineLocation string
+	// EngineAttempts is how many times the primary engine model is tried
+	// before that fallback. 0 means 2 when a fallback is configured; the
+	// shared client used by the router, verifier, clarify and agent keeps
+	// LLMMaxRetries.
+	EngineAttempts int
+	// FallbackFastPath is the auto-accept bar for a prediction the fallback
+	// model made. 0 (the default) always sends it to review.
+	FallbackFastPath float64
 
 	// Model call behaviour.
 	LLMTimeout      time.Duration
@@ -211,23 +226,27 @@ func Load() (Config, error) { return FromEnv(os.Getenv) }
 func FromEnv(getenv func(string) string) (Config, error) {
 	e := env{get: getenv}
 	c := Config{
-		Port:                 e.str("PORT", "8080"),
-		LLMProvider:          strings.ToLower(e.str("LLM_PROVIDER", ProviderVertex)),
-		GCPProject:           e.str("GOOGLE_CLOUD_PROJECT", ""),
-		GCPLocation:          e.str("GOOGLE_CLOUD_LOCATION", "global"),
-		OnCloudRun:           e.str("K_SERVICE", "") != "",
-		EngineModel:          e.str("ENGINE_MODEL", "gemini-4-argon"),
-		RouterModel:          e.str("ROUTER_MODEL", "gemini-3.8-flash"),
-		VerifierModel:        e.str("VERIFIER_MODEL", "gemini-4-argon"),
-		LLMTimeout:           e.duration("LLM_TIMEOUT", 30*time.Second), // per attempt; 4 attempts fit Cloud Run's 300 s (D54)
-		LLMMaxRetries:        e.integer("LLM_MAX_RETRIES", 3),
-		MaxOutputTokens:      e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
-		PrecedentK:           e.integer("PRECEDENT_K", 5),
-		FastPathConfidence:   e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
-		PlanConfidence:       e.float("PLAN_CONFIDENCE", DefaultPlanBar),
-		VerifierMaxToolCalls: e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
-		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
-		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
+		Port:                   e.str("PORT", "8080"),
+		LLMProvider:            strings.ToLower(e.str("LLM_PROVIDER", ProviderVertex)),
+		GCPProject:             e.str("GOOGLE_CLOUD_PROJECT", ""),
+		GCPLocation:            e.str("GOOGLE_CLOUD_LOCATION", "global"),
+		OnCloudRun:             e.str("K_SERVICE", "") != "",
+		EngineModel:            e.str("ENGINE_MODEL", "gemini-4-argon"),
+		RouterModel:            e.str("ROUTER_MODEL", "gemini-3.8-flash"),
+		VerifierModel:          e.str("VERIFIER_MODEL", "gemini-4-argon"),
+		FallbackEngineModel:    fallbackModel(e.str("FALLBACK_ENGINE_MODEL", "gemini-3.8-flash")),
+		FallbackEngineLocation: e.str("FALLBACK_ENGINE_LOCATION", "global"),
+		EngineAttempts:         e.integer("ENGINE_ATTEMPTS", 0),
+		FallbackFastPath:       e.float("FALLBACK_FAST_PATH", 0),
+		LLMTimeout:             e.duration("LLM_TIMEOUT", 30*time.Second), // per attempt; 4 attempts fit Cloud Run's 300 s (D54)
+		LLMMaxRetries:          e.integer("LLM_MAX_RETRIES", 3),
+		MaxOutputTokens:        e.integer("LLM_MAX_OUTPUT_TOKENS", 8000),
+		PrecedentK:             e.integer("PRECEDENT_K", 5),
+		FastPathConfidence:     e.float("FAST_PATH_CONFIDENCE", DefaultFastPath),
+		PlanConfidence:         e.float("PLAN_CONFIDENCE", DefaultPlanBar),
+		VerifierMaxToolCalls:   e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
+		VerifierVotes:          e.integer("VERIFIER_VOTES", 1),
+		PlannerConcurrency:     e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
 		LabelsPath:         e.str("LABELS_PATH", "data/labels.jsonl"),
 		FactsDir:           e.str("CORPUS_FACTS_DIR", "data/facts"),
@@ -347,6 +366,11 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		defCache = VerdictsFirestore
 	}
 	c.VerifierCacheStore = strings.ToLower(e.str("VERIFIER_CACHE_STORE", defCache))
+	// Two attempts, then the fallback: 4 attempts × 30 s plus backoff can
+	// take about two minutes before any other model is asked (D56).
+	if c.FallbackEngineModel != "" && c.EngineAttempts == 0 {
+		c.EngineAttempts = 2
+	}
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
@@ -494,6 +518,18 @@ func (c Config) validate() error {
 	if c.LLMTimeout <= 0 {
 		bad("LLM_TIMEOUT must be positive, got %s", c.LLMTimeout)
 	}
+	if c.EngineAttempts < 0 {
+		bad("ENGINE_ATTEMPTS must be 0 (default) or positive, got %d", c.EngineAttempts)
+	}
+	if c.FallbackEngineModel != "" && c.EngineAttempts < 1 {
+		bad("ENGINE_ATTEMPTS must be at least 1 when FALLBACK_ENGINE_MODEL is set, got %d", c.EngineAttempts)
+	}
+	if c.FallbackEngineModel != "" && c.FallbackEngineLocation == "" {
+		bad("FALLBACK_ENGINE_LOCATION must not be empty when FALLBACK_ENGINE_MODEL is set")
+	}
+	if c.FallbackFastPath < 0 || c.FallbackFastPath > 1 {
+		bad("FALLBACK_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.FallbackFastPath)
+	}
 	return errors.Join(errs...)
 }
 
@@ -502,8 +538,12 @@ func (c Config) FamilyBars() bool { return c.FastPathByFamily == "on" }
 
 // String renders the config for startup logs; it holds no secrets.
 func (c Config) String() string {
-	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s cases=%s",
-		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, c.PrecedentK,
+	fallback := "off"
+	if c.FallbackEngineModel != "" {
+		fallback = fmt.Sprintf("%s@%s attempts=%d fast_path=%.2f", c.FallbackEngineModel, c.FallbackEngineLocation, c.EngineAttempts, c.FallbackFastPath)
+	}
+	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s cloud_run=%t verifier_search=%s facts=%s cases=%s",
+		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, fallback, c.PrecedentK,
 		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore)
 }
 
@@ -511,6 +551,15 @@ func (c Config) String() string {
 type env struct {
 	get  func(string) string
 	errs []error
+}
+
+// fallbackModel treats "off" as disabled. An empty value is not reached:
+// str already substitutes the default.
+func fallbackModel(v string) string {
+	if strings.EqualFold(v, "off") {
+		return ""
+	}
+	return v
 }
 
 func (e *env) str(key, def string) string {

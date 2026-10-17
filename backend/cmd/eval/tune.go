@@ -38,9 +38,10 @@ import (
 // is never used to choose epochs.
 const tuneCheckPercent = 10
 
-// correctedConfidence is the target confidence when the engine's origin was
-// wrong and the target carries CBP's origin instead.
-const correctedConfidence = 0.9
+// absentCorrectedConfidence is the target confidence when the engine named
+// the wrong origin, so its recorded confidence is not a confidence in CBP's
+// origin (D56). A constant 0.9 would teach one confidence on every correction.
+const absentCorrectedConfidence = 0.75
 
 func tuneSplitCmd(args []string) error {
 	fl := flag.NewFlagSet("tunesplit", flag.ExitOnError)
@@ -259,7 +260,9 @@ func writeTuneData(ctx context.Context, path string, rows []evalkit.Row, store, 
 // reasoning. When the engine's origin was right, its essential character,
 // decisive step, flip and confidence are kept. When it was wrong, its decisive
 // step and flip argued for the wrong country, so the decisive step becomes
-// CBP's holding, flip is null and confidence is correctedConfidence.
+// CBP's holding, flip is null and confidence is the engine's own confidence
+// for CBP's origin when that is what the row recorded, otherwise
+// absentCorrectedConfidence (D56).
 func tuneTargetFor(row evalkit.Row, r domain.Ruling, reasoning string) tuneTarget {
 	t := tuneTarget{Origin: r.Origin, Reasoning: reasoning}
 	if len(row.KeyFactors) > 0 {
@@ -274,6 +277,18 @@ func tuneTargetFor(row evalkit.Row, r domain.Ruling, reasoning string) tuneTarge
 		return t
 	}
 	t.DecisiveStep = corpus.Truncate(r.Holding, 400)
-	t.Confidence = correctedConfidence
+	t.Confidence = correctedTargetConfidence(row, r.Origin)
 	return t
+}
+
+// correctedTargetConfidence is the confidence to teach when the target origin
+// is CBP's and the engine named something else. The row's confidence belongs
+// to row.Pred. It is the engine's confidence for CBP's origin only when the
+// engine named that origin; otherwise it is not available and the target is
+// absentCorrectedConfidence.
+func correctedTargetConfidence(row evalkit.Row, gold string) float64 {
+	if domain.NormalizeCountry(row.Pred) == domain.NormalizeCountry(gold) && row.Confidence > 0 && row.Confidence <= 1 {
+		return row.Confidence
+	}
+	return absentCorrectedConfidence
 }

@@ -91,15 +91,20 @@ func run(logger *slog.Logger, smoke bool) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	model, err := newModel(ctx, cfg, logger)
+	base, err := newBase(ctx, cfg)
 	if err != nil {
 		return err
 	}
+	model := llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, time.Second), logger)
 	if smoke {
 		return runSmoke(ctx, model, cfg)
 	}
+	engineModel, err := newEngineModel(ctx, cfg, base, model, logger)
+	if err != nil {
+		return err
+	}
 
-	deps, err := newDeps(cfg, model, logger)
+	deps, err := newDeps(cfg, model, engineModel, logger)
 	if err != nil {
 		return err
 	}
@@ -121,46 +126,77 @@ func run(logger *slog.Logger, smoke bool) error {
 	return nil
 }
 
-// newModel builds the configured provider wrapped with retry and logging.
-func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {
-	var base llm.Model
+// newBase builds the configured provider with no retry. The router, verifier,
+// clarify and agent share a fully retried client; the engine may use a
+// shorter retry plus a fallback (D56).
+func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 	switch cfg.LLMProvider {
 	case config.ProviderVertex:
-		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
-		if err != nil {
-			return nil, err
-		}
-		base = v
+		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 	case config.ProviderFake:
 		// Every call gets the engine's JSON, except the case agent, which
 		// gets a plain sentence so Ask shows an answer in local runs.
-		base = &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		return &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
 			if strings.Contains(req.System, "trade-compliance lead") {
 				return llm.Response{Text: "This is the local fake model, so there is no real answer here. With LLM_PROVIDER=vertex the agent reads the case and earlier CBP rulings and answers in plain words."}, nil
 			}
 			// Report some usage so the daily spend cap (D59) can be exercised locally.
 			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
-		}}
+		}}, nil
 	default:
 		return nil, fmt.Errorf("unknown LLM provider %q", cfg.LLMProvider)
 	}
-	return llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, time.Second), logger), nil
+}
+
+// newEngineModel is the model the origin, textile, USMCA and pharma engines
+// call. With FALLBACK_ENGINE_MODEL=off it is the shared retried client. With
+// a fallback (default gemini-3.8-flash), the primary is tried EngineAttempts
+// times and then the fallback model is called once, from a client in
+// FallbackEngineLocation (global).
+func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, logger *slog.Logger) (llm.Model, error) {
+	if cfg.FallbackEngineModel == "" {
+		return shared, nil
+	}
+	primary := llm.WithLogging(llm.WithRetry(base, cfg.EngineAttempts-1, time.Second), logger)
+	var fb llm.Model
+	// The fallback gets its own budget. A short LLM_TIMEOUT is what makes the
+	// primary hit a deadline; the one fallback call still has time to answer.
+	fbTimeout := cfg.LLMTimeout
+	if fbTimeout < 60*time.Second {
+		fbTimeout = 60 * time.Second
+	}
+	switch cfg.LLMProvider {
+	case config.ProviderVertex:
+		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.FallbackEngineLocation, Timeout: fbTimeout})
+		if err != nil {
+			return nil, err
+		}
+		fb = v
+	default:
+		fb = base
+	}
+	logger.Info("engine fallback on", "model", cfg.FallbackEngineModel, "location", cfg.FallbackEngineLocation, "primary_attempts", cfg.EngineAttempts, "fast_path", cfg.FallbackFastPath)
+	return llm.WithFallback(primary, llm.WithLogging(fb, logger), cfg.FallbackEngineModel), nil
 }
 
 // newDeps loads the corpus and builds engine, router, verifier and planner.
-func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.Deps, error) {
+// model is the shared client. engineModel is the engine's client, which may
+// fall back to another model.
+func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logger) (httpapi.Deps, error) {
 	cases, err := newCases(context.Background(), cfg, logger)
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
 	// Every model call counts toward the daily spend cap (D59), on Firestore
-	// when cases are there so all instances share one total.
+	// when cases are there so all instances share one total. The engine client
+	// is wrapped on its own: with a fallback it is not the shared client.
 	var spendStore spend.Store = spend.NewMemory()
 	if fs, ok := cases.(*store.Firestore); ok {
 		spendStore = fs.Spend()
 	}
 	meter := spend.New(spendStore, cfg.DailySpendCapUSD)
 	model = meter.Model(model)
+	engineModel = meter.Model(engineModel)
 	if cfg.DailySpendCapUSD > 0 {
 		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
 	}
@@ -176,7 +212,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		return httpapi.Deps{}, fmt.Errorf("corpus: no precedent facts in %s (run: go run ./cmd/corpus fetch && go run ./cmd/corpus build)", cfg.FactsDir)
 	}
 	logger.Info("corpus loaded", "precedents", pool.Len(), "facts_dir", cfg.FactsDir)
-	eng := engine.New(model, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
+	eng := engine.New(engineModel, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
 	crossClient := cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")
 	var searcher verifier.Searcher = verifier.CROSS{Client: crossClient}
@@ -209,7 +245,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 			tpool = corpus.WithReasoning(tpool, reasons)
 			opts.System, opts.Version, opts.PrecedentReasoning = engine.TextileSystem2, engine.TextileVersion2, true
 		}
-		textileEng = engine.New(model, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
+		textileEng = engine.New(engineModel, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
 	var precedents httpapi.PrecedentStore = pool
@@ -226,7 +262,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		if upool.Len() == 0 {
 			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
 		}
-		usmcaEng = engine.New(model, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+		usmcaEng = engine.New(engineModel, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
 		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
 		// looks them up here too so their details are not lost.
@@ -245,7 +281,7 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 				ppool = append(ppool, r)
 			}
 		}
-		pharmaEng = engine.New(model, retrieval.NewBM25(ppool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+		pharmaEng = engine.New(engineModel, retrieval.NewBM25(ppool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
 		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
 	}
@@ -377,49 +413,50 @@ func newDeps(cfg config.Config, model llm.Model, logger *slog.Logger) (httpapi.D
 		logger.Info("rate limits counted in fixed windows in memory")
 	}
 	return httpapi.Deps{
-		Demos:           ds,
-		Engine:          predictor,
-		Router:          router.New(model, cfg.RouterModel, 2000),
-		Agent:           caseagent.New(model, cfg.EngineModel, searcher, predictor),
-		Extractor:       extract.New(model, cfg.EngineModel),
-		Clarifier:       clarify.New(model, cfg.EngineModel, 3000),
-		Precedents:      precedents,
-		Planner:         planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
-		Rulings:         crossClient,
-		Cases:           cases,
-		Templates:       tmpls,
-		Summary:         evalsummary.Load,
-		FastPathConf:    cfg.FastPathConfidence,
-		PlanConfidence:  cfg.PlanConfidence,
-		Provider:        model.Provider(),
-		EngineModel:     cfg.EngineModel,
-		RouterModel:     cfg.RouterModel,
-		VerifierModel:   cfg.VerifierModel,
-		Logger:          logger,
-		Limits:          httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
-		RateStore:       rateStore,
-		CasesListLimit:  cfg.CasesListLimit,
-		CaseOwnership:   cfg.CaseOwnership,
-		BOMVersions:     cfg.BOMVersions == "on",
-		Teams:           cfg.Teams,
-		Users:           users,
-		Workspaces:      workspaces,
-		APIKeys:         keys,
-		StreamPredict:   cfg.StreamPredictOn(),
-		Spend:           meter,
-		AdminToken:      cfg.AdminToken,
-		Duty:            dutyTable,
-		LiveMFN:         liveMFN,
-		Textile:         textile,
-		TextileFastPath: cfg.TextileFastPath,
-		USMCA:           usmca,
-		USMCAFastPath:   cfg.USMCAFastPath,
-		Pharma:          pharma,
-		PharmaFastPath:  cfg.PharmaFastPath,
-		FamilyBars:      familyBars,
-		HTS:             htsSuggester,
-		ExportCFR177:    cfg.ExportCFR177,
-		Checks:          []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
+		Demos:            ds,
+		Engine:           predictor,
+		Router:           router.New(model, cfg.RouterModel, 2000),
+		Agent:            caseagent.New(model, cfg.EngineModel, searcher, predictor),
+		Extractor:        extract.New(model, cfg.EngineModel),
+		Clarifier:        clarify.New(model, cfg.EngineModel, 3000),
+		Precedents:       precedents,
+		Planner:          planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Rulings:          crossClient,
+		Cases:            cases,
+		Templates:        tmpls,
+		Summary:          evalsummary.Load,
+		FastPathConf:     cfg.FastPathConfidence,
+		FallbackFastPath: cfg.FallbackFastPath,
+		PlanConfidence:   cfg.PlanConfidence,
+		Provider:         model.Provider(),
+		EngineModel:      cfg.EngineModel,
+		RouterModel:      cfg.RouterModel,
+		VerifierModel:    cfg.VerifierModel,
+		Logger:           logger,
+		Limits:           httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
+		RateStore:        rateStore,
+		CasesListLimit:   cfg.CasesListLimit,
+		CaseOwnership:    cfg.CaseOwnership,
+		BOMVersions:      cfg.BOMVersions == "on",
+		Teams:            cfg.Teams,
+		Users:            users,
+		Workspaces:       workspaces,
+		APIKeys:          keys,
+		StreamPredict:    cfg.StreamPredictOn(),
+		Spend:            meter,
+		AdminToken:       cfg.AdminToken,
+		Duty:             dutyTable,
+		LiveMFN:          liveMFN,
+		Textile:          textile,
+		TextileFastPath:  cfg.TextileFastPath,
+		USMCA:            usmca,
+		USMCAFastPath:    cfg.USMCAFastPath,
+		Pharma:           pharma,
+		PharmaFastPath:   cfg.PharmaFastPath,
+		FamilyBars:       familyBars,
+		HTS:              htsSuggester,
+		ExportCFR177:     cfg.ExportCFR177,
+		Checks:           []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}, nil
 }
 

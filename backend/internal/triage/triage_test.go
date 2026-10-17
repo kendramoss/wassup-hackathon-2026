@@ -79,6 +79,24 @@ func TestPharma(t *testing.T) {
 	}
 }
 
+func TestFallbackAlwaysReviewsUnlessFastPathSet(t *testing.T) {
+	p := domain.Prediction{Origin: "China", Confidence: 0.99, Trace: domain.Trace{ModelID: "tuned-flash"}}
+	got := Fallback(p, 0, true, "")
+	want := "answered by the fallback model (tuned-flash) because the primary engine was unavailable"
+	if got.Route != domain.RouteNeedsReview || got.Reason != want {
+		t.Errorf("default = %+v", got)
+	}
+	if auto := Fallback(p, 0.95, true, ""); auto.Route != domain.RouteAuto {
+		t.Errorf("fast path = %+v", auto)
+	}
+	if below := Fallback(domain.Prediction{Origin: "China", Confidence: 0.90, Trace: p.Trace}, 0.95, true, ""); below.Route != domain.RouteNeedsReview || below.Reason != want {
+		t.Errorf("below fallback bar = %+v", below)
+	}
+	if oos := Fallback(p, 0.95, false, "pharma"); oos.Route != domain.RouteNeedsReview || !strings.Contains(oos.Reason, "out of scope") {
+		t.Errorf("out of scope = %+v", oos)
+	}
+}
+
 func TestWithClarify(t *testing.T) {
 	review := domain.Triage{Route: domain.RouteNeedsReview, Reason: "confidence 0.80 below 0.95"}
 	if got := WithClarify(review, true, 2); got.Route != domain.RouteNeedsInfo || got.Validate() != nil {

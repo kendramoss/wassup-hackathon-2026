@@ -279,6 +279,25 @@ func TestRenderUserWithReasoningIsSent(t *testing.T) {
 	}
 }
 
+func TestTraceModelIDIsTheFallback(t *testing.T) {
+	primary := &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
+		return llm.Response{}, &llm.APIError{Provider: "vertex", StatusCode: 429, Body: "Resource exhausted"}
+	}}
+	fb := llm.FakeText(`{"origin_country":"Thailand","essential_character":"motor","decisive_step":"motor in Thailand","flip":null,"confidence":0.8,"reasoning":"r"}`)
+	const id = "projects/p/locations/us/endpoints/9"
+	e := New(llm.WithFallback(primary, fb, id), nil, Options{Model: "gemini-4-argon"})
+	res, err := e.Predict(context.Background(), domain.Case{ID: "case_1", Date: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), Facts: "motor in Thailand"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Prediction.Trace.ModelID != id || res.Prediction.Origin != "Thailand" {
+		t.Errorf("trace = %+v origin %s", res.Prediction.Trace, res.Prediction.Origin)
+	}
+	if fb.Calls()[0].Model != id {
+		t.Errorf("fallback was asked for %q", fb.Calls()[0].Model)
+	}
+}
+
 func TestTextilePromptReplacesSystemAndVersion(t *testing.T) {
 	f := llm.FakeText(`{"origin_country":"Vietnam","essential_character":"(c)(2)","decisive_step":"knit in Vietnam","flip":null,"confidence":0.9,"reasoning":"r"}`)
 	e := New(f, nil, Options{Model: "m", System: TextileSystem, Version: TextileVersion})
