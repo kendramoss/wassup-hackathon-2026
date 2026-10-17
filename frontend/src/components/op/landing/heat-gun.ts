@@ -42,6 +42,10 @@ export type HeatGun = {
 
 // The shown heat-gun plan (D74): motor-fan assembly + switch, cord and minor parts.
 const MOVING: GroupKey[] = ["motor", "minor"];
+// Compact groups flip as they cross; the switch, cord and minor parts are
+// spread across the gun (cord, end cap, knob), so a flip would swing them
+// through the body. They only lift.
+const FLIPS: GroupKey[] = ["motor", "pcba"];
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 export function createHeatGun({
@@ -434,7 +438,7 @@ export function createHeatGun({
       g.node.position.copy(g.pivot).addScaledVector(g.explode, ex);
       if (moving && !reduce) {
         g.node.position.y += Math.sin(Math.PI * t) * 0.4; // lifts across to Thailand
-        g.node.rotation.x = t * Math.PI * 2;
+        g.node.rotation.x = FLIPS.includes(g.key) ? t * Math.PI * 2 : 0;
       }
       const cn = g.country === "China" && !(moving && t > 0.5);
       lineCol.copy(g.country === "China" ? C.ok : C.ink).lerp(C.ink, t);
