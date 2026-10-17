@@ -49,6 +49,14 @@
       "version": "extract-v3",
       "sha256": "1ebb50b968f0d7ca9be1977490fd13d30090e90712f22465d4826dee338e2235"
     },
+    "nearmiss.system": {
+      "version": "near-miss-v1",
+      "sha256": "c684ade85b7064912e7581a49572d03bfc99f34e1201f7b1825f7adb48520786"
+    },
+    "nearmiss.user": {
+      "version": "near-miss-v1",
+      "sha256": "f241528022c3e6aa43da6f986d1e0a2effef64c414203fe4d86dbccbab595945"
+    },
     "router.system": {
       "version": "router-v2",
       "sha256": "7b6bfeec948b5b66a03cf58b6a0d17e2fb9475e1c9825bfbfa686f6b37c91904"
@@ -72,6 +80,14 @@
     "verifier.system2": {
       "version": "verifier-v2",
       "sha256": "e205bd021cc71493d1194f2a9f69b0eefe74057ad00651398892b307d0ac3c4a"
+    },
+    "verifier.system2-product": {
+      "version": "verifier-v2-product",
+      "sha256": "6e46996715be47722e68269c48b065f8aae2af410f1244e524595af830ce2cb5"
+    },
+    "verifier.system2-skeptic": {
+      "version": "verifier-v2-skeptic",
+      "sha256": "a4ef097db30b3825f7d7c72229ec443a0afed70805b00d31480edd35a97565ba"
     },
     "verifier.system3": {
       "version": "verifier-v3",

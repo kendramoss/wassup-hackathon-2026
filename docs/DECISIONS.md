@@ -503,3 +503,52 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Known-a had 1 proxy timeout (BA-N349038-N360390), counted as an error.
   - What the user sees, plans at ≥ 0.92, is unchanged or better, and nothing wrong clears the bar. Below the bar, 21 pairs is too few to tell the seed's effect from run-to-run noise.
   - Rows: `eval/results/flips-final-verifier-v2-seed-{unknown-a,known-a}-litellm.jsonl`.
+
+## D80 — The precedent check's search trail on every verdict (18 Oct)
+- The agentic precedent check is the planner's distinctive part, but the API returned only its conclusion: supporting ruling, counter-ruling, confidence. The verifier already recorded its tool calls (`verifier.Result.Steps`) and then dropped them.
+- `domain.Verdict.Trail` lists each search (query, plus the ruling numbers it returned) and each ruling read, in the order the agent made them. It is stored with the verdict, so a cached verdict replays its trail. Verdicts cached before this change have no trail; the field is omitted.
+- No model, prompt or cache-key change: verdicts and costs are unchanged. The frontend can show "searched …, read N345899, counter-searched …, found nothing against".
+
+## D83 — A panel of three views for checks near the bar, off by default (18 Oct)
+- With the seed (D76), repeating the same prompt mostly repeats the same answer, so extra identical runs add little (D76: 3 same-prompt votes, 52/54 runs agreeing, 3× the cost). Anas's idea: give the extra runs different views of how CBP could rule, so they cover more ground.
+- **Panel** (`VERIFIER_PANEL=on`, needs `VERIFIER_PROMPT=v2`): when the first check's confidence is in [`VERIFIER_PANEL_LOW`, `VERIFIER_PANEL_HIGH`) (default [0.89, 0.95)), two more checks run in parallel. Both keep v2's method and confidence scale and change only where they look first:
+  - **skeptic** (`verifier-v2-skeptic`): argues as the CBP import specialist and searches first for rulings that called the same move minor assembly.
+  - **product** (`verifier-v2-product`): searches first by what the finished product is, then by the moved part.
+- **Combining:** the panel keeps the majority on precedent support (a tie goes against support), the median confidence of that majority, and the citations of that median run. A counter-ruling found by any view is kept. `agreement` reports e.g. "2/3".
+- **Cache key unchanged:** the panel keys under its first checker's version, so turning it on never re-checks stored verdicts (demo verdicts stay, D56). It applies to new checks only.
+- **Measured** (dev flip pairs, known-a, seeded, LiteLLM proxy, two runs each, heat-gun pair excluded):
+
+  | | real changes shown at ≥ 0.92 | wrong at ≥ 0.92 | same shown/not-shown run to run | cost per check |
+  |---|---|---|---|---|
+  | single check (D76) | 17 / 18 | 0 | 51 / 54 | $0.034 |
+  | 3 votes, same prompt | 16 / 18 | 0 | 52 / 54 | $0.105 |
+  | **panel of 3 views** | **19 / 18** | **0** | **53 / 54** | **$0.061** |
+
+  Precedent-supported verdicts were all real changes at any confidence (33/33 and 32/32). The first attempt at this measurement hit LiteLLM proxy 403s from too many parallel agents (42 and 37 of 54 rows errored). It was discarded and re-run at 2 workers per run. These results are from that re-run. Rows: `eval/results/flips-dev-verifier-v2-panel-run{1,2}-known-a-litellm.jsonl`.
+- Held-out not run. Production stays off until Anas turns it on.
+
+## D81 — Near-miss advice: what would clear the bar (18 Oct)
+- A move whose precedent check lands just under the 0.92 plan bar is a dead end on the Plan page: the user sees "0.90, below the bar" and nothing more. The heat gun's closest moves sit there in every run (D74–D77).
+- **Change:** for the closest moves rejected as `below_confidence_bar` with check ≥ 0.85, one extra model call compares the move's facts with its supporting ruling, read through the verifier's own searcher (only rulings dated before the case, the case's own rulings excluded).
+  - It returns `near_miss {difference, would_match, ruling, trace}`: how the move differs from that ruling on the point CBP relied on, and what change to the setup would make the two match.
+  - At most two per search, highest check first.
+  - Prompt `near-miss-v1`, written before any measurement and fingerprinted in promptsnap (D72).
+  - Cached beside the verdicts (Firestore on Cloud Run, keys prefixed `nearmiss-`).
+  - Off by default: `NEAR_MISS_ADVICE=on`.
+- **Advice only.** It runs after every verdict is final. It never changes a verdict, the bar or `shown`, and a failed advice call leaves the move without advice. Tests check that verdicts and shown plans are identical with advice on, off and failing.
+- **Measured once** (LiteLLM proxy, seeded, verifier-v2, live CROSS, fresh cache; scratch build, 18 Oct):
+  - Heat gun: one move in the band, motor-fan assembly + PCBA at 0.90 on N342916. Advice: "Both setups perform final assembly and produce the PCBA and main housing in Thailand, and your setup goes further by making the motor and heating element in Thailand rather than China as in N342916. However, in N342916 ALL plastic parts were injection-molded in Thailand (along with some screws and the switch plate), whereas in your setup plastic parts like the knob, back cover, and support ring, as well as the switch and fasteners, are sourced from China." Would match: "Produce the knob, back cover, support ring, switch, and fasteners in Thailand instead of sourcing them from China." That is close to what CBP's real 2026 change did (N357771 moved the motor, fan, PCBA, knob, power cord, back cover and outer shells).
+  - Tub light: LED PCBA + lens at 0.90 on H331515. Advice: in H331515 the harness and end-caps came from the assembly country, while here the harness, lamp base and sealing come from China. Would match: make the harness and lamp base in Thailand. Moving them with the PCBA is the second shown plan (0.96), so the advice points at a plan the search already found.
+  - Cost: one call each, about 1,700–1,900 input and 150 output tokens, about $0.005 per search (promo) on top of $0.13–0.15 for the search. Latency 5–7 s, after the verdicts.
+  - In this run, the heat gun's motor-fan-alone move (production's closest, 0.90 on N325810) came back unsupported at 0.65, so it got no advice. The production demo case keeps its cached verdicts. Advice for it appears only after `NEAR_MISS_ADVICE=on` and a new search on that case, using its stored verdicts.
+  - Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-near-miss-v1-litellm.json`.
+
+## D82 — Clean held-out flip test: no rulings to build it from yet (18 Oct)
+- **Goal.** The 2026 flip pairs are partly contaminated: v1's FlipFinal sentence, which v2 keeps, was written after seeing failures on them (D74). A clean test needs CBP rulings published after the corpus cut-off (25 Sep 2026), built into flip pairs with the research pipeline and scored once with the frozen verifier.
+- **Pipeline reused, unchanged except the date.** `hackathon-research/experiments/origin-proof/scripts/collect_index.py`, with `CUTOFF = "2026-09-26"`, searched the same terms ("substantial transformation", "country of origin", "origin") in DATE_DESC order, 1 request a second, and found 1 candidate. A second probe (21 searches: "printed circuit board", "Vietnam", "Thailand", "Mexico", "substantial transformation", "country of origin", "classification", "tariff", "ruling", "marking", "China", "manufactured", "assembled", across the ALL/NY/HQ collections) found 2 rulings dated after 25 Sep 2026 in all of CROSS:
+  - H335012 (2 Oct 2026): a classification ruling for a colpocamera stand. It only restates the requester's claimed origin (Japan) and holds no origin, so it has no label and no scenarios.
+  - H364652 (15 Oct 2026): a coastwise-transport (Carriers) ruling.
+
+  The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
+- **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
+- The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).

@@ -102,6 +102,11 @@ type Config struct {
 	// majority; 1 (default) disables voting: 3 votes doubled plan-search time
 	// without making verdicts repeatable (D33).
 	VerifierVotes int
+	// VerifierPanel "on" gives checks with confidence in
+	// [VerifierPanelLow, VerifierPanelHigh) two second opinions from different
+	// views (skeptic, product) and keeps the majority (D83). Needs prompt v2.
+	VerifierPanel                       string
+	VerifierPanelLow, VerifierPanelHigh float64
 	// VerifierPrompt is v1 or v2 (D74): v2 adds a counter-ruling search and a
 	// confidence scale tied to the rulings read.
 	VerifierPrompt     string
@@ -213,6 +218,12 @@ type Config struct {
 	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
 	ExportCFR177 bool
 	exportCFR177 string // as given, checked by validate
+	// NearMissAdvice (on|off, default off) adds near-miss advice to the
+	// closest plan moves just under the plan bar: what differs from the
+	// supporting ruling and what would match it (D81). One model call each,
+	// at most two per search; it never changes a verdict.
+	NearMissAdvice bool
+	nearMissAdvice string // as given, checked by validate
 	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
 	// as server-sent stage events when asked for text/event-stream (D71).
 	StreamPredict string
@@ -260,6 +271,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		PlanConfidence:         e.float("PLAN_CONFIDENCE", DefaultPlanBar),
 		VerifierMaxToolCalls:   e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		VerifierVotes:          e.integer("VERIFIER_VOTES", 1),
+		VerifierPanel:          strings.ToLower(e.str("VERIFIER_PANEL", "off")),
+		VerifierPanelLow:       e.float("VERIFIER_PANEL_LOW", 0.89),
+		VerifierPanelHigh:      e.float("VERIFIER_PANEL_HIGH", 0.95),
 		VerifierPrompt:         strings.ToLower(e.str("VERIFIER_PROMPT", "v2")),
 		PlannerConcurrency:     e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
@@ -351,6 +365,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("DUTY_LIVE_MFN must be on or off, got %q", v))
 	}
+	c.nearMissAdvice = strings.ToLower(e.str("NEAR_MISS_ADVICE", "off"))
+	c.NearMissAdvice = c.nearMissAdvice == "on" || c.nearMissAdvice == "true" || c.nearMissAdvice == "1"
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
@@ -398,6 +414,14 @@ func (c Config) validate() error {
 	if c.VerifierPrompt != "v1" && c.VerifierPrompt != "v2" && c.VerifierPrompt != "v3" {
 		bad("VERIFIER_PROMPT must be v1, v2 or v3, got %q", c.VerifierPrompt)
 	}
+	switch {
+	case c.VerifierPanel != "on" && c.VerifierPanel != "off":
+		bad("VERIFIER_PANEL must be on or off, got %q", c.VerifierPanel)
+	case c.VerifierPanel == "on" && c.VerifierPrompt != "v2":
+		bad("VERIFIER_PANEL=on needs VERIFIER_PROMPT=v2, got %q", c.VerifierPrompt)
+	case c.VerifierPanelLow < 0 || c.VerifierPanelHigh > 1 || c.VerifierPanelLow >= c.VerifierPanelHigh:
+		bad("VERIFIER_PANEL_LOW must be below VERIFIER_PANEL_HIGH, both in [0, 1], got %v and %v", c.VerifierPanelLow, c.VerifierPanelHigh)
+	}
 	switch c.LLMProvider {
 	case ProviderVertex:
 		if c.GCPProject == "" {
@@ -437,6 +461,11 @@ func (c Config) validate() error {
 	case "on", "true", "1", "off", "false", "0":
 	default:
 		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	switch c.nearMissAdvice {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("NEAR_MISS_ADVICE must be on or off, got %q", c.nearMissAdvice)
 	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)

@@ -178,6 +178,15 @@ func formatHits(hits []Hit) string {
 	return strings.Join(lines, "\n")
 }
 
+// hitIDs lists the ruling numbers of hits, in order.
+func hitIDs(hits []Hit) []string {
+	ids := make([]string, len(hits))
+	for i, h := range hits {
+		ids[i] = h.ID
+	}
+	return ids
+}
+
 var rulingRef = regexp.MustCompile(`\b[NH][0-9]{6}\b`)
 
 // FormatHits renders search hits as the tool result text agents read.

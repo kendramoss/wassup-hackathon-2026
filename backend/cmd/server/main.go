@@ -54,6 +54,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
@@ -228,7 +229,11 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			return httpapi.Deps{}, err
 		}
 	}
-	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt})
+	ver := verifier.NewWithPanel(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt},
+		cfg.VerifierPanel == "on", cfg.VerifierPanelLow, cfg.VerifierPanelHigh)
+	if cfg.VerifierPanel == "on" {
+		logger.Info("precedent-check panel on", "views", []string{verifier.ViewSkeptic, verifier.ViewProduct}, "low", cfg.VerifierPanelLow, "high", cfg.VerifierPanelHigh)
+	}
 	ver = verifier.NewMajority(ver, cfg.VerifierVotes) // the cache below stores the majority verdict
 	var textileEng *engine.Engine
 	if cfg.TextileEngine {
@@ -305,7 +310,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
-	var engineBlobs blob.Store
+	var engineBlobs, verdictBlobs blob.Store
 	switch cfg.VerifierCacheStore {
 	case config.VerdictsFirestore:
 		fs, ok := cases.(*store.Firestore)
@@ -315,7 +320,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			}
 		}
 		ver = verifier.NewCacheIn(ver, fs.Verdicts(), cfg.VerifierModel)
-		engineBlobs = fs.Blobs(store.EngineCollection)
+		engineBlobs, verdictBlobs = fs.Blobs(store.EngineCollection), fs.Verdicts()
 		logger.Info("verifier verdicts and engine predictions cached in Firestore", "collections", []string{store.VerdictCollection, store.EngineCollection})
 	case config.VerdictsFile:
 		vc, err := verifier.NewCache(ver, cfg.VerifierCacheDir, cfg.VerifierModel)
@@ -323,6 +328,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			return httpapi.Deps{}, err
 		}
 		ver = vc
+		verdictBlobs = verifier.DirBlobs{Dir: cfg.VerifierCacheDir}
 		dir := filepath.Join(filepath.Dir(filepath.Clean(cfg.VerifierCacheDir)), "engine-cache")
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
@@ -353,6 +359,17 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		if pharmaEng != nil { // the key includes the prompt version, so no clash with the other engines
 			pharma = engine.NewCache(pharmaEng, engineBlobs)
 		}
+	}
+	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}
+	if cfg.NearMissAdvice {
+		// Advice on the closest moves just under the plan bar (D81), cached
+		// beside the verdicts (keys are prefixed, so no clash).
+		var adv nearmiss.Adviser = nearmiss.New(model, cfg.VerifierModel, searcher, 1500)
+		if verdictBlobs != nil {
+			adv = nearmiss.NewCache(adv, verdictBlobs, cfg.VerifierModel)
+		}
+		planOpts.NearMiss = adv
+		logger.Info("near-miss advice on", "prompt", nearmiss.PromptVersion, "floor", planner.DefaultNearMissFloor, "max_per_search", planner.DefaultNearMissMax)
 	}
 	ds, err := demos.Load()
 	if err != nil {
@@ -427,7 +444,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		Extractor:             extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:            precedents,
-		Planner:               planner.New(tmpls, predictor, ver, planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}),
+		Planner:               planner.New(tmpls, predictor, ver, planOpts),
 		Rulings:               crossClient,
 		Cases:                 cases,
 		Templates:             tmpls,
