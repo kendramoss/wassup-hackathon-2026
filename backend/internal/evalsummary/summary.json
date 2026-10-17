@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T20:27:27Z",
+  "generated_at": "2026-10-17T09:02:46Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -332,6 +332,28 @@
       "split": "dev",
       "development_only": true,
       "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_final_unknown-a_plan_bar_precision",
+      "label": "Move check, held-out 2026 flip pairs (unknown-a): a precedent-supported check ≥ 0.85 was a real origin change",
+      "value": 1,
+      "ci_low": 0.7008,
+      "ci_high": 1,
+      "n": 9,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/flips-final-verifier-unknown-a-litellm.jsonl"
+    },
+    {
+      "key": "verifier_final_known-a_plan_bar_precision",
+      "label": "Move check, held-out 2026 flip pairs (known-a): a precedent-supported check ≥ 0.85 was a real origin change",
+      "value": 1,
+      "ci_low": 0.6756,
+      "ci_high": 1,
+      "n": 8,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/flips-final-verifier-known-a-litellm.jsonl"
     },
     {
       "key": "plan_heatgun_cost_usd",

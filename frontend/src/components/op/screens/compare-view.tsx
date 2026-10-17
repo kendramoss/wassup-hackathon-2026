@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { conf, money } from "@/lib/format";
+import { conf, money, PLAN_BAR } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { moveKey } from "../plan-bits";
@@ -96,7 +96,7 @@ function Compare({ id, c }: CaseCtx) {
           ) : top?.best ? (
             <>
               <div>
-                <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : "No country cleared the 0.92 bar"}</p>
+                <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : `No country cleared the ${PLAN_BAR} bar`}</p>
                 <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">
                   {anyPlan ? "" : "Closest: "}
                   {(top.best.description ?? "").replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "")} in{" "}
@@ -217,7 +217,7 @@ function Compare({ id, c }: CaseCtx) {
                           {t.best ? (
                             <>
                               <MiniRuler value={t.best.verdict?.confidence} />
-                              <span className="text-xs text-dim">check {conf(t.best.verdict?.confidence)} · bar 0.92</span>
+                              <span className="text-xs text-dim">check {conf(t.best.verdict?.confidence)} · bar {PLAN_BAR}</span>
                             </>
                           ) : (
                             "—"

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
+import { PLAN_BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
 import { checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
@@ -169,7 +169,7 @@ function DemoCard({ c }: { c: CaseSummary }) {
             <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr
           </>
         ) : full?.plan ? (
-          <span className="text-ask">No plan cleared the {BAR} bar</span>
+          <span className="text-ask">No plan cleared the {PLAN_BAR} bar</span>
         ) : (
           <span className="text-dim">No plan search yet</span>
         )}

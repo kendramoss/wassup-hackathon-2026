@@ -17,8 +17,10 @@ import (
 const DefaultFastPath = 0.92
 
 // DefaultPlanBar is the verifier confidence a precedent-supported plan needs
-// to be shown; it matches the auto-accept bar (D35).
-const DefaultPlanBar = 0.92
+// to be shown. D35 set it to 0.92 to match the auto-accept bar, untested; the
+// verifier's held-out run (D73) supports 0.85: every precedent-supported
+// check at or above it was a real origin change (dev 48/48, held-out 17/17).
+const DefaultPlanBar = 0.85
 
 // Provider names for LLM_PROVIDER.
 const (

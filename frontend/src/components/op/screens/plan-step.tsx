@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
-import { BAR, conf, isProxy, money } from "@/lib/format";
+import { PLAN_BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
@@ -183,7 +183,7 @@ function PlanScreen({ id, c, setCase }: CaseCtx) {
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
-                Each move is predicted by the origin engine and checked against earlier CBP rulings; {copy.plan.usually}. A plan is shown when its precedent check is at least {BAR}.
+                Each move is predicted by the origin engine and checked against earlier CBP rulings; {copy.plan.usually}. A plan is shown when its precedent check is at least {PLAN_BAR}.
               </p>
             </div>
             <div>
@@ -332,7 +332,7 @@ function sentence(p: Plan) {
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
   const v = plan.verdict?.confidence;
   return (
-    <Band left={`${below ? 0 : shown} of ${total} moves cleared the ${BAR} bar`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
+    <Band left={`${below ? 0 : shown} of ${total} moves cleared the ${PLAN_BAR} bar`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">

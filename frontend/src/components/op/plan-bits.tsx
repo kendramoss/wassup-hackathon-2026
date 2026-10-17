@@ -3,7 +3,7 @@
 import { useId } from "react";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
-import { money, pct } from "@/lib/format";
+import { money, pct, PLAN_BAR } from "@/lib/format";
 import { Country, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
@@ -43,8 +43,8 @@ export function movePhrase(p: Plan): string {
 // confident pass (DESIGN.md, demo seed run 2).
 export function checkWords(v: number | null | undefined): string {
   if (v === null || v === undefined) return "not checked";
-  if (Math.abs(v - 0.92) < 0.0005) return "exactly at the 0.92 bar";
-  return v > 0.92 ? "above the 0.92 bar" : "below the 0.92 bar";
+  if (Math.abs(v - PLAN_BAR) < 0.0005) return `exactly at the ${PLAN_BAR} bar`;
+  return v > PLAN_BAR ? `above the ${PLAN_BAR} bar` : `below the ${PLAN_BAR} bar`;
 }
 
 export const rejectionLabels: Record<string, string> = {

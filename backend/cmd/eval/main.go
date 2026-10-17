@@ -1342,6 +1342,35 @@ func summaryCmd(args []string) error {
 			items = append(items, item{Key: "verifier_" + mode + "_cost_usd", Label: lbl + ": cost per check (USD, promo)", Value: r4(cost / float64(n)), N: n, Split: "dev", DevelopmentOnly: true, Source: src})
 		}
 	}
+	// The precedent check on the held-out 2026 flip pairs (D73): precision of
+	// a precedent-supported check at or above the plan bar.
+	for _, mode := range []string{"unknown-a", "known-a"} {
+		f, err := os.Open(filepath.Join(*resultsDir, "flips-final-verifier-"+mode+"-litellm.jsonl"))
+		if err != nil {
+			continue
+		}
+		var k, n int
+		sc := bufio.NewScanner(f)
+		for sc.Scan() {
+			var r struct {
+				OriginChanged bool    `json:"origin_changed"`
+				Supported     bool    `json:"precedent_supported"`
+				Confidence    float64 `json:"confidence"`
+			}
+			if json.Unmarshal(sc.Bytes(), &r) != nil || !r.Supported || r.Confidence < config.DefaultPlanBar {
+				continue
+			}
+			n++
+			if r.OriginChanged {
+				k++
+			}
+		}
+		f.Close()
+		p, lo, hi := pct(k, n)
+		items = append(items, item{Key: "verifier_final_" + mode + "_plan_bar_precision",
+			Label: fmt.Sprintf("Move check, held-out 2026 flip pairs (%s): a precedent-supported check ≥ %.2f was a real origin change", mode, config.DefaultPlanBar),
+			Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n, Split: "final", Source: "eval/results/flips-final-verifier-" + mode + "-litellm.jsonl"})
+	}
 	if b, err := os.ReadFile(filepath.Join(*resultsDir, "plan-heatgun-2022-local-litellm.json")); err == nil {
 		var p struct {
 			Cost  float64       `json:"cost_usd_promo"`

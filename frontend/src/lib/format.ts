@@ -1,7 +1,9 @@
 // Formatting shared by every screen.
 
-// The auto-accept bar and the plan bar (D32, D35): 0.92 everywhere.
+// The auto-accept bar for a prediction (D32) and the plan bar for a precedent
+// check (D73) are different numbers measured on different tests.
 export const BAR = 0.92;
+export const PLAN_BAR = 0.85;
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

@@ -54,6 +54,7 @@ export function AccuracyPage() {
   const change = get("change_detection_heldout");
   const changeBase = get("change_detection_always_change_baseline");
   const movePrec = get("verifier_unknown-a_precision");
+  const moveHeld = get("verifier_final_unknown-a_plan_bar_precision");
   // Other regimes (D51, D53, D60): textile held-out and the router's routing.
   const texAcc = get("textile_final_accuracy");
   const texAuto = get("textile_final_conf95_accuracy");
@@ -253,7 +254,8 @@ export function AccuracyPage() {
               {movePrec && (
                 <li>
                   Move checks on the Plan step: {movePrec.n} of {movePrec.n} flagged moves were right ({ci0(movePrec)}) on a {get("verifier_unknown-a_cost_usd")?.n ?? 54}-pair
-                  development set, finding {pct(moveRec?.value, 0)} of real flips. Development set, not held out.
+                  development set, finding {pct(moveRec?.value, 0)} of real flips.
+                  {moveHeld ? ` On the held-out 2026 pairs, every plan the Plan step would show (check ≥ 0.85) was a real change: ${moveHeld.n} of ${moveHeld.n} (${ci0(moveHeld)}).` : " Development set, not held out."}
                 </li>
               )}
               <li>Not a ruling. A licensed broker confirms before anything is filed.</li>

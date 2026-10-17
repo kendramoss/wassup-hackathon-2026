@@ -92,7 +92,7 @@ export function Landing() {
                         ) : null}
                         {"for" in s && s.for ? (
                           <>
-                            : <RulingLink id={s.for} /> for, <RulingLink id={s.against!} /> against.
+                            {" "}(<RulingLink id={s.for} /> for; no counter-ruling found).
                           </>
                         ) : null}
                       </p>
@@ -237,14 +237,14 @@ export function Landing() {
                 <div className="bd">
                   <Skel widths={[100, 70, 45, 80]} />
                   <div className="real">
-                    <p className="duo">Make the motor-fan assembly and PCBA in Thailand</p>
+                    <p className="duo">Make the motor-fan assembly in Thailand</p>
                     <p className="gap">
                       <span className="chip ok">{copy.plan.supported}</span>
                     </p>
                     <p className="small">
-                      For <RulingLink id="N347421" /> · against <RulingLink id="N345859" />
+                      For <RulingLink id="N347421" /> · check 0.90
                     </p>
-                    <p className="duo small">The verifier agent searched for both.</p>
+                    <p className="duo small">The verifier agent also searched for a counter-ruling and found none.</p>
                   </div>
                 </div>
                 <div className="ft">Planner + verifier agent</div>
@@ -379,9 +379,7 @@ export function Landing() {
                 <b>{L.planMove}</b>
               </div>
               <div className="s r">
-                <span className="rul ag duo">
-                  Against · <RulingLink id="N345859" />
-                </span>
+                <span className="rul ag duo">Against · none found</span>
                 <span className="beam" />
               </div>
             </div>
