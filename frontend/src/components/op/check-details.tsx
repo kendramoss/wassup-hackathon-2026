@@ -25,13 +25,12 @@ export function Agreement({ verdict, className }: { verdict: Verdict | undefined
 }
 
 // The precedent check's own search path (D80), in the order it ran: each
-// search with the rulings it returned, then each ruling it read. Verdicts
+// search with the rulings it returned and each ruling read, as they
+// interleave (read N345899, then search for a counter-ruling). Verdicts
 // cached before D80 have no trail, and then nothing shows.
 export function CheckTrail({ verdict }: { verdict: Verdict | undefined }) {
   const trail = verdict?.trail ?? [];
   if (!trail.length) return null;
-  const searches = trail.filter((t) => t.tool === "search");
-  const reads = trail.filter((t) => t.tool === "read");
   return (
     <details className="group mt-1.5">
       <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 text-xs text-ok hover:underline [&::-webkit-details-marker]:hidden">
@@ -41,18 +40,18 @@ export function CheckTrail({ verdict }: { verdict: Verdict | undefined }) {
         How the check found this
       </summary>
       <ol className="mt-1.5 flex flex-col gap-1.5 border-l border-line pl-3 text-xs text-body">
-        {searches.map((t, i) => (
-          <li key={`s${i}`}>
-            <span className="text-dim">Searched</span> “{t.query}”
-            <span className="text-dim"> → </span>
-            {t.rulings?.length ? <Rulings ids={t.rulings} /> : <span className="text-dim">no rulings</span>}
-          </li>
-        ))}
-        {reads.map((t, i) => (
-          <li key={`r${i}`}>
-            <span className="text-dim">Read</span> {t.rulings?.length ? <Rulings ids={t.rulings} /> : <span className="text-dim">{t.query} (not found)</span>}
-          </li>
-        ))}
+        {trail.map((t, i) =>
+          t.tool === "read" ? (
+            <li key={i}>
+              <span className="text-dim">Read</span> {t.rulings?.length ? <Rulings ids={t.rulings} /> : <span className="text-dim">{t.query} (not found)</span>}
+            </li>
+          ) : (
+            <li key={i}>
+              <span className="text-dim">Searched</span> “{t.query}”<span className="text-dim"> → </span>
+              {t.rulings?.length ? <Rulings ids={t.rulings} /> : <span className="text-dim">no rulings</span>}
+            </li>
+          ),
+        )}
       </ol>
     </details>
   );
