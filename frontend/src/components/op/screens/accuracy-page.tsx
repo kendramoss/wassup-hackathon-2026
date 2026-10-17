@@ -308,6 +308,49 @@ export function AccuracyPage() {
           </p>
         </>
       )}
+      <HowBuilt />
     </Main>
+  );
+}
+
+// How the pieces fit, for anyone judging the Gen AI (#153). Model names and
+// settings are the backend defaults (internal/config); the Ask agent is ADK.
+const stages: { n: number; name: string; model: string; does: string }[] = [
+  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks the question is a substantial-transformation case; pharma and USMCA rulings go to a person." },
+  { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
+  { n: 3, name: "Triage", model: "0.92 bar", does: "At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
+  { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },
+  { n: 5, name: "Verifier agent", model: "Gemini 4 Argon", does: "For every move, searches for an earlier ruling that supports it and one that contradicts it. Only moves it supports past the bar are shown as plans." },
+  { n: 6, name: "Ask agent", model: "Gemini · ADK", does: "Answers questions about the case with tools to read the case and rulings, and re-runs the engine for what-ifs." },
+];
+
+function HowBuilt() {
+  return (
+    <section id="how-its-built" aria-labelledby="how-h" className="mt-10 border border-edge bg-sheet px-5 py-5 shadow-[4px_4px_0_var(--shadow)]">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="how-h" className="eyebrow">
+          How it&apos;s built
+        </h2>
+        <span className="text-[11.5px] text-dim">Gemini on Vertex AI · Go backend on Cloud Run · Next.js frontend on Cloud Run</span>
+      </div>
+      <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {stages.map((s) => (
+          <li key={s.n} className="relative border border-line bg-white px-4 py-3">
+            <p className="flex items-center gap-2 text-[13px] font-medium text-ink">
+              <span aria-hidden="true" className="inline-grid size-5 place-items-center rounded-full border border-ink text-[11px]">
+                {s.n}
+              </span>
+              {s.name}
+              <span className="ml-auto text-[11px] font-normal text-ok">{s.model}</span>
+            </p>
+            <p className="duo mt-1.5 text-[12.5px] text-body">{s.does}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="duo mt-4 max-w-[95ch] text-[12.5px] text-dim">
+        Product facts in, a broker-ready plan out: every answer cites the rulings it read, nothing reads rulings dated after the case, and a daily spend cap keeps model costs
+        bounded. The engine, router and verifier are measured above; the held-out numbers use rulings the system never saw.
+      </p>
+    </section>
   );
 }

@@ -103,6 +103,23 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
 
 // Money inputs: illustrative — editable. Group costs are yearly USD per
 // group and plant.
+// The duty note names the repo file it comes from; link it rather than show
+// a bare path (#154).
+const DUTY_SOURCES = "docs/DUTY-SOURCES.md";
+function DutyNote({ text }: { text: string }) {
+  const [before, ...rest] = text.split(DUTY_SOURCES);
+  if (!rest.length) return <>{text}</>;
+  return (
+    <>
+      {before}
+      <a href={`https://github.com/kendramoss/wassup-hackathon-2026/blob/main/${DUTY_SOURCES}`} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+        duty sources
+      </a>
+      {rest.join(DUTY_SOURCES)}
+    </>
+  );
+}
+
 export function EconomicsEditor({ value, onChange, product, countries }: { value: Economics; onChange: (e: Economics) => void; product?: Product; countries: string[] }) {
   const id = useId();
   const rates = value.duty_rates ?? {};
@@ -152,7 +169,7 @@ export function EconomicsEditor({ value, onChange, product, countries }: { value
         </fieldset>
       </div>
       {groups.length > 0 && plants.length > 0 && (
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 overflow-x-auto max-sm:hidden">
           <table className="w-full min-w-[480px] text-[13px]">
             <caption className="eyebrow mb-1.5 text-left">Yearly cost of each group, by plant (USD)</caption>
             <thead>
@@ -196,7 +213,45 @@ export function EconomicsEditor({ value, onChange, product, countries }: { value
           </table>
         </div>
       )}
-      {value.duty_rates_note && <p className="duo mt-3 text-xs text-dim">{value.duty_rates_note}</p>}
+      {/* Phones: one block per group with a labelled field per plant, so no
+          plant column hides off the right edge (#154). */}
+      {groups.length > 0 && plants.length > 0 && (
+        <div className="mt-4 flex flex-col gap-3 sm:hidden">
+          <p className="eyebrow">Yearly cost of each group, by plant (USD)</p>
+          {groups.map((g) => (
+            <fieldset key={g} className="border-t border-line pt-2">
+              <legend className="text-[13px] font-medium">{groupName(g)}</legend>
+              <div className="mt-1 grid grid-cols-2 gap-2">
+                {plants.map((p) => (
+                  <label key={p.id} className="flex flex-col gap-0.5 text-[11.5px] text-dim">
+                    {p.name || p.id}
+                    <input
+                      inputMode="numeric"
+                      className="w-full rounded-[2px] border border-line bg-white px-2 py-1.5 text-[13px] text-ink"
+                      value={costs[g]?.[p.id] ?? ""}
+                      onChange={(e) => {
+                        const n = num(e.target.value);
+                        const row = { ...(costs[g] ?? {}) };
+                        if (n === undefined || Number.isNaN(n)) delete row[p.id];
+                        else row[p.id] = n;
+                        onChange({ ...value, group_costs: { ...costs, [g]: row } });
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      )}
+      {value.duty_rates_note && (
+        <details className="mt-3 text-xs text-dim">
+          <summary className="inline-flex min-h-6 cursor-pointer items-center text-ok">Sources and caveats</summary>
+          <p className="duo mt-1">
+            <DutyNote text={value.duty_rates_note} />
+          </p>
+        </details>
+      )}
       <p className="mt-2 text-xs text-dim">
         {Object.entries(rates)
           .map(([c, r]) => `${c} ${pct(r)}`)

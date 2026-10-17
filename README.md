@@ -93,6 +93,8 @@ Model access is configured by environment only:
 
 The LiteLLM proxy used before Vertex access was removed (D49). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
+Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Could not reach the Origin Proof API". For UI work with no model calls and no cost, set `LLM_PROVIDER=fake` (fixed answers; the Accuracy page and demo data are still real).
+
 ```bash
 make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
 make smoke        # one live model call
