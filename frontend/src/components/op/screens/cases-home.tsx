@@ -107,7 +107,9 @@ export function CasesHome() {
 // with what CBP held as the headline instead of a prediction.
 function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
   // cbp_held reads "China (N328954)" or "Thailand (N359371, scenario I)".
-  const m = /^([^(]+?)s*(?:((.*)))?$/.exec(d.cbp_held ?? "");
+  const held = d.cbp_held ?? "";
+  const cut = held.indexOf(" (");
+  const m = held ? [held, cut < 0 ? held : held.slice(0, cut), cut < 0 ? "" : held.slice(cut + 2).replace(/\)$/, "")] : null;
   return (
     <Link
       href={`/cases/new?demo=${encodeURIComponent(d.id ?? "")}`}
