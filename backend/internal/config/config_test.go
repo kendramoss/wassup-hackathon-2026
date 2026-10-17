@@ -17,8 +17,12 @@ func TestDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.FallbackEngineModel != "" || c.EngineAttempts != 0 || c.FallbackFastPath != 0 || c.FallbackEngineLocation != "us" {
+	if c.FallbackEngineModel != "gemini-3.8-flash" || c.EngineAttempts != 2 || c.FallbackFastPath != 0 || c.FallbackEngineLocation != "global" {
 		t.Errorf("fallback defaults = %q attempts %d fast %v loc %q", c.FallbackEngineModel, c.EngineAttempts, c.FallbackFastPath, c.FallbackEngineLocation)
+	}
+	off := merge(vertexEnv(), map[string]string{"FALLBACK_ENGINE_MODEL": "off"})
+	if disabled, err := FromEnv(getenv(off)); err != nil || disabled.FallbackEngineModel != "" || disabled.EngineAttempts != 0 {
+		t.Errorf("fallback off = %q attempts %d err %v", disabled.FallbackEngineModel, disabled.EngineAttempts, err)
 	}
 	fb := merge(vertexEnv(), map[string]string{"FALLBACK_ENGINE_MODEL": "tuned-flash"})
 	if on, err := FromEnv(getenv(fb)); err != nil || on.EngineAttempts != 2 || on.FallbackFastPath != 0 {

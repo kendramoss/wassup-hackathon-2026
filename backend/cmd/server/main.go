@@ -148,11 +148,11 @@ func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 	}
 }
 
-// newEngineModel is the model the origin and textile engines call. With no
-// FALLBACK_ENGINE_MODEL it is the shared retried client. With one, the
-// primary is tried EngineAttempts times and then the fallback model is
-// called once, from a client in FallbackEngineLocation (tuned Gemini serves
-// on us or eu, not global).
+// newEngineModel is the model the origin, textile, USMCA and pharma engines
+// call. With FALLBACK_ENGINE_MODEL=off it is the shared retried client. With
+// a fallback (default gemini-3.8-flash), the primary is tried EngineAttempts
+// times and then the fallback model is called once, from a client in
+// FallbackEngineLocation (global).
 func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, logger *slog.Logger) (llm.Model, error) {
 	if cfg.FallbackEngineModel == "" {
 		return shared, nil

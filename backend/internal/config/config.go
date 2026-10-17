@@ -65,10 +65,10 @@ type Config struct {
 	RouterModel   string
 	VerifierModel string
 	// FallbackEngineModel is called once when the engine's primary model
-	// ends in a 429, 503, 504 or deadline (D56). Empty disables the fallback.
-	// Tuned Gemini endpoints serve on the us or eu multi-region, so the
-	// fallback client uses FallbackEngineLocation and the primary client
-	// stays on GCPLocation (global in production).
+	// ends in a 429, 503, 504 or deadline (D73). The default is the base
+	// model gemini-3.8-flash. FALLBACK_ENGINE_MODEL=off disables it.
+	// The fallback client uses FallbackEngineLocation (global, where
+	// gemini-3.8-flash is served); the primary client stays on GCPLocation.
 	FallbackEngineModel    string
 	FallbackEngineLocation string
 	// EngineAttempts is how many times the primary engine model is tried
@@ -234,8 +234,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		EngineModel:            e.str("ENGINE_MODEL", "gemini-4-argon"),
 		RouterModel:            e.str("ROUTER_MODEL", "gemini-3.8-flash"),
 		VerifierModel:          e.str("VERIFIER_MODEL", "gemini-4-argon"),
-		FallbackEngineModel:    e.str("FALLBACK_ENGINE_MODEL", ""),
-		FallbackEngineLocation: e.str("FALLBACK_ENGINE_LOCATION", "us"),
+		FallbackEngineModel:    fallbackModel(e.str("FALLBACK_ENGINE_MODEL", "gemini-3.8-flash")),
+		FallbackEngineLocation: e.str("FALLBACK_ENGINE_LOCATION", "global"),
 		EngineAttempts:         e.integer("ENGINE_ATTEMPTS", 0),
 		FallbackFastPath:       e.float("FALLBACK_FAST_PATH", 0),
 		LLMTimeout:             e.duration("LLM_TIMEOUT", 30*time.Second), // per attempt; 4 attempts fit Cloud Run's 300 s (D54)
@@ -551,6 +551,15 @@ func (c Config) String() string {
 type env struct {
 	get  func(string) string
 	errs []error
+}
+
+// fallbackModel treats "off" as disabled. An empty value is not reached:
+// str already substitutes the default.
+func fallbackModel(v string) string {
+	if strings.EqualFold(v, "off") {
+		return ""
+	}
+	return v
 }
 
 func (e *env) str(key, def string) string {
