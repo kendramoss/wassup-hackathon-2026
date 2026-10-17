@@ -489,3 +489,17 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Engine, dev, seeded** (LiteLLM proxy, same engine-v1, BM25, K = 5): 424/469 = 90.4% (87.4–92.8), against unseeded 422/469 on the same proxy. McNemar: fixed 4, broke 2, exact p = 0.69. The ≥ 0.95 band is 325/337 = 96.4% (unseeded 324/338). 9 of 469 answers differ from the unseeded run, about the same as LiteLLM vs Vertex unseeded (7 of 469). Rows: `eval/results/dev-gemini-4-argon-prec-engine-v1-seed-litellm.jsonl`.
 - **Heat-gun baseline** (the plan search's prediction from the structured product, not the predict step's CBP text): Thailand 0.72–0.78 both seeded and unseeded, as in every earlier plan run (D74, D75, the Vertex demo seed). This is not a change from the seed. The plan starts from CBP's holding (China, N328954) through `current_origin`.
 - **Tub-light verdicts re-checked once with the seed (17 Oct, Anas's call).** Production's tub-light plan on `backend-00044-q8k`, unseeded, checked LED PCBA → Thailand at 0.90 on H304910. Two unseeded proxy runs gave the same 0.90 on H304910. Three seeded proxy runs gave 0.94–0.96 on N345899 (D77). This is an exception to "don't re-roll demo verdicts" (D56), recorded here. Only the tub light's three cached verdicts are deleted and checked once with the seed; the result stands whatever it is. The heat gun's verdicts are not touched.
+- **Held-out (2026 flip pairs), seeded, scored once (18 Oct; LiteLLM proxy, verifier-v2; heat-gun pair excluded; the FlipFinal contamination caveat in D74 applies):**
+
+  | | unknown-a seeded | unknown-a unseeded (D74) | known-a seeded | known-a unseeded (D74) |
+  |---|---|---|---|---|
+  | shown at ≥ 0.92 | 6, all real | 6, all real | 6, all real | 5, all real |
+  | wrong at ≥ 0.92 | 0 | 0 | 0 | 0 |
+  | precision (any confidence) | 10/12 | 12/12 | 10/10 | 11/11 |
+  | recall | 10/13 | 12/13 | 10/13 | 11/13 |
+  | specificity | 6/8 | 8/8 | 8/8 | 8/8 |
+
+  - Unknown-a's two wrong precedent-supported verdicts are NEG-N364156 (N354393) and NEG-N363700 (N359371), both at 0.85, below the bar. Both were unsupported at 0.82–0.85 in the unseeded run.
+  - Known-a had 1 proxy timeout (BA-N349038-N360390), counted as an error.
+  - What the user sees, plans at ≥ 0.92, is unchanged or better, and nothing wrong clears the bar. Below the bar, 21 pairs is too few to tell the seed's effect from run-to-run noise.
+  - Rows: `eval/results/flips-final-verifier-v2-seed-{unknown-a,known-a}-litellm.jsonl`.
