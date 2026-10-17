@@ -11,8 +11,8 @@ import (
 // Model generates one model turn.
 type Model interface {
 	Generate(ctx context.Context, req Request) (Response, error)
-	// Provider is the provider name recorded in every output ("vertex",
-	// "fake"; runs recorded before D49 say "litellm").
+	// Provider is the provider name recorded in every output ("litellm",
+	// "vertex", "fake").
 	Provider() string
 }
 

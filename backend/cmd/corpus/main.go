@@ -255,6 +255,8 @@ func embed(args []string) error {
 	}
 	var emb llm.Embedder
 	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		emb = llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
 	case config.ProviderVertex:
 		v, err := llm.NewVertex(context.Background(), llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 		if err != nil {
@@ -262,7 +264,7 @@ func embed(args []string) error {
 		}
 		emb = v
 	default:
-		return fmt.Errorf("embed needs vertex, got %q", cfg.LLMProvider)
+		return fmt.Errorf("embed needs litellm or vertex, got %q", cfg.LLMProvider)
 	}
 	labels, err := corpus.LoadLabels(*labelsPath)
 	if err != nil {

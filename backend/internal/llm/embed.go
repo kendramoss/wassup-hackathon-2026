@@ -1,9 +1,13 @@
 package llm
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
 
 	"google.golang.org/genai"
 )
@@ -12,6 +16,46 @@ import (
 // returned unit-length so a dot product is cosine similarity.
 type Embedder interface {
 	Embed(ctx context.Context, model string, texts []string, dims int) ([][]float32, Usage, error)
+}
+
+// Embed implements Embedder via POST {BaseURL}/v1/embeddings.
+func (l *LiteLLM) Embed(ctx context.Context, model string, texts []string, dims int) ([][]float32, Usage, error) {
+	body, _ := json.Marshal(map[string]any{"model": model, "input": texts, "dimensions": dims})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, l.baseURL+"/v1/embeddings", bytes.NewReader(body))
+	if err != nil {
+		return nil, Usage{}, fmt.Errorf("litellm: embed: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+l.apiKey)
+	resp, err := l.client.Do(req)
+	if err != nil {
+		return nil, Usage{}, fmt.Errorf("litellm: embed: %w: %s", ErrUnavailable, l.scrub(err.Error()))
+	}
+	defer resp.Body.Close()
+	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<20))
+	if resp.StatusCode/100 != 2 {
+		return nil, Usage{}, &APIError{Provider: "litellm", StatusCode: resp.StatusCode, Body: l.scrub(truncate(string(raw), 300))}
+	}
+	var out struct {
+		Data []struct {
+			Index     int       `json:"index"`
+			Embedding []float32 `json:"embedding"`
+		} `json:"data"`
+		Usage struct {
+			PromptTokens int `json:"prompt_tokens"`
+		} `json:"usage"`
+	}
+	if err := json.Unmarshal(raw, &out); err != nil || len(out.Data) != len(texts) {
+		return nil, Usage{}, fmt.Errorf("litellm: embed: %w: got %d vectors for %d texts", ErrBadResponse, len(out.Data), len(texts))
+	}
+	vecs := make([][]float32, len(texts))
+	for _, d := range out.Data {
+		if d.Index < 0 || d.Index >= len(vecs) {
+			return nil, Usage{}, fmt.Errorf("litellm: embed: %w: index %d", ErrBadResponse, d.Index)
+		}
+		vecs[d.Index] = Normalize(d.Embedding)
+	}
+	return vecs, Usage{InputTokens: out.Usage.PromptTokens, TotalTokens: out.Usage.PromptTokens}, nil
 }
 
 // Embed implements Embedder via the Gen AI SDK on Vertex AI.
@@ -66,4 +110,7 @@ func (f FakeEmbedder) Embed(_ context.Context, _ string, texts []string, _ int) 
 	return out, Usage{}, nil
 }
 
-var _ Embedder = (*Vertex)(nil)
+var (
+	_ Embedder = (*LiteLLM)(nil)
+	_ Embedder = (*Vertex)(nil)
+)

@@ -112,6 +112,9 @@ func run(logger *slog.Logger, smoke bool) error {
 func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {
 	var base llm.Model
 	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		logger.Warn("using the LiteLLM proxy: development only; results are labelled proxy, development only")
+		base = llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
 	case config.ProviderVertex:
 		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 		if err != nil {

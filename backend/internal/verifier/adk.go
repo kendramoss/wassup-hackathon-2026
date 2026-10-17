@@ -15,8 +15,8 @@ import (
 )
 
 // adkModel adapts llm.Model to ADK's model.LLM, so the ADK agent runs on
-// whichever provider is configured (Vertex, or Fake in tests) and every call
-// goes through the same retry/logging wrappers.
+// whichever provider is configured (LiteLLM in development, Vertex in
+// deployment) and every call goes through the same retry/logging wrappers.
 // It also totals token usage for cost reporting.
 type adkModel struct {
 	m         llm.Model
