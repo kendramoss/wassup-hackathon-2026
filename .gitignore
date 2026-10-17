@@ -17,6 +17,7 @@ data/corpus/
 backend/server
 data/cases/
 data/verifier-cache/
+data/engine-cache/
 
 # Supervised tuning data (eval tunedata); kept in the corpus bucket
 data/tuning/
