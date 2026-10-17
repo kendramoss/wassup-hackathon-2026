@@ -72,6 +72,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	if err := run(logger, *smoke); err != nil {
 		logger.Error("fatal", "err", err)
+		// The most common first-run failure (#146): signed in to gcloud, but
+		// without the separate application-default credentials Vertex needs.
+		if strings.Contains(err.Error(), "could not find default credentials") {
+			fmt.Fprintln(os.Stderr, "\nVertex AI needs application-default credentials: run `gcloud auth application-default login`.\nFor offline UI work with no model calls, set LLM_PROVIDER=fake.")
+		}
 		os.Exit(1)
 	}
 }

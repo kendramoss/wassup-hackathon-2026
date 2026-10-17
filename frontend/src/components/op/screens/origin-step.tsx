@@ -131,29 +131,38 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
   const route = c.triage?.route;
   return (
     <section aria-label="Likely origin" className="relative border-b border-dashed border-guide">
-      <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[auto_minmax(0,1fr)_260px] lg:gap-11">
-        <div>
+      {/* The country is the headline; under it, two labelled rows in reading
+          order; status and confidence on the right (#147). */}
+      <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-11">
+        <div className="min-w-0">
           <StepEyebrow tab="origin">{copy.result.eyebrow}</StepEyebrow>
           <h1 className="mt-1 flex items-center gap-4 text-[56px] font-normal leading-none tracking-[-0.06em] sm:text-[84px]">
             <Flag country={p.origin_country} size={58} />
             {p.origin_country || "—"}
           </h1>
-        </div>
-        <div className="min-w-0 pb-3.5">
-          {p.decisive_step && (
-            <p className="duo clamp-2 text-[17px] leading-snug" title={p.decisive_step}>
-              Decisive step: {p.decisive_step}
-            </p>
-          )}
-          {cur?.country && (
-            <p className={cx("duo mt-1.5 text-[13px]", cur.country === p.origin_country ? "text-ok" : "text-ask")}>
-              {cur.country === p.origin_country ? "✓ Same as" : "△ Differs from"} CBP&apos;s ruling on this setup: <Country name={cur.country} />
-              {cur.ruling && (
+          {(p.decisive_step || cur?.country) && (
+            <dl className="mt-5 grid max-w-[80ch] gap-x-4 gap-y-1.5 text-[13.5px] sm:grid-cols-[150px_minmax(0,1fr)]">
+              {p.decisive_step && (
                 <>
-                  , <RulingLink id={cur.ruling} />
+                  <dt className="eyebrow pt-0.5">Decisive step</dt>
+                  <dd className="duo leading-snug">{p.decisive_step}</dd>
                 </>
               )}
-            </p>
+              {cur?.country && (
+                <>
+                  <dt className="eyebrow pt-0.5">CBP held this setup</dt>
+                  <dd className={cx("duo", cur.country === p.origin_country ? "text-ok" : "text-ask")}>
+                    <Country name={cur.country} />
+                    {cur.ruling && (
+                      <>
+                        , <RulingLink id={cur.ruling} />
+                      </>
+                    )}{" "}
+                    · {cur.country === p.origin_country ? "✓ same as this prediction" : "△ differs from this prediction"}
+                  </dd>
+                </>
+              )}
+            </dl>
           )}
         </div>
         <div className="flex flex-col items-start gap-1 pb-3.5">
