@@ -322,7 +322,7 @@ function sentence(p: Plan) {
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
   const v = plan.verdict?.confidence;
   return (
-    <Band left={`${below ? 0 : shown} of ${total} moves shown`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
+    <Band left={`${below ? 0 : shown} of ${total} moves cleared the ${BAR} bar`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
