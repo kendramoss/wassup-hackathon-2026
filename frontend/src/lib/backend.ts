@@ -1,4 +1,5 @@
-import { newVisitorId, visitorFromCookieHeader, visitorSetCookie } from "./visitor";
+import { userClearCookie, userFromCookieHeader } from "./user";
+import { isHttps, newVisitorId, visitorFromCookieHeader, visitorSetCookie } from "./visitor";
 
 // Server-only helpers for calling the Go backend from route handlers.
 
@@ -142,16 +143,32 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // server-sent events stream through.
 // Sends the visitor ID (lib/visitor.ts) as X-Visitor-ID. A page load has
 // usually set the cookie already (src/proxy.ts); a first request straight to
-// the API gets one here.
+// the API gets one here. A signed-in user's Google ID token (lib/user.ts)
+// goes as X-User-Token beside it (D68), so their anonymous cases still show.
+// The backend answers an expired or invalid token with 401
+// "unauthenticated"; then the cookie is cleared and the next request is
+// anonymous.
 export async function proxyBackend(request: Request, path: string): Promise<Response> {
-  const known = visitorFromCookieHeader(request.headers.get("cookie"));
+  const cookies = request.headers.get("cookie");
+  const known = visitorFromCookieHeader(cookies);
   const id = known ?? newVisitorId();
-  const res = await forward(request, path, id);
+  const user = userFromCookieHeader(cookies);
+  let res = await forward(request, path, id, user);
   if (!known) res.headers.append("Set-Cookie", visitorSetCookie(request, id));
+  if (user && res.status === 401) {
+    const text = await res.text();
+    const headers = new Headers(res.headers);
+    try {
+      if (JSON.parse(text).code === "unauthenticated") headers.append("Set-Cookie", userClearCookie(isHttps(request)));
+    } catch {
+      /* not the API's error body */
+    }
+    res = new Response(text, { status: 401, headers });
+  }
   return res;
 }
 
-async function forward(request: Request, path: string, visitorId: string): Promise<Response> {
+async function forward(request: Request, path: string, visitorId: string, userToken?: string): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
   if (!backendUrl) {
     return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, { status: 500 });
@@ -164,6 +181,7 @@ async function forward(request: Request, path: string, visitorId: string): Promi
   const ip = clientIP(request);
   if (ip) headers["X-Client-IP"] = ip;
   headers["X-Visitor-ID"] = visitorId;
+  if (userToken) headers["X-User-Token"] = userToken;
   if (process.env.K_SERVICE) {
     headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
   }

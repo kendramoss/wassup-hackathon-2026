@@ -6,7 +6,7 @@ export const copy = {
   name: "Origin Proof",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
   disclaimer: "Not a ruling. Confirm with a licensed customs broker.",
-  nav: { cases: "Cases", accuracy: "How accurate is it?" },
+  nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API" },
 
   cases: {
     title: "Cases",
@@ -133,6 +133,12 @@ export const copy = {
     footerDisclaimer: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
     built: "Built with Gemini on Vertex AI, ADK for Go and Cloud Run.",
     repo: "https://github.com/kendramoss/wassup-hackathon-2026",
+  },
+
+  signIn: {
+    button: "Sign in with Google",
+    signOut: "Sign out",
+    expired: "Your sign-in expired. Sign in again.",
   },
 
   money: "Money · illustrative — editable",

@@ -20,6 +20,7 @@ import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
+import { HtsField } from "../hts-field";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -112,6 +113,7 @@ export function ProductStep() {
   const [date, setDate] = useState(today);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
   const [facts, setFacts] = useState("");
+  const [hts, setHts] = useState("");
   const [product, setProduct] = useState<Product>(emptyProduct);
   const [economics, setEconomics] = useState<Economics | undefined>(undefined);
   const [moneyOpen, setMoneyOpen] = useState(false);
@@ -134,6 +136,7 @@ export function ProductStep() {
       setDemoTitle(d.title ?? demoId);
       setDate(p.date);
       if (p.family) setFamily(p.family);
+      setHts(p.product?.hts ?? "");
       if (p.product) {
         setProduct(p.product);
         setName(p.product.name);
@@ -154,6 +157,7 @@ export function ProductStep() {
       setName(c.product?.name || c.display_name || "");
       if (c.date) setDate(c.date);
       setFacts(c.facts ?? "");
+      setHts(c.product?.hts ?? "");
       if (c.product?.components?.length) {
         setProduct(c.product);
         setTab("parts");
@@ -200,7 +204,7 @@ export function ProductStep() {
       // description goes in as facts only.
       body.facts = facts;
     } else {
-      body.product = { ...product, name: name.trim() };
+      body.product = { ...product, name: name.trim(), hts: hts.trim() || undefined };
       body.family = family || undefined;
       if (extra.facts) body.facts = extra.facts; // demo or drafted: engine reads the text, product kept for the plan
     }
@@ -233,6 +237,15 @@ export function ProductStep() {
     document.querySelector<HTMLElement>(field)?.focus();
   };
   const tiers = unlocks(tab, facts, product, economics);
+  // What "Suggest from earlier rulings" reads: the text, or the parts.
+  const htsSource =
+    tab === "paste"
+      ? facts.trim().length > 20
+        ? { facts }
+        : null
+      : product.components.some((c) => c.name.trim()) && (name.trim() || product.name.trim())
+        ? { product: { ...product, name: name.trim() || product.name } }
+        : null;
   const countries = [...new Set((product.plants ?? []).map((p) => p.country.trim()).filter(Boolean))];
   const groups = productGroups(product);
 
@@ -385,6 +398,20 @@ export function ProductStep() {
                 }}
               />
             )}
+          </div>
+
+          <div className="mt-6">
+            <HtsField
+              value={hts}
+              onChange={setHts}
+              source={htsSource}
+              inputClass={input}
+              help={
+                tab === "paste"
+                  ? "Fills sourced duty rates for the plan once the case has parts and plants. The origin engine doesn't read it."
+                  : "Fills sourced duty rates for the plan search. The origin engine doesn't read it."
+              }
+            />
           </div>
 
           <SectionHead n={3} title="Check and go" hint="What your input unlocks so far." />

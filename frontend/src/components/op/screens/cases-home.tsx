@@ -9,6 +9,7 @@ import { currentOrigin } from "../case-shell";
 import { checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
+import { WorkspacePanel } from "../workspace-panel";
 
 const caseHref = (c: Pick<CaseSummary, "id" | "step">) =>
   `/cases/${encodeURIComponent(c.id)}/${["product", "product", "origin", "plan", "draft"][stepIndex[c.step] ?? 2]}`;
@@ -100,6 +101,7 @@ export function CasesHome() {
           )}
         </section>
       )}
+      <WorkspacePanel />
     </Main>
   );
 }

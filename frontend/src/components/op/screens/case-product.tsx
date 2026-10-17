@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect } from "react";
 import { stepIndex } from "@/lib/format";
+import { BomVersion } from "../bom-version";
 import { CaseShell } from "../case-shell";
 import { Footer, Main, Next } from "../chrome";
 import { PartsByGroup } from "../parts-by-group";
@@ -14,7 +15,7 @@ import { ButtonLink, Fold, Panel, Spinner } from "../ui";
 export function CaseProduct() {
   return (
     <CaseShell tab="product">
-      {({ id, c }) => (
+      {({ id, c, reload }) => (
         <>
           <Main className="flex max-w-[1240px] flex-col gap-6">
             <div>
@@ -27,6 +28,7 @@ export function CaseProduct() {
                 <PartsByGroup product={c.product} origin={c.prediction?.origin_country} />
               </Panel>
             ) : null}
+            {c.product?.components?.length && c.prediction?.origin_country ? <BomVersion id={id} c={c} reload={reload} /> : null}
             <div>
               <Fold title="Facts the engine read" open={!c.product?.components?.length}>
                 <p className="duo whitespace-pre-wrap text-[13px] leading-relaxed">{c.facts}</p>

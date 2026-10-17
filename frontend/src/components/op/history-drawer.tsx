@@ -16,6 +16,7 @@ const kinds: Record<string, string> = {
   pinned: "Pinned",
   unpinned: "Unpinned",
   renamed: "Renamed",
+  bom_updated: "New BOM version",
 };
 
 function when(iso?: string) {
@@ -51,7 +52,11 @@ export function HistoryDrawer({ c, onClose }: { c: CaseResponse; onClose: () => 
           <li key={i} className="grid grid-cols-[92px_minmax(0,1fr)] gap-3 border-b border-line py-3 text-[13px]">
             <span className="font-mono text-xs text-dim">{when(e.at)}</span>
             <div className="min-w-0">
-              <p className="font-medium">{kinds[e.kind ?? ""] ?? e.kind}</p>
+              <p className="font-medium">
+                {kinds[e.kind ?? ""] ?? e.kind}
+                {/* Who did it, when signed in (D68). */}
+                {e.actor && <span className="font-normal text-dim"> by {e.actor}</span>}
+              </p>
               {e.summary && <p className="duo mt-0.5 text-body">{e.summary}</p>}
               <p className="mt-1 font-mono text-[11px] text-dim">
                 {e.model_id ? `${e.model_id}${e.prompt_version ? ` · ${e.prompt_version}` : ""}` : "no model"}

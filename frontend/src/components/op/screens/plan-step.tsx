@@ -11,6 +11,7 @@ import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
 import { EconomicsEditor, PlantDiagram, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
+import { regimeOf } from "@/lib/regime";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
 
 export function PlanStep() {
@@ -19,7 +20,36 @@ export function PlanStep() {
 
 type Row = { key: string; description: string; plan?: Plan; started?: boolean };
 
-function PlanScreen({ id, c, setCase }: CaseCtx) {
+function PlanScreen(ctx: CaseCtx) {
+  const regime = regimeOf(ctx.c);
+  if (regime) return <NoPlanForRegime id={ctx.id} label={regime.label} />;
+  return <PlanSearch {...ctx} />;
+}
+
+// Textile, USMCA and pharmaceutical cases: moves aren't modelled under those
+// rules (D51, D61, D62), so there's no search to run.
+function NoPlanForRegime({ id, label }: { id: string; label: string }) {
+  return (
+    <>
+      <Main className="flex flex-col gap-3">
+        <p className="eyebrow">Step 3 of 4 · Plan</p>
+        <h1 className="text-xl tracking-[-0.04em]">No plan search for {label}</h1>
+        <p className="duo max-w-[72ch] text-sm text-dim">
+          This case was decided under {label}. The plan search models moves under substantial transformation only, so it doesn&apos;t run here. A broker can review the origin from the
+          draft.
+        </p>
+      </Main>
+      <Footer>
+        <Next>Draft the ruling request for a broker to review.</Next>
+        <div className="ml-auto">
+          <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for a broker →</ButtonLink>
+        </div>
+      </Footer>
+    </>
+  );
+}
+
+function PlanSearch({ id, c, setCase }: CaseCtx) {
   const params = useSearchParams();
   const router = useRouter();
   const target = params.get("target") ?? planTarget(c) ?? "";

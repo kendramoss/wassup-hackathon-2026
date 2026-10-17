@@ -7,6 +7,7 @@ import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
+import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
@@ -164,8 +165,10 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
 // Rates come from economics_priced (D56): what the user typed plus the
 // sourced duty rates the plan search uses. Edits still go to economics.
 function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
-  const e = (c as CaseResponse & { economics_priced?: Economics | null }).economics_priced ?? c.economics;
+  const e = pricedEconomics(c);
   const groups = Object.keys(e?.group_costs ?? {}).length;
+  const live = liveMfnOrigins(e);
+  const fetched = liveMfnFetched(e);
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border border-edge bg-sheet px-4 py-3 text-[13px] shadow-[3px_3px_0_var(--shadow)]">
       <span className="text-[11px] uppercase tracking-[0.08em] text-dim">{copy.money}</span>
@@ -173,8 +176,15 @@ function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
       {Object.entries(e?.duty_rates ?? {}).map(([k, v]) => (
         <span key={k} title={e?.duty_rates_note ?? undefined}>
           <Country name={k} /> {pct(v)}
+          {live.has(k) && <span className="ml-1 text-[11px] text-ask">MFN only</span>}
         </span>
       ))}
+      {live.size > 0 && (
+        <span className="basis-full text-xs text-ask" title={e?.duty_rates_note ?? undefined}>
+          {MFN_ONLY}: live USITC rate for {[...live].join(", ")}
+          {fetched ? `, fetched ${fetched}` : ""}. Section 301, forced-labor and 232 duties may apply on top.
+        </span>
+      )}
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
       {onEdit ? (
         <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
@@ -256,6 +266,7 @@ function prettyLabel(label?: string) {
 
 function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   const cur = currentOrigin(c)?.country ?? c.prediction?.origin_country;
+  const live = liveMfnOrigins(pricedEconomics(c));
   const nets = sc.map((s) => s.comparison?.net_usd ?? -Infinity);
   const confs = sc.map((s) => s.prediction?.confidence ?? 0);
   const bestNet = Math.max(...nets);
@@ -314,6 +325,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
                     {nothingMoves
                       ? `Nothing moves, so duty stays at ${cur ?? "the current origin"}'s ${pct(cmp.duty_rate)}`
                       : `${money(cmp.duty_savings_usd)} duty saved − ${money(cmp.added_cost_usd)} added cost · duty ${pct(cmp.duty_rate)}`}
+                    {(nothingMoves ? cur && live.has(cur) : p.origin_country && live.has(p.origin_country)) ? ` (${MFN_ONLY})` : ""}
                     {!s.product && cmp.origin_differs_from_current ? " · if the predicted origin holds" : ""}
                   </p>
                 </>

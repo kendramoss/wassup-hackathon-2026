@@ -41,6 +41,11 @@ export type WatchRunResponse = Json<"/v1/watch/run", "post">;
 export type ExtractResponse = Json<"/v1/products/extract", "post">;
 export type BatchResponse = Json<"/v1/cases/batch", "post">;
 export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
+export type HtsSuggestResponse = Json<"/v1/products/hts-suggest", "post">;
+export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number];
+export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
+export type Workspace = S["Workspace"];
+export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
@@ -59,9 +64,18 @@ export class ApiError extends Error {
   }
 }
 
+export const SIGNIN_EXPIRED = "op:signin-expired";
+
 const retryableCodes = new Set(["model_unavailable", "model_bad_response", "internal", "network"]);
 
 async function toError(res: Response): Promise<ApiError> {
+  const err = await readError(res);
+  // The sign-in expired (D68): the header's sign-in button says so.
+  if (err.status === 401 && (err.code as string) === "unauthenticated" && typeof window !== "undefined") window.dispatchEvent(new Event(SIGNIN_EXPIRED));
+  return err;
+}
+
+async function readError(res: Response): Promise<ApiError> {
   let body: Partial<Omit<ApiErrorBody, "code">> & { code?: string; error?: string; details?: { retry_after_s?: number } } = {};
   try {
     body = await res.json();
@@ -110,7 +124,7 @@ export const api = {
   answers: (id: string, answers: { question: string; answer: string }[]) =>
     post<CaseResponse>(`/cases/${enc(id)}/answers`, { answers }),
   plan: (id: string, body: PlanRequest) => post<{ case_id?: string; plan?: PlanResult }>(`/cases/${enc(id)}/plan`, body),
-  exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string; preview?: boolean }) =>
+  exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string; preview?: boolean; format?: "markdown" | "cfr177" }) =>
     post<ExportResponse>(`/cases/${enc(id)}/export`, body),
   scenarios: (id: string, body: { scenarios: { label?: string; facts?: string; product?: Product }[]; economics?: Economics }) =>
     post<CaseResponse>(`/cases/${enc(id)}/scenarios`, body),
@@ -139,6 +153,19 @@ export const api = {
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
+  htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
+  bomVersion: (id: string, file: File, apply = false) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (apply) form.append("apply", "true");
+    return call<BomVersionResponse>(`/cases/${enc(id)}/bom-version`, { method: "POST", body: form });
+  },
+  // No file: a 400 when BOM_VERSIONS is on, a 404 when off; reads nothing.
+  bomVersionProbe: (id: string) => call<void>(`/cases/${enc(id)}/bom-version`, { method: "POST", body: new FormData() }),
+  workspacesMine: () => call<WorkspacesMine>("/workspaces/mine"),
+  createWorkspace: (name: string) => post<Workspace>("/workspaces", { name }),
+  inviteMember: (id: string, email: string) => post<Workspace>(`/workspaces/${enc(id)}/members`, { email }),
+  joinWorkspace: (id: string) => post<Workspace>(`/workspaces/${enc(id)}/join`),
 };
 
 // Plan search events (POST /v1/cases/{id}/plan with Accept: text/event-stream).

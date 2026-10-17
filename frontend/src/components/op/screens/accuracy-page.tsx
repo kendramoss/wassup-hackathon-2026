@@ -59,6 +59,13 @@ export function AccuracyPage() {
   const texAuto = get("textile_final_conf95_accuracy");
   const texCov = get("textile_final_conf95_coverage");
   const texV2 = get("textile_v2_dev_accuracy");
+  // D61, D62: USMCA and pharmaceutical held-out, scored once each.
+  const phAcc = get("pharma_final_accuracy");
+  const phAuto = get("pharma_final_conf95_accuracy");
+  const phCov = get("pharma_final_conf95_coverage");
+  const usAcc = get("usmca_final_accuracy");
+  const usAuto = get("usmca_final_conf95_accuracy");
+  const usCov = get("usmca_final_conf95_coverage");
   const routeOut = get("router_out_of_scope_recall");
   const routeTex = get("router_textile_routing");
   const routeFalse = get("router_false_out_of_scope");
@@ -220,7 +227,7 @@ export function AccuracyPage() {
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Beyond substantial transformation</h2>
-                <span className="ml-auto text-[11px] text-dim">textile held-out · router on the development window</span>
+                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and USMCA held-out · router on the development window</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-3">
                 {texAcc && (
@@ -229,9 +236,19 @@ export function AccuracyPage() {
                     {texV2 ? ` The prompt now in use scored ${pct(texV2.value)} on the development set.` : ""}
                   </Card>
                 )}
+                {phAcc && (
+                  <Card title="Pharmaceutical rules" big={pct(phAcc.value)}>
+                    on {phAcc.n} held-out 2026 pharmaceutical rulings ({ci(phAcc)}). {pct(phAuto?.value)} right at confidence 0.95 or above, on {pct(phCov?.value, 0)} of them.
+                  </Card>
+                )}
+                {usAcc && (
+                  <Card title="USMCA rules (19 CFR 102)" big={pct(usAcc.value)}>
+                    on {usAcc.n} held-out 2026 USMCA rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
+                  </Card>
+                )}
                 {routeOut && (
                   <Card title="Knows what it can't answer" big={pct(routeOut.value)}>
-                    of pharmaceutical and USMCA rulings kept away from the origin engine ({ci(routeOut)}, n {routeOut.n}). Those go to a person.
+                    of pharmaceutical and USMCA rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}). Those go to their own rules, or to a person.
                   </Card>
                 )}
                 {routeTex && (
@@ -319,7 +336,7 @@ export function AccuracyPage() {
 // How the pieces fit, for anyone judging the Gen AI (#153). Model names and
 // settings are the backend defaults (internal/config); the Ask agent is ADK.
 const stages: { n: number; name: string; model: string; does: string }[] = [
-  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks the question is a substantial-transformation case; pharma and USMCA rulings go to a person." },
+  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and USMCA rulings go to their own rules; other questions outside substantial transformation go to a person." },
   { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
   { n: 3, name: "Triage", model: "0.92 bar", does: "At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
   { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },
