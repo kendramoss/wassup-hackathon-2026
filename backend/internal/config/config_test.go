@@ -38,7 +38,7 @@ func TestDefaults(t *testing.T) {
 		c.LLMTimeout != 30*time.Second || c.LLMCallGap != 0 || c.GCPLocation != "global" || c.Port != "8080" {
 		t.Errorf("unexpected defaults: %+v", c)
 	}
-	if g, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"LLM_CALL_GAP": "8s"}))); err != nil || g.LLMCallGap != 8*time.Second {
+	if g, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"LLM_CALL_GAP": "8s"}))); err != nil || g.LLMCallGap != 8*time.Second || g.LLMCoolDown != time.Minute || g.LLMMaxInFlight != 0 {
 		t.Errorf("LLM_CALL_GAP = %s %v, want 8s", g.LLMCallGap, err)
 	}
 	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"LLM_CALL_GAP": "-1s"}))); err == nil {
