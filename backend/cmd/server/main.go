@@ -360,7 +360,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			pharma = engine.NewCache(pharmaEng, engineBlobs)
 		}
 	}
-	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}
+	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves,
+		Panel: cfg.VerifierPanel == "on", MaxInFlight: cfg.LLMMaxInFlight}
 	if cfg.NearMissAdvice {
 		// Advice on the closest moves just under the plan bar (D81), cached
 		// beside the verdicts (keys are prefixed, so no clash).
@@ -370,6 +371,10 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		}
 		planOpts.NearMiss = adv
 		logger.Info("near-miss advice on", "prompt", nearmiss.PromptVersion, "floor", planner.DefaultNearMissFloor, "max_per_search", planner.DefaultNearMissMax)
+		if cfg.FollowAdvice {
+			planOpts.FollowAdvice, planOpts.Mapper = true, nearmiss.NewMapper(model, cfg.VerifierModel)
+			logger.Info("following near-miss advice", "moves_per_search", 1, "map_prompt", nearmiss.MapPromptVersion)
+		}
 	}
 	ds, err := demos.Load()
 	if err != nil {

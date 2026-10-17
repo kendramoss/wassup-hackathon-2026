@@ -135,8 +135,9 @@ func TestMove(t *testing.T) {
 	if got, want := double.Key(), "motor_fan_assembly@th+pcba@th"; got != want {
 		t.Errorf("Key = %q, want %q", got, want)
 	}
-	wantProblems(t, Move{}.Validate(), "1 to 2 operation groups, got 0")
-	wantProblems(t, append(double, GroupMove{Group: "x", ToPlant: "th"}).Validate(), "got 3")
+	wantProblems(t, Move{}.Validate(), "1 to 4 operation groups, got 0")
+	wantProblems(t, append(double, GroupMove{Group: "x", ToPlant: "th"}).Validate())
+	wantProblems(t, append(double, GroupMove{Group: "x", ToPlant: "th"}, GroupMove{Group: "y", ToPlant: "th"}, GroupMove{Group: "z", ToPlant: "th"}).Validate(), "got 5")
 	wantProblems(t, Move{{Group: "pcba", ToPlant: "th"}, {Group: "pcba", ToPlant: "vn"}}.Validate(), `"pcba" moved twice`)
 	wantProblems(t, Move{{Group: "pcba"}}.Validate(), "needs group and to_plant")
 	wantProblems(t, OperationGroup{ID: "pcba"}.Validate(), "has no operations")

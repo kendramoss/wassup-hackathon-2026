@@ -55,6 +55,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("DELETE /v1/cases/{id}", a.deleteCase)
 		mux.HandleFunc("PATCH /v1/cases/{id}", a.renameCase)
 		mux.HandleFunc("POST /v1/cases/{id}/plan", a.limit(heavy, a.plan))
+		if _, ok := d.Planner.(Estimator); ok {
+			mux.HandleFunc("POST /v1/cases/{id}/plan/estimate", a.rateOnly(light, a.planEstimate))
+		}
 		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
 		mux.HandleFunc("POST /v1/cases/{id}/answers", a.limit(light, a.answers))
 		mux.HandleFunc("GET /v1/rulings/{id}", a.ruling)

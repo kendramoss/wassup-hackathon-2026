@@ -49,6 +49,14 @@
       "version": "extract-v3",
       "sha256": "1ebb50b968f0d7ca9be1977490fd13d30090e90712f22465d4826dee338e2235"
     },
+    "nearmiss.map.system": {
+      "version": "near-miss-map-v1",
+      "sha256": "c403f91e6ee29a3b6880a1eab8382726c0110314207669d3393b41ed1774450b"
+    },
+    "nearmiss.map.user": {
+      "version": "near-miss-map-v1",
+      "sha256": "b2276dc38628053e44a95bc2c903da1adef67fedeb38b8968e3458dd8a347b3d"
+    },
     "nearmiss.system": {
       "version": "near-miss-v1",
       "sha256": "c684ade85b7064912e7581a49572d03bfc99f34e1201f7b1825f7adb48520786"

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
 )
@@ -46,6 +47,26 @@ func TestAdviseReadsTheRulingAndAnswers(t *testing.T) {
 	if len(c) != 1 || c[0].System != System || c[0].SchemaName != "near_miss" ||
 		!strings.Contains(c[0].Messages[0].Content, "CBP ANALYSIS AND HOLDING") || !strings.Contains(c[0].Messages[0].Content, "PCBA from China") {
 		t.Errorf("request = %+v", c)
+	}
+}
+
+func TestMapperKeepsOnlyKnownGroups(t *testing.T) {
+	f := llm.FakeText(`{"groups":["pcba","made_up","pcba","switch_cord_minor_parts"]}`)
+	groups := []domain.OperationGroup{
+		{ID: "pcba", Name: "PCBA (SMT)", Operations: []string{"SMT placement"}, Components: []string{"printed circuit board assembly"}},
+		{ID: "switch_cord_minor_parts", Name: "Switch, cord and minor parts", Operations: []string{"make the switch"}},
+	}
+	ids, u, err := NewMapper(f, "m").MapGroups(context.Background(), "Do what the earlier importer did.", groups)
+	if err != nil || strings.Join(ids, ",") != "pcba,switch_cord_minor_parts" {
+		t.Errorf("ids = %v %v", ids, err)
+	}
+	c := f.Calls()
+	if len(c) != 1 || c[0].System != MapSystem || c[0].SchemaName != "near_miss_groups" || !strings.Contains(c[0].Messages[0].Content, "- pcba: PCBA (SMT); components: printed circuit board assembly") {
+		t.Errorf("request = %+v", c)
+	}
+	_ = u
+	if _, _, err := NewMapper(llm.FakeText(`not json`), "m").MapGroups(context.Background(), "x", groups); err == nil {
+		t.Error("a bad answer must be an error")
 	}
 }
 

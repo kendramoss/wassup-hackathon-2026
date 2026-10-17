@@ -552,3 +552,87 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   The newest NY ruling CROSS returns is dated 14 Aug 2026. CROSS publishes with a lag, so the newest rulings in the corpus are the newest available.
 - **Result: 0 clean flip pairs (0 before/after, 0 multi-scenario, 0 negatives).** Nothing was scored, and no pairs were padded with older rulings. Frozen config for when pairs exist: `main` at `8d23488`, verifier-v2 (`verifier.PromptVersion2`), `llm.Seed` 20261017 (D76), unknown-a and known-a, scored once. Re-run `collect_index.py` with the same cutoff; once origin rulings appear, follow `data/flips/README.md` (candidates → hand read → `flips_items.py` → `flips_build.py`) into `eval/data/flips_clean.jsonl`.
 - The README limitation stands: the planner's only held-out numbers are the partly contaminated 2026 pairs (D74, D76).
+
+## D84 — Three-group moves in the plan search (18 Oct)
+- The planner listed single and double moves only (`planner.Enumerate`). CBP's real heat-gun change (N357771, Jan 2026) moved the motor, fan, PCBA and the switch/cord parts together, which is three of the template's groups, so the setup CBP approved was never searched.
+- **`EnumerateUpTo`:** every single and pair as before, in the same order, then three-group moves while the total stays at most `PLAN_MAX_MOVES` (default 12). When not every triple fits, the triples whose groups cost most where they are made now come first (the request's `group_costs`), ties in template order. Singles and pairs keep their keys and order, so their cached verdicts are reused. `domain.MaxGroupsPerMove` is now 4 (a triple plus at most one group from D85). Describe reads "Make A, B and C in Thailand".
+- Heat gun: 6 moves become 7; the new one is motor-fan + PCBA + switch/cord. Tub light: 6 become 7 (LED PCBA + lens + base/harness/seals). LiDAR has two movable groups and is unchanged.
+- **Measured once** (LiteLLM proxy, same `gemini-4-argon`, seeded (D76), verifier-v2 with the panel (D83), near-miss advice and FOLLOW_ADVICE on, `-search cross`, planner concurrency 2, fresh cache; not re-run):
+
+  | Heat gun move | Result | Check | Supporting | Panel |
+  |---|---|---|---|---|
+  | **Motor-fan + PCBA + switch/cord (new triple)** | **shown** | **0.95** | N347421 | — |
+  | Motor-fan + PCBA | below the bar | 0.82 | N346720 | 2/3 |
+  | Motor-fan alone | below the bar | 0.75 | N347421 | — |
+  | Motor-fan + switch/cord | below the bar | 0.75 | N345859 | — |
+  | PCBA alone; switch/cord alone; PCBA + switch/cord | no supporting precedent | 0.65 / 0.75 / 0.65 | — | — |
+
+  The triple is CBP's real 2026 change: the backtest says it moved the motor, fan, PCBA, knob, power cord and back cover. Of N357771's moved parts, only the outer shells were not moved (that group, housing moulding, is already Thai in the 2022 setup). Net $285k/yr (duty $500k, added cost $215k, illustrative). Engine Thailand 1.00. 7 moves, 8 engine calls, 7 verifier runs (29 model calls, 54 tool calls), $0.238 promo, 108 s.
+
+  | Tub light move | Result | Check | Supporting | Panel |
+  |---|---|---|---|---|
+  | LED PCBA | shown | 0.94 | N344188 | 3/3 |
+  | LED PCBA + lens | shown | 0.92 | H304910 | 3/3 |
+  | LED PCBA + base, harness and seals | shown | 0.96 | N344188 | — |
+  | **LED PCBA + lens + base, harness and seals (new triple)** | **shown** | **0.96** | N323710 | — |
+  | Lens, base/harness/seals, or both | engine predicts China | — | — | — |
+
+  7 moves, 4 verifier runs (28 model calls), $0.272 promo, 101 s. LED PCBA + lens moved from 0.90 (production, D77) to 0.92 here; that is this run's panel, not a re-check of production's verdict.
+- Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-triples-follow-litellm.json`. Production's stored verdicts are untouched: singles and pairs keep their cache keys, so turning this on only adds the triple's check to a replayed search.
+
+## D85 — Follow near-miss advice with one more move, off by default (18 Oct)
+- Near-miss advice (D81) names what would match the supporting ruling, but the planner stopped there. `FOLLOW_ADVICE=on` (needs `NEAR_MISS_ADVICE=on`) closes the loop: after advice, it takes the advised near misses, highest check first, and adds the groups the advice's `would_match` names to that move. If the result is a move not already searched (in the target country, groups the plants can perform), it is run once through the normal engine and precedent check and added with `from_advice: true`. At most one per search. It is a new move, never a re-check: a superset that was already searched is skipped.
+- **Mapping:** first deterministic. Group names, component names and pieces of operations are matched as whole words in the advice. Only if none match, one small structured call (`near-miss-map-v1`, ids from the template list only) is the fallback; its tokens count with the advice's.
+- The followed move streams like any other (`move_started`/`move_done`, `total` grows by one) and gets economics. A failed check on it shows as `check_failed` like any move.
+- **Measured** (same runs as D84): **nothing was followed, because there was no near miss to follow.** The heat gun's closest below-bar move checked 0.82, under near-miss advice's 0.85 floor (D81), so no advice was written. The tub light had no below-bar move. With triples in the search, the advice D81 measured on the heat gun (motor-fan + PCBA at 0.90: also make the knob, back cover, support ring, switch and fasteners in Thailand) maps to motor-fan + PCBA + switch/cord. That triple is now searched directly, so following it would be skipped as already searched. The feature matters when the search is capped below the triples or a product has more groups than the cap covers. Tests cover the mapping, the skip, the one-per-search cap, the fallback, the failure path and that existing verdicts are unchanged.
+- Off by default. The near-miss floor and cap are unchanged.
+
+## D86 — Precedent-check calibration on the Accuracy page (18 Oct)
+- The Accuracy page showed the engine's calibration but, for the precedent check, only precision, recall and specificity from one dev run. The 0.92 plan bar had no evidence beside it. Every verifier-v2 flip run is already committed, so the calibration needs no model calls.
+- `GET /v1/eval/summary` has a new `verifier_calibration` object, built by `eval summary` from every `eval/results/flips-{dev,final}-verifier-v2*-<mode>-<provider>.jsonl`. That covers the first runs, run2, seeded, 3-vote and panel runs, in both known-a and unknown-a modes. verifier-v1 and v3 files are left out. Dev and the 2026 pairs are kept separate.
+  - **Bands:** precedent-supported verdicts by confidence (≥ 0.95, 0.92–0.95, 0.85–0.92, < 0.85), with how many were real origin changes and a Wilson 95% CI.
+  - **Shown at the bar:** real vs wrong at ≥ 0.92, with precision and recall CIs.
+  - **Pair level:** repeated runs of the same pairs inflate pooled n, so each pair is also counted once. A real-change pair is shown-correct only if every run that scored it showed it; a no-change pair is wrong if any run showed it.
+  - Rows with a provider error are left out of every count and reported.
+  - The proxy note (same gemini-4-argon as Vertex, D74) and the 2026 contamination caveat (D74, D82) come in the payload.
+- **Numbers** (LiteLLM proxy; heat-gun pair excluded):
+
+  | | dev (54 pairs, 9 runs, 485 verdicts) | 2026 pairs (21 pairs, 4 runs, 83 verdicts) |
+  |---|---|---|
+  | supported at ≥ 0.95 | 76/76 real (95.2–100%) | 10/10 (72.3–100%) |
+  | supported at 0.92–0.95 | 83/83 (95.6–100%) | 13/13 (77.2–100%) |
+  | supported at 0.85–0.92 | 95/97 (92.8–99.4%) | 15/17 (65.7–96.7%) |
+  | supported below 0.85 | 31/31 (89.0–100%) | 5/5 (56.6–100%) |
+  | shown at 0.92, pooled | 159 real, 0 wrong (precision 97.6–100%) | 23 real, 0 wrong (85.7–100%) |
+  | pair level: shown in every run / real-change pairs | 13/46; 11 more shown in some runs; 0 no-change pairs ever shown | 4/13; 4 more in some runs; 0 ever wrong |
+
+- **Reading:**
+  - No verdict at or above the bar has ever been wrong: 182 shown verdicts pooled, 17 pairs at pair level.
+  - The only wrong precedent-supported verdicts sit in the 0.85–0.92 band, 2 on dev and 2 on the 2026 pairs. That band is exactly where the bar cuts.
+  - Below 0.85, support is still right when given, but the check rarely gives it there.
+  - The cost of the bar is recall: about 30% of real-change pairs are shown in every run.
+- Tests: band edges (0.92 is inclusive, 1.0 is in the top band), Wilson, the pair-level rule, dev/2026 separation, v1/v3 files excluded, errors excluded. `summary.json` regenerated; the 50 existing items are unchanged.
+
+## D87 — Cost and time estimate before a plan search (18 Oct)
+- A fresh plan search took 8+ minutes before D79, and the frontend could only say "usually 1–2 minutes". `POST /v1/cases/{id}/plan/estimate` takes the plan body and answers with no model call: moves to search, how many engine predictions and verdicts are already stored, and a range for model calls, cost (USD, promo prices) and wall time.
+- **How:** the planner enumerates the same moves and renders the same facts as `Plan`, then reads the caches read-only. It uses `engine.Cache.Peek`, `verifier.Cache.Peek` and `nearmiss.Cache.Has`, the same keys `Predict`, `Verify` and `Advise` use, which now call the same lookup.
+  - A stored verdict, or a stored prediction that misses the target, costs nothing.
+  - A move with no stored prediction may or may not need a check: from 50% (tub light, 3 of 6 moves reach the target) to 100% (heat gun, 6 of 6).
+  - The panel (D83) adds 2 views on 29–42% of checks: the share in [0.89, 0.95) on the dev and 2026 flip pairs.
+  - Near-miss advice (D81) adds up to 2 calls.
+  - Wall time is the longest chain of one move's calls, or the calls queued through `LLM_MAX_IN_FLIGHT` (D79), whichever is longer.
+  - The constants and their sources are in `planner/estimate.go`.
+- **Access:** same ownership as the plan route. It takes from the light rate-limit bucket, not the heavy one, so the estimate does not use up the search it is for. The spend cap does not refuse it, because it spends nothing. The route exists only when the planner can estimate.
+- **Sanity check against measured fresh searches** (LiteLLM, no panel, no in-flight cap, as those runs used):
+
+  | | estimate | measured |
+  |---|---|---|
+  | heat gun, cost | $0.10–0.22 | $0.15–0.22 (5 runs: `plan-heatgun-2022-*`) |
+  | heat gun, wall | 26–50 s | 30–34 s |
+  | tub light, cost | $0.10–0.22 | $0.12–0.14 (4 runs: `plan-tublight-2025-*`) |
+  | tub light, wall | 26–50 s | 35–51 s |
+
+  Every measured cost is inside the range. The heat gun's measured costs sit in the top half (every move reached the target). The tub light's sit near the bottom (3 of 6 did). The tub light's slowest run (51 s) was 1 s above the range.
+  - With production's settings (panel on, near-miss on, 4 in flight), a fresh 6-move search estimates $0.13–0.38 and 34–132 s.
+  - The range assumes a healthy provider; under 429/504 a search can take several times longer (D78, D79), and the response says so.
+- **Merged with D84 (18 Oct):** the estimate counts moves with `EnumerateUpTo`, the same three-group-aware list `Plan` searches. With `PLAN_MAX_MOVES` (default 12) it includes the heat gun's triple, so the heat-gun estimate is 7 moves, not 6.
