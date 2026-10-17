@@ -339,12 +339,12 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   );
 }
 
-// "No change" is the baseline, not a move: "3 more moves and No change"
-// keeps the count in line with "Moves searched" (#90).
+// "No change" is the baseline, not a move: "3 more moves and the
+// no-change row" keeps the count in line with "Moves searched" (#90).
 function moreLabel(hidden: number, withBaseline: boolean): string {
   const moves = withBaseline ? hidden - 1 : hidden;
   if (!withBaseline) return `${moves} more ${moves === 1 ? "move" : "moves"}`;
-  return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and No change` : "Show No change";
+  return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and the no-change row` : "Show the no-change row";
 }
 
 function Band({ children, left, right }: { children: React.ReactNode; left?: string; right?: string }) {
