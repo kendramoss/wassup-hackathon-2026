@@ -1385,6 +1385,11 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	items = append(items, textileItems...)
+	regimeItems, err := regimeSummaryItems(*resultsDir)
+	if err != nil {
+		return err
+	}
+	items = append(items, regimeItems...)
 	scopeItems, err := scopeSummaryItems(*resultsDir, "../eval/splits/splits_textile.json")
 	if err != nil {
 		return err
@@ -1848,6 +1853,39 @@ func textileSummaryItems(dir string) ([]evalsummary.Item, error) {
 	}
 	if err := add("textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl", "dev", "textile_v2_dev",
 		"Textile rules, development (99 rulings, Jul–Dec 2025, textile-v2 in production)", true); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+// regimeSummaryItems reports the pharmaceutical (D62) and USMCA (D61)
+// regimes, each scored once on its held-out 2026 split, the same way the
+// textile items are. Run through the LiteLLM proxy. Skipped when missing.
+func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
+	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
+	var items []evalsummary.Item
+	add := func(file, prefix, label string) error {
+		path := filepath.Join(dir, file)
+		if _, err := os.Stat(path); err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip %s: %v\n", file, err)
+			return nil
+		}
+		rows, err := readRows(path, nil)
+		if err != nil {
+			return err
+		}
+		s := evalkit.Summarize(rows)
+		src := "eval/results/" + file
+		items = append(items, evalsummary.Item{Key: prefix + "_accuracy", Label: label + " accuracy", Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: "final", Source: src})
+		p, lo, hi := evalkit.Wilson(s.AtLeast95.K, s.AtLeast95.N)
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_accuracy", Label: label + ": accuracy when confidence ≥ 0.95", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: "final", Source: src})
+		items = append(items, evalsummary.Item{Key: prefix + "_conf95_coverage", Label: label + ": share with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: "final", Source: src})
+		return nil
+	}
+	if err := add("pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", "pharma_final", "Pharmaceutical rules, held-out (2026, pharma-v1)"); err != nil {
+		return nil, err
+	}
+	if err := add("usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "usmca_final", "USMCA rules, held-out (2026, usmca-v1)"); err != nil {
 		return nil, err
 	}
 	return items, nil

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T09:57:21Z",
+  "generated_at": "2026-10-17T12:23:23Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -410,6 +410,68 @@
       "split": "dev",
       "development_only": true,
       "source": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl"
+    },
+    {
+      "key": "pharma_final_accuracy",
+      "label": "Pharmaceutical rules, held-out (2026, pharma-v1) accuracy",
+      "value": 0.8929,
+      "ci_low": 0.7853,
+      "ci_high": 0.95,
+      "n": 56,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl"
+    },
+    {
+      "key": "pharma_final_conf95_accuracy",
+      "label": "Pharmaceutical rules, held-out (2026, pharma-v1): accuracy when confidence ≥ 0.95",
+      "value": 1,
+      "ci_low": 0.9273,
+      "ci_high": 1,
+      "n": 49,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl"
+    },
+    {
+      "key": "pharma_final_conf95_coverage",
+      "label": "Pharmaceutical rules, held-out (2026, pharma-v1): share with confidence ≥ 0.95",
+      "value": 0.875,
+      "n": 56,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl"
+    },
+    {
+      "key": "usmca_final_accuracy",
+      "label": "USMCA rules, held-out (2026, usmca-v1) accuracy",
+      "value": 0.7813,
+      "ci_low": 0.6124,
+      "ci_high": 0.8898,
+      "n": 32,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"
+    },
+    {
+      "key": "usmca_final_conf95_accuracy",
+      "label": "USMCA rules, held-out (2026, usmca-v1): accuracy when confidence ≥ 0.95",
+      "value": 1,
+      "ci_low": 0.7961,
+      "ci_high": 1,
+      "n": 15,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"
+    },
+    {
+      "key": "usmca_final_conf95_coverage",
+      "label": "USMCA rules, held-out (2026, usmca-v1): share with confidence ≥ 0.95",
+      "value": 0.4688,
+      "n": 32,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"
     },
     {
       "key": "router_out_of_scope_recall",

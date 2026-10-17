@@ -8,8 +8,9 @@ import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { DemoNote, ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
 import { Audit, RulingsList } from "../evidence";
-import { Button, ButtonLink, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
+import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
+import { regimeOf } from "@/lib/regime";
 
 export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
@@ -20,6 +21,7 @@ function Result({ id, c, setCase }: CaseCtx) {
   const p = c.prediction ?? {};
   const target = planTarget(c);
   const route = c.triage?.route;
+  const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
   const enc = encodeURIComponent(id);
@@ -105,7 +107,9 @@ function Result({ id, c, setCase }: CaseCtx) {
       </Main>
       <Footer>
         <Next>
-          {!c.product?.plants?.length
+          {regime
+            ? `Decided under ${regime.label}. Moves aren't modelled under these rules, so there's no plan search; have a broker review this origin.`
+            : !c.product?.plants?.length
             ? "To plan a move, turn the description into parts and plants."
             : c.clarify?.questions?.length
               ? `Answer a question below to sharpen this, or plan a move to ${target ?? "another country"}.`
@@ -114,7 +118,9 @@ function Result({ id, c, setCase }: CaseCtx) {
                 : `Plan a move to ${target ?? "another country"}, or have a broker review this origin.`}
         </Next>
         <div className="ml-auto flex flex-wrap items-center gap-2.5">
-          {c.product?.plants?.length ? (
+          {regime ? (
+            <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for a broker →</ButtonLink>
+          ) : c.product?.plants?.length ? (
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/plan${target ? `?target=${encodeURIComponent(target)}` : ""}`}>
               Plan a move{target ? <> to <Flag country={target} size={12} /> {target}</> : null} →
             </ButtonLink>
@@ -130,6 +136,7 @@ function Result({ id, c, setCase }: CaseCtx) {
 
 export function VerdictBand({ c }: { c: CaseResponse }) {
   const p = c.prediction ?? {};
+  const regime = regimeOf(c);
   const cur = currentOrigin(c);
   const route = c.triage?.route;
   return (
@@ -169,7 +176,10 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
           )}
         </div>
         <div className="flex flex-col items-start gap-1 pb-3.5">
-          <StatusChip route={route} />
+          <span className="flex flex-wrap items-center gap-1.5">
+            <StatusChip route={route} />
+            {regime && <Chip>{regime.label}</Chip>}
+          </span>
           <Ruler value={p.confidence} label={`${BAR} auto-accept`} caption={`confidence ${conf(p.confidence)}`} />
         </div>
       </div>
