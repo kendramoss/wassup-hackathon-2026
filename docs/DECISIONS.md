@@ -463,6 +463,14 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - Production's first tub-light plan (`case_100715a11651`, `backend-00043-bvb`) predicted China 0.98, then the three moves the engine called Thailand never got a precedent check: each verifier call died with Vertex HTTP 504 "Deadline expired" after four attempts. The planner runs the baseline and every move together (`PLANNER_CONCURRENCY` 8), so one search puts the engine and several verifier loops on Vertex at once.
 - **Decision:** `LLM_CALL_GAP` (default 0; production 8s) makes every model client — engine, flash fallback, verifier — share one gate. The next call starts only after the previous one has returned and the gap has elapsed. Cloud Run's request timeout is 900s so a paced plan search can finish. The bar, the prompt and the heat-gun verdict are unchanged.
 
+## D79 — Pace only after an overload; cap calls in flight (17 Oct)
+- D78's gate made every model call in the process run one at a time, 8 s apart. A fresh plan search (a user's cordless-drill BOM, nothing cached) had finished 1 of 6 moves after about 8 minutes, and every other user's search waited in the same queue. Demos were not affected because their verdicts are cached.
+- **Change:**
+  - The shared gate caps calls in flight (`LLM_MAX_IN_FLIGHT`, production 4) and otherwise runs at full speed.
+  - When a call fails because the provider is overloaded (429, 5xx or a deadline; not a 400 or the caller's own cancel), the gate spaces call starts by `LLM_CALL_GAP` (8 s) for `LLM_COOL_DOWN` (60 s), then returns to full speed.
+  - Defaults: no cap, gap 0 (off), cool-down 60 s.
+- Rough sizing: a 6-move search is about 30 calls. At 4 in flight that is about 1–2 minutes when Vertex is healthy (was 8+ minutes). Under overload it slows to D78's pace, which got the tub-light checks through.
+
 ## D76 — A fixed seed on every model call (17 Oct)
 - **Why the check picked different rulings run to run.** Temperature 0 is not enough on Gemini. The verifier's first request, captured and sent unchanged 5 times, came back with 5 different sets of searches. Each different search turned up different rulings, so each run anchored on a different supporting ruling (D75). With a fixed seed, the same request returned the same searches 5 of 5 times, and 19 of 20 in a second test.
 - **Change.** `llm.Seed` (20261017) is sent as `generationConfig.seed` on every Vertex call: engine, verifier, router, clarify, agent and fallback.

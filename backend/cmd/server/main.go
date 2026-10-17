@@ -97,10 +97,10 @@ func run(logger *slog.Logger, smoke bool) error {
 	}
 	// One gate for every client, including the engine's fallback Vertex
 	// client, so a plan search's moves do not call the model together (D78).
-	gate := llm.NewGate()
+	gate := llm.NewGate(cfg.LLMMaxInFlight, cfg.LLMCoolDown)
 	paced := llm.WithPace(base, cfg.LLMCallGap, gate)
-	if cfg.LLMCallGap > 0 {
-		logger.Info("model calls paced", "gap", cfg.LLMCallGap.String())
+	if cfg.LLMCallGap > 0 || cfg.LLMMaxInFlight > 0 {
+		logger.Info("model calls paced", "max_in_flight", cfg.LLMMaxInFlight, "gap_after_overload", cfg.LLMCallGap.String(), "cool_down", cfg.LLMCoolDown.String())
 	}
 	model := llm.WithLogging(llm.WithRetry(paced, cfg.LLMMaxRetries, time.Second), logger)
 	if smoke {
