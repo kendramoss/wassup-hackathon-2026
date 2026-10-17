@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
+import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
@@ -95,6 +95,9 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     setRows([]);
     setBaseline(null);
     setProgress({ done: 0, total: 0, since: Date.now() });
+    // A stream that closes without "done" or "error" was cut (a timeout or a
+    // dropped connection): say so, with a retry, rather than spin forever.
+    let finished = false;
     try {
       await streamPlan(
         id,
@@ -117,6 +120,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               setLit(e.data.key);
               break;
             case "done":
+              finished = true;
               if (e.data.plan) {
                 setResult(e.data.plan);
                 setCase({ ...c, plan: e.data.plan, step: c.step === "export" ? "export" : "plan", economics });
@@ -124,6 +128,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               setProgress(null);
               break;
             case "error":
+              finished = true;
               setError(Object.assign(new Error(e.data.message), { retryable: e.data.retryable, code: e.data.code }));
               setProgress(null);
               break;
@@ -131,6 +136,10 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
         },
         abort.current.signal,
       );
+      if (!finished) {
+        setError(new ApiError(copy.plan.cut, 0, "network", true));
+        setProgress(null);
+      }
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) setError(e);
       setProgress(null);
@@ -213,7 +222,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
-                Each move is predicted by the origin engine and checked against earlier CBP rulings; {copy.plan.usually}. A plan is shown when its precedent check is at least {BAR}.
+                Each move is predicted by the origin engine and checked against earlier CBP rulings. The search takes {copy.plan.usually}. A plan is shown when its precedent check is at least {BAR}.
               </p>
             </div>
             <div>
@@ -429,7 +438,17 @@ function StartBand({ target, c }: { target: string; c: CaseResponse }) {
   );
 }
 
+// After this long the search is slower than usual (the model provider is
+// busy and calls are being spaced out); say so instead of a stale estimate.
+const SLOW_MS = 3 * 60 * 1000;
+
 function SearchingBand({ target, progress }: { target: string; progress: { done: number; total: number; since: number } }) {
+  const [slow, setSlow] = useState(() => Date.now() - progress.since > SLOW_MS);
+  useEffect(() => {
+    if (slow) return;
+    const t = setTimeout(() => setSlow(true), Math.max(0, progress.since + SLOW_MS - Date.now()));
+    return () => clearTimeout(t);
+  }, [slow, progress.since]);
   return (
     <Band right="moves run in parallel">
       <div>
@@ -443,7 +462,9 @@ function SearchingBand({ target, progress }: { target: string; progress: { done:
         <p className="mt-1 text-[44px] leading-none tracking-[-0.05em]">
           <Elapsed since={progress.since} />
         </p>
-        <p className="mt-2 text-xs text-dim">{copy.plan.usually}</p>
+        <p role="status" className={cx("duo mt-2 max-w-[34ch] text-xs", slow ? "text-ask" : "text-dim")}>
+          {slow ? copy.plan.slow : copy.plan.usually}
+        </p>
       </div>
       <div>
         <p className="eyebrow">
