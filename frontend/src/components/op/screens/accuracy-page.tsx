@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { ErrorBox, Main } from "../chrome";
 import { Chip, ScrollX, Spinner, cx } from "../ui";
+import { VerifierCalibration } from "../verifier-calibration";
 
 // "How accurate is it?" (DESIGN.md, locked 16 Oct, frame p-accuracy.html):
 // every held-out ruling as a square beside the three headline cards, then
@@ -259,6 +260,8 @@ export function AccuracyPage() {
               </div>
             </section>
           )}
+
+          {data?.verifier_calibration?.splits?.length ? <VerifierCalibration c={data.verifier_calibration} /> : null}
 
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <h2 className="eyebrow">What we don&apos;t claim</h2>
