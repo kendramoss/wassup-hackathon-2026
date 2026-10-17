@@ -1,4 +1,0 @@
-# gcloud builds submit uploads everything except these. Without this file it
-# falls back to .gitignore, which drops the VERSION file the workflow writes.
-.gcloudignore
-.gitignore
