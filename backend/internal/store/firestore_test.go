@@ -37,7 +37,11 @@ func TestFirestoreEmulator(t *testing.T) {
 		t.Skip("FIRESTORE_EMULATOR_HOST not set")
 	}
 	ctx := context.Background()
-	f, err := NewFirestore(ctx, "demo-origin-proof", "")
+	// Own project on the shared emulator. List sorts pinned cases first, so a
+	// leftover case_pin from an earlier run of this test would sort ahead of
+	// case_b and fail the restart check.
+	project := fmt.Sprintf("store-test-%d", time.Now().UnixNano())
+	f, err := NewFirestore(ctx, project, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +64,7 @@ func TestFirestoreEmulator(t *testing.T) {
 	if err := f.Put(ctx, Case{ID: "case_b", UpdatedAt: now, Plan: &planner.Result{}}); err != nil {
 		t.Fatal(err)
 	}
-	f2, err := NewFirestore(ctx, "demo-origin-proof", "") // a restart
+	f2, err := NewFirestore(ctx, project, "") // a restart
 	if err != nil {
 		t.Fatal(err)
 	}
