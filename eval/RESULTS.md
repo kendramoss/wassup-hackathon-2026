@@ -131,6 +131,20 @@ Supervised fine-tuning of `gemini-3.5-flash` on the Argon engine's CBP-reasoning
 - Six calls returned prose with no JSON object and are counted wrong: H344538, N351672, N352670, N355167, N355168, N356144. Example: `engine: predict H344538: llm: unusable model response: no JSON object in response (1514 chars)`. Earlier attempts at the default 30 s timeout failed with `llm: model provider unavailable after 4 attempts: vertex: HTTP 504: Deadline expired before operation could complete.` Those were retried at `LLM_TIMEOUT=120s`.
 - `cost_usd` is 0: the price table has no entry for this endpoint. The $0.0248 figure is mean tokens on the 457 successful final calls (2,702 in / 1,221 out) times 1.5× Gemini 3.5 Flash non-global ($1.65 / $9.90 per 1M), so $2.475 / $14.85 per 1M, because a tuned model is served on the `us` multi-region. Those 457 calls are about $11.34. Failed attempts before a later success are not in that figure.
 
+## Base gemini-3.8-flash — dev only (17 Oct 2026)
+
+The fallback model. Not the tuned endpoint above, which scored worse than this base model and was undeployed the same day (D73). Engine-v1, BM25, K = 5, Vertex `global`. Fast path reuses the Argon router-v2 scope file. No held-out run. Rows: `results/dev-gemini-3.8-flash-prec-engine-v1-vertex.jsonl` (last row per ruling; N350517, N350963 and N354291 first returned HTTP 504 and succeeded on a resume at `LLM_TIMEOUT=120s`).
+
+| | Argon (dev, adjusted) | gemini-3.8-flash (dev, adjusted) |
+|---|---|---|
+| Accuracy | 91.1% (88.2–93.4), 422/463 | 90.1% (87.0–92.5), 417/463 |
+| Fast path ≥ 0.92 coverage | 79.5% (368/463) | 87.7% (406/463) |
+| Fast path ≥ 0.92 accuracy | 96.5% (94.1–97.9), 355/368 | 93.1% (90.2–95.2), 378/406 |
+| ≥ 0.95 band | 97.3% (94.9–98.6), 324/333 | 93.0% (90.1–95.1), 384/413 |
+| Latency p50 / p95 | 4.8 s / 8.1 s | 5.5 s / 21.6 s |
+
+McNemar, same adjustments: Flash fixed 13, broke 18, p = 0.473. Unadjusted 418/469 = 89.1% (86.0–91.6). `FALLBACK_FAST_PATH` stays 0: a fallback answer goes to review even when confidence would clear 0.92.
+
 ## Textile regime (19 CFR 102.21) — Vertex AI (16 Oct 2026)
 
 `textile-v1`, Gemini 4 Argon, plain BM25, K = 5, precedents limited to textile rulings dated before the case. Split frozen in `eval/splits/splits_textile.json` (dev 99, final 71). Dev was scored first. Held-out was scored once after that, with the prompt, K, and the split left as they were. Rows: `results/textile-dev-gemini-4-argon-prec-textile-v1-vertex.jsonl`, `results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl`. The "fast path" line in the raw eval report still uses the substantial-transformation bar of 0.92. The textile bar below is separate.
