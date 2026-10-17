@@ -463,6 +463,8 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {
 	var base llm.Model
 	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		base = llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout)
 	case config.ProviderVertex:
 		v, err := llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 		if err != nil {
@@ -888,6 +890,9 @@ func planCmd(args []string) error {
 		return err
 	}
 	fmt.Printf("## Plan %s → %s (%s, verifier search %s)\n\n", req.CaseID, res.Target, cfg.LLMProvider, *searchMode)
+	if cfg.LLMProvider == config.ProviderLiteLLM {
+		fmt.Println("**Proxy, development only.**")
+	}
 	b0 := res.Baseline.Prediction
 	fmt.Printf("- Current setup: engine predicts **%s** (confidence %.2f), cited %v\n", b0.Origin, b0.Confidence, b0.CitedRulings)
 	fmt.Printf("- Shown (precedent-supported, verifier confidence ≥ %.2f):\n", cfg.PlanConfidence)
@@ -1154,6 +1159,9 @@ func flipsCmd(args []string) error {
 		fmt.Printf("## %s on held-out 2026 flip pairs (%s, %s) — HELD OUT, scored once\n\n", name, mode, cfg.LLMProvider)
 	} else {
 		fmt.Printf("## %s on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", name, mode, cfg.LLMProvider)
+	}
+	if cfg.LLMProvider == config.ProviderLiteLLM {
+		fmt.Println("**Proxy, development only.**")
 	}
 	n := len(rows) - errs
 	fmt.Printf("- Items: %d (%s, heat-gun pair excluded; %d failed runs)\n", len(rows), map[bool]string{false: "pre-2026", true: "2026"}[*final], errs)
@@ -1464,6 +1472,8 @@ func multiScenarioCmd(args []string) error {
 
 func newEmbedder(ctx context.Context, cfg config.Config) (llm.Embedder, error) {
 	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		return llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout), nil
 	case config.ProviderVertex:
 		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 	}

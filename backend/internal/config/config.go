@@ -5,6 +5,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -22,8 +23,9 @@ const DefaultPlanBar = 0.92
 
 // Provider names for LLM_PROVIDER.
 const (
-	ProviderVertex = "vertex"
-	ProviderFake   = "fake"
+	ProviderLiteLLM = "litellm"
+	ProviderVertex  = "vertex"
+	ProviderFake    = "fake"
 )
 
 // Case store names for CASES_STORE.
@@ -52,13 +54,14 @@ const (
 type Config struct {
 	Port string
 
-	// LLM provider: vertex (Gemini on Vertex AI with Application Default
-	// Credentials), or fake for offline tests and UI work. The LiteLLM proxy
-	// used before Vertex access was removed (D49).
-	LLMProvider string
-	GCPProject  string
-	GCPLocation string
-	OnCloudRun  bool
+	// LLM provider. litellm is for local development only and refuses to run
+	// on Cloud Run (K_SERVICE set); vertex is required in deployment.
+	LLMProvider    string
+	LiteLLMBaseURL string
+	LiteLLMAPIKey  string // secret
+	GCPProject     string
+	GCPLocation    string
+	OnCloudRun     bool
 
 	// Models (IDs depend on the provider; the defaults are served by both).
 	EngineModel   string
@@ -228,6 +231,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	c := Config{
 		Port:                   e.str("PORT", "8080"),
 		LLMProvider:            strings.ToLower(e.str("LLM_PROVIDER", ProviderVertex)),
+		LiteLLMBaseURL:         strings.TrimRight(e.str("LITELLM_BASE_URL", ""), "/"),
+		LiteLLMAPIKey:          e.str("LITELLM_API_KEY", ""),
 		GCPProject:             e.str("GOOGLE_CLOUD_PROJECT", ""),
 		GCPLocation:            e.str("GOOGLE_CLOUD_LOCATION", "global"),
 		OnCloudRun:             e.str("K_SERVICE", "") != "",
@@ -381,6 +386,16 @@ func (c Config) validate() error {
 	var errs []error
 	bad := func(format string, args ...any) { errs = append(errs, fmt.Errorf(format, args...)) }
 	switch c.LLMProvider {
+	case ProviderLiteLLM:
+		if c.OnCloudRun {
+			bad("LLM_PROVIDER=litellm is for local development only and cannot run on Cloud Run; use vertex")
+		}
+		if u, err := url.Parse(c.LiteLLMBaseURL); c.LiteLLMBaseURL == "" || err != nil || u.Host == "" {
+			bad("LITELLM_BASE_URL must be an absolute URL when LLM_PROVIDER=litellm")
+		}
+		if c.LiteLLMAPIKey == "" {
+			bad("LITELLM_API_KEY is required when LLM_PROVIDER=litellm")
+		}
 	case ProviderVertex:
 		if c.GCPProject == "" {
 			bad("GOOGLE_CLOUD_PROJECT is required when LLM_PROVIDER=vertex")
@@ -390,7 +405,7 @@ func (c Config) validate() error {
 			bad("LLM_PROVIDER=fake cannot run on Cloud Run")
 		}
 	default:
-		bad("LLM_PROVIDER must be vertex or fake, got %q (the LiteLLM proxy was removed, D49)", c.LLMProvider)
+		bad("LLM_PROVIDER must be litellm, vertex or fake, got %q", c.LLMProvider)
 	}
 	for name, v := range map[string]string{"ENGINE_MODEL": c.EngineModel, "ROUTER_MODEL": c.RouterModel, "VERIFIER_MODEL": c.VerifierModel} {
 		if v == "" {
@@ -536,7 +551,8 @@ func (c Config) validate() error {
 // FamilyBars reports whether triage uses the per-subfamily bars (D63).
 func (c Config) FamilyBars() bool { return c.FastPathByFamily == "on" }
 
-// String renders the config for startup logs; it holds no secrets.
+// String renders the config for startup logs. The LiteLLM key and base URL are
+// never included.
 func (c Config) String() string {
 	fallback := "off"
 	if c.FallbackEngineModel != "" {

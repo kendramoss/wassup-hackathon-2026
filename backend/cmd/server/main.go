@@ -131,6 +131,8 @@ func run(logger *slog.Logger, smoke bool) error {
 // shorter retry plus a fallback (D56).
 func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 	switch cfg.LLMProvider {
+	case config.ProviderLiteLLM:
+		return llm.NewLiteLLM(cfg.LiteLLMBaseURL, cfg.LiteLLMAPIKey, cfg.LLMTimeout), nil
 	case config.ProviderVertex:
 		return llm.NewVertex(ctx, llm.VertexOptions{Project: cfg.GCPProject, Location: cfg.GCPLocation, Timeout: cfg.LLMTimeout})
 	case config.ProviderFake:
