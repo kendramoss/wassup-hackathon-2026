@@ -73,6 +73,10 @@
       "version": "verifier-v2",
       "sha256": "e205bd021cc71493d1194f2a9f69b0eefe74057ad00651398892b307d0ac3c4a"
     },
+    "verifier.system3": {
+      "version": "verifier-v3",
+      "sha256": "ed35d303c499f2ce1483101c5be0a332729d2ae3975a8f3376ad06e245baeeb4"
+    },
     "verifier.task": {
       "version": "verifier-v1",
       "sha256": "39eb865e267b9732f6e2382f199824e23a514a71b3a8f3b2bf48f70fe5d068fa"

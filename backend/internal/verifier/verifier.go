@@ -69,6 +69,52 @@ const Evidence2 = `
    The same scale applies when your answer is that origin does not change.
 `
 
+// PromptVersion3 is verifier-v3 (D75): verifier-v2 plus a fixed first
+// search. v2's verdict on the same move swung between runs (heat gun: 0.92
+// locally, 0.75 on production) because each run searched its own way and
+// anchored on different rulings. v3 runs one deterministic search for the
+// change itself before the agent starts and hands it the results, so every
+// run starts from the same evidence.
+const PromptVersion3 = "verifier-v3"
+
+// Start3 is added for verifier-v3.
+const Start3 = `
+A first search for the change has already been run for you; its results are in the task. Start from them: read the closest one or two before searching more. Further searches are for the counter-search (step 6) or when none of the first results is on the same kind of product.
+`
+
+// System3 renders the verifier-v3 instruction.
+func System3(maxToolCalls int) string {
+	return Principles + Evidence2 + Start3 + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
+}
+
+// changeQuery is the fixed first search for verifier-v3: the words of
+// variant B that variant A lacks (what moved and where to), then B's opening
+// words (what the product is). It depends only on the facts, so it is the
+// same on every run.
+func changeQuery(a, b string) string {
+	inA := map[string]bool{}
+	for _, w := range strings.Fields(strings.ToLower(a)) {
+		inA[strings.Trim(w, ".,;:()\"'")] = true
+	}
+	var diff []string
+	seen := map[string]bool{}
+	for _, w := range strings.Fields(strings.ToLower(b)) {
+		w = strings.Trim(w, ".,;:()\"'")
+		if len(w) > 3 && !inA[w] && !seen[w] {
+			seen[w] = true
+			diff = append(diff, w)
+		}
+	}
+	head := strings.Fields(b)
+	if len(head) > 25 {
+		head = head[:25]
+	}
+	if len(diff) > 25 {
+		diff = diff[:25]
+	}
+	return strings.Join(append(diff, head...), " ")
+}
+
 // System2 renders the verifier-v2 instruction.
 func System2(maxToolCalls int) string {
 	return Principles + Evidence2 + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
@@ -150,8 +196,11 @@ type Options struct {
 
 // Version is the verifier's prompt version (cache keys and traces use it).
 func (v *Verifier) Version() string {
-	if v.opts.Prompt == "v2" {
+	switch v.opts.Prompt {
+	case "v2":
 		return PromptVersion2
+	case "v3":
+		return PromptVersion3
 	}
 	return PromptVersion
 }
@@ -251,8 +300,23 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	m := &adkModel{m: v.model, id: v.opts.Model, maxTokens: v.opts.MaxOutputTokens}
 	var toolCalls, modelCalls int
 	system := System(v.opts.MaxToolCalls)
-	if v.opts.Prompt == "v2" {
+	switch v.opts.Prompt {
+	case "v2":
 		system = System2(v.opts.MaxToolCalls)
+	case "v3":
+		system = System3(v.opts.MaxToolCalls)
+	}
+	message := t.UserMessage()
+	if v.opts.Prompt == "v3" {
+		q := changeQuery(t.FactsA, t.FactsB)
+		hits, err := v.search.Search(ctx, q, t.Before, exclude)
+		if err != nil {
+			failed()
+		} else {
+			out := formatHits(hits)
+			note(Step{"first_search", q}, out)
+			message += "\n\nFIRST SEARCH (run for you, for the change between A and B):\n" + out
+		}
 	}
 	a, err := llmagent.New(llmagent.Config{
 		Name:        "move_verifier",
@@ -300,7 +364,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 
 	var final string
-	for ev, err := range r.Run(ctx, "planner", uuid.NewString(), genai.NewContentFromText(t.UserMessage(), genai.RoleUser), agent.RunConfig{}) {
+	for ev, err := range r.Run(ctx, "planner", uuid.NewString(), genai.NewContentFromText(message, genai.RoleUser), agent.RunConfig{}) {
 		if err != nil {
 			return Result{}, fmt.Errorf("verifier: run: %w", err)
 		}

@@ -41,8 +41,8 @@ func TestDefaults(t *testing.T) {
 	if c.VerifierPrompt != "v2" {
 		t.Errorf("verifier prompt default = %q, want v2 (D74)", c.VerifierPrompt)
 	}
-	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"VERIFIER_PROMPT": "v3"}))); err == nil {
-		t.Error("VERIFIER_PROMPT=v3 accepted")
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"VERIFIER_PROMPT": "v4"}))); err == nil {
+		t.Error("VERIFIER_PROMPT=v4 accepted")
 	}
 	if c.RateLightPerMin != 20 || c.RateHeavyPerMin != 4 || c.RateGlobalPerMin != 120 || c.AdminToken != "" {
 		t.Errorf("rate/admin defaults = %d %d %d %q", c.RateLightPerMin, c.RateHeavyPerMin, c.RateGlobalPerMin, c.AdminToken)
