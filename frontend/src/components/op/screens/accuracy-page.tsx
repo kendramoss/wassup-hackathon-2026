@@ -336,7 +336,7 @@ export function AccuracyPage() {
 // How the pieces fit, for anyone judging the Gen AI (#153). Model names and
 // settings are the backend defaults (internal/config); the Ask agent is ADK.
 const stages: { n: number; name: string; model: string; does: string }[] = [
-  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks the question is a substantial-transformation case; pharma and USMCA rulings go to a person." },
+  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and USMCA rulings go to their own rules; other questions outside substantial transformation go to a person." },
   { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
   { n: 3, name: "Triage", model: "0.92 bar", does: "At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
   { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },
