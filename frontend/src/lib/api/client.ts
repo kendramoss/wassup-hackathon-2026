@@ -41,6 +41,11 @@ export type WatchRunResponse = Json<"/v1/watch/run", "post">;
 export type ExtractResponse = Json<"/v1/products/extract", "post">;
 export type BatchResponse = Json<"/v1/cases/batch", "post">;
 export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
+export type HtsSuggestResponse = Json<"/v1/products/hts-suggest", "post">;
+export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number];
+export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
+export type Workspace = S["Workspace"];
+export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
@@ -139,6 +144,17 @@ export const api = {
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
+  htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
+  bomVersion: (id: string, file: File, apply = false) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (apply) form.append("apply", "true");
+    return call<BomVersionResponse>(`/cases/${enc(id)}/bom-version`, { method: "POST", body: form });
+  },
+  workspacesMine: () => call<WorkspacesMine>("/workspaces/mine"),
+  createWorkspace: (name: string) => post<Workspace>("/workspaces", { name }),
+  inviteMember: (id: string, email: string) => post<Workspace>(`/workspaces/${enc(id)}/members`, { email }),
+  joinWorkspace: (id: string) => post<Workspace>(`/workspaces/${enc(id)}/join`),
 };
 
 // Plan search events (POST /v1/cases/{id}/plan with Accept: text/event-stream).
