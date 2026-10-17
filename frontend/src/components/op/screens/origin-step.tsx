@@ -78,7 +78,7 @@ function Result({ id, c, setCase }: CaseCtx) {
                 {c.history?.length ? (
                   <>
                     {" · "}
-                    <button type="button" className="text-ok underline underline-offset-2" onClick={() => setHistory(true)}>
+                    <button type="button" className="inline-flex min-h-6 items-center text-ok underline underline-offset-2" onClick={() => setHistory(true)}>
                       History ({c.history.length})
                     </button>
                   </>
@@ -199,7 +199,7 @@ function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
             ))}
           </>
         )}{" "}
-        <button type="button" className="text-ok underline underline-offset-2 disabled:text-dim" onClick={run} disabled={busy}>
+        <button type="button" className="inline-flex min-h-6 items-center text-ok underline underline-offset-2 disabled:text-dim" onClick={run} disabled={busy}>
           {busy ? "Re-checking…" : w ? "Re-check again" : "Re-check now"}
         </button>
       </p>
@@ -219,7 +219,7 @@ function RulingsSummary({ c }: { c: CaseResponse }) {
     <section aria-label={copy.result.rulings}>
       <RulingsList rulings={open ? all : shown} cited={cited} />
       {all.length > shown.length && (
-        <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <button type="button" className="mt-1.5 inline-flex min-h-6 items-center text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? "Show cited only" : `Show all ${all.length}`}
         </button>
       )}
@@ -357,7 +357,7 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
         </div>
       ))}
       {qs.length > 1 && (
-        <button type="button" className="mt-3 text-[13px] text-ok hover:underline" aria-expanded={more} onClick={() => setMore((m) => !m)}>
+        <button type="button" className="mt-3 inline-flex min-h-6 items-center text-[13px] text-ok hover:underline" aria-expanded={more} onClick={() => setMore((m) => !m)}>
           {more ? "Show one question" : `${qs.length - 1} more ${qs.length - 1 === 1 ? "question" : "questions"}`}
         </button>
       )}
