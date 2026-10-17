@@ -206,8 +206,10 @@ export function AccuracyPage() {
             <Card title="Cost per prediction" big={cost ? `$${cost.value}` : "—"}>
               promo; ${LIST_PRICE} list. Gemini on Vertex AI.
             </Card>
-            <Card title="Time per prediction" big={p50 ? `${p50.value?.toFixed(1)} s` : "—"}>
-              median; {p95?.value?.toFixed(1)} s for 95% of cases.
+            {/* The eval times one engine call; a live prediction also runs the
+                router and waits on Vertex, so say both (#183). */}
+            <Card title="Engine time per ruling" big={p50 ? `${p50.value?.toFixed(1)} s` : "—"}>
+              median in the held-out run; {p95?.value?.toFixed(1)} s for 95%. A live prediction on this site adds the scope check and queueing, usually under a minute.
             </Card>
             <Card title="Against the proxy run" big={`p = ${PROXY.p}`}>
               no difference ({pct(PROXY.from)} → {pct(PROXY.to)}, McNemar).

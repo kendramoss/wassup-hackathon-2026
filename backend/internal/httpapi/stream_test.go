@@ -201,7 +201,7 @@ func TestPredictStreamErrorPath(t *testing.T) {
 	}
 
 	// Input errors are plain JSON before the stream opens.
-	rec = streamPredict(t, hs, `{"facts":"x"}`)
+	rec = streamPredict(t, hs, `{"facts":"x: assembled in Thailand from Chinese parts."}`)
 	var e map[string]any
 	_ = json.Unmarshal(rec.Body.Bytes(), &e)
 	if rec.Code != http.StatusBadRequest || e["code"] != "invalid_input" || strings.HasPrefix(rec.Header().Get("Content-Type"), "text/event-stream") {

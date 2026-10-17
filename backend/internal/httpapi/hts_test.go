@@ -104,7 +104,7 @@ func TestHTSSuggestErrorsAndLimit(t *testing.T) {
 		{"blank facts", `{"facts":"   "}`, http.StatusBadRequest},
 		{"product without name", `{"product":{"name":" ","components":[]}}`, http.StatusBadRequest},
 		{"too long", `{"facts":"` + strings.Repeat("a", 12001) + `"}`, http.StatusBadRequest},
-		{"unknown field", `{"facts":"x","hts":"1"}`, http.StatusBadRequest},
+		{"unknown field", `{"facts":"x: assembled in Thailand from Chinese parts.","hts":"1"}`, http.StatusBadRequest},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
