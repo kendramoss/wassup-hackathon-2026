@@ -155,14 +155,45 @@ func TestVerifyEnforcesToolBudget(t *testing.T) {
 
 func TestKnownOriginAInTask(t *testing.T) {
 	tk := task()
-	if strings.Contains(tk.UserMessage(), "already ruled") || tk.promptVersion() != PromptVersion {
+	if strings.Contains(tk.UserMessage(), "already ruled") || tk.promptVersion(PromptVersion) != PromptVersion {
 		t.Error("unknown A must leave the research task text unchanged")
 	}
 	tk.KnownOriginA, tk.KnownRulingA = "China", "N328954"
 	if !strings.HasSuffix(tk.UserMessage(), "CBP has already ruled on variant A: origin China (N328954; that ruling is not available to you).") {
 		t.Errorf("message = %q", tk.UserMessage())
 	}
-	if tk.promptVersion() != "verifier-v1+known-a" {
-		t.Errorf("version = %q", tk.promptVersion())
+	if tk.promptVersion(PromptVersion) != "verifier-v1+known-a" {
+		t.Errorf("version = %q", tk.promptVersion(PromptVersion))
+	}
+}
+
+func TestVerifierV2PromptAndVersion(t *testing.T) {
+	if !strings.Contains(System2(6), "COUNTER-SEARCH") || !strings.Contains(System2(6), "0.95–0.98") || strings.Contains(System(6), "COUNTER-SEARCH") {
+		t.Error("v2 must add the counter-search and confidence scale; v1 must stay unchanged")
+	}
+	if v := New(nil, nil, Options{Prompt: "v2"}); v.Version() != PromptVersion2 {
+		t.Errorf("v2 version = %q", v.Version())
+	}
+	if v := New(nil, nil, Options{}); v.Version() != PromptVersion {
+		t.Errorf("default version = %q", v.Version())
+	}
+	tk := task()
+	tk.KnownOriginA = "China"
+	if got := tk.promptVersion(PromptVersion2); got != "verifier-v2+known-a" {
+		t.Errorf("known-a v2 version = %q", got)
+	}
+}
+
+func TestCacheKeyFollowsPromptVersion(t *testing.T) {
+	blobs := &memBlobs{m: map[string][]byte{}}
+	tk := Task{FactsA: "a", FactsB: "b", Target: "Thailand"}
+	v1 := NewCacheIn(New(nil, nil, Options{}), blobs, "m")
+	v2 := NewCacheIn(New(nil, nil, Options{Prompt: "v2"}), blobs, "m")
+	maj := NewCacheIn(NewMajority(New(nil, nil, Options{Prompt: "v2"}), 3), blobs, "m")
+	if v1.key(tk) == v2.key(tk) {
+		t.Error("a v1 verdict would be reused for v2")
+	}
+	if v2.key(tk) == maj.key(tk) {
+		t.Error("a single v2 verdict would be reused for a majority")
 	}
 }

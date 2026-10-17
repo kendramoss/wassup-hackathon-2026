@@ -61,9 +61,17 @@
       "version": "verifier-v1",
       "sha256": "a7f55ee58d85ca338528fdee8c9d8b2c4b3cd32bc0b8f57ee07e60759c7f5767"
     },
+    "verifier.request2": {
+      "version": "verifier-v2",
+      "sha256": "28bf4cad71c718903a8dec71a2a610c0a7840ba0c32211885ad13942a255e4f4"
+    },
     "verifier.system": {
       "version": "verifier-v1",
       "sha256": "076ad8e593fb46ecf2c5831dc5cce7d94f1a134b30646dad7775bd68f1a5fe0a"
+    },
+    "verifier.system2": {
+      "version": "verifier-v2",
+      "sha256": "e205bd021cc71493d1194f2a9f69b0eefe74057ad00651398892b307d0ac3c4a"
     },
     "verifier.task": {
       "version": "verifier-v1",

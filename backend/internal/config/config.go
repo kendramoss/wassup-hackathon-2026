@@ -93,7 +93,10 @@ type Config struct {
 	// VerifierVotes runs the precedent check this many times and keeps the
 	// majority; 1 (default) disables voting: 3 votes doubled plan-search time
 	// without making verdicts repeatable (D33).
-	VerifierVotes      int
+	VerifierVotes int
+	// VerifierPrompt is v1 or v2 (D74): v2 adds a counter-ruling search and a
+	// confidence scale tied to the rulings read.
+	VerifierPrompt     string
 	PlannerConcurrency int
 
 	// Corpus. The engine's precedent pool is labels + facts files; the
@@ -246,6 +249,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		PlanConfidence:         e.float("PLAN_CONFIDENCE", DefaultPlanBar),
 		VerifierMaxToolCalls:   e.integer("VERIFIER_MAX_TOOL_CALLS", 6),
 		VerifierVotes:          e.integer("VERIFIER_VOTES", 1),
+		VerifierPrompt:         strings.ToLower(e.str("VERIFIER_PROMPT", "v2")),
 		PlannerConcurrency:     e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
 		LabelsPath:         e.str("LABELS_PATH", "data/labels.jsonl"),
@@ -380,6 +384,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 func (c Config) validate() error {
 	var errs []error
 	bad := func(format string, args ...any) { errs = append(errs, fmt.Errorf(format, args...)) }
+	if c.VerifierPrompt != "v1" && c.VerifierPrompt != "v2" {
+		bad("VERIFIER_PROMPT must be v1 or v2, got %q", c.VerifierPrompt)
+	}
 	switch c.LLMProvider {
 	case ProviderVertex:
 		if c.GCPProject == "" {

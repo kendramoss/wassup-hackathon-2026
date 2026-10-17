@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T20:27:27Z",
+  "generated_at": "2026-10-17T09:57:21Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -253,23 +253,23 @@
       "key": "verifier_unknown-a_precision",
       "label": "Move verifier (development set): correct when it says a move changes origin",
       "value": 1,
-      "ci_low": 0.8985,
+      "ci_low": 0.8928,
       "ci_high": 1,
-      "n": 34,
+      "n": 32,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl"
     },
     {
       "key": "verifier_unknown-a_recall",
       "label": "Move verifier (development set): real changes caught",
-      "value": 0.7391,
-      "ci_low": 0.5974,
-      "ci_high": 0.844,
+      "value": 0.6957,
+      "ci_low": 0.5519,
+      "ci_high": 0.8092,
       "n": 46,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl"
     },
     {
       "key": "verifier_unknown-a_specificity",
@@ -280,58 +280,58 @@
       "n": 8,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl"
     },
     {
       "key": "verifier_unknown-a_cost_usd",
       "label": "Move verifier (development set): cost per check (USD, promo)",
-      "value": 0.0323,
+      "value": 0.0348,
       "n": 54,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-unknown-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl"
     },
     {
       "key": "verifier_known-a_precision",
       "label": "Move verifier (development set, CBP origin of current setup given): correct when it says a move changes origin",
-      "value": 1,
-      "ci_low": 0.9082,
-      "ci_high": 1,
-      "n": 38,
+      "value": 0.973,
+      "ci_low": 0.8618,
+      "ci_high": 0.9952,
+      "n": 37,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl"
     },
     {
       "key": "verifier_known-a_recall",
       "label": "Move verifier (development set, CBP origin of current setup given): real changes caught",
-      "value": 0.8261,
-      "ci_low": 0.6928,
-      "ci_high": 0.9091,
+      "value": 0.7826,
+      "ci_low": 0.6443,
+      "ci_high": 0.8774,
       "n": 46,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl"
     },
     {
       "key": "verifier_known-a_specificity",
       "label": "Move verifier (development set, CBP origin of current setup given): no-change moves rejected",
-      "value": 1,
-      "ci_low": 0.6756,
-      "ci_high": 1,
+      "value": 0.875,
+      "ci_low": 0.5291,
+      "ci_high": 0.9776,
       "n": 8,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl"
     },
     {
       "key": "verifier_known-a_cost_usd",
       "label": "Move verifier (development set, CBP origin of current setup given): cost per check (USD, promo)",
-      "value": 0.0314,
+      "value": 0.0352,
       "n": 54,
       "split": "dev",
       "development_only": true,
-      "source": "eval/results/flips-dev-verifier-known-a-litellm.jsonl"
+      "source": "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl"
     },
     {
       "key": "plan_heatgun_cost_usd",

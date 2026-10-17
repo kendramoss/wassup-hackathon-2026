@@ -51,13 +51,28 @@ func NewCacheIn(inner Checker, blobs Blobs, model string) *Cache {
 	return &Cache{inner: inner, blobs: blobs, model: model}
 }
 
+// versioned is a Checker that reports its prompt version.
+type versioned interface{ Version() string }
+
+// checkerVersion is inner's prompt version: the Verifier's, through a
+// Majority, else verifier-v1.
+func checkerVersion(inner Checker) string {
+	if m, ok := inner.(*Majority); ok {
+		inner = m.inner
+	}
+	if v, ok := inner.(versioned); ok {
+		return v.Version()
+	}
+	return PromptVersion
+}
+
 func (c *Cache) key(t Task) string {
 	ex := slices.Clone(t.Exclude)
 	slices.Sort(ex)
 	b, _ := json.Marshal(struct {
 		Prompt, Model, FactsA, FactsB, Target, Before, KnownOriginA, KnownRulingA string
 		Exclude                                                                   []string
-	}{PromptVersion, c.model, t.FactsA, t.FactsB, t.Target, t.Before.Format(time.DateOnly), t.KnownOriginA, t.KnownRulingA, ex})
+	}{checkerVersion(c.inner), c.model, t.FactsA, t.FactsB, t.Target, t.Before.Format(time.DateOnly), t.KnownOriginA, t.KnownRulingA, ex})
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
 }

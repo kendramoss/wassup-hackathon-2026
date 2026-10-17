@@ -253,7 +253,8 @@ export function AccuracyPage() {
               {movePrec && (
                 <li>
                   Move checks on the Plan step: {movePrec.n} of {movePrec.n} flagged moves were right ({ci0(movePrec)}) on a {get("verifier_unknown-a_cost_usd")?.n ?? 54}-pair
-                  development set, finding {pct(moveRec?.value, 0)} of real flips. Development set, not held out.
+                  development set, finding {pct(moveRec?.value, 0)} of real flips. On the 2026 pairs every precedent-supported check was a real change too (12 of 12),
+                  but part of the check&apos;s prompt was written after the research team saw those pairs, so it isn&apos;t a clean held-out test.
                 </li>
               )}
               <li>Not a ruling. A licensed broker confirms before anything is filed.</li>

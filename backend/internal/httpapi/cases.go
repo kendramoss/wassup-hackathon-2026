@@ -106,7 +106,9 @@ type Deps struct {
 	EngineModel    string
 	RouterModel    string
 	VerifierModel  string
-	Logger         *slog.Logger
+	// VerifierPromptVersion is reported in every response's prompt_versions.
+	VerifierPromptVersion string
+	Logger                *slog.Logger
 	// Limits caps model-calling endpoints per client (zero: no limits).
 	Limits Limits
 	// RateStore, when set, enforces Limits with counters shared by every
@@ -197,7 +199,7 @@ type api struct {
 func (a *api) meta() map[string]any {
 	return map[string]any{
 		"model_ids":       map[string]string{"engine": a.d.EngineModel, "router": a.d.RouterModel, "verifier": a.d.VerifierModel},
-		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": verifier.PromptVersion, "clarify": clarify.PromptVersion, "answers": clarify.AnswersVersion, "case_agent": caseagent.PromptVersion},
+		"prompt_versions": map[string]string{"engine": engine.PromptVersion, "router": router.PromptVersion, "verifier": a.verifierVersion(), "clarify": clarify.PromptVersion, "answers": clarify.AnswersVersion, "case_agent": caseagent.PromptVersion},
 		"llm_provider":    a.d.Provider,
 		"disclaimer":      domain.Disclaimer,
 	}
@@ -1260,4 +1262,13 @@ func newCaseID() string {
 	b := make([]byte, 6)
 	_, _ = rand.Read(b)
 	return "case_" + hex.EncodeToString(b)
+}
+
+// verifierVersion is the verifier prompt version in use (D74), verifier-v1
+// when the server did not say.
+func (a *api) verifierVersion() string {
+	if a.d.VerifierPromptVersion != "" {
+		return a.d.VerifierPromptVersion
+	}
+	return verifier.PromptVersion
 }
