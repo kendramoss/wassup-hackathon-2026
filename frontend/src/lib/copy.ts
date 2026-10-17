@@ -83,7 +83,12 @@ export const copy = {
     draft: "Draft the ruling request →",
     draftClosest: "Draft for the closest move →",
     illustrative: "illustrative — editable",
+    illustrativeShort: "illustrative",
     compare: "Compare countries",
+    // Evidence heading over the lead move: a move under the bar isn't
+    // "supported", it's the closest the check came.
+    whySupported: "Why it's supported",
+    closestEvidence: "Precedent check: closest move",
   },
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or
@@ -123,7 +128,7 @@ export const copy = {
     wires: ["facts", "origin", "moves"],
     fig3: "fig.3 — how accurate is it",
     fig3Title: "Test sheet · 377 held-out CBP rulings",
-    fig3Meta: "Jan–Sep 2026 · none seen in training · Vertex AI",
+    fig3Meta: "Jan–Sep 2026 · held out of the precedent pool · Vertex AI",
     scaleHead: "A · measured on a scale",
     squaresHead: "B · every ruling, as a square",
     claimAccuracy: "origin accuracy, vs 60.5% for the best simple rule (most-mentioned country).",

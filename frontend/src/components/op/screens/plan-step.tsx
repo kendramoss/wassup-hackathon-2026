@@ -525,7 +525,7 @@ function WhySupported({ plan }: { plan: Plan }) {
   const v = plan.verdict ?? {};
   return (
     <section aria-label="Precedent check" className="text-[13px]">
-      <h3 className="eyebrow mb-1">Why it&apos;s supported</h3>
+      <h3 className="eyebrow mb-1">{plan.shown ? copy.plan.whySupported : copy.plan.closestEvidence}</h3>
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
         <dt className="text-dim">Check</dt>
         <dd>
