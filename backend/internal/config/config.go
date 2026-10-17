@@ -40,6 +40,13 @@ const (
 	VerdictsOff       = "off"
 )
 
+// Rate limiter stores for RATE_LIMIT_STORE (D70).
+const (
+	RateLocal     = "local"
+	RateMemory    = "memory"
+	RateFirestore = "firestore"
+)
+
 // Config is the validated runtime configuration. Secret fields are excluded
 // from String so the config can be logged.
 type Config struct {
@@ -100,11 +107,31 @@ type Config struct {
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
 	// RateLookupPerMin caps ruling fetches from CROSS per client (D58).
 	RateLookupPerMin int
+	// RateLimitStore is where the limits are counted (D70): local (default,
+	// each instance its own buckets), firestore (fixed-window counters shared
+	// by all instances; falls back to local on a store error) or memory (the
+	// shared limiter in one process, for trying it locally).
+	RateLimitStore string
 	// CasesListLimit caps GET /v1/cases: pinned cases plus the newest others (D58).
 	CasesListLimit int
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// BOMVersions is on or off (default): on serves POST
+	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
+	// product and re-predicted (D67).
+	BOMVersions string
+	// Teams (on|off, default off) verifies the Google ID token the frontend
+	// proxy forwards as X-User-Token and serves team workspaces (D68).
+	// TeamsAudience is the OAuth client ID the tokens must be issued to;
+	// required when Teams is on.
+	Teams         bool
+	TeamsAudience string
+	// APIKeys (on|off, default off) accepts X-API-Key from brokers: the
+	// admin issues keys with a daily request quota, each key gets its own
+	// rate-limit buckets and owns its cases (D69). Keys are kept in Firestore
+	// when cases are, else in memory.
+	APIKeys bool
 	// DailySpendCapUSD stops new model-calling requests once the UTC day's
 	// estimated model spend reaches it (D59); 0 disables the cap.
 	DailySpendCapUSD float64
@@ -122,7 +149,60 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// USMCAEngine (on|off, default off) predicts cases the router labels
+	// usmca_part102 under the Part 102 rules (19 CFR 102.11 / 102.20,
+	// usmca-v1) with precedents from USMCALabels (a copy of
+	// eval/data/labels_usmca.jsonl; facts in FactsDir). USMCAFastPath is its
+	// auto-accept bar; 0 (default) sends every USMCA case to review (D61).
+	USMCAEngine   bool
+	USMCALabels   string
+	USMCAFastPath float64
+	// PharmaEngine (on|off, default off) predicts pharmaceutical cases (router
+	// regime pharma_api) with the pharma-v1 prompt, where origin follows the
+	// active ingredient, instead of leaving them out of scope (D62), with
+	// precedents from PharmaRulings. PharmaFastPath is its auto-accept bar;
+	// 0 (default) sends every pharmaceutical case to review.
+	PharmaEngine   bool
+	PharmaRulings  string
+	PharmaFastPath float64
+	// FastPathByFamily (on|off, default off) replaces the global auto-accept
+	// bar with the per-subfamily bars fitted on dev by `eval calibrate`
+	// (embedded in internal/triage); subfamilies without a fitted bar keep
+	// FastPathConfidence (D63).
+	FastPathByFamily string
+	// HTSSuggest (on|off, default off) serves POST /v1/products/hts-suggest:
+	// candidate HTS subheadings from rulings that state one, listed in
+	// HTSIndex (written by "corpus hts-index"; D64). Off: the endpoint is a 404.
+	HTSSuggest bool
+	HTSIndex   string
+	// DutyLiveMFN (on|off, default off) looks up the MFN (column 1 general)
+	// rate on the USITC HTS for subheadings the sourced duty table does not
+	// cover, caching each answer for DutyLiveMFNTTL; each fetch waits at most
+	// DutyLiveMFNTimeout (D65).
+	DutyLiveMFN        bool
+	DutyLiveMFNTTL     time.Duration
+	DutyLiveMFNTimeout time.Duration
+	// ExportCFR177 (on|off, default off) lets POST /v1/cases/{id}/export
+	// take "format": "cfr177", a ruling-request letter laid out on
+	// 19 CFR 177.2 (D66). Off: only the Markdown draft.
+	ExportCFR177 bool
+	exportCFR177 string // as given, checked by validate
+	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
+	// as server-sent stage events when asked for text/event-stream (D71).
+	StreamPredict string
+	// EvalSlice (on|off, default off) lets `eval slice` spend model calls on
+	// the 30-case regression slice (D72); the comparison against the
+	// committed baseline (-in FILE) needs no model and works either way.
+	// EvalSliceMaxDrop is how many fewer correct cases than the baseline
+	// still pass (default 2); EvalSliceBandMin is the accuracy the cases at
+	// confidence >= 0.95 must keep (default 0.95).
+	EvalSlice        bool
+	EvalSliceMaxDrop int
+	EvalSliceBandMin float64
 }
+
+// StreamPredictOn reports whether STREAM_PREDICT is on.
+func (c Config) StreamPredictOn() bool { return c.StreamPredict == "on" }
 
 // Load reads the configuration from the process environment.
 func Load() (Config, error) { return FromEnv(os.Getenv) }
@@ -149,24 +229,37 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierVotes:        e.integer("VERIFIER_VOTES", 1),
 		PlannerConcurrency:   e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:        e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:          e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:            e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch:    strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
-		CasesDir:          e.dir("CASES_DIR", "../data/cases"),
-		FirestoreDatabase: e.str("FIRESTORE_DATABASE", "(default)"),
-		VerifierCacheDir:  e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
-		RateLightPerMin:   e.integer("RATE_LIGHT_PER_MIN", 20),
-		RateHeavyPerMin:   e.integer("RATE_HEAVY_PER_MIN", 4),
-		RateGlobalPerMin:  e.integer("RATE_GLOBAL_PER_MIN", 120),
-		RateLookupPerMin:  e.integer("RATE_LOOKUP_PER_MIN", 30),
-		CasesListLimit:    e.integer("CASES_LIST_LIMIT", 200),
-		DailySpendCapUSD:  e.float("DAILY_SPEND_CAP_USD", 0),
-		AdminToken:        e.str("ADMIN_TOKEN", ""),
-		TextileRulings:    e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
-		TextileFastPath:   e.float("TEXTILE_FAST_PATH", 0),
-		TextilePrompt:     strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
-		TextileReasoning:  e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		LabelsPath:         e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:           e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:             e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:     strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		CasesDir:           e.dir("CASES_DIR", "../data/cases"),
+		FirestoreDatabase:  e.str("FIRESTORE_DATABASE", "(default)"),
+		VerifierCacheDir:   e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		RateLightPerMin:    e.integer("RATE_LIGHT_PER_MIN", 20),
+		RateHeavyPerMin:    e.integer("RATE_HEAVY_PER_MIN", 4),
+		RateGlobalPerMin:   e.integer("RATE_GLOBAL_PER_MIN", 120),
+		RateLookupPerMin:   e.integer("RATE_LOOKUP_PER_MIN", 30),
+		RateLimitStore:     strings.ToLower(e.str("RATE_LIMIT_STORE", RateLocal)),
+		CasesListLimit:     e.integer("CASES_LIST_LIMIT", 200),
+		BOMVersions:        strings.ToLower(e.str("BOM_VERSIONS", "off")),
+		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
+		AdminToken:         e.str("ADMIN_TOKEN", ""),
+		TeamsAudience:      e.str("TEAMS_AUDIENCE", ""),
+		TextileRulings:     e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
+		TextileFastPath:    e.float("TEXTILE_FAST_PATH", 0),
+		TextilePrompt:      strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
+		TextileReasoning:   e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		USMCALabels:        e.str("USMCA_LABELS", "data/labels_usmca.jsonl"),
+		USMCAFastPath:      e.float("USMCA_FAST_PATH", 0),
+		PharmaRulings:      e.str("PHARMA_RULINGS", "data/pharma_rulings.json"),
+		PharmaFastPath:     e.float("PHARMA_FAST_PATH", 0),
+		FastPathByFamily:   strings.ToLower(e.str("FAST_PATH_BY_FAMILY", "off")),
+		HTSIndex:           e.str("HTS_INDEX", "data/hts_index.json"),
+		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
+		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
+		EvalSliceMaxDrop:   e.integer("EVAL_SLICE_MAX_DROP", 2),
+		EvalSliceBandMin:   e.float("EVAL_SLICE_BAND_MIN", 0.95),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -175,12 +268,71 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
 	}
+	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
+	case "on", "true", "1":
+		c.Teams = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("TEAMS must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("API_KEYS", "off")); v {
+	case "on", "true", "1":
+		c.APIKeys = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("API_KEYS must be on or off, got %q", v))
+	}
 	switch v := strings.ToLower(e.str("TEXTILE_ENGINE", "off")); v {
 	case "on", "true", "1":
 		c.TextileEngine = true
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("USMCA_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.USMCAEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("USMCA_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("PHARMA_ENGINE", "off")); v {
+	case "on", "true", "1":
+		c.PharmaEngine = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("PHARMA_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("HTS_SUGGEST", "off")); v {
+	case "on", "true", "1":
+		c.HTSSuggest = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("HTS_SUGGEST must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("DUTY_LIVE_MFN", "off")); v {
+	case "on", "true", "1":
+		c.DutyLiveMFN = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("DUTY_LIVE_MFN must be on or off, got %q", v))
+	}
+	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
+	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
+	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
+	case "on", "true", "1":
+		c.StreamPredict = "on"
+	case "off", "false", "0":
+		c.StreamPredict = "off"
+	default:
+		c.StreamPredict = v // refused by validate
+	}
+	switch v := strings.ToLower(e.str("EVAL_SLICE", "off")); v {
+	case "on", "true", "1":
+		c.EvalSlice = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("EVAL_SLICE must be on or off, got %q", v))
 	}
 	defStore := CasesFile
 	if c.OnCloudRun {
@@ -239,11 +391,43 @@ func (c Config) validate() error {
 	if c.CasesListLimit < 1 {
 		bad("CASES_LIST_LIMIT must be positive, got %d", c.CasesListLimit)
 	}
+	switch c.exportCFR177 {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("EXPORT_CFR177 must be on or off, got %q", c.exportCFR177)
+	}
+	if c.BOMVersions != "on" && c.BOMVersions != "off" {
+		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
+	}
+	if c.Teams && !strings.HasSuffix(c.TeamsAudience, ".apps.googleusercontent.com") {
+		bad("TEAMS=on needs TEAMS_AUDIENCE, the Google OAuth client ID (…apps.googleusercontent.com), got %q", c.TeamsAudience)
+	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
 	}
+	if c.FastPathByFamily != "on" && c.FastPathByFamily != "off" {
+		bad("FAST_PATH_BY_FAMILY must be on or off, got %q", c.FastPathByFamily)
+	}
+	if c.HTSSuggest && !strings.HasSuffix(c.HTSIndex, ".json") {
+		bad("HTS_INDEX must be a .json file written by \"corpus hts-index\", got %q", c.HTSIndex)
+	}
+	if c.StreamPredict != "on" && c.StreamPredict != "off" {
+		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
+	}
+	if c.EvalSliceMaxDrop < 0 {
+		bad("EVAL_SLICE_MAX_DROP must be 0 or more correct cases, got %d", c.EvalSliceMaxDrop)
+	}
+	if c.EvalSliceBandMin <= 0 || c.EvalSliceBandMin > 1 {
+		bad("EVAL_SLICE_BAND_MIN must be in (0, 1], got %v", c.EvalSliceBandMin)
+	}
 	if c.TextileFastPath < 0 || c.TextileFastPath > 1 {
 		bad("TEXTILE_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.TextileFastPath)
+	}
+	if c.USMCAFastPath < 0 || c.USMCAFastPath > 1 {
+		bad("USMCA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.USMCAFastPath)
+	}
+	if c.PharmaFastPath < 0 || c.PharmaFastPath > 1 {
+		bad("PHARMA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.PharmaFastPath)
 	}
 	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
@@ -253,8 +437,25 @@ func (c Config) validate() error {
 	if c.RateGlobalPerMin > 0 && c.RateGlobalPerMin < 20 { // one batch request takes 20 (httpapi.MaxBatch)
 		bad("RATE_GLOBAL_PER_MIN must be 0 (off) or at least 20, got %d", c.RateGlobalPerMin)
 	}
+	switch c.RateLimitStore {
+	case RateFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when RATE_LIMIT_STORE=firestore")
+		}
+	case RateLocal, RateMemory:
+	default:
+		bad("RATE_LIMIT_STORE must be local, firestore or memory, got %q", c.RateLimitStore)
+	}
 	if c.AdminToken != "" && len(c.AdminToken) < 16 && c.OnCloudRun {
 		bad("ADMIN_TOKEN must be at least 16 characters on Cloud Run")
+	}
+	if c.APIKeys {
+		if c.AdminToken == "" {
+			bad("API_KEYS=on needs ADMIN_TOKEN (keys are issued with it)")
+		}
+		if c.OnCloudRun && c.CasesStore != CasesFirestore {
+			bad("API_KEYS=on on Cloud Run needs CASES_STORE=firestore (keys in memory are lost on restart and not shared)")
+		}
 	}
 	switch c.VerifierCacheStore {
 	case VerdictsFirestore:
@@ -284,11 +485,20 @@ func (c Config) validate() error {
 	if c.LLMMaxRetries < 0 {
 		bad("LLM_MAX_RETRIES must not be negative, got %d", c.LLMMaxRetries)
 	}
+	if c.DutyLiveMFNTTL <= 0 {
+		bad("DUTY_LIVE_MFN_TTL must be positive, got %s", c.DutyLiveMFNTTL)
+	}
+	if c.DutyLiveMFNTimeout <= 0 || c.DutyLiveMFNTimeout > 30*time.Second {
+		bad("DUTY_LIVE_MFN_TIMEOUT must be positive and at most 30s (it delays a plan search), got %s", c.DutyLiveMFNTimeout)
+	}
 	if c.LLMTimeout <= 0 {
 		bad("LLM_TIMEOUT must be positive, got %s", c.LLMTimeout)
 	}
 	return errors.Join(errs...)
 }
+
+// FamilyBars reports whether triage uses the per-subfamily bars (D63).
+func (c Config) FamilyBars() bool { return c.FastPathByFamily == "on" }
 
 // String renders the config for startup logs; it holds no secrets.
 func (c Config) String() string {

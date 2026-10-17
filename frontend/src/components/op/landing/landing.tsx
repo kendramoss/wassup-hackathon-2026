@@ -29,7 +29,10 @@ function useDemoHref() {
     (async () => {
       try {
         const [cases, demos] = await Promise.all([api.listCases(), api.demos()]);
-        const pinned = cases.cases.find((c) => c.pinned && /heat gun|kobalt/i.test(`${c.display_name ?? ""} ${c.product_name ?? ""}`));
+        // The 2022-setup case tells the landing story (CBP held China; the
+        // plan moves work to Thailand); other heat-gun demos are variants (#149).
+        const heat = cases.cases.filter((c) => c.pinned && /heat gun|kobalt/i.test(`${c.display_name ?? ""} ${c.product_name ?? ""}`));
+        const pinned = heat.find((c) => /2022 setup/i.test(c.display_name ?? "")) ?? heat[0];
         const demo = (demos.demos ?? []).find((d) => /heat/i.test(`${d.id ?? ""} ${d.title ?? ""}`));
         if (!live) return;
         if (pinned) setHref(`/cases/${encodeURIComponent(pinned.id)}/origin`);

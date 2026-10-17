@@ -10,7 +10,7 @@ export const copy = {
 
   cases: {
     title: "Cases",
-    empty: "No cases yet. Start one, or load a demo with real CBP facts.",
+    empty: "No cases yet. Cases you start show here, and only you see them.",
     newCase: "+ New case",
     recheckAll: "Re-check all",
     demos: "Demos · real CBP facts",
@@ -30,6 +30,13 @@ export const copy = {
     factsHelp: "Components, where each is made, and the processing in each country, as you would write to CBP.",
     go: "Find the likely origin",
     working: "Finding the likely origin…",
+    // Steps of the analysis as the backend streams them (D71).
+    stages: {
+      router: "Checking which origin rules apply",
+      precedents: "Finding earlier CBP rulings",
+      engine: "Weighing the facts against them",
+      clarify: "Checking what CBP would ask",
+    },
     bomDrop: "Drag and drop your bill of materials",
     bomDropActive: "Release to import",
     bomFormats: "CSV, Excel (.xlsx) or PDF · one row per part",

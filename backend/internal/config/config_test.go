@@ -108,6 +108,68 @@ func TestCasesStoreDefaults(t *testing.T) {
 	}
 }
 
+func TestRateLimitStore(t *testing.T) {
+	tests := []struct {
+		name string
+		env  map[string]string
+		want string // the store; empty means a config error
+	}{
+		{"local by default", vertexEnv(), RateLocal},
+		{"local by default on Cloud Run", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}, RateLocal},
+		{"firestore", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "Firestore"}), RateFirestore},
+		{"memory", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "memory"}), RateMemory},
+		{"firestore needs a project", map[string]string{"LLM_PROVIDER": "fake", "RATE_LIMIT_STORE": "firestore"}, ""},
+		{"unknown", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "redis"}), ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := FromEnv(getenv(tt.env))
+			switch {
+			case tt.want == "" && (err == nil || !strings.Contains(err.Error(), "RATE_LIMIT_STORE")):
+				t.Errorf("error %v, want one naming RATE_LIMIT_STORE", err)
+			case tt.want != "" && (err != nil || c.RateLimitStore != tt.want):
+				t.Errorf("store = %q %v, want %q", c.RateLimitStore, err, tt.want)
+			}
+		})
+	}
+}
+
+func TestStreamPredictConfig(t *testing.T) {
+	tests := []struct {
+		value string
+		on    bool
+		want  string // fragment of the error; empty means valid
+	}{
+		{"", false, ""},
+		{"off", false, ""},
+		{"on", true, ""},
+		{"ON", true, ""},
+		{"true", true, ""},
+		{"0", false, ""},
+		{"stream", false, `STREAM_PREDICT must be on or off, got "stream"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.value, func(t *testing.T) {
+			env := vertexEnv()
+			if tt.value != "" {
+				env["STREAM_PREDICT"] = tt.value
+			}
+			c, err := FromEnv(getenv(env))
+			switch {
+			case tt.want == "" && err != nil:
+				t.Fatalf("unexpected error: %v", err)
+			case tt.want != "" && (err == nil || !strings.Contains(err.Error(), tt.want)):
+				t.Fatalf("error %v, want it to contain %q", err, tt.want)
+			case tt.want == "" && c.StreamPredictOn() != tt.on:
+				t.Errorf("StreamPredictOn = %v, want %v", c.StreamPredictOn(), tt.on)
+			}
+		})
+	}
+	if err := (Config{LLMProvider: ProviderFake, StreamPredict: "maybe"}).validate(); err == nil || !strings.Contains(err.Error(), "STREAM_PREDICT") {
+		t.Errorf("validate accepted STREAM_PREDICT=maybe: %v", err)
+	}
+}
+
 func TestTextileConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.TextileEngine || c.TextileFastPath != 0 || c.TextileRulings != "data/textile_rulings.json" {
@@ -123,6 +185,233 @@ func TestTextileConfig(t *testing.T) {
 	for _, bad := range []map[string]string{{"TEXTILE_ENGINE": "maybe"}, {"TEXTILE_FAST_PATH": "1.5"}, {"TEXTILE_PROMPT": "v3"}} {
 		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
 			t.Errorf("%v accepted", bad)
+		}
+	}
+}
+
+func TestUSMCAConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.USMCAEngine || c.USMCAFastPath != 0 || c.USMCALabels != "data/labels_usmca.jsonl" {
+		t.Fatalf("usmca defaults = %v %v %q %v", c.USMCAEngine, c.USMCAFastPath, c.USMCALabels, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"USMCA_ENGINE": "on", "USMCA_FAST_PATH": "0.9"})))
+	if err != nil || !on.USMCAEngine || on.USMCAFastPath != 0.9 {
+		t.Errorf("usmca on = %v %v %v", on.USMCAEngine, on.USMCAFastPath, err)
+	}
+	for _, bad := range []map[string]string{{"USMCA_ENGINE": "maybe"}, {"USMCA_FAST_PATH": "1.5"}, {"USMCA_FAST_PATH": "-0.1"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil {
+			t.Errorf("%v accepted", bad)
+		}
+	}
+}
+
+func TestPharmaConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.PharmaEngine || c.PharmaFastPath != 0 || c.PharmaRulings != "data/pharma_rulings.json" {
+		t.Fatalf("pharma defaults = %v %v %q %v", c.PharmaEngine, c.PharmaFastPath, c.PharmaRulings, err)
+	}
+	tests := []struct {
+		env    map[string]string
+		on     bool
+		fast   float64
+		wantOK bool
+	}{
+		{map[string]string{"PHARMA_ENGINE": "on"}, true, 0, true},
+		{map[string]string{"PHARMA_ENGINE": "ON", "PHARMA_FAST_PATH": "0.97"}, true, 0.97, true},
+		{map[string]string{"PHARMA_ENGINE": "off", "PHARMA_FAST_PATH": "1"}, false, 1, true},
+		{map[string]string{"PHARMA_ENGINE": "maybe"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "1.5"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "-0.1"}, false, 0, false},
+		{map[string]string{"PHARMA_FAST_PATH": "high"}, false, 0, false},
+	}
+	for _, tt := range tests {
+		got, err := FromEnv(getenv(merge(vertexEnv(), tt.env)))
+		if (err == nil) != tt.wantOK {
+			t.Errorf("%v: err = %v, want ok %v", tt.env, err, tt.wantOK)
+			continue
+		}
+		if tt.wantOK && (got.PharmaEngine != tt.on || got.PharmaFastPath != tt.fast) {
+			t.Errorf("%v = engine %v fast %v", tt.env, got.PharmaEngine, got.PharmaFastPath)
+		}
+	}
+}
+
+func TestFastPathByFamily(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.FastPathByFamily != "off" || c.FamilyBars() {
+		t.Fatalf("default = %q %v %v", c.FastPathByFamily, c.FamilyBars(), err)
+	}
+	for _, tt := range []struct {
+		v    string
+		want bool
+		bad  bool
+	}{{"on", true, false}, {"ON", true, false}, {"off", false, false}, {"true", false, true}, {"family", false, true}} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"FAST_PATH_BY_FAMILY": tt.v})))
+		switch {
+		case tt.bad && (err == nil || !strings.Contains(err.Error(), "FAST_PATH_BY_FAMILY must be on or off")):
+			t.Errorf("%q accepted: %v", tt.v, err)
+		case !tt.bad && (err != nil || c.FamilyBars() != tt.want):
+			t.Errorf("%q = %v %v, want %v", tt.v, c.FamilyBars(), err, tt.want)
+		}
+	}
+}
+
+func TestHTSSuggestConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.HTSSuggest || c.HTSIndex != "data/hts_index.json" {
+		t.Fatalf("hts defaults = %v %q %v", c.HTSSuggest, c.HTSIndex, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"HTS_SUGGEST": "ON", "HTS_INDEX": "/data/x.json"})))
+	if err != nil || !on.HTSSuggest || on.HTSIndex != "/data/x.json" {
+		t.Errorf("hts on = %v %q %v", on.HTSSuggest, on.HTSIndex, err)
+	}
+	tests := []struct {
+		env  map[string]string
+		want string
+	}{
+		{map[string]string{"HTS_SUGGEST": "maybe"}, "HTS_SUGGEST must be on or off"},
+		{map[string]string{"HTS_SUGGEST": "on", "HTS_INDEX": "data/facts"}, "HTS_INDEX must be a .json file"},
+	}
+	for _, tt := range tests {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), tt.env))); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: error %v, want %q", tt.env, err, tt.want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"HTS_INDEX": "data/facts"}))); err != nil {
+		t.Errorf("HTS_INDEX is not checked while off: %v", err)
+	}
+}
+
+func TestDutyLiveMFNConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.DutyLiveMFN || c.DutyLiveMFNTTL != 24*time.Hour || c.DutyLiveMFNTimeout != 5*time.Second {
+		t.Fatalf("live MFN defaults = %v %s %s %v", c.DutyLiveMFN, c.DutyLiveMFNTTL, c.DutyLiveMFNTimeout, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"DUTY_LIVE_MFN": "on", "DUTY_LIVE_MFN_TTL": "6h", "DUTY_LIVE_MFN_TIMEOUT": "3s"})))
+	if err != nil || !on.DutyLiveMFN || on.DutyLiveMFNTTL != 6*time.Hour || on.DutyLiveMFNTimeout != 3*time.Second {
+		t.Errorf("live MFN on = %v %s %s %v", on.DutyLiveMFN, on.DutyLiveMFNTTL, on.DutyLiveMFNTimeout, err)
+	}
+	for _, bad := range []map[string]string{{"DUTY_LIVE_MFN": "yes please"}, {"DUTY_LIVE_MFN_TTL": "0s"}, {"DUTY_LIVE_MFN_TTL": "soon"},
+		{"DUTY_LIVE_MFN_TIMEOUT": "-1s"}, {"DUTY_LIVE_MFN_TIMEOUT": "2m"}} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "DUTY_LIVE_MFN") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestExportCFR177Config(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.ExportCFR177 {
+		t.Fatalf("EXPORT_CFR177 default = %v %v, want off", c.ExportCFR177, err)
+	}
+	for v, want := range map[string]bool{"on": true, "ON": true, "1": true, "off": false, "0": false} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EXPORT_CFR177": v})))
+		if err != nil || c.ExportCFR177 != want {
+			t.Errorf("EXPORT_CFR177=%s = %v %v, want %v", v, c.ExportCFR177, err, want)
+		}
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EXPORT_CFR177": "maybe"}))); err == nil || !strings.Contains(err.Error(), "EXPORT_CFR177") {
+		t.Errorf("EXPORT_CFR177=maybe: %v", err)
+	}
+}
+
+func TestBOMVersionsConfig(t *testing.T) {
+	for _, tt := range []struct {
+		value, want string
+		ok          bool
+	}{
+		{"", "off", true}, {"off", "off", true}, {"ON", "on", true}, {"true", "", false}, {"maybe", "", false},
+	} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"BOM_VERSIONS": tt.value})))
+		switch {
+		case tt.ok && (err != nil || c.BOMVersions != tt.want):
+			t.Errorf("BOM_VERSIONS=%q: got %q, %v; want %q", tt.value, c.BOMVersions, err, tt.want)
+		case !tt.ok && (err == nil || !strings.Contains(err.Error(), "BOM_VERSIONS must be on or off")):
+			t.Errorf("BOM_VERSIONS=%q accepted: %v", tt.value, err)
+		}
+	}
+}
+
+func TestTeamsConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.Teams || c.TeamsAudience != "" {
+		t.Fatalf("teams defaults = %v %q %v", c.Teams, c.TeamsAudience, err)
+	}
+	const aud = "1234-abc.apps.googleusercontent.com"
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEAMS": "on", "TEAMS_AUDIENCE": aud})))
+	if err != nil || !on.Teams || on.TeamsAudience != aud {
+		t.Errorf("teams on = %v %q %v", on.Teams, on.TeamsAudience, err)
+	}
+	// An audience alone does nothing: teams stays off.
+	if off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TEAMS_AUDIENCE": aud}))); err != nil || off.Teams {
+		t.Errorf("audience without TEAMS = %v %v", off.Teams, err)
+	}
+	for _, bad := range []map[string]string{
+		{"TEAMS": "maybe", "TEAMS_AUDIENCE": aud},
+		{"TEAMS": "on"}, // no audience: any client's token would pass
+		{"TEAMS": "on", "TEAMS_AUDIENCE": "my-backend-url"}, // not an OAuth client ID
+	} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), bad))); err == nil || !strings.Contains(err.Error(), "TEAMS") {
+			t.Errorf("%v accepted: %v", bad, err)
+		}
+	}
+}
+
+func TestAPIKeysConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.APIKeys {
+		t.Fatalf("API keys default = %v %v, want off", c.APIKeys, err)
+	}
+	tests := []struct {
+		name string
+		env  map[string]string
+		on   bool
+		want string // fragment of the error; empty means valid
+	}{
+		{"on with admin token", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "local-admin"}, true, ""},
+		{"off explicitly", map[string]string{"API_KEYS": "off"}, false, ""},
+		{"bad value", map[string]string{"API_KEYS": "maybe"}, false, "API_KEYS must be on or off"},
+		{"needs admin token", map[string]string{"API_KEYS": "on"}, false, "API_KEYS=on needs ADMIN_TOKEN"},
+		{"Cloud Run needs firestore", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "a-long-admin-token-123", "K_SERVICE": "backend", "CASES_STORE": "memory"}, false, "CASES_STORE=firestore"},
+		{"Cloud Run with firestore", map[string]string{"API_KEYS": "on", "ADMIN_TOKEN": "a-long-admin-token-123", "K_SERVICE": "backend"}, true, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := FromEnv(getenv(merge(vertexEnv(), tt.env)))
+			switch {
+			case tt.want == "" && err != nil:
+				t.Fatalf("unexpected error: %v", err)
+			case tt.want != "" && (err == nil || !strings.Contains(err.Error(), tt.want)):
+				t.Fatalf("error %v, want it to contain %q", err, tt.want)
+			case tt.want == "" && c.APIKeys != tt.on:
+				t.Errorf("APIKeys = %v, want %v", c.APIKeys, tt.on)
+			}
+		})
+	}
+}
+
+func TestEvalSliceConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.EvalSlice || c.EvalSliceMaxDrop != 2 || c.EvalSliceBandMin != 0.95 {
+		t.Fatalf("eval slice defaults = %v %d %v %v", c.EvalSlice, c.EvalSliceMaxDrop, c.EvalSliceBandMin, err)
+	}
+	on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"EVAL_SLICE": "ON", "EVAL_SLICE_MAX_DROP": "0", "EVAL_SLICE_BAND_MIN": "1"})))
+	if err != nil || !on.EvalSlice || on.EvalSliceMaxDrop != 0 || on.EvalSliceBandMin != 1 {
+		t.Errorf("eval slice on = %v %d %v %v", on.EvalSlice, on.EvalSliceMaxDrop, on.EvalSliceBandMin, err)
+	}
+	tests := []struct {
+		env  map[string]string
+		want string
+	}{
+		{map[string]string{"EVAL_SLICE": "sometimes"}, "EVAL_SLICE must be on or off"},
+		{map[string]string{"EVAL_SLICE_MAX_DROP": "-1"}, "EVAL_SLICE_MAX_DROP must be 0 or more"},
+		{map[string]string{"EVAL_SLICE_MAX_DROP": "two"}, "not an integer"},
+		{map[string]string{"EVAL_SLICE_BAND_MIN": "0"}, "EVAL_SLICE_BAND_MIN must be in (0, 1]"},
+		{map[string]string{"EVAL_SLICE_BAND_MIN": "95"}, "EVAL_SLICE_BAND_MIN must be in (0, 1]"},
+	}
+	for _, tt := range tests {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), tt.env))); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: error %v, want %q", tt.env, err, tt.want)
 		}
 	}
 }

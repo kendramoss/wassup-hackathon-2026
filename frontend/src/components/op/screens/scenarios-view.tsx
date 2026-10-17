@@ -60,7 +60,13 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
       : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];
     if (!add) return base;
     const label = add.length > 60 ? add.slice(0, 59) + "…" : add;
-    return [...base.slice(0, 2), { label, mode: "facts", groups: [], plant: "", facts: `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() }];
+    // From Ask: the revised facts the what-if ran on, when the drawer left
+    // them; otherwise the original facts with the change appended (#115).
+    let revised: string | null = null;
+    try {
+      revised = sessionStorage.getItem(`op-whatif:${c.id}:${add}`);
+    } catch {}
+    return [...base.slice(0, 2), { label, mode: "facts", groups: [], plant: "", facts: revised ?? `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() }];
   });
   const [editing, setEditing] = useState(Boolean(add) || !(c.scenarios?.length));
   const [busy, setBusy] = useState(false);

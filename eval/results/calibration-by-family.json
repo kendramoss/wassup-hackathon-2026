@@ -1,0 +1,371 @@
+{
+  "command": "eval calibrate",
+  "rule": "dev only: per router subfamily, the lowest confidence c such that, among in-scope dev cases, accuracy at confidence ≥ c' is ≥ 95% for every c' ≥ c that keeps ≥ 20 cases (and c itself keeps ≥ 20); else the global 0.92",
+  "target": 0.95,
+  "min_n": 20,
+  "global_bar": 0.92,
+  "inputs": {
+    "adjust": "eval/data/scoring_adjustments.json",
+    "dev": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+    "dev_scope": "eval/results/scope-dev-router-v2-vertex.jsonl",
+    "final": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+    "final_scope": "eval/results/scope-final-router-v2-vertex.jsonl"
+  },
+  "bars": {
+    "electronics": 0.78,
+    "filters": 0.95,
+    "metal_tools_parts": 0.78,
+    "motorised": 0.75,
+    "other": 0.96
+  },
+  "families": [
+    {
+      "subfamily": "apparel_textile_goods",
+      "dev_n": 1,
+      "dev_auto": 1,
+      "dev_correct": 1,
+      "bar": 0.92,
+      "fitted": false,
+      "note": "fewer than 20 in-scope dev cases",
+      "global_bar": 0.92,
+      "dev_auto_global": 1,
+      "dev_correct_global": 1
+    },
+    {
+      "subfamily": "battery_solar",
+      "dev_n": 4,
+      "dev_auto": 4,
+      "dev_correct": 4,
+      "bar": 0.92,
+      "fitted": false,
+      "note": "fewer than 20 in-scope dev cases",
+      "global_bar": 0.92,
+      "dev_auto_global": 4,
+      "dev_correct_global": 4
+    },
+    {
+      "subfamily": "electronics",
+      "dev_n": 120,
+      "dev_auto": 120,
+      "dev_correct": 115,
+      "bar": 0.78,
+      "fitted": true,
+      "note": "",
+      "global_bar": 0.92,
+      "dev_auto_global": 108,
+      "dev_correct_global": 107
+    },
+    {
+      "subfamily": "filters",
+      "dev_n": 38,
+      "dev_auto": 23,
+      "dev_correct": 22,
+      "bar": 0.95,
+      "fitted": true,
+      "note": "",
+      "global_bar": 0.92,
+      "dev_auto_global": 26,
+      "dev_correct_global": 24
+    },
+    {
+      "subfamily": "furniture_fixtures",
+      "dev_n": 15,
+      "dev_auto": 15,
+      "dev_correct": 14,
+      "bar": 0.92,
+      "fitted": false,
+      "note": "fewer than 20 in-scope dev cases",
+      "global_bar": 0.92,
+      "dev_auto_global": 15,
+      "dev_correct_global": 14
+    },
+    {
+      "subfamily": "medical",
+      "dev_n": 12,
+      "dev_auto": 9,
+      "dev_correct": 8,
+      "bar": 0.92,
+      "fitted": false,
+      "note": "fewer than 20 in-scope dev cases",
+      "global_bar": 0.92,
+      "dev_auto_global": 9,
+      "dev_correct_global": 8
+    },
+    {
+      "subfamily": "metal_tools_parts",
+      "dev_n": 85,
+      "dev_auto": 84,
+      "dev_correct": 80,
+      "bar": 0.78,
+      "fitted": true,
+      "note": "",
+      "global_bar": 0.92,
+      "dev_auto_global": 74,
+      "dev_correct_global": 73
+    },
+    {
+      "subfamily": "motorised",
+      "dev_n": 49,
+      "dev_auto": 49,
+      "dev_correct": 47,
+      "bar": 0.75,
+      "fitted": true,
+      "note": "",
+      "global_bar": 0.92,
+      "dev_auto_global": 36,
+      "dev_correct_global": 36
+    },
+    {
+      "subfamily": "other",
+      "dev_n": 131,
+      "dev_auto": 64,
+      "dev_correct": 61,
+      "bar": 0.96,
+      "fitted": true,
+      "note": "",
+      "global_bar": 0.92,
+      "dev_auto_global": 95,
+      "dev_correct_global": 88
+    }
+  ],
+  "splits": [
+    {
+      "split": "dev",
+      "n": 463,
+      "global": {
+        "auto": 368,
+        "correct": 355,
+        "coverage": 0.7948164146868251,
+        "coverage_ci_low": 0.7556768544587267,
+        "coverage_ci_high": 0.8291039362848576,
+        "accuracy": 0.9646739130434783,
+        "accuracy_ci_low": 0.940505286479969,
+        "accuracy_ci_high": 0.9792411862116288,
+        "wrong_accepted": 13
+      },
+      "family": {
+        "auto": 369,
+        "correct": 352,
+        "coverage": 0.796976241900648,
+        "coverage_ci_low": 0.7579612493246317,
+        "coverage_ci_high": 0.8311036497760482,
+        "accuracy": 0.9539295392953929,
+        "accuracy_ci_low": 0.9274649177567073,
+        "accuracy_ci_high": 0.9710399701098827,
+        "wrong_accepted": 17
+      },
+      "coverage_mcnemar": {
+        "only_family": 35,
+        "only_global": 34,
+        "p": 1
+      },
+      "wrong_accept_mcnemar": {
+        "only_family": 9,
+        "only_global": 5,
+        "p": 0.42395019531249944
+      },
+      "by_family": [
+        {
+          "subfamily": "apparel_textile_goods",
+          "n": 4,
+          "bar": 0.92,
+          "global_auto": 1,
+          "global_correct": 1,
+          "family_auto": 1,
+          "family_correct": 1
+        },
+        {
+          "subfamily": "battery_solar",
+          "n": 4,
+          "bar": 0.92,
+          "global_auto": 4,
+          "global_correct": 4,
+          "family_auto": 4,
+          "family_correct": 4
+        },
+        {
+          "subfamily": "electronics",
+          "n": 121,
+          "bar": 0.78,
+          "global_auto": 108,
+          "global_correct": 107,
+          "family_auto": 120,
+          "family_correct": 115
+        },
+        {
+          "subfamily": "filters",
+          "n": 38,
+          "bar": 0.95,
+          "global_auto": 26,
+          "global_correct": 24,
+          "family_auto": 23,
+          "family_correct": 22
+        },
+        {
+          "subfamily": "furniture_fixtures",
+          "n": 16,
+          "bar": 0.92,
+          "global_auto": 15,
+          "global_correct": 14,
+          "family_auto": 15,
+          "family_correct": 14
+        },
+        {
+          "subfamily": "medical",
+          "n": 12,
+          "bar": 0.92,
+          "global_auto": 9,
+          "global_correct": 8,
+          "family_auto": 9,
+          "family_correct": 8
+        },
+        {
+          "subfamily": "metal_tools_parts",
+          "n": 85,
+          "bar": 0.78,
+          "global_auto": 74,
+          "global_correct": 73,
+          "family_auto": 84,
+          "family_correct": 80
+        },
+        {
+          "subfamily": "motorised",
+          "n": 50,
+          "bar": 0.75,
+          "global_auto": 36,
+          "global_correct": 36,
+          "family_auto": 49,
+          "family_correct": 47
+        },
+        {
+          "subfamily": "other",
+          "n": 133,
+          "bar": 0.96,
+          "global_auto": 95,
+          "global_correct": 88,
+          "family_auto": 64,
+          "family_correct": 61
+        }
+      ]
+    },
+    {
+      "split": "final",
+      "n": 377,
+      "global": {
+        "auto": 300,
+        "correct": 288,
+        "coverage": 0.7957559681697612,
+        "coverage_ci_low": 0.7521728110318594,
+        "coverage_ci_high": 0.8333724655345661,
+        "accuracy": 0.96,
+        "accuracy_ci_low": 0.9313951365400219,
+        "accuracy_ci_high": 0.9769729078620613,
+        "wrong_accepted": 12
+      },
+      "family": {
+        "auto": 287,
+        "correct": 270,
+        "coverage": 0.7612732095490716,
+        "coverage_ci_low": 0.7157408094030632,
+        "coverage_ci_high": 0.8015346142901468,
+        "accuracy": 0.9407665505226481,
+        "accuracy_ci_low": 0.9071968701443168,
+        "accuracy_ci_high": 0.9626924441766057,
+        "wrong_accepted": 17
+      },
+      "coverage_mcnemar": {
+        "only_family": 25,
+        "only_global": 38,
+        "p": 0.1299179230225512
+      },
+      "wrong_accept_mcnemar": {
+        "only_family": 8,
+        "only_global": 3,
+        "p": 0.22656249999999994
+      },
+      "by_family": [
+        {
+          "subfamily": "apparel_textile_goods",
+          "n": 6,
+          "bar": 0.92,
+          "global_auto": 3,
+          "global_correct": 3,
+          "family_auto": 3,
+          "family_correct": 3
+        },
+        {
+          "subfamily": "battery_solar",
+          "n": 5,
+          "bar": 0.92,
+          "global_auto": 5,
+          "global_correct": 5,
+          "family_auto": 5,
+          "family_correct": 5
+        },
+        {
+          "subfamily": "electronics",
+          "n": 76,
+          "bar": 0.78,
+          "global_auto": 72,
+          "global_correct": 72,
+          "family_auto": 74,
+          "family_correct": 74
+        },
+        {
+          "subfamily": "filters",
+          "n": 1,
+          "bar": 0.95,
+          "global_auto": 1,
+          "global_correct": 1,
+          "family_auto": 1,
+          "family_correct": 1
+        },
+        {
+          "subfamily": "furniture_fixtures",
+          "n": 13,
+          "bar": 0.92,
+          "global_auto": 6,
+          "global_correct": 4,
+          "family_auto": 6,
+          "family_correct": 4
+        },
+        {
+          "subfamily": "medical",
+          "n": 8,
+          "bar": 0.92,
+          "global_auto": 6,
+          "global_correct": 6,
+          "family_auto": 6,
+          "family_correct": 6
+        },
+        {
+          "subfamily": "metal_tools_parts",
+          "n": 82,
+          "bar": 0.78,
+          "global_auto": 66,
+          "global_correct": 64,
+          "family_auto": 81,
+          "family_correct": 73
+        },
+        {
+          "subfamily": "motorised",
+          "n": 49,
+          "bar": 0.75,
+          "global_auto": 40,
+          "global_correct": 38,
+          "family_auto": 48,
+          "family_correct": 44
+        },
+        {
+          "subfamily": "other",
+          "n": 137,
+          "bar": 0.96,
+          "global_auto": 101,
+          "global_correct": 95,
+          "family_auto": 63,
+          "family_correct": 60
+        }
+      ]
+    }
+  ]
+}

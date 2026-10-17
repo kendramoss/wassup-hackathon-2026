@@ -33,6 +33,10 @@ function Compare({ id, c }: CaseCtx) {
   const origin = c.prediction?.origin_country;
   const options = useMemo(() => [...new Set((c.product?.plants ?? []).map((p) => p.country).filter(Boolean))], [c.product]);
   const [picked, setPicked] = useState<string[]>(() => {
+    // A stored ranking was run on some countries: start from those, so the
+    // chips match the table below them (#152).
+    const stored = (storedRanking(c) ?? []).map((t) => t.target).filter((t): t is string => Boolean(t));
+    if (stored.length) return stored.slice(0, 4);
     const others = options.filter((o) => o !== origin);
     return (others.length >= 2 ? others : options).slice(0, 4);
   });

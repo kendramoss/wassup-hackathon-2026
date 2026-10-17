@@ -60,3 +60,43 @@ func TestLoadSplitsAndLabelsFromRepo(t *testing.T) {
 		t.Fatalf("labels: %d, %v", len(labels), err)
 	}
 }
+
+// The pharma split is dated: dev is Jul–Dec 2025, final is 2026, both drawn
+// from the pharma pool, and the server's list is the same pool (D62).
+func TestPharmaSplitIsDated(t *testing.T) {
+	sp, err := LoadSplits(filepath.Join("..", "..", "..", "eval", "splits", "splits_pharma.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	labels, err := LoadLabels(filepath.Join("..", "..", "..", "eval", "data", "labels.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	byID := map[string]Label{}
+	for _, l := range labels {
+		byID[l.Ruling] = l
+	}
+	pool := map[string]bool{}
+	for _, id := range sp.Pharma {
+		pool[id] = true
+		if l := byID[id]; l.Regime != "pharma_api" || l.Origin() == "" {
+			t.Errorf("%s in the pharma pool: regime %q origin %q", id, l.Regime, l.Origin())
+		}
+	}
+	check := func(name string, ids []string, from, to string) {
+		for _, id := range ids {
+			if d := byID[id].Date; !pool[id] || d < from || d >= to {
+				t.Errorf("%s: %s dated %s (in pool %v), want [%s, %s)", name, id, d, pool[id], from, to)
+			}
+		}
+	}
+	check("dev", sp.Dev, "2025-07-01", "2026-01-01")
+	check("final", sp.Final, "2026-01-01", "2027-01-01")
+	if len(sp.Pharma) != 187 || len(sp.Dev) != 35 || len(sp.Final) != 56 {
+		t.Errorf("pool %d, dev %d, final %d", len(sp.Pharma), len(sp.Dev), len(sp.Final))
+	}
+	server, err := LoadIDList(filepath.Join("..", "..", "data", "pharma_rulings.json"))
+	if err != nil || len(server) != len(sp.Pharma) {
+		t.Errorf("server list: %d rulings, %v", len(server), err)
+	}
+}

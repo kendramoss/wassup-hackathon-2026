@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 func TestGzipJSONRoundTrip(t *testing.T) {
@@ -98,5 +99,46 @@ func TestFirestoreEmulator(t *testing.T) {
 	}
 	if b, ok, err := f2.Verdicts().Get(ctx, key); !ok || err != nil || string(b) != `{"v":1}` {
 		t.Errorf("verdict from another client = %s %v %v", b, ok, err)
+	}
+	// Workspaces (D68): the query field survives Update, membership is unique.
+	wsID := fmt.Sprintf("ws_%d", now.UnixNano())
+	_ = f.Put(ctx, Case{ID: "case_team", Workspace: wsID, UpdatedAt: now})
+	if _, err := f.Update(ctx, "case_team", func(c *Case) error { c.DisplayName = "renamed"; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	if cs, err := f2.ListWorkspace(ctx, wsID); err != nil || len(cs) != 1 || cs[0].DisplayName != "renamed" {
+		t.Errorf("ListWorkspace = %+v %v", cs, err)
+	}
+	ws, ws2 := f.Workspaces(), f2.Workspaces()
+	owner, member := wsID+"@example.com", "m"+wsID+"@example.com"
+	if err := ws.Create(ctx, teams.Workspace{ID: wsID, Name: "Acme", Members: []string{owner}, CreatedBy: owner}); err != nil {
+		t.Fatal(err)
+	}
+	if err := ws.Create(ctx, teams.Workspace{ID: wsID + "x", Members: []string{owner}}); !errors.Is(err, teams.ErrMember) {
+		t.Errorf("second workspace for the owner = %v", err)
+	}
+	if w, err := ws.Invite(ctx, wsID, member); err != nil || len(w.Members) != 1 || !w.HasInvite(member) {
+		t.Errorf("Invite = %+v %v", w, err)
+	}
+	if _, err := ws2.Of(ctx, member); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Of(invited, not joined) = %v, want ErrNotFound", err)
+	}
+	if inv, err := ws2.Invites(ctx, member); err != nil || len(inv) != 1 || inv[0].ID != wsID {
+		t.Errorf("Invites = %+v %v", inv, err)
+	}
+	if _, err := ws.Join(ctx, wsID, "uninvited"+member); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Join uninvited = %v", err)
+	}
+	if w, err := ws.Join(ctx, wsID, member); err != nil || len(w.Members) != 2 || w.HasInvite(member) {
+		t.Errorf("Join = %+v %v", w, err)
+	}
+	if _, err := ws.Invite(ctx, wsID, member); !errors.Is(err, teams.ErrMember) {
+		t.Errorf("Invite a member = %v", err)
+	}
+	if w, err := ws2.Of(ctx, member); err != nil || w.ID != wsID || w.Name != "Acme" {
+		t.Errorf("Of(member) from another client = %+v %v", w, err)
+	}
+	if _, err := ws2.Of(ctx, "nobody@example.com"); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Of(nobody) = %v", err)
 	}
 }

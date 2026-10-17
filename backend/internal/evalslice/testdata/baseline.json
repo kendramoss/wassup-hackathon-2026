@@ -1,0 +1,19 @@
+{
+  "_doc": "Test fixture: a 6-case baseline, 5 correct; 4 cases at confidence >= 0.95, all correct.",
+  "source": "fixture-baseline.jsonl",
+  "llm_provider": "vertex",
+  "model_id": "gemini-4-argon",
+  "prompt_version": "engine-v1",
+  "n": 6,
+  "correct": 5,
+  "band95_n": 4,
+  "band95_correct": 4,
+  "cases": [
+    {"ruling": "N100001", "gold": "China", "pred": "China", "correct": true, "confidence": 0.98},
+    {"ruling": "N100002", "gold": "Vietnam", "pred": "Vietnam", "correct": true, "confidence": 0.97},
+    {"ruling": "N100003", "gold": "Mexico", "pred": "Mexico", "correct": true, "confidence": 0.96},
+    {"ruling": "N100004", "gold": "Japan", "pred": "Japan", "correct": true, "confidence": 0.95},
+    {"ruling": "N100005", "gold": "Thailand", "pred": "Thailand", "correct": true, "confidence": 0.9},
+    {"ruling": "N100006", "gold": "China", "pred": "Taiwan", "correct": false, "confidence": 0.7}
+  ]
+}
