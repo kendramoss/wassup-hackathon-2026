@@ -1,3 +1,5 @@
+import { newVisitorId, visitorFromCookieHeader, visitorSetCookie } from "./visitor";
+
 // Server-only helpers for calling the Go backend from route handlers.
 
 export class BackendError extends Error {
@@ -104,33 +106,14 @@ async function idToken(audience: string): Promise<string> {
 // body, content type, Accept) and returns the backend's response as-is,
 // errors included, so the client sees the API's {code, message} bodies and
 // server-sent events stream through.
-// Visitor ID (D58): each browser gets a random ID in an HttpOnly cookie, and
-// the proxy sends it as X-Visitor-ID so the backend lists and opens only that
-// visitor's cases (plus the pinned demos). The browser's own headers are never
-// forwarded, so it can't choose an ID or send X-Admin-Token; scripts can't
-// read the cookie, and the ID never goes in a URL.
-const VISITOR_COOKIE = "op_visitor";
-const VISITOR_ID = /^[A-Za-z0-9_-]{16,128}$/;
-
-function visitorFrom(request: Request): { id: string; fresh: boolean } {
-  for (const part of (request.headers.get("cookie") ?? "").split(";")) {
-    const [k, ...v] = part.trim().split("=");
-    if (k === VISITOR_COOKIE && VISITOR_ID.test(v.join("="))) return { id: v.join("="), fresh: false };
-  }
-  // 32 random bytes, base64url without padding: 43 characters.
-  return { id: Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64url"), fresh: true };
-}
-
-// Secure only over https (Cloud Run); a local http dev server would drop it.
-function visitorCookie(request: Request, id: string): string {
-  const https = (request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.replace(":", "")).split(",")[0].trim() === "https";
-  return `${VISITOR_COOKIE}=${id}; HttpOnly;${https ? " Secure;" : ""} SameSite=Lax; Path=/; Max-Age=31536000`;
-}
-
+// Sends the visitor ID (lib/visitor.ts) as X-Visitor-ID. A page load has
+// usually set the cookie already (src/proxy.ts); a first request straight to
+// the API gets one here.
 export async function proxyBackend(request: Request, path: string): Promise<Response> {
-  const visitor = visitorFrom(request);
-  const res = await forward(request, path, visitor.id);
-  if (visitor.fresh) res.headers.append("Set-Cookie", visitorCookie(request, visitor.id));
+  const known = visitorFromCookieHeader(request.headers.get("cookie"));
+  const id = known ?? newVisitorId();
+  const res = await forward(request, path, id);
+  if (!known) res.headers.append("Set-Cookie", visitorSetCookie(request, id));
   return res;
 }
 
