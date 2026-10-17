@@ -29,7 +29,7 @@ const formats: { key: Format; label: string }[] = [
 
 // The 19 CFR 177 letter marks what the case doesn't know as [FILL IN: …]
 // (D66). Wrapped as inline code so the letter can highlight them.
-const fillIn = /\[FILL IN:[^\]]*\]/g;
+const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 
 function Draft({ id, c, setCase }: CaseCtx) {
   const params = useSearchParams();

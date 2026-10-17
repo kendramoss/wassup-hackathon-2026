@@ -73,7 +73,7 @@ export function HtsField({
       <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
         <input
           id={id}
-          className={cx(inputClass, "w-44 tabular-nums")}
+          className={cx(inputClass.replace("w-full", ""), "w-44 tabular-nums")}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="e.g. 8419.89.95"
