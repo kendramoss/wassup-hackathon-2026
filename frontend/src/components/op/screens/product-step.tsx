@@ -232,8 +232,37 @@ export function ProductStep() {
             )}
           </p>
 
+          {/* Three numbered sections, top to bottom in the order people fill
+              them: name it, describe it, check what that unlocks and go. An
+              import still fills the name. */}
+          <SectionHead n={1} title="The product" hint="Its name heads the ruling letter; the date limits which rulings are read." />
+          <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
+            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
+              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+            </Field>
+            <Field label={copy.product.family}>
+              {(id) => (
+                <span className="relative block">
+                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
+                    {families.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
+                  </select>
+                  <Caret />
+                </span>
+              )}
+            </Field>
+            <Field label={copy.product.date} help={copy.product.dateHelp}>
+              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
+            </Field>
+          </div>
+
+          <SectionHead n={2} title="Describe it" hint="Pick one way. Parts and plants unlock the plan search." />
           {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
-          <div role="tablist" aria-label="How to describe the product" className="mt-7 inline-flex flex-wrap border border-edge bg-sheet">
+          <div role="tablist" aria-label="How to describe the product" className="mt-3 inline-flex flex-wrap border border-edge bg-sheet">
             {tabOrder.map((t) => (
               <button
                 key={t}
@@ -277,7 +306,7 @@ export function ProductStep() {
             </div>
           )}
 
-          <div className="mt-7" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
+          <div className="mt-5" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
             {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -338,32 +367,8 @@ export function ProductStep() {
             )}
           </div>
 
-          {/* After the input: name, family and date (an import fills the name). */}
-          <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
-            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
-              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
-            </Field>
-            <Field label={copy.product.family}>
-              {(id) => (
-                <span className="relative block">
-                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
-                    {families.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.name}
-                      </option>
-                    ))}
-                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
-                  </select>
-                  <Caret />
-                </span>
-              )}
-            </Field>
-            <Field label={copy.product.date} help={copy.product.dateHelp}>
-              {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
-            </Field>
-          </div>
-          {/* Below the input it describes: what it unlocks so far. */}
-          <ul aria-label="What this input unlocks" className="mt-7 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
+          <SectionHead n={3} title="Check and go" hint="What your input unlocks so far." />
+          <ul aria-label="What this input unlocks" className="mt-3 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
             {tiers.map((t, i) => (
               <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
                 <span
@@ -459,6 +464,25 @@ const input =
 // Table cells edit in place: quiet until hovered or focused.
 const cell =
   "h-9 w-full rounded-[2px] border border-transparent bg-transparent px-2 text-[13px] text-ink placeholder:text-faint hover:border-line focus:border-ok focus:bg-white";
+
+// A numbered section heading for Step 1's form, so the order to fill it in
+// is visible at a glance.
+function SectionHead({ n, title, hint }: { n: number; title: string; hint?: string }) {
+  return (
+    <div className="mt-9 flex items-baseline gap-3 border-t border-line pt-5">
+      <span aria-hidden="true" className="inline-grid size-6 shrink-0 translate-y-1 place-items-center rounded-full border border-ink text-[12px] text-ink">
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-medium text-ink">
+          <span className="sr-only">{n}. </span>
+          {title}
+        </h2>
+        {hint && <p className="duo text-[12.5px] text-dim">{hint}</p>}
+      </div>
+    </div>
+  );
+}
 
 function Caret() {
   return (
