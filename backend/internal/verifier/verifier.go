@@ -249,6 +249,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	var mu sync.Mutex
 	var steps []Step
+	var trail []domain.TrailStep
 	toolErrors := 0
 	failed := func() {
 		mu.Lock()
@@ -256,13 +257,18 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		mu.Unlock()
 	}
 	seen := map[string]bool{} // rulings that appeared in any tool result
-	note := func(s Step, out string) {
+	note := func(s Step, out string, found []string) {
 		mu.Lock()
 		defer mu.Unlock()
 		steps = append(steps, s)
 		for _, id := range rulingRef.FindAllString(out, -1) {
 			seen[id] = true
 		}
+		tool := "search"
+		if s.Tool == "read_ruling" {
+			tool = "read"
+		}
+		trail = append(trail, domain.TrailStep{Tool: tool, Query: s.Arg, Rulings: found})
 	}
 
 	searchTool, err := functiontool.New(functiontool.Config{
@@ -275,7 +281,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			return toolOut{}, err
 		}
 		out := formatHits(hits)
-		note(Step{"search_rulings", a.Query}, out)
+		note(Step{"search_rulings", a.Query}, out, hitIDs(hits))
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -290,7 +296,11 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 			return toolOut{}, err
 		}
-		note(Step{"read_ruling", a.Ruling}, out)
+		var found []string
+		if id := strings.TrimSpace(a.Ruling); out != notFound && domain.ValidRulingID(id) {
+			found = []string{id}
+		}
+		note(Step{"read_ruling", a.Ruling}, out, found)
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -314,7 +324,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 		} else {
 			out := formatHits(hits)
-			note(Step{"first_search", q}, out)
+			note(Step{"first_search", q}, out, hitIDs(hits))
 			message += "\n\nFIRST SEARCH (run for you, for the change between A and B):\n" + out
 		}
 	}
@@ -412,6 +422,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		SupportingRuling: keep(ans.SupportingRuling),
 		CounterRuling:    keep(ans.CounterRuling),
 		Reasoning:        ans.Reasoning,
+		Trail:            trail,
 		Trace: domain.Trace{Provider: m.provider, ModelID: m.modelID, PromptVersion: t.promptVersion(v.Version()),
 			InputTokens: m.usage.InputTokens, OutputTokens: m.usage.OutputTokens},
 	}

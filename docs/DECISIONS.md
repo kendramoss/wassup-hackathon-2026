@@ -503,3 +503,9 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Known-a had 1 proxy timeout (BA-N349038-N360390), counted as an error.
   - What the user sees, plans at ≥ 0.92, is unchanged or better, and nothing wrong clears the bar. Below the bar, 21 pairs is too few to tell the seed's effect from run-to-run noise.
   - Rows: `eval/results/flips-final-verifier-v2-seed-{unknown-a,known-a}-litellm.jsonl`.
+
+## D80 — The precedent check's search trail on every verdict (18 Oct)
+- The agentic precedent check is the planner's distinctive part, but the API returned only its conclusion: supporting ruling, counter-ruling, confidence. The verifier already recorded its tool calls (`verifier.Result.Steps`) and then dropped them.
+- `domain.Verdict.Trail` lists each search (query, plus the ruling numbers it returned) and each ruling read, in the order the agent made them. It is stored with the verdict, so a cached verdict replays its trail. Verdicts cached before this change have no trail; the field is omitted.
+- No model, prompt or cache-key change: verdicts and costs are unchanged. The frontend can show "searched …, read N345899, counter-searched …, found nothing against".
+

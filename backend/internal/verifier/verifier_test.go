@@ -78,6 +78,10 @@ func TestVerifySupported(t *testing.T) {
 	if res.OriginA != "China" || res.OriginB != "Thailand" || len(res.Steps) != 2 || res.ModelCalls != 3 {
 		t.Errorf("result = %+v", res)
 	}
+	if len(v.Trail) != 2 || v.Trail[0].Tool != "search" || v.Trail[0].Query != "heat gun motor Thailand" || len(v.Trail[0].Rulings) == 0 ||
+		v.Trail[1].Tool != "read" || strings.Join(v.Trail[1].Rulings, ",") != "N350001" {
+		t.Errorf("trail = %+v", v.Trail)
+	}
 	if res.Usage.InputTokens != 300 || v.Trace.PromptVersion != PromptVersion {
 		t.Errorf("usage/trace = %+v %+v", res.Usage, v.Trace)
 	}

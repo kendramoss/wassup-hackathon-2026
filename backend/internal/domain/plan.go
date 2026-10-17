@@ -76,7 +76,22 @@ type Verdict struct {
 	// Agreement, when the check ran several times, is how many runs gave this
 	// answer, e.g. "3/3".
 	Agreement string `json:"agreement,omitempty"`
-	Trace     Trace  `json:"trace"`
+	// Trail is the check's search path: each search with the rulings it
+	// returned, and each ruling read, in the order the agent made them (D80).
+	// Verdicts cached before D80 have none.
+	Trail []TrailStep `json:"trail,omitempty"`
+	Trace Trace       `json:"trace"`
+}
+
+// TrailStep is one tool call in a precedent check.
+type TrailStep struct {
+	// Tool is "search" or "read".
+	Tool string `json:"tool"`
+	// Query is the search text, or the ruling number asked for.
+	Query string `json:"query"`
+	// Rulings are the ruling numbers a search returned, or the ruling read
+	// (empty when it was not found or not dated before the case).
+	Rulings []string `json:"rulings,omitempty"`
 }
 
 // Validate checks confidence is in range and that a supported verdict cites
