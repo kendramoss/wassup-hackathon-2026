@@ -89,6 +89,9 @@ export const copy = {
     // "supported", it's the closest the check came.
     whySupported: "Why it's supported",
     closestEvidence: "Precedent check: closest move",
+    // A greyed row's reason, instead of the API's "precedent-supported but
+    // verifier confidence 0.90 is below 0.92" (one name for the check).
+    belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
   },
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or

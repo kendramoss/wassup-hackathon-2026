@@ -625,6 +625,15 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                             </>
                           ) : null}
                         </>
+                      ) : p.rejection_kind === "below_confidence_bar" ? (
+                        <>
+                          {copy.plan.belowBarRow(conf(p.verdict?.confidence))}
+                          {p.verdict?.supporting_ruling ? (
+                            <>
+                              {" "}· supported by <RulingLink id={p.verdict.supporting_ruling} />
+                            </>
+                          ) : null}
+                        </>
                       ) : (
                         p.rejection_reason
                       )}
@@ -634,6 +643,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                   <td className="px-3.5 py-2.5 max-sm:col-start-1 max-sm:p-0">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Precedent check</span>
                     <MiniRuler value={p.verdict?.confidence} />
+                    {p.verdict?.confidence != null && <span className="mt-0.5 block font-mono text-xs tabular-nums text-dim">{conf(p.verdict.confidence)}</span>}
                   </td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 max-sm:col-start-2 max-sm:row-start-2 max-sm:p-0 max-sm:text-right">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Net per year</span>
