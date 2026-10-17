@@ -190,7 +190,7 @@ export function Landing() {
                           ] as const
                         ).map(([p, c], i) => (
                           <tr key={p}>
-                            <td className={i === 2 || i === 4 ? "hl" : undefined}>{p}</td>
+                            <td className={i === 2 ? "hl" : undefined}>{p}</td>
                             <td>
                               <Flag c={c} /> {c}
                             </td>
@@ -237,14 +237,14 @@ export function Landing() {
                 <div className="bd">
                   <Skel widths={[100, 70, 45, 80]} />
                   <div className="real">
-                    <p className="duo">Make the motor-fan assembly and the switch, cord and minor parts in Thailand</p>
+                    <p className="duo">Make the motor-fan assembly in Thailand</p>
                     <p className="gap">
-                      <span className="chip ok">{copy.plan.supported}</span>
+                      <span className="chip">Closest move · check 0.90, under the 0.92 bar</span>
                     </p>
                     <p className="small">
-                      For <RulingLink id="N347421" /> · check 0.92
+                      For <RulingLink id="N325810" /> · against: none found
                     </p>
-                    <p className="duo small">The verifier agent searched for a counter-ruling too and found none.</p>
+                    <p className="duo small">Below the bar, so it goes to a broker with the evidence instead of being shown as a plan.</p>
                   </div>
                 </div>
                 <div className="ft">Planner + verifier agent</div>
@@ -370,7 +370,7 @@ export function Landing() {
             <div className="forag">
               <div className="s">
                 <span className="rul duo">
-                  For · <RulingLink id="N347421" />
+                  For · <RulingLink id="N325810" />
                 </span>
                 <span className="beam" />
               </div>
