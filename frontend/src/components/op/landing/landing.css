@@ -204,3 +204,59 @@
 @media (prefers-reduced-motion: reduce) {
   .lp .stamp.flip { animation: none; }
 }
+
+/* ---- window sizes between phone and full desktop ----
+   Long lines truncate rather than run under the stamp, and the sheet drops
+   its secondary furniture before anything overlaps. */
+.lp .sheethead .dimn, .lp .sheethead .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 901px) { .lp .sheethead > div { min-width: 0; max-width: calc(100% - 270px); } }
+@media (min-width: 901px) and (max-width: 1439px) {
+  .lp .stick { grid-template-columns: minmax(300px, 34%) 1fr; gap: 24px; }
+  .lp .tblock, .lp .note { display: none; }
+  .lp .stamp { min-width: 0; padding: 8px 12px; }
+  .lp .stamp .held { font-size: 21px; }
+  .lp .sheethead > div { max-width: calc(100% - 256px); }
+  .lp .plannote { display: none; } /* step 3 on the left says the same, and the note would cover part labels */
+  .lp .legend span:last-child { display: none; } /* "Drag to turn" */
+  .lp .f2 .now { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+}
+
+/* ---- short windows (wide layout) ----
+   The pinned panels are one screen tall, so on a short window the hero
+   tightens, only the current step keeps its text, and fig.3 stops pinning
+   when it can't fit. */
+@media (min-width: 901px) and (max-height: 820px) {
+  .lp .stick { padding-top: 18px; padding-bottom: 16px; }
+  .lp .left { gap: 10px; overflow: hidden; }
+  .lp .hero-d { gap: 10px; }
+  .lp h1 { font-size: clamp(24px, min(2.9vw, 5.4vh), 50px); }
+  .lp .sub { font-size: 13.5px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .lp .steps li { padding: 7px 0; }
+  .lp .steps li:not(.on) p { display: none; }
+  .lp .f2 .pin { gap: 16px; padding-top: 14px; padding-bottom: 14px; }
+  .lp .test { padding: 30px 40px 26px; }
+  .lp .mv { font-size: 48px; }
+  .lp .ruler { height: 160px; }
+  .lp .field { height: 190px; }
+}
+@media (min-width: 901px) and (max-height: 640px) {
+  .lp .hero-d > .dimn, .lp .ctas > :not(:first-child) { display: none; }
+  .lp .sub { -webkit-line-clamp: 1; line-clamp: 1; }
+  .lp .steps b, .lp .steps p { font-size: 12px; }
+  .lp .f2 .foot { display: none; }
+  .lp .stamp { top: 14px; }
+  .lp .tblock, .lp .note, .lp .plannote { display: none; }
+}
+@media (min-width: 901px) and (max-height: 700px) {
+  .lp .f3wrap { height: auto; padding-bottom: 40px; }
+  .lp .test { position: relative; top: auto; }
+  .lp .forag { display: none; }
+}
+
+/* ---- short phones ---- */
+@media (max-width: 900px) and (max-height: 700px) {
+  .lp .plannote { display: none; } /* the caption says the same */
+  .lp .stamp { top: 46px; }
+  .lp .stamp .held { font-size: 16px; }
+  .lp .stamp .rul { font-size: 11px; }
+}
