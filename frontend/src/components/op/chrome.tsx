@@ -15,7 +15,19 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
   return (
     <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10", sticky && "sticky top-0 z-30")}>
-      <Link href="/" className="text-[19px] font-semibold tracking-[-0.03em]">
+      {/* On the landing page a link to "/" doesn't navigate, so it scrolls
+          back to the top instead; elsewhere it goes home as usual. The path
+          is read on click, so the bar still prerenders. */}
+      <Link
+        href="/"
+        className="text-[19px] font-semibold tracking-[-0.03em]"
+        onClick={(e) => {
+          if (window.location.pathname !== "/") return;
+          e.preventDefault();
+          const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+          window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+        }}
+      >
         Origin <i className="not-italic text-ok">Proof</i>
       </Link>
       <nav aria-label="Main" className="flex gap-5 text-sm">
