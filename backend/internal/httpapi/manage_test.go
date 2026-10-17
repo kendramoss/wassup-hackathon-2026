@@ -315,7 +315,7 @@ func TestPinnedDemoIsReadOnlyForVisitors(t *testing.T) {
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why China?"}`); code != http.StatusOK {
 		t.Errorf("ask on a demo = %d", code)
 	}
-	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"x","facts":"motor in Thailand"}]}`); code != http.StatusOK {
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"x","facts":"motor in Thailand, final assembly and testing there."}]}`); code != http.StatusOK {
 		t.Errorf("scenarios on a demo = %d", code)
 	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/watch", ""); code != http.StatusOK {

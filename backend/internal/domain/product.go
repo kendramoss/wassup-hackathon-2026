@@ -131,6 +131,10 @@ type Case struct {
 // prompt. The research harness truncated facts at 12,000 characters.
 const MaxFactsRunes = 12000
 
+// MinFactsRunes is the shortest free-text description accepted without a
+// structured product: the Step 1 form asks for more than 20 characters.
+const MinFactsRunes = 20
+
 // Validate checks the case has a date and either facts or a valid product.
 func (c Case) Validate() error {
 	var errs problems
@@ -139,6 +143,15 @@ func (c Case) Validate() error {
 	}
 	if strings.TrimSpace(c.Facts) == "" && c.Product == nil {
 		errs.add("facts or product is required")
+	} else if c.Product == nil && len([]rune(strings.TrimSpace(c.Facts))) < MinFactsRunes {
+		// A word or two can't describe a product; refuse before any model
+		// call, as the Step 1 form does (#184).
+		errs.add("facts is too short to describe a product; write at least %d characters", MinFactsRunes)
+	}
+	// The date bounds which rulings may be cited, so a future date would mean
+	// "every ruling". A day of slack covers time zones (#184).
+	if !c.Date.IsZero() && c.Date.After(time.Now().AddDate(0, 0, 1)) {
+		errs.add("date %s is in the future; use the case date (today or earlier)", c.Date.Format("2006-01-02"))
 	}
 	if n := len([]rune(c.Facts)); n > MaxFactsRunes {
 		errs.add("facts is %d characters; max %d", n, MaxFactsRunes)

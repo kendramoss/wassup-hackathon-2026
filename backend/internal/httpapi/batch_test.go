@@ -19,7 +19,7 @@ func TestBatchTriage(t *testing.T) {
 	body := `{"items":[
 		{"name":"Heat gun","facts":"A heat gun assembled in China with a motor from China.","date":"2022-06-01"},
 		{"name":"Fan","facts":"A fan with the motor in Thailand, assembled in Thailand."},
-		{"name":"Bad date","facts":"Something","date":"01/02/2022"},
+		{"name":"Bad date","facts":"Something assembled in Thailand from Chinese parts.","date":"01/02/2022"},
 		{"name":"","facts":""}]}`
 	code, out := hs.do(t, "POST", "/v1/cases/batch", body)
 	if code != http.StatusOK {

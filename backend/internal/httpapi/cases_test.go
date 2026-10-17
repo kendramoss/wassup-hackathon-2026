@@ -360,12 +360,14 @@ func TestErrors(t *testing.T) {
 		status                   int
 		code                     string
 	}{
-		{"no date", "POST", "/v1/cases/predict", `{"facts":"x"}`, 400, "invalid_input"},
-		{"bad date", "POST", "/v1/cases/predict", `{"date":"15/10/2026","facts":"x"}`, 400, "invalid_input"},
-		{"unknown field", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x","bogus":1}`, 400, "invalid_input"},
+		{"no date", "POST", "/v1/cases/predict", `{"facts":"x: assembled in Thailand from Chinese parts."}`, 400, "invalid_input"},
+		{"bad date", "POST", "/v1/cases/predict", `{"date":"15/10/2026","facts":"x: assembled in Thailand from Chinese parts."}`, 400, "invalid_input"},
+		{"unknown field", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x: assembled in Thailand from Chinese parts.","bogus":1}`, 400, "invalid_input"},
+		{"facts too short", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`, 400, "invalid_input"},
+		{"future date", "POST", "/v1/cases/predict", `{"date":"2099-01-01","facts":"A heat gun assembled in Thailand from Chinese parts."}`, 400, "invalid_input"},
 		{"facts too long", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"` + strings.Repeat("a", 12001) + `"}`, 400, "invalid_input"},
 		{"unknown family", "POST", "/v1/cases/predict", `{"date":"2026-01-01","family":"spaceships","product":{"name":"x","components":[{"name":"a","made_in":"China"}]}}`, 400, "invalid_input"},
-		{"bad exclude id", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x","exclude_rulings":["abc"]}`, 400, "invalid_input"},
+		{"bad exclude id", "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x: assembled in Thailand from Chinese parts.","exclude_rulings":["abc"]}`, 400, "invalid_input"},
 		{"missing case", "GET", "/v1/cases/nope", "", 404, "not_found"},
 		{"plan missing case", "POST", "/v1/cases/nope/plan", `{"target":"Thailand"}`, 404, "not_found"},
 		{"bad ruling id", "GET", "/v1/rulings/abc", "", 400, "invalid_input"},
@@ -380,7 +382,7 @@ func TestErrors(t *testing.T) {
 		})
 	}
 	// Plan on a facts-only case is rejected.
-	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"A heat gun assembled in Thailand from Chinese parts."}`)
 	if code, e := hs.do(t, "POST", "/v1/cases/"+out["id"].(string)+"/plan", `{"target":"Thailand"}`); code != 400 || !strings.Contains(e["message"].(string), "structured product") {
 		t.Errorf("plan on facts-only case: %d %v", code, e)
 	}
@@ -393,7 +395,7 @@ func TestModelErrorsMapTo502(t *testing.T) {
 	}{{llm.ErrUnavailable, "model_unavailable"}, {&llm.APIError{StatusCode: 503}, "model_unavailable"}, {llm.ErrBadResponse, "model_bad_response"}} {
 		hs := newHarness(t, "substantial_transformation")
 		hs.engine.err = tt.err
-		code, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+		code, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x: assembled in Thailand from Chinese parts."}`)
 		if code != http.StatusBadGateway || out["code"] != tt.code {
 			t.Errorf("%v: got %d %v", tt.err, code, out)
 		}
@@ -512,13 +514,13 @@ func TestNeedsInfoThenAnswers(t *testing.T) {
 
 func TestClarifySkippedOnFastPathAndOutOfScope(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
-	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	_, out := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x: assembled in Thailand from Chinese parts."}`)
 	if out["clarify"] != nil || len(hs.clar.facts) != 0 {
 		t.Errorf("clarify ran on an auto case: %v", out["clarify"])
 	}
 	hs = newHarness(t, "textile_102_21")
 	hs.engine.conf = 0.5
-	_, out = hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x"}`)
+	_, out = hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-01-01","facts":"x: assembled in Thailand from Chinese parts."}`)
 	if out["clarify"] != nil || out["triage"].(map[string]any)["route"] != "needs_review" {
 		t.Errorf("out-of-scope case: %v %v", out["clarify"], out["triage"])
 	}
@@ -572,8 +574,8 @@ func TestScenariosSideBySide(t *testing.T) {
 	if n := list["cases"].([]any)[0].(map[string]any)["scenario_count"]; n != 2.0 {
 		t.Errorf("scenario_count = %v", n)
 	}
-	for _, body := range []string{`{"scenarios":[]}`, `{"scenarios":[{"facts":"a"},{"facts":"b"},{"facts":"c"},{"facts":"d"}]}`,
-		`{"scenarios":[{"label":"x"}]}`, `{"scenarios":[{"facts":"a","product":{"name":"p"}}]}`} {
+	for _, body := range []string{`{"scenarios":[]}`, `{"scenarios":[{"facts":"a: assembled in Thailand from Chinese parts."},{"facts":"b: assembled in Thailand from Chinese parts."},{"facts":"c: assembled in Thailand from Chinese parts."},{"facts":"d: assembled in Thailand from Chinese parts."}]}`,
+		`{"scenarios":[{"label":"x"}]}`, `{"scenarios":[{"facts":"a: assembled in Thailand from Chinese parts.","product":{"name":"p"}}]}`} {
 		if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", body); code != 400 {
 			t.Errorf("bad scenarios %s: status %d", body, code)
 		}
@@ -900,7 +902,7 @@ func TestCaseHistoryRecordsEachStep(t *testing.T) {
 	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
 	id := c["id"].(string)
 	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
-	hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"A","facts":"motor in China"}]}`)
+	hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"A","facts":"motor in China, final assembly and testing there."}]}`)
 	hs.do(t, "POST", "/v1/cases/"+id+"/watch", "")
 	hs.do(t, "POST", "/v1/cases/"+id+"/ask", `{"question":"Why?"}`)
 	hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
@@ -932,7 +934,7 @@ func TestExtractProductEndpoint(t *testing.T) {
 	if code != 200 || out["product"].(map[string]any)["name"] != "Heat gun" || len(out["warnings"].([]any)) != 1 || fx.tm == nil {
 		t.Fatalf("extract %d %v", code, out)
 	}
-	for _, bad := range []string{`{"facts":" "}`, `{"facts":"x","family":"nope"}`} {
+	for _, bad := range []string{`{"facts":" "}`, `{"facts":"x: assembled in Thailand from Chinese parts.","family":"nope"}`} {
 		if code, _ := hs.do(t, "POST", "/v1/products/extract", bad); code != 400 {
 			t.Errorf("bad extract %s: %d", bad, code)
 		}
