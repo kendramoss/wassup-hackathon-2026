@@ -1,0 +1,68 @@
+{
+  "_doc": "Regression slice (D72): fixed dev rulings for eval slice. Development only; never add held-out rulings. Rebuild only with a recorded decision.",
+  "frozen_at": "2026-10-17T05:52:09+08:00",
+  "source": "dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+  "rule": "30 dev rulings without an error or a scoring adjustment, shared across confidence bands in proportion (largest remainder, at least 1 per band), first by FNV-1a of the ruling ID within each band",
+  "bands": [
+    {
+      "label": "≥ 0.95",
+      "min": 0.95,
+      "max": 2,
+      "eligible": 332,
+      "n": 22
+    },
+    {
+      "label": "0.90–0.95",
+      "min": 0.9,
+      "max": 0.95,
+      "eligible": 85,
+      "n": 5
+    },
+    {
+      "label": "0.80–0.90",
+      "min": 0.8,
+      "max": 0.9,
+      "eligible": 28,
+      "n": 2
+    },
+    {
+      "label": "\u003c 0.80",
+      "min": -1,
+      "max": 0.8,
+      "eligible": 17,
+      "n": 1
+    }
+  ],
+  "slice": [
+    "N350011",
+    "N355466",
+    "N350719",
+    "N350799",
+    "N352300",
+    "N353723",
+    "N351963",
+    "N351865",
+    "N352306",
+    "N349949",
+    "N356018",
+    "N351961",
+    "N351505",
+    "N353725",
+    "N351504",
+    "N353724",
+    "N350711",
+    "N356009",
+    "N350710",
+    "N351506",
+    "N355901",
+    "N353148",
+    "N351962",
+    "N352389",
+    "N354369",
+    "N355237",
+    "N356144",
+    "N355972",
+    "N354423",
+    "N353747"
+  ]
+}

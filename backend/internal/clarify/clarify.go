@@ -93,19 +93,26 @@ type answer struct {
 	Questions []string  `json:"questions"`
 }
 
-// Review checks a prediction against the precedents shown to the engine.
-func (c *Clarifier) Review(ctx context.Context, facts string, p domain.Prediction, precedents []domain.Ruling) (Result, error) {
+// RenderReview is the user message Review sends: the facts, the prediction
+// and the precedents the engine saw.
+func RenderReview(facts string, p domain.Prediction, precedents []domain.Ruling) string {
 	var b strings.Builder
-	shown := make([]string, len(precedents))
-	for i, r := range precedents {
-		shown[i] = r.ID
+	for _, r := range precedents {
 		fmt.Fprintf(&b, "[%s | %s] FACTS: %s\nCBP HOLDING: %s\n\n", r.ID, r.Date.Format("2006-01-02"),
 			corpus.Truncate(r.Facts, 1500), corpus.Truncate(r.Holding, 600))
 	}
-	user := fmt.Sprintf("FACTS:\n%s\n\nPREDICTION: origin %s (confidence %.2f). Key factor: %s. Reasoning: %s\n\nEARLIER CBP RULINGS:\n%s",
+	return fmt.Sprintf("FACTS:\n%s\n\nPREDICTION: origin %s (confidence %.2f). Key factor: %s. Reasoning: %s\n\nEARLIER CBP RULINGS:\n%s",
 		corpus.Truncate(facts, 12000), p.Origin, p.Confidence, strings.Join(p.KeyFactors, "; "), p.Reasoning, b.String())
+}
+
+// Review checks a prediction against the precedents shown to the engine.
+func (c *Clarifier) Review(ctx context.Context, facts string, p domain.Prediction, precedents []domain.Ruling) (Result, error) {
+	shown := make([]string, len(precedents))
+	for i, r := range precedents {
+		shown[i] = r.ID
+	}
 	resp, err := c.model.Generate(ctx, llm.Request{Model: c.modelID, System: System,
-		Messages: []llm.Message{{Role: llm.RoleUser, Content: user}}, JSONSchema: Schema, SchemaName: "clarify", MaxOutputTokens: c.maxTokens})
+		Messages: []llm.Message{{Role: llm.RoleUser, Content: RenderReview(facts, p, precedents)}}, JSONSchema: Schema, SchemaName: "clarify", MaxOutputTokens: c.maxTokens})
 	if err != nil {
 		return Result{}, fmt.Errorf("clarify: %w", err)
 	}

@@ -49,6 +49,8 @@ type SearchHit struct {
 	RulingDate   string `json:"rulingDate"`
 	Subject      string `json:"subject"`
 	Collection   string `json:"collection"`
+	Categories   string `json:"categories,omitempty"`
+	Tariffs      string `json:"tariffs,omitempty"` // HTS numbers, comma-separated
 }
 
 // Date parses RulingDate.
@@ -132,6 +134,38 @@ func (c *HTTPClient) Search(ctx context.Context, term string, toDate time.Time, 
 		return nil, fmt.Errorf("cross: search %q: decode: %w", term, err)
 	}
 	return out.Rulings, nil
+}
+
+// SearchPage returns one page (from 1) of rulings matching term, newest
+// first, and the total number of hits. Used to collect a regime's rulings
+// (corpus usmca, D61); the product's precedent search uses Search.
+func (c *HTTPClient) SearchPage(ctx context.Context, term string, page, pageSize int) ([]SearchHit, int, error) {
+	q := url.Values{
+		"term": {term}, "collection": {"ALL"}, "commodityGrouping": {"ALL"},
+		"pageSize": {strconv.Itoa(pageSize)}, "page": {strconv.Itoa(page)}, "sortBy": {"DATE_DESC"},
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/api/search?"+q.Encode(), nil)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cross: search %q page %d: %w", term, page, err)
+	}
+	req.Header.Set("User-Agent", c.UserAgent)
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cross: search %q page %d: %w", term, page, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 300))
+		return nil, 0, fmt.Errorf("cross: search %q page %d: HTTP %d: %s", term, page, resp.StatusCode, b)
+	}
+	var out struct {
+		Rulings   []SearchHit `json:"rulings"`
+		TotalHits int         `json:"totalHits"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, 0, fmt.Errorf("cross: search %q page %d: decode: %w", term, page, err)
+	}
+	return out.Rulings, out.TotalHits, nil
 }
 
 var _ Client = (*HTTPClient)(nil)

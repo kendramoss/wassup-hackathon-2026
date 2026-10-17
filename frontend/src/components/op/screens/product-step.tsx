@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { api, type Component, type Economics, type ImportResponse, type Operation, type Plant, type PredictRequest, type Product } from "@/lib/api/client";
+import {
+  api,
+  streamPredict,
+  type Component,
+  type Economics,
+  type ImportResponse,
+  type Operation,
+  type Plant,
+  type PredictRequest,
+  type PredictStage,
+  type Product,
+} from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
@@ -111,6 +122,7 @@ export function ProductStep() {
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stages, setStages] = useState<PredictStage[]>([]);
   const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
@@ -190,13 +202,19 @@ export function ProductStep() {
       body.family = family || undefined;
       if (extra.facts) body.facts = extra.facts; // demo or drafted: engine reads the text, product kept for the plan
     }
+    setStages([]);
     try {
-      const c = await api.predict(body);
+      // Streams the steps when the backend has STREAM_PREDICT on; otherwise
+      // answers plain JSON and the spinner alone shows progress.
+      const c = await streamPredict(body, (s) =>
+        setStages((xs) => (xs.some((x) => x.name === s.name) ? xs.map((x) => (x.name === s.name ? s : x)) : [...xs, s])),
+      );
       if (demoId && c.id) rememberDemo(c.id, demoId);
       router.push(`/cases/${encodeURIComponent(c.id!)}/origin`);
     } catch (e) {
       setError(e);
       setBusy(false);
+      setStages([]);
     }
   };
 
@@ -433,6 +451,7 @@ export function ProductStep() {
               </Button>
             </div>
           </div>
+          {busy && stages.length > 0 && <StageList stages={stages} />}
         </div>
       </Main>
       {moneyOpen && (
@@ -459,6 +478,28 @@ const input =
 // Table cells edit in place: quiet until hovered or focused.
 const cell =
   "h-9 w-full rounded-[2px] border border-transparent bg-transparent px-2 text-[13px] text-ink placeholder:text-faint hover:border-line focus:border-ok focus:bg-white";
+
+// The analysis steps as the backend streams them (D71): running steps
+// pulse, finished ones show how long they took. The router runs beside
+// precedents and engine, so two can be running at once.
+function StageList({ stages }: { stages: PredictStage[] }) {
+  return (
+    <ol aria-label="Analysis steps" aria-live="polite" className="ml-auto mt-3 grid max-w-[420px] gap-1 text-[13px]">
+      {stages.map((s) => (
+        <li key={s.name} className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className={cx("size-2 shrink-0 rotate-45", s.status === "done" ? "bg-ok" : "animate-pulse border border-ok motion-reduce:animate-none")}
+          />
+          <span className={cx("min-w-0 flex-1", s.status === "done" ? "text-body" : "text-dim")}>{copy.product.stages[s.name] ?? s.name}</span>
+          <span className="font-mono text-[12px] text-faint">
+            {s.status === "done" ? `${(s.ms / 1000).toFixed(1)} s` : <span className="sr-only">running</span>}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 function Caret() {
   return (

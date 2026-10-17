@@ -25,7 +25,8 @@ func TestClassify(t *testing.T) {
 		t.Error("substantial transformation should be in scope")
 	}
 	req := f.Calls()[0]
-	if !strings.Contains(req.System, "Do not decide origin") || req.JSONSchema == nil || !strings.HasPrefix(req.Messages[0].Content, "CASE FACTS:\n") {
+	if !strings.Contains(req.System, "Do not decide origin") || req.JSONSchema == nil || req.Messages[0].Content != RenderUser("A heat gun ...") ||
+		!strings.HasPrefix(req.Messages[0].Content, "CASE FACTS:\n") {
 		t.Errorf("request = %+v", req)
 	}
 }

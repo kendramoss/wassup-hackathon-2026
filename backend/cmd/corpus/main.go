@@ -10,8 +10,17 @@
 //	corpus embed   [-facts DIR] [-out FILE] [-dims 768]
 //	    Embed the facts of every labelled ruling (gemini-embedding-001 via the
 //	    configured LLM provider) into a vector index for hybrid retrieval.
+//	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
+//	    List the rulings whose text states the HTS subheading CBP applied
+//	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
 //	corpus compare -a DIR -b DIR
 //	    Compare two facts directories (port check against the research split).
+//	corpus usmca-fetch [-raw DIR] [-index F] [-since 2015-01-01]
+//	    Collect the CROSS rulings that cite 19 CFR 102.20 or 102.11 (newest
+//	    first, down to -since) into an index and download them (D61).
+//	corpus usmca-label [-raw DIR] [-index F] [-labels F] [-out F] [-facts DIR]
+//	    Label the Part 102 rulings among them (non-textile goods; regex
+//	    holding as in labels.jsonl) and write their facts files (D61).
 //
 // Defaults assume the command runs from backend/.
 package main
@@ -41,7 +50,7 @@ const userAgent = "origin-proof (Google Cloud AI Builder Cup 2026 prototype)"
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -56,6 +65,12 @@ func main() {
 		err = embed(os.Args[2:])
 	case "reasoning":
 		err = reasoningFile(os.Args[2:])
+	case "usmca-fetch":
+		err = usmcaFetch(os.Args[2:])
+	case "usmca-label":
+		err = usmcaLabel(os.Args[2:])
+	case "hts-index":
+		err = htsIndex(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

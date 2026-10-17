@@ -51,7 +51,7 @@ const System = routerMD + regimeAddendum
 var (
 	Routes      = []string{"set_kit", "commodity", "assembly", "scenario"}
 	Subfamilies = []string{"electronics", "motorised", "metal_tools_parts", "battery_solar", "filters", "furniture_fixtures", "medical", "apparel_textile_goods", "other"}
-	Regimes     = []string{"substantial_transformation", RegimeTextile, "usmca_part102", "pharma_api", "unclear"}
+	Regimes     = []string{"substantial_transformation", RegimeTextile, "usmca_part102", RegimePharma, "unclear"}
 )
 
 // Schema constrains the router's answer to the allowed values.
@@ -84,6 +84,14 @@ type Label struct {
 // RegimeTextile is the label for textile and apparel goods (19 CFR 102.21).
 const RegimeTextile = "textile_102_21"
 
+// RegimeUSMCA is the label for USMCA preference or Canada/Mexico marking
+// questions decided under the Part 102 tariff-shift rules (19 CFR 102.11).
+const RegimeUSMCA = "usmca_part102"
+
+// RegimePharma is the label for drugs whose origin turns on the active
+// pharmaceutical ingredient (D62).
+const RegimePharma = "pharma_api"
+
 // OutOfScopeRegimes are routed to review: origin prediction covers the
 // substantial-transformation regime only.
 var outOfScope = map[string]string{
@@ -112,12 +120,15 @@ func New(model llm.Model, modelID string, maxTokens int) *Router {
 	return &Router{model: model, modelID: modelID, maxTokens: maxTokens}
 }
 
+// RenderUser is the user message Classify sends.
+func RenderUser(facts string) string { return "CASE FACTS:\n" + facts }
+
 // Classify labels one case from its facts.
 func (r *Router) Classify(ctx context.Context, facts string) (Label, error) {
 	resp, err := r.model.Generate(ctx, llm.Request{
 		Model:           r.modelID,
 		System:          System,
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: "CASE FACTS:\n" + facts}},
+		Messages:        []llm.Message{{Role: llm.RoleUser, Content: RenderUser(facts)}},
 		JSONSchema:      Schema,
 		SchemaName:      "route",
 		MaxOutputTokens: r.maxTokens,

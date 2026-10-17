@@ -85,6 +85,7 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 	}
 	var precedents []domain.Ruling
 	if e.retr != nil && e.opts.K > 0 {
+		report(ctx, StagePrecedents, false)
 		hits, err := e.retr.Search(ctx, c.Facts, e.opts.K, retrieval.PrecedentFilter(c))
 		if err != nil {
 			return Result{}, fmt.Errorf("engine: predict %s: retrieve: %w", c.ID, err)
@@ -92,15 +93,22 @@ func (e *Engine) Predict(ctx context.Context, c domain.Case) (Result, error) {
 		for _, h := range hits {
 			precedents = append(precedents, h.Ruling)
 		}
+		report(ctx, StagePrecedents, true)
 	}
+	report(ctx, StageEngine, false)
 	first, err := e.ask(ctx, c, precedents)
 	if err != nil {
 		return Result{}, err
 	}
 	if e.opts.Votes <= 1 || first.Prediction.Confidence >= e.opts.VoteBelow || len(precedents) < 2 {
+		report(ctx, StageEngine, true)
 		return first, nil
 	}
-	return e.vote(ctx, c, precedents, first)
+	res, err := e.vote(ctx, c, precedents, first)
+	if err == nil {
+		report(ctx, StageEngine, true)
+	}
+	return res, err
 }
 
 // vote asks again with rotated precedent orders and picks the majority

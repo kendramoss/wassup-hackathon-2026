@@ -30,6 +30,13 @@ export const copy = {
     factsHelp: "Components, where each is made, and the processing in each country, as you would write to CBP.",
     go: "Find the likely origin",
     working: "Finding the likely origin…",
+    // Steps of the analysis as the backend streams them (D71).
+    stages: {
+      router: "Checking which origin rules apply",
+      precedents: "Finding earlier CBP rulings",
+      engine: "Weighing the facts against them",
+      clarify: "Checking what CBP would ask",
+    },
     bomDrop: "Drop a bill of materials (CSV, Excel or PDF), or choose a file",
     bomGuide: "Columns: name and country (required); plant, group, type, plant_capabilities (optional). A PDF needs those as a table with a header row.",
     bomSample: "Download sample (heat gun)",

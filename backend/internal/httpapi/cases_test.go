@@ -38,18 +38,36 @@ type fakeEngine struct {
 	conf  float64
 	last  domain.Case
 	later string // origin for cases dated after 2026-06-01 (watch re-checks), if set
+	// byProduct, if set, gives the origin from the structured product (BOM
+	// versions); "" falls through to the rules below.
+	byProduct func(domain.Product) string
+	// byFacts, if set, gives the origin from the facts' wording (rendered or
+	// CBP's), after byProduct; "" falls through.
+	byFacts func(string) string
+	calls   int
 }
 
 func (f *fakeEngine) Predict(_ context.Context, c domain.Case) (engine.Result, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.last = c
+	f.calls++
 	if f.err != nil {
 		return engine.Result{}, f.err
 	}
 	origin := "China"
 	if strings.Contains(c.Facts, "motor in Thailand") {
 		origin = "Thailand"
+	}
+	if f.byProduct != nil && c.Product != nil {
+		if o := f.byProduct(*c.Product); o != "" {
+			origin = o
+		}
+	}
+	if f.byFacts != nil {
+		if o := f.byFacts(c.Facts); o != "" {
+			origin = o
+		}
 	}
 	if f.later != "" && c.Date.After(time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)) {
 		origin = f.later

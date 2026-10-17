@@ -79,7 +79,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			pred, label, tr, _, err := a.classify(r.Context(), cases[i])
+			pred, label, tr, _, err := a.classify(r.Context(), cases[i], nil)
 			out[i].Prediction, out[i].Triage, labels[i], errs[i] = pred, tr, label, err
 		}(i)
 	}
@@ -94,7 +94,11 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		sc.Economics = in.Economics
 	}
 	if sc.Economics != nil {
-		e := a.priced(*sc.Economics, sc.Product) // table rates are not stored on the case
+		origins := caseOrigins(sc)
+		for _, s := range out {
+			origins = append(append(origins, domain.CountryParts(s.Prediction.Origin)...), productCountries(s.Product)...)
+		}
+		e := a.priced(r.Context(), *sc.Economics, sc.Product, origins, true) // table and live rates are not stored on the case
 		current := sc.Prediction.Origin
 		if sc.CurrentOrigin != nil && sc.CurrentOrigin.Country != "" {
 			current = sc.CurrentOrigin.Country
@@ -115,7 +119,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	if a.demoReadOnly(r, sc) {
 		sc.Scenarios, sc.UpdatedAt = out, now
-		sc.Record(ev)
+		record(r.Context(), &sc, ev)
 		a.respond(w, http.StatusOK, a.caseFields(sc))
 		return
 	}
@@ -124,7 +128,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			latest.Economics = in.Economics
 		}
 		latest.Scenarios, latest.UpdatedAt = out, now
-		latest.Record(ev)
+		record(r.Context(), latest, ev)
 		return nil
 	})
 	if err != nil {
@@ -251,12 +255,12 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start)
 	if !save {
 		sc.Watch = watch
-		sc.Record(ev)
+		record(ctx, sc, ev)
 		return nil
 	}
 	saved, err := a.d.Cases.Update(ctx, sc.ID, func(latest *store.Case) error {
 		latest.Watch = watch
-		latest.Record(ev)
+		record(ctx, latest, ev)
 		return nil
 	})
 	if err != nil {

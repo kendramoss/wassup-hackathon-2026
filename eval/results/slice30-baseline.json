@@ -1,0 +1,223 @@
+{
+  "_doc": "Baseline for eval slice (D72): the slice's rows of the source run. A run passes with at most EVAL_SLICE_MAX_DROP fewer correct cases and accuracy at confidence \u003e= 0.95 of at least EVAL_SLICE_BAND_MIN.",
+  "source": "dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+  "llm_provider": "vertex",
+  "model_id": "gemini-4-argon",
+  "prompt_version": "engine-v1",
+  "n": 30,
+  "correct": 27,
+  "band95_n": 22,
+  "band95_correct": 21,
+  "cases": [
+    {
+      "ruling": "N350011",
+      "gold": "China",
+      "pred": "China",
+      "correct": true,
+      "confidence": 0.95
+    },
+    {
+      "ruling": "N355466",
+      "gold": "China",
+      "pred": "South Korea",
+      "correct": false,
+      "confidence": 0.95
+    },
+    {
+      "ruling": "N350719",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N350799",
+      "gold": "Philippines",
+      "pred": "Philippines",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N352300",
+      "gold": "Taiwan",
+      "pred": "Taiwan",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N353723",
+      "gold": "Thailand",
+      "pred": "Thailand",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N351963",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N351865",
+      "gold": "United Kingdom",
+      "pred": "United Kingdom",
+      "correct": true,
+      "confidence": 0.95
+    },
+    {
+      "ruling": "N352306",
+      "gold": "Malaysia",
+      "pred": "Malaysia",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N349949",
+      "gold": "Malaysia",
+      "pred": "Malaysia",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N356018",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N351961",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N351505",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N353725",
+      "gold": "Thailand",
+      "pred": "Thailand",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N351504",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N353724",
+      "gold": "China",
+      "pred": "China",
+      "correct": true,
+      "confidence": 1
+    },
+    {
+      "ruling": "N350711",
+      "gold": "South Korea",
+      "pred": "South Korea",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N356009",
+      "gold": "Canada",
+      "pred": "Canada",
+      "correct": true,
+      "confidence": 0.95
+    },
+    {
+      "ruling": "N350710",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N351506",
+      "gold": "Thailand",
+      "pred": "Thailand",
+      "correct": true,
+      "confidence": 0.95
+    },
+    {
+      "ruling": "N355901",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.99
+    },
+    {
+      "ruling": "N353148",
+      "gold": "China",
+      "pred": "China",
+      "correct": true,
+      "confidence": 0.98
+    },
+    {
+      "ruling": "N351962",
+      "gold": "Vietnam",
+      "pred": "Vietnam",
+      "correct": true,
+      "confidence": 0.92
+    },
+    {
+      "ruling": "N352389",
+      "gold": "Peru",
+      "pred": "China",
+      "correct": false,
+      "confidence": 0.9
+    },
+    {
+      "ruling": "N354369",
+      "gold": "Thailand",
+      "pred": "Thailand",
+      "correct": true,
+      "confidence": 0.92
+    },
+    {
+      "ruling": "N355237",
+      "gold": "Thailand",
+      "pred": "Thailand",
+      "correct": true,
+      "confidence": 0.9
+    },
+    {
+      "ruling": "N356144",
+      "gold": "United States",
+      "pred": "United States",
+      "correct": true,
+      "confidence": 0.92
+    },
+    {
+      "ruling": "N355972",
+      "gold": "South Korea",
+      "pred": "South Korea",
+      "correct": true,
+      "confidence": 0.85
+    },
+    {
+      "ruling": "N354423",
+      "gold": "Japan",
+      "pred": "China",
+      "correct": false,
+      "confidence": 0.85
+    },
+    {
+      "ruling": "N353747",
+      "gold": "China",
+      "pred": "China",
+      "correct": true,
+      "confidence": 0.78
+    }
+  ]
+}

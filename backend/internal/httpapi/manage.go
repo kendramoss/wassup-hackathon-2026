@@ -82,7 +82,7 @@ func (a *api) renameCase(w http.ResponseWriter, r *http.Request) {
 		}
 		old := summaryRow(*latest).DisplayName
 		latest.DisplayName = name
-		latest.Record(store.Event{Kind: "renamed", Summary: fmt.Sprintf("renamed from %q to %q", old, name)})
+		record(r.Context(), latest, store.Event{Kind: "renamed", Summary: fmt.Sprintf("renamed from %q to %q", old, name)})
 		return nil
 	})
 	if err != nil {
@@ -129,7 +129,7 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 		if latest.Pinned {
 			kind = "pinned"
 		}
-		latest.Record(store.Event{Kind: kind, Summary: "case " + kind + " by the admin"})
+		record(r.Context(), latest, store.Event{Kind: kind, Summary: "case " + kind + " by the admin"})
 		return nil
 	})
 	if err != nil {

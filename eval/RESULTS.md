@@ -27,6 +27,68 @@ Same frozen config as the proxy run below. Scoring adjustments from `eval/data/s
 | 0.80–0.90 | 31 | 18 | 58.1% (40.8–73.6) |
 | < 0.80 | 11 | 7 | 63.6% (35.4–84.8) |
 
+## Auto-accept bar by product family (17 Oct 2026; D63) — not adopted
+
+No model calls: the Vertex engine rows (`results/dev-` and `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl`) joined with router-v2's subfamily (`results/scope-*-router-v2-vertex.jsonl`), scoring adjustments applied. Bars fitted **on dev only**: per router subfamily, the lowest confidence at which in-scope dev accuracy stays ≥ 95% at every bar keeping ≥ 20 cases; a subfamily without one keeps the global 0.92 (D32). The frozen bars were then applied **once** to the held-out split. Command: `go run ./cmd/eval calibrate` (writes `results/calibration-by-family.json`, `results/calibration-by-family.md` and `backend/internal/triage/family_bars.json`).
+
+**Result: the per-family bars do not beat the global bar on held-out.** Final coverage 76.1% vs 79.6% and accuracy of auto-accepted answers 94.1% (90.7–96.3) vs 96.0% (93.1–97.7), with 17 wrong answers auto-accepted instead of 12. Neither paired difference is significant (coverage p = 0.130; wrong auto-accepts p = 0.227), but both point the wrong way, and the family-bar accuracy falls under the 95% the bars were fitted for. On dev itself the family bars only reshuffle cases (369 vs 368 auto, 17 vs 13 wrong). The low bars (motorised 0.75, electronics and metal_tools_parts 0.78) are set by a handful of low-confidence dev cases each; on held-out the metal_tools_parts bar let in 15 more cases of which 6 were wrong. `FAST_PATH_BY_FAMILY` stays off.
+
+#### Bars fitted on dev (target 95%, at least 20 cases; else global 0.92)
+
+| Subfamily | dev n (in scope) | bar | dev at bar | dev at global bar |
+|---|---:|---:|---|---|
+| apparel_textile_goods | 1 | 0.92 (global: fewer than 20 in-scope dev cases) | 1 / 1 = 100.0% | 1 / 1 = 100.0% |
+| battery_solar | 4 | 0.92 (global: fewer than 20 in-scope dev cases) | 4 / 4 = 100.0% | 4 / 4 = 100.0% |
+| electronics | 120 | 0.78 | 115 / 120 = 95.8% | 107 / 108 = 99.1% |
+| filters | 38 | 0.95 | 22 / 23 = 95.7% | 24 / 26 = 92.3% |
+| furniture_fixtures | 15 | 0.92 (global: fewer than 20 in-scope dev cases) | 14 / 15 = 93.3% | 14 / 15 = 93.3% |
+| medical | 12 | 0.92 (global: fewer than 20 in-scope dev cases) | 8 / 9 = 88.9% | 8 / 9 = 88.9% |
+| metal_tools_parts | 85 | 0.78 | 80 / 84 = 95.2% | 73 / 74 = 98.6% |
+| motorised | 49 | 0.75 | 47 / 49 = 95.9% | 36 / 36 = 100.0% |
+| other | 131 | 0.96 | 61 / 64 = 95.3% | 88 / 95 = 92.6% |
+
+#### dev (the bars were fitted here), n = 463
+
+| Policy | auto-accepted (coverage, 95% CI) | accuracy of auto (95% CI) | wrong auto-accepted |
+|---|---|---|---:|
+| global 0.92 | 368 / 463 = 79.5% (75.6–82.9) | 355 / 368 = 96.5% (94.1–97.9) | 13 |
+| per-family bars | 369 / 463 = 79.7% (75.8–83.1) | 352 / 369 = 95.4% (92.7–97.1) | 17 |
+
+Paired (exact McNemar on the cases the policies treat differently): auto only under family bars 35, only under global 34, p = 1.000; wrong answers auto-accepted only under family bars 9, only under global 5, p = 0.424.
+
+| Subfamily | n | bar | global: auto correct / auto | family: auto correct / auto |
+|---|---:|---:|---|---|
+| apparel_textile_goods | 4 | 0.92 | 1 / 1 = 100.0% | 1 / 1 = 100.0% |
+| battery_solar | 4 | 0.92 | 4 / 4 = 100.0% | 4 / 4 = 100.0% |
+| electronics | 121 | 0.78 | 107 / 108 = 99.1% | 115 / 120 = 95.8% |
+| filters | 38 | 0.95 | 24 / 26 = 92.3% | 22 / 23 = 95.7% |
+| furniture_fixtures | 16 | 0.92 | 14 / 15 = 93.3% | 14 / 15 = 93.3% |
+| medical | 12 | 0.92 | 8 / 9 = 88.9% | 8 / 9 = 88.9% |
+| metal_tools_parts | 85 | 0.78 | 73 / 74 = 98.6% | 80 / 84 = 95.2% |
+| motorised | 50 | 0.75 | 36 / 36 = 100.0% | 47 / 49 = 95.9% |
+| other | 133 | 0.96 | 88 / 95 = 92.6% | 61 / 64 = 95.3% |
+
+#### final (held out; bars frozen from dev, applied once), n = 377
+
+| Policy | auto-accepted (coverage, 95% CI) | accuracy of auto (95% CI) | wrong auto-accepted |
+|---|---|---|---:|
+| global 0.92 | 300 / 377 = 79.6% (75.2–83.3) | 288 / 300 = 96.0% (93.1–97.7) | 12 |
+| per-family bars | 287 / 377 = 76.1% (71.6–80.2) | 270 / 287 = 94.1% (90.7–96.3) | 17 |
+
+Paired (exact McNemar on the cases the policies treat differently): auto only under family bars 25, only under global 38, p = 0.130; wrong answers auto-accepted only under family bars 8, only under global 3, p = 0.227.
+
+| Subfamily | n | bar | global: auto correct / auto | family: auto correct / auto |
+|---|---:|---:|---|---|
+| apparel_textile_goods | 6 | 0.92 | 3 / 3 = 100.0% | 3 / 3 = 100.0% |
+| battery_solar | 5 | 0.92 | 5 / 5 = 100.0% | 5 / 5 = 100.0% |
+| electronics | 76 | 0.78 | 72 / 72 = 100.0% | 74 / 74 = 100.0% |
+| filters | 1 | 0.95 | 1 / 1 = 100.0% | 1 / 1 = 100.0% |
+| furniture_fixtures | 13 | 0.92 | 4 / 6 = 66.7% | 4 / 6 = 66.7% |
+| medical | 8 | 0.92 | 6 / 6 = 100.0% | 6 / 6 = 100.0% |
+| metal_tools_parts | 82 | 0.78 | 64 / 66 = 97.0% | 73 / 81 = 90.1% |
+| motorised | 49 | 0.75 | 38 / 40 = 95.0% | 44 / 48 = 91.7% |
+| other | 137 | 0.96 | 95 / 101 = 94.1% | 60 / 63 = 95.2% |
+
 ## Untuned Gemini 3.5 Flash — dev only (15 Oct 2026)
 
 `gemini-4-argon` cannot be tuned (model page: Tuning not supported). This is the untuned `gemini-3.5-flash` baseline on the same dev split, engine-v1, BM25, K = 5, Vertex `global`. No held-out run. Fast path reuses the Argon run's router-v2 scope file. Rows: `results/dev-gemini-3.5-flash-prec-engine-v1-vertex.jsonl`.
@@ -256,4 +318,47 @@ Chosen on dev with the held-out already spent on v1, so no independent test yet 
 | Latency p50 / p95 | 5.5 s / 68.1 s | 7.2 s / 76.6 s |
 
 Rows: `results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl`. Five calls returned 429 or 504 and were retried; the file has one row per ruling. `TEXTILE_PROMPT` stays v1.
+
+
+## USMCA / Part 102 rules on dev (LiteLLM proxy, 17 Oct; D61)
+
+**Proxy, development only.** `go run ./cmd/eval run -regime usmca -split dev` (labels `data/labels_usmca.jsonl`, splits `splits/splits_usmca.json`, facts in `backend/data/facts`). 72 dev cases (2024–2025), K = 5 BM25 precedents drawn only from labelled Part 102 rulings dated before each case. Held-out (32, 2026) was not run.
+
+| | engine-v1 (substantial transformation) | **usmca-v1 (102.11 / 102.20)** |
+|---|---|---|
+| Accuracy | 52/72 = 72.2% (61.0–81.2) | **54/72 = 75.0% (63.9–83.6)** |
+| ≥ 0.95 | 32/34 = 94.1% (80.9–98.4) | 36/37 = 97.3% (86.2–99.5) |
+| McNemar vs engine-v1 | — | fixed 6, broke 4, p = 0.75 |
+| Cost / case (promo) | $0.0081 | $0.0099 |
+| Latency p50 / p95 | 6.0 s / 8.7 s | 6.8 s / 12.9 s |
+
+Always-Mexico is 28/72 = 38.9%, always-Canada 24/72 = 33.3%. Rows: `results/usmca-dev-gemini-4-argon-prec-usmca-v1-litellm.jsonl` and `results/usmca-dev-gemini-4-argon-prec-engine-v1-litellm.jsonl` (same pool and cases, engine-v1 prompt).
+
+Of the 18 usmca-v1 misses, 3 are label problems rather than model errors: H345343 and H342474 (the two manual rows, copied from `labels.jsonl`) hold the Section 301 origin, while CBP's marking origin, the question Part 102 answers, is Mexico in both; N342959's "evidence" is a facts sentence ("German origin Module frames"), not a holding. 12 of the 18 predict the country that made a main material or component (South Korea for cast covers, China for film and spouts, Germany for coated paper, the United States for cereal and potato flakes) where CBP found the tariff shift met in Mexico or Canada: the model under-applies (a)(3).
+
+## Pharmaceutical regime (active ingredient) — LiteLLM proxy, development only (17 Oct 2026; D62)
+
+`pharma-v1`, Gemini 4 Argon, plain BM25, K = 5, precedents limited to pharmaceutical (`pharma_api`) rulings dated before the case. Split frozen in `eval/splits/splits_pharma.json` (pool 187, dev 35 = Jul–Dec 2025, final 56 = 2026). **Proxy, development only**: not an official number; re-run on Vertex AI. Held-out was not run. The "fast path" line in the raw eval report uses the substantial-transformation bar of 0.92; the pharma numbers below are separate.
+
+| Run (dev, 35) | Accuracy (95% CI) | ≥ 0.95 coverage | ≥ 0.95 accuracy (95% CI) | Cost / case (promo) | Latency p50 / p95 |
+|---|---|---:|---|---|---|
+| **pharma-v1** | **33/35 = 94.3% (81.4–98.4)** | 32/35 = 91.4% | **32/32 = 100% (89.3–100)** | $0.0070 | 6.0 s / 20.1 s |
+| engine-v1 (substantial-transformation prompt, all precedents) | 33/35 = 94.3% (81.4–98.4) | 34/35 = 97.1% | 32/34 = 94.1% (80.9–98.4) | $0.0064 | 5.5 s / 13.5 s |
+
+Always-India (the dev majority) is 13/35 = 37.1%. McNemar pharma-v1 vs engine-v1: fixed 1, broke 1. The two prompts are equally accurate here; the difference is calibration. engine-v1's two misses are at 0.98 (N351305 Malaysia for Malaysia/Vietnam; N353822 Brazil for United States, the cough drops whose US menthol is the active ingredient). pharma-v1 gets N353822 right and its two misses are below 0.95.
+
+Cumulative accuracy by confidence (pharma-v1, dev): ≥ 1.00 15/15; ≥ 0.99 30/30; ≥ 0.95 32/32 = 100% (89.3–100); ≥ 0.90 33/34 = 97.1% (85.1–99.5); ≥ 0.85 33/35 = 94.3%. The lowest confidence with ≥ 95% dev accuracy is **0.90** (33/34, 34 of 35 cases). No score falls between 0.90 and 0.95, so 0.91–0.95 select the same 32 cases. Zero call errors.
+
+Dev misses (2), both Dermasil creams whose CBP holding is "Malaysia or Vietnam" (bulk cream made in either country): N351305 predicted Malaysia at 0.90, N351352 predicted Malaysia at 0.85. These are cosmetics, not drugs, and the router (Vertex dev-window scope file) labels them `substantial_transformation`, so in production they would not reach the pharma engine. The router labels the other 33 dev rulings `pharma_api`.
+
+Commands: `go run ./cmd/eval run -regime pharma -split dev`; the engine-v1 row is `eval run -splits ../eval/splits/splits_pharma.json -split dev` (written as `dev-...-engine-v1-litellm.jsonl` and renamed with a `pharma-` prefix so it does not overwrite the main dev file). Rows: `results/pharma-dev-gemini-4-argon-prec-pharma-v1-litellm.jsonl`, `results/pharma-dev-gemini-4-argon-prec-engine-v1-litellm.jsonl`. The `git_revision` in RUNLOG is a local scratch merge with the LiteLLM provider, not a pushed commit.
+
+## Pharmaceutical and USMCA held-out (LiteLLM proxy, 17 Oct; D61, D62)
+
+Scored once each with the frozen prompt (same `gemini-4-argon` as Vertex).
+
+| Regime | Held-out accuracy (95% CI) | Confidence ≥ 0.95: n, accuracy (CI) | Cost / case |
+|---|---|---|---|
+| Pharmaceutical (`pharma-v1`, 56 rulings, 2026) | 50/56 = 89.3% (78.5–95.0) | 49 (88%), 100% (92.7–100) | $0.0066 |
+| USMCA / Part 102 (`usmca-v1`, 32 rulings, 2026) | 25/32 = 78.1% (61.2–89.0) | 15 (47%), 100% (79.6–100) | $0.0096 |
 
