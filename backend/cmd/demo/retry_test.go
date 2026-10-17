@@ -35,3 +35,25 @@ func TestRetriesWhenTheModelIsUnavailable(t *testing.T) {
 		t.Error("gave up too late or never")
 	}
 }
+
+func TestPlanRetriesOnlyWhileChecksFailed(t *testing.T) {
+	var n atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if n.Add(1) < 3 {
+			_, _ = w.Write([]byte(`{"plan":{"rejected":[{"description":"m","rejection_kind":"check_failed"},{"description":"x","rejection_kind":"other_origin"}]}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"plan":{"plans":[{"description":"m","shown":true,"verdict":{"confidence":0.95}}]}}`))
+	}))
+	defer srv.Close()
+	c := client{base: srv.URL, http: srv.Client(), waits: []time.Duration{time.Millisecond, time.Millisecond, time.Millisecond}}
+	var pr planResult
+	if _, err := c.planUntilChecked("case_x", []byte(`{}`), &pr); err != nil || n.Load() != 3 || len(pr.Plans) != 1 {
+		t.Errorf("after two runs with failed checks: %v, %d calls, %+v", err, n.Load(), pr)
+	}
+	n.Store(-10)
+	c.waits = c.waits[:1]
+	if _, err := c.planUntilChecked("case_x", []byte(`{}`), &pr); err != nil || n.Load() != -8 || checkFailed(pr) != 1 {
+		t.Errorf("should stop after its retries and keep the last result: %v, %d", err, n.Load())
+	}
+}

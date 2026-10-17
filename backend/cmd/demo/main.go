@@ -98,6 +98,47 @@ func (c client) callRaw(method, path string, body any) ([]byte, error) {
 	}
 }
 
+// planUntilChecked runs a plan search and, while some move's precedent check
+// could not complete (the model provider timed out), runs it again after the
+// client's waits. Completed checks and engine calls are cached server-side
+// and a failed check is not (D50, D58), so a re-run only retries the checks
+// that never gave a verdict; it cannot replace a verdict already given.
+func (c client) planUntilChecked(caseID string, body json.RawMessage, out *planResult) ([]byte, error) {
+	for i := 0; ; i++ {
+		var pr struct {
+			Plan planResult `json:"plan"`
+		}
+		raw, err := c.callRaw("POST", "/v1/cases/"+caseID+"/plan", body)
+		if err == nil {
+			err = json.Unmarshal(raw, &pr)
+		}
+		if err != nil {
+			return nil, err
+		}
+		*out = pr.Plan
+		failed := checkFailed(pr.Plan)
+		if failed == 0 || i >= len(c.waits) {
+			if failed > 0 {
+				fmt.Fprintf(os.Stderr, "WARNING: %s: %d precedent checks still failed after %d retries\n", caseID, failed, len(c.waits))
+			}
+			return raw, nil
+		}
+		fmt.Fprintf(os.Stderr, "%s plan: %d precedent checks could not complete; retry %d of %d in %s\n", caseID, failed, i+1, len(c.waits), c.waits[i])
+		time.Sleep(c.waits[i])
+	}
+}
+
+// checkFailed counts moves whose precedent check did not complete.
+func checkFailed(p planResult) int {
+	n := 0
+	for _, x := range p.Rejected {
+		if x.Kind == "check_failed" {
+			n++
+		}
+	}
+	return n
+}
+
 // retryable reports whether a failed request is worth repeating: the model
 // provider was unavailable or the request timed out. 0 is a transport error.
 func retryable(status int) bool {
@@ -303,10 +344,7 @@ func seed(args []string) error {
 			var pr struct {
 				Plan planResult `json:"plan"`
 			}
-			praw, err := c.callRaw("POST", "/v1/cases/"+cr.ID+"/plan", full.Plan)
-			if err == nil {
-				err = json.Unmarshal(praw, &pr)
-			}
+			praw, err := c.planUntilChecked(cr.ID, full.Plan, &pr.Plan)
 			if err != nil {
 				return fmt.Errorf("demo %s plan: %w", d.ID, err)
 			}

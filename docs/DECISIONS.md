@@ -458,6 +458,7 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - This pair is in the dev flip pairs that verifier-v2 was written from, so the demo cannot test the verifier.
   - Duty rates are illustrative: no ruling classifies the tub light, so there is no sourced HTS line.
 - The heat gun stays the first demo and the landing's story (closest move 0.90, under the bar). The tub light is second, ahead of the LiDAR.
+- **Production, first seed (17 Oct, `backend-00043-bvb`):** the prediction was China 0.98, auto. All three precedent checks on the moves the engine called Thailand failed with Vertex `HTTP 504: Deadline expired` after 4 attempts. No verdict was given, and nothing was cached (D58), so the plan showed nothing. Engine calls succeeded. `demo seed` now re-runs a plan search while any move's check failed, after waits of 1, 2, 4 and 8 min. Only the failed checks run again, because given verdicts are cached. This retries checks that never ran; it does not re-roll a verdict.
 
 ## D78 — Pause between model calls (17 Oct)
 - Production's first tub-light plan (`case_100715a11651`, `backend-00043-bvb`) predicted China 0.98, then the three moves the engine called Thailand never got a precedent check: each verifier call died with Vertex HTTP 504 "Deadline expired" after four attempts. The planner runs the baseline and every move together (`PLANNER_CONCURRENCY` 8), so one search puts the engine and several verifier loops on Vertex at once.
