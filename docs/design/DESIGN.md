@@ -67,24 +67,25 @@ Key frames: `docs/design/keyframes/p.html` (P next to the earlier choice F), `st
 
 **Type:** Paper Mono (SIL OFL 1.1, by Paper, based on Vercel's Geist Mono; v1.0, 7 Oct 2026) for everything, bundled as WOFF2 (Light 300, Regular 400, Medium 500, SemiBold 600). Long text (questions, reasoning, the decisive step, the broker letter, form text areas) uses the duospace set (`font-feature-settings: "ss02"`), which the font provides for reading. Labels, numbers, dates and ruling numbers use strict mono so they line up. Scale: verdict 84 (weight 400, tracking −0.06em), page title 28, section 18 (500), lead 17, body 14, decisive step 15 (two lines at most, then clipped), label 12 caps (500, +0.06em), dimension labels 10.
 
-**Colour** (contrast on paper; all text passes WCAG AA, also over the grid lines)
+**Colour: palette B "Blueprint"** (adopted 18 Oct in place of the warm paper and amber of 15 Oct; options in `docs/design/palettes/`, tokens in `frontend/src/app/globals.css`). Contrast on paper; all text passes WCAG AA, also over the grid lines.
 
 | Token | Hex | Use | Contrast |
 |---|---|---|---|
-| paper | `#f3f3ee` | page, content column | — |
-| sheet | `#f9f9f5` | panels | — |
-| wash | `#ebebe4` | hover, disabled | — |
-| grid | `#dde4f3` | graph grid, margins only | — |
-| line | `#cfd3dc` | hairlines | — |
-| panel edge | `#b9c6e6` | panel borders | — |
-| shadow | `#a8bcef` | hard offset shadows | — |
-| ink | `#232320` | text, primary button | 14.2:1 |
-| dim | `#5c5b55` | secondary text | 6.1:1 |
-| faint | `#7f7d76` | placeholders only | 3.7:1 |
-| ok (blue) | `#3a5fc4` | supported, cited, links, done steps | 5.2:1 (4.6 on grid) |
-| ask (amber) | `#965606` | needs review, questions | 5.2:1 (4.5 on grid) |
+| paper | `#edf2f9` | page, content column | — |
+| sheet | `#f9fbfe` | panels | — |
+| wash | `#e2e9f3` | hover, disabled | — |
+| grid | `#d3dff0` | graph grid, margins only | — |
+| line | `#c4d0e2` | hairlines | — |
+| edge | `#9fb4d8` | panel borders | — |
+| shadow | `#86a3d8` | hard offset shadows | — |
+| ink | `#13213a` | text, primary button | 14.3:1 |
+| dim | `#47566f` | secondary text | 6.6:1 |
+| faint | `#6e7c94` | placeholders only | 3.8:1 |
+| ok (blue) | `#1d4fc4` | supported, cited, links, done steps | 6.3:1 (5.3 on grid) |
+| ask (violet) | `#6a3fb0` | needs review, questions | 6.3:1 (5.3 on grid) |
+| fail (red) | `#a3201f` | real failures only | 6.7:1 |
 
-Blue is the only accent: supported, cited, links, done steps and the "Auto-accepted" status. No green anywhere. Amber is for "look again"; red only for real failures. (A combination with Tensorlake's dark terminal look and green accent, `pt.html`, was tried and dropped.)
+Blue is the only accent: supported, cited, links, done steps and the "Auto-accepted" status. No green anywhere. Violet (`ask`) is for "look again" wherever this file says amber; red only for real failures. (A combination with Tensorlake's dark terminal look and green accent, `pt.html`, was tried and dropped.)
 
 **Drawing-sheet details**
 - The graph grid (20 px) shows only outside the content column; the column, panels and the letter are solid paper, so text never sits on grid lines.
