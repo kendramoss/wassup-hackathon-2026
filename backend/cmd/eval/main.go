@@ -860,7 +860,8 @@ func planCmd(args []string) error {
 	default:
 		return fmt.Errorf("-search must be local or cross")
 	}
-	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000})
+	// The same verifier as production: VERIFIER_PROMPT and VERIFIER_VOTES.
+	ver := verifier.NewMajority(verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt}), cfg.VerifierVotes)
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return err
@@ -883,7 +884,7 @@ func planCmd(args []string) error {
 		Revision    string  `json:"git_revision"`
 		Time        string  `json:"time"`
 	}{res, cfg.LLMProvider, *searchMode, cost, costList, revision(), time.Now().Format(time.RFC3339)}
-	path := filepath.Join(*resultsDir, fmt.Sprintf("plan-%s-%s-%s.json", req.CaseID, *searchMode, cfg.LLMProvider))
+	path := filepath.Join(*resultsDir, fmt.Sprintf("plan-%s-%s-verifier-%s%s-%s.json", req.CaseID, *searchMode, cfg.VerifierPrompt, votesSuffix(cfg.VerifierVotes), cfg.LLMProvider))
 	b, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(path, b, 0o644); err != nil {
 		return err
@@ -984,7 +985,7 @@ func flipsCmd(args []string) error {
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
-	prompt := fl.String("verifier", "v1", "verifier prompt: v1, v2 (D74) or v3 (D75)")
+	prompt := fl.String("verifier", "", "verifier prompt: v1, v2 (D74) or v3 (D75); default VERIFIER_PROMPT, as production")
 	tag := fl.String("tag", "", "suffix for the result file, e.g. run2, to score the same prompt twice")
 	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier")
 	_ = fl.Parse(args)
@@ -1006,11 +1007,14 @@ func flipsCmd(args []string) error {
 	for _, l := range labels {
 		dates[l.Ruling] = l.Date
 	}
+	if *prompt == "" {
+		*prompt = cfg.VerifierPrompt
+	}
 	searcher, err := verifier.NewLocal(labels, *factsDir, *rawDir)
 	if err != nil {
 		return err
 	}
-	ver := verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: *prompt})
+	ver := verifier.NewMajority(verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: *prompt}), cfg.VerifierVotes)
 
 	f, err := os.Open(*flipsPath)
 	if err != nil {
@@ -1051,6 +1055,7 @@ func flipsCmd(args []string) error {
 	if *prompt != "v1" {
 		name = "verifier-" + *prompt
 	}
+	name += votesSuffix(cfg.VerifierVotes)
 	if *tag != "" {
 		name += "-" + *tag
 	}
@@ -1956,4 +1961,12 @@ func scopeSummaryItems(dir, textileSplits string) ([]evalsummary.Item, error) {
 		item("router_textile_routing", "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
 		item("router_false_out_of_scope", "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
 	}, nil
+}
+
+// votesSuffix names a result file scored with a VERIFIER_VOTES majority.
+func votesSuffix(votes int) string {
+	if votes > 1 {
+		return fmt.Sprintf("-vote%d", votes)
+	}
+	return ""
 }

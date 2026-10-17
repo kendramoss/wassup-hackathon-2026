@@ -21,7 +21,7 @@ If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavai
 
 ## 2. What the first run decides, and what not to do
 
-The precedent check is not repeatable from run to run (D31, D33): the heat gun's motor-fan + PCBA move has checked 0.92 in one run and 0.65–0.90 in others. The cache records the first verdict; it does not choose one.
+The precedent check is not fully repeatable from run to run (D31, D33). The heat gun's motor-fan + PCBA move has checked 0.92 in one run and 0.65–0.90 in others. A fixed seed on every model call (D76) makes runs agree much more often, but not always. The cache records the first verdict; it does not choose one.
 
 - **Don't re-seed until a plan clears the bar.** Picking a favourable run would misrepresent the system. If no plan clears 0.92, record the "No plan cleared the bar" screen and "Draft for the closest move"; it shows the bar doing its job.
 - To start fresh for another reason (new provider, changed code), delete `data/verifier-cache` and `data/cases`, then seed again. Note the reason in the video log.
@@ -29,7 +29,7 @@ The precedent check is not repeatable from run to run (D31, D33): the heat gun's
 
 ## 3. Click path (main story, ~2:00 of the 2:45)
 
-1. **Cases home.** The seeded demo cases. Open the heat gun.
+1. **Cases home.** The seeded demo cases. Open the heat gun. (For a plan that clears the bar, open the LED tub light instead: section 5.)
 2. **Product.** CBP's 2022 facts for the Kobalt heat gun, as pasted. "Find the likely origin".
 3. **Result.** Verdict, confidence ruler against the 0.92 bar, the earlier rulings with what CBP held, the check against CBP's own 2022 ruling (China). Below the bar: the follow-up questions.
 4. **Ask the case** (optional, ~15 s; the answer is recorded already): "Why this origin, and which earlier ruling is closest?"
@@ -106,4 +106,20 @@ Revision `backend-00038-zw2` after merge `41ce826` ([PR #186](https://github.com
 "Closest" means what the Plan screen shows: the below-bar move with the highest precedent check (ties keep list order). The seed summary used to print the first below-bar row instead, so the heat-gun row above was corrected on 17 Oct from `demo-seed-heatgun-plan-vertex.json`: the five below-bar moves checked 0.85, 0.85, 0.85, 0.90 (motor-fan + PCBA) and 0.85. `eval/results/demo-seed-vertex.json` still has the old summary line. The LiDAR plan was not dumped, so its row may name an equal-or-lower move than the screen; check the Plan page. Proxy run 1's "closest" lines have the same caveat.
 
 Heat gun extras: as today Thailand 0.75 net $0 (differs from CBP), motor-fan in Thailand 0.98 net $380k, motor-fan + PCBA 0.98 net $320k; watch unchanged; ask cited N351922 and N348083; countries: Malaysia below the bar, Thailand below the bar, Vietnam no plan. Repeat search: identical verdicts, 6/6 cached, 135.8 s. The heat-gun plan is below the bar, so the video uses the no-plan screen.
+
+## 5. LED tub light: a plan that clears the bar (production, 17 Oct)
+Demo `tublight-2025`, case `case_100715a11651` (pinned). CBP's July 2025 facts: all Chinese parts assembled in Thailand. CBP held China (N350085). A month later, the same manufacturer made the LED PCBA in Thailand and CBP held Thailand (N351143). Both rulings are excluded, and the planning date is 9 Jul 2025. This pair is among the dev flip pairs verifier-v2 was written from, so the demo is a demonstration, not a test (D77).
+
+Prediction: China 0.98, auto. Plan, `backend-00045-hh2`, seeded (D76), 320 s, `verifier_cached` 0:
+
+| Move | Result | Check | For | Against |
+|---|---|---|---|---|
+| LED PCBA (SMT) in Thailand | **shown** | 0.94 | N345899 | none |
+| LED PCBA + base, harness and seals in Thailand | **shown** | 0.96 | N344188 | none |
+| LED PCBA + lens moulding in Thailand | below the bar | 0.90 | H331515 | none |
+| Lens, base/harness/seals, or both | engine predicts China | — | — | — |
+
+The top plan moves exactly what CBP's real change moved (backtest: matches N351143). Duty rates are illustrative: no ruling classifies the tub light.
+
+History, for the record: the first production search (`backend-00043-bvb`) lost all three checks to Vertex 504s. The second (`backend-00044-q8k`, unseeded) checked LED PCBA at 0.90 on H304910. With Anas's approval, those three verdicts were deleted and checked once more with the seed, giving the result above (D76). The heat gun's verdicts were never touched.
 
