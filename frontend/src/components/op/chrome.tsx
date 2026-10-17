@@ -15,13 +15,13 @@ import { Button, ButtonLink, cx } from "./ui";
 export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "api" | "none"; sticky?: boolean }) {
   const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
   return (
-    <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-7 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10", sticky && "sticky top-0 z-30")}>
+    <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10 lg:flex-nowrap lg:gap-x-7", sticky && "sticky top-0 z-30")}>
       {/* On the landing page a link to "/" doesn't navigate, so it scrolls
           back to the top instead; elsewhere it goes home as usual. The path
           is read on click, so the bar still prerenders. */}
       <Link
         href="/"
-        className="text-[19px] font-semibold tracking-[-0.03em]"
+        className="shrink-0 text-[19px] font-semibold tracking-[-0.03em]"
         onClick={(e) => {
           if (window.location.pathname !== "/") return;
           e.preventDefault();
@@ -31,7 +31,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       >
         Origin <i className="not-italic text-ok">Proof</i>
       </Link>
-      <nav aria-label="Main" className="flex gap-5 text-sm">
+      <nav aria-label="Main" className="flex shrink-0 gap-5 whitespace-nowrap text-sm">
         <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
           {copy.nav.cases}
         </Link>
@@ -43,18 +43,24 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
         </Link>
       </nav>
       {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
-      {/* Hidden on phones, where the page heading names the case (#95). */}
-      <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden sm:flex sm:border-l sm:pl-5" />
+      {/* Hidden below lg, where the page heading names the case (#95). */}
+      <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden lg:flex lg:border-l lg:pl-5" />
       {/* "Not a ruling" sits on every screen that can show a verdict or a
           plan (DESIGN.md, p-k2.html); the landing page has it in its footer. */}
+      {/* From lg up the bar is one row: the breadcrumb and this line give
+          way (shorter, then truncated) so "+ New case" stays on it. Below
+          lg this line takes its own row under the bar. */}
       {active !== "none" && (
-        <p className="order-last w-full text-[11px] text-dim sm:order-none sm:ml-auto sm:w-auto sm:text-xs">{copy.disclaimer}</p>
+        <p title={copy.disclaimer} className="order-last w-full text-[11px] text-dim lg:order-none lg:ml-auto lg:w-auto lg:min-w-0 lg:truncate lg:text-xs">
+          <span className="lg:hidden 2xl:inline">{copy.disclaimer}</span>
+          <span className="hidden lg:inline 2xl:hidden">{copy.disclaimer.split(". ")[0]}.</span>
+        </p>
       )}
-      <span className={cx("flex items-center gap-4", active === "none" ? "ml-auto" : "ml-auto sm:ml-0")}>
+      <span className={cx("flex shrink-0 items-center gap-4", active === "none" ? "ml-auto" : "ml-auto lg:ml-0")}>
         <SignIn />
         <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
-          <span className="sm:hidden" aria-hidden="true">+ New</span>
-          <span className="hidden sm:inline" aria-hidden="true">{copy.cases.newCase}</span>
+          <span className="md:hidden" aria-hidden="true">+ New</span>
+          <span className="hidden md:inline" aria-hidden="true">{copy.cases.newCase}</span>
         </ButtonLink>
       </span>
     </header>
@@ -267,9 +273,9 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
     };
   }, [open]);
   return (
-    <div className="relative" ref={ref}>
-      <button type="button" className="flex min-h-8 items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className="max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
+    <div className="relative min-w-0" ref={ref}>
+      <button type="button" className="flex min-h-8 min-w-0 max-w-full items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <span className="min-w-0 max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
       </button>
       {open && (
         <div className="absolute left-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
