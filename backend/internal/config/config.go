@@ -243,7 +243,10 @@ type Config struct {
 	// confidence >= 0.95 must keep (default 0.95).
 	EvalSlice        bool
 	EvalSliceMaxDrop int
-	EvalSliceBandMin float64
+	// EvalSliceMaxErrors is how many slice cases may fail (provider errors)
+	// before the run is inconclusive instead of failed (default 3, D88).
+	EvalSliceMaxErrors int
+	EvalSliceBandMin   float64
 }
 
 // StreamPredictOn reports whether STREAM_PREDICT is on.
@@ -315,6 +318,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
 		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
 		EvalSliceMaxDrop:   e.integer("EVAL_SLICE_MAX_DROP", 2),
+		EvalSliceMaxErrors: e.integer("EVAL_SLICE_MAX_ERRORS", 3),
 		EvalSliceBandMin:   e.float("EVAL_SLICE_BAND_MIN", 0.95),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
@@ -503,6 +507,9 @@ func (c Config) validate() error {
 	}
 	if c.StreamPredict != "on" && c.StreamPredict != "off" {
 		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
+	}
+	if c.EvalSliceMaxErrors < 0 {
+		bad("EVAL_SLICE_MAX_ERRORS must be 0 or more cases, got %d", c.EvalSliceMaxErrors)
 	}
 	if c.EvalSliceMaxDrop < 0 {
 		bad("EVAL_SLICE_MAX_DROP must be 0 or more correct cases, got %d", c.EvalSliceMaxDrop)

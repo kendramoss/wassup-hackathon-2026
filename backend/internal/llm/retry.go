@@ -51,3 +51,9 @@ func retryable(err error) bool {
 	}
 	return errors.Is(err, ErrUnavailable)
 }
+
+// Unavailable reports whether err means the provider was busy or down (a
+// 429, a 5xx, a timeout, or retries exhausted), not that the request was bad.
+func Unavailable(err error) bool {
+	return retryable(err) || errors.Is(err, context.DeadlineExceeded)
+}
