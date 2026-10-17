@@ -106,6 +106,31 @@ Paired (exact McNemar on the cases the policies treat differently): auto only un
 - Flash's fast path is below the 95% accuracy the 0.92 bar was chosen for. Overall accuracy is close; the confident answers are not.
 - Tuning was not launched. Supervised fine-tuning for Gemini 3.5 Flash is $0.01 per 1,000 training tokens ($10 per 1M). Anas: no Flash tuning before the freeze. The staging deploy of this baseline (health ok, case saves denied) is in D44.
 
+## Tuned Gemini 3.5 Flash — dev only (17 Oct 2026)
+
+Supervised fine-tuning of `gemini-3.5-flash` on the Argon engine's CBP-reasoning targets (D56). 3 epochs, `us-central1`. Job `projects/88903435351/locations/us-central1/tuningJobs/3897104692752154624` (`origin-engine-cbp-reasoning-20261016-1811`) succeeded 2026-10-17T00:29:25Z. Endpoint `projects/88903435351/locations/us/endpoints/2563603719136477184`. Last logged step (87, end of epoch 3): training loss 0.7506042718887329, validation loss 0.6046217679977417. Dev is engine-v1, BM25, K = 5, Vertex location `us`. The response `model_id` field is `gemini-3.5-flash@default` (the base version string the endpoint returns); the calls used the endpoint above. Fast path reuses the Argon run's router-v2 scope file. Rows: `results/dev-gemini-3.5-flash-tuned-prec-engine-v1-vertex.jsonl` (one row per ruling; earlier 504s were retried). No held-out run.
+
+| | Argon (dev, adjusted) | Untuned Flash 3.5 (dev, adjusted) | Tuned Flash 3.5 (dev, adjusted) |
+|---|---|---|---|
+| Accuracy | 91.1% (88.2–93.4), 422/463 | 90.5% (87.5–92.8), 419/463 | 87.9% (84.6–90.6), 407/463 |
+| Fast path coverage | 79.5% (368/463) | 91.6% (424/463) | 94.0% (435/463) |
+| Fast path accuracy | 96.5% (94.1–97.9) | 92.0% (89.0–94.2) | 89.4% (86.2–92.0) |
+| Latency p50 / p95 | 4.8 s / 8.1 s | 12.1 s / 51.2 s | 6.0 s / 17.1 s |
+| Cost / case | $0.0079 promo | $0.017 standard global | $0.0248 tuned us, 1.5× |
+
+| Confidence | n | correct | accuracy (95% CI) |
+|---|---:|---:|---|
+| ≥ 0.95 | 440 | 394 | 89.5% (86.3–92.1) |
+| 0.90–0.95 | 12 | 11 | 91.7% (64.6–98.5) |
+| 0.80–0.90 | 5 | 2 | 40.0% (11.8–76.9) |
+| < 0.80 | 0 | 0 | 0.0% (0.0–0.0) |
+
+- McNemar, same adjustments. Tuned vs Argon: tuned fixed 15, broke 30, p = 0.036. Tuned vs untuned Flash: tuned fixed 12, broke 24, p = 0.065. Unadjusted tuned dev is 406/469 = 86.6% (83.2–89.4).
+- Cumulative accuracy is at or above 95% only at confidence ≥ 0.99 (148/150 = 98.7%, CI 95.3–99.6). No row sits in [0.96, 0.99). At 0.98 the cumulative set is 305/323 = 94.4%, under 95%.
+- Held-out was not run. Adjusted dev is 3.2 points under Argon (the gate is within 2), and the 0.92 fast path is 89.4%, worse than untuned Flash's 92.0%.
+- Six calls returned prose with no JSON object and are counted wrong: H344538, N351672, N352670, N355167, N355168, N356144. Example: `engine: predict H344538: llm: unusable model response: no JSON object in response (1514 chars)`. Earlier attempts at the default 30 s timeout failed with `llm: model provider unavailable after 4 attempts: vertex: HTTP 504: Deadline expired before operation could complete.` Those were retried at `LLM_TIMEOUT=120s`.
+- `cost_usd` is 0: the price table has no entry for this endpoint. The $0.0248 figure is mean tokens on the 457 successful final calls (2,702 in / 1,221 out) times 1.5× Gemini 3.5 Flash non-global ($1.65 / $9.90 per 1M), so $2.475 / $14.85 per 1M, because a tuned model is served on the `us` multi-region. Those 457 calls are about $11.34. Failed attempts before a later success are not in that figure.
+
 ## Textile regime (19 CFR 102.21) — Vertex AI (16 Oct 2026)
 
 `textile-v1`, Gemini 4 Argon, plain BM25, K = 5, precedents limited to textile rulings dated before the case. Split frozen in `eval/splits/splits_textile.json` (dev 99, final 71). Dev was scored first. Held-out was scored once after that, with the prompt, K, and the split left as they were. Rows: `results/textile-dev-gemini-4-argon-prec-textile-v1-vertex.jsonl`, `results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl`. The "fast path" line in the raw eval report still uses the substantial-transformation bar of 0.92. The textile bar below is separate.
