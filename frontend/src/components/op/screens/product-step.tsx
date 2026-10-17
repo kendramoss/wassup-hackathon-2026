@@ -18,7 +18,7 @@ import {
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
-import { CaseTabs, Elapsed, ErrorBox, Main, Next } from "../chrome";
+import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
@@ -467,6 +467,29 @@ export function ProductStep() {
           {busy && <PredictStatus since={busySince} date={date} stages={stages} />}
         </div>
       </Main>
+      {/* The same action in the top bar, where every other step has its main
+          button; a loaded demo is a long form (#179). From up there, show the
+          progress panel at the bottom once it starts. */}
+      <Footer>
+        <Button
+          onClick={() => {
+            if (!busy) (ready ? submit : showMissing)();
+            requestAnimationFrame(() => document.getElementById(busy || ready ? "go-status" : "go-why")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+          }}
+          aria-busy={busy || undefined}
+          aria-disabled={!busy && !ready}
+          title={!busy && missing ? missing : undefined}
+        >
+          {busy ? (
+            <>
+              <span className="size-2 rotate-45 bg-paper motion-safe:animate-pulse" aria-hidden="true" />
+              Finding… <Elapsed since={busySince} />
+            </>
+          ) : (
+            <>{copy.product.go} →</>
+          )}
+        </Button>
+      </Footer>
       {moneyOpen && (
         <MoneyDrawer
           value={economics}
