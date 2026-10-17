@@ -503,3 +503,19 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Known-a had 1 proxy timeout (BA-N349038-N360390), counted as an error.
   - What the user sees, plans at ≥ 0.92, is unchanged or better, and nothing wrong clears the bar. Below the bar, 21 pairs is too few to tell the seed's effect from run-to-run noise.
   - Rows: `eval/results/flips-final-verifier-v2-seed-{unknown-a,known-a}-litellm.jsonl`.
+
+## D81 — Near-miss advice: what would clear the bar (18 Oct)
+- A move whose precedent check lands just under the 0.92 plan bar is a dead end on the Plan page: the user sees "0.90, below the bar" and nothing more. The heat gun's closest moves sit there in every run (D74–D77).
+- **Change:** for the closest moves rejected as `below_confidence_bar` with check ≥ 0.85, one extra model call compares the move's facts with its supporting ruling, read through the verifier's own searcher (only rulings dated before the case, the case's own rulings excluded).
+  - It returns `near_miss {difference, would_match, ruling, trace}`: how the move differs from that ruling on the point CBP relied on, and what change to the setup would make the two match.
+  - At most two per search, highest check first.
+  - Prompt `near-miss-v1`, written before any measurement and fingerprinted in promptsnap (D72).
+  - Cached beside the verdicts (Firestore on Cloud Run, keys prefixed `nearmiss-`).
+  - Off by default: `NEAR_MISS_ADVICE=on`.
+- **Advice only.** It runs after every verdict is final. It never changes a verdict, the bar or `shown`, and a failed advice call leaves the move without advice. Tests check that verdicts and shown plans are identical with advice on, off and failing.
+- **Measured once** (LiteLLM proxy, seeded, verifier-v2, live CROSS, fresh cache; scratch build, 18 Oct):
+  - Heat gun: one move in the band, motor-fan assembly + PCBA at 0.90 on N342916. Advice: "Both setups perform final assembly and produce the PCBA and main housing in Thailand, and your setup goes further by making the motor and heating element in Thailand rather than China as in N342916. However, in N342916 ALL plastic parts were injection-molded in Thailand (along with some screws and the switch plate), whereas in your setup plastic parts like the knob, back cover, and support ring, as well as the switch and fasteners, are sourced from China." Would match: "Produce the knob, back cover, support ring, switch, and fasteners in Thailand instead of sourcing them from China." That is close to what CBP's real 2026 change did (N357771 moved the motor, fan, PCBA, knob, power cord, back cover and outer shells).
+  - Tub light: LED PCBA + lens at 0.90 on H331515. Advice: in H331515 the harness and end-caps came from the assembly country, while here the harness, lamp base and sealing come from China. Would match: make the harness and lamp base in Thailand. Moving them with the PCBA is the second shown plan (0.96), so the advice points at a plan the search already found.
+  - Cost: one call each, about 1,700–1,900 input and 150 output tokens, about $0.005 per search (promo) on top of $0.13–0.15 for the search. Latency 5–7 s, after the verdicts.
+  - In this run, the heat gun's motor-fan-alone move (production's closest, 0.90 on N325810) came back unsupported at 0.65, so it got no advice. The production demo case keeps its cached verdicts. Advice for it appears only after `NEAR_MISS_ADVICE=on` and a new search on that case, using its stored verdicts.
+  - Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-near-miss-v1-litellm.json`.
