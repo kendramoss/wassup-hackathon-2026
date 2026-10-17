@@ -120,6 +120,33 @@ func System2(maxToolCalls int) string {
 	return Principles + Evidence2 + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
 }
 
+// Views are second opinions for the panel (D83). Each keeps verifier-v2's
+// method and confidence scale, so confidences stay comparable, and changes
+// only where it looks first.
+const (
+	// ViewSkeptic argues as the CBP import specialist who would deny the
+	// change, and searches hardest for rulings that called it minor.
+	ViewSkeptic = "skeptic"
+	// ViewProduct searches by what the product is rather than by the part
+	// that moved, to find same-product rulings a component search misses.
+	ViewProduct = "product"
+)
+
+// viewText is the instruction each view adds to verifier-v2.
+var viewText = map[string]string{
+	ViewSkeptic: `
+VIEW: You are the CBP import specialist reviewing this request, and your job is to test whether the change is enough. Search first and hardest for earlier rulings where the same kind of component or operation moved and CBP held it minor assembly, simple processing, or otherwise not a substantial transformation. Read the strongest such ruling. Only then look for support. Hold the change to the same burden of proof and confidence scale as above: do not lower confidence for a doubt the rulings you read do not support.
+`,
+	ViewProduct: `
+VIEW: Start from what the product is, not from the part that moved. Search first for earlier rulings on the same kind of finished product (its name, its function), then read how CBP decided origin for those products and which component or operation it held decisive. Only then search by the moved component. Use the same confidence scale as above.
+`,
+}
+
+// SystemView renders verifier-v2 with a view's instruction.
+func SystemView(maxToolCalls int, view string) string {
+	return Principles + Evidence2 + viewText[view] + fmt.Sprintf("\nUse the tools (at most %d calls). When done, reply with ONLY the final JSON (no tool call).\n", maxToolCalls) + FlipFinal
+}
+
 // Task is one move to verify: two variants of the same product.
 type Task struct {
 	FactsA, FactsB string
@@ -192,12 +219,17 @@ type Options struct {
 	MaxOutputTokens int
 	// Prompt is "v1" (default) or "v2" (D74).
 	Prompt string
+	// View, with Prompt v2, is a panel view (ViewSkeptic, ViewProduct; D83).
+	View string
 }
 
 // Version is the verifier's prompt version (cache keys and traces use it).
 func (v *Verifier) Version() string {
 	switch v.opts.Prompt {
 	case "v2":
+		if v.opts.View != "" {
+			return PromptVersion2 + "-" + v.opts.View
+		}
 		return PromptVersion2
 	case "v3":
 		return PromptVersion3
@@ -210,6 +242,23 @@ type Verifier struct {
 	model  llm.Model
 	search Searcher
 	opts   Options
+}
+
+// NewWithPanel returns the production checker: opts' verifier, with the
+// skeptic and product views as a panel near the bar when panel is set
+// (D83). The views need prompt v2.
+func NewWithPanel(model llm.Model, search Searcher, opts Options, panel bool, low, high float64) Checker {
+	first := New(model, search, opts)
+	if !panel {
+		return first
+	}
+	var views []Checker
+	for _, view := range []string{ViewSkeptic, ViewProduct} {
+		o := opts
+		o.View = view
+		views = append(views, New(model, search, o))
+	}
+	return NewPanel(first, views, low, high)
 }
 
 // New returns a verifier.
@@ -313,6 +362,9 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	switch v.opts.Prompt {
 	case "v2":
 		system = System2(v.opts.MaxToolCalls)
+		if _, ok := viewText[v.opts.View]; ok {
+			system = SystemView(v.opts.MaxToolCalls, v.opts.View)
+		}
 	case "v3":
 		system = System3(v.opts.MaxToolCalls)
 	}

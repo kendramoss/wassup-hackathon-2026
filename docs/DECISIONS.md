@@ -509,3 +509,21 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - `domain.Verdict.Trail` lists each search (query, plus the ruling numbers it returned) and each ruling read, in the order the agent made them. It is stored with the verdict, so a cached verdict replays its trail. Verdicts cached before this change have no trail; the field is omitted.
 - No model, prompt or cache-key change: verdicts and costs are unchanged. The frontend can show "searched …, read N345899, counter-searched …, found nothing against".
 
+## D83 — A panel of three views for checks near the bar, off by default (18 Oct)
+- With the seed (D76), repeating the same prompt mostly repeats the same answer, so extra identical runs add little (D76: 3 same-prompt votes, 52/54 runs agreeing, 3× the cost). Anas's idea: give the extra runs different views of how CBP could rule, so they cover more ground.
+- **Panel** (`VERIFIER_PANEL=on`, needs `VERIFIER_PROMPT=v2`): when the first check's confidence is in [`VERIFIER_PANEL_LOW`, `VERIFIER_PANEL_HIGH`) (default [0.89, 0.95)), two more checks run in parallel. Both keep v2's method and confidence scale and change only where they look first:
+  - **skeptic** (`verifier-v2-skeptic`): argues as the CBP import specialist and searches first for rulings that called the same move minor assembly.
+  - **product** (`verifier-v2-product`): searches first by what the finished product is, then by the moved part.
+- **Combining:** the panel keeps the majority on precedent support (a tie goes against support), the median confidence of that majority, and the citations of that median run. A counter-ruling found by any view is kept. `agreement` reports e.g. "2/3".
+- **Cache key unchanged:** the panel keys under its first checker's version, so turning it on never re-checks stored verdicts (demo verdicts stay, D56). It applies to new checks only.
+- **Measured** (dev flip pairs, known-a, seeded, LiteLLM proxy, two runs each, heat-gun pair excluded):
+
+  | | real changes shown at ≥ 0.92 | wrong at ≥ 0.92 | same shown/not-shown run to run | cost per check |
+  |---|---|---|---|---|
+  | single check (D76) | 17 / 18 | 0 | 51 / 54 | $0.034 |
+  | 3 votes, same prompt | 16 / 18 | 0 | 52 / 54 | $0.105 |
+  | **panel of 3 views** | **19 / 18** | **0** | **53 / 54** | **$0.061** |
+
+  Precedent-supported verdicts were all real changes at any confidence (33/33 and 32/32). The first attempt at this measurement hit LiteLLM proxy 403s from too many parallel agents (42 and 37 of 54 rows errored). It was discarded and re-run at 2 workers per run. These results are from that re-run. Rows: `eval/results/flips-dev-verifier-v2-panel-run{1,2}-known-a-litellm.jsonl`.
+- Held-out not run. Production stays off until Anas turns it on.
+

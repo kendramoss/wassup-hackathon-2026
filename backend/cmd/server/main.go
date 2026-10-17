@@ -228,7 +228,11 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			return httpapi.Deps{}, err
 		}
 	}
-	var ver verifier.Checker = verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt})
+	ver := verifier.NewWithPanel(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt},
+		cfg.VerifierPanel == "on", cfg.VerifierPanelLow, cfg.VerifierPanelHigh)
+	if cfg.VerifierPanel == "on" {
+		logger.Info("precedent-check panel on", "views", []string{verifier.ViewSkeptic, verifier.ViewProduct}, "low", cfg.VerifierPanelLow, "high", cfg.VerifierPanelHigh)
+	}
 	ver = verifier.NewMajority(ver, cfg.VerifierVotes) // the cache below stores the majority verdict
 	var textileEng *engine.Engine
 	if cfg.TextileEngine {
