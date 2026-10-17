@@ -15,6 +15,10 @@ const groupNames: Record<string, string> = {
   housing_moulding: "Housing moulding",
   switch_cord_minor_parts: "Switch, cord and minor parts",
   final_assembly: "Final assembly",
+  // LED tub light demo
+  led_pcba: "LED PCBA (SMT)",
+  lens: "Lens moulding",
+  base_harness_seals: "Base, harness and seals",
 };
 
 export function groupName(id: string | undefined): string {
@@ -31,12 +35,30 @@ const phrases: Record<string, string> = {
   housing_moulding: "the housing moulding",
   switch_cord_minor_parts: "the switch, cord and minor parts",
   final_assembly: "final assembly",
+  led_pcba: "the LED PCBA",
+  lens: "the lens moulding",
+  base_harness_seals: "the base, harness and seals",
 };
 
+// Lower-cases a leading capital only when it starts an ordinary word, so
+// acronyms ("LED PCBA", "PCBA") keep their case.
+const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+
 export function movePhrase(p: Plan): string {
-  const parts = (p.move ?? []).map((m) => phrases[m.group ?? ""] ?? groupName(m.group).toLowerCase());
+  const parts = (p.move ?? []).map((m) => phrases[m.group ?? ""] ?? `the ${lowerFirst(groupName(m.group))}`);
   if (parts.length === 0) return (p.description ?? "").replace(/^Make /, "");
   return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+// Whether the backend's backtest says the top plan moves exactly the parts
+// the manufacturer really moved, and the ruling that recorded the change.
+export function backtestMatch(bt: unknown): { matches: boolean; ruling?: string } {
+  const b = (bt ?? {}) as Record<string, unknown>;
+  const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
+  const actual = list("actual_moved"), moved = list("moved_by_plan");
+  const ruling = typeof b.source === "string" ? b.source.match(/\b[NH]\d{6}\b/)?.[0] : undefined;
+  const matches = actual.length > 0 && list("in_actual_change_not_in_plan").length === 0 && actual.every((a) => moved.includes(a));
+  return { matches, ruling };
 }
 
 // The precedent check said as a judgement: exactly at the bar is never a
