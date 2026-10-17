@@ -95,11 +95,18 @@ func run(logger *slog.Logger, smoke bool) error {
 	if err != nil {
 		return err
 	}
-	model := llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, time.Second), logger)
+	// One gate for every client, including the engine's fallback Vertex
+	// client, so a plan search's moves do not call the model together (D78).
+	gate := llm.NewGate()
+	paced := llm.WithPace(base, cfg.LLMCallGap, gate)
+	if cfg.LLMCallGap > 0 {
+		logger.Info("model calls paced", "gap", cfg.LLMCallGap.String())
+	}
+	model := llm.WithLogging(llm.WithRetry(paced, cfg.LLMMaxRetries, time.Second), logger)
 	if smoke {
 		return runSmoke(ctx, model, cfg)
 	}
-	engineModel, err := newEngineModel(ctx, cfg, base, model, logger)
+	engineModel, err := newEngineModel(ctx, cfg, paced, model, gate, logger)
 	if err != nil {
 		return err
 	}
@@ -153,7 +160,7 @@ func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 // a fallback (default gemini-3.8-flash), the primary is tried EngineAttempts
 // times and then the fallback model is called once, from a client in
 // FallbackEngineLocation (global).
-func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, logger *slog.Logger) (llm.Model, error) {
+func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, gate *llm.Gate, logger *slog.Logger) (llm.Model, error) {
 	if cfg.FallbackEngineModel == "" {
 		return shared, nil
 	}
@@ -171,7 +178,7 @@ func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Mod
 		if err != nil {
 			return nil, err
 		}
-		fb = v
+		fb = llm.WithPace(v, cfg.LLMCallGap, gate)
 	default:
 		fb = base
 	}

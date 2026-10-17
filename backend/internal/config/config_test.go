@@ -35,8 +35,14 @@ func TestDefaults(t *testing.T) {
 	}
 	if c.LLMProvider != ProviderVertex || c.EngineModel != "gemini-4-argon" || c.RouterModel != "gemini-3.8-flash" ||
 		c.PrecedentK != 5 || c.FastPathConfidence != 0.92 || c.PlanConfidence != 0.92 || c.VerifierMaxToolCalls != 6 ||
-		c.LLMTimeout != 30*time.Second || c.GCPLocation != "global" || c.Port != "8080" {
+		c.LLMTimeout != 30*time.Second || c.LLMCallGap != 0 || c.GCPLocation != "global" || c.Port != "8080" {
 		t.Errorf("unexpected defaults: %+v", c)
+	}
+	if g, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"LLM_CALL_GAP": "8s"}))); err != nil || g.LLMCallGap != 8*time.Second {
+		t.Errorf("LLM_CALL_GAP = %s %v, want 8s", g.LLMCallGap, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"LLM_CALL_GAP": "-1s"}))); err == nil {
+		t.Error("negative LLM_CALL_GAP accepted")
 	}
 	if c.VerifierPrompt != "v2" {
 		t.Errorf("verifier prompt default = %q, want v2 (D74)", c.VerifierPrompt)

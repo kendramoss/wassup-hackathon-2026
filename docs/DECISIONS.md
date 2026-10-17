@@ -458,3 +458,7 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - This pair is in the dev flip pairs that verifier-v2 was written from, so the demo cannot test the verifier.
   - Duty rates are illustrative: no ruling classifies the tub light, so there is no sourced HTS line.
 - The heat gun stays the first demo and the landing's story (closest move 0.90, under the bar). The tub light is second, ahead of the LiDAR.
+
+## D78 — Pause between model calls (17 Oct)
+- Production's first tub-light plan (`case_100715a11651`, `backend-00043-bvb`) predicted China 0.98, then the three moves the engine called Thailand never got a precedent check: each verifier call died with Vertex HTTP 504 "Deadline expired" after four attempts. The planner runs the baseline and every move together (`PLANNER_CONCURRENCY` 8), so one search puts the engine and several verifier loops on Vertex at once.
+- **Decision:** `LLM_CALL_GAP` (default 0; production 8s) makes every model client — engine, flash fallback, verifier — share one gate. The next call starts only after the previous one has returned and the gap has elapsed. Cloud Run's request timeout is 900s so a paced plan search can finish. The bar, the prompt and the heat-gun verdict are unchanged.
