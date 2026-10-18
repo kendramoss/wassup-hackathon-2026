@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
   api,
   streamPredict,
@@ -28,7 +28,28 @@ import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 
 type Tab = "parts" | "paste" | "bom";
-const tabOrder: Tab[] = ["parts", "paste", "bom"];
+// Import BOM first: most users have one (18 Oct).
+const tabOrder: Tab[] = ["bom", "parts", "paste"];
+
+// A product name from a BOM's file name, for the name field the moment a
+// file is picked: "FL-50 LED Floodlight - BOM Rev A.csv" -> "FL-50 LED
+// Floodlight". Generic names ("export (3)", "Book1") give "".
+export function nameFromFile(file: string): string {
+  const n = file
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_]+/g, " ")
+    .replace(/\b(bill of materials|bom|rev(ision)?\.?\s*[a-z0-9]+|draft|final|copy|v\d+(\.\d+)*|\d{4}[-.]\d{2}([-.]\d{2})?)\b/gi, " ")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\s*[-–—]\s*(?=[-–—]|$)/g, " ")
+    .replace(/^\s*[-–—]\s*|\s*[-–—]\s*$/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[-–—\s]+$/, "");
+  if ((n.match(/[a-z]/gi) ?? []).length < 3 || /^(export|data|sheet\d*|book\d*|untitled|new|file|parts|list)$/i.test(n)) return "";
+  // "hair-dryer" -> "Hair dryer"; codes like "FL-50" keep their hyphen.
+  const words = /\s/.test(n) || /\d/.test(n) ? n : n.replace(/-+/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
 
 // Operation groups of the planner templates, offered as suggestions.
 const groupSuggestions = [
@@ -212,7 +233,10 @@ export function ProductStep() {
   // so the plan search can run (#81). The old case stays as it is.
   const fromId = params.get("from");
 
-  const [tab, setTab] = useState<Tab>("parts");
+  const [tab, setTab] = useState<Tab>("bom");
+  // The name the import filled in, so a later answer replaces it but never
+  // what the user typed.
+  const autoName = useRef("");
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
@@ -513,6 +537,13 @@ export function ProductStep() {
               <BomImport
                 name={name}
                 family={familyTouched ? family : ""}
+                onPicked={(guess) => {
+                  // Instant: the file's name fills the field while the import runs.
+                  if (guess && !name.trim()) {
+                    setName(guess);
+                    autoName.current = guess;
+                  }
+                }}
                 imported={imported}
                 onImported={(r) => {
                   setImported(r);
@@ -521,9 +552,11 @@ export function ProductStep() {
                   // Name and family the file (or the AI) filled in (18 Oct).
                   const how = (src?: string) => (src === "ai" ? "suggested by AI from the parts" : "from your file");
                   const said: string[] = [];
-                  if (!name.trim() && r.product.name && r.name_source) {
-                    setName(r.product.name);
-                    said.push(`Product name “${r.product.name}”, ${how(r.name_source)}.`);
+                  if (r.product.name && r.name_source) {
+                    const filledName = r.product.name;
+                    setName((n) => (!n.trim() || n === autoName.current ? filledName : n));
+                    autoName.current = filledName;
+                    said.push(`Product name “${filledName}”, ${r.name_source === "file_name" ? "from the file's name" : how(r.name_source)}.`);
                   }
                   if (r.family && (r.family_source === "file" || r.family_source === "ai")) {
                     said.push(`Product family ${familyName(r.family)}, ${how(r.family_source)}${r.family_reason ? `: ${r.family_reason}` : "."}`);
@@ -541,7 +574,7 @@ export function ProductStep() {
                   });
                   // The file name ("heatgun bom") is no product name and would
                   // land in the ruling letter (#85): ask for one instead.
-                  if (!name.trim() && !(r.product.name && r.name_source)) {
+                  if (!name.trim() && !autoName.current && !(r.product.name && r.name_source)) {
                     setAskName(true);
                     setTimeout(() => document.querySelector<HTMLElement>("[data-field=name]")?.focus(), 0);
                   }
@@ -1074,9 +1107,11 @@ function BomImport({
   onImported,
   onEdit,
   onUseText,
+  onPicked,
 }: {
   name: string;
   family: string;
+  onPicked?: (nameGuess: string) => void;
   imported: ImportResponse | null;
   onImported: (r: ImportResponse) => void;
   onEdit: () => void;
@@ -1094,6 +1129,8 @@ function BomImport({
     // only the last resort (18 Oct).
     const productName = name.trim();
     const fallbackName = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+    const hint = nameFromFile(f.name);
+    onPicked?.(hint);
     setFile(f);
     setBusy(true);
     setError(null);
@@ -1102,7 +1139,7 @@ function BomImport({
     if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
       try {
         const { csv } = await pdfToBomCsv(f);
-        onImported(await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, family: family || undefined }));
+        onImported(await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined }));
       } catch (e) {
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
@@ -1115,6 +1152,7 @@ function BomImport({
     form.append("file", f);
     if (productName) form.append("name", productName);
     form.append("fallback_name", fallbackName);
+    if (hint) form.append("name_hint", hint);
     if (family) form.append("family", family);
     try {
       onImported(await api.importBom(form));

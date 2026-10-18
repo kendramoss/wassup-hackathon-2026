@@ -1157,7 +1157,11 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			if src == nil {
-				a.fail(w, r, fmt.Errorf("%w: target %q is not in the latest country comparison", domain.ErrInvalid, in.Target))
+				if a.demoReadOnly(r, c) {
+					a.fail(w, r, fmt.Errorf("%w: target %q is not in this demo's recorded country comparison; start a new case from the demo to compare and draft other countries", domain.ErrInvalid, in.Target))
+				} else {
+					a.fail(w, r, fmt.Errorf("%w: target %q is not in the latest country comparison; compare it again, then draft", domain.ErrInvalid, in.Target))
+				}
 				return
 			}
 		}

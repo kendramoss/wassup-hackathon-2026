@@ -6,7 +6,7 @@ import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
-import { Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { moveKey } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
@@ -151,7 +151,7 @@ function Compare({ id, c }: CaseCtx) {
                     type="checkbox"
                     className="sr-only"
                     checked={on}
-                    disabled={Boolean(since)}
+                    disabled={Boolean(since) || Boolean(c.pinned)}
                     onChange={() => setPicked(on ? picked.filter((x) => x !== o) : picked.length < 4 ? [...picked, o] : picked)}
                   />
                   <Country name={o} />
@@ -162,12 +162,25 @@ function Compare({ id, c }: CaseCtx) {
           </div>
           {options.length < 2 && <p className="duo mt-2 text-xs text-ask">Add plants in at least two countries on the Product step to compare them.</p>}
         </fieldset>
-        {!since && (
-          <div>
-            <Button onClick={run} disabled={picked.length < 2}>
-              {ranked ? "Compare again" : "Compare these countries"}
-            </Button>
-          </div>
+        {/* A pinned demo keeps its recorded comparison: a new one wouldn't be
+            saved, so its drafts couldn't be made (18 Oct). */}
+        {c.pinned ? (
+          <DemoNote
+            title={c.display_name}
+            message={
+              ranked
+                ? "This is a pinned demo: its recorded comparison is shown. To compare other countries and draft from them, start a new case from it."
+                : "This is a pinned demo: comparisons run here aren't saved. Start a new case from it to compare countries and draft from the result."
+            }
+          />
+        ) : (
+          !since && (
+            <div>
+              <Button onClick={run} disabled={picked.length < 2}>
+                {ranked ? "Compare again" : "Compare these countries"}
+              </Button>
+            </div>
+          )
         )}
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
 

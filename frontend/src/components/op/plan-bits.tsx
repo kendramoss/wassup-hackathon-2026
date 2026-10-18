@@ -5,7 +5,7 @@ import { DutyBreakdown, DutySources } from "./duty-breakdown";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
-import { Country, Panel, PanelHead, cx } from "./ui";
+import { Country, Flag, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
 
@@ -196,6 +196,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
                 </th>
                 {plants.map((p) => (
                   <th key={p.id} scope="col" className="py-1 text-left font-normal text-dim">
+                    <Flag country={p.country} className="mr-1" />
                     {p.name || p.id}
                   </th>
                 ))}
@@ -241,7 +242,10 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
               <div className="mt-1 grid grid-cols-2 gap-2">
                 {plants.map((p) => (
                   <label key={p.id} className="flex flex-col gap-0.5 text-[11.5px] text-dim">
-                    {p.name || p.id}
+                    <span>
+                      <Flag country={p.country} className="mr-1" />
+                      {p.name || p.id}
+                    </span>
                     <input
                       inputMode="numeric"
                       className="w-full rounded-[2px] border border-line bg-white px-2 py-1.5 text-[13px] text-ink"
