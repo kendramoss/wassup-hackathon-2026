@@ -9,11 +9,22 @@
 
 > Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.
 
+## Problem statement (Manufacturing theme)
+
+**Supply-chain challenge.** Manufacturers moving production out of China ("China plus one") have to decide which operations to move, and where. U.S. Customs (CBP) then decides the product's country of origin from where those operations happen, and origin sets the duty: for our demo heat gun, about 41.7% from China against 16.7% from Thailand.
+
+**Efficiency and reliability.** Today that decision is slow and uncertain. A ruling request takes about 20 hours to prepare and a median of 21 days to answer. A move that doesn't change origin is a costly mistake that's only found after production has moved.
+
+**From operational data to recommendations and actions.** Unde turns a manufacturer's own operational data into:
+- **an insight:** the origin CBP would likely assign to today's setup, citing earlier rulings
+- **recommendations:** ranked production moves that would reach a target origin, each checked against CBP precedent
+- **an action:** a draft ruling request for a customs broker to file
+
+The operational data is the bill of materials, where each part is made, and which plant performs each operation. This fits the theme's suggested directions: **production optimization** (where to perform each operation) and **supply-chain intelligence** (origin and duty exposure).
+
 ## What it does
 
-U.S. Customs and Border Protection (CBP) decides each imported product's **country of origin**, and origin sets the duty. When parts come from several countries, CBP asks where the product became a new thing ("substantial transformation").
-
-A factory moving work out of China usually can't tell in advance whether its new setup will count as, say, Thai origin. Finding out means paying advisers and waiting weeks for a ruling. Unde answers ahead of time:
+When parts come from several countries, CBP asks where the product became a new thing ("substantial transformation"). Unde answers that ahead of time:
 
 1. **Describe the product.** Paste a description, or upload the bill of materials (CSV or Excel).
 2. **See the likely origin.** Gemini reads the product with the most similar past CBP rulings and predicts the origin, with a confidence and the rulings it relied on.
