@@ -661,7 +661,7 @@ func TestExportBelowBarPlanByMoveKey(t *testing.T) {
 	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
 	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
 	md, _ := ex["content"].(string)
-	if code != 200 || !strings.Contains(md, "rated this change 0.88, under its 0.92 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
+	if code != 200 || !strings.Contains(joinNotes(ex), "rated this change 0.88, under its 0.92 bar") || strings.Contains(md, "under its 0.92 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
 		t.Fatalf("below-bar export %d:\n%s", code, md)
 	}
 	for body, want := range map[string]int{
@@ -761,7 +761,7 @@ func TestCompareTargetsRanksCountries(t *testing.T) {
 		t.Errorf("ranking = %v", got)
 	}
 	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@vn","target":"Vietnam"}`)
-	if code != 200 || !strings.Contains(ex["content"].(string), "under its 0.92 bar") {
+	if code != 200 || !strings.Contains(joinNotes(ex), "under its 0.92 bar") {
 		t.Errorf("draft from comparison %d %v", code, ex)
 	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@vn","target":"Laos"}`); code != 400 {

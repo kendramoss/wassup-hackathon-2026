@@ -116,8 +116,8 @@ export function CaseTabs({
   // One sticky row, read left to right: the steps, then the case menu and
   // Ask, then the step's main button (17 Oct).
   return (
-    // mb-6: every step's content starts a clear gap below this bar (18 Oct).
-    <div className="no-print z-20 mb-6 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
+    <>
+    <div className="no-print z-20 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
     <nav aria-label="Case" tabIndex={0} className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
       <ul className="flex items-center gap-1.5 whitespace-nowrap sm:flex-wrap">
         {tabs.map((t) => {
@@ -175,6 +175,10 @@ export function CaseTabs({
         <ActionSlot />
       </div>
     </div>
+    {/* A clear gap below the bar, then the top edge of the content column:
+        the same dashed blueprint line as its sides (18 Oct). */}
+    <div aria-hidden="true" className="no-print column mx-auto mt-6 w-full max-w-[1240px] border-t border-dashed border-guide" />
+    </>
   );
 }
 

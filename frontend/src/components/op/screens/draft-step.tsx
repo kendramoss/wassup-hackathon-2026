@@ -79,18 +79,13 @@ function Draft({ id, c, setCase }: CaseCtx) {
     return t;
   }, [draft, values]);
 
-  // The below-bar notice (D31) leads the draft; shown as an amber banner.
-  const paras = text.split(/\n\s*\n/);
-  const noticeAt = paras.findIndex((p) => /below the confidence bar/i.test(p));
-  const notice = noticeAt >= 0 ? paras[noticeAt].replace(/^[>*_\s]+|[*_\s]+$/g, "") : null;
-  const kept = noticeAt >= 0 ? paras.filter((_, i) => i !== noticeAt) : paras;
-  // The "Draft for review…" lead is about the letter, not in it: shown above
-  // the page (and printed there), so the page reads as the letter itself.
-  // The leading quoted notes ("> Draft for review…", "> Laid out on…").
-  const leadN = kept.findIndex((p) => !p.trim().startsWith(">"));
-  const leads = kept.slice(0, Math.max(0, leadN)).map((p) => p.replace(/^\s*>\s?/gm, "").replace(/\*\*/g, "").trim());
-  const lead = leads.length ? leads.join(" ") : null;
-  const body = kept.slice(Math.max(0, leadN)).join("\n\n");
+  // The letter is only what would be filed; the reviewer notes come apart
+  // from it (draft.notes) and show on screen only, never printed or
+  // downloaded (18 Oct). The below-bar note is the amber one.
+  const body = text;
+  const notes = draft?.notes ?? [];
+  const notice = notes.find((n) => /below the confidence bar/i.test(n)) ?? null;
+  const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   const record = () => void api.exportDraft(id, { ...pick, format }).catch(() => {});
@@ -180,7 +175,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
           {draft && (
             <>
             {(notice || lead) && (
-              <div className="letter-notes mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
+              <div className="no-print mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
                 {notice && (
                   <p role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
                     {notice}
@@ -221,7 +216,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
                 {body.replace(fillIn, (m) => "`" + m + "`")}
               </ReactMarkdown>
               {/* The letter's body usually opens with the same notice; print it once. */}
-              {draft.disclaimer && !text.includes(draft.disclaimer.slice(0, 40)) && <p className="mt-10 border-t border-line pt-3 text-xs text-dim">{draft.disclaimer}</p>}
+              {/* No disclaimer in the letter itself: it's in the notes above, on screen only. */}
             </article>
             </>
           )}

@@ -47,6 +47,11 @@ func TestExportCFR177Format(t *testing.T) {
 			continue
 		}
 		md, _ := out["content"].(string)
+		// The draft's notes are beside the letter, never in it (18 Oct).
+		if strings.Contains(md, "Draft for review") || !strings.Contains(joinNotes(out), "Draft for review") {
+			t.Errorf("export %s: notes in the letter or missing from notes: %v", tc.body, out["notes"])
+		}
+		md += "\n" + joinNotes(out)
 		if out["format"] != tc.format {
 			t.Errorf("export %s format = %v, want %s", tc.body, out["format"], tc.format)
 		}
@@ -98,4 +103,13 @@ func TestExportCFR177TextileCase(t *testing.T) {
 	if code != 200 || !strings.Contains(md, "determined under 19 C.F.R. § 102.21") || !strings.Contains(md, "Manufacturer(s): [FILL IN") {
 		t.Errorf("textile letter %d:\n%s", code, md)
 	}
+}
+
+// joinNotes is an export response's notes as one string.
+func joinNotes(out map[string]any) string {
+	var parts []string
+	for _, n := range out["notes"].([]any) {
+		parts = append(parts, n.(string))
+	}
+	return strings.Join(parts, "\n")
 }

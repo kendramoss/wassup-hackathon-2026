@@ -1197,7 +1197,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
 		return
 	}
 	now := time.Now().UTC()
@@ -1220,7 +1220,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
 }
 
 // draftablePlan finds a plan by move key: any shown plan, or a rejected plan
