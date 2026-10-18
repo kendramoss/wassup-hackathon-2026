@@ -4,7 +4,7 @@
 
 *Unde* is Latin for "from where?", the question customs asks about every product.
 
-- **Live app:** https://undelabs.dev (also at https://frontend-guxax2teha-uc.a.run.app)
+- **Live app:** https://undelabs.dev (also at https://frontend-88903435351.us-central1.run.app)
 - **Built for:** Google Cloud AI Builder Cup 2026 (JAPAC), theme: Manufacturing
 
 > Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.
