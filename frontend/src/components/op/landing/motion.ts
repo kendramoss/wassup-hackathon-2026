@@ -140,34 +140,39 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       return;
     }
     const W = stage.clientWidth, H = stage.clientHeight;
-    const gap = Math.min(330, (W - 250) / 3);
+    // Four 250 px sheets need 1048 px with 16 px between them; narrower, they
+    // scale down together so they never overlap (18 Oct). half is half a
+    // sheet's drawn width, for the wire's ends and arrows.
+    const k = Math.min(1, (W - 48) / 1000);
+    const half = 125 * k;
+    const gap = Math.min(330, (W - 2 * half) / 3);
     // One flat row. The wire draws left to right; each sheet rises into
     // place just before the wire reaches it, then fills in.
     const d = ramp(p, 0.08, 0.86);
     const cx = (i: number) => W / 2 + (i - 1.5) * gap, cy = H / 2;
-    const x0 = cx(0) - 125 - 70;
-    const x1 = cx(3) + 125 + 70;
+    const x0 = cx(0) - half - 70;
+    const x1 = cx(3) + half + 70;
     const head = lerp(x0, x1, d);
     sheets.forEach((s, i) => {
-      const k = reduce ? 1 : ease(clamp01((head - (cx(i) - 125 - gap * 0.55)) / (gap * 0.45)));
-      s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(12, 0, k)}px)`;
+      const rise = reduce ? 1 : ease(clamp01((head - (cx(i) - half - gap * 0.55)) / (gap * 0.45)));
+      s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(12, 0, rise)}px) scale(${k})`;
     });
     wire.setAttribute("d", `M${x0},${cy} H${x1}`);
     const len = x1 - x0;
     wire.style.strokeDasharray = `${len}`;
     wire.style.strokeDashoffset = String(len * (1 - d));
     wires.forEach((w, i) => {
-      const ax = cx(i) - 125 - 2;
+      const ax = cx(i) - half - 2;
       w.arrow.setAttribute("points", `${ax},${cy} ${ax - 9},${cy - 5} ${ax - 9},${cy + 5}`);
       w.arrow.style.opacity = head > ax ? "1" : "0";
       if (w.label) {
-        w.label.setAttribute("x", String((cx(i - 1) + 125 + ax) / 2));
+        w.label.setAttribute("x", String((cx(i - 1) + half + ax) / 2));
         w.label.setAttribute("y", String(cy - 10));
         w.label.style.opacity = head > ax ? "1" : "0";
       }
     });
     // The wire starts at the Product sheet, so it is filled from the start.
-    const reached = sheets.map((_, i) => i === 0 || head > cx(i) - 125);
+    const reached = sheets.map((_, i) => i === 0 || head > cx(i) - half);
     const at = reached.lastIndexOf(true);
     sheets.forEach((s, i) => {
       s.classList.toggle("on", reached[i]);
