@@ -1,4 +1,4 @@
-# Duty sources: Kobalt 12.5-amp heat gun (Origin Proof demo)
+# Duty sources: Kobalt 12.5-amp heat gun (Unde demo)
 
 Checked 15 Oct 2026 against HTS **2026 Revision 21** ([currentRelease](https://hts.usitc.gov/reststop/currentRelease)). Rates are product-specific to this item and not advice. "unverified" = not confirmed from a primary source.
 

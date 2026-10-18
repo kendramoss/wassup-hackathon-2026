@@ -1,4 +1,6 @@
-# Origin Proof — frontend design decisions
+# Unde Labs — frontend design decisions
+
+> Renamed from Origin Proof on 18 Oct 2026 (D-rename). Branch names below (`feat/origin-proof-*`) are historical.
 
 Built step by step (process from Figma "Design systems 102", Disher's front-end design process and Shakuro's frontend architecture guide, scaled to a 2-day build):
 

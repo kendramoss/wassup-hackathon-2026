@@ -1,6 +1,8 @@
-# Origin Proof
+# Unde Labs
 
 **Plan the production change before you build it.**
+
+*Unde* is Latin for "from where?", the question customs asks about every product.
 
 **Live app:** https://frontend-guxax2teha-uc.a.run.app · Google Cloud AI Builder Cup 2026 (JAPAC), theme: Manufacturing.
 
@@ -8,7 +10,7 @@
 
 When a product is imported into the United States, U.S. Customs and Border Protection (CBP) decides its **country of origin**. That decision sets the duty. For goods with parts from several countries, CBP asks where the product was "substantially transformed", meaning where it became a new thing. A factory moving work out of China often can't tell in advance whether its new setup will count as, say, Thai origin. Finding out usually means paying advisers and waiting weeks for a CBP ruling.
 
-Origin Proof is a web app that answers that question ahead of time:
+Unde is a web app that answers that question ahead of time:
 
 1. **Describe the product.** Paste a description, or upload the bill of materials: what the parts are, where each is made, and which plant does each step.
 2. **See the likely origin.** An AI model (Gemini on Vertex AI) reads the product together with the most similar past CBP rulings. It predicts the origin CBP would likely assign, cites the rulings it relied on and gives a confidence. On 377 held-out real rulings it was right **90%** of the time; the best simple rule of thumb scored 60%.
@@ -22,10 +24,10 @@ It is built for the trade-compliance or industrialisation lead at a contract man
 ## How a business could use it
 
 1. **Start with the web app.** Upload a product's bill of materials, review the likely origin and plans, and send the exported draft to your customs broker.
-2. **Make it a step before any production move.** Check the plan in Origin Proof before approving a supplier change, a new plant or a shift to another country.
+2. **Make it a step before any production move.** Check the plan in Unde before approving a supplier change, a new plant or a shift to another country.
 3. **Connect your own systems.** Your ERP or sourcing tools can send bills of materials and get results back through the API ([docs/api/openapi.yaml](docs/api/openapi.yaml)).
 4. **Keep watching.** Re-check saved cases on a schedule against new CBP rulings, so you hear when the precedent changes.
-5. **Keep the broker in the loop.** Origin Proof speeds up the decision. A broker or a CBP ruling still confirms it.
+5. **Keep the broker in the loop.** Unde speeds up the decision. A broker or a CBP ruling still confirms it.
 
 This is a hackathon prototype: company sign-in, data hosting and more product families would be needed before production use.
 
@@ -79,7 +81,7 @@ Data: 2,790 CBP rulings (2023-01 to 2026-09, rulings.cbp.gov, public domain). La
 | Last country mentioned in facts | 39.8% (35.0–44.8) |
 | Final-assembly country | 40.6% (35.8–45.6) |
 | Most-mentioned country (best simple baseline) | 60.5% (55.5–65.3) |
-| **Origin Proof engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
+| **Unde engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
 | Fast path (confidence ≥ 0.92 and in scope), Vertex AI | 79.6% of cases at 96.0% (93.1–97.7) |
 
 The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM25, K = 5, Gemini 4 Argon on Vertex AI, location `global`), scored once on the held-out split. On the development split through the proxy, the engine is 90.9% accurate overall; it auto-accepts 79% of cases (confidence ≥ 0.92, in scope) at 95.1% accuracy (held-out: 78.5% at 96.6%), and the rest go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
@@ -129,7 +131,7 @@ Model access is configured by environment only:
 
 The LiteLLM proxy used before Vertex access was removed (D49). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
-Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Could not reach the Origin Proof API". For UI work with no model calls and no cost, set `LLM_PROVIDER=fake` (fixed answers; the Accuracy page and demo data are still real).
+Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Couldn't reach the Unde API". For UI work with no model calls and no cost, set `LLM_PROVIDER=fake` (fixed answers; the Accuracy page and demo data are still real).
 
 ```bash
 make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
@@ -152,6 +154,6 @@ Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confir
 
 ## Deploy
 
-CI (`.github/workflows/ci.yml`) runs gofmt, build, vet, staticcheck and tests on every PR. Pushing to `main` deploys changed services to Cloud Run (`deploy.yml`, keyless via Workload Identity Federation) with `LLM_PROVIDER=vertex`. Before the first Origin Proof deploy: finish [docs/SETUP-GCP.md](docs/SETUP-GCP.md). Cases are stored in Firestore on Cloud Run; the corpus is baked into the image and copied to the corpus bucket (D37).
+CI (`.github/workflows/ci.yml`) runs gofmt, build, vet, staticcheck and tests on every PR. Pushing to `main` deploys changed services to Cloud Run (`deploy.yml`, keyless via Workload Identity Federation) with `LLM_PROVIDER=vertex`. Before the first deploy: finish [docs/SETUP-GCP.md](docs/SETUP-GCP.md). Cases are stored in Firestore on Cloud Run; the corpus is baked into the image and copied to the corpus bucket (D37).
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).
