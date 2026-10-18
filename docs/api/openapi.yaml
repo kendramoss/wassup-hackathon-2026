@@ -369,6 +369,7 @@ paths:
                 description: { type: string }
                 family: { type: string, description: "needed for groups and the plan search, e.g. motorised_tools_small_appliances" }
                 fallback_name: { type: string, description: "Names the product when the request, the sheet and the family check give no name (e.g. the file's name)" }
+                name_hint: { type: string, description: "A product name read from the file's name; used after the sheet's column and before the family check's name (name_source file_name)" }
           application/json:
             schema:
               type: object
@@ -379,6 +380,7 @@ paths:
                 description: { type: string }
                 family: { type: string }
                 fallback_name: { type: string }
+                name_hint: { type: string }
       responses:
         "200":
           description: The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups)
@@ -393,7 +395,7 @@ paths:
                   warnings: { type: array, items: { type: string } }
                   economics: { description: "Only when the sheet has money columns: the prefilled money inputs (illustrative)", allOf: [{ $ref: "#/components/schemas/Economics" }] }
                   economics_sources: { type: object, additionalProperties: { type: string, enum: [file] }, description: "Which fields came from the file: hts, annual_import_value_usd, group_costs" }
-                  name_source: { type: string, enum: [file, ai], description: "Where the product name came from when the request gave none" }
+                  name_source: { type: string, enum: [file, file_name, ai], description: "Where the product name came from when the request gave none" }
                   family_source: { type: string, enum: [given, file, ai] }
                   family_reason: { type: string, description: "The family check's reason, when family_source is ai" }
         "400": { $ref: "#/components/responses/Error" }

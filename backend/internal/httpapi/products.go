@@ -23,7 +23,7 @@ const maxUpload = 5 << 20
 // multipart/form-data with a "file" (CSV or .xlsx) and fields name,
 // description, family; or JSON {name, description, family, csv}.
 func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
-	var name, desc, family, fallback string
+	var name, desc, family, fallback, hint string
 	var src io.Reader
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
 		r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
@@ -38,7 +38,7 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 		}
 		defer f.Close()
 		name, desc, family, src = r.FormValue("name"), r.FormValue("description"), r.FormValue("family"), f
-		fallback = r.FormValue("fallback_name")
+		fallback, hint = r.FormValue("fallback_name"), r.FormValue("name_hint")
 	} else {
 		var in struct {
 			Name        string `json:"name"`
@@ -48,6 +48,10 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 			// FallbackName names the product when neither the request, the
 			// sheet nor the family check does (e.g. the file's name).
 			FallbackName string `json:"fallback_name"`
+			// NameHint is a product name read from the file's name ("FL-50
+			// LED Floodlight - BOM Rev A" -> "FL-50 LED Floodlight"); it
+			// beats the family check's name.
+			NameHint string `json:"name_hint"`
 		}
 		dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxUpload))
 		dec.DisallowUnknownFields()
@@ -56,7 +60,7 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		name, desc, family, src = in.Name, in.Description, in.Family, strings.NewReader(in.CSV)
-		fallback = in.FallbackName
+		fallback, hint = in.FallbackName, in.NameHint
 	}
 	rows, err := bom.ReadRows(src)
 	if err != nil {
@@ -65,7 +69,7 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	// The name and family the user gave win; then the sheet's own columns;
 	// then, for the family, the AI check on the parts (18 Oct).
-	info := a.importInfo(r, rows, name, desc, family)
+	info := a.importInfo(r, rows, name, desc, family, strings.TrimSpace(hint))
 	name, family = info.name, info.family
 	if name == "" {
 		name = strings.TrimSpace(fallback)
@@ -176,7 +180,7 @@ type importMeta struct {
 // ID or name); then, with a family checker, a sure match (>= 0.6) on the
 // parts, and the checker's product name for a sheet that names none. A
 // failed check leaves them as they were.
-func (a *api) importInfo(r *http.Request, rows [][]string, name, desc, family string) importMeta {
+func (a *api) importInfo(r *http.Request, rows [][]string, name, desc, family, hint string) importMeta {
 	m := importMeta{name: name, family: family}
 	if family != "" {
 		m.familySource = "given"
@@ -184,6 +188,9 @@ func (a *api) importInfo(r *http.Request, rows [][]string, name, desc, family st
 	sheetName, sheetFamily := bom.SheetInfo(rows)
 	if m.name == "" && sheetName != "" {
 		m.name, m.nameSource = sheetName, "file"
+	}
+	if m.name == "" && hint != "" {
+		m.name, m.nameSource = hint, "file_name"
 	}
 	if m.family == "" && sheetFamily != "" {
 		key := strings.ToLower(sheetFamily)

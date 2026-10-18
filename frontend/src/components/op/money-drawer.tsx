@@ -6,7 +6,7 @@ import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
 import { groupName } from "./plan-bits";
-import { Button, Country, Drawer, cx } from "./ui";
+import { Button, Country, Drawer, Flag, cx } from "./ui";
 
 // Money inputs (DESIGN.md step 1, locked 16 Oct, option C of c-money.html;
 // frames p-money-quick, p-money-each): imports a year, a duty rate per
@@ -206,6 +206,7 @@ export function MoneyDrawer({
                 <div className="flex flex-col gap-3">
                   <label className="flex items-center justify-between gap-4">
                     <span>
+                      <Flag country={base.country} className="mr-1" />
                       {base.name || "Base plant"} costs, all groups <span className="text-dim">(USD)</span>
                     </span>
                     <input className={field} inputMode="numeric" placeholder="$670,000" value={usd(total)} onChange={(ev) => setTotal(num(ev.target.value))} />
@@ -267,6 +268,8 @@ export function MoneyDrawer({
                         </th>
                         {plants.map((p) => (
                           <th key={p.id} scope="col" className="break-words pb-2 pl-2 text-right align-bottom text-[11px] font-medium uppercase tracking-[0.04em] text-dim">
+                            {/* The flag says which country the plant's costs are in (18 Oct). */}
+                            <Flag country={p.country} className="mr-1" />
                             {p.name || p.country}
                           </th>
                         ))}

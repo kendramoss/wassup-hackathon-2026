@@ -648,6 +648,8 @@ export interface paths {
                         family?: string;
                         /** @description Names the product when the request, the sheet and the family check give no name (e.g. the file's name) */
                         fallback_name?: string;
+                        /** @description A product name read from the file's name; used after the sheet's column and before the family check's name (name_source file_name) */
+                        name_hint?: string;
                     };
                     "application/json": {
                         csv: string;
@@ -655,6 +657,7 @@ export interface paths {
                         description?: string;
                         family?: string;
                         fallback_name?: string;
+                        name_hint?: string;
                     };
                 };
             };
@@ -679,7 +682,7 @@ export interface paths {
                              * @description Where the product name came from when the request gave none
                              * @enum {string}
                              */
-                            name_source?: "file" | "ai";
+                            name_source?: "file" | "file_name" | "ai";
                             /** @enum {string} */
                             family_source?: "given" | "file" | "ai";
                             /** @description The family check's reason, when family_source is ai */
