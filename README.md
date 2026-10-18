@@ -19,6 +19,16 @@ It is built for the trade-compliance or industrialisation lead at a contract man
 
 > Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.
 
+## How a business could use it
+
+1. **Start with the web app.** Upload a product's bill of materials, review the likely origin and plans, and send the exported draft to your customs broker.
+2. **Make it a step before any production move.** Check the plan in Origin Proof before approving a supplier change, a new plant or a shift to another country.
+3. **Connect your own systems.** Your ERP or sourcing tools can send bills of materials and get results back through the API ([docs/api/openapi.yaml](docs/api/openapi.yaml)).
+4. **Keep watching.** Re-check saved cases on a schedule against new CBP rulings, so you hear when the precedent changes.
+5. **Keep the broker in the loop.** Origin Proof speeds up the decision. A broker or a CBP ruling still confirms it.
+
+This is a hackathon prototype: company sign-in, data hosting and more product families would be needed before production use.
+
 The rest of this README covers the method, results and limitations, and how to run it.
 
 ## The problem
