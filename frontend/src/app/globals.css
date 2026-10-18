@@ -5,7 +5,8 @@
    come from this one place. */
 /* Design tokens: direction P, paper mono (docs/design/DESIGN.md step 3), in
    palette B "Blueprint" (docs/design/palettes): pale engineering-blue paper,
-   navy ink, one blue accent; "look again" is violet, red only for failures.
+   navy ink, one blue accent; "look again" is drawn, not coloured: ink with
+   dashed lines and a △ mark (18 Oct, option D), red only for failures.
    Components use these through Tailwind colours (bg-paper, text-dim, ...),
    never raw colours. P is a light, printable theme by decision, so there is
    no dark variant: the page sets color-scheme: light. The older names (bg,
@@ -26,10 +27,12 @@
   --faint: #6e7c94;
   --ok: #1d4fc4;
   --ok-wash: #e2eafa;
-  --ask: #6a3fb0;
-  --ask-wash: #f0e9fb;
-  --ask-line: #c6b2ea;
-  --ask-shadow: #d5c5f2;
+  /* "Look again" (needs review, below the bar, questions): ink on sheet,
+     its borders dashed (rule below). Shape, not hue, tells it from "ok". */
+  --ask: #13213a;
+  --ask-wash: #f9fbfe;
+  --ask-line: #47566f;
+  --ask-shadow: #9fb4d8;
   --fail: #a3201f;
   --fail-wash: #fbe7e6;
   --dimension: #3c5aa8;
@@ -206,10 +209,17 @@
 }
 
 
-/* A field the user may have forgotten (step 1, 18 Oct): violet, the "look
-   again" colour, never red, which is kept for failures. */
+/* Every "look again" border is dashed: the blueprint's mark for something
+   provisional. Unlayered, so it wins over the border utilities. */
+.border-ask-line,
+.border-ask {
+  border-style: dashed;
+}
+
+/* A field the user may have forgotten (step 1, 18 Oct): the "look again"
+   style, never red, which is kept for failures. */
 [data-missing] {
-  outline: 2px solid var(--ask);
+  outline: 2px dashed var(--ask);
   outline-offset: 3px;
   box-shadow: 0 0 0 6px var(--ask-wash);
 }
@@ -217,7 +227,7 @@
   position: fixed;
   z-index: 60;
   max-width: 320px;
-  border: 1px solid var(--ask-line);
+  border: 1px dashed var(--ask-line);
   background: var(--ask-wash);
   color: var(--ask);
   padding: 6px 10px;

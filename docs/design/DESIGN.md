@@ -84,10 +84,10 @@ Key frames: `docs/design/keyframes/p.html` (P next to the earlier choice F), `st
 | dim | `#47566f` | secondary text | 6.6:1 |
 | faint | `#6e7c94` | placeholders only | 3.8:1 |
 | ok (blue) | `#1d4fc4` | supported, cited, links, done steps | 6.3:1 (5.3 on grid) |
-| ask (violet) | `#6a3fb0` | needs review, questions | 6.3:1 (5.3 on grid) |
+| ask (ink, dashed) | `#13213a` on sheet `#f9fbfe`, line `#47566f` dashed | needs review, below the bar, questions | 14.3:1 (11.9 on grid) |
 | fail (red) | `#a3201f` | real failures only | 6.7:1 |
 
-Blue is the only accent: supported, cited, links, done steps and the "Auto-accepted" status. No green anywhere. Violet (`ask`) is for "look again" wherever this file says amber; red only for real failures. (A combination with Tensorlake's dark terminal look and green accent, `pt.html`, was tried and dropped.)
+Blue is the only accent: supported, cited, links, done steps and the "Auto-accepted" status. No green anywhere. "Look again" (`ask`) has no hue (18 Oct, option D, replacing violet): ink text on sheet, borders dashed (the drawing convention for something provisional), a △ before the status ("△ Needs expert review", "△ Below the bar"), and a hollow ink marker on the confidence rulers; it is what this file means wherever it says amber or violet. Red only for real failures. (A combination with Tensorlake's dark terminal look and green accent, `pt.html`, was tried and dropped.)
 
 **Drawing-sheet details**
 - The graph grid (20 px) shows only outside the content column; the column, panels and the letter are solid paper, so text never sits on grid lines.

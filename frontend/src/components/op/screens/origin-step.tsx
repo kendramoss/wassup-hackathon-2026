@@ -192,7 +192,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
 }
 
 // Ruling watch as one line in the evidence column (was a full-width band).
-// A changed result is the exception: it gets the violet "look again" box.
+// A changed result is the exception: it gets the ink dashed "look again" box.
 function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
