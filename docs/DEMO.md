@@ -2,6 +2,32 @@
 
 Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md`, and model outputs shown are what the system produced on the recording day.
 
+## Video timeline (2:45)
+
+There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. Screens and numbers are the production heat-gun case in section 3.
+
+| Time | Topic (judging line) | Screen | Say |
+|---|---|---|---|
+| 0:00–0:15 | **Problem** (Impact) | Landing page | "When a factory moves out of China, US Customs decides where the product is *from*. For this heat gun, that's about 41.7% duty from China against 16.7% from Thailand." |
+| 0:15–0:25 | **Why it's hard today** (Impact) | Landing page, scroll | "Each ruling request takes about 20 hours to prepare, and recent origin rulings took a median of 21 days. Unde Labs answers first. *Unde* is Latin for 'from where?'." |
+| 0:25–0:50 | **Predict** (Gen AI) | Cases → heat gun → Product → Origin | "Gemini reads CBP's own facts with the most similar earlier rulings. China, 0.85: under our 0.92 bar, so it asks three questions instead of guessing." Open the cited rulings. |
+| 0:50–1:05 | **Scenarios** (Impact, UX) | Scenarios | "Move the motor-fan assembly to Thailand: Thailand 0.98, about $380k a year net, on illustrative economics you can edit." |
+| 1:05–1:40 | **Plan and agent check** (Innovation, Gen AI) | Plan: estimate → run → shown plan → "How the check found this" → closest below-bar row | "It searches where each group of steps could be made. An ADK agent then searches real CBP rulings for each move. Shown: motor-fan assembly, PCBA, switch and cord in Thailand, 0.96, supported by N345938, $285k a year. Motor-fan alone scored 0.90, so the bar held it back, and the advice says what would match." |
+| 1:40–1:55 | **Backtest** (Innovation, Impact) | Backtest panel | "The manufacturer really made this change. In 2026, CBP ruled Thailand, N357771: the same parts, plus outer shells that were already Thai here." |
+| 1:55–2:05 | **Hand-off** (UX) | Draft for broker | "One click: a draft ruling request for a broker to check and file. Precedent-supported, not a ruling." |
+| 2:05–2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings it had never seen: 90.2%, against 60.5% for the best rule of thumb. It auto-accepts 79.6% of cases at 96.0%. 182 precedent checks reached the bar; none was wrong." |
+| 2:25–2:38 | **How it's built** (Gen AI, technical merit) | Accuracy → "How it's built" | "Next.js and Go on Cloud Run, Gemini 4 Argon and 3.8 Flash on Vertex AI, an ADK agent for the precedent check, and cases in Firestore." |
+| 2:38–2:45 | **Close** | Landing page | "Plan the production change before you build it. Unde Labs." |
+
+Every judging line is covered:
+- Problem & Impact: 0:00–0:25, 0:50, 1:40, 1:55
+- Gen AI: 0:25, 1:05, 2:25
+- Innovation: 1:05–1:55
+- Technical merit: 2:05–2:38
+- UX: the whole flow, plus 0:50 and 1:55
+
+Rehearse to 2:40. If a screen loads slowly, cut with a visible "⏩"; never splice in another run.
+
 ## 1. Prepare (about 10 minutes, the day of recording)
 
 1. Start the backend on Vertex, the only model provider (D49). Local development needs Application Default Credentials (`gcloud auth application-default login`).
