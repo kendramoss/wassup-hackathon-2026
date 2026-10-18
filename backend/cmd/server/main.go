@@ -24,6 +24,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -456,7 +457,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		Engine:                predictor,
 		Router:                router.New(model, cfg.RouterModel, 2000),
 		Family:                familycheck.New(model, cfg.RouterModel, tmpls),
-		Agent:                 caseagent.New(model, cfg.EngineModel, searcher, predictor),
+		Agent:                 caseagent.New(model, cmp.Or(cfg.CaseAgentModel, cfg.EngineModel), searcher, predictor),
 		Extractor:             extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:            precedents,

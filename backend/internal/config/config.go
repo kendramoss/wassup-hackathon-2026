@@ -61,9 +61,13 @@ type Config struct {
 	OnCloudRun  bool
 
 	// Models (IDs depend on the provider; the defaults are served by both).
-	EngineModel   string
-	RouterModel   string
-	VerifierModel string
+	EngineModel string
+	RouterModel string
+	// CaseAgentModel runs the ask-the-case agent; empty uses EngineModel.
+	// Flash answers in seconds where Argon's tool turns take 20-30 s each
+	// (18 Oct).
+	CaseAgentModel string
+	VerifierModel  string
 	// FallbackEngineModel is called once when the engine's primary model
 	// ends in a 429, 503, 504 or deadline (D73). The default is the base
 	// model gemini-3.8-flash. FALLBACK_ENGINE_MODEL=off disables it.
@@ -266,6 +270,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		OnCloudRun:             e.str("K_SERVICE", "") != "",
 		EngineModel:            e.str("ENGINE_MODEL", "gemini-4-argon"),
 		RouterModel:            e.str("ROUTER_MODEL", "gemini-3.8-flash"),
+		CaseAgentModel:         e.str("CASE_AGENT_MODEL", ""),
 		VerifierModel:          e.str("VERIFIER_MODEL", "gemini-4-argon"),
 		FallbackEngineModel:    fallbackModel(e.str("FALLBACK_ENGINE_MODEL", "gemini-3.8-flash")),
 		FallbackEngineLocation: e.str("FALLBACK_ENGINE_LOCATION", "global"),
