@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: copy.tagline,
   // Link previews (#156); the image is app/opengraph-image.tsx. SITE_URL
   // overrides the base for previews on other hosts.
-  metadataBase: new URL(process.env.SITE_URL ?? "https://frontend-guxax2teha-uc.a.run.app"),
+  metadataBase: new URL(process.env.SITE_URL ?? "https://undelabs.dev"),
   openGraph: { type: "website", siteName: copy.name, title: copy.name, description: copy.tagline },
   twitter: { card: "summary_large_image", title: copy.name, description: copy.tagline },
 };
