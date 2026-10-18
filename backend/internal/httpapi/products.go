@@ -10,6 +10,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bom"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
@@ -65,15 +66,43 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	p, warnings, err := bom.Parse(rows, bom.Options{Name: name, Description: desc, Family: family, Template: tm})
+	opts := bom.Options{Name: name, Description: desc, Family: family, Template: tm}
+	p, warnings, err := bom.Parse(rows, opts)
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	// Optional money columns prefill the economics (#235); a sheet without
+	// them answers exactly as before.
+	m, mw := bom.ParseMoney(rows, opts)
+	warnings = append(warnings, mw...)
+	out := map[string]any{"product": p, "family": family}
+	sources := map[string]string{}
+	if m.HTS != "" {
+		if code, ok := duty.LiveHTS(m.HTS); ok {
+			p.HTS, sources["hts"] = code, "file"
+			out["product"] = p
+		} else {
+			warnings = append(warnings, fmt.Sprintf("hts %q is not an 8- or 10-digit HTS number; ignored", m.HTS))
+		}
+	}
+	if m.AnnualImportValueUSD > 0 || len(m.GroupCosts) > 0 {
+		out["economics"] = planner.Economics{Illustrative: true, AnnualImportValueUSD: m.AnnualImportValueUSD, GroupCosts: m.GroupCosts}
+		if m.AnnualImportValueUSD > 0 {
+			sources["annual_import_value_usd"] = "file"
+		}
+		if len(m.GroupCosts) > 0 {
+			sources["group_costs"] = "file"
+		}
+	}
+	if len(sources) > 0 {
+		out["economics_sources"] = sources
+	}
 	if warnings == nil {
 		warnings = []string{}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"product": p, "family": family, "warnings": warnings})
+	out["warnings"] = warnings
+	writeJSON(w, http.StatusOK, out)
 }
 
 // ProductExtractor drafts a product from facts text (extract.Extractor).
