@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { DutyBreakdown } from "./duty-breakdown";
+import { DutyBreakdown, DutySources } from "./duty-breakdown";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
@@ -133,22 +133,6 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
 
 // Money inputs: illustrative — editable. Group costs are yearly USD per
 // group and plant.
-// The duty note names the repo file it comes from; link it rather than show
-// a bare path (#154).
-const DUTY_SOURCES = "docs/DUTY-SOURCES.md";
-function DutyNote({ text }: { text: string }) {
-  const [before, ...rest] = text.split(DUTY_SOURCES);
-  if (!rest.length) return <>{text}</>;
-  return (
-    <>
-      {before}
-      <a href={`https://github.com/kendramoss/wassup-hackathon-2026/blob/main/${DUTY_SOURCES}`} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
-        duty sources
-      </a>
-      {rest.join(DUTY_SOURCES)}
-    </>
-  );
-}
 
 // priced: the case's economics_priced, for the Section 301 breakdown of
 // live rates (D90); the inputs stay the user's own.
@@ -277,15 +261,8 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
           ))}
         </div>
       )}
-      <DutyBreakdown e={priced} className="mt-3" />
-      {value.duty_rates_note && (
-        <details className="mt-3 text-xs text-dim">
-          <summary className="inline-flex min-h-6 cursor-pointer items-center text-ok">Sources and caveats</summary>
-          <p className="duo mt-1">
-            <DutyNote text={value.duty_rates_note} />
-          </p>
-        </details>
-      )}
+      <DutyBreakdown e={priced ?? value} className="mt-3" />
+      <DutySources note={value.duty_rates_note} className="mt-2" />
       <p className="mt-2 text-xs text-dim">
         {Object.entries(rates)
           .map(([c, r]) => `${c} ${pct(r)}`)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { DutyBreakdown } from "./duty-breakdown";
+import { DutyBreakdown, DutySources } from "./duty-breakdown";
 import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
@@ -175,9 +175,8 @@ export function MoneyDrawer({
               </label>
             ))}
           </div>
-          <DutyBreakdown e={priced} className="mt-2" />
-          {(e.duty_rates_note ?? priced?.duty_rates_note) && <p className="duo mt-2 text-xs text-dim">{e.duty_rates_note ?? priced?.duty_rates_note}</p>}
-          <p className="duo mt-1.5 text-xs text-dim">Rates are typed in %; saved as fractions (41.7% → 0.417).</p>
+          <DutyBreakdown e={priced ?? e} className="mt-2" />
+          <DutySources note={e.duty_rates_note ?? priced?.duty_rates_note} className="mt-2" />
         </section>
 
         <section>
