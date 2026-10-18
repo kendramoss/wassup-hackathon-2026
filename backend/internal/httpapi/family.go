@@ -31,6 +31,11 @@ func (a *api) familyCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	text := strings.TrimSpace(in.Text)
+	if text != "" {
+		// Labelled, so the check can tell what the user typed from what the
+		// parts say (typed_unclear).
+		text = "Typed: " + text
+	}
 	if in.Product != nil {
 		var parts []string
 		for _, c := range in.Product.Components {

@@ -30,6 +30,10 @@ type Result struct {
 	// ProductName is a short name for the product (e.g. "Hair dryer"),
 	// for a BOM that names none.
 	ProductName string `json:"product_name,omitempty"`
+	// TypedUnclear is true when the line the user typed ("Typed:") names no
+	// product or product type (e.g. random letters), whatever the parts
+	// suggest, so a match is never credited to it (18 Oct).
+	TypedUnclear bool `json:"typed_unclear"`
 }
 
 // Checker matches text to a template family.
@@ -48,7 +52,8 @@ func New(model llm.Model, modelID string, templates map[string]planner.Template)
 	b.WriteString("You match a product a manufacturer describes to one product family that a production-planning tool supports. ")
 	b.WriteString("Answer with the family whose operation groups fit how the product is made, or \"none\" when no family fits. ")
 	b.WriteString("Do not stretch: a product that shares no operation groups with a family is \"none\". Confidence is 0 to 1. ")
-	b.WriteString("Also give product_name: what the finished product is, in 2 to 5 plain words (e.g. \"Hair dryer\"), from its name or parts.\n\nFamilies:\n")
+	b.WriteString("Also give product_name: what the finished product is, in 2 to 5 plain words (e.g. \"Hair dryer\"), from its name or parts. ")
+	b.WriteString("When the input has a \"Typed:\" line, set typed_unclear to true if that line alone names no product or product type (random letters, a typo you can't read, an unrelated word), even when the parts point to a family; otherwise false.\n\nFamilies:\n")
 	for id := range templates {
 		c.ids = append(c.ids, id)
 	}
@@ -70,10 +75,11 @@ func (c *Checker) schema() map[string]any {
 	return map[string]any{
 		"type": "object",
 		"properties": map[string]any{
-			"family":       map[string]any{"type": "string", "enum": append(slices.Clone(c.ids), None)},
-			"confidence":   map[string]any{"type": "number"},
-			"reason":       map[string]any{"type": "string"},
-			"product_name": map[string]any{"type": "string"},
+			"family":        map[string]any{"type": "string", "enum": append(slices.Clone(c.ids), None)},
+			"confidence":    map[string]any{"type": "number"},
+			"reason":        map[string]any{"type": "string"},
+			"product_name":  map[string]any{"type": "string"},
+			"typed_unclear": map[string]any{"type": "boolean"},
 		},
 		"required": []string{"family", "confidence", "reason"},
 	}

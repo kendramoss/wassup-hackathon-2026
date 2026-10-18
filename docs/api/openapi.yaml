@@ -470,6 +470,7 @@ paths:
                       confidence: { type: number }
                       reason: { type: string }
                       product_name: { type: string, description: "A short name for the product, e.g. Hair dryer" }
+                      typed_unclear: { type: boolean, description: "The typed text alone names no product type (e.g. random letters); a family here comes from the product's parts" }
                   prompt_version: { type: string, example: family-check-v1 }
                   llm_provider: { type: string }
         "400": { $ref: "#/components/responses/Error" }
