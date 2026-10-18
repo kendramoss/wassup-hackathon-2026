@@ -234,14 +234,16 @@ export function Landing() {
                 </div>
                 <div className="bd">
                   <div className="real">
-                    <p className="duo">Make the motor-fan assembly in Thailand</p>
+                    <p className="duo">Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand</p>
                     <p className="gap">
-                      <span className="chip">Closest move · check 0.90, under the 0.92 bar</span>
+                      <span className="chip">Plan · check 0.96, above the 0.92 bar</span>
                     </p>
                     <p className="small">
-                      For <RulingLink id="N325810" /> · against: none found
+                      For <RulingLink id="N345938" /> · against: none found
                     </p>
-                    <p className="duo small">Below the bar, so it goes to a broker with the evidence instead of being shown as a plan.</p>
+                    <p className="duo small">
+                      Matches CBP&apos;s 2026 change (<RulingLink id="N357771" />), all but the outer shells.
+                    </p>
                   </div>
                 </div>
                 <div className="ft">Planner + verifier agent</div>
@@ -366,7 +368,7 @@ export function Landing() {
             <div className="forag">
               <div className="s">
                 <span className="rul duo">
-                  For · <RulingLink id="N325810" />
+                  For · <RulingLink id="N345938" />
                 </span>
                 <span className="beam" />
               </div>

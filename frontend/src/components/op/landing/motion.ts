@@ -213,7 +213,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       shown1 = reduce ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
       const ex = ramp(shown1, 0.12, 0.36) - ramp(shown1, 0.8, 0.95);
       const mvv = ramp(shown1, 0.46, 0.7);
-      const cbpv = ramp(shown1, 0.74, 0.82); // the rest of CBP's 2026 change, while still exploded (reassembly starts at 0.8)
+      const cbpv = ramp(shown1, 0.74, 0.82); // anything else CBP's 2026 change moved (none drawn now), while still exploded (reassembly starts at 0.8)
       const step = shown1 < 0.2 ? 0 : shown1 < 0.44 ? 1 : shown1 < 0.76 ? 2 : 3;
       steps.forEach((li, i) => li.classList.toggle("on", i === step));
       caption.textContent = L.captions[step];
