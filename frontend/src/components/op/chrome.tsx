@@ -18,12 +18,6 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   // group, the current one filled.
   const item = (on: boolean) =>
     cx("flex min-h-9 items-center rounded-[2px] px-2.5 transition-colors sm:px-3.5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
-  const disclaimer = (
-    <>
-      <span className="lg:hidden 2xl:inline">{copy.disclaimer}</span>
-      <span className="hidden lg:inline 2xl:hidden">{copy.disclaimer.split(". ")[0]}.</span>
-    </>
-  );
   return (
     // From lg up the bar is three columns, so the section buttons sit in the
     // true middle: logo and case breadcrumb left, actions right.
@@ -73,16 +67,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           </Link>
         </div>
       </nav>
-      {/* "Not a ruling" sits on every screen that can show a verdict or a
-          plan (DESIGN.md, p-k2.html); the landing page has it in its footer.
-          From lg up it shares the right column and truncates so "+ New case"
-          stays on the bar; below lg it takes its own row at the bottom. */}
+      {/* "Not a ruling" left the bar on 18 Oct (owner's call); it stays in
+          the landing footer, on the accuracy page and on the broker draft. */}
       <div className="ml-auto flex min-w-0 items-center justify-end gap-4 lg:ml-0">
-        {active !== "none" && (
-          <p title={copy.disclaimer} className="hidden min-w-0 truncate text-xs text-dim lg:block">
-            {disclaimer}
-          </p>
-        )}
         <span className="flex shrink-0 items-center gap-4">
           <SignIn />
           <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
@@ -91,11 +78,6 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           </ButtonLink>
         </span>
       </div>
-      {active !== "none" && (
-        <p title={copy.disclaimer} className="order-last w-full text-[11px] text-dim lg:hidden">
-          {disclaimer}
-        </p>
-      )}
     </header>
   );
 }

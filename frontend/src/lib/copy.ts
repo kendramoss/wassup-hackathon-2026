@@ -5,7 +5,6 @@
 export const copy = {
   name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
-  disclaimer: "Not a ruling. Confirm with a licensed customs broker.",
   nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API" },
 
   cases: {
