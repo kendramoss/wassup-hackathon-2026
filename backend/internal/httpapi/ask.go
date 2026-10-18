@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
@@ -80,11 +82,31 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	for i, t := range c.Chat {
 		hist[i] = caseagent.Turn{Question: t.Question, Answer: t.Answer}
 	}
-	ans, err := a.d.Agent.Ask(r.Context(), caseagent.Input{Question: q, History: hist, CaseSummary: agentCaseText(c),
-		Facts: c.Facts, Date: date, Exclude: c.Exclude})
-	if err != nil {
-		a.fail(w, r, err)
-		return
+	// The same question on the same case and conversation is answered from
+	// memory: the preset questions are asked again and again (18 Oct).
+	key := askKey(c, hist, q)
+	a.askMu.Lock()
+	ans, hit := a.askMemo[key]
+	a.askMu.Unlock()
+	if !hit {
+		ans, err = a.d.Agent.Ask(r.Context(), caseagent.Input{Question: q, History: hist, CaseSummary: agentCaseText(c),
+			Facts: c.Facts, Date: date, Exclude: c.Exclude})
+		if err != nil {
+			a.fail(w, r, err)
+			return
+		}
+		a.askMu.Lock()
+		if a.askMemo == nil {
+			a.askMemo = map[string]caseagent.Answer{}
+		}
+		if len(a.askMemo) >= maxAskMemo {
+			for k := range a.askMemo { // drop one at random; the memo is a convenience
+				delete(a.askMemo, k)
+				break
+			}
+		}
+		a.askMemo[key] = ans
+		a.askMu.Unlock()
 	}
 	turn := chatTurn(q, ans)
 	// Usage is the agent model's own calls; engine calls made by its
@@ -185,4 +207,18 @@ func verdictRuling(p domain.Plan) string {
 		return "none"
 	}
 	return p.Verdict.SupportingRuling
+}
+
+// maxAskMemo caps the remembered answers per instance.
+const maxAskMemo = 500
+
+// askKey names a question on a case as the agent would see it: the case as
+// last changed, the conversation so far and the question (case-folded).
+func askKey(c store.Case, hist []caseagent.Turn, q string) string {
+	h := sha256.New()
+	fmt.Fprintf(h, "%s\x00%s\x00%s\x00", c.ID, c.UpdatedAt.Format(time.RFC3339Nano), strings.ToLower(strings.Join(strings.Fields(q), " ")))
+	for _, t := range hist {
+		fmt.Fprintf(h, "%s\x00%s\x00", t.Question, t.Answer)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
