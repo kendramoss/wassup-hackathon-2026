@@ -751,3 +751,17 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - cordless drill → 8467.21.00
 - **Cost:** up to 4 CROSS searches and a few HTS lookups per suggestion, cached for 24 h. The one model call is unchanged.
 
+
+## D93 — The landing's figures scroll sideways on one pinned stage (18 Oct)
+- **Why:** the three figures read as separate pages stacked down a long scroll, with a bridge wire between fig.1 and fig.2. The owner asked for one continuous journey that ends on the way into the cases.
+- **Change (wide screens, over 900 px):**
+  - The hero sits above one stage pinned under the AppBar. Its track holds three full-width panes: fig.1 the heat gun, fig.2 how it works, fig.3 the test sheet.
+  - Scrolling down moves the track sideways. The page position, in screens past the point where the stage pins, is split into 11: fig.1 plays over 0–4, the track slides over 4–5.5, fig.2 fills over 5.3–7.5, the track slides over 7.5–9, fig.3 settles over 8.9–10.5 and holds until 11.
+  - Scrolling stays native and 1:1: the wheel is not intercepted, unlike the scroll stops removed in #203.
+  - fig.1's step list is replaced by a caption box in the sheet's lower left, one phase at a time, with the colour legend under it. The figure's label still tells screen readers the whole story.
+  - The bridge wire is gone. fig.3's footer ends with "Open the cases →" (to /cases) once the squares settle.
+  - A progress line along the stage's bottom edge marks fig.1 · fig.2 · fig.3; each mark jumps to its figure.
+  - Tabbing into a pane that is off to the side scrolls the page to it.
+- **Unchanged:**
+  - Phones (900 px and under) keep the stacked figures.
+  - With reduced motion the panes cut instead of sliding, and the figures show their final state.
