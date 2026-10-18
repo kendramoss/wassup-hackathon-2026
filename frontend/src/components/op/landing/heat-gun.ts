@@ -1,7 +1,7 @@
 // fig.1: the Kobalt heat gun drawn as a 3D blueprint (three.js). Parts are
 // grouped the way the demo case groups them; scroll explodes them, then the
-// plan's groups (motor-fan assembly; switch, cord + minor parts) move to
-// Thailand. Lines, not shading: fat
+// plan's groups (motor-fan assembly; PCBA; switch, cord + minor parts) move
+// to Thailand. Lines, not shading: fat
 // outlines, dashed hidden edges, live silhouettes on the shell, hatched
 // cores. Colours come from the CSS tokens.
 import * as THREE from "three";
@@ -41,12 +41,14 @@ export type HeatGun = {
   dispose: () => void;
 };
 
-// The heat-gun's closest move on production (D74 run, check 0.90): the
-// motor-fan assembly. Keep in step with landing copy and the live demo.
-const MOVING: GroupKey[] = ["motor"];
+// The heat gun's plan on production (backend-00051, check 0.96, N345938):
+// the motor-fan assembly, the PCBA and the switch, cord and minor parts.
+// Keep in step with landing copy and the live demo.
+const MOVING: GroupKey[] = ["motor", "pcba", "minor"];
 // What the manufacturer also moved in its real 2026 setup (N357771), shown
 // in the last stage only, so "2026 · CBP held Thailand" is drawn truthfully.
-const CBP_MOVED: GroupKey[] = ["pcba"];
+// Its other change, the outer shells, is the housing, already Thai here.
+const CBP_MOVED: GroupKey[] = [];
 // Compact groups flip as they cross; the switch, cord and minor parts are
 // spread across the gun (cord, end cap, knob), so a flip would swing them
 // through the body. They only lift.
