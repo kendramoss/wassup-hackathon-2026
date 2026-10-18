@@ -724,3 +724,30 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - The sign-in button and workspace panel already exist (D68).
 - **Still off:** `FAST_PATH_BY_FAMILY` (D63). It measured worse on the held-out split.
 
+## D92 — HTS suggestions search CBP's rulings live, and are measured (18 Oct)
+- **Why:** on production (D91) the heat gun's suggestions were 8421.23 (filters), 8456 and 8459 (machine tools); the right code, 8419.89.95, was missing. The local index (D64) holds only the 815 rulings of the origin corpus that state a subheading, all from 2023 on, and none classifies a heat gun. CBP has five that do.
+- **Change:**
+  - Candidates now come from a live CROSS search, whose hits carry each ruling's tariff numbers:
+    - The queries are the product's name words, then the start of the product text, skipping the request letter's boilerplate.
+    - Only classification rulings count. Chapter 98/99 numbers are dropped.
+    - Each ruling votes once per subheading, weighted by query and rank.
+    - A subheading must be in today's HTS: older rulings cite numbers since renumbered, e.g. 8419.89.90 → 8419.89.95.
+  - The pool is half CROSS and half the local index (interleaved, up to 6). The model ranks it by fit (`hts-suggest-v2`: "what it is and does, not shared words"), and the top 3 are returned.
+  - If CROSS is unreachable, the local index answers alone. The response says which source answered (`source`).
+  - The money prefill, which takes the top suggestion to price duties, uses the same suggester.
+- **Measured (first accuracy test for D64):**
+  - **Setup:** 40 indexed rulings, sampled with a fixed seed. Each ruling was hidden from both the index and CROSS, and its own code had to come back. Same model (gemini-3.8-flash, LiteLLM proxy).
+
+    | | top 1 | top 3 |
+    |---|---|---|
+    | old (index + model) | 23/40 | 25/40 |
+    | **new (CROSS + index + model)** | **29/40** | **33/40** |
+
+  - New fixed 9 and broke 1.
+  - A version that put CROSS candidates first scored 26/40 (fixed 9, broke 8): CROSS alone missed jewellery and paper products that the index had.
+- **Spot checks (live):**
+  - heat gun → 8419.89.95 first, then 8516.79.00 and 8467.29.00
+  - LED tub light → 8539.52.00 (LED lamps)
+  - cordless drill → 8467.21.00
+- **Cost:** up to 4 CROSS searches and a few HTS lookups per suggestion, cached for 24 h. The one model call is unchanged.
+

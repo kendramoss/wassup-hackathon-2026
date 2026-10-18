@@ -552,7 +552,8 @@ paths:
                   reasons_unavailable: { type: boolean }
                   trace: { type: object, nullable: true }
                   llm_provider: { type: string }
-                  prompt_version: { type: string, example: hts-suggest-v1 }
+                  prompt_version: { type: string, example: hts-suggest-v2 }
+                  source: { type: string, enum: [cross, index], description: "cross: candidates from a live CBP rulings search mixed with the local index; index: the local index only (CBP's search was unreachable). D92" }
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }

@@ -411,7 +411,17 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 			return httpapi.Deps{}, err
 		}
 		n, subs := s.Coverage()
-		logger.Info("hts suggest on", "rulings", n, "subheadings", subs, "index", cfg.HTSIndex)
+		// Candidates from a live CROSS search, kept to subheadings in today's
+		// HTS (D92); the local index is the fallback.
+		mfn := liveMFN
+		if mfn == nil {
+			mfn = duty.NewLive(cross.UserAgent, cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
+		}
+		s.WithCROSS(crossClient, func(ctx context.Context, sub string) bool {
+			_, err := mfn.MFN(ctx, sub)
+			return err == nil || !errors.Is(err, duty.ErrNoRate) // keep it when the HTS is unreachable
+		})
+		logger.Info("hts suggest on", "source", "cross", "fallback_rulings", n, "fallback_subheadings", subs, "index", cfg.HTSIndex)
 		htsSuggester = s
 	}
 	// Teams (D68): workspaces live next to the cases (Firestore on Cloud Run).
