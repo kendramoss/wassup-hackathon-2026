@@ -644,3 +644,22 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - The engine's 3.8 Flash fallback (D73) did not help. A probe on 18 Oct showed that 3.8 Flash and 3.5 Flash are served only on `global` for this project; `us-central1`, `us-east4` and `europe-west4` return 404. So the fallback shares the primary's outage, and a regional fallback is not possible. Left as is.
 - **Plan search:** when a move's engine prediction fails because the provider is unavailable (`llm.Unavailable`: a 429, a 5xx, a timeout or exhausted retries), that move is returned as `check_failed` with "search again to retry this move", with no economics. The other moves are returned as usual. The failed prediction is not cached, so the next search retries only that move. A 400 or a bad response still fails the search. A failed baseline prediction (the current setup) still fails it too, because no move can be priced without it.
 - **Eval slice:** when more than `EVAL_SLICE_MAX_ERRORS` cases (default 3) fail or are missing, the accuracy check is not judged and the report says INCONCLUSIVE. The job passes with a warning to re-run. A confidently wrong answer among the cases that did answer still fails it. The slice job now uses production's pacing (`LLM_MAX_IN_FLIGHT=4`, `LLM_CALL_GAP=8s`, `LLM_COOL_DOWN=60s`, D79).
+
+## D89 — CROSS search relaxed and filled from the corpus, so checks see evidence (18 Oct)
+- Production's check on the heat gun's three-group move (`backend-00049-8kf`) came back 0.96 that origin changes, with no supporting ruling, so it was not shown. Its trail showed why: 4 of its 6 searches returned nothing.
+  - CROSS search returns only rulings that contain every query word. "electric motor stator rotor laminations SMT PCBA Thailand China" has 0 hits, and "heat gun" alone has 92.
+  - In the LiteLLM heat-gun run (D84), 26 of 41 searches were empty.
+  - The dev flip evals never saw this: they search the local BM25 corpus, which matches partially. So production checks ran with far less evidence than the measurements assumed, which likely added to the run-to-run swings (D75, D76).
+- **Change:** `verifier.Relaxed` wraps CROSS search on the server (`VERIFIER_SEARCH=cross`, the default).
+  - If the full query returns fewer than 8 hits, it retries up to 4 shorter forms: without country names and search operators, then the two halves, then the first two words.
+  - It then fills the remaining slots from the local labelled corpus (BM25, same date bound and exclusions).
+  - Hits keep the order found, full query first. Read still goes to CROSS, so the agent reads CBP's full text.
+  - If CROSS is down, the corpus still answers. If both fail, it is an error, and the verdict is not cached (D58).
+  - The near-miss adviser and the case agent use the same searcher.
+- **Measured once** (LiteLLM proxy, seeded, panel and near-miss on, live CROSS, fresh cache; not re-run):
+  - Searches: heat gun 34, tub light 11, **0 empty**.
+  - **Heat gun:** the three-group move (motor-fan + PCBA + switch/cord → Thailand, CBP's real N357771 change) is **shown at 0.96**, supported by N345938 (hair clipper kit, 6 Mar 2025), no counter-ruling, net $285k/yr. The backtest moved every part CBP's change moved except the outer shells (housing moulding is already Thai). Every other move is below the bar (0.75–0.85) or unsupported.
+  - **Tub light:** all four LED-PCBA moves shown, 0.94–0.96.
+  - Cost per search $0.27 / $0.23, wall time 136 s / 93 s.
+  - Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-relaxed-search-litellm.json`.
+- The cache key is unchanged, so stored verdicts stay. Production's three-group verdict for the heat gun (0.96, unsupported) is stored. It changes only if that one verdict is deleted and checked again, which is Anas's call (D56).
