@@ -87,10 +87,10 @@ export function createHeatGun({
   controls.enableZoom = false;
   controls.enablePan = false;
   controls.enableDamping = !reduce;
-  controls.minPolarAngle = Math.PI * 0.28;
-  controls.maxPolarAngle = Math.PI * 0.62;
-  controls.minAzimuthAngle = -Math.PI * 0.45;
-  controls.maxAzimuthAngle = Math.PI * 0.45;
+  // Free to turn all the way round and over the top or underneath (19 Oct).
+  // Just short of the poles, where the orbit's up direction flips.
+  controls.minPolarAngle = 0.01;
+  controls.maxPolarAngle = Math.PI - 0.01;
 
   const model = new THREE.Group();
   scene.add(model);
