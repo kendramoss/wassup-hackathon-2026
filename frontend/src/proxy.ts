@@ -1,17 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { VISITOR_COOKIE, isHttps, newVisitorId, validVisitorId, visitorCookieOptions } from "@/lib/visitor";
 
-// Gives a first-time browser its visitor ID on the page load, so the page's
-// API calls all carry the same one. Without this, the calls a page fires at
-// once each got a different ID and the browser kept the last (D58).
-export function proxy(request: NextRequest) {
-  if (validVisitorId(request.cookies.get(VISITOR_COOKIE)?.value)) return NextResponse.next();
-  const res = NextResponse.next();
-  res.cookies.set(VISITOR_COOKIE, newVisitorId(), visitorCookieOptions(isHttps(request)));
-  return res;
+// Google sign-in only works on origins listed on the OAuth client, so the
+// addresses that aren't listed send visitors to the one that is (19 Oct).
+// frontend-88903435351.us-central1.run.app is listed and is what the deploy
+// smoke test calls, so it is left alone.
+const canonical = "undelabs.dev";
+const moved = new Set(["www.undelabs.dev", "frontend-guxax2teha-uc.a.run.app"]);
+
+export function proxy(req: NextRequest) {
+  const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "").split(":")[0].toLowerCase();
+  if (!moved.has(host)) return NextResponse.next();
+  const url = new URL(req.nextUrl.pathname + req.nextUrl.search, `https://${canonical}`);
+  return NextResponse.redirect(url, 308);
 }
 
-// Pages only: not the API (lib/backend.ts handles it), Next's assets or files.
 export const config = {
-  matcher: ["/((?!api/|_next/|.*\\..*).*)"],
+  matcher: "/:path*",
 };
