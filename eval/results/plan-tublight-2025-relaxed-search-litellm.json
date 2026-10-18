@@ -1,0 +1,675 @@
+{
+  "case_id": "tublight-2025",
+  "target": "Thailand",
+  "family": "led_lights",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from China.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED, lens, lamp base, wiring harness and PVC sealing and O-ring are produced in China. \n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "LED printed circuit board assembly (PCBA)"
+      ],
+      "decisive_step": "Surface mount technology (SMT) assembly of the LED onto the PCB in China",
+      "confidence": 0.95,
+      "reasoning": "The LED PCBA imparts the essential character of the tub light as it provides the illumination function. Populating the PCB with the South Korean LED in China substantially transforms the components into a PCBA. The subsequent operations in Thailand—joining the Chinese-origin PCBA, lens, base, O-ring, and harness, plus sealing and testing—constitute simple assembly of pre-made components with predetermined end-uses and do not result in a substantial transformation.",
+      "cited_rulings": [],
+      "precedents": [],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 737,
+        "output_tokens": 190,
+        "latency_ms": 4913
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350085"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "led_pcba",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make LED PCBA (SMT) in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from Thailand and China.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED are produced in Thailand. The lens, lamp base, wiring harness and PVC sealing and O-ring are sourced from China. \n\nIn Thailand, the LED printed circuit board assembly (PCBA), populated with a South Korean LED will be produced in-house: SMT placement of the LED chip and other electronic components on the printed circuit board; reflow and test the LED PCBA.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "SMT placement and reflow of the LED and electronic components onto the PCB, followed by final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "In CBP rulings regarding LED lights and electronic devices, the PCBA populated with LEDs generally imparts the essential character of the finished article as it provides the core illumination function. In Thailand, individual components (including a South Korean LED) undergo complex Surface Mount Technology (SMT) and reflow processing to create the PCBA, followed by final assembly with Chinese housing and wiring components. This manufacturing process substantially transforms the components into a new article of commerce originating in Thailand.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 795,
+          "output_tokens": 196,
+          "latency_ms": 5729
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344188",
+        "confidence": 0.94,
+        "reasoning": "In Variant A, the LED PCBA and all other components (lens, lamp base, harness, O-ring) are made in China and undergo simple assembly in Thailand, yielding Chinese origin. In Variant B, manufacturing of the LED PCBA via SMT placement and reflow soldering is moved to Thailand, where final assembly also occurs. Under N344188 (as well as N307989 and N309638), CBP consistently holds that the LED PCBA is the most critical component imparting the essential character of an LED light, and producing the LED PCBA via SMT along with final assembly substantially transforms Chinese housing/lens components.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED lamp printed circuit board assembly SMT origin",
+            "rulings": [
+              "N307989",
+              "N344203",
+              "N345397",
+              "N344188",
+              "N309638",
+              "N323710",
+              "N345899",
+              "H304910"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light PCBA SMT Thailand China origin",
+            "rulings": [
+              "N328146",
+              "N335974",
+              "H304910",
+              "N346168",
+              "H335829",
+              "N326845",
+              "N335263",
+              "N344188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344188",
+            "rulings": [
+              "N344188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N307989",
+            "rulings": [
+              "N307989"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N309638",
+            "rulings": [
+              "N309638"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H304910",
+            "rulings": [
+              "H304910"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16120,
+          "output_tokens": 419,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 450000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 400000,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "led_pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "lens",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make LED PCBA (SMT) and Lens moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from Thailand and China.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED and lens are produced in Thailand. The lamp base, wiring harness and PVC sealing and O-ring are sourced from China. \n\nIn Thailand, the LED printed circuit board assembly (PCBA), populated with a South Korean LED will be produced in-house: SMT placement of the LED chip and other electronic components on the printed circuit board; reflow and test the LED PCBA.\n\nIn Thailand, the lens will be produced in-house: injection-mould the lens from resin.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "SMT placement and reflow of the LED and electronic components onto the PCB, along with final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "The LED PCBA imparts the essential character to the LED tub light by providing its illuminating function. Because the PCBA is manufactured in Thailand via surface mount technology (SMT) placement and reflow of the South Korean LED and other components, a substantial transformation occurs in Thailand. The subsequent injection molding of the lens and final assembly with Chinese mechanical components (base, harness, seals) in Thailand further establishes Thailand as the country of origin.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 817,
+          "output_tokens": 187,
+          "latency_ms": 6385
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344188",
+        "confidence": 0.95,
+        "reasoning": "In rulings on LED lights (e.g., N344188 and N348066), CBP consistently holds that the LED printed circuit board assembly (PCBA) is the single most important and critical component imparting the essential character of the light. In Variant A, the LED PCBA is produced in China and undergoes simple final assembly in Thailand, making the origin China. In Variant B, the LED PCBA is manufactured in Thailand via SMT placement and reflow soldering, along with injection-molding the lens and final assembly. Because the SMT production of the critical LED PCBA moves to Thailand, the country of origin changes to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED light PCBA SMT Thailand China lens",
+            "rulings": [
+              "N328146",
+              "H304910",
+              "N346168",
+              "N335263",
+              "N344188",
+              "N323210",
+              "H331515",
+              "N323710"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"LED\" \"PCBA\" \"SMT\" light fixture lamp origin",
+            "rulings": [
+              "N323710",
+              "N323210",
+              "561423",
+              "N335263",
+              "N328146",
+              "N344188",
+              "N344203",
+              "N345899"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "tub light OR appliance light LED PCBA origin",
+            "rulings": [
+              "N348066",
+              "N314185",
+              "H304910",
+              "N335263",
+              "N344188",
+              "N291812",
+              "H331515",
+              "N344203"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344188",
+            "rulings": [
+              "N344188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H331515",
+            "rulings": [
+              "H331515"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348066",
+            "rulings": [
+              "N348066"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15074,
+          "output_tokens": 450,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 450000,
+      "added_cost_per_year": 65000,
+      "net_per_year": 385000,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "led_pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "base_harness_seals",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make LED PCBA (SMT) and Base, harness and seals in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from Thailand and China.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED, lamp base, wiring harness and PVC sealing and O-ring are produced in Thailand. The lens are sourced from China. \n\nIn Thailand, the LED printed circuit board assembly (PCBA), populated with a South Korean LED will be produced in-house: SMT placement of the LED chip and other electronic components on the printed circuit board; reflow and test the LED PCBA.\n\nIn Thailand, the lamp base, wiring harness and PVC sealing and O-ring will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "SMT assembly of the LED PCBA, component manufacturing, and final assembly of the tub light in Thailand",
+        "confidence": 0.99,
+        "reasoning": "The LED PCBA imparts the essential character of the LED tub light. In Thailand, the bare PCB is populated via SMT with the South Korean LED and other components, substantially transforming the parts into a functional LED PCBA. Furthermore, the lamp base, wiring harness, O-ring, and PVC sealing are manufactured in Thailand, where final assembly and testing also occur. Only the lens is from China. Thus, the components undergo a substantial transformation in Thailand.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 835,
+          "output_tokens": 221,
+          "latency_ms": 7001
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N338577",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all components (including the LED PCBA, lens, lamp base, wiring harness, PVC sealing, and O-ring) are made in China and merely assembled in Thailand, resulting in Chinese origin. In Variant B, the LED PCBA (via SMT placement and reflow) as well as the lamp base, wiring harness, PVC sealing, and O-ring are all manufactured in Thailand, with only the lens sourced from China. Under N338577, N335573, and N345899, CBP consistently holds that the SMT production of the LED PCBA (the critical light source component) imparts the country of origin of an LED light.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED lamp PCBA SMT assembly origin",
+            "rulings": [
+              "H304910",
+              "N344188",
+              "N323210",
+              "N344203",
+              "N345899",
+              "N323710",
+              "N345397",
+              "N315947"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light PCBA populated lens wiring harness",
+            "rulings": [
+              "N345899",
+              "N344188",
+              "N348066",
+              "N335263",
+              "N323210",
+              "N317424",
+              "N338577",
+              "N335573"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light PCBA SMT Thailand China",
+            "rulings": [
+              "N328146",
+              "N335974",
+              "H304910",
+              "N346168",
+              "H335829",
+              "N326845",
+              "N335263",
+              "N344188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335573",
+            "rulings": [
+              "N335573"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338577",
+            "rulings": [
+              "N338577"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345899",
+            "rulings": [
+              "N345899"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9184,
+          "output_tokens": 370,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 450000,
+      "added_cost_per_year": 75000,
+      "net_per_year": 375000,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "led_pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "lens",
+          "to_plant": "th"
+        },
+        {
+          "group": "base_harness_seals",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make LED PCBA (SMT), Lens moulding and Base, harness and seals in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from Thailand.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED, lens, lamp base, wiring harness and PVC sealing and O-ring are produced in Thailand. \n\nIn Thailand, the LED printed circuit board assembly (PCBA), populated with a South Korean LED will be produced in-house: SMT placement of the LED chip and other electronic components on the printed circuit board; reflow and test the LED PCBA.\n\nIn Thailand, the lens will be produced in-house: injection-mould the lens from resin.\n\nIn Thailand, the lamp base, wiring harness and PVC sealing and O-ring will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The LED Printed Circuit Board Assembly (PCBA)"
+        ],
+        "decisive_step": "Surface Mount Technology (SMT) assembly of the LED PCBA, along with component manufacturing and final assembly in Thailand",
+        "confidence": 1,
+        "reasoning": "The South Korean LED chip and other electronic components undergo a substantial transformation in Thailand when they are mounted onto the bare board via Surface Mount Technology (SMT) to create a functional LED PCBA. Furthermore, all other components (lens, lamp base, wiring harness, seals) are manufactured in Thailand, where final assembly and testing also occur. Thus, the product is a product of Thailand.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 850,
+          "output_tokens": 212,
+          "latency_ms": 5732
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344188",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all major components—including the LED printed circuit board assembly (PCBA), lens, lamp base, wiring harness, PVC sealing, and O-ring—are produced in China, with only simple final assembly in Thailand, resulting in Chinese origin. In Variant B, all of these components are manufactured in Thailand, including the SMT placement and reflow to create the LED PCBA (using a South Korean LED), injection molding the lens, and making the lamp base, harness, and seals. As held in N344188 and N345899, manufacturing the LED PCBA via SMT and assembling the light confers origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED light South Korean LED PCBA China Thailand Vietnam",
+            "rulings": [
+              "N314185",
+              "N346168",
+              "N162407",
+              "N297843",
+              "N307989",
+              "N223459",
+              "N256523",
+              "N326081"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigerator dryer washing machine LED light PCBA SMT",
+            "rulings": [
+              "N335263",
+              "N344188",
+              "N345899",
+              "N344203",
+              "N328146",
+              "H331515",
+              "N323210",
+              "N342388"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light PCBA SMT lens lamp base assembly origin",
+            "rulings": [
+              "N323210",
+              "N323710",
+              "N335263",
+              "N344188",
+              "N345899",
+              "N344203",
+              "N328146",
+              "H331515"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H331515",
+            "rulings": [
+              "H331515"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344188",
+            "rulings": [
+              "N344188"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345899",
+            "rulings": [
+              "N345899"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14831,
+          "output_tokens": 451,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 450000,
+      "added_cost_per_year": 90000,
+      "net_per_year": 360000,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from China.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED, lens, lamp base, wiring harness and PVC sealing and O-ring are produced in China. \n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "Surface mount technology (SMT) assembly of the LED onto the PCB in China",
+        "confidence": 0.95,
+        "reasoning": "The LED PCBA imparts the essential character of the tub light as it provides the illumination function. Populating the PCB with the South Korean LED in China substantially transforms the components into a PCBA. The subsequent operations in Thailand—joining the Chinese-origin PCBA, lens, base, O-ring, and harness, plus sealing and testing—constitute simple assembly of pre-made components with predetermined end-uses and do not result in a substantial transformation.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 737,
+          "output_tokens": 190,
+          "latency_ms": 4913
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N350085); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "lens",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Lens moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from China and Thailand.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED, lamp base, wiring harness and PVC sealing and O-ring are produced in China. The lens are produced in Thailand. \n\nIn Thailand, the lens will be produced in-house: injection-mould the lens from resin.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "SMT population and manufacturing of the LED PCBA in China",
+        "confidence": 0.95,
+        "reasoning": "The LED PCBA imparts the essential character of the LED tub light by providing the light-generating and electrical functionality. The PCBA is manufactured in China (where the South Korean LED is populated onto the board), alongside the lamp base, wiring harness, and seals. In Thailand, injection-molding the lens and performing simple assembly of a few pre-made components does not constitute a substantial transformation of the Chinese components.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 766,
+          "output_tokens": 170,
+          "latency_ms": 4580
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 15000,
+      "net_per_year": -15000,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "base_harness_seals",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Base, harness and seals in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from China and Thailand.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED and lens are produced in China. The lamp base, wiring harness and PVC sealing and O-ring are produced in Thailand. \n\nIn Thailand, the lamp base, wiring harness and PVC sealing and O-ring will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "Surface mount technology (SMT) assembly of the LED onto the PCB in China",
+        "confidence": 0.92,
+        "reasoning": "The LED PCBA imparts the essential character of the appliance tub light by providing its core illuminating function. In China, the South Korean LED is mounted onto the PCB, substantially transforming the components into a functional light-emitting assembly. The subsequent operations in Thailand—producing housing/wiring components and assembling the lens, O-ring, base, and harness with the PCBA—constitute simple assembly and finishing that do not substantially transform the Chinese PCBA.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 784,
+          "output_tokens": 194,
+          "latency_ms": 4730
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "lens",
+          "to_plant": "th"
+        },
+        {
+          "group": "base_harness_seals",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Lens moulding and Base, harness and seals in Thailand",
+      "variant_facts": "The merchandise under consideration is a LED tub light 308D1661P001. A light fitted inside a dryer or washing machine that switches on and off as the door opens and closes. It consists of a printed circuit board assembly (PCBA) populated with an LED, a lens, a lamp base, PVC sealing, an O-ring and a wiring harness. The LED tub light 308D1661P001 is assembled in Thailand using components sourced from China and Thailand.\n\nThe LED printed circuit board assembly (PCBA), populated with a South Korean LED are produced in China. The lens, lamp base, wiring harness and PVC sealing and O-ring are produced in Thailand. \n\nIn Thailand, the lens will be produced in-house: injection-mould the lens from resin.\n\nIn Thailand, the lamp base, wiring harness and PVC sealing and O-ring will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring.\n\nFinal assembly in Thailand: assemble the lens with the O-ring; assemble the PCBA to the lamp base; assemble the harness (connect the wires with the plug and the light head); seal and test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "LED printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "Surface-mount population of the PCBA with the LED and electronic components in China",
+        "confidence": 0.9,
+        "reasoning": "The LED PCBA imparts the essential character of the LED tub light by providing its core illuminating function. In China, the bare PCB and South Korean LED are substantially transformed via SMT assembly into a functional LED PCBA. The subsequent manufacturing of housing components (lens, base, seals, harness) and final assembly in Thailand are relatively simple combining operations that do not substantially transform the Chinese-origin LED PCBA.",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 806,
+          "output_tokens": 194,
+          "latency_ms": 6014
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 40000,
+      "net_per_year": -40000,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N351143 (4 Aug 2025): CBP held Thailand",
+    "plan": "Make LED PCBA (SMT) in Thailand",
+    "actual_moved": [
+      "LED printed circuit board assembly (PCBA), populated with a South Korean LED"
+    ],
+    "moved_by_plan": [
+      "LED printed circuit board assembly (PCBA), populated with a South Korean LED"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 4,
+    "verifier_cached": 0,
+    "verifier_model_calls": 23,
+    "verifier_tool_calls": 36,
+    "input_tokens": 92496,
+    "output_tokens": 4321,
+    "engine_input_tokens": 6390,
+    "engine_output_tokens": 1564,
+    "verifier_input_tokens": 86106,
+    "verifier_output_tokens": 2757,
+    "wall_seconds": 93.126954083
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "led_lights": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "cross",
+  "cost_usd_promo": 0.228202,
+  "cost_usd_list": 0.456404,
+  "git_revision": "695f483c42e977349cc5d0ee01497e9244d3e079-dirty",
+  "time": "2026-10-18T14:35:04+08:00"
+}

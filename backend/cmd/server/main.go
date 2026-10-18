@@ -223,11 +223,15 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 	eng := engine.New(engineModel, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
 	crossClient := cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")
-	var searcher verifier.Searcher = verifier.CROSS{Client: crossClient}
+	local, err := verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	// CROSS search needs every query word to match; Relaxed retries shorter
+	// queries and fills from the local corpus so checks see evidence (D89).
+	var searcher verifier.Searcher = verifier.Relaxed{Primary: verifier.CROSS{Client: crossClient}, Fill: local}
 	if cfg.VerifierSearch == "local" {
-		if searcher, err = verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir); err != nil {
-			return httpapi.Deps{}, err
-		}
+		searcher = local
 	}
 	ver := verifier.NewWithPanel(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt},
 		cfg.VerifierPanel == "on", cfg.VerifierPanelLow, cfg.VerifierPanelHigh)
