@@ -67,9 +67,12 @@ export function HtsField({
   const candidates = res?.candidates ?? [];
   return (
     <div>
-      <label htmlFor={id} className="block text-[12.5px] text-body">
-        HTS subheading <span className="text-dim">(optional)</span>
-      </label>
+      <div className="flex items-center gap-1.5">
+        <label htmlFor={id} className="block text-[12.5px] text-body">
+          HTS subheading <span className="text-dim">(optional)</span>
+        </label>
+        <HtsHelp />
+      </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
         <input
           id={id}
@@ -137,5 +140,50 @@ export function HtsField({
         </div>
       )}
     </div>
+  );
+}
+
+// How to find an HTS subheading (18 Oct): an "i" that opens on hover, focus
+// or tap; Escape closes it.
+function HtsHelp() {
+  const [open, setOpen] = useState(false);
+  const tipId = useId();
+  return (
+    <span className="group relative inline-flex" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button
+        type="button"
+        aria-label="How to find your HTS subheading"
+        aria-expanded={open}
+        aria-describedby={open ? tipId : undefined}
+        onClick={() => setOpen((o) => !o)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
+        className="grid size-[18px] place-items-center rounded-full border border-edge bg-white text-[11px] font-semibold italic leading-none text-ok hover:border-ok"
+      >
+        i
+      </button>
+      {open && (
+        <span
+          id={tipId}
+          role="tooltip"
+          className="absolute left-0 top-full z-40 mt-2 w-[300px] border border-edge bg-white px-3.5 py-3 text-[12px] leading-relaxed text-body shadow-[3px_3px_0_var(--shadow)]"
+        >
+          <b className="font-medium text-ink">How to find your HTS subheading</b>
+          <span className="mt-1 block">It&apos;s the U.S. tariff code for the finished product, like 8516.31.00 (8 digits; 10 are fine too).</span>
+          <span className="mt-1.5 block">1. Look on your customs entry (CBP Form 7501) or a past commercial invoice: your broker lists it per line.</span>
+          <span className="block">2. Ask your customs broker or freight forwarder.</span>
+          <span className="block">
+            3. Search the official schedule at{" "}
+            <a href="https://hts.usitc.gov" target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+              hts.usitc.gov
+            </a>{" "}
+            with words for the product (&ldquo;hair dryer&rdquo;).
+          </span>
+          <span className="block">4. Or use &ldquo;Suggest from earlier rulings&rdquo;: codes CBP applied to similar products.</span>
+          <span className="mt-1.5 block text-dim">A suggestion isn&apos;t a classification: confirm it with a licensed broker.</span>
+        </span>
+      )}
+    </span>
   );
 }

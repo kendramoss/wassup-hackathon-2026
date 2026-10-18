@@ -205,3 +205,22 @@
   }
 }
 
+
+/* A field the user may have forgotten (step 1, 18 Oct): violet, the "look
+   again" colour, never red, which is kept for failures. */
+[data-missing] {
+  outline: 2px solid var(--ask);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--ask-wash);
+}
+.missing-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: 320px;
+  border: 1px solid var(--ask-line);
+  background: var(--ask-wash);
+  color: var(--ask);
+  padding: 6px 10px;
+  font-size: 12.5px;
+  box-shadow: 3px 3px 0 var(--ask-shadow);
+}

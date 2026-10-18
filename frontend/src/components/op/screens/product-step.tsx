@@ -20,6 +20,7 @@ import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
+import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
 import { PrefillNote, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
@@ -45,11 +46,68 @@ const today = () => new Date().toISOString().slice(0, 10);
 const emptyProduct = (): Product => ({ name: "", plants: [], components: [], operations: [] });
 
 const families = [
-  { id: "motorised_tools_small_appliances", name: "Motorised tools, small appliances" },
+  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances" },
+  { id: "led_lights", name: "LED lights and lamps" },
   { id: "lidar_modules", name: "LiDAR sensor modules" },
 ];
+const familyOptions: ComboOption[] = families.map((f) => ({ value: f.id, label: f.name }));
 
 type Tier = { key: "origin" | "plan" | "money"; label: string; state: "done" | "limited" | "missing"; note: string };
+
+// The first thing the user may have forgotten, and the field to take them
+// to (18 Oct). The backend also rejects a plant without a country and a part
+// without a name, so these are caught here instead.
+type Gap = { field: string; message: string };
+function findGap(tab: Tab, name: string, date: string, facts: string, product: Product, imported: boolean): Gap | null {
+  if (name.trim() === "") return { field: "[data-field=name]", message: "Add a product name" };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { field: "[data-field=date]", message: "Add the case date" };
+  if (tab === "paste") return facts.trim().length <= 20 ? { field: "#step1-panel textarea", message: "Paste a description (a sentence or more)" } : null;
+  if (tab === "bom" && !imported && product.components.length === 0) return { field: "#step1-panel input[type=file]", message: "Upload a bill of materials" };
+  for (const [i, pl] of (product.plants ?? []).entries()) {
+    if (!pl.name?.trim() && !pl.country.trim()) return { field: `#field-plant-name-${i}`, message: "Fill in or remove this empty plant" };
+    if (!pl.country.trim()) return { field: `#field-plant-country-${i}`, message: `Add the country of ${pl.name || "this plant"}` };
+  }
+  if (product.components.length === 0) return { field: "#field-add-part", message: "Add a part and where it's made" };
+  for (const [i, c] of product.components.entries()) {
+    if (!c.name.trim()) return { field: `#field-part-name-${i}`, message: c.made_in.trim() ? "Name this part" : "Fill in or remove this empty part" };
+    if (!c.made_in.trim()) return { field: `#field-part-country-${i}`, message: `Add the country ${c.name} is made in` };
+  }
+  return null;
+}
+
+// Scrolls the forgotten field to the middle of the screen, focuses it and
+// marks it with a short note until the user types there (or 6 s pass).
+function flagField(selector: string, message: string) {
+  const el = document.querySelector<HTMLElement>(selector);
+  if (!el) return;
+  const target = el.classList.contains("sr-only") ? (el.closest("label") ?? el) : el;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  el.focus({ preventScroll: true });
+  document.querySelectorAll("[data-missing]").forEach((x) => x.removeAttribute("data-missing"));
+  document.querySelectorAll(".missing-tip").forEach((x) => x.remove());
+  target.setAttribute("data-missing", "");
+  const tip = document.createElement("div");
+  tip.className = "missing-tip";
+  tip.setAttribute("role", "alert");
+  tip.textContent = `You may have forgotten this: ${message.charAt(0).toLowerCase()}${message.slice(1)}.`;
+  document.body.appendChild(tip);
+  const place = () => {
+    const r = target.getBoundingClientRect();
+    tip.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 8))}px`;
+    tip.style.top = `${r.bottom + 8}px`;
+  };
+  place();
+  const done = () => {
+    target.removeAttribute("data-missing");
+    tip.remove();
+    window.removeEventListener("scroll", place, true);
+    el.removeEventListener("input", done);
+  };
+  window.addEventListener("scroll", place, true);
+  el.addEventListener("input", done);
+  setTimeout(done, 6000);
+}
 
 // What each kind of input unlocks (DESIGN.md step 1, the "unlocks" strip).
 function unlocks(tab: Tab, facts: string, product: Product, economics: Economics | undefined): Tier[] {
@@ -227,16 +285,13 @@ export function ProductStep() {
   };
 
   // The main button says what's still missing instead of just looking off.
-  let missing: string | null = null;
-  if (name.trim() === "") missing = "Add a product name";
-  else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) missing = "Add the case date";
-  else if (tab === "paste" && facts.trim().length <= 20) missing = "Paste a description (a sentence or more)";
-  else if (tab !== "paste" && !product.components.some((c) => c.name.trim() && c.made_in.trim())) missing = "Add a part and where it's made";
+  // Each gap names the field to take the user to (18 Oct).
+  const gap = findGap(tab, name, date, facts, product, imported !== null);
+  const missing: string | null = gap?.message ?? null;
   const ready = missing === null;
   // Not ready: the button stays focusable and takes you to what's missing.
   const showMissing = () => {
-    const field = name.trim() === "" ? "[data-field=name]" : missing === "Add the case date" ? "[data-field=date]" : "#step1-panel textarea, #step1-panel input";
-    document.querySelector<HTMLElement>(field)?.focus();
+    if (gap) flagField(gap.field, gap.message);
   };
   const tiers = unlocks(tab, facts, product, economics);
   // What "Suggest from earlier rulings" reads: the text, or the parts.
@@ -277,17 +332,14 @@ export function ProductStep() {
             </Field>
             <Field label={copy.product.family}>
               {(id) => (
-                <span className="relative block">
-                  <select id={id} className={cx(input, "appearance-none pr-9")} value={family} onChange={(e) => setFamily(e.target.value)}>
-                    {families.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.name}
-                      </option>
-                    ))}
-                    {!families.some((f) => f.id === family) && <option value={family}>{family || "None"}</option>}
-                  </select>
-                  <Caret />
-                </span>
+                <Combobox
+                  id={id}
+                  className={input}
+                  value={family}
+                  onChange={setFamily}
+                  options={familyOptions}
+                  placeholder="Search families, e.g. LED"
+                />
               )}
             </Field>
             <Field label={copy.product.date} help={copy.product.dateHelp}>
@@ -637,14 +689,6 @@ function StageList({ stages }: { stages: PredictStage[] }) {
   );
 }
 
-function Caret() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 10 6" className="pointer-events-none absolute right-3.5 top-1/2 size-2.5 -translate-y-1/2 text-dim">
-      <path d="M0 0h10L5 6z" fill="currentColor" />
-    </svg>
-  );
-}
-
 function Field({ label, help, children }: { label: string; help?: string; children: (id: string) => ReactNode }) {
   const id = useId();
   return (
@@ -672,6 +716,11 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
   const setComps = (c: Component[]) => onChange({ ...product, components: c });
   const setOps = (o: Operation[]) => onChange({ ...product, operations: o });
   const groups = [...new Set([...groupSuggestions, ...[...product.components, ...ops].map((x) => x.group).filter((g): g is string => Boolean(g))])];
+  const plantOptions: ComboOption[] = [
+    { value: "", label: "A supplier not listed" },
+    ...plants.map((p) => ({ value: p.id, label: `${p.name || "Unnamed plant"}${p.country ? ` · ${p.country}` : ""}` })),
+  ];
+  const groupOptions: ComboOption[] = [{ value: "", label: "None" }, ...groups.map((g) => ({ value: g, label: groupName(g) }))];
   // Picking where a part is made fills its country from the plant.
   const pickPlant = (i: number, id: string) => {
     const pl = plants.find((p) => p.id === id);
@@ -688,18 +737,23 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
             <li key={p.id} className="border border-line bg-white p-3">
               <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <input
+                  id={`field-plant-name-${i}`}
                   aria-label="Plant name"
                   placeholder="Plant name, e.g. Rayong plant"
                   className={cell}
                   value={p.name ?? ""}
                   onChange={(e) => setPlants(plants.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
                 />
-                <input
-                  aria-label="Plant country"
-                  placeholder="Country"
+                <Combobox
+                  id={`field-plant-country-${i}`}
+                  ariaLabel="Plant country"
+                  placeholder="Search a country"
                   className={cell}
                   value={p.country}
-                  onChange={(e) => setPlants(plants.map((x, j) => (j === i ? { ...x, country: e.target.value } : x)))}
+                  onChange={(v) => setPlants(plants.map((x, j) => (j === i ? { ...x, country: v } : x)))}
+                  options={countryOptions}
+                  allowCustom
+                  flags
                 />
                 <RemoveButton label={`Remove ${p.name || "plant"}`} onClick={() => setPlants(plants.filter((_, j) => j !== i))} />
               </div>
@@ -753,36 +807,33 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
                 {product.components.map((c, i) => (
                   <tr key={i}>
                     <td className="py-1 pr-2">
-                      <input aria-label="Part name" className={cell} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+                      <input id={`field-part-name-${i}`} aria-label="Part name" placeholder="e.g. electric motor" className={cell} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
                     </td>
                     <td className="py-1 pr-2">
-                      <select aria-label="Made at" className={cell} value={c.plant ?? ""} onChange={(e) => pickPlant(i, e.target.value)}>
-                        <option value="">A supplier not listed</option>
-                        {plants.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name || "Unnamed plant"}
-                            {p.country ? ` · ${p.country}` : ""}
-                          </option>
-                        ))}
-                      </select>
+                      <Combobox ariaLabel="Made at" placeholder="Search your plants" className={cell} value={c.plant ?? ""} onChange={(v) => pickPlant(i, v)} options={plantOptions} />
                     </td>
                     <td className="py-1 pr-2">
-                      <input aria-label="Country it's made in" className={cell} value={c.made_in} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: e.target.value } : x)))} />
+                      <Combobox
+                        id={`field-part-country-${i}`}
+                        ariaLabel="Country it's made in"
+                        placeholder="Search a country"
+                        className={cell}
+                        value={c.made_in}
+                        onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: v } : x)))}
+                        options={countryOptions}
+                        allowCustom
+                        flags
+                      />
                     </td>
                     <td className="py-1 pr-2">
-                      <select
-                        aria-label="Operation group"
+                      <Combobox
+                        ariaLabel="Operation group"
+                        placeholder="Search groups"
                         className={cell}
                         value={c.group ?? ""}
-                        onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: e.target.value || undefined } : x)))}
-                      >
-                        <option value="">None</option>
-                        {groups.map((g) => (
-                          <option key={g} value={g}>
-                            {groupName(g)}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))}
+                        options={groupOptions}
+                      />
                     </td>
                     <td>
                       <RemoveButton label={`Remove ${c.name || "part"}`} onClick={() => setComps(product.components.filter((_, j) => j !== i))} />
@@ -793,43 +844,52 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
             </table>
           </div>
         )}
-        <AddButton onClick={() => setComps([...product.components, { name: "", made_in: "" }])}>+ Add a part</AddButton>
+        <AddButton id="field-add-part" onClick={() => setComps([...product.components, { name: "", made_in: "" }])}>
+          + Add a part
+        </AddButton>
       </Panel>
 
       <details className="border border-line bg-sheet px-5 py-3" open={ops.length > 0}>
         <summary className="cursor-pointer text-[13px] text-dim">Operations at each plant (optional){ops.length ? ` · ${ops.length} steps` : ""}</summary>
+        {/* What a processing step is, in plain words (18 Oct). */}
+        <p className="duo mt-2 max-w-[80ch] text-[12.5px] text-body">
+          A processing step is work done at a plant rather than a part bought in, for example &ldquo;wind the motor coils&rdquo;, &ldquo;solder the circuit board&rdquo; or
+          &ldquo;assemble, test and pack&rdquo;. CBP weighs where this work happens when it decides origin, so listing it makes the prediction more accurate. Give each step the
+          plant that does it and, if it belongs to one, the group it would move with in a plan.
+        </p>
         <ul className="mt-3 flex flex-col gap-2">
           {ops.map((o, i) => (
             <li key={i} className="grid gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
               <input aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cell} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
-              <select aria-label="At plant" className={cell} value={o.plant} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, plant: e.target.value } : x)))}>
-                {plants.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name || "Unnamed plant"}
-                  </option>
-                ))}
-              </select>
-              <select aria-label="Operation group" className={cell} value={o.group ?? ""} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, group: e.target.value || undefined } : x)))}>
-                <option value="">None</option>
-                {groups.map((g) => (
-                  <option key={g} value={g}>
-                    {groupName(g)}
-                  </option>
-                ))}
-              </select>
+              <Combobox
+                ariaLabel="At plant"
+                placeholder="Search your plants"
+                className={cell}
+                value={o.plant}
+                onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, plant: v } : x)))}
+                options={plantOptions.filter((x) => x.value)}
+              />
+              <Combobox
+                ariaLabel="Operation group"
+                placeholder="Search groups"
+                className={cell}
+                value={o.group ?? ""}
+                onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))}
+                options={groupOptions}
+              />
               <RemoveButton label="Remove step" onClick={() => setOps(ops.filter((_, j) => j !== i))} />
             </li>
           ))}
         </ul>
-        {plants.length > 0 ? <AddButton onClick={() => setOps([...ops, { name: "", plant: plants[0].id }])}>+ Add a processing step</AddButton> : <p className="mt-2 text-xs text-dim">Add a plant first.</p>}
+        {plants.length > 0 ? <AddButton onClick={() => setOps([...ops, { name: "", plant: plants[0].id }])}>+ Add a processing step (work done at a plant)</AddButton> : <p className="mt-2 text-xs text-dim">Add a plant first.</p>}
       </details>
     </div>
   );
 }
 
-function AddButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+function AddButton({ onClick, children, id }: { onClick: () => void; children: ReactNode; id?: string }) {
   return (
-    <button type="button" onClick={onClick} className="mt-3 min-h-8 text-[13px] text-ok hover:underline">
+    <button id={id} type="button" onClick={onClick} className="mt-3 min-h-8 text-[13px] text-ok hover:underline">
       {children}
     </button>
   );
