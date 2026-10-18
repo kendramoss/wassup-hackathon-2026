@@ -274,7 +274,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	// it and reports it.
 	complete := func(i int, pl domain.Plan) {
 		<-baseReady
-		if baseErr == nil {
+		if baseErr == nil && pl.Prediction.Origin != "" { // no origin when the prediction failed (D88)
 			pl.DutyEffectYear, pl.AddedCostYear = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
 			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 		}
@@ -371,6 +371,14 @@ func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.
 	facts := Render(variant, tm, groupsOf(m)...)
 	r, err := p.engine.Predict(ctx, p.caseFor(req, m.Key(), facts))
 	if err != nil {
+		// A provider outage on one move leaves that move unchecked and the
+		// rest of the search intact (D88). It is not cached, so a later
+		// search predicts it again; the moves that finished are cached.
+		if llm.Unavailable(err) && ctx.Err() == nil {
+			return domain.Plan{Move: m, Description: desc, VariantFacts: facts,
+				RejectionReason: "origin prediction failed: the model provider was unavailable; search again to retry this move",
+				RejectionKind:   domain.RejectCheckFailed}, nil
+		}
 		return domain.Plan{}, fmt.Errorf("planner: move %s: %w", m.Key(), err)
 	}
 	addEngine(r.Usage)

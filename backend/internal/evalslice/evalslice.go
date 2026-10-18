@@ -186,6 +186,11 @@ func BaselineFrom(rows []evalkit.Row, s Slice, source string) (Baseline, error) 
 type Tolerance struct {
 	MaxDrop int     // fewer correct cases than the baseline
 	BandMin float64 // accuracy at confidence ≥ 0.95
+	// MaxErrors is how many cases may fail or be missing before the run says
+	// nothing about accuracy (D88). Above it the accuracy check is skipped
+	// and the run is inconclusive, unless the answered cases already fail
+	// the confidence band.
+	MaxErrors int
 }
 
 // Check is one pass/fail line of a report.
@@ -197,6 +202,9 @@ type Check struct {
 
 // Report compares a run with the baseline.
 type Report struct {
+	// Inconclusive: more cases failed than Tolerance.MaxErrors (provider
+	// outage), so the accuracy check was not judged (D88).
+	Inconclusive       bool
 	N, Correct, Errors int
 	Band95N, Band95K   int
 	Checks             []Check
@@ -242,10 +250,17 @@ func Compare(base Baseline, rows []evalkit.Row, tol Tolerance) Report {
 		}
 	}
 	floor := base.Correct - tol.MaxDrop
-	rep.Checks = append(rep.Checks, Check{
+	acc := Check{
 		Name: "accuracy", Pass: s.Correct >= floor,
 		Detail: fmt.Sprintf("%d / %d correct; baseline %d, at least %d to pass (%d-case tolerance)", s.Correct, s.N, base.Correct, floor, tol.MaxDrop),
-	})
+	}
+	if s.Errors > tol.MaxErrors {
+		rep.Inconclusive = true
+		acc.Pass = true
+		acc.Detail = fmt.Sprintf("not judged: %d of %d cases failed or are missing (more than %d), so the model provider, not the code, decided the score; %d correct of the %d answered",
+			s.Errors, s.N, tol.MaxErrors, s.Correct, s.N-s.Errors)
+	}
+	rep.Checks = append(rep.Checks, acc)
 	bar := tol.BandMin
 	band := Check{Name: "confidence ≥ 0.95"}
 	if s.AtLeast95.N == 0 {
@@ -264,12 +279,15 @@ func Compare(base Baseline, rows []evalkit.Row, tol Tolerance) Report {
 func (r Report) Markdown(title string, base Baseline) string {
 	var b strings.Builder
 	verdict := "PASS"
-	if !r.Passed() {
+	switch {
+	case !r.Passed():
 		verdict = "FAIL"
+	case r.Inconclusive:
+		verdict = "INCONCLUSIVE"
 	}
 	fmt.Fprintf(&b, "## %s: %s\n\n", title, verdict)
 	fmt.Fprintf(&b, "- Baseline: `%s` (%s, %s, %s)\n", base.Source, base.Provider, base.Model, base.PromptVersion)
-	if r.Errors > 0 {
+	if r.Errors > 0 && !r.Inconclusive {
 		fmt.Fprintf(&b, "- %d of %d cases failed or are missing; counted as wrong\n", r.Errors, r.N)
 	}
 	for _, c := range r.Checks {

@@ -2,6 +2,7 @@ package planner
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"testing"
@@ -233,5 +234,62 @@ func TestPlanWithProgressReportsEveryMove(t *testing.T) {
 	}
 	if len(res.Plans) != 1 || res.Plans[0].NetYear != 320000 || len(last.Result.Plans) != 1 {
 		t.Errorf("result changed with progress: %+v", res.Plans)
+	}
+}
+
+// flakyEngine is fakeEngine, but the provider fails for moves whose facts
+// contain fail (with err), and for the baseline when failBase.
+type flakyEngine struct {
+	fakeEngine
+	fail     string
+	failBase bool
+	err      error
+}
+
+func (f *flakyEngine) Predict(ctx context.Context, c domain.Case) (engine.Result, error) {
+	if (f.fail != "" && strings.Contains(c.Facts, f.fail) && strings.Contains(c.ID, "@")) || (f.failBase && strings.HasSuffix(c.ID, "/baseline")) {
+		return engine.Result{}, f.err
+	}
+	return f.fakeEngine.Predict(ctx, c)
+}
+
+func TestPlanSurvivesAProviderOutageOnOneMove(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	tmpls, _ := LoadTemplates()
+	for _, err := range []error{
+		fmt.Errorf("llm: %w after 1 attempts: x", llm.ErrUnavailable),
+		&llm.APIError{Provider: "vertex", StatusCode: 504},
+		&llm.APIError{Provider: "vertex", StatusCode: 429},
+	} {
+		e := &flakyEngine{fail: "the switch, power cord", err: err}
+		res, perr := New(tmpls, e, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95, Concurrency: 3}).Plan(context.Background(), r)
+		if perr != nil {
+			t.Fatalf("%v: one failed move should not fail the search: %v", err, perr)
+		}
+		failed := 0
+		for _, pl := range res.Rejected {
+			if pl.RejectionKind == domain.RejectCheckFailed {
+				failed++
+				if !strings.Contains(pl.RejectionReason, "search again") || pl.Prediction.Origin != "" || pl.NetYear != 0 || pl.AddedCostYear != 0 {
+					t.Errorf("failed move = %+v", pl)
+				}
+			}
+		}
+		if failed == 0 || len(res.Plans) != 1 || res.Plans[0].Move.Key() != "motor_fan_assembly@th+pcba@th" {
+			t.Errorf("%v: failed %d, plans %+v", err, failed, res.Plans)
+		}
+	}
+}
+
+func TestPlanStillFailsOnBadRequestsAndBaselineOutage(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	tmpls, _ := LoadTemplates()
+	for name, e := range map[string]*flakyEngine{
+		"400 on a move":      {fail: "the switch, power cord", err: &llm.APIError{Provider: "vertex", StatusCode: 400}},
+		"outage on baseline": {failBase: true, err: &llm.APIError{Provider: "vertex", StatusCode: 504}},
+	} {
+		if _, err := New(tmpls, e, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95, Concurrency: 3}).Plan(context.Background(), r); err == nil {
+			t.Errorf("%s: the search should fail", name)
+		}
 	}
 }

@@ -636,3 +636,11 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - With production's settings (panel on, near-miss on, 4 in flight), a fresh 6-move search estimates $0.13–0.38 and 34–132 s.
   - The range assumes a healthy provider; under 429/504 a search can take several times longer (D78, D79), and the response says so.
 - **Merged with D84 (18 Oct):** the estimate counts moves with `EnumerateUpTo`, the same three-group-aware list `Plan` searches. With `PLAN_MAX_MOVES` (default 12) it includes the heat gun's triple, so the heat-gun estimate is 7 moves, not 6.
+
+## D88 — A provider outage degrades a plan search instead of failing it; the slice reports outages as inconclusive (18 Oct)
+- On 18 Oct, Vertex `global` returned 429s and 504s for hours.
+  - A fresh plan search (a cordless-drill BOM) failed twice with HTTP 502, because one move's engine prediction failed, even though 4 of its 5 checks had finished.
+  - The CI eval slice scored 11/30 against a baseline of 27: 18 cases got no answer (504 after about 122 s) and were counted as wrong. The 8 confident answers it did get were 8/8 right.
+- The engine's 3.8 Flash fallback (D73) did not help. A probe on 18 Oct showed that 3.8 Flash and 3.5 Flash are served only on `global` for this project; `us-central1`, `us-east4` and `europe-west4` return 404. So the fallback shares the primary's outage, and a regional fallback is not possible. Left as is.
+- **Plan search:** when a move's engine prediction fails because the provider is unavailable (`llm.Unavailable`: a 429, a 5xx, a timeout or exhausted retries), that move is returned as `check_failed` with "search again to retry this move", with no economics. The other moves are returned as usual. The failed prediction is not cached, so the next search retries only that move. A 400 or a bad response still fails the search. A failed baseline prediction (the current setup) still fails it too, because no move can be priced without it.
+- **Eval slice:** when more than `EVAL_SLICE_MAX_ERRORS` cases (default 3) fail or are missing, the accuracy check is not judged and the report says INCONCLUSIVE. The job passes with a warning to re-run. A confidently wrong answer among the cases that did answer still fails it. The slice job now uses production's pacing (`LLM_MAX_IN_FLIGHT=4`, `LLM_CALL_GAP=8s`, `LLM_COOL_DOWN=60s`, D79).
