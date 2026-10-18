@@ -134,6 +134,88 @@ export const copy = {
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or
   // Showable rows, with the qualifiers those rows require).
+  // /privacy and /terms (D80): what the app actually stores and sends, for
+  // Google's OAuth consent screen and for visitors. Keep in step with
+  // lib/visitor.ts, lib/user.ts and the backend's request log.
+  legal: {
+    contact: "anasqumhiyeh@gmail.com",
+    updated: "18 October 2026",
+    footer: { privacy: "Privacy", terms: "Terms" },
+    privacy: {
+      title: "Privacy policy",
+      intro: "Unde is run by Unde Labs. This page says what Unde stores when you use it, where that data goes, and how to remove it.",
+      sections: [
+        {
+          h: "What you enter",
+          p: [
+            "The product description, bill of materials, dates and money figures you type or import into a case. Unde stores each case so you can come back to it.",
+            "Don't enter information you aren't allowed to share with a service provider.",
+          ],
+        },
+        {
+          h: "If you sign in with Google",
+          p: [
+            "Google sends Unde an ID token with your email address and name. Unde uses them to show who is signed in and to keep your cases in your workspace. It doesn't ask Google for anything else and never sees your Google password.",
+            "The token sits in an HttpOnly cookie (op_user) until it expires, usually within an hour, or until you sign out.",
+          ],
+        },
+        {
+          h: "Cookies",
+          p: [
+            "op_visitor: a random ID that keeps your cases separate from other visitors' when you aren't signed in. HttpOnly, kept for one year.",
+            "op_user: the Google ID token described above, only if you sign in.",
+            "Unde uses no analytics, advertising or tracking cookies.",
+          ],
+        },
+        {
+          h: "Where your data goes",
+          p: [
+            "Cases are stored in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. Under Google Cloud's terms, that data isn't used to train Google's models.",
+            "The server logs each request's method, path, status and timing, not its contents.",
+            "Unde doesn't sell your data or share it with anyone else.",
+          ],
+        },
+        {
+          h: "Keeping and deleting it",
+          p: [
+            "Cases are kept until you delete them, from the Cases page, or until Unde shuts down. Clearing your cookies hides an anonymous visitor's cases from that browser for good.",
+            "To have your data removed, or to ask what Unde holds about you, email the address below.",
+          ],
+        },
+      ],
+    },
+    terms: {
+      title: "Terms of service",
+      intro: "These terms apply when you use Unde, a tool from Unde Labs that predicts the US country of origin CBP would likely assign to a product and searches for production moves that could change it.",
+      sections: [
+        {
+          h: "Not a ruling or legal advice",
+          p: [
+            "Unde's results are predictions, checked against published CBP rulings. They aren't a binding ruling, legal advice or customs advice. Confirm any decision with a licensed customs broker or by requesting a CBP binding ruling.",
+            "Money figures are illustrative and depend on the inputs you give.",
+          ],
+        },
+        {
+          h: "Using Unde",
+          p: [
+            "Use Unde for lawful purposes only. Don't try to get round its rate limits, read other people's cases or overload the service.",
+            "You keep the rights to what you enter. You give Unde Labs permission to store and process it to provide the service, as the privacy policy describes.",
+          ],
+        },
+        {
+          h: "Availability",
+          p: [
+            "Unde is a hackathon project, provided as is, with no warranty. It may change, slow down, stop or lose data without notice. Keep your own copy of anything you need.",
+            "To the extent the law allows, Unde Labs isn't liable for losses from using Unde or relying on its results.",
+          ],
+        },
+        {
+          h: "Changes",
+          p: ["These terms may change. The date above shows the latest version; using Unde after a change means you accept it."],
+        },
+      ],
+    },
+  },
   landing: {
     eyebrow: "fig.0 — US Customs country of origin",
     title: "Plan the production change before you build it.",
