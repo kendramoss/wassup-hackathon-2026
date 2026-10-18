@@ -56,6 +56,10 @@ jobs:
         env:
           EVAL_SLICE: 'on'
           LLM_PROVIDER: vertex
+          # Production's pacing (D79), so the slice does not overload Vertex itself.
+          LLM_MAX_IN_FLIGHT: '4'
+          LLM_CALL_GAP: 8s
+          LLM_COOL_DOWN: 60s
           GOOGLE_CLOUD_PROJECT: ${{ env.PROJECT }}
           GOOGLE_CLOUD_LOCATION: global
         run: |

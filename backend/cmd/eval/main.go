@@ -861,15 +861,19 @@ func planCmd(args []string) error {
 	default:
 		return fmt.Errorf("-search must be local or cross")
 	}
-	// The same verifier as production: VERIFIER_PROMPT and VERIFIER_VOTES.
-	ver := verifier.NewMajority(verifier.New(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt}), cfg.VerifierVotes)
+	// The same verifier as production: VERIFIER_PROMPT, VERIFIER_PANEL and VERIFIER_VOTES.
+	ver := verifier.NewMajority(verifier.NewWithPanel(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt},
+		cfg.VerifierPanel == "on", cfg.VerifierPanelLow, cfg.VerifierPanelHigh), cfg.VerifierVotes)
 	tmpls, err := planner.LoadTemplates()
 	if err != nil {
 		return err
 	}
-	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency}
+	planOpts := planner.Options{PlanConfidence: cfg.PlanConfidence, Concurrency: cfg.PlannerConcurrency, MaxMoves: cfg.PlanMaxMoves}
 	if cfg.NearMissAdvice {
 		planOpts.NearMiss = nearmiss.New(model, cfg.VerifierModel, searcher, 1500) // D81, uncached here
+		if cfg.FollowAdvice {
+			planOpts.FollowAdvice, planOpts.Mapper = true, nearmiss.NewMapper(model, cfg.VerifierModel) // D85
+		}
 	}
 	pl := planner.New(tmpls, eng, ver, planOpts)
 	res, err := pl.Plan(ctx, req)
@@ -899,17 +903,23 @@ func planCmd(args []string) error {
 	b0 := res.Baseline.Prediction
 	fmt.Printf("- Current setup: engine predicts **%s** (confidence %.2f), cited %v\n", b0.Origin, b0.Confidence, b0.CitedRulings)
 	fmt.Printf("- Shown (precedent-supported, verifier confidence ≥ %.2f):\n", cfg.PlanConfidence)
+	fromAdvice := func(p domain.Plan) string {
+		if p.FromAdvice {
+			return " [followed from near-miss advice]"
+		}
+		return ""
+	}
 	for _, p := range res.Plans {
-		fmt.Printf("  - ✓ %s — engine %s %.2f; supporting %s, counter %s, verifier conf %.2f; duty effect $%.0f/yr, added cost $%.0f/yr (illustrative)\n",
-			p.Description, p.Prediction.Origin, p.Prediction.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling, p.Verdict.Confidence, p.DutyEffectYear, p.AddedCostYear)
+		fmt.Printf("  - ✓ %s%s — engine %s %.2f; supporting %s, counter %s, verifier conf %.2f%s; duty effect $%.0f/yr, added cost $%.0f/yr (illustrative)\n",
+			p.Description, fromAdvice(p), p.Prediction.Origin, p.Prediction.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling, p.Verdict.Confidence, agreement(p.Verdict), p.DutyEffectYear, p.AddedCostYear)
 	}
 	fmt.Println("- Rejected:")
 	for _, p := range res.Rejected {
 		extra := ""
 		if p.Verdict != nil {
-			extra = fmt.Sprintf(" (verifier: supported=%t conf %.2f, supporting %q, counter %q)", p.Verdict.PrecedentSupported, p.Verdict.Confidence, p.Verdict.SupportingRuling, p.Verdict.CounterRuling)
+			extra = fmt.Sprintf(" (verifier: supported=%t conf %.2f%s, supporting %q, counter %q)", p.Verdict.PrecedentSupported, p.Verdict.Confidence, agreement(p.Verdict), p.Verdict.SupportingRuling, p.Verdict.CounterRuling)
 		}
-		fmt.Printf("  - ✗ %s — %s%s\n", p.Description, p.RejectionReason, extra)
+		fmt.Printf("  - ✗ %s%s — %s%s\n", p.Description, fromAdvice(p), p.RejectionReason, extra)
 		if n := p.NearMiss; n != nil {
 			fmt.Printf("    - near miss vs %s: %s Would match: %s\n", n.Ruling, n.Difference, n.WouldMatch)
 		}
@@ -923,8 +933,19 @@ func planCmd(args []string) error {
 	if s.NearMissCalls > 0 {
 		fmt.Printf("- Near-miss advice: %d calls, %d in / %d out tokens, $%.4f promo\n", s.NearMissCalls, s.NearMissInTok, s.NearMissOutTok, nearCost)
 	}
+	if s.AdviceFollowed > 0 {
+		fmt.Printf("- Followed near-miss advice: %d move\n", s.AdviceFollowed)
+	}
 	fmt.Println("- Saved:", path)
 	return nil
+}
+
+// agreement is ", panel 2/3" when the precedent-check panel ran (D83).
+func agreement(v *domain.Verdict) string {
+	if v == nil || v.Agreement == "" {
+		return ""
+	}
+	return ", panel " + v.Agreement
 }
 
 func predictCmd(args []string) error {
@@ -1413,8 +1434,12 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	items = append(items, scopeItems...)
+	cal, err := verifierCalibration(*resultsDir, config.DefaultPlanBar)
+	if err != nil {
+		return err
+	}
 	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
-		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items}
+		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items, VerifierCalibration: cal}
 	b, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
 		return err

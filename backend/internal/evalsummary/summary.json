@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T12:23:23Z",
+  "generated_at": "2026-10-17T19:20:54Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -506,5 +506,302 @@
       "development_only": true,
       "source": "eval/results/scope-window-dev-router-v2-vertex.jsonl"
     }
-  ]
+  ],
+  "verifier_calibration": {
+    "bar": 0.92,
+    "prompt": "verifier-v2",
+    "note": "Scored through the LiteLLM proxy with gemini-4-argon, the same model production calls on Vertex AI (D74). The heat-gun pair, the demo product, is excluded from every run.",
+    "splits": [
+      {
+        "split": "dev",
+        "label": "Development flip pairs (CBP rulings before 2026)",
+        "development_only": true,
+        "runs": [
+          {
+            "source": "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "base",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-panel-run1-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "panel-run1",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-panel-run2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "panel-run2",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-run2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "run2",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-seed-run1-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "seed-run1",
+            "rows": 53,
+            "errors": 1
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-seed-run2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "seed-run2",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-seed-vote3-run1-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "seed-vote3-run1",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-seed-vote3-run2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "seed-vote3-run2",
+            "rows": 54,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl",
+            "mode": "unknown-a",
+            "variant": "base",
+            "rows": 54,
+            "errors": 0
+          }
+        ],
+        "pairs": 54,
+        "rows": 485,
+        "errors": 1,
+        "bands": [
+          {
+            "label": "≥ 0.95",
+            "min": 0.95,
+            "max": 1,
+            "correct": {
+              "k": 76,
+              "n": 76,
+              "value": 1,
+              "ci_low": 0.9519,
+              "ci_high": 1
+            }
+          },
+          {
+            "label": "0.92–0.95",
+            "min": 0.92,
+            "max": 0.95,
+            "correct": {
+              "k": 83,
+              "n": 83,
+              "value": 1,
+              "ci_low": 0.9558,
+              "ci_high": 1
+            }
+          },
+          {
+            "label": "0.85–0.92",
+            "min": 0.85,
+            "max": 0.92,
+            "correct": {
+              "k": 95,
+              "n": 97,
+              "value": 0.9794,
+              "ci_low": 0.9279,
+              "ci_high": 0.9943
+            }
+          },
+          {
+            "label": "\u003c 0.85",
+            "min": 0,
+            "max": 0.85,
+            "correct": {
+              "k": 31,
+              "n": 31,
+              "value": 1,
+              "ci_low": 0.8897,
+              "ci_high": 1
+            }
+          }
+        ],
+        "shown": {
+          "real": 159,
+          "wrong": 0,
+          "precision": {
+            "k": 159,
+            "n": 159,
+            "value": 1,
+            "ci_low": 0.9764,
+            "ci_high": 1
+          },
+          "recall": {
+            "k": 159,
+            "n": 413,
+            "value": 0.385,
+            "ci_low": 0.3393,
+            "ci_high": 0.4328
+          }
+        },
+        "pair_level": {
+          "pairs": 54,
+          "real_change_pairs": 46,
+          "shown_every_run": 13,
+          "shown_some_runs": 11,
+          "wrong_any_run": 0,
+          "precision": {
+            "k": 13,
+            "n": 13,
+            "value": 1,
+            "ci_low": 0.7719,
+            "ci_high": 1
+          },
+          "recall": {
+            "k": 13,
+            "n": 46,
+            "value": 0.2826,
+            "ci_low": 0.1732,
+            "ci_high": 0.4255
+          }
+        }
+      },
+      {
+        "split": "final",
+        "label": "2026 flip pairs (held out from development)",
+        "development_only": false,
+        "caveat": "Not a clean held-out test: the burden-of-proof sentence verifier-v2 keeps from v1 was written after the research team saw failures on these 2026 pairs (D74). A clean test needs CBP rulings published after 25 Sep 2026 (D82).",
+        "runs": [
+          {
+            "source": "eval/results/flips-final-verifier-v2-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "base",
+            "rows": 21,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-final-verifier-v2-seed-known-a-litellm.jsonl",
+            "mode": "known-a",
+            "variant": "seed",
+            "rows": 20,
+            "errors": 1
+          },
+          {
+            "source": "eval/results/flips-final-verifier-v2-seed-unknown-a-litellm.jsonl",
+            "mode": "unknown-a",
+            "variant": "seed",
+            "rows": 21,
+            "errors": 0
+          },
+          {
+            "source": "eval/results/flips-final-verifier-v2-unknown-a-litellm.jsonl",
+            "mode": "unknown-a",
+            "variant": "base",
+            "rows": 21,
+            "errors": 0
+          }
+        ],
+        "pairs": 21,
+        "rows": 83,
+        "errors": 1,
+        "bands": [
+          {
+            "label": "≥ 0.95",
+            "min": 0.95,
+            "max": 1,
+            "correct": {
+              "k": 10,
+              "n": 10,
+              "value": 1,
+              "ci_low": 0.7225,
+              "ci_high": 1
+            }
+          },
+          {
+            "label": "0.92–0.95",
+            "min": 0.92,
+            "max": 0.95,
+            "correct": {
+              "k": 13,
+              "n": 13,
+              "value": 1,
+              "ci_low": 0.7719,
+              "ci_high": 1
+            }
+          },
+          {
+            "label": "0.85–0.92",
+            "min": 0.85,
+            "max": 0.92,
+            "correct": {
+              "k": 15,
+              "n": 17,
+              "value": 0.8824,
+              "ci_low": 0.6566,
+              "ci_high": 0.9671
+            }
+          },
+          {
+            "label": "\u003c 0.85",
+            "min": 0,
+            "max": 0.85,
+            "correct": {
+              "k": 5,
+              "n": 5,
+              "value": 1,
+              "ci_low": 0.5655,
+              "ci_high": 1
+            }
+          }
+        ],
+        "shown": {
+          "real": 23,
+          "wrong": 0,
+          "precision": {
+            "k": 23,
+            "n": 23,
+            "value": 1,
+            "ci_low": 0.8569,
+            "ci_high": 1
+          },
+          "recall": {
+            "k": 23,
+            "n": 51,
+            "value": 0.451,
+            "ci_low": 0.3227,
+            "ci_high": 0.5862
+          }
+        },
+        "pair_level": {
+          "pairs": 21,
+          "real_change_pairs": 13,
+          "shown_every_run": 4,
+          "shown_some_runs": 4,
+          "wrong_any_run": 0,
+          "precision": {
+            "k": 4,
+            "n": 4,
+            "value": 1,
+            "ci_low": 0.5101,
+            "ci_high": 1
+          },
+          "recall": {
+            "k": 4,
+            "n": 13,
+            "value": 0.3077,
+            "ci_low": 0.1268,
+            "ci_high": 0.5763
+          }
+        }
+      }
+    ]
+  }
 }

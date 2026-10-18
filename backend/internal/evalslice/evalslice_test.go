@@ -32,7 +32,7 @@ func readFixture(t *testing.T, name string) []evalkit.Row {
 	return rows
 }
 
-var defaultTol = Tolerance{MaxDrop: 2, BandMin: 0.95}
+var defaultTol = Tolerance{MaxDrop: 2, BandMin: 0.95, MaxErrors: 3}
 
 func TestCompareFixtures(t *testing.T) {
 	base, err := LoadBaseline("testdata/baseline.json")
@@ -52,10 +52,10 @@ func TestCompareFixtures(t *testing.T) {
 		// Two fewer correct is inside the tolerance; one more is not.
 		{"drop2.jsonl", defaultTol, true, true, true, 3, 0, 3, 3, nil, []string{"N100004", "N100005"}},
 		{"drop3.jsonl", defaultTol, false, false, true, 2, 0, 2, 2, nil, []string{"N100003", "N100004", "N100005"}},
-		{"drop2.jsonl", Tolerance{MaxDrop: 0, BandMin: 0.95}, false, false, true, 3, 0, 3, 3, nil, []string{"N100004", "N100005"}},
+		{"drop2.jsonl", Tolerance{MaxDrop: 0, BandMin: 0.95, MaxErrors: 3}, false, false, true, 3, 0, 3, 3, nil, []string{"N100004", "N100005"}},
 		// Same accuracy, but a wrong answer now sits at ≥ 0.95: 5/6 < 95%.
 		{"overconfident.jsonl", defaultTol, false, true, false, 5, 0, 6, 5, nil, nil},
-		{"overconfident.jsonl", Tolerance{MaxDrop: 2, BandMin: 0.8}, true, true, true, 5, 0, 6, 5, nil, nil},
+		{"overconfident.jsonl", Tolerance{MaxDrop: 2, BandMin: 0.8, MaxErrors: 3}, true, true, true, 5, 0, 6, 5, nil, nil},
 		// A failed call and a missing case count as wrong; an extra ruling is ignored.
 		{"errors.jsonl", defaultTol, true, true, true, 4, 2, 2, 2, []string{"N100006"}, []string{"N100003", "N100004"}},
 	}
@@ -76,6 +76,37 @@ func TestCompareFixtures(t *testing.T) {
 				t.Errorf("markdown:\n%s", md)
 			}
 		})
+	}
+}
+
+func TestCompareOutageIsInconclusiveNotFailed(t *testing.T) {
+	base, err := LoadBaseline("testdata/baseline.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Four of six cases errored (a provider outage); the two answered are
+	// right and confident.
+	var rows []evalkit.Row
+	for i, c := range base.Cases {
+		r := evalkit.Row{Ruling: c.Ruling, Error: "vertex: HTTP 504: Deadline expired"}
+		if i < 2 {
+			r = evalkit.Row{Ruling: c.Ruling, Pred: c.Gold, Gold: c.Gold, Correct: true, Confidence: 0.97}
+		}
+		rows = append(rows, r)
+	}
+	rep := Compare(base, rows, defaultTol)
+	md := rep.Markdown("t", base)
+	if !rep.Passed() || !rep.Inconclusive || !strings.Contains(md, "## t: INCONCLUSIVE") || !strings.Contains(rep.Checks[0].Detail, "not judged: 4 of 6") {
+		t.Errorf("outage: passed %v inconclusive %v\n%s", rep.Passed(), rep.Inconclusive, md)
+	}
+	// The same outage still fails when an answered case is wrong at ≥ 0.95.
+	rows[0].Pred, rows[0].Correct = "Elsewhere", false
+	if rep := Compare(base, rows, defaultTol); rep.Passed() {
+		t.Errorf("a confident wrong answer must still fail: %+v", rep.Checks)
+	}
+	// At or below MaxErrors the errors count as wrong, as before.
+	if rep := Compare(base, rows, Tolerance{MaxDrop: 2, BandMin: 0.95, MaxErrors: 4}); rep.Inconclusive {
+		t.Error("4 errors with MaxErrors 4 is not inconclusive")
 	}
 }
 

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
+import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
@@ -18,7 +18,7 @@ export function PlanStep() {
   return <CaseShell tab="plan">{(ctx) => <PlanScreen {...ctx} />}</CaseShell>;
 }
 
-type Row = { key: string; description: string; plan?: Plan; started?: boolean };
+type Row = { key: string; description: string; plan?: Plan; started?: boolean; advice?: boolean };
 
 function PlanScreen(ctx: CaseCtx) {
   const regime = regimeOf(ctx.c);
@@ -86,6 +86,19 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
 
   useEffect(() => () => abort.current?.abort(), []);
 
+  // What the search will cost and take, before it runs (D87). It reads the
+  // caches and calls no model; on any error the usual sentence stays.
+  const [estimate, setEstimate] = useState<PlanEstimate | null>(null);
+  useEffect(() => {
+    if (!req || !target) return;
+    const ctl = new AbortController();
+    api.planEstimate(id, { ...req, target }, ctl.signal).then(
+      (r) => setEstimate(r.estimate ?? null),
+      () => setEstimate(null),
+    );
+    return () => ctl.abort();
+  }, [id, req, target]);
+
   const run = async () => {
     if (!req) return;
     abort.current?.abort();
@@ -111,11 +124,23 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             case "baseline":
               setBaseline(e.data.plan);
               break;
+            // With FOLLOW_ADVICE on (D85) one more move can start after the
+            // listed ones; it isn't in "start", so it gets a row here and the
+            // total grows by one.
             case "move_started":
-              setRows((rs) => rs.map((r) => (r.key === e.data.key ? { ...r, started: true } : r)));
+              setRows((rs) =>
+                rs.some((r) => r.key === e.data.key)
+                  ? rs.map((r) => (r.key === e.data.key ? { ...r, started: true } : r))
+                  : [...rs, { key: e.data.key, description: copy.plan.advice.pending, started: true, advice: true }],
+              );
+              setProgress((p) => p && { ...p, done: e.data.done, total: Math.max(p.total, e.data.total) });
               break;
             case "move_done":
-              setRows((rs) => rs.map((r) => (r.key === e.data.key ? { ...r, plan: e.data.plan } : r)));
+              setRows((rs) =>
+                rs.some((r) => r.key === e.data.key)
+                  ? rs.map((r) => (r.key === e.data.key ? { ...r, plan: e.data.plan, description: r.advice ? (e.data.plan.description ?? r.description) : r.description } : r))
+                  : [...rs, { key: e.data.key, description: e.data.plan.description ?? copy.plan.advice.pending, plan: e.data.plan, advice: true }],
+              );
               setProgress((p) => p && { ...p, done: e.data.done, total: e.data.total });
               setLit(e.data.key);
               break;
@@ -222,7 +247,8 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
-                Each move is predicted by the origin engine and checked against earlier CBP rulings. {copy.plan.usuallySentence} A plan is shown when its precedent check is at least {BAR}.
+                Each move is predicted by the origin engine and checked against earlier CBP rulings. {estimate ? estimateWords(estimate) : copy.plan.usuallySentence} A plan is shown when its
+                precedent check is at least {BAR}.
               </p>
             </div>
             <div>
@@ -368,6 +394,24 @@ function To({ country }: { country: string }) {
   );
 }
 
+// "7 moves · about 1–2 min · about $0.13–0.38", or, with every move
+// already checked, a replay that costs nothing.
+function estimateWords(e: PlanEstimate): string {
+  const moves = `${e.moves ?? 0} ${e.moves === 1 ? "move" : "moves"}`;
+  if ((e.model_calls?.max ?? 1) === 0) return `${moves}. ${copy.plan.estimate.cached}`;
+  const lo = e.wall_seconds?.min ?? 0;
+  const hi = e.wall_seconds?.max ?? lo;
+  const time =
+    hi < 90 ? range(Math.round(lo), Math.round(hi), " s") : range(Math.max(1, Math.round(lo / 60)), Math.max(1, Math.round(hi / 60)), " min");
+  const money = (v: number) => (v < 0.01 ? "under $0.01" : `$${v.toFixed(2)}`);
+  const cmin = e.cost_usd?.min ?? 0;
+  const cmax = e.cost_usd?.max ?? cmin;
+  const cost = money(cmin) === money(cmax) ? money(cmax) : cmin < 0.01 ? `up to ${money(cmax)}` : `$${cmin.toFixed(2)}–${cmax.toFixed(2)}`;
+  return `${moves} · about ${time} · about ${cost}.`;
+}
+
+const range = (a: number, b: number, unit: string) => (a === b ? `${a}${unit}` : `${a}–${b}${unit}`);
+
 function sentence(p: Plan) {
   return movePhrase(p);
 }
@@ -507,7 +551,10 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
           </tr>
           {rows.map((r) => (
             <tr key={r.key} className={cx("border-b border-line last:border-0 transition-colors", lit === r.key && "bg-ok-wash")}>
-              <td className="duo px-3.5 py-2.5">{r.description}</td>
+              <td className="duo px-3.5 py-2.5">
+                {r.description}
+                {(r.advice || r.plan?.from_advice) && <span className="mt-0.5 block text-xs text-ask">{copy.plan.advice.tried}</span>}
+              </td>
               <td className="px-3.5 py-2.5">{r.plan ? outcome(r.plan) : <span className="text-dim">{r.started ? "Checking precedent…" : "Queued"}</span>}</td>
               <td className="px-3.5 py-2.5">{r.plan ? <MiniRuler value={r.plan.verdict?.confidence} /> : null}</td>
               <td className="px-3.5 py-2.5">{r.plan ? money(r.plan.net_per_year) : ""}</td>
@@ -638,6 +685,7 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                         p.rejection_reason
                       )}
                     </span>
+                    {p.from_advice && <span className="mt-0.5 block text-xs text-ask">{copy.plan.advice.tried}</span>}
                     {p.near_miss && <NearMiss nm={p.near_miss} fallbackRuling={p.verdict?.supporting_ruling} />}
                     <CheckTrail trail={p.verdict?.trail} />
                   </td>
@@ -681,9 +729,10 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
 
 type Trail = NonNullable<NonNullable<Plan["verdict"]>["trail"]>;
 
-// How the precedent check found its rulings (D80): the searches it ran with
-// the rulings each returned, then the rulings it read. Verdicts cached
-// before D80 carry no trail, and then there is no fold.
+// How the precedent check found its rulings (D80): each search with the
+// rulings it returned and each ruling read, in the order it ran them (read a
+// ruling, then search for a counter-ruling). Verdicts cached before D80
+// carry no trail, and then there is no fold.
 function CheckTrail({ trail }: { trail: Trail | undefined }) {
   if (!trail?.length) return null;
   const searches = trail.filter((t) => t.tool === "search");
@@ -697,46 +746,34 @@ function CheckTrail({ trail }: { trail: Trail | undefined }) {
         </span>
         <span className="text-ok hover:underline">{T.title}</span> · {T.count(searches.length, reads.length)}
       </summary>
-      <div className="mt-1.5 flex flex-col gap-2 border-l border-line pl-3">
-        {searches.length > 0 && (
-          <ol aria-label={T.searches} className="flex flex-col gap-1">
-            {searches.map((s, i) => (
-              <li key={i}>
-                <span className="text-ink">{T.searched}</span> <span className="duo">“{s.query}”</span>
-                <span className="block">
-                  {s.rulings?.length ? (
-                    <>
-                      {T.returned}{" "}
-                      {s.rulings.map((r, j) => (
-                        <span key={r}>
-                          {j > 0 && ", "}
-                          <RulingLink id={r} />
-                        </span>
-                      ))}
-                    </>
-                  ) : (
-                    T.nothing
-                  )}
-                </span>
-              </li>
-            ))}
-          </ol>
+      <ol className="mt-1.5 flex flex-col gap-1 border-l border-line pl-3">
+        {trail.map((t, i) =>
+          t.tool === "read" ? (
+            <li key={i}>
+              <span className="text-ink">{T.read}</span> {t.rulings?.[0] ? <RulingLink id={t.rulings[0]} /> : `${t.query ?? ""} (${T.notFound})`}
+            </li>
+          ) : (
+            <li key={i}>
+              <span className="text-ink">{T.searched}</span> <span className="duo">“{t.query}”</span>
+              <span className="block">
+                {t.rulings?.length ? (
+                  <>
+                    {T.returned}{" "}
+                    {t.rulings.map((r, j) => (
+                      <span key={r}>
+                        {j > 0 && ", "}
+                        <RulingLink id={r} />
+                      </span>
+                    ))}
+                  </>
+                ) : (
+                  T.nothing
+                )}
+              </span>
+            </li>
+          ),
         )}
-        {reads.length > 0 && (
-          <p>
-            <span className="text-ink">{T.read}</span>{" "}
-            {reads.map((r, j) => {
-              const id = r.rulings?.[0];
-              return (
-                <span key={j}>
-                  {j > 0 && ", "}
-                  {id ? <RulingLink id={id} /> : `${r.query ?? ""} (${T.notFound})`}
-                </span>
-              );
-            })}
-          </p>
-        )}
-      </div>
+      </ol>
     </details>
   );
 }
@@ -814,7 +851,7 @@ function BacktestPanel({ bt, closest, product }: { bt: Record<string, unknown>; 
 function Stats({ stats, proxy }: { stats: Record<string, number>; proxy: boolean }) {
   return (
     <span className="text-[11px] text-dim">
-      {stats.moves_searched} moves searched · {stats.engine_calls} engine calls · {Math.round(stats.wall_seconds ?? 0)} s{proxy ? ` · ${copy.proxy}` : ""}
+      {stats.moves_searched} moves searched{stats.advice_followed ? ` (${stats.advice_followed} from advice)` : ""} · {stats.engine_calls} engine calls · {Math.round(stats.wall_seconds ?? 0)} s{proxy ? ` · ${copy.proxy}` : ""}
     </span>
   );
 }

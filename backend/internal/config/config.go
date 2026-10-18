@@ -224,6 +224,14 @@ type Config struct {
 	// at most two per search; it never changes a verdict.
 	NearMissAdvice bool
 	nearMissAdvice string // as given, checked by validate
+	// FollowAdvice (on|off, default off; needs NearMissAdvice) searches one
+	// more move per plan search: the advised near miss plus the groups its
+	// advice names (D85).
+	FollowAdvice bool
+	followAdvice string // as given, checked by validate
+	// PlanMaxMoves caps the moves a plan search lists; three-group moves are
+	// added only while the total stays within it (D84). Default 12.
+	PlanMaxMoves int
 	// StreamPredict (on|off, default off) lets POST /v1/cases/predict answer
 	// as server-sent stage events when asked for text/event-stream (D71).
 	StreamPredict string
@@ -235,7 +243,10 @@ type Config struct {
 	// confidence >= 0.95 must keep (default 0.95).
 	EvalSlice        bool
 	EvalSliceMaxDrop int
-	EvalSliceBandMin float64
+	// EvalSliceMaxErrors is how many slice cases may fail (provider errors)
+	// before the run is inconclusive instead of failed (default 3, D88).
+	EvalSliceMaxErrors int
+	EvalSliceBandMin   float64
 }
 
 // StreamPredictOn reports whether STREAM_PREDICT is on.
@@ -307,6 +318,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
 		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
 		EvalSliceMaxDrop:   e.integer("EVAL_SLICE_MAX_DROP", 2),
+		EvalSliceMaxErrors: e.integer("EVAL_SLICE_MAX_ERRORS", 3),
 		EvalSliceBandMin:   e.float("EVAL_SLICE_BAND_MIN", 0.95),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
@@ -367,6 +379,9 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	}
 	c.nearMissAdvice = strings.ToLower(e.str("NEAR_MISS_ADVICE", "off"))
 	c.NearMissAdvice = c.nearMissAdvice == "on" || c.nearMissAdvice == "true" || c.nearMissAdvice == "1"
+	c.followAdvice = strings.ToLower(e.str("FOLLOW_ADVICE", "off"))
+	c.FollowAdvice = c.followAdvice == "on" || c.followAdvice == "true" || c.followAdvice == "1"
+	c.PlanMaxMoves = e.integer("PLAN_MAX_MOVES", 12)
 	c.exportCFR177 = strings.ToLower(e.str("EXPORT_CFR177", "off"))
 	c.ExportCFR177 = c.exportCFR177 == "on" || c.exportCFR177 == "true" || c.exportCFR177 == "1"
 	switch v := strings.ToLower(e.str("STREAM_PREDICT", "off")); v {
@@ -445,7 +460,7 @@ func (c Config) validate() error {
 		}
 	}
 	positive := map[string]int{"PRECEDENT_K": c.PrecedentK, "VERIFIER_MAX_TOOL_CALLS": c.VerifierMaxToolCalls, "VERIFIER_VOTES": c.VerifierVotes,
-		"PLANNER_CONCURRENCY": c.PlannerConcurrency, "LLM_MAX_OUTPUT_TOKENS": c.MaxOutputTokens}
+		"PLANNER_CONCURRENCY": c.PlannerConcurrency, "LLM_MAX_OUTPUT_TOKENS": c.MaxOutputTokens, "PLAN_MAX_MOVES": c.PlanMaxMoves}
 	for name, v := range positive {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
@@ -467,6 +482,14 @@ func (c Config) validate() error {
 	default:
 		bad("NEAR_MISS_ADVICE must be on or off, got %q", c.nearMissAdvice)
 	}
+	switch c.followAdvice {
+	case "on", "true", "1", "off", "false", "0":
+	default:
+		bad("FOLLOW_ADVICE must be on or off, got %q", c.followAdvice)
+	}
+	if c.FollowAdvice && !c.NearMissAdvice {
+		bad("FOLLOW_ADVICE=on needs NEAR_MISS_ADVICE=on")
+	}
 	if c.BOMVersions != "on" && c.BOMVersions != "off" {
 		bad("BOM_VERSIONS must be on or off, got %q", c.BOMVersions)
 	}
@@ -484,6 +507,9 @@ func (c Config) validate() error {
 	}
 	if c.StreamPredict != "on" && c.StreamPredict != "off" {
 		bad("STREAM_PREDICT must be on or off, got %q", c.StreamPredict)
+	}
+	if c.EvalSliceMaxErrors < 0 {
+		bad("EVAL_SLICE_MAX_ERRORS must be 0 or more cases, got %d", c.EvalSliceMaxErrors)
 	}
 	if c.EvalSliceMaxDrop < 0 {
 		bad("EVAL_SLICE_MAX_DROP must be 0 or more correct cases, got %d", c.EvalSliceMaxDrop)

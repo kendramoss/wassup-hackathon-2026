@@ -77,7 +77,7 @@ func sliceCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	tol := evalslice.Tolerance{MaxDrop: cfg.EvalSliceMaxDrop, BandMin: cfg.EvalSliceBandMin}
+	tol := evalslice.Tolerance{MaxDrop: cfg.EvalSliceMaxDrop, BandMin: cfg.EvalSliceBandMin, MaxErrors: cfg.EvalSliceMaxErrors}
 	s, err := evalslice.LoadSlice(*slicePath)
 	if err != nil {
 		return err
@@ -120,6 +120,10 @@ func sliceReport(w io.Writer, title string, base evalslice.Baseline, rows []eval
 	}
 	if !rep.Passed() {
 		return fmt.Errorf("%w: see the report above; if the drop is expected, record it in docs/DECISIONS.md and rebuild the baseline", errSliceFailed)
+	}
+	if rep.Inconclusive {
+		// A GitHub annotation: the job passes, and the run is flagged for a re-run.
+		fmt.Fprintf(os.Stderr, "::warning title=Eval slice inconclusive::%d of %d cases failed (model provider errors); re-run the slice\n", rep.Errors, rep.N)
 	}
 	return nil
 }
