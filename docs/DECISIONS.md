@@ -704,3 +704,23 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - This is a text-layer extraction, not proofread against the rendered PDF.
   - The HTS text does not say whether note 52(b) is the notice's Annex II Part A.
   - Classification is the user's: a wrong HTS number gives wrong duties.
+
+## D91 — Every built feature on in production (18 Oct)
+- **Turned on:**
+  - `STREAM_PREDICT` (D71)
+  - `HTS_SUGGEST` (D64)
+  - `EXPORT_CFR177` (D66)
+  - `BOM_VERSIONS` (D67)
+  - `FOLLOW_ADVICE` (D85)
+  - `API_KEYS` (D69)
+  - `TEAMS` (D68)
+- **API keys:** the backend is private on Cloud Run, so brokers could not reach it. The frontend proxy now forwards `X-API-Key` unchanged; the backend still checks it.
+  - Checked locally through the proxy: a bad key gets 401, a valid key 200, and a browser request without a key is unchanged (200).
+  - The Developers page shows the public base URL (`…/api`).
+  - Keys need `CASES_STORE=firestore` (already set) and `ADMIN_TOKEN` (the existing secret).
+- **Teams** needs a Google OAuth client ID (Web), created in the GCP console with the frontend URL as an authorised JavaScript origin:
+  - backend: `TEAMS_AUDIENCE=<client id>`
+  - frontend: `GOOGLE_CLIENT_ID=<client id>`
+  - The sign-in button and workspace panel already exist (D68).
+- **Still off:** `FAST_PATH_BY_FAMILY` (D63). It measured worse on the held-out split.
+

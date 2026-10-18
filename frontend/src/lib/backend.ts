@@ -145,6 +145,8 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // usually set the cookie already (src/proxy.ts); a first request straight to
 // the API gets one here. A signed-in user's Google ID token (lib/user.ts)
 // goes as X-User-Token beside it (D68), so their anonymous cases still show.
+// A broker's X-API-Key (D69) is passed through unchanged, so brokers reach
+// the private backend through this public proxy; the backend checks the key.
 // The backend answers an expired or invalid token with 401
 // "unauthenticated"; then the cookie is cleared and the next request is
 // anonymous.
@@ -174,7 +176,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, { status: 500 });
   }
   const headers: Record<string, string> = {};
-  for (const h of ["content-type", "accept"]) {
+  for (const h of ["content-type", "accept", "x-api-key"]) {
     const v = request.headers.get(h);
     if (v) headers[h] = v;
   }
