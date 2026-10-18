@@ -41,7 +41,7 @@ ROWS = [
 ]
 TABLE = [[i + 1, r[1], r[0], r[2], r[3], r[4], r[5], r[6], r[7]] for i, r in enumerate(ROWS)]
 TITLE = "Bill of materials · 12.5-amp heat gun, two fan speeds, 1500 W"
-NOTE = "Example test file for Origin Proof. Rows follow the facts of public CBP ruling N328954; company and part numbers are made up."
+NOTE = "Example test file for Unde. Rows follow the facts of public CBP ruling N328954; company and part numbers are made up."
 
 
 def write_csv():
@@ -94,7 +94,7 @@ def write_pdf():
     )
     doc = f"""<!doctype html><meta charset="utf-8"><style>
 @page {{ size: A4 landscape; margin: 14mm; }}
-body {{ font: 9pt Helvetica, Arial, sans-serif; color: #13213a; }}
+body {{ font: 9pt Helvetica, Arial, sans-serif; color: #13213a; font-variant-ligatures: none; font-feature-settings: "liga" 0; }}
 h1 {{ font-size: 14pt; margin: 0 0 2mm; }} p {{ margin: 0 0 1mm; color: #47566f; }}
 .meta {{ display: flex; gap: 10mm; margin: 3mm 0 5mm; }} .meta b {{ display: block; color: #13213a; }}
 table {{ border-collapse: collapse; width: 100%; }}

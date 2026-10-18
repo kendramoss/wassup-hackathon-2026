@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // The link preview card (#156): the product in one line and the held-out
 // accuracy, drawn like the app's blueprint sheets. Numbers from docs/NUMBERS.md.
-export const alt = "Origin Proof: the country of origin US Customs would likely assign, 90.2% on 377 held-out CBP rulings";
+export const alt = "Unde Labs: the country of origin US Customs would likely assign, 90.2% on 377 held-out CBP rulings";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -29,7 +29,7 @@ export default function Image() {
         }}
       >
         <div style={{ display: "flex", fontSize: 34, fontWeight: 700 }}>
-          Origin <span style={{ color: ok, marginLeft: 12 }}>Proof</span>
+          Unde <span style={{ color: ok, marginLeft: 12 }}>Labs</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 64, lineHeight: 1.08, letterSpacing: -2, maxWidth: 1000 }}>Plan the production change before you build it.</div>

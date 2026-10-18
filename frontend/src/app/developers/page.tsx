@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Call the API" };
 
 const spec = `${copy.landing.repo}/blob/main/docs/api/openapi.yaml`;
 
-const example = `curl -X POST "$ORIGIN_PROOF_API/v1/cases/predict" \\
+const example = `curl -X POST "$UNDE_API/v1/cases/predict" \\
   -H "X-API-Key: op_…" \\
   -H "Content-Type: application/json" \\
   -d '{"date": "2026-06-01", "facts": "Each heat gun is assembled in Thailand from 24 components…"}'`;
@@ -22,7 +22,7 @@ export default function Page() {
           <p className="eyebrow">API</p>
           <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Call the API</h1>
           <p className="duo mt-2 max-w-[72ch] text-[13.5px]">
-            Brokers can send cases to Origin Proof from their own tools with an API key. The Origin Proof team issues keys; there&apos;s no key management in the browser. Requests without a key work as
+            Brokers can send cases to Unde from their own tools with an API key. The Unde Labs team issues keys; there&apos;s no key management in the browser. Requests without a key work as
             they do on this site.
           </p>
         </div>

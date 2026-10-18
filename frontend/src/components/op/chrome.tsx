@@ -29,7 +29,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
         }}
       >
-        Origin <i className="not-italic text-ok">Proof</i>
+        Unde <i className="not-italic text-ok">Labs</i>
       </Link>
       <nav aria-label="Main" className="flex shrink-0 gap-5 whitespace-nowrap text-sm">
         <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>

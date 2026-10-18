@@ -1,4 +1,4 @@
-// Typed client for the Origin Proof API, called through the /api/v1 proxy.
+// Typed client for the Unde API, called through the /api/v1 proxy.
 // Response shapes come from schema.d.ts, generated from docs/api/openapi.yaml
 // (npm run gen:api); never hand-write them.
 import type { components, paths } from "./schema";
@@ -100,7 +100,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     res = await fetch(`/api/v1${path}`, { cache: "no-store", ...init });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res);
   if (res.status === 204) return undefined as T;
@@ -199,7 +199,7 @@ export async function streamPlan(
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res);
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) {
@@ -226,7 +226,7 @@ export async function streamPredict(body: PredictRequest, onStage: (s: PredictSt
       cache: "no-store",
     });
   } catch {
-    throw new ApiError("Could not reach Origin Proof. Check your connection and try again.", 0, "network", true);
+    throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
   if (!res.ok) throw await toError(res);
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) return res.json() as Promise<CaseResponse>;

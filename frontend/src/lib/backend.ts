@@ -226,7 +226,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return Response.json(
       // Not a model failure: the API itself didn't answer, so no "the model
       // didn't answer" prefix on the page.
-      { code: "backend_unreachable", message: "Couldn't reach the Origin Proof API. Nothing is lost; try again in a moment." },
+      { code: "backend_unreachable", message: "Couldn't reach the Unde API. Nothing is lost; try again in a moment." },
       { status: 502 },
     );
   }
