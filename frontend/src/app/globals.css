@@ -18,6 +18,8 @@
   --line: #c4d0e2;
   --edge: #9fb4d8;
   --guide: #8fa7d6;
+  /* The logo's blue (components/op/logo.tsx); a muted, darker --guide. */
+  --brand: #566e9f;
   --shadow: #86a3d8;
   --ink: #13213a;
   --dim: #47566f;
@@ -53,6 +55,7 @@
   --color-line: var(--line);
   --color-edge: var(--edge);
   --color-guide: var(--guide);
+  --color-brand: var(--brand);
   --color-shadow: var(--shadow);
   --color-ink: var(--ink);
   --color-dim: var(--dim);
