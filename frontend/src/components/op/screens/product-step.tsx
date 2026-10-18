@@ -50,7 +50,52 @@ const families = [
   { id: "led_lights", name: "LED lights and lamps" },
   { id: "lidar_modules", name: "LiDAR sensor modules" },
 ];
-const familyOptions: ComboOption[] = families.map((f) => ({ value: f.id, label: f.name }));
+const familyOptions: ComboOption[] = [...families.map((f) => ({ value: f.id, label: f.name })), { value: "", label: "None of these (likely origin only)" }];
+const familyName = (id: string) => families.find((f) => f.id === id)?.name ?? id;
+
+// A family typed that isn't listed is checked by the AI (18 Oct). It can
+// only answer with a family that exists, or none.
+type FamilyCheck =
+  | { state: "busy"; typed: string }
+  | { state: "match"; typed: string; family: string; confidence: number; reason: string; applied: boolean }
+  | { state: "none"; typed: string; reason: string }
+  | { state: "error"; typed: string; message: string };
+
+function FamilyNote({ check, onUse }: { check: FamilyCheck; onUse: (family: string) => void }) {
+  const box = "mt-2 border px-3 py-2 text-[12px] leading-relaxed";
+  if (check.state === "busy")
+    return (
+      <p role="status" className={cx(box, "border-line bg-sheet text-dim")}>
+        Checking &ldquo;{check.typed}&rdquo; against the supported families…
+      </p>
+    );
+  if (check.state === "error")
+    return (
+      <p role="alert" className={cx(box, "border-line bg-sheet text-dim")}>
+        {check.message}
+      </p>
+    );
+  if (check.state === "none")
+    return (
+      <div role="status" className={cx(box, "border-ask-line bg-ask-wash text-body")}>
+        <b className="font-medium text-ask">&ldquo;{check.typed}&rdquo; isn&apos;t a supported family yet.</b> {check.reason} The likely origin still works; the plan search
+        needs one of: {families.map((f) => f.name).join(", ")}.
+      </div>
+    );
+  return (
+    <div role="status" className={cx(box, "border-ok bg-ok-wash text-body")}>
+      <b className="font-medium text-ink">
+        &ldquo;{check.typed}&rdquo; {check.applied ? "matched" : "may fit"} {familyName(check.family)}
+      </b>{" "}
+      <span className="text-dim">({Math.round(check.confidence * 100)}% sure)</span>. {check.reason}
+      {!check.applied && (
+        <button type="button" onClick={() => onUse(check.family)} className="ml-1 min-h-7 text-ok underline underline-offset-2">
+          Use this family
+        </button>
+      )}
+    </div>
+  );
+}
 
 type Tier = { key: "origin" | "plan" | "money"; label: string; state: "done" | "limited" | "missing"; note: string };
 
@@ -177,6 +222,7 @@ export function ProductStep() {
   const [economics, setEconomics] = useState<Economics | undefined>(undefined);
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
+  const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
   const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
@@ -227,6 +273,29 @@ export function ProductStep() {
 
   // "Turn into parts and plants": the engine drafts the tables from the
   // text (nothing saved); they open on the Parts and plants tab to check.
+  // A listed family is picked as is; anything else is checked by the AI.
+  const pickFamily = async (v: string) => {
+    if (v === "" || families.some((f) => f.id === v)) {
+      setFamily(v);
+      setFamCheck(null);
+      return;
+    }
+    setFamCheck({ state: "busy", typed: v });
+    try {
+      const { result: r } = await api.familyCheck({ text: v, product: product.components.length ? { ...product, name: name.trim() } : undefined });
+      if (r.family === "none") {
+        setFamily("");
+        setFamCheck({ state: "none", typed: v, reason: r.reason });
+      } else {
+        const sure = r.confidence >= 0.6;
+        if (sure) setFamily(r.family);
+        setFamCheck({ state: "match", typed: v, family: r.family, confidence: r.confidence, reason: r.reason, applied: sure });
+      }
+    } catch {
+      setFamCheck({ state: "error", typed: v, message: "Couldn't check that just now. Pick the closest family from the list, or choose None." });
+    }
+  };
+
   const draftParts = async () => {
     setDrafting({ since: Date.now() });
     setError(null);
@@ -332,14 +401,20 @@ export function ProductStep() {
             </Field>
             <Field label={copy.product.family}>
               {(id) => (
-                <Combobox
-                  id={id}
-                  className={input}
-                  value={family}
-                  onChange={setFamily}
-                  options={familyOptions}
-                  placeholder="Search families, e.g. LED"
-                />
+                <>
+                  <Combobox
+                    id={id}
+                    className={input}
+                    value={family}
+                    onChange={pickFamily}
+                    options={familyOptions}
+                    placeholder="Search, or type your product type"
+                    allowCustom
+                    customLabel={(t) => `Check “${t}” with AI`}
+                    customHint="finds the closest family"
+                  />
+                  {famCheck && <FamilyNote check={famCheck} onUse={(f) => { setFamily(f); setFamCheck({ ...(famCheck as Extract<FamilyCheck, { state: "match" }>), applied: true }); }} />}
+                </>
               )}
             </Field>
             <Field label={copy.product.date} help={copy.product.dateHelp}>
