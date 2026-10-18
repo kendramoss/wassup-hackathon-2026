@@ -256,7 +256,7 @@ func TestLiveSmoke(t *testing.T) {
 	if os.Getenv("DUTY_LIVE_SMOKE") == "" {
 		t.Skip("set DUTY_LIVE_SMOKE=1 to query hts.usitc.gov")
 	}
-	l := NewLive("origin-proof (Google Cloud AI Builder Cup 2026 prototype; smoke test)", time.Hour, 20*time.Second)
+	l := NewLive("unde-labs (Google Cloud AI Builder Cup 2026 prototype; smoke test)", time.Hour, 20*time.Second)
 	m, err := l.MFN(context.Background(), "8419.89.95")
 	if err != nil {
 		t.Fatal(err)

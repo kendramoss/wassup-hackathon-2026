@@ -258,7 +258,7 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 	if err != nil {
 		return Answer{}, fmt.Errorf("caseagent: %w", err)
 	}
-	r, err := runner.New(runner.Config{AppName: "origin-proof-case-agent", Agent: ag, SessionService: session.InMemoryService(), AutoCreateSession: true})
+	r, err := runner.New(runner.Config{AppName: "unde-case-agent", Agent: ag, SessionService: session.InMemoryService(), AutoCreateSession: true})
 	if err != nil {
 		return Answer{}, fmt.Errorf("caseagent: %w", err)
 	}

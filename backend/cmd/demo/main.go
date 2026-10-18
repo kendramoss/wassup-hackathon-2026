@@ -1,4 +1,4 @@
-// Command demo prepares a running Origin Proof server for recording the demo.
+// Command demo prepares a running Unde Labs server for recording the demo.
 //
 //	demo seed [-api http://localhost:8080] [-multi testdata/heatgun_multi.json] [-out FILE]
 //

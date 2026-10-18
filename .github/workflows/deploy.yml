@@ -1,3 +1,4 @@
+# legacy name kept: Secret Manager secret origin-proof-admin-token keeps its name (renaming needs a migration, D-rename).
 # On every push to main: run CI, deploy whichever service changed to Cloud Run,
 # then smoke-test the live site. Auth is keyless (Workload Identity Federation);
 # one-time GCP setup is scripts/setup-github-deploy.sh.

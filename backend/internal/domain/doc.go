@@ -1,4 +1,4 @@
-// Package domain holds Origin Proof's core types: products described as
+// Package domain holds Unde's core types: products described as
 // components and operations performed at plants, CBP rulings, origin
 // predictions, plan moves and precedent verdicts.
 //
