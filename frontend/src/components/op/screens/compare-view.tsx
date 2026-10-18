@@ -16,7 +16,7 @@ export function CompareView() {
 
 const statusTag: Record<string, React.ReactNode> = {
   plan: <Chip tone="ok">Plan</Chip>,
-  below_bar: <Chip tone="ask">Below the bar</Chip>,
+  below_bar: <Chip tone="ask">△ Below the bar</Chip>,
   no_plan: <Chip>No supported plan</Chip>,
   no_plant: <Chip>No capable plant</Chip>,
 };
@@ -106,7 +106,7 @@ function Compare({ id, c }: CaseCtx) {
                   </span>
                 </h1>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {anyPlan ? <Chip tone="ok">{copy.plan.supported}</Chip> : <Chip tone="ask">● Below the bar · {conf(top.best.verdict?.confidence)}</Chip>}
+                  {anyPlan ? <Chip tone="ok">{copy.plan.supported}</Chip> : <Chip tone="ask">△ Below the bar · {conf(top.best.verdict?.confidence)}</Chip>}
                   <Chip>
                     Reaches <Country name={top.best.prediction?.origin_country} /> · origin {conf(top.best.prediction?.confidence)}
                   </Chip>

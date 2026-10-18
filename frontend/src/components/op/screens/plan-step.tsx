@@ -430,7 +430,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
           {sentence(plan)} in <To country={target} />
         </h1>
         <div className="mt-4 flex flex-wrap gap-2">
-          {below ? <Chip tone="ask">● Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
+          {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           <Chip>
             Reaches <Country name={plan.prediction?.origin_country} /> · origin {conf(plan.prediction?.confidence)}
           </Chip>
@@ -529,7 +529,7 @@ function outcome(p: Plan | undefined) {
   if (!p) return null;
   if (p.shown) return <Chip tone="ok">Plan</Chip>;
   const k = p.rejection_kind ?? "";
-  return <Chip tone={k === "below_confidence_bar" ? "ask" : undefined}>{rejectionLabels[k] ?? k}</Chip>;
+  return <Chip tone={k === "below_confidence_bar" ? "ask" : undefined}>{k === "below_confidence_bar" ? "△ " : ""}{rejectionLabels[k] ?? k}</Chip>;
 }
 
 function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null; lit: string | null }) {

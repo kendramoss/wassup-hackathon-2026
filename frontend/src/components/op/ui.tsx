@@ -79,7 +79,7 @@ export function Ruler({
         ))}
         {value !== null && value !== undefined && (
           <div
-            className={cx("absolute top-[9px] size-[10px] -translate-x-[5px] rotate-45", t === "ok" ? "bg-ok" : t === "ask" ? "bg-ask" : "bg-dim")}
+            className={cx("absolute top-[9px] size-[10px] -translate-x-[5px] rotate-45", t === "ok" ? "bg-ok" : t === "ask" ? "border-[1.5px] border-ink bg-sheet" : "bg-dim")}
             style={{ left: `${v * 100}%` }}
           />
         )}
@@ -98,7 +98,7 @@ export function MiniRuler({ value }: { value: number | null | undefined }) {
     <div className="relative mt-1 h-4 w-[120px]" aria-hidden="true">
       <div className="absolute inset-x-0 top-2 border-t border-ink" />
       <div className="absolute top-0 h-4 border-l-[1.5px] border-dashed border-ok" style={{ left: `${BAR * 100}%` }} />
-      <div className={cx("absolute top-1 size-2 -translate-x-1 rotate-45", value >= BAR ? "bg-ok" : "bg-ask")} style={{ left: `${value * 100}%` }} />
+      <div className={cx("absolute top-1 size-2 -translate-x-1 rotate-45", value >= BAR ? "bg-ok" : "border-[1.5px] border-ink bg-sheet")} style={{ left: `${value * 100}%` }} />
     </div>
   );
 }
@@ -201,8 +201,8 @@ export function Chip({ tone, children, className }: { tone?: "ok" | "ask" | "fai
 
 export function StatusChip({ route }: { route: string | null | undefined }) {
   if (route === "auto") return <Chip tone="ok">Auto-accepted</Chip>;
-  if (route === "needs_review") return <Chip tone="ask">Needs expert review</Chip>;
-  if (route === "needs_info") return <Chip tone="ask">Needs more facts</Chip>;
+  if (route === "needs_review") return <Chip tone="ask">△ Needs expert review</Chip>;
+  if (route === "needs_info") return <Chip tone="ask">△ Needs more facts</Chip>;
   return <Chip>Draft</Chip>;
 }
 

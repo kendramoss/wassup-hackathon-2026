@@ -152,8 +152,8 @@
 .lp .field i { position: absolute; left: 0; top: 0; will-change: transform; }
 .lp .field .a, .lp .key .ka { background: var(--ok); }
 .lp .field .b, .lp .key .kb { background: var(--fail); }
-.lp .field .c, .lp .key .kc { background: var(--ask); opacity: .75; }
-.lp .field .d, .lp .key .kd { border: 1px solid var(--ask); background: var(--sheet); }
+.lp .field .c, .lp .key .kc { background: repeating-linear-gradient(45deg, var(--ask) 0 1.5px, var(--sheet) 1.5px 3.5px); }
+.lp .field .d, .lp .key .kd { border: 1px dashed var(--ask); background: var(--sheet); }
 .lp .key { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 11px; color: var(--dim); }
 .lp .key i { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: -1px; }
 .lp .forag { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--guide); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; font-size: 12px; }
@@ -161,7 +161,7 @@
 .lp .forag .s.r { flex-direction: row-reverse; }
 .lp .forag .beam { flex: 1; height: 1px; background: var(--guide); min-width: 30px; }
 .lp .forag .rul { border: 1px solid var(--ok); background: var(--ok-wash); padding: 6px 10px; }
-.lp .forag .rul.ag { border-color: var(--ask-line); background: var(--ask-wash); }
+.lp .forag .rul.ag { border-color: var(--ask-line); border-style: dashed; background: var(--ask-wash); }
 .lp .forag .mid { border: 1.5px solid var(--ink); background: var(--sheet); padding: 8px 14px; text-align: center; }
 .lp .forag .mid b { font-weight: 500; display: block; }
 .lp .testfoot { margin-top: 18px; display: flex; justify-content: space-between; gap: 12px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
