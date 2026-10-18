@@ -40,7 +40,7 @@ function Result({ id, c, setCase }: CaseCtx) {
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
               <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(conf(p.confidence)) : "Why"}</h2>
-              {p.reasoning ? <p className="duo max-w-[75ch] text-sm leading-relaxed">{p.reasoning}</p> : null}
+              {p.reasoning ? <p className="read max-w-[75ch] text-[15px] leading-relaxed">{p.reasoning}</p> : null}
               {p.key_factors?.length ? (
                 <p className="duo mt-3 max-w-[75ch] text-sm">
                   <span className="eyebrow mr-2">{copy.result.keyFactors}</span>
@@ -181,7 +181,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
         </div>
         <div className="flex flex-col items-start gap-1 pb-3.5">
           <span className="flex flex-wrap items-center gap-1.5">
-            <StatusChip route={route} />
+            <StatusChip route={route} explain />
             {regime && <Chip>{regime.label}</Chip>}
           </span>
           <Ruler value={p.confidence} label={`${BAR} auto-accept`} caption={`confidence ${conf(p.confidence)}`} />

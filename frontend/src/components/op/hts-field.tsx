@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { copy } from "@/lib/copy";
+import { Term } from "./term";
 import { ApiError, api, type HtsSuggestResponse, type Product } from "@/lib/api/client";
 import { Button, Chip, Spinner, cx } from "./ui";
 
@@ -69,7 +71,7 @@ export function HtsField({
     <div>
       <div className="flex items-center gap-1.5">
         <label htmlFor={id} className="block text-[12.5px] text-body">
-          HTS subheading <span className="text-dim">(optional)</span>
+          <Term explain={copy.terms.hts.text}>HTS</Term> subheading <span className="text-dim">(optional)</span>
         </label>
         <HtsHelp />
       </div>

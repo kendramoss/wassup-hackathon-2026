@@ -26,7 +26,7 @@ function Card({ title, big, children, className }: { title: string; big: string;
     <section className={cx("border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]", className)}>
       <h2 className="eyebrow">{title}</h2>
       <p className="mt-2 text-[34px] leading-none tracking-[-0.05em]">{big}</p>
-      <p className="duo mt-2.5 text-xs text-dim">{children}</p>
+      <p className="read mt-2.5 text-[13px] leading-snug text-dim">{children}</p>
     </section>
   );
 }
@@ -113,7 +113,7 @@ export function AccuracyPage() {
   return (
     <Main>
       <h1 className="text-[34px] tracking-[-0.05em]">How accurate is it?</h1>
-      <p className="duo mt-2 max-w-[68ch] text-[14px] text-dim">
+      <p className="read mt-2 max-w-[68ch] text-[15px] text-dim">
         We gave Unde {n} real CBP origin rulings from January to September 2026, none of which it had seen, and compared its answer with CBP&apos;s. Every number below has
         its interval and its source.
       </p>
@@ -265,7 +265,7 @@ export function AccuracyPage() {
 
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <h2 className="eyebrow">What we don&apos;t claim</h2>
-            <ul className="duo mt-3 flex list-disc flex-col gap-2 pl-5 text-[13px]">
+            <ul className="read mt-3 flex list-disc flex-col gap-2 pl-5 text-[14px]">
               {change && (
                 <li>
                   Spotting that a change flips the origin, from scratch: {pct(change.value, 0)} ({ci0(change)}) on {change.n} pairs, against {pct(changeBase?.value)} for always
@@ -366,11 +366,11 @@ function HowBuilt() {
               {s.name}
               <span className="ml-auto text-[11px] font-normal text-ok">{s.model}</span>
             </p>
-            <p className="duo mt-1.5 text-[12.5px] text-body">{s.does}</p>
+            <p className="read mt-1.5 text-[13.5px] text-body">{s.does}</p>
           </li>
         ))}
       </ol>
-      <p className="duo mt-4 max-w-[95ch] text-[12.5px] text-dim">
+      <p className="read mt-4 max-w-[95ch] text-[13.5px] text-dim">
         Product facts in, a broker-ready plan out: every answer cites the rulings it read, nothing reads rulings dated after the case, and a daily spend cap keeps model costs
         bounded. The engine, router and verifier are measured above; the held-out numbers use rulings the system never saw.
       </p>

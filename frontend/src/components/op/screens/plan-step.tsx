@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Explained, Term } from "../term";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -249,8 +250,8 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
-                Each move is predicted by the origin engine and checked against earlier CBP rulings. {estimate ? estimateWords(estimate) : copy.plan.usuallySentence} A plan is shown when its
-                precedent check is at least {BAR}.
+                Each move is predicted by the origin engine and checked against earlier CBP rulings. {estimate ? estimateWords(estimate) : copy.plan.usuallySentence} A plan is shown when its{" "}
+                <Term explain={copy.terms.check.text}>precedent check</Term> is at least {BAR}.
               </p>
             </div>
             <div>
@@ -376,7 +377,7 @@ function moreLabel(hidden: number, withBaseline: boolean): string {
   return moves > 0 ? `${moves} more ${moves === 1 ? "move" : "moves"} and the no-change row` : "Show the no-change row";
 }
 
-function Band({ children, left, right }: { children: React.ReactNode; left?: string; right?: string }) {
+function Band({ children, left, right }: { children: React.ReactNode; left?: React.ReactNode; right?: string }) {
   return (
     <section aria-label="Plan summary" className="border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
@@ -422,12 +423,18 @@ function sentence(p: Plan) {
 function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
   const v = plan.verdict?.confidence;
   return (
-    <Band left={`${below ? 0 : shown} of ${total} moves cleared the ${BAR} bar`} right={below ? "closest first: by precedent check" : "precedent-checked"}>
+    <Band
+      left={
+        <>
+          {below ? 0 : shown} of {total} moves cleared the <Term explain={copy.terms.bar.text}>{BAR} bar</Term>
+        </>
+      }
+      right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           {below ? "Closest: make " : "Make "}
-          {sentence(plan)} in <To country={target} />
+          <Explained text={sentence(plan)} terms={["pcba"]} /> in <To country={target} />
         </h1>
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
@@ -450,7 +457,9 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
         </p>
       </div>
       <div>
-        <p className="eyebrow">Precedent check</p>
+        <p className="eyebrow">
+          <Term explain={copy.terms.check.text}>Precedent check</Term>
+        </p>
         <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement), checkWords(v)].filter(Boolean).join(" · ")} />
       </div>
     </Band>
@@ -615,7 +624,7 @@ function Reasoning({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-3">
-      <p className={cx("duo text-[13px] leading-relaxed text-body", !open && "line-clamp-4")}>{text}</p>
+      <p className={cx("read text-[14px] leading-relaxed text-body", !open && "line-clamp-4")}>{text}</p>
       {text.length > 280 && (
         <button type="button" className="mt-1.5 text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? "Show less" : "Read the full check →"}
@@ -788,24 +797,30 @@ function NearMiss({ nm, fallbackRuling }: { nm: NonNullable<Plan["near_miss"]>; 
   const ruling = nm.ruling || fallbackRuling;
   const N = copy.plan.nearMiss;
   if (!nm.difference && !nm.would_match) return null;
+  // One line in the row; the advice opens under it (#232), so the table
+  // stays scannable.
   return (
-    <div className="duo mt-2 border-l-2 border-ask-line pl-3 text-xs text-dim">
-      <p className="mb-0.5 text-[11px] uppercase tracking-[0.06em] text-ask">{N.label}</p>
-      {nm.difference && (
-        <p>
-          <span className="text-ink">{N.short}</span> {nm.difference}
-        </p>
-      )}
-      {nm.would_match && (
-        <p className="mt-0.5">
-          <span className="text-ink">
-            {N.wouldMatch} {ruling ? <RulingLink id={ruling} /> : N.theRuling} {N.if}
-          </span>{" "}
-          {nm.would_match}
-        </p>
-      )}
-      <p className="mt-0.5 text-[11px]">{N.note}</p>
-    </div>
+    <details className="group mt-1.5 text-xs text-dim">
+      <summary className="inline-flex min-h-6 cursor-pointer list-none items-center gap-1.5 [&::-webkit-details-marker]:hidden">
+        <span className="text-ask hover:underline">{N.short.replace(/:$/, "")}</span>
+        <span aria-hidden="true" className="inline-block w-2.5 text-ask transition-transform group-open:rotate-90">
+          ▸
+        </span>
+      </summary>
+      <div className="mt-1 border-l-2 border-ask-line pl-3">
+        <p className="mb-0.5 text-[11px] uppercase tracking-[0.06em] text-ask">{N.label}</p>
+        {nm.difference && <p className="read text-[13px] leading-relaxed text-body">{nm.difference}</p>}
+        {nm.would_match && (
+          <p className="read mt-1 text-[13px] leading-relaxed text-body">
+            <span className="text-ink">
+              {N.wouldMatch} {ruling ? <RulingLink id={ruling} /> : N.theRuling} {N.if}
+            </span>{" "}
+            {nm.would_match}
+          </p>
+        )}
+        <p className="mt-1 text-[11px]">{N.note}</p>
+      </div>
+    </details>
   );
 }
 

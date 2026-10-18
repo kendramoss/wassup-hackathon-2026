@@ -80,6 +80,33 @@ export const copy = {
     scenarios: "Try scenarios",
   },
 
+  // Terms a first-time reader may not know (#232), explained on hover,
+  // focus or tap at their first place on each screen (components/op/term.tsx).
+  terms: {
+    pcba: { match: /PCBA/, text: "Printed circuit board assembly: the populated circuit board." },
+    bar: {
+      match: /0\.92 bar/,
+      text: "A plan is shown only when its precedent check is at least 0.92. On every run we scored, none above it was wrong.",
+    },
+    check: {
+      match: /precedent check/i,
+      text: "An AI agent searches and reads earlier CBP rulings for one where the same kind of change decided origin.",
+    },
+    auto: {
+      match: /Auto-accepted/,
+      text: "Confident enough (0.92 or more) to skip expert review. On 377 held-out rulings these were right 96% of the time.",
+    },
+    hts: { match: /HTS/, text: "The US tariff code. It sets the duty rate." },
+    needsInfo: {
+      match: /Needs more facts/,
+      text: "Under the 0.92 bar, and the facts leave out something CBP would ask about. Answer the questions to re-run it.",
+    },
+    needsReview: {
+      match: /Needs expert review/,
+      text: "Under the 0.92 bar: a licensed customs broker should look at it before anyone relies on it.",
+    },
+  },
+
   plan: {
     best: "Best plan",
     none: `No plan cleared the 0.92 bar`,

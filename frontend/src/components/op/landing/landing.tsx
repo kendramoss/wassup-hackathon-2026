@@ -9,6 +9,7 @@
 // ending on the way into the cases. Phones keep the figures stacked. Every
 // number comes from docs/NUMBERS.md.
 import Link from "next/link";
+import { Explained } from "../term";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -60,7 +61,7 @@ export function Landing() {
     <>
       <span className="dimn">{L.eyebrow}</span>
       <h1>{L.title}</h1>
-      <p className="sub duo">{L.sub}</p>
+      <p className="sub read">{L.sub}</p>
       <div className="ctas">
         <ButtonLink href={demoHref}>{L.demo}</ButtonLink>
         <ButtonLink href="/cases/new" variant="ghost">
@@ -113,8 +114,8 @@ export function Landing() {
                           <span className="eyebrow">
                             {L.stepOf(i + 1)} · {st.title}
                           </span>
-                          <p className="duo">
-                            {st.body}
+                          <p className="read">
+                            {i === 2 ? <Explained text={st.body} terms={["pcba", "check", "bar"]} /> : st.body}
                             {"ruling" in st && st.ruling ? (
                               <>
                                 {" "}
@@ -405,8 +406,8 @@ export function Landing() {
             {L.whoTitle}
           </h2>
           <div className="whobox">
-            <p className="duo">{L.who}</p>
-            <p className="duo">{L.whoFact}</p>
+            <p className="read">{L.who}</p>
+            <p className="read">{L.whoFact}</p>
           </div>
         </section>
       </main>
