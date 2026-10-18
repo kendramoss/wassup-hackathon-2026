@@ -19,7 +19,7 @@ import (
 )
 
 // PromptVersion is recorded with every suggestion.
-const PromptVersion = "hts-suggest-v1"
+const PromptVersion = "hts-suggest-v2" // v2 (D92): ranks the candidates by fit, and they come from CROSS
 
 // Note goes with every suggestion.
 const Note = "suggestion only — confirm the classification with a licensed broker"
@@ -32,9 +32,9 @@ const (
 	excerptRunes  = 800
 )
 
-const system = `You help an importer find the U.S. tariff (HTSUS) subheading of a product. You are given the product and up to three candidate 8-digit subheadings. Each candidate lists the CBP rulings that classified similar goods under it, with each ruling's subject and an excerpt of its facts.
+const system = `You help an importer find the U.S. tariff (HTSUS) subheading of a product. You are given the product and up to six candidate 8-digit subheadings. Each candidate lists the CBP rulings that classified goods under it, with each ruling's subject and, when available, an excerpt of its facts.
 
-For each candidate, write one or two plain sentences on why it might or might not fit THIS product, comparing the product with the goods in its rulings (material, function, construction). Cite in "cited" only rulings listed under that candidate. If a candidate's rulings describe different goods, say so. Do not propose subheadings that are not listed and do not state duty rates. This is a suggestion for a licensed broker to confirm, not a classification.`
+Return the candidates ordered from best to worst fit for THIS product: what it is and does (its function, its principal component and material), not words it shares with a ruling's subject. A ruling about a different kind of goods that only shares a word (a toy named after the product, a part, a set that merely includes it) is a poor fit. For each candidate write one or two plain sentences on why it might or might not fit, comparing the product with the goods in its rulings. Cite in "cited" only rulings listed under that candidate. If a candidate's rulings describe different goods, say so. Do not propose subheadings that are not listed and do not state duty rates. This is a suggestion for a licensed broker to confirm, not a classification.`
 
 // Ref is a ruling that supports a candidate.
 type Ref struct {
@@ -64,6 +64,9 @@ type Result struct {
 	// reasons because the model call failed.
 	ReasonsUnavailable bool          `json:"reasons_unavailable"`
 	Trace              *domain.Trace `json:"trace"`
+	// Source is "cross" (a live search of CBP's rulings) or "index" (the
+	// local index of rulings that state a subheading).
+	Source string `json:"source"`
 }
 
 // RateLookup reports whether the duty table has rates for a subheading
@@ -73,6 +76,10 @@ type RateLookup func(hts string) bool
 // Suggester retrieves rulings that state a subheading and explains the best
 // candidates.
 type Suggester struct {
+	// live and current, when set, take candidates from a CROSS search
+	// (D92); the local index answers when CROSS fails or finds nothing.
+	live    Live
+	current Current
 	model   llm.Model
 	modelID string
 	index   *retrieval.BM25
@@ -117,6 +124,19 @@ func New(m llm.Model, modelID string, x *Index, factsDir string, rates RateLooku
 func indexText(r domain.Ruling) string {
 	return r.Subject + "\n" + corpus.Truncate(r.Facts, retrieval.DocRunes)
 }
+
+// WithCROSS makes the suggester take candidates from a live CROSS search,
+// keeping only subheadings current reports in today's HTS (nil keeps all).
+func (s *Suggester) WithCROSS(live Live, current Current) *Suggester {
+	s.live, s.current = live, current
+	return s
+}
+
+// Source says where the last candidates came from, for the response.
+const (
+	SourceCROSS = "cross"
+	SourceIndex = "index"
+)
 
 // Coverage is the number of rulings and distinct subheadings searched.
 func (s *Suggester) Coverage() (rulings, subheadings int) { return s.count, s.subs }
@@ -198,7 +218,30 @@ func schema(cs []Candidate) map[string]any {
 // without reasons (ReasonsUnavailable) and the error is returned too, for
 // logging; the caller may show the result.
 func (s *Suggester) Suggest(ctx context.Context, facts string) (Result, error) {
-	res := Result{Candidates: s.Candidates(facts), Note: Note}
+	return s.SuggestNamed(ctx, facts, "")
+}
+
+// SuggestNamed is Suggest with the product's name, which the CROSS search
+// tries first (CBP's subjects name the product).
+func (s *Suggester) SuggestNamed(ctx context.Context, facts, name string) (Result, error) {
+	res := Result{Note: Note, Source: SourceIndex}
+	local := s.Candidates(facts)
+	if s.live != nil {
+		if cs, err := crossCandidates(ctx, s.live, s.current, facts, name); err == nil && len(cs) > 0 {
+			// Half the pool from each source, so neither crowds the other out:
+			// CROSS knows every product CBP classified, the local index has
+			// the full facts of recent rulings. The model ranks the pool (D92).
+			res.Candidates, res.Source = interleave(cs, local, crossPool), SourceCROSS
+		}
+	}
+	if res.Source == SourceIndex {
+		res.Candidates = local
+	}
+	for i := range res.Candidates {
+		if s.rates != nil {
+			res.Candidates[i].DutyRates = s.rates(res.Candidates[i].HTS)
+		}
+	}
 	if len(res.Candidates) == 0 {
 		return res, nil
 	}
@@ -207,8 +250,12 @@ func (s *Suggester) Suggest(ctx context.Context, facts string) (Result, error) {
 	for i, c := range res.Candidates {
 		fmt.Fprintf(&b, "CANDIDATE %d: %s\n", i+1, c.HTS)
 		for _, r := range c.Supporting {
-			excerpt := strings.Join(strings.Fields(corpus.Truncate(s.facts[r.ID], excerptRunes)), " ")
-			fmt.Fprintf(&b, "- %s (%s): %s\n  Facts: %s\n", r.ID, r.Date, r.Subject, excerpt)
+			if f, ok := s.facts[r.ID]; ok {
+				excerpt := strings.Join(strings.Fields(corpus.Truncate(f, excerptRunes)), " ")
+				fmt.Fprintf(&b, "- %s (%s): %s\n  Facts: %s\n", r.ID, r.Date, r.Subject, excerpt)
+			} else {
+				fmt.Fprintf(&b, "- %s (%s): %s\n", r.ID, r.Date, r.Subject) // a CROSS hit: its subject only
+			}
 		}
 		b.WriteString("\n")
 	}
@@ -220,17 +267,42 @@ func (s *Suggester) Suggest(ctx context.Context, facts string) (Result, error) {
 		if err = resp.DecodeJSON(&a); err == nil {
 			res.Trace = &domain.Trace{Provider: resp.Provider, ModelID: resp.ModelID, PromptVersion: PromptVersion,
 				InputTokens: resp.Usage.InputTokens, OutputTokens: resp.Usage.OutputTokens, LatencyMS: resp.Latency.Milliseconds()}
-			apply(res.Candidates, a)
+			res.Candidates = apply(res.Candidates, a)
 			return res, nil
 		}
 	}
 	res.ReasonsUnavailable = true
+	if len(res.Candidates) > MaxCandidates {
+		res.Candidates = res.Candidates[:MaxCandidates] // retrieval order: the most-supported first
+	}
 	return res, fmt.Errorf("hts: %w", err)
 }
 
+// interleave takes candidates from a and b in turn, skipping duplicates,
+// up to n in all.
+func interleave(a, b []Candidate, n int) []Candidate {
+	var out []Candidate
+	add := func(c Candidate) {
+		if len(out) < n && !slices.ContainsFunc(out, func(x Candidate) bool { return x.HTS == c.HTS }) {
+			out = append(out, c)
+		}
+	}
+	for i := 0; i < max(len(a), len(b)); i++ {
+		if i < len(a) {
+			add(a[i])
+		}
+		if i < len(b) {
+			add(b[i])
+		}
+	}
+	return out
+}
+
 // apply copies the model's reasons onto the candidates, keeping only
-// citations of rulings retrieved for that candidate.
-func apply(cs []Candidate, a answer) {
+// citations of rulings retrieved for that candidate, and orders them as the
+// model ranked them (candidates it left out follow, in retrieval order).
+// MaxCandidates are returned.
+func apply(cs []Candidate, a answer) []Candidate {
 	for i := range cs {
 		for _, ac := range a.Candidates {
 			if ac.HTS != cs[i].HTS || cs[i].Reason != "" {
@@ -245,6 +317,25 @@ func apply(cs []Candidate, a answer) {
 			}
 		}
 	}
+	var out []Candidate
+	used := map[string]bool{}
+	for _, ac := range a.Candidates {
+		for _, c := range cs {
+			if c.HTS == ac.HTS && !used[c.HTS] {
+				used[c.HTS] = true
+				out = append(out, c)
+			}
+		}
+	}
+	for _, c := range cs {
+		if !used[c.HTS] {
+			out = append(out, c)
+		}
+	}
+	if len(out) > MaxCandidates {
+		out = out[:MaxCandidates]
+	}
+	return out
 }
 
 // ProductText describes a structured product for retrieval: its name,

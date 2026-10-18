@@ -46,7 +46,7 @@ func (a *api) moneyPrefill(w http.ResponseWriter, r *http.Request) {
 	if code, ok := duty.LiveHTS(p.HTS); ok {
 		p.HTS, htsSource = code, "product"
 	} else if a.d.HTS != nil && strings.TrimSpace(p.Name) != "" {
-		res, err := a.d.HTS.Suggest(r.Context(), hts.ProductText(p))
+		res, err := a.d.HTS.SuggestNamed(r.Context(), hts.ProductText(p), p.Name)
 		if err != nil && !res.ReasonsUnavailable {
 			a.d.Logger.WarnContext(r.Context(), "money prefill: hts suggestion failed; no duty filled", "request_id", RequestID(r.Context()), "err", err)
 		}
