@@ -295,6 +295,9 @@ export const copy = {
     button: "Sign in with Google",
     signOut: "Sign out",
     expired: "Your sign-in expired. Sign in again.",
+    failed: "Sign-in didn't work. Try again.",
+    account: (email: string) => `Account: ${email}`,
+    signedInAs: "Signed in as",
   },
 
   money: "Money · illustrative — editable",

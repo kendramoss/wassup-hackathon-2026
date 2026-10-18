@@ -7,7 +7,9 @@ import { copy } from "@/lib/copy";
 // "Sign in with Google" (D68) through Google Identity Services. The ID
 // token goes straight to /api/session, which keeps it in an HttpOnly cookie
 // for the API proxy; this component only ever learns the email. Hidden when
-// the server has no OAuth client ID.
+// the server has no OAuth client ID. It is one 40 px square at the end of
+// the AppBar: Google's blue G signed out, your initial signed in, opening a
+// menu with your email and "Sign out".
 
 type Session = { client_id: string | null; email: string | null; exp: number | null };
 
@@ -88,7 +90,7 @@ export function SignIn() {
           window.location.reload();
         },
       });
-      g.renderButton(button.current, { type: "standard", theme: "outline", size: "medium", text: "signin_with", shape: "rectangular" });
+      g.renderButton(button.current, { type: "icon", theme: "filled_blue", size: "large", shape: "square" });
       // After an expiry, One Tap can sign the same account back in quietly.
       if (expired) g.prompt();
     });
@@ -99,31 +101,78 @@ export function SignIn() {
 
   if (!clientId) return null;
 
-  if (s?.email)
-    return (
-      <span className="flex min-w-0 items-center gap-3 text-[13px]">
-        <span className="max-w-[22ch] truncate text-dim" title={s.email}>
-          {s.email}
-        </span>
-        <button
-          type="button"
-          className="min-h-8 text-ok hover:underline"
-          onClick={async () => {
-            await fetch("/api/session", { method: "DELETE" });
-            window.google?.accounts.id.disableAutoSelect();
-            window.location.reload();
-          }}
-        >
-          {copy.signIn.signOut}
-        </button>
-      </span>
-    );
+  if (s?.email) return <Account email={s.email} />;
 
+  // Google draws its own button inside; an expiry or failure is a dot on it,
+  // with the reason in its label and tooltip, so the bar never widens.
+  const note = error ? copy.signIn.failed : expired ? copy.signIn.expired : null;
   return (
-    <span className="flex min-w-0 flex-wrap items-center gap-2 text-[12.5px]">
-      {expired && <span className="text-ask">{copy.signIn.expired}</span>}
-      {error && <span className="text-fail">Sign-in didn&apos;t work. Try again.</span>}
-      <div ref={button} aria-label={copy.signIn.button} className="min-h-8" />
+    <span className="relative inline-flex size-10 shrink-0" title={note ?? copy.signIn.button}>
+      <div ref={button} aria-label={note ?? copy.signIn.button} className="size-10" />
+      {note && <span aria-hidden="true" className={`pointer-events-none absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-paper ${error ? "bg-fail" : "bg-ask"}`} />}
+      {note && (
+        <span role="status" className="sr-only">
+          {note}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function Account({ email }: { email: string }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      trigger.current?.focus();
+    };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  return (
+    <span ref={box} className="relative inline-flex shrink-0">
+      <button
+        ref={trigger}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={copy.signIn.account(email)}
+        title={email}
+        onClick={() => setOpen((o) => !o)}
+        className="grid size-10 place-items-center rounded-[2px] border border-edge bg-sheet text-[15px] font-medium uppercase text-ink shadow-btn hover:border-ink"
+      >
+        {email.charAt(0)}
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-64 rounded-[2px] border border-edge bg-sheet p-3 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+          <p className="text-[11px] uppercase tracking-[0.06em] text-dim">{copy.signIn.signedInAs}</p>
+          <p className="mt-1 truncate text-ink" title={email}>
+            {email}
+          </p>
+          <button
+            type="button"
+            role="menuitem"
+            autoFocus
+            className="mt-3 min-h-8 text-ok underline-offset-2 hover:underline"
+            onClick={async () => {
+              await fetch("/api/session", { method: "DELETE" });
+              window.google?.accounts.id.disableAutoSelect();
+              window.location.reload();
+            }}
+          >
+            {copy.signIn.signOut}
+          </button>
+        </div>
+      )}
     </span>
   );
 }
