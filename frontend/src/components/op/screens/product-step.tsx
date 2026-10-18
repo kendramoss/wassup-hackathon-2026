@@ -21,6 +21,7 @@ import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { HtsField } from "../hts-field";
+import { PrefillNote, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -117,6 +118,7 @@ export function ProductStep() {
   const [product, setProduct] = useState<Product>(emptyProduct);
   const [economics, setEconomics] = useState<Economics | undefined>(undefined);
   const [moneyOpen, setMoneyOpen] = useState(false);
+  const [filled, setFilled] = useState<Filled | null>(null);
   const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
@@ -384,6 +386,16 @@ export function ProductStep() {
                   setImported(r);
                   setProduct(r.product);
                   if (r.family) setFamily(r.family);
+                  // Money from the file, then duty from the HTS (#235).
+                  const fromFile = r.economics ? { ...(economics ?? {}), ...r.economics } : economics;
+                  if (r.product.hts) setHts(r.product.hts);
+                  if (r.economics) setEconomics(fromFile);
+                  setFilled(null);
+                  void prefillMoney({ ...r.product, name: name.trim() || r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
+                    setEconomics(e);
+                    setFilled(f);
+                    if (f.htsSuggested && f.hts) setHts((h) => h || f.hts!);
+                  });
                   // The file name ("heatgun bom") is no product name and would
                   // land in the ruling letter (#85): ask for one instead.
                   if (!name.trim()) {
@@ -458,6 +470,7 @@ export function ProductStep() {
               </li>
             ))}
           </ul>
+          {filled && tab === "bom" && <PrefillNote f={filled} onEdit={() => setMoneyOpen(true)} className="mt-3" />}
           {tab !== "paste" && product.components.length > 0 && (
             <p className="mt-3 text-[12px] text-dim">
               {product.components.length} components · {product.operations?.length ?? 0} operations · {product.plants?.length ?? 0} plants · {groups.length} groups to move

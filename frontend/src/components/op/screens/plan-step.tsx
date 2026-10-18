@@ -9,6 +9,7 @@ import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
+import { PrefillBar } from "../money-prefill";
 import { EconomicsEditor, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { regimeOf } from "@/lib/regime";
@@ -254,6 +255,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             </div>
             <div>
               <Fold title="Money inputs · illustrative, optional" meta={moneySummary(economics) || "none yet: plans show without a net per year"} open={!hasAnyMoney(economics)}>
+                <PrefillBar product={c.product} economics={economics} ready={req !== null} onFill={setEconomics} />
                 <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
               </Fold>
             </div>

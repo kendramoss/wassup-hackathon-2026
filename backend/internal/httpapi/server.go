@@ -38,6 +38,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("GET /v1/cases", a.listCases)
 		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
+		mux.HandleFunc("POST /v1/products/money-prefill", a.limit(light, a.moneyPrefill))
 		if d.HTS != nil {
 			mux.HandleFunc("POST /v1/products/hts-suggest", a.limit(light, a.htsSuggest))
 		}

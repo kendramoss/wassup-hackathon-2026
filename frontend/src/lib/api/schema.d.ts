@@ -620,6 +620,9 @@ export interface paths {
          *     name (component / part / item), country (made in / origin), plant (factory / site / supplier; defaults to the country),
          *     group (operation group, matched to the family template by id or name), type (component, operation, or plant: a plant that makes nothing today, named in the name column, with its plant_capabilities), plant_capabilities (groups the row's plant could also perform, ";"-separated).
          *     Up to 500 rows, 5 MB. Samples: backend/testdata/heatgun_bom.csv, backend/testdata/lidar_bom.csv.
+         *     Optional money columns (#235) prefill the economics: unit_cost_usd (per finished unit, per row), qty (default 1),
+         *     annual_units and unit_price_usd (first non-empty cell), hts (first non-empty cell; sets product.hts). A group's yearly
+         *     cost at a plant is the sum of unit cost × qty × annual units; the import value is annual units × unit price.
          */
         post: {
             parameters: {
@@ -660,10 +663,82 @@ export interface paths {
                             product: components["schemas"]["Product"];
                             family: string;
                             warnings: string[];
+                            /** @description Only when the sheet has money columns: the prefilled money inputs (illustrative) */
+                            economics?: components["schemas"]["Economics"];
+                            /** @description Which fields came from the file: hts, annual_import_value_usd, group_costs */
+                            economics_sources?: {
+                                [key: string]: "file";
+                            };
                         };
                     };
                 };
                 400: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/money-prefill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fill the duty rates of the money inputs from the product's HTS number, or a suggested one (#235)
+         * @description Nothing is saved. HTS: the product's own, else (HTS_SUGGEST=on) the top suggestion from CBP rulings (one router-model call),
+         *     labelled "suggested". Duty: for every country in the product's plants and components, the sourced table rate (D52) or the
+         *     live MFN rate plus Section 301 (D65, D90), as a plan search would price it. The user's own rates always win.
+         *     Rate-limited as light.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        product: components["schemas"]["Product"];
+                        economics?: components["schemas"]["Economics"];
+                    };
+                };
+            };
+            responses: {
+                /** @description The economics with duty rates filled, and where each rate came from */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            economics: components["schemas"]["Economics"];
+                            /** @description Per country: table (sourced, D52), live (HTS MFN + Section 301), given (the user's) */
+                            duty_sources: {
+                                [key: string]: "table" | "live" | "given";
+                            };
+                            /** @description The HTS number used; absent when there is none */
+                            hts?: string;
+                            /** @enum {string} */
+                            hts_source?: "product" | "suggested";
+                            /** @description The suggestion used, when hts_source is suggested (as in /v1/products/hts-suggest) */
+                            hts_suggestion?: Record<string, never>;
+                            /** @example suggestion only — confirm the classification with a licensed broker */
+                            hts_note?: string;
+                            disclaimer: string;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                429: components["responses"]["Error"];
             };
         };
         delete?: never;
