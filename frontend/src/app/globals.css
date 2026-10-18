@@ -197,8 +197,12 @@
 }
 
 @media print {
-  body {
-    background: #fff;
+  html,
+  body,
+  main,
+  .column {
+    background: #fff !important;
+    background-image: none !important;
   }
   .no-print {
     display: none !important;
@@ -208,10 +212,60 @@
     padding: 0;
     display: block;
   }
+  /* The printed letter (18 Oct): US Letter with 1-inch margins, a serif at
+     11 pt, no screen chrome; the scroll box opens up so every page prints. */
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  .letter-scroll {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
   .letter {
-    border: 0;
-    box-shadow: none;
-    padding: 0;
+    max-width: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    color: #000 !important;
+  }
+  .letter h1 {
+    font-size: 13pt !important;
+  }
+  .letter h2,
+  .letter h3 {
+    font-size: 11pt !important;
+    break-after: avoid;
+  }
+  .letter p,
+  .letter li {
+    orphans: 3;
+    widows: 3;
+  }
+  .letter a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+  /* [FILL IN] stays visible but prints as plain bracketed text. */
+  .letter mark,
+  .letter code {
+    background: none !important;
+    color: #000 !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    padding: 0 !important;
+  }
+  .letter-notes,
+  .letter-notes p {
+    font-size: 8.5pt !important;
+    border: 0 !important;
+    background: none !important;
+    padding: 0 0 12pt !important;
+    color: #444 !important;
   }
 }
 

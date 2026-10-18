@@ -173,13 +173,14 @@ function Draft({ id, c, setCase }: CaseCtx) {
             steps={[{ label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` }]}
           />
         </div>
-        <div className="min-w-0">
+        {/* From lg up the letter scrolls in its own box beside the form (18 Oct). */}
+        <div className="letter-scroll min-w-0 lg:sticky lg:top-[150px] lg:max-h-[calc(100vh-170px)] lg:overflow-y-auto lg:pb-6 lg:pr-3">
           {error ? <ErrorBox error={error} onRetry={load} /> : null}
           {!draft && !error && <Spinner label="Drafting the letter…" />}
           {draft && (
             <>
             {(notice || lead) && (
-              <div className="mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
+              <div className="letter-notes mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
                 {notice && (
                   <p role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
                     {notice}
