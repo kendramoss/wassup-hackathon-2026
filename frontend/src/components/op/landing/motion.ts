@@ -113,8 +113,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     const head = lerp(x0, x1, d);
     sheets.forEach((s, i) => {
       const k = reduce ? 1 : ease(clamp01((head - (cx(i) - 125 - gap * 0.55)) / (gap * 0.45)));
-      s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(36, 0, k)}px)`;
-      s.style.opacity = String(lerp(0.25, 1, k));
+      s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(12, 0, k)}px)`;
     });
     wire.setAttribute("d", `M${x0},${cy} H${x1}`);
     lead.setAttribute("d", `M${x0},${-stage.offsetTop - 2} V${cy}`);
@@ -131,8 +130,13 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
         w.label.style.opacity = head > ax ? "1" : "0";
       }
     });
-    const reached = sheets.map((_, i) => head > cx(i) - 125);
-    sheets.forEach((s, i) => s.classList.toggle("on", reached[i]));
+    // The wire starts at the Product sheet, so it is filled from the start.
+    const reached = sheets.map((_, i) => i === 0 || head > cx(i) - 125);
+    const at = reached.lastIndexOf(true);
+    sheets.forEach((s, i) => {
+      s.classList.toggle("on", reached[i]);
+      s.classList.toggle("cur", i === at);
+    });
     now.textContent = L.fig2Now[Math.max(0, reached.lastIndexOf(true))];
   }
   function drawBridge() {

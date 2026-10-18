@@ -176,7 +176,6 @@ export function Landing() {
                   <span>sheet 1/4</span>
                 </div>
                 <div className="bd">
-                  <Skel widths={[100, 80, 100, 60, 100]} />
                   <div className="real">
                     <table>
                       <tbody>
@@ -211,7 +210,6 @@ export function Landing() {
                   <span>sheet 2/4</span>
                 </div>
                 <div className="bd">
-                  <Skel widths={[40, 70, 100, 85]} />
                   <div className="real">
                     <span className="eyebrow">Likely origin</span>
                     <div className="big">
@@ -235,7 +233,6 @@ export function Landing() {
                   <span>sheet 3/4</span>
                 </div>
                 <div className="bd">
-                  <Skel widths={[100, 70, 45, 80]} />
                   <div className="real">
                     <p className="duo">Make the motor-fan assembly in Thailand</p>
                     <p className="gap">
@@ -257,7 +254,6 @@ export function Landing() {
                   <span>sheet 4/4</span>
                 </div>
                 <div className="bd">
-                  <Skel widths={[100]} tall />
                   <div className="real">
                     <div className="letter duo">
                       Request for a binding ruling on the country of origin of a heat gun…
@@ -411,12 +407,3 @@ export function Landing() {
   );
 }
 
-function Skel({ widths, tall }: { widths: number[]; tall?: boolean }) {
-  return (
-    <div className="skel" aria-hidden="true">
-      {widths.map((w, i) => (
-        <i key={i} style={{ width: `${w}%`, height: tall ? 120 : undefined }} />
-      ))}
-    </div>
-  );
-}
