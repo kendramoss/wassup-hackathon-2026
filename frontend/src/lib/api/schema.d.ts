@@ -747,6 +747,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/family-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Match what the user typed as a product family to a supported template family, or "none" (18 Oct)
+         * @description One router-model call with a constrained answer: the family must be a template that exists, or "none". "none" means origin
+         *     prediction works but the plan search has no template for the product. The product's name and part names, when given, are read
+         *     with the text. Nothing is saved. Rate-limited as light. Always registered in production; absent (404) when no checker is wired.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @example hair dryer */
+                        text: string;
+                        product?: components["schemas"]["Product"];
+                    };
+                };
+            };
+            responses: {
+                /** @description The match */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            result: {
+                                /** @description A template family (e.g. motorised_tools_small_appliances) or none */
+                                family: string;
+                                /** @description The family's display name; absent for none */
+                                name?: string;
+                                confidence: number;
+                                reason: string;
+                            };
+                            /** @example family-check-v1 */
+                            prompt_version?: string;
+                            llm_provider?: string;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/extract": {
         parameters: {
             query?: never;

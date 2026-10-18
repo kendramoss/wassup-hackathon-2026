@@ -174,6 +174,9 @@ type Deps struct {
 	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
 	// D64); nil leaves the route unregistered (404).
 	HTS HTSSuggester
+	// Family, when set, serves POST /v1/products/family-check: typed text
+	// matched to a template family or "none" (18 Oct).
+	Family FamilyChecker
 	// BOMVersions serves POST /v1/cases/{id}/bom-version: a newer BOM
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).

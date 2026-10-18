@@ -425,6 +425,45 @@ paths:
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
+  /v1/products/family-check:
+    post:
+      summary: Match what the user typed as a product family to a supported template family, or "none" (18 Oct)
+      description: |
+        One router-model call with a constrained answer: the family must be a template that exists, or "none". "none" means origin
+        prediction works but the plan search has no template for the product. The product's name and part names, when given, are read
+        with the text. Nothing is saved. Rate-limited as light. Always registered in production; absent (404) when no checker is wired.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, example: "hair dryer" }
+                product: { $ref: "#/components/schemas/Product" }
+      responses:
+        "200":
+          description: The match
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [result]
+                properties:
+                  result:
+                    type: object
+                    required: [family, confidence, reason]
+                    properties:
+                      family: { type: string, description: "A template family (e.g. motorised_tools_small_appliances) or none" }
+                      name: { type: string, description: "The family's display name; absent for none" }
+                      confidence: { type: number }
+                      reason: { type: string }
+                  prompt_version: { type: string, example: family-check-v1 }
+                  llm_provider: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/products/extract:
     post:
       summary: Draft an editable structured product from pasted facts text (nothing is saved)

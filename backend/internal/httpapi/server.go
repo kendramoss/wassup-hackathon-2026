@@ -42,6 +42,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		if d.HTS != nil {
 			mux.HandleFunc("POST /v1/products/hts-suggest", a.limit(light, a.htsSuggest))
 		}
+		if d.Family != nil {
+			mux.HandleFunc("POST /v1/products/family-check", a.limit(light, a.familyCheck))
+		}
 		if d.BOMVersions {
 			mux.HandleFunc("POST /v1/cases/{id}/bom-version", a.limit(light, a.bomVersion))
 		}
