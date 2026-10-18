@@ -1,4 +1,4 @@
-import { claims, googleClientId, userClearCookie, userFromCookieHeader, userSetCookie, validToken } from "@/lib/user";
+import { claims, googleClientId, profilePicture, userClearCookie, userFromCookieHeader, userSetCookie, validToken } from "@/lib/user";
 import { isHttps } from "@/lib/visitor";
 
 // The signed-in user (D68). GET says who is signed in (the cookie is
@@ -11,7 +11,13 @@ export async function GET(request: Request) {
   const c = token ? claims(token) : null;
   const live = c?.exp && c.exp * 1000 > Date.now();
   return Response.json(
-    { client_id: clientId ?? null, email: live ? (c?.email ?? null) : null, exp: live ? c?.exp : null },
+    {
+      client_id: clientId ?? null,
+      email: live ? (c?.email ?? null) : null,
+      name: live ? (c?.name ?? null) : null,
+      picture: live ? profilePicture(c) : null,
+      exp: live ? c?.exp : null,
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

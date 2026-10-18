@@ -11,7 +11,7 @@ import { copy } from "@/lib/copy";
 // the AppBar: Google's blue G signed out, your initial signed in, opening a
 // menu with your email and "Sign out".
 
-type Session = { client_id: string | null; email: string | null; exp: number | null };
+type Session = { client_id: string | null; email: string | null; name?: string | null; picture?: string | null; exp: number | null };
 
 type Gis = {
   initialize(o: { client_id: string; callback: (r: { credential?: string }) => void; auto_select?: boolean; cancel_on_tap_outside?: boolean }): void;
@@ -101,7 +101,7 @@ export function SignIn() {
 
   if (!clientId) return null;
 
-  if (s?.email) return <Account email={s.email} />;
+  if (s?.email) return <Account email={s.email} name={s.name ?? null} picture={s.picture ?? null} />;
 
   // Google draws its own button inside; an expiry or failure is a dot on it,
   // with the reason in its label and tooltip, so the bar never widens.
@@ -119,7 +119,8 @@ export function SignIn() {
   );
 }
 
-function Account({ email }: { email: string }) {
+function Account({ email, name, picture }: { email: string; name: string | null; picture: string | null }) {
+  const [broken, setBroken] = useState(false);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLSpanElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -148,14 +149,21 @@ function Account({ email }: { email: string }) {
         aria-label={copy.signIn.account(email)}
         title={email}
         onClick={() => setOpen((o) => !o)}
-        className="grid size-10 place-items-center rounded-[2px] border border-edge bg-sheet text-[15px] font-medium uppercase text-ink shadow-btn hover:border-ink"
+        className="grid size-10 place-items-center overflow-hidden rounded-[2px] border border-edge bg-sheet text-[15px] font-medium uppercase text-ink shadow-btn hover:border-ink"
       >
-        {email.charAt(0)}
+        {picture && !broken ? (
+          // The Google profile photo; the initial if it fails to load.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={picture} alt="" referrerPolicy="no-referrer" className="size-full rounded-[1px] object-cover" onError={() => setBroken(true)} />
+        ) : (
+          email.charAt(0)
+        )}
       </button>
       {open && (
         <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-64 rounded-[2px] border border-edge bg-sheet p-3 text-[13px] shadow-[4px_4px_0_var(--shadow)]">
           <p className="text-[11px] uppercase tracking-[0.06em] text-dim">{copy.signIn.signedInAs}</p>
-          <p className="mt-1 truncate text-ink" title={email}>
+          {name && <p className="mt-1 truncate text-ink">{name}</p>}
+          <p className={name ? "truncate text-dim" : "mt-1 truncate text-ink"} title={email}>
             {email}
           </p>
           <button
