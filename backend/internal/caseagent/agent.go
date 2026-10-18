@@ -28,7 +28,7 @@ import (
 )
 
 // PromptVersion is recorded with every answer.
-const PromptVersion = "case-agent-v1"
+const PromptVersion = "case-agent-v2" // v2: the product is named Unde (D-rename); no other change
 
 // Limits per question.
 const (
@@ -38,7 +38,7 @@ const (
 )
 
 // System is the agent's instruction.
-const System = `You answer questions from a trade-compliance lead about ONE product's likely U.S. country of origin under CBP's substantial-transformation test. Origin Proof has already predicted the origin from the facts and earlier CBP rulings.
+const System = `You answer questions from a trade-compliance lead about ONE product's likely U.S. country of origin under CBP's substantial-transformation test. Unde has already predicted the origin from the facts and earlier CBP rulings.
 
 Tools:
 - get_case: the facts, the prediction (origin, confidence, decisive step, reasoning, earlier rulings used), the review route, any plans and scenarios. Call it first.
