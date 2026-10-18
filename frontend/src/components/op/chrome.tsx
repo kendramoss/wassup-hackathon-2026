@@ -14,59 +14,88 @@ import { Button, ButtonLink, cx } from "./ui";
 // prerenders in the static shell of dynamic routes. Cases lives at /cases;
 // the landing page (/) passes "none".
 export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "api" | "none"; sticky?: boolean }) {
-  const item = (on: boolean) => cx(on ? "text-ink underline underline-offset-[6px]" : "text-dim hover:text-ink");
+  // The sections read as buttons, not loose text (18 Oct): one segmented
+  // group, the current one filled.
+  const item = (on: boolean) =>
+    cx("flex min-h-9 items-center rounded-[2px] px-2.5 transition-colors sm:px-3.5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
+  const disclaimer = (
+    <>
+      <span className="lg:hidden 2xl:inline">{copy.disclaimer}</span>
+      <span className="hidden lg:inline 2xl:hidden">{copy.disclaimer.split(". ")[0]}.</span>
+    </>
+  );
   return (
-    <header className={cx("no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10 lg:flex-nowrap lg:gap-x-7", sticky && "sticky top-0 z-30")}>
-      {/* On the landing page a link to "/" doesn't navigate, so it scrolls
-          back to the top instead; elsewhere it goes home as usual. The path
-          is read on click, so the bar still prerenders. */}
-      <Link
-        href="/"
-        className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em]"
-        onClick={(e) => {
-          if (window.location.pathname !== "/") return;
-          e.preventDefault();
-          const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-          window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-        }}
+    // From lg up the bar is three columns, so the section buttons sit in the
+    // true middle: logo and case breadcrumb left, actions right.
+    <header
+      className={cx(
+        "no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-paper px-4 py-2 sm:px-10 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-6",
+        sticky && "sticky top-0 z-30",
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-5">
+        {/* On the landing page a link to "/" doesn't navigate, so it scrolls
+            back to the top instead; elsewhere it goes home as usual. The path
+            is read on click, so the bar still prerenders. */}
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em]"
+          onClick={(e) => {
+            if (window.location.pathname !== "/") return;
+            e.preventDefault();
+            const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+          }}
+        >
+          <LogoMark size={24} />
+          <span>
+            Unde <i className="not-italic text-brand">Labs</i>
+          </span>
+        </Link>
+        {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
+        {/* Hidden below lg, where the page heading names the case (#95). */}
+        <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden lg:flex lg:border-l lg:pl-5" />
+      </div>
+      {/* Below lg the buttons take their own centred row under the logo. */}
+      <nav
+        aria-label="Main"
+        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] sm:text-sm lg:order-none lg:w-auto"
       >
-        <LogoMark size={24} />
-        <span>
-          Unde <i className="not-italic text-brand">Labs</i>
-        </span>
-      </Link>
-      <nav aria-label="Main" className="flex shrink-0 gap-5 whitespace-nowrap text-sm">
-        <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
-          {copy.nav.cases}
-        </Link>
-        <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
-          {copy.nav.accuracy}
-        </Link>
-        <Link href="/developers" aria-current={active === "api" ? "page" : undefined} className={item(active === "api")}>
-          {copy.nav.api}
-        </Link>
+        <div className="flex gap-0.5 rounded-[2px] border border-edge bg-sheet p-0.5 shadow-btn">
+          <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
+            {copy.nav.cases}
+          </Link>
+          <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
+            {copy.nav.accuracy}
+          </Link>
+          <Link href="/developers" aria-current={active === "api" ? "page" : undefined} className={item(active === "api")}>
+            {copy.nav.api}
+          </Link>
+        </div>
       </nav>
-      {/* Case screens portal their case menu here, as a breadcrumb (17 Oct). */}
-      {/* Hidden below lg, where the page heading names the case (#95). */}
-      <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden lg:flex lg:border-l lg:pl-5" />
       {/* "Not a ruling" sits on every screen that can show a verdict or a
-          plan (DESIGN.md, p-k2.html); the landing page has it in its footer. */}
-      {/* From lg up the bar is one row: the breadcrumb and this line give
-          way (shorter, then truncated) so "+ New case" stays on it. Below
-          lg this line takes its own row under the bar. */}
+          plan (DESIGN.md, p-k2.html); the landing page has it in its footer.
+          From lg up it shares the right column and truncates so "+ New case"
+          stays on the bar; below lg it takes its own row at the bottom. */}
+      <div className="ml-auto flex min-w-0 items-center justify-end gap-4 lg:ml-0">
+        {active !== "none" && (
+          <p title={copy.disclaimer} className="hidden min-w-0 truncate text-xs text-dim lg:block">
+            {disclaimer}
+          </p>
+        )}
+        <span className="flex shrink-0 items-center gap-4">
+          <SignIn />
+          <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
+            <span className="md:hidden" aria-hidden="true">+ New</span>
+            <span className="hidden md:inline" aria-hidden="true">{copy.cases.newCase}</span>
+          </ButtonLink>
+        </span>
+      </div>
       {active !== "none" && (
-        <p title={copy.disclaimer} className="order-last w-full text-[11px] text-dim lg:order-none lg:ml-auto lg:w-auto lg:min-w-0 lg:truncate lg:text-xs">
-          <span className="lg:hidden 2xl:inline">{copy.disclaimer}</span>
-          <span className="hidden lg:inline 2xl:hidden">{copy.disclaimer.split(". ")[0]}.</span>
+        <p title={copy.disclaimer} className="order-last w-full text-[11px] text-dim lg:hidden">
+          {disclaimer}
         </p>
       )}
-      <span className={cx("flex shrink-0 items-center gap-4", active === "none" ? "ml-auto" : "ml-auto lg:ml-0")}>
-        <SignIn />
-        <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
-          <span className="md:hidden" aria-hidden="true">+ New</span>
-          <span className="hidden md:inline" aria-hidden="true">{copy.cases.newCase}</span>
-        </ButtonLink>
-      </span>
     </header>
   );
 }
