@@ -357,7 +357,8 @@ export function Footer({ children }: { children: ReactNode }) {
 
 export function Main({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <main id="main" className={cx("column mx-auto w-full max-w-[1240px] flex-1 px-4 py-8 sm:px-10", className)}>
+    // pb-20: the last content sits well clear of the window's bottom edge (18 Oct).
+    <main id="main" className={cx("column mx-auto w-full max-w-[1240px] flex-1 px-4 pb-20 pt-8 sm:px-10", className)}>
       {children}
     </main>
   );
