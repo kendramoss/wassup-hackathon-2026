@@ -201,8 +201,9 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
         </fieldset>
       </div>
       {groups.length > 0 && plants.length > 0 && (
-        <div className="mt-4 overflow-x-auto max-sm:hidden">
-          <table className="w-full min-w-[480px] text-[13px]">
+        // Columns share the width: no sideways scroll (18 Oct).
+        <div className="mt-4 max-sm:hidden">
+          <table className="w-full table-fixed text-[13px]">
             <caption className="eyebrow mb-1.5 text-left">Yearly cost of each group, by plant (USD)</caption>
             <thead>
               <tr>
@@ -227,7 +228,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
                       <input
                         aria-label={`${groupName(g)} at ${p.name || p.id}, USD a year`}
                         inputMode="numeric"
-                        className="w-28 rounded-[2px] border border-line bg-white px-2 py-1"
+                        className="w-full min-w-0 rounded-[2px] border border-line bg-white px-2 py-1"
                         value={costs[g]?.[p.id] ?? ""}
                         onChange={(e) => {
                           const n = num(e.target.value);

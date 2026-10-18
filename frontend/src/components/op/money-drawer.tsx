@@ -258,20 +258,21 @@ export function MoneyDrawer({
                   ) : null}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[420px] border-collapse">
+                // Columns share the drawer's width: no sideways scroll (18 Oct).
+                <div>
+                  <table className="w-full table-fixed border-collapse">
                     <thead>
                       <tr>
-                        <th scope="col" className="pb-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                        <th scope="col" className="w-[24%] pb-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                           Group
                         </th>
                         {plants.map((p) => (
-                          <th key={p.id} scope="col" className="pb-2 text-right text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                          <th key={p.id} scope="col" className="break-words pb-2 pl-2 text-right align-bottom text-[11px] font-medium uppercase tracking-[0.04em] text-dim">
                             {p.name || p.country}
                           </th>
                         ))}
                         {others.length > 0 && (
-                          <th scope="col" className="pb-2 pl-3 text-right text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+                          <th scope="col" className="w-[16%] pb-2 pl-3 text-right align-bottom text-[11px] font-medium uppercase tracking-[0.04em] text-dim">
                             Moving adds
                           </th>
                         )}
@@ -291,7 +292,7 @@ export function MoneyDrawer({
                                 <input
                                   aria-label={`${groupName(g)} at ${p.name || p.id}, USD a year`}
                                   inputMode="numeric"
-                                  className={cx(field, "h-9 w-28")}
+                                  className="h-9 w-full min-w-0 rounded-[2px] border border-edge bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok"
                                   value={usd(row[p.id])}
                                   onChange={(ev) => {
                                     const n = num(ev.target.value);
