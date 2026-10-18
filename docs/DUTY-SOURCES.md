@@ -70,3 +70,13 @@ Checked against HTS **2026 Revision 21** (released 7 Oct, in effect from 9 Oct 2
 
 - **Classification is the main risk.** Under 9015.10.40 instead, China 301 would still be 25% (List 3), but if the module counts as a passenger-vehicle or light-truck part, Section 232 autos +25% (9903.94.05) would apply, which exempts it from forced-labor 301 (note 52(f)(3)): about China 50%, others 25%. Get a binding ruling.
 - Forced-labor 301 is under legal challenge.
+
+## Section 301 for any HTS line (D90, parsed 18 Oct 2026)
+- **Source:** HTS 2026 Revision 21, Chapter 99 PDF, from https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2099. U.S. note 20 (China Section 301 Lists 1, 2, 3, 3-named and 4A), headings 9903.05.20–.84 (2026 country-wide Section 301, 91 FR 47318) and U.S. note 52 (their exemptions).
+- **Built by:** `scripts/duty301/build.py` into `backend/internal/duty/additional.json`. Each list was extracted by two independent parsers and diffed (0 disagreements).
+- **Not applied, only named in the note:**
+  - described-product exclusions (9903.88.69/.70)
+  - use-conditional exemptions (civil aircraft, pharmaceutical use)
+  - trade-agreement-claim exemptions (CAFTA-DR)
+- **Not included:** Section 232. Text-layer extraction, not proofread.
+

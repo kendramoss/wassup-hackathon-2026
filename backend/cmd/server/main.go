@@ -305,6 +305,11 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 	if err != nil {
 		return httpapi.Deps{}, err
 	}
+	// Section 301 and forced-labor duties on top of live MFN rates (D90).
+	dutyAdd, err := duty.LoadAdditional()
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
 	var liveMFN *duty.Live
 	if cfg.DutyLiveMFN {
 		liveMFN = duty.NewLive("origin-proof (Google Cloud AI Builder Cup 2026 prototype)", cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
@@ -481,6 +486,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		AdminToken:            cfg.AdminToken,
 		Duty:                  dutyTable,
 		LiveMFN:               liveMFN,
+		DutyAdd:               dutyAdd,
 		Textile:               textile,
 		TextileFastPath:       cfg.TextileFastPath,
 		USMCA:                 usmca,

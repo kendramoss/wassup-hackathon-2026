@@ -304,12 +304,45 @@ func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float6
 	return out, filled
 }
 
+// FillWith is Fill with the additional duties of each origin added to the
+// MFN rate (D90). It returns, per filled origin, the extras applied and the
+// described-product exclusions to check.
+func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (map[string]float64, []string, map[string][]Extra, map[string][]Exclusion) {
+	out, filled := m.Fill(rates, origins)
+	if add == nil || len(filled) == 0 {
+		return out, filled, nil, nil
+	}
+	extras := map[string][]Extra{}
+	check := map[string][]Exclusion{}
+	for _, o := range filled {
+		ex, may := add.For(m.HTS, o, *m.Rate)
+		if len(ex) > 0 {
+			extras[o] = ex
+			out[o] = Total(*m.Rate, ex)
+		}
+		if len(may) > 0 {
+			check[o] = may
+		}
+	}
+	return out, filled, extras, check
+}
+
 // FillNote describes live-filled rates (or why none were) for
 // Economics.DutyRatesNote.
-func (m MFN) FillNote(filled []string) string {
+func (m MFN) FillNote(filled []string) string { return m.fillNote(filled, false) }
+
+// FillNoteWith is FillNote when the additional duties were added (D90): it
+// leaves out the "not included" warning, keeping the note on Section 232.
+func (m MFN) FillNoteWith(filled []string) string { return m.fillNote(filled, true) }
+
+func (m MFN) fillNote(filled []string, added bool) string {
 	if !m.Supported {
 		return fmt.Sprintf("Live HTS lookup for %s (%s, fetched %s): %s", m.HTS, m.Source, m.FetchedAt.Format(time.DateOnly), m.Note)
 	}
+	note := m.Note
+	if added {
+		note = strings.Replace(note, AdditionalDutiesWarning, "Section 301 duties are added from HTS Chapter 99 (below); Section 232 duties are not included — check before relying on the total", 1)
+	}
 	return fmt.Sprintf("Duty rates for %s are the live HTS MFN rate for %s, %s (%s, fetched %s). %s",
-		strings.Join(filled, ", "), m.HTS, m.General, m.Source, m.FetchedAt.Format(time.DateOnly), m.Note)
+		strings.Join(filled, ", "), m.HTS, m.General, m.Source, m.FetchedAt.Format(time.DateOnly), note)
 }

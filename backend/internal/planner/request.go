@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 )
 
 // Request is one plan search: a product as of a date, the product family
@@ -58,6 +59,10 @@ type Economics struct {
 	// DutyRatesLiveMFN lists the origins whose rate is the live HTS MFN rate
 	// (column 1 general only, no additional duties; D65).
 	DutyRatesLiveMFN []string `json:"duty_rates_live_mfn,omitempty"`
+	// DutyAdditional lists, per origin, the Chapter 99 duties added to a live
+	// MFN rate (D90): China's Section 301 lists and the 2026 country-wide
+	// Section 301 duties.
+	DutyAdditional map[string][]duty.Extra `json:"duty_additional,omitempty"`
 	// GroupCosts is the annual cost of performing an operation group at a
 	// plant: group ID -> plant ID -> USD.
 	GroupCosts map[string]map[string]float64 `json:"group_costs"`
