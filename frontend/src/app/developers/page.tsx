@@ -6,7 +6,9 @@ export const metadata: Metadata = { title: "Call the API" };
 
 const spec = `${copy.landing.repo}/blob/main/docs/api/openapi.yaml`;
 
-const example = `curl -X POST "$UNDE_API/v1/cases/predict" \\
+const example = `UNDE_API=https://frontend-88903435351.us-central1.run.app/api
+
+curl -X POST "$UNDE_API/v1/cases/predict" \\
   -H "X-API-Key: op_…" \\
   -H "Content-Type: application/json" \\
   -d '{"date": "2026-06-01", "facts": "Each heat gun is assembled in Thailand from 24 components…"}'`;
