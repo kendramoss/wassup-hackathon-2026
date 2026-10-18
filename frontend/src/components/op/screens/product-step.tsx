@@ -223,6 +223,10 @@ export function ProductStep() {
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
+  // Only a family the user picked goes with an upload; otherwise the file
+  // or the AI check chooses it (18 Oct).
+  const [familyTouched, setFamilyTouched] = useState(false);
+  const [autoFilled, setAutoFilled] = useState<string[] | null>(null);
   const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
@@ -275,6 +279,7 @@ export function ProductStep() {
   // text (nothing saved); they open on the Parts and plants tab to check.
   // A listed family is picked as is; anything else is checked by the AI.
   const pickFamily = async (v: string) => {
+    setFamilyTouched(true);
     if (v === "" || families.some((f) => f.id === v)) {
       setFamily(v);
       setFamCheck(null);
@@ -413,7 +418,7 @@ export function ProductStep() {
                     customLabel={(t) => `Check “${t}” with AI`}
                     customHint="finds the closest family"
                   />
-                  {famCheck && <FamilyNote check={famCheck} onUse={(f) => { setFamily(f); setFamCheck({ ...(famCheck as Extract<FamilyCheck, { state: "match" }>), applied: true }); }} />}
+                  {famCheck && <FamilyNote check={famCheck} onUse={(f) => { setFamily(f); setFamilyTouched(true); setFamCheck({ ...(famCheck as Extract<FamilyCheck, { state: "match" }>), applied: true }); }} />}
                 </>
               )}
             </Field>
@@ -507,12 +512,23 @@ export function ProductStep() {
             {tab === "bom" && (
               <BomImport
                 name={name}
-                family={family}
+                family={familyTouched ? family : ""}
                 imported={imported}
                 onImported={(r) => {
                   setImported(r);
                   setProduct(r.product);
                   if (r.family) setFamily(r.family);
+                  // Name and family the file (or the AI) filled in (18 Oct).
+                  const how = (src?: string) => (src === "ai" ? "suggested by AI from the parts" : "from your file");
+                  const said: string[] = [];
+                  if (!name.trim() && r.product.name && r.name_source) {
+                    setName(r.product.name);
+                    said.push(`Product name “${r.product.name}”, ${how(r.name_source)}.`);
+                  }
+                  if (r.family && (r.family_source === "file" || r.family_source === "ai")) {
+                    said.push(`Product family ${familyName(r.family)}, ${how(r.family_source)}${r.family_reason ? `: ${r.family_reason}` : "."}`);
+                  }
+                  setAutoFilled(said.length ? said : null);
                   // Money from the file, then duty from the HTS (#235).
                   const fromFile = r.economics ? { ...(economics ?? {}), ...r.economics } : economics;
                   if (r.product.hts) setHts(r.product.hts);
@@ -525,7 +541,7 @@ export function ProductStep() {
                   });
                   // The file name ("heatgun bom") is no product name and would
                   // land in the ruling letter (#85): ask for one instead.
-                  if (!name.trim()) {
+                  if (!name.trim() && !(r.product.name && r.name_source)) {
                     setAskName(true);
                     setTimeout(() => document.querySelector<HTMLElement>("[data-field=name]")?.focus(), 0);
                   }
@@ -597,6 +613,16 @@ export function ProductStep() {
               </li>
             ))}
           </ul>
+          {autoFilled && tab === "bom" && (
+            <div role="status" className="mt-3 border border-ok bg-ok-wash px-4 py-3 text-[12.5px] leading-relaxed">
+              <p className="font-medium text-ink">Filled in from your BOM · check above and change anything</p>
+              <ul className="mt-1 text-body">
+                {autoFilled.map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {filled && tab === "bom" && <PrefillNote f={filled} onEdit={() => setMoneyOpen(true)} className="mt-3" />}
           {tab !== "paste" && product.components.length > 0 && (
             <p className="mt-3 text-[12px] text-dim">
@@ -1064,7 +1090,10 @@ function BomImport({
   const inputId = useId();
 
   const upload = async (f: File) => {
-    const productName = name.trim() || f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+    // The typed name, else the file or the AI names it; the file's name is
+    // only the last resort (18 Oct).
+    const productName = name.trim();
+    const fallbackName = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
     setFile(f);
     setBusy(true);
     setError(null);
@@ -1073,7 +1102,7 @@ function BomImport({
     if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
       try {
         const { csv } = await pdfToBomCsv(f);
-        onImported(await api.importCsv({ csv, name: productName, family: family || undefined }));
+        onImported(await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, family: family || undefined }));
       } catch (e) {
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
@@ -1084,7 +1113,8 @@ function BomImport({
     }
     const form = new FormData();
     form.append("file", f);
-    form.append("name", productName);
+    if (productName) form.append("name", productName);
+    form.append("fallback_name", fallbackName);
     if (family) form.append("family", family);
     try {
       onImported(await api.importBom(form));

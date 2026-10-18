@@ -12,6 +12,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/familycheck"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
@@ -22,7 +23,7 @@ const maxUpload = 5 << 20
 // multipart/form-data with a "file" (CSV or .xlsx) and fields name,
 // description, family; or JSON {name, description, family, csv}.
 func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
-	var name, desc, family string
+	var name, desc, family, fallback string
 	var src io.Reader
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
 		r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
@@ -37,12 +38,16 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 		}
 		defer f.Close()
 		name, desc, family, src = r.FormValue("name"), r.FormValue("description"), r.FormValue("family"), f
+		fallback = r.FormValue("fallback_name")
 	} else {
 		var in struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 			Family      string `json:"family"`
 			CSV         string `json:"csv"`
+			// FallbackName names the product when neither the request, the
+			// sheet nor the family check does (e.g. the file's name).
+			FallbackName string `json:"fallback_name"`
 		}
 		dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxUpload))
 		dec.DisallowUnknownFields()
@@ -51,6 +56,19 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		name, desc, family, src = in.Name, in.Description, in.Family, strings.NewReader(in.CSV)
+		fallback = in.FallbackName
+	}
+	rows, err := bom.ReadRows(src)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	// The name and family the user gave win; then the sheet's own columns;
+	// then, for the family, the AI check on the parts (18 Oct).
+	info := a.importInfo(r, rows, name, desc, family)
+	name, family = info.name, info.family
+	if name == "" {
+		name = strings.TrimSpace(fallback)
 	}
 	var tm *planner.Template
 	if family != "" {
@@ -60,11 +78,6 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		tm = &t
-	}
-	rows, err := bom.ReadRows(src)
-	if err != nil {
-		a.fail(w, r, err)
-		return
 	}
 	opts := bom.Options{Name: name, Description: desc, Family: family, Template: tm}
 	p, warnings, err := bom.Parse(rows, opts)
@@ -77,6 +90,12 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 	m, mw := bom.ParseMoney(rows, opts)
 	warnings = append(warnings, mw...)
 	out := map[string]any{"product": p, "family": family}
+	if info.nameSource != "" {
+		out["name_source"] = info.nameSource
+	}
+	if info.familySource != "" {
+		out["family_source"], out["family_reason"] = info.familySource, info.familyReason
+	}
 	sources := map[string]string{}
 	if m.HTS != "" {
 		if code, ok := duty.LiveHTS(m.HTS); ok {
@@ -145,4 +164,60 @@ func (a *api) extractProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, d)
+}
+
+type importMeta struct {
+	name, nameSource                   string
+	family, familySource, familyReason string
+}
+
+// importInfo settles the product name and family for an import. Given
+// values win; then the sheet's product and family columns (a family by its
+// ID or name); then, with a family checker, a sure match (>= 0.6) on the
+// parts, and the checker's product name for a sheet that names none. A
+// failed check leaves them as they were.
+func (a *api) importInfo(r *http.Request, rows [][]string, name, desc, family string) importMeta {
+	m := importMeta{name: name, family: family}
+	if family != "" {
+		m.familySource = "given"
+	}
+	sheetName, sheetFamily := bom.SheetInfo(rows)
+	if m.name == "" && sheetName != "" {
+		m.name, m.nameSource = sheetName, "file"
+	}
+	if m.family == "" && sheetFamily != "" {
+		key := strings.ToLower(sheetFamily)
+		for id, t := range a.d.Templates {
+			if strings.ToLower(id) == key || strings.ToLower(t.Name) == key {
+				m.family, m.familySource = id, "file"
+			}
+		}
+	}
+	if (m.family != "" && m.name != "") || a.d.Family == nil {
+		return m
+	}
+	p, _, err := bom.Parse(rows, bom.Options{Name: m.name, Description: desc})
+	if err != nil && len(p.Components) == 0 {
+		return m
+	}
+	var parts []string
+	for _, c := range p.Components {
+		parts = append(parts, c.Name)
+	}
+	text := "Parts: " + strings.Join(parts, ", ")
+	if m.name != "" {
+		text = "Product name: " + m.name + "\n" + text
+	}
+	res, err := a.d.Family.Check(r.Context(), text)
+	if err != nil {
+		a.d.Logger.WarnContext(r.Context(), "import: family check failed; family left as given", "request_id", RequestID(r.Context()), "err", err)
+		return m
+	}
+	if m.family == "" && res.Family != familycheck.None && res.Confidence >= 0.6 {
+		m.family, m.familySource, m.familyReason = res.Family, "ai", res.Reason
+	}
+	if m.name == "" && strings.TrimSpace(res.ProductName) != "" {
+		m.name, m.nameSource = strings.TrimSpace(res.ProductName), "ai"
+	}
+	return m
 }
