@@ -41,6 +41,7 @@ export type WatchRunResponse = Json<"/v1/watch/run", "post">;
 export type ExtractResponse = Json<"/v1/products/extract", "post">;
 export type BatchResponse = Json<"/v1/cases/batch", "post">;
 export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
+export type PlanEstimate = S["PlanEstimate"];
 export type HtsSuggestResponse = Json<"/v1/products/hts-suggest", "post">;
 export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number];
 export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
@@ -123,6 +124,8 @@ export const api = {
   predict: (body: PredictRequest) => post<CaseResponse>("/cases/predict", body),
   answers: (id: string, answers: { question: string; answer: string }[]) =>
     post<CaseResponse>(`/cases/${enc(id)}/answers`, { answers }),
+  // Cost and time of a plan search before it runs; no model call (D87).
+  planEstimate: (id: string, body: PlanRequest, signal?: AbortSignal) => post<{ case_id?: string; estimate?: PlanEstimate }>(`/cases/${enc(id)}/plan/estimate`, body, signal),
   plan: (id: string, body: PlanRequest) => post<{ case_id?: string; plan?: PlanResult }>(`/cases/${enc(id)}/plan`, body),
   exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string; preview?: boolean; format?: "markdown" | "cfr177" }) =>
     post<ExportResponse>(`/cases/${enc(id)}/export`, body),

@@ -122,6 +122,14 @@ export const copy = {
       if: "if:",
     },
     agreement: (views: string, agree: string) => `${views} views, ${agree} agree`,
+    // D85: a move the search added because a near miss's advice named it.
+    estimate: {
+      cached: "Already checked: replays in seconds, no cost.",
+    },
+    advice: {
+      tried: "Tried because the advice suggested it",
+      pending: "The move the advice suggested",
+    },
     belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
   },
 
