@@ -16,6 +16,7 @@ gcloud services enable firestore.googleapis.com storage.googleapis.com aiplatfor
 gcloud firestore databases create --project "$PROJECT" --location "$REGION" --type firestore-native
 
 # 3. Create the corpus bucket (uniform access, no public access)
+# legacy name kept: the bucket was created under this name (D-rename).
 gcloud storage buckets create "gs://$PROJECT-origin-proof-corpus" --project "$PROJECT" --location "$REGION" \
   --uniform-bucket-level-access --public-access-prevention
 

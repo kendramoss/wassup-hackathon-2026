@@ -25,7 +25,7 @@ func TestMarkdown(t *testing.T) {
 		}
 	}
 	for _, banned := range []string{"guarantee", "approved", "verified", "cheapest", "proof"} {
-		if strings.Contains(strings.ToLower(strings.ReplaceAll(md, "Origin Proof", "")), banned) {
+		if strings.Contains(strings.ToLower(strings.ReplaceAll(md, "Unde", "")), banned) {
 			t.Errorf("draft contains banned word %q", banned)
 		}
 	}
@@ -48,7 +48,7 @@ func TestListPhrase(t *testing.T) {
 
 func TestBelowBarNotice(t *testing.T) {
 	md := Markdown(Input{ProductName: "x", Facts: "f", Requested: "Thailand", BelowBar: &BelowBar{Confidence: 0.92, Bar: 0.95}})
-	if !strings.Contains(md, "**Below the confidence bar:** Origin Proof's precedent check rated this change 0.92, under its 0.95 bar.") {
+	if !strings.Contains(md, "**Below the confidence bar:** Unde's precedent check rated this change 0.92, under its 0.95 bar.") {
 		t.Errorf("draft = %s", md)
 	}
 	if strings.Contains(Markdown(Input{ProductName: "x", Facts: "f"}), "Below the confidence bar") {
@@ -58,7 +58,7 @@ func TestBelowBarNotice(t *testing.T) {
 
 func TestReadRulingsWhenNoneCited(t *testing.T) {
 	md := Markdown(Input{ProductName: "x", Facts: "f", Requested: "China", Prediction: domain.Prediction{Precedents: []string{"N340187", "N351782"}}})
-	for _, want := range []string{"N340187 — read by Origin Proof, not cited; [CONFIRM RELEVANCE]", "https://rulings.cbp.gov/ruling/N351782"} {
+	for _, want := range []string{"N340187 — read by Unde, not cited; [CONFIRM RELEVANCE]", "https://rulings.cbp.gov/ruling/N351782"} {
 		if !strings.Contains(md, want) {
 			t.Errorf("draft missing %q", want)
 		}
@@ -94,7 +94,7 @@ func TestCFR177Contents(t *testing.T) {
 		}
 	}
 	for _, banned := range []string{"guarantee", "approved", "verified", "cheapest", "proof"} {
-		if strings.Contains(strings.ToLower(strings.ReplaceAll(md, "Origin Proof", "")), banned) {
+		if strings.Contains(strings.ToLower(strings.ReplaceAll(md, "Unde", "")), banned) {
 			t.Errorf("letter contains banned word %q", banned)
 		}
 	}

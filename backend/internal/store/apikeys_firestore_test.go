@@ -16,7 +16,7 @@ func TestFirestoreAPIKeys(t *testing.T) {
 		t.Skip("FIRESTORE_EMULATOR_HOST not set")
 	}
 	ctx := context.Background()
-	f, err := NewFirestore(ctx, "demo-origin-proof", "")
+	f, err := NewFirestore(ctx, "demo-unde", "")
 	if err != nil {
 		t.Fatal(err)
 	}

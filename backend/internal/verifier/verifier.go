@@ -420,7 +420,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	if err != nil {
 		return Result{}, fmt.Errorf("verifier: agent: %w", err)
 	}
-	r, err := runner.New(runner.Config{AppName: "origin-proof-verifier", Agent: a, SessionService: session.InMemoryService(), AutoCreateSession: true})
+	r, err := runner.New(runner.Config{AppName: "unde-verifier", Agent: a, SessionService: session.InMemoryService(), AutoCreateSession: true})
 	if err != nil {
 		return Result{}, fmt.Errorf("verifier: runner: %w", err)
 	}

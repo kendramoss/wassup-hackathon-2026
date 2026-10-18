@@ -1,4 +1,4 @@
-// Command server is the Origin Proof API: origin prediction, plan search and
+// Command server is the Unde Labs API: origin prediction, plan search and
 // precedent verification for CBP substantial-transformation cases.
 //
 // Configuration comes from the environment (see internal/config). Flags:
@@ -222,7 +222,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 	logger.Info("corpus loaded", "precedents", pool.Len(), "facts_dir", cfg.FactsDir)
 	eng := engine.New(engineModel, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
-	crossClient := cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")
+	crossClient := cross.NewHTTPClient(cross.UserAgent)
 	local, err := verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir)
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -312,7 +312,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 	}
 	var liveMFN *duty.Live
 	if cfg.DutyLiveMFN {
-		liveMFN = duty.NewLive("origin-proof (Google Cloud AI Builder Cup 2026 prototype)", cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
+		liveMFN = duty.NewLive(cross.UserAgent, cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
 		logger.Info("live MFN duty rates on", "source", duty.DefaultHTSBaseURL, "ttl", cfg.DutyLiveMFNTTL, "timeout", cfg.DutyLiveMFNTimeout)
 	}
 	tmpls, err := planner.LoadTemplates()

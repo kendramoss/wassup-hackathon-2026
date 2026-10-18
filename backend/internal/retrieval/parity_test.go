@@ -15,12 +15,15 @@ import (
 // TestResearchParity checks that BM25 retrieves the same 5 precedents, in the
 // same order, as the research run behind the 89.1% headline
 // (results/final-gemini-4-argon-prec.jsonl). Opt-in: set
-// ORIGINPROOF_RESEARCH_RESULTS to that file and build the corpus first
+// UNDE_RESEARCH_RESULTS to that file and build the corpus first
 // (go run ./cmd/corpus build).
 func TestResearchParity(t *testing.T) {
-	resultsPath := os.Getenv("ORIGINPROOF_RESEARCH_RESULTS")
+	resultsPath := os.Getenv("UNDE_RESEARCH_RESULTS")
 	if resultsPath == "" {
-		t.Skip("set ORIGINPROOF_RESEARCH_RESULTS to run")
+		resultsPath = os.Getenv("ORIGINPROOF_RESEARCH_RESULTS") // deprecated name, still read (D-rename)
+	}
+	if resultsPath == "" {
+		t.Skip("set UNDE_RESEARCH_RESULTS to run")
 	}
 	root := filepath.Join("..", "..", "..")
 	labels, err := corpus.LoadLabels(filepath.Join(root, "eval", "data", "labels.jsonl"))

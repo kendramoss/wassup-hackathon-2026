@@ -53,6 +53,7 @@ func identityOf(ctx context.Context) identity {
 
 // userOwner is the owner hash stored on a signed-in user's case.
 func userOwner(email string) string {
+	// legacy name kept: the salt is part of every stored hash; changing it orphans existing records (D-rename).
 	h := sha256.Sum256([]byte("origin-proof-user:" + email))
 	return userOwnerPrefix + hex.EncodeToString(h[:16])
 }

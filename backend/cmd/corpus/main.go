@@ -46,7 +46,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
 
-const userAgent = "origin-proof (Google Cloud AI Builder Cup 2026 prototype)"
+const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {

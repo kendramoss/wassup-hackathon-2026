@@ -19,7 +19,7 @@ import (
 const DefaultBaseURL = "https://rulings.cbp.gov"
 
 // Ruling is a CROSS ruling as returned by /api/ruling/<id>. Only the fields
-// Origin Proof uses are decoded.
+// Unde uses are decoded.
 type Ruling struct {
 	RulingNumber string `json:"rulingNumber"`
 	Subject      string `json:"subject"`
@@ -60,6 +60,9 @@ func (h SearchHit) Date() (time.Time, error) {
 
 // ErrNotFound means CROSS has no ruling with that number.
 var ErrNotFound = errors.New("cross: ruling not found")
+
+// UserAgent identifies this app to rulings.cbp.gov and hts.usitc.gov.
+const UserAgent = "unde-labs (Google Cloud AI Builder Cup 2026 prototype)"
 
 // HTTPClient is the live CROSS client.
 type HTTPClient struct {

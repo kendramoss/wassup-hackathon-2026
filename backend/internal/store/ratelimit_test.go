@@ -74,7 +74,7 @@ func newFakeCounters(t *testing.T) (*FirestoreCounters, *fakeFirestore) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fc := NewFirestoreCountersFromClient(c, "demo-origin-proof", "")
+	fc := NewFirestoreCountersFromClient(c, "demo-unde", "")
 	t.Cleanup(func() { _ = fc.Close() })
 	return fc, fake
 }
@@ -94,8 +94,8 @@ func TestFirestoreCountersOneCommitPerAdd(t *testing.T) {
 	if len(fake.commits) != 2 {
 		t.Errorf("%d commits for 2 Adds, want one round trip each", len(fake.commits))
 	}
-	name := "projects/demo-origin-proof/databases/(default)/documents/rate_limits/global-1"
-	if req := fake.commits[0]; req.GetDatabase() != "projects/demo-origin-proof/databases/(default)" || req.GetWrites()[1].GetUpdate().GetName() != name {
+	name := "projects/demo-unde/databases/(default)/documents/rate_limits/global-1"
+	if req := fake.commits[0]; req.GetDatabase() != "projects/demo-unde/databases/(default)" || req.GetWrites()[1].GetUpdate().GetName() != name {
 		t.Errorf("commit addressed %q / %q", req.GetDatabase(), req.GetWrites()[1].GetUpdate().GetName())
 	}
 	if !fake.expires[name].Equal(end) {
@@ -127,12 +127,12 @@ func TestFirestoreCountersEmulator(t *testing.T) {
 		t.Skip("FIRESTORE_EMULATOR_HOST not set")
 	}
 	ctx := context.Background()
-	a, err := NewFirestoreCounters(ctx, "demo-origin-proof", "")
+	a, err := NewFirestoreCounters(ctx, "demo-unde", "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer a.Close()
-	b, err := NewFirestoreCounters(ctx, "demo-origin-proof", "") // another instance
+	b, err := NewFirestoreCounters(ctx, "demo-unde", "") // another instance
 	if err != nil {
 		t.Fatal(err)
 	}

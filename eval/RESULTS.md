@@ -1,4 +1,4 @@
-# Origin Proof — evaluation results
+# Unde Labs — evaluation results
 
 All runs are listed in `results/RUNLOG.jsonl`; per-case rows are in `results/*.jsonl`. Data: `data/` and `splits/` (sha256 in `SHA256SUMS`).
 

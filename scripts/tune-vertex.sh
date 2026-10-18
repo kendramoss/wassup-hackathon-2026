@@ -13,6 +13,7 @@ set -euo pipefail
 PROJECT=${PROJECT:-wassup-hackathon-2026}
 REGION=${REGION:-us-central1} # tuning jobs are regional, unlike the global serving endpoint
 EPOCHS=${EPOCHS:-3}
+# legacy name kept: the bucket exists under this name (D-rename).
 BUCKET=${BUCKET:-gs://$PROJECT-origin-proof-corpus}
 NAME=${NAME:-origin-engine-cbp-reasoning-$(date +%Y%m%d-%H%M)}
 

@@ -1,4 +1,4 @@
-# Origin Proof. Deploys are handled by .github/workflows/deploy.yml, not here.
+# Unde Labs. Deploys are handled by .github/workflows/deploy.yml, not here.
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
@@ -33,6 +33,7 @@ bundle-corpus: ## copy labels and the built facts corpus into backend/data (bake
 	cp eval/data/labels_usmca.jsonl backend/data/labels_usmca.jsonl
 	cp data/corpus/facts/*.txt backend/data/facts/
 
+# legacy name kept: the GCS bucket exists under this name (renaming needs a migration, D-rename).
 CORPUS_BUCKET ?= gs://wassup-hackathon-2026-origin-proof-corpus
 upload-corpus: ## copy the bundled corpus (labels + facts) to the corpus bucket (docs/SETUP-GCP.md)
 	gcloud storage rsync --recursive --delete-unmatched-destination-objects backend/data $(CORPUS_BUCKET)/bundled

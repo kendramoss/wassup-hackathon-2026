@@ -857,7 +857,7 @@ func planCmd(args []string) error {
 			return err
 		}
 	case "cross":
-		searcher = verifier.CROSS{Client: cross.NewHTTPClient("origin-proof (Google Cloud AI Builder Cup 2026 prototype)")}
+		searcher = verifier.CROSS{Client: cross.NewHTTPClient(cross.UserAgent)}
 	default:
 		return fmt.Errorf("-search must be local or cross")
 	}

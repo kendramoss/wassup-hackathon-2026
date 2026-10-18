@@ -36,6 +36,7 @@ const keyOwnerPrefix = "key_"
 
 // keyOwner is the owner stored on cases created with key: a hash of its ID.
 func keyOwner(k apikey.Key) string {
+	// legacy name kept: the salt is part of every stored hash; changing it orphans existing records (D-rename).
 	h := sha256.Sum256([]byte("origin-proof-apikey:" + k.ID))
 	return keyOwnerPrefix + hex.EncodeToString(h[:16])
 }

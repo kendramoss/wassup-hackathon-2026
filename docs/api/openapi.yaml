@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Origin Proof API
+  title: Unde Labs API
   version: 1.0.0
   description: |
     Predicts the country of origin U.S. Customs (CBP) would likely assign under the

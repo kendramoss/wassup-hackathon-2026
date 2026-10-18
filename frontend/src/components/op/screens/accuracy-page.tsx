@@ -90,7 +90,7 @@ export function AccuracyPage() {
   const sq = { ar: "bg-ok", aw: "border border-ink bg-white", rr: "bg-ok/25", rw: "border border-dashed border-dim bg-white" };
 
   const bars = [
-    { label: "Origin Proof (Gemini, Vertex AI)", it: acc, ours: true },
+    { label: "Unde (Gemini, Vertex AI)", it: acc, ours: true },
     { label: "Most-mentioned country", it: get("baseline_most_mentioned") },
     { label: "Country of final assembly", it: get("baseline_final_assembly") },
     { label: "Last-mentioned country", it: get("baseline_last_mentioned") },
@@ -114,7 +114,7 @@ export function AccuracyPage() {
     <Main>
       <h1 className="text-[34px] tracking-[-0.05em]">How accurate is it?</h1>
       <p className="duo mt-2 max-w-[68ch] text-[14px] text-dim">
-        We gave Origin Proof {n} real CBP origin rulings from January to September 2026, none of which it had seen, and compared its answer with CBP&apos;s. Every number below has
+        We gave Unde {n} real CBP origin rulings from January to September 2026, none of which it had seen, and compared its answer with CBP&apos;s. Every number below has
         its interval and its source.
       </p>
       {error ? (

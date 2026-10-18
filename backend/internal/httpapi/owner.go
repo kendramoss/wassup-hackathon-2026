@@ -28,6 +28,7 @@ func ownerOf(r *http.Request) string {
 	if !visitorIDPattern.MatchString(id) {
 		return ""
 	}
+	// legacy name kept: the salt is part of every stored hash; changing it orphans existing records (D-rename).
 	h := sha256.Sum256([]byte("origin-proof-visitor:" + id))
 	return hex.EncodeToString(h[:16])
 }

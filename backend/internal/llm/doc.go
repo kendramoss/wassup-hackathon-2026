@@ -1,4 +1,4 @@
-// Package llm is the seam between Origin Proof's business logic and model
+// Package llm is the seam between Unde's business logic and model
 // providers. Engine, router, planner and verifier depend only on the Model
 // interface; implementations are Vertex AI through google.golang.org/genai
 // (development, evals and deployment) and Fake (tests). The LiteLLM proxy

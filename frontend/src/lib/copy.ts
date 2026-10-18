@@ -1,9 +1,9 @@
-// Everything Origin Proof says that isn't returned by the API, in one place.
+// Everything Unde says that isn't returned by the API, in one place.
 // Wording rules: plans are "precedent-supported" at most, never approved,
 // cheapest or guaranteed; follow-up questions make no accuracy claim; money
 // is "illustrative — editable" everywhere.
 export const copy = {
-  name: "Origin Proof",
+  name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
   disclaimer: "Not a ruling. Confirm with a licensed customs broker.",
   nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API" },
@@ -142,7 +142,7 @@ export const copy = {
     demo: "Try the heat-gun demo →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real CBP rulings",
-    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. Origin Proof's plan makes those three groups in Thailand, precedent-supported at 0.96, above its 0.92 bar. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
+    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. Unde's plan makes those three groups in Thailand, precedent-supported at 0.96, above its 0.92 bar. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part, where it is made, and which decide the origin." },
@@ -156,7 +156,7 @@ export const copy = {
       "2026 setup. The maker moved the same parts, and the outer shells. CBP held Thailand.",
     ],
     sheetStates: ["2022 setup · isometric", "exploded view", "planned move", "2026 setup · isometric"],
-    planNote: "Origin Proof · plan · check 0.96, above the 0.92 bar",
+    planNote: "Unde · plan · check 0.96, above the 0.92 bar",
     planMove: "Motor-fan, PCBA, switch + cord → Thailand",
     legendCn: "Made in China",
     legendTh: "Made in Thailand",
