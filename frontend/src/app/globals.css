@@ -157,6 +157,13 @@
 
 /* Long text (questions, reasoning, the letter) uses Paper Mono's duospace set. */
 @layer utilities {
+  /* Long paragraphs a reader has to get through (#232): the system sans,
+     which reads faster than a monospace. Numbers, rulings, codes, tables,
+     labels and headings stay in Paper Mono. */
+  .read {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0;
+  }
   .duo {
     font-feature-settings: "ss02" 1;
   }

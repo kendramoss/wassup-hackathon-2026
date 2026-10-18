@@ -267,6 +267,16 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   const [open, setOpen] = useState(false);
   const [cases, setCases] = useState<CaseSummary[] | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  // The name is cut short in the bar (#232): the full one is its tooltip and
+  // the button's accessible name. title is a node, so read its text.
+  const btn = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const b = btn.current;
+    const name = b?.firstElementChild?.textContent?.trim();
+    if (!b || !name) return;
+    b.title = name;
+    b.setAttribute("aria-label", `${name}. Switch case`);
+  });
   useEffect(() => {
     if (!open || cases) return;
     api.listCases().then((r) => setCases(r.cases)).catch(() => setCases([]));
@@ -289,8 +299,14 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
   }, [open]);
   return (
     <div className="relative min-w-0" ref={ref}>
-      <button type="button" className="flex min-h-8 min-w-0 max-w-full items-center gap-1 text-right text-[13px] text-ink hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className="min-w-0 max-w-[200px] truncate">{title}</span> <span aria-hidden="true">▾</span>
+      <button
+        ref={btn}
+        type="button"
+        className="flex min-h-8 min-w-0 max-w-full items-center gap-1 text-right text-[13px] text-ink hover:underline"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="min-w-0 max-w-[200px] truncate xl:max-w-[340px] 2xl:max-w-[460px]">{title}</span> <span aria-hidden="true">▾</span>
       </button>
       {open && (
         <div className="absolute left-0 z-40 mt-2 w-80 max-w-[calc(100vw-32px)] rounded-[2px] border border-edge bg-sheet p-2 text-[13px] shadow-[4px_4px_0_var(--shadow)]">

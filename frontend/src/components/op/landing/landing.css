@@ -11,7 +11,7 @@
 .lp .hero h1 { max-width: 22ch; }
 .lp .hero .sub { max-width: 64ch; }
 .lp h1 { font-size: clamp(30px, 2.9vw, 50px); line-height: 1.06; letter-spacing: -.055em; font-weight: 500; color: var(--ink); }
-.lp .sub { font-size: 15px; color: var(--body); }
+.lp .sub { font-size: 16.5px; line-height: 1.55; color: var(--body); }
 .lp .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* ---- the stage (D93) ----
@@ -68,7 +68,7 @@
 /* The caption box: lower left, opposite the title block; one phase at a time. */
 .lp .caption { position: absolute; left: 20px; bottom: 16px; width: min(420px, calc(100% - 340px)); border: 1px solid var(--ink); background: var(--sheet); padding: 10px 14px; }
 .lp .caption .eyebrow { color: var(--ink); }
-.lp .caption p { margin-top: 4px; font-size: 13px; color: var(--body); }
+.lp .caption p { margin-top: 4px; font-size: 14px; line-height: 1.5; color: var(--body); }
 .lp .caption a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 .lp .sheet.nogl canvas { display: none; }
 
@@ -181,7 +181,7 @@
 /* ---- who + footer ---- */
 .lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
 .lp .whobox { margin-top: 12px; border: 1px dashed var(--guide); background: var(--sheet); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
-.lp .whobox p { color: var(--body); font-size: 13.5px; }
+.lp .whobox p { color: var(--body); font-size: 14.5px; line-height: 1.55; }
 .lp .lpfoot { max-width: 1240px; margin: 40px auto 0; padding: 18px var(--gutter) 28px; border-top: 1px dashed var(--guide); display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 12.5px; color: var(--dim); }
 .lp .lpfoot a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 

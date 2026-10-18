@@ -3,6 +3,8 @@
 // Drawing-sheet primitives (DESIGN.md step 3): spec-dialog panels with hard
 // offset shadows, 2 px corners, the confidence ruler with the 0.92 bar, flags.
 import Link from "next/link";
+import { copy } from "@/lib/copy";
+import { Term } from "./term";
 import { useEffect, useRef, type ComponentProps, type ReactNode } from "react";
 import { flagCodes } from "@/lib/countries";
 import { BAR, conf } from "@/lib/format";
@@ -199,10 +201,13 @@ export function Chip({ tone, children, className }: { tone?: "ok" | "ask" | "fai
   );
 }
 
-export function StatusChip({ route }: { route: string | null | undefined }) {
-  if (route === "auto") return <Chip tone="ok">Auto-accepted</Chip>;
-  if (route === "needs_review") return <Chip tone="ask">△ Needs expert review</Chip>;
-  if (route === "needs_info") return <Chip tone="ask">△ Needs more facts</Chip>;
+// explain: the status is explained on hover or focus (#232); pass it where
+// the chip first appears on a screen, not on every card.
+export function StatusChip({ route, explain }: { route: string | null | undefined; explain?: boolean }) {
+  const say = (k: "auto" | "needsReview" | "needsInfo", label: string) => (explain ? <Term explain={copy.terms[k].text}>{label}</Term> : label);
+  if (route === "auto") return <Chip tone="ok">{say("auto", "Auto-accepted")}</Chip>;
+  if (route === "needs_review") return <Chip tone="ask">△ {say("needsReview", "Needs expert review")}</Chip>;
+  if (route === "needs_info") return <Chip tone="ask">△ {say("needsInfo", "Needs more facts")}</Chip>;
   return <Chip>Draft</Chip>;
 }
 
