@@ -11,16 +11,19 @@
 
 ## Problem statement (Manufacturing theme)
 
-**Supply-chain challenge.** Manufacturers moving production out of China ("China plus one") have to decide which operations to move, and where. U.S. Customs (CBP) then decides the product's country of origin from where those operations happen, and origin sets the duty: for our demo heat gun, about 41.7% from China against 16.7% from Thailand.
+Manufacturers moving production out of China must decide which operations to move, and where. U.S. Customs (CBP) sets a product's country of origin by where those operations happen, and origin sets the duty. Example: our demo heat gun pays about 41.7% duty from China and 16.7% from Thailand ([sources](docs/DUTY-SOURCES.md)).
 
-**Efficiency and reliability.** Today that decision is slow and uncertain. A ruling request takes about 20 hours to prepare and a median of 21 days to answer. A move that doesn't change origin is a costly mistake that's only found after production has moved.
+Checking is slow, and a wrong move is costly:
+- **20 hours** to prepare a CBP ruling request ([CBP, 90 FR 54349](https://www.federalregister.gov/citation/90-FR-54349), all ruling types)
+- **21 days** median for CBP to answer (our count of 247 origin rulings on Asian goods, 2025–26, [rulings.cbp.gov](https://rulings.cbp.gov); [docs/NUMBERS.md](docs/NUMBERS.md))
+- A move that doesn't change origin is only found out after production has moved.
 
-**From operational data to recommendations and actions.** Unde turns a manufacturer's own operational data into:
-- **an insight:** the origin CBP would likely assign to today's setup, citing earlier rulings
-- **recommendations:** ranked production moves that would reach a target origin, each checked against CBP precedent
-- **an action:** a draft ruling request for a customs broker to file
+Unde turns a manufacturer's operational data (bill of materials, where each part is made, which plant does each step) into:
+- **Insight:** the origin CBP would likely assign, with the rulings it's based on
+- **Recommendations:** production moves that reach a target origin, each checked against CBP precedent
+- **Action:** a draft ruling request for a customs broker
 
-The operational data is the bill of materials, where each part is made, and which plant performs each operation. This fits the theme's suggested directions: **production optimization** (where to perform each operation) and **supply-chain intelligence** (origin and duty exposure).
+Theme directions it covers: production optimization and supply-chain intelligence.
 
 ## What it does
 
