@@ -15,7 +15,7 @@ func TestMarkdown(t *testing.T) {
 		Supporting: "N347421", Counter: "N345859",
 	})
 	for _, want := range []string{
-		domain.Disclaimer, "Draft for review by a licensed customs broker", "19 C.F.R. Part 177",
+		"19 C.F.R. Part 177",
 		"CBP previously ruled on the current production setup: origin China (N328954)", "make Motor-fan assembly and PCBA (SMT) in Thailand",
 		"N347421 — a comparable change", "N345859 — a similar change that did not alter origin", "https://rulings.cbp.gov/ruling/N350001",
 		"product of Thailand, based on these key factors: motor-fan assembly made in Thailand.",
@@ -47,12 +47,23 @@ func TestListPhrase(t *testing.T) {
 }
 
 func TestBelowBarNotice(t *testing.T) {
-	md := Markdown(Input{ProductName: "x", Facts: "f", Requested: "Thailand", BelowBar: &BelowBar{Confidence: 0.92, Bar: 0.95}})
-	if !strings.Contains(md, "**Below the confidence bar:** Unde's precedent check rated this change 0.92, under its 0.95 bar.") {
-		t.Errorf("draft = %s", md)
+	// The notes go beside the letter, never in it (18 Oct).
+	in := Input{ProductName: "x", Facts: "f", Requested: "Thailand", BelowBar: &BelowBar{Confidence: 0.92, Bar: 0.95}}
+	notes := strings.Join(Notes(in, false), "\n")
+	if !strings.Contains(notes, "Below the confidence bar: Unde's precedent check rated this change 0.92, under its 0.95 bar.") ||
+		!strings.Contains(notes, domain.Disclaimer) || !strings.Contains(notes, "Draft for review by a licensed customs broker") {
+		t.Errorf("notes = %s", notes)
 	}
-	if strings.Contains(Markdown(Input{ProductName: "x", Facts: "f"}), "Below the confidence bar") {
+	for _, md := range []string{Markdown(in), CFR177(in)} {
+		if strings.Contains(md, "Below the confidence bar") || strings.Contains(md, "Draft for review") || strings.Contains(md, domain.Disclaimer) {
+			t.Errorf("a note is in the letter:\n%s", md)
+		}
+	}
+	if strings.Contains(strings.Join(Notes(Input{ProductName: "x", Facts: "f"}, false), "\n"), "Below the confidence bar") {
 		t.Error("notice shown without BelowBar")
+	}
+	if !strings.Contains(strings.Join(Notes(in, true), "\n"), "Laid out on 19 C.F.R. § 177.2") {
+		t.Error("177.2 note missing")
 	}
 }
 
@@ -76,7 +87,7 @@ func TestReadRulingsWhenNoneCited(t *testing.T) {
 func TestCFR177Contents(t *testing.T) {
 	md := CFR177(goldenInputs()["plan"])
 	for _, want := range []string{
-		domain.Disclaimer, "201 Varick Street, Suite 501", // 177.2(a): NCSD address
+		"201 Varick Street, Suite 501",                                                // 177.2(a): NCSD address
 		"## 1. Interested parties", "Manufacturer, Rayong plant (Thailand): [FILL IN", // 177.2(b)(1)
 		"## 2. Port of entry\n\n[FILL IN",
 		"## 3. The transaction", "Prospective importation", "proposed change to that setup: make Motor-fan assembly and PCBA (SMT) in Thailand",
@@ -128,7 +139,7 @@ func TestCFR177FillsInWhatTheCaseLacks(t *testing.T) {
 	if tx := CFR177(Input{Facts: "f", Textile: true}); !strings.Contains(tx, "determined under 19 C.F.R. § 102.21") || strings.Contains(tx, "134.1(b)") {
 		t.Error("textile letter does not ask under 102.21")
 	}
-	if bb := CFR177(goldenInputs()["below_bar"]); !strings.Contains(bb, "rated this change 0.88, under its 0.92 bar") {
+	if bb := strings.Join(Notes(goldenInputs()["below_bar"], true), "\n"); !strings.Contains(bb, "rated this change 0.88, under its 0.92 bar") {
 		t.Error("below-bar notice missing")
 	}
 }

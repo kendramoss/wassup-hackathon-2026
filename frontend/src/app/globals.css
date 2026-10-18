@@ -259,14 +259,6 @@
     font-size: inherit !important;
     padding: 0 !important;
   }
-  .letter-notes,
-  .letter-notes p {
-    font-size: 8.5pt !important;
-    border: 0 !important;
-    background: none !important;
-    padding: 0 0 12pt !important;
-    color: #444 !important;
-  }
 }
 
 

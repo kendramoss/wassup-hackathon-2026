@@ -1563,7 +1563,11 @@ components:
           properties:
             case_id: { type: string }
             format: { type: string, enum: [markdown, cfr177], description: The format rendered; content is Markdown text in both. }
-            content: { type: string }
+            content: { type: string, description: "The letter only: what would be filed. No reviewer notes or disclaimer." }
+            notes:
+              type: array
+              items: { type: string }
+              description: "Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct)."
     Ruling:
       type: object
       properties:

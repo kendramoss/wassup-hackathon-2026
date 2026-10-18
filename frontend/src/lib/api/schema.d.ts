@@ -2578,7 +2578,10 @@ export interface components {
              * @enum {string}
              */
             format?: "markdown" | "cfr177";
+            /** @description The letter only: what would be filed. No reviewer notes or disclaimer. */
             content?: string;
+            /** @description Shown beside the letter, never in it, its print or its download: the draft-for-review disclaimer, how the 177.2 letter marks gaps, and a move under the confidence bar (18 Oct). */
+            notes?: string[];
         };
         Ruling: {
             id?: string;
