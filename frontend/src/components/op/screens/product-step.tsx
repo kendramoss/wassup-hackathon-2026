@@ -124,11 +124,15 @@ type Tier = { key: "origin" | "plan" | "money"; label: string; state: "done" | "
 // to (18 Oct). The backend also rejects a plant without a country and a part
 // without a name, so these are caught here instead.
 type Gap = { field: string; message: string };
-function findGap(tab: Tab, name: string, date: string, facts: string, product: Product, imported: boolean): Gap | null {
+function findGap(tab: Tab, name: string, date: string, facts: string, product: Product, imported: boolean, failed = false): Gap | null {
   if (name.trim() === "") return { field: "[data-field=name]", message: "Add a product name" };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { field: "[data-field=date]", message: "Add the case date" };
   if (tab === "paste") return facts.trim().length <= 20 ? { field: "#step1-panel textarea", message: "Paste a description (a sentence or more)" } : null;
-  if (tab === "bom" && !imported && product.components.length === 0) return { field: "#step1-panel input[type=file]", message: "Upload a bill of materials" };
+  if (tab === "bom" && !imported && product.components.length === 0)
+    return {
+      field: "#step1-panel input[type=file]",
+      message: failed ? "Your last file didn't import: fix the rows listed below it, or upload another file" : "Upload a bill of materials",
+    };
   for (const [i, pl] of (product.plants ?? []).entries()) {
     if (!pl.name?.trim() && !pl.country.trim()) return { field: `#field-plant-name-${i}`, message: "Fill in or remove this empty plant" };
     if (!pl.country.trim()) return { field: `#field-plant-country-${i}`, message: `Add the country of ${pl.name || "this plant"}` };
@@ -237,6 +241,15 @@ export function ProductStep() {
   // The name the import filled in, so a later answer replaces it but never
   // what the user typed.
   const autoName = useRef("");
+  // True while the name field holds what an import filled in: it goes with
+  // an upload only when the user typed it, so the file can name itself.
+  const [nameIsAuto, setNameIsAuto] = useState(false);
+  // What the latest import filled in (not the user): a new file replaces
+  // exactly these, and a failed file leaves none of the old file behind.
+  const autoFamily = useRef(false);
+  const autoHts = useRef(false);
+  const autoEcon = useRef(false);
+  const [importFailed, setImportFailed] = useState(false);
   const [name, setName] = useState("");
   const [date, setDate] = useState(today);
   const [family, setFamily] = useState("motorised_tools_small_appliances");
@@ -244,6 +257,11 @@ export function ProductStep() {
   const [hts, setHts] = useState("");
   const [product, setProduct] = useState<Product>(emptyProduct);
   const [economics, setEconomics] = useState<Economics | undefined>(undefined);
+  // The money as it is now, for an import that finishes after a reset.
+  const econRef = useRef<Economics | undefined>(undefined);
+  useEffect(() => {
+    econRef.current = economics;
+  }, [economics]);
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
@@ -384,7 +402,7 @@ export function ProductStep() {
 
   // The main button says what's still missing instead of just looking off.
   // Each gap names the field to take the user to (18 Oct).
-  const gap = findGap(tab, name, date, facts, product, imported !== null);
+  const gap = findGap(tab, name, date, facts, product, imported !== null, importFailed);
   const missing: string | null = gap?.message ?? null;
   const ready = missing === null;
   // Not ready: the button stays focusable and takes you to what's missing.
@@ -426,7 +444,20 @@ export function ProductStep() {
           <SectionHead n={1} title="The product" hint="Its name heads the ruling letter; the date limits which rulings are read." />
           <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_200px]">
             <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
-              {(id) => <input id={id} data-field="name" className={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Kobalt 12.5-amp heat gun" />}
+              {(id) => (
+                <input
+                  id={id}
+                  data-field="name"
+                  className={input}
+                  value={name}
+                  onChange={(e) => {
+                    autoName.current = "";
+                    setNameIsAuto(false);
+                    setName(e.target.value);
+                  }}
+                  placeholder="e.g. Kobalt 12.5-amp heat gun"
+                />
+              )}
             </Field>
             <Field label={copy.product.family}>
               {(id) => (
@@ -535,15 +566,30 @@ export function ProductStep() {
             )}
             {tab === "bom" && (
               <BomImport
-                name={name}
+                name={nameIsAuto ? "" : name}
                 family={familyTouched ? family : ""}
                 onPicked={(guess) => {
-                  // Instant: the file's name fills the field while the import runs.
-                  if (guess && !name.trim()) {
+                  // A new file starts clean: what the last import filled goes,
+                  // what the user typed or chose stays (18 Oct).
+                  if (!name.trim() || name === autoName.current) {
                     setName(guess);
                     autoName.current = guess;
+                    setNameIsAuto(Boolean(guess));
                   }
+                  if (autoFamily.current && !familyTouched) {
+                    setFamily("motorised_tools_small_appliances");
+                    setFamCheck(null);
+                  }
+                  if (autoHts.current) setHts("");
+                  if (autoEcon.current) setEconomics(undefined);
+                  autoFamily.current = autoHts.current = autoEcon.current = false;
+                  setImported(null);
+                  setProduct(emptyProduct);
+                  setAutoFilled(null);
+                  setFilled(null);
+                  setImportFailed(false);
                 }}
+                onFailed={() => setImportFailed(true)}
                 imported={imported}
                 onImported={(r) => {
                   setImported(r);
@@ -554,23 +600,48 @@ export function ProductStep() {
                   const said: string[] = [];
                   if (r.product.name && r.name_source) {
                     const filledName = r.product.name;
-                    setName((n) => (!n.trim() || n === autoName.current ? filledName : n));
-                    autoName.current = filledName;
+                    // Typed while the file was importing: the user's name stays.
+                    const userTyped = !autoName.current && name.trim() !== "";
+                    // Read now: React runs the updater later, after the ref changes below.
+                    const prevAuto = autoName.current;
+                    setName((n) => (!n.trim() || n === prevAuto ? filledName : n));
+                    if (!userTyped) {
+                      autoName.current = filledName;
+                      setNameIsAuto(true);
+                    }
                     said.push(`Product name “${filledName}”, ${r.name_source === "file_name" ? "from the file's name" : how(r.name_source)}.`);
                   }
                   if (r.family && (r.family_source === "file" || r.family_source === "ai")) {
+                    autoFamily.current = true;
                     said.push(`Product family ${familyName(r.family)}, ${how(r.family_source)}${r.family_reason ? `: ${r.family_reason}` : "."}`);
                   }
                   setAutoFilled(said.length ? said : null);
                   // Money from the file, then duty from the HTS (#235).
-                  const fromFile = r.economics ? { ...(economics ?? {}), ...r.economics } : economics;
-                  if (r.product.hts) setHts(r.product.hts);
-                  if (r.economics) setEconomics(fromFile);
+                  // The money as it is now (reset when the file was picked), not
+                  // as it was when the upload started.
+                  const base = econRef.current;
+                  const fromFile = r.economics ? { ...(base ?? {}), ...r.economics } : base;
+                  if (r.product.hts) {
+                    const code = r.product.hts;
+                    setHts((h) => (h.trim() ? h : code));
+                    autoHts.current = true;
+                  }
+                  if (r.economics) {
+                    setEconomics(fromFile);
+                    autoEcon.current = true;
+                  }
                   setFilled(null);
-                  void prefillMoney({ ...r.product, name: name.trim() || r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
-                    setEconomics(e);
+                  void prefillMoney({ ...r.product, name: r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
+                    if (e && e !== fromFile) {
+                      setEconomics(e);
+                      autoEcon.current = true;
+                    }
                     setFilled(f);
-                    if (f.htsSuggested && f.hts) setHts((h) => h || f.hts!);
+                    if (f.htsSuggested && f.hts) {
+                      const code = f.hts;
+                      setHts((h) => h || code);
+                      autoHts.current = true;
+                    }
                   });
                   // The file name ("heatgun bom") is no product name and would
                   // land in the ruling letter (#85): ask for one instead.
@@ -591,7 +662,10 @@ export function ProductStep() {
           <div className="mt-6">
             <HtsField
               value={hts}
-              onChange={setHts}
+              onChange={(v) => {
+                autoHts.current = false;
+                setHts(v);
+              }}
               source={htsSource}
               inputClass={input}
               help={
@@ -723,6 +797,7 @@ export function ProductStep() {
           countries={countries}
           onClose={() => setMoneyOpen(false)}
           onSave={(e) => {
+            autoEcon.current = false;
             setEconomics(e);
             setMoneyOpen(false);
           }}
@@ -1108,10 +1183,12 @@ function BomImport({
   onEdit,
   onUseText,
   onPicked,
+  onFailed,
 }: {
   name: string;
   family: string;
   onPicked?: (nameGuess: string) => void;
+  onFailed?: () => void;
   imported: ImportResponse | null;
   onImported: (r: ImportResponse) => void;
   onEdit: () => void;
@@ -1143,6 +1220,7 @@ function BomImport({
       } catch (e) {
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
+        onFailed?.();
       } finally {
         setBusy(false);
       }
@@ -1158,6 +1236,7 @@ function BomImport({
       onImported(await api.importBom(form));
     } catch (e) {
       setError(e);
+      onFailed?.();
     } finally {
       setBusy(false);
     }
