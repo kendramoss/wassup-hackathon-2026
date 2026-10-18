@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, type Economics, type Product } from "@/lib/api/client";
+import { ApiError, api, type Economics, type Product } from "@/lib/api/client";
 import { cx } from "./ui";
 
 // Money inputs filled for the user (#235): figures from the uploaded BOM,
@@ -117,6 +117,71 @@ export function PrefillNote({ f, onEdit, className }: { f: Filled; onEdit?: () =
         <button type="button" onClick={onEdit} className="mt-1.5 min-h-7 text-[12px] text-ok hover:underline">
           Review or edit the figures
         </button>
+      )}
+    </div>
+  );
+}
+
+// AI estimates for the blank group costs (#235 step 4): one call; only blank
+// cells are filled, the user's own figures are anchors and never change.
+export type EstimatedCells = Record<string, { low: number; high: number; reason: string }>;
+export const cellKey = (group: string, plant: string) => `${group}|${plant}`;
+
+export function EstimateCosts({
+  product,
+  economics,
+  onFill,
+  className,
+}: {
+  product?: Product;
+  economics: Economics;
+  onFill: (e: Economics, cells: EstimatedCells) => void;
+  className?: string;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ tone: "ok" | "ask"; text: string } | null>(null);
+  if (!product?.plants?.length) return null;
+  const run = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const r = await api.costEstimate({ product, economics });
+      const costs = { ...(economics.group_costs ?? {}) };
+      const cells: EstimatedCells = {};
+      for (const x of r.estimates ?? []) {
+        const row = { ...(costs[x.group] ?? {}) };
+        if (row[x.plant] !== undefined) continue; // the user's figure stays
+        row[x.plant] = Math.round(x.usd);
+        costs[x.group] = row;
+        cells[cellKey(x.group, x.plant)] = { low: x.low, high: x.high, reason: x.reason };
+      }
+      const n = Object.keys(cells).length;
+      onFill({ ...economics, illustrative: true, group_costs: costs }, cells);
+      setMsg(
+        n
+          ? { tone: "ok", text: `Filled ${n} blank cost${n === 1 ? "" : "s"} with AI estimates (dashed; hover for the range and why). Illustrative: check them.` }
+          : { tone: "ok", text: r.note || "Every cell already has a cost." },
+      );
+    } catch (e) {
+      setMsg({ tone: "ask", text: e instanceof ApiError && e.status === 400 ? e.message.replace(/^.*?:\s*/, "") : "Couldn't estimate just now. Try again, or enter the costs by hand." });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className={cx("flex flex-col gap-1.5", className)}>
+      <button
+        type="button"
+        onClick={run}
+        disabled={busy}
+        className="inline-flex min-h-8 w-fit items-center gap-1.5 border border-ok bg-white px-2.5 text-[12px] text-ok shadow-[2px_2px_0_var(--shadow)] hover:bg-ok-wash disabled:cursor-wait disabled:text-dim"
+      >
+        {busy ? "Estimating…" : "Estimate the blank costs with AI"}
+      </button>
+      {msg && (
+        <p role="status" className={cx("duo text-[12px]", msg.tone === "ok" ? "text-body" : "text-ask")}>
+          {msg.text}
+        </p>
       )}
     </div>
   );

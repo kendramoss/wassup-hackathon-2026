@@ -476,6 +476,52 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
+  /v1/products/cost-estimate:
+    post:
+      summary: AI estimates for the yearly group costs the user left blank (#235 step 4)
+      description: |
+        One router-model call. Only blank cells are estimated: each group the product has, at each plant that makes it or lists it
+        as a capability (final assembly is left out). The user's costs are anchors and never change. Each estimate has a range
+        and a one-line reason. Needs an anchor: annual_import_value_usd or at least one group cost (400 otherwise). Nothing is
+        saved; estimates are illustrative. Rate-limited as light.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product]
+              properties:
+                product: { $ref: "#/components/schemas/Product" }
+                economics: { $ref: "#/components/schemas/Economics" }
+      responses:
+        "200":
+          description: The estimates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [estimates, note, illustrative]
+                properties:
+                  estimates:
+                    type: array
+                    items:
+                      type: object
+                      required: [group, plant, low, usd, high, reason]
+                      properties:
+                        group: { type: string }
+                        plant: { type: string }
+                        low: { type: number }
+                        usd: { type: number }
+                        high: { type: number }
+                        reason: { type: string }
+                  note: { type: string }
+                  illustrative: { type: boolean }
+                  prompt_version: { type: string, example: cost-estimate-v1 }
+                  llm_provider: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/products/extract:
     post:
       summary: Draft an editable structured product from pasted facts text (nothing is saved)

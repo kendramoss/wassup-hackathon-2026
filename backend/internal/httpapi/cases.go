@@ -177,6 +177,9 @@ type Deps struct {
 	// Family, when set, serves POST /v1/products/family-check: typed text
 	// matched to a template family or "none" (18 Oct).
 	Family FamilyChecker
+	// CostEstimator, when set, serves POST /v1/products/cost-estimate: AI
+	// estimates for blank group costs (#235 step 4).
+	CostEstimator CostEstimator
 	// BOMVersions serves POST /v1/cases/{id}/bom-version: a newer BOM
 	// diffed against the case's product and re-predicted (D67). Off by
 	// default (the route is not registered).

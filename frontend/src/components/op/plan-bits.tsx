@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { DutyBreakdown, DutySources } from "./duty-breakdown";
+import { EstimateCosts } from "./money-prefill";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
@@ -184,6 +185,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
           </div>
         </fieldset>
       </div>
+      {groups.length > 0 && plants.length > 0 && <EstimateCosts product={product} economics={value} onFill={(next) => onChange(next)} className="mt-4" />}
       {groups.length > 0 && plants.length > 0 && (
         // Columns share the width: no sideways scroll (18 Oct).
         <div className="mt-4 max-sm:hidden">
