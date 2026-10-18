@@ -4,7 +4,8 @@
 import { copyFile, mkdir, readFile } from "node:fs/promises";
 
 const src = await readFile(new URL("../src/lib/countries.ts", import.meta.url), "utf8");
-const codes = new Set([...src.matchAll(/:\s*"([a-z]{2})",/g)].map((m) => m[1]));
+// Both the alias map ("Name": "xx",) and the full picker list (["Name", "xx"]).
+const codes = new Set([...src.matchAll(/(?::|,)\s*"([a-z]{2})"(?:,|\])/g)].map((m) => m[1]));
 await mkdir(new URL("../public/flags/", import.meta.url), { recursive: true });
 for (const code of codes) {
   await copyFile(
