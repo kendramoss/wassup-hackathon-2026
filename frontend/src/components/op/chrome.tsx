@@ -71,11 +71,12 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           the landing footer, on the accuracy page and on the broker draft. */}
       <div className="ml-auto flex min-w-0 items-center justify-end gap-4 md:ml-0">
         <span className="flex shrink-0 items-center gap-4">
-          <SignIn />
           <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
             <span className="lg:hidden" aria-hidden="true">+ New</span>
             <span className="hidden lg:inline" aria-hidden="true">{copy.cases.newCase}</span>
           </ButtonLink>
+          {/* The account square ends the bar: Google's G signed out, your initial signed in. */}
+          <SignIn />
         </span>
       </div>
     </header>
