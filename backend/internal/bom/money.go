@@ -138,6 +138,40 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 	return m, warnings
 }
 
+// SheetInfo reads the optional product-level columns: the product name
+// (product / product name) and its family (family / product family), each
+// from the first non-empty cell (18 Oct).
+func SheetInfo(rows [][]string) (productName, family string) {
+	for len(rows) > 0 && blank(rows[0]) {
+		rows = rows[1:]
+	}
+	if len(rows) < 2 {
+		return "", ""
+	}
+	pi, fi := -1, -1
+	for i, h := range rows[0] {
+		switch strings.ToLower(strings.TrimSpace(h)) {
+		case "product", "product name", "product_name":
+			if pi < 0 {
+				pi = i
+			}
+		case "family", "product family", "product_family":
+			if fi < 0 {
+				fi = i
+			}
+		}
+	}
+	for _, row := range rows[1:] {
+		if pi >= 0 && pi < len(row) && productName == "" {
+			productName = strings.TrimSpace(row[pi])
+		}
+		if fi >= 0 && fi < len(row) && family == "" {
+			family = strings.TrimSpace(row[fi])
+		}
+	}
+	return productName, family
+}
+
 // amount reads a non-negative number, allowing "$", "," and spaces.
 func amount(s string) (float64, bool) {
 	s = strings.NewReplacer("$", "", ",", "", " ", "", "USD", "", "usd", "").Replace(s)

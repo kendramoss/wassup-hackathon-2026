@@ -623,6 +623,9 @@ export interface paths {
          *     Optional money columns (#235) prefill the economics: unit_cost_usd (per finished unit, per row), qty (default 1),
          *     annual_units and unit_price_usd (first non-empty cell), hts (first non-empty cell; sets product.hts). A group's yearly
          *     cost at a plant is the sum of unit cost × qty × annual units; the import value is annual units × unit price.
+         *     Product name and family (18 Oct): the given name and family win; then the sheet's product / product name and family /
+         *     product family columns (a family by its id or name); then, with the family checker, a sure match (confidence >= 0.6) on
+         *     the parts and its suggested product name. Leave family empty to let the file or the check choose it.
          */
         post: {
             parameters: {
@@ -643,12 +646,15 @@ export interface paths {
                         description?: string;
                         /** @description needed for groups and the plan search, e.g. motorised_tools_small_appliances */
                         family?: string;
+                        /** @description Names the product when the request, the sheet and the family check give no name (e.g. the file's name) */
+                        fallback_name?: string;
                     };
                     "application/json": {
                         csv: string;
                         name?: string;
                         description?: string;
                         family?: string;
+                        fallback_name?: string;
                     };
                 };
             };
@@ -669,6 +675,15 @@ export interface paths {
                             economics_sources?: {
                                 [key: string]: "file";
                             };
+                            /**
+                             * @description Where the product name came from when the request gave none
+                             * @enum {string}
+                             */
+                            name_source?: "file" | "ai";
+                            /** @enum {string} */
+                            family_source?: "given" | "file" | "ai";
+                            /** @description The family check's reason, when family_source is ai */
+                            family_reason?: string;
                         };
                     };
                 };
@@ -793,6 +808,8 @@ export interface paths {
                                 name?: string;
                                 confidence: number;
                                 reason: string;
+                                /** @description A short name for the product, e.g. Hair dryer */
+                                product_name?: string;
                             };
                             /** @example family-check-v1 */
                             prompt_version?: string;

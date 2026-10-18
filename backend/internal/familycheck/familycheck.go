@@ -27,6 +27,9 @@ type Result struct {
 	Name       string  `json:"name,omitempty"`
 	Confidence float64 `json:"confidence"`
 	Reason     string  `json:"reason"`
+	// ProductName is a short name for the product (e.g. "Hair dryer"),
+	// for a BOM that names none.
+	ProductName string `json:"product_name,omitempty"`
 }
 
 // Checker matches text to a template family.
@@ -44,7 +47,8 @@ func New(model llm.Model, modelID string, templates map[string]planner.Template)
 	var b strings.Builder
 	b.WriteString("You match a product a manufacturer describes to one product family that a production-planning tool supports. ")
 	b.WriteString("Answer with the family whose operation groups fit how the product is made, or \"none\" when no family fits. ")
-	b.WriteString("Do not stretch: a product that shares no operation groups with a family is \"none\". Confidence is 0 to 1.\n\nFamilies:\n")
+	b.WriteString("Do not stretch: a product that shares no operation groups with a family is \"none\". Confidence is 0 to 1. ")
+	b.WriteString("Also give product_name: what the finished product is, in 2 to 5 plain words (e.g. \"Hair dryer\"), from its name or parts.\n\nFamilies:\n")
 	for id := range templates {
 		c.ids = append(c.ids, id)
 	}
@@ -66,9 +70,10 @@ func (c *Checker) schema() map[string]any {
 	return map[string]any{
 		"type": "object",
 		"properties": map[string]any{
-			"family":     map[string]any{"type": "string", "enum": append(slices.Clone(c.ids), None)},
-			"confidence": map[string]any{"type": "number"},
-			"reason":     map[string]any{"type": "string"},
+			"family":       map[string]any{"type": "string", "enum": append(slices.Clone(c.ids), None)},
+			"confidence":   map[string]any{"type": "number"},
+			"reason":       map[string]any{"type": "string"},
+			"product_name": map[string]any{"type": "string"},
 		},
 		"required": []string{"family", "confidence", "reason"},
 	}
