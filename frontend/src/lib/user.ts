@@ -21,7 +21,14 @@ export function userFromCookieHeader(header: string | null): string | undefined 
   return undefined;
 }
 
-export type Claims = { email?: string; exp?: number; aud?: string; iss?: string; name?: string };
+export type Claims = { email?: string; exp?: number; aud?: string; iss?: string; name?: string; picture?: string };
+
+// Google profile photos are served from googleusercontent.com; anything
+// else in the claim is ignored.
+export function profilePicture(c: Claims | null): string | null {
+  const p = c?.picture;
+  return typeof p === "string" && /^https:\/\/[a-z0-9-]+\.googleusercontent\.com\//.test(p) ? p : null;
+}
 
 // The token's claims, unverified: for display and the cookie's lifetime
 // only. The backend checks the signature, audience and expiry.
