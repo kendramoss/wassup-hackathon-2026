@@ -833,6 +833,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/cost-estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI estimates for the yearly group costs the user left blank (#235 step 4)
+         * @description One router-model call. Only blank cells are estimated: each group the product has, at each plant that makes it or lists it
+         *     as a capability (final assembly is left out). The user's costs are anchors and never change. Each estimate has a range
+         *     and a one-line reason. Needs an anchor: annual_import_value_usd or at least one group cost (400 otherwise). Nothing is
+         *     saved; estimates are illustrative. Rate-limited as light.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        product: components["schemas"]["Product"];
+                        economics?: components["schemas"]["Economics"];
+                    };
+                };
+            };
+            responses: {
+                /** @description The estimates */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            estimates: {
+                                group: string;
+                                plant: string;
+                                low: number;
+                                usd: number;
+                                high: number;
+                                reason: string;
+                            }[];
+                            note: string;
+                            illustrative: boolean;
+                            /** @example cost-estimate-v1 */
+                            prompt_version?: string;
+                            llm_provider?: string;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/extract": {
         parameters: {
             query?: never;

@@ -52,6 +52,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/costest"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/familycheck"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
@@ -467,6 +468,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		Engine:                predictor,
 		Router:                router.New(model, cfg.RouterModel, 2000),
 		Family:                familycheck.New(model, cfg.RouterModel, tmpls),
+		CostEstimator:         costest.New(model, cfg.RouterModel),
 		Agent:                 caseagent.New(model, cmp.Or(cfg.CaseAgentModel, cfg.EngineModel), searcher, predictor),
 		Extractor:             extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),

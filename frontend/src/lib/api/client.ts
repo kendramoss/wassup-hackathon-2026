@@ -46,6 +46,7 @@ export type HtsSuggestResponse = Json<"/v1/products/hts-suggest", "post">;
 export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number];
 export type MoneyPrefillResponse = Json<"/v1/products/money-prefill", "post">;
 export type FamilyCheckResponse = Json<"/v1/products/family-check", "post">;
+export type CostEstimateResponse = Json<"/v1/products/cost-estimate", "post">;
 export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
 export type Workspace = S["Workspace"];
 export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
@@ -161,6 +162,7 @@ export const api = {
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
   moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", body, signal),
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),
+  costEstimate: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<CostEstimateResponse>("/products/cost-estimate", body, signal),
   bomVersion: (id: string, file: File, apply = false) => {
     const form = new FormData();
     form.append("file", file);

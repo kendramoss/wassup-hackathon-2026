@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { DutyBreakdown, DutySources } from "./duty-breakdown";
+import { EstimateCosts, cellKey, type EstimatedCells } from "./money-prefill";
 import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
@@ -88,6 +89,8 @@ export function MoneyDrawer({
   const start = base ? groups.reduce((s, g) => s + (value?.group_costs?.[g]?.[base.id] ?? 0), 0) : 0;
   const [total, setTotal] = useState<number | undefined>(start || undefined);
   const [more, setMore] = useState(40);
+  // Cells the AI filled: dashed until the user edits them.
+  const [est, setEst] = useState<EstimatedCells>({});
 
   const w = (g: string) => weight[g] ?? 100;
   const sumW = groups.reduce((s, g) => s + w(g), 0) || 1;
@@ -185,6 +188,16 @@ export function MoneyDrawer({
             <p className="duo text-dim">Add plants, and parts with a group, to cost each move.</p>
           ) : (
             <>
+              <EstimateCosts
+                product={product}
+                economics={{ ...e, group_costs: costs }}
+                onFill={(next, cells) => {
+                  setE(next);
+                  setEst(cells);
+                  setMode("each");
+                }}
+                className="mb-4"
+              />
               <div role="tablist" aria-label="How to enter costs" className="mb-4 inline-flex border border-edge">
                 {(["quick", "each"] as const).map((m) => (
                   <button
@@ -294,7 +307,15 @@ export function MoneyDrawer({
                                 <input
                                   aria-label={`${groupName(g)} at ${p.name || p.id}, USD a year`}
                                   inputMode="numeric"
-                                  className="h-9 w-full min-w-0 rounded-[2px] border border-edge bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok"
+                                  className={cx(
+                                    "h-9 w-full min-w-0 rounded-[2px] border bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok",
+                                    est[cellKey(g, p.id)] ? "border-dashed border-ask text-ask" : "border-edge",
+                                  )}
+                                  title={
+                                    est[cellKey(g, p.id)]
+                                      ? `AI estimate ${usd(est[cellKey(g, p.id)].low)}–${usd(est[cellKey(g, p.id)].high)}: ${est[cellKey(g, p.id)].reason}`
+                                      : undefined
+                                  }
                                   value={usd(row[p.id])}
                                   onChange={(ev) => {
                                     const n = num(ev.target.value);
@@ -302,6 +323,11 @@ export function MoneyDrawer({
                                     if (n === undefined) delete next[p.id];
                                     else next[p.id] = n;
                                     setE({ ...e, group_costs: { ...(e.group_costs ?? {}), [g]: next } });
+                                    if (est[cellKey(g, p.id)]) {
+                                      const rest = { ...est };
+                                      delete rest[cellKey(g, p.id)];
+                                      setEst(rest);
+                                    }
                                   }}
                                 />
                               </td>
