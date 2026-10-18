@@ -774,3 +774,9 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - The consent screen is External and in Testing: only listed test users can sign in. The home, privacy and terms links are on undelabs.dev.
 - **Visitor cookies are per domain:** anonymous cases made on the run.app URL do not show on undelabs.dev. Pinned demos and signed-in users' cases show on both.
 
+## D95 — Broker API keys issued from the command line, and on (18 Oct)
+- **Problem (D91 check f):** issuing a key is an admin call (`POST /v1/admin/api-keys` with `X-Admin-Token`). The backend is private on Cloud Run, and the public proxy deliberately does not forward the admin token. Forwarding it would make the token usable from the internet. So the cloud agent got 403, and `API_KEYS` was turned back off.
+- **Change:** `go run ./cmd/apikey issue -name NAME [-quota N] | list | disable ID` writes keys straight into Firestore, the store the server reads them from, using the operator's Application Default Credentials. It uses the same `apikey.Keys` and `store.FirestoreAPIKeys` as the server. The secret is printed once; only its hash is stored. There's no network path to the private backend and no admin token on the wire.
+- **Brokers call** `https://undelabs.dev/api/v1/...` with `X-API-Key`. The proxy forwards it (D91).
+- `API_KEYS=on` is set again in deploy.yml. It needs `CASES_STORE=firestore` and `ADMIN_TOKEN`, both already set.
+
