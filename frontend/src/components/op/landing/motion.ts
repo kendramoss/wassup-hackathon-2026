@@ -26,21 +26,59 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   const wide = () => innerWidth > 900;
   // Pinned areas sit under the sticky AppBar, whose height wraps on phones.
   const bar = document.querySelector("header");
+  const barH = () => bar?.offsetHeight ?? 0;
   const setBar = () => bar && root.style.setProperty("--bar", `${bar.offsetHeight}px`);
   setBar();
   const barRo = new ResizeObserver(setBar);
   if (bar) barRo.observe(bar);
 
+  // ---- the stage -------------------------------------------------------------
+  // Wide screens pin one stage and move its three panes sideways as the page
+  // scrolls down (D93). Scroll is native: the page position, in screens past
+  // the stage's top, is split into the figures' phases below. Phones stack
+  // the panes and each figure keeps its own scroll progress.
+  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), hzfill = $("hzfill");
+  const panes = [...track.children] as HTMLElement[];
+  // Screens of scroll: fig.1 plays over 0–4, slides to fig.2 over 4–5.5,
+  // fig.2 fills over 5.3–7.5, slides to fig.3 over 7.5–9, fig.3 settles
+  // over 8.9–10.5 and holds on the way into the cases until 11.
+  const SCREENS = 11, ARRIVE = [0, 5.5, 10.6];
+  const horizontal = () => wide();
+  // The pin sticks once the stage's top reaches the AppBar, so progress
+  // counts from there.
+  const travel = () => Math.max(1, hz.offsetHeight - hzpin.clientHeight);
+  const at = () => clamp01((barH() - hz.getBoundingClientRect().top) / travel()) * SCREENS;
+  const seg = (a: number, b: number) => clamp01((at() - a) / (b - a));
+  // Panes moved so far: eased while scrolling, a cut with reduced motion.
+  const slid = () => {
+    const P = at();
+    return reduce ? (P >= 4.75 ? 1 : 0) + (P >= 8.25 ? 1 : 0) : ramp(P, 4, 5.5) + ramp(P, 7.5, 9);
+  };
+  const goTo = (i: number, smooth: boolean) =>
+    scrollTo({ top: hz.getBoundingClientRect().top + scrollY - barH() + (ARRIVE[i] / SCREENS) * travel(), behavior: smooth && !reduce ? "smooth" : "instant" });
+  const hzgo = $$<HTMLButtonElement>("hzgo");
+  const onGo = (e: Event) => goTo(Number((e.currentTarget as HTMLElement).dataset.i), true);
+  hzgo.forEach((b) => b.addEventListener("click", onGo));
+  // Tabbing into a pane that is off to the side brings it into view; the pin
+  // clips sideways, so the browser would otherwise scroll it on its own.
+  const onFocus = (e: FocusEvent) => {
+    if (!horizontal()) return;
+    hzpin.scrollLeft = 0;
+    const i = panes.findIndex((p) => p.contains(e.target as Node));
+    if (i >= 0 && Math.round(slid()) !== i) goTo(i, false);
+  };
+  track.addEventListener("focusin", onFocus);
+
   // ---- fig.1 ----------------------------------------------------------------
-  const scrolly = $("scrolly"), scroller = $("scroller"), gunSheet = $("gunsheet");
+  const scroller = $("scroller"), gunSheet = $("gunsheet");
   let gun: ReturnType<typeof createHeatGun> | null = null;
   try {
     gun = createHeatGun({ canvas: $<HTMLCanvasElement>("canvas"), labels: $("labels"), leaders: $<SVGSVGElement>("leaders"), flag, reduce });
   } catch {
     gunSheet.classList.add("nogl"); // no WebGL: the story text and stamp still work
   }
-  const stamp = $("stamp"), plannote = $("plannote"), caption = $("caption"), tbstate = $("tbstate");
-  const steps = $$("step");
+  const stamp = $("stamp"), plannote = $("plannote"), tbstate = $("tbstate");
+  const caps = $$("cap");
   let after: boolean | null = null;
   function setStamp(a: boolean) {
     if (after === a) return;
@@ -69,16 +107,15 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   }
   setStamp(false);
   const fig1Progress = () => {
-    const el = wide() ? scrolly : scroller;
-    const r = el.getBoundingClientRect();
+    if (horizontal()) return seg(0, 4);
+    const r = scroller.getBoundingClientRect();
     return clamp01(-r.top / Math.max(1, r.height - innerHeight));
   };
 
-  // ---- bridge + fig.2 ---------------------------------------------------------
-  const bridge = $("bridge"), bridgepath = $<SVGPathElement>("bridgepath");
+  // ---- fig.2 ----------------------------------------------------------------
   const f2 = $("f2"), stage = $("stage"), now = $("now");
   const sheets = $$("mini");
-  const pathsvg = $<SVGSVGElement>("pathsvg"), wire = $<SVGPathElement>("wire"), lead = $<SVGPathElement>("lead");
+  const pathsvg = $<SVGSVGElement>("pathsvg"), wire = $<SVGPathElement>("wire");
   const wires = [null, ...L.wires].map((t) => {
     const arrow = document.createElementNS(SVGNS, "polygon");
     arrow.setAttribute("fill", "var(--ok)");
@@ -92,8 +129,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     }
     return { arrow, label };
   });
-  let x0 = 60;
   const fig2Progress = () => {
+    if (horizontal()) return seg(5.3, 7.5);
     const r = f2.getBoundingClientRect();
     return clamp01(-r.top / Math.max(1, r.height - innerHeight));
   };
@@ -108,7 +145,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     // place just before the wire reaches it, then fills in.
     const d = ramp(p, 0.08, 0.86);
     const cx = (i: number) => W / 2 + (i - 1.5) * gap, cy = H / 2;
-    x0 = cx(0) - 125 - 70;
+    const x0 = cx(0) - 125 - 70;
     const x1 = cx(3) + 125 + 70;
     const head = lerp(x0, x1, d);
     sheets.forEach((s, i) => {
@@ -116,7 +153,6 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       s.style.transform = `translate(${(i - 1.5) * gap}px, ${lerp(12, 0, k)}px)`;
     });
     wire.setAttribute("d", `M${x0},${cy} H${x1}`);
-    lead.setAttribute("d", `M${x0},${-stage.offsetTop - 2} V${cy}`);
     const len = x1 - x0;
     wire.style.strokeDasharray = `${len}`;
     wire.style.strokeDashoffset = String(len * (1 - d));
@@ -139,15 +175,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     });
     now.textContent = L.fig2Now[Math.max(0, reached.lastIndexOf(true))];
   }
-  function drawBridge() {
-    const b = bridge.getBoundingClientRect(), g = gunSheet.getBoundingClientRect(), st = stage.getBoundingClientRect();
-    const h = b.height, sx = g.left + g.width / 2 - b.left, sy = Math.max(0, g.bottom - b.top);
-    const tx = wide() ? st.left + x0 - b.left : 16;
-    bridgepath.setAttribute("d", `M${sx},${sy} V${h * 0.45} H${tx} V${h + 2}`);
-  }
-
   // ---- fig.3 ----------------------------------------------------------------
-  const f3 = $("f3"), f3wrap = f3.parentElement!, ruler = $<SVGSVGElement>("ruler"), mv = $("mv"), field = $("field");
+  const f3 = $("f3"), endcta = $("endcta"), ruler = $<SVGSVGElement>("ruler"), mv = $("mv"), field = $("field");
   const X = (v: number) => 20 + v * 6;
   function drawRuler(t: number) {
     const axis = ramp(t, 0, 0.35);
@@ -186,14 +215,10 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       s.e.style.transform = `translate(${lerp(s.sx * (W - size), gx, k)}px, ${lerp(s.sy * (H - size), gy, k)}px) rotate(${lerp(s.sr, 0, k)}deg)`;
     }
   }
-  // fig.3 stays pinned while it plays, so the squares settle over a long scroll.
   const fig3Progress = () => {
-    if (!wide()) {
-      const r = f3.getBoundingClientRect();
-      return clamp01((innerHeight - r.top) / (innerHeight * 0.85));
-    }
-    const r = f3wrap.getBoundingClientRect();
-    return clamp01((innerHeight * 0.55 - r.top) / (r.height - innerHeight * 0.45));
+    if (horizontal()) return seg(8.9, 10.5);
+    const r = f3.getBoundingClientRect();
+    return clamp01((innerHeight - r.top) / (innerHeight * 0.85));
   };
 
   // ---- one loop ---------------------------------------------------------------
@@ -208,32 +233,37 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   function frame(now_: number) {
     const dt = Math.min(0.05, (now_ - last) / 1000);
     last = now_;
-    if (near(scrolly)) {
+    const s = horizontal() ? slid() : 0;
+    if (horizontal()) {
+      track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;
+      hzfill.style.width = `${(at() / SCREENS) * 100}%`;
+      hzgo.forEach((b, i) => b.toggleAttribute("aria-current", Math.round(s) === i));
+    } else track.style.transform = "";
+    if (near(gunSheet) && s < 1) {
       const p = fig1Progress();
       shown1 = reduce ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
       const ex = ramp(shown1, 0.12, 0.36) - ramp(shown1, 0.8, 0.95);
       const mvv = ramp(shown1, 0.46, 0.7);
       const cbpv = ramp(shown1, 0.74, 0.82); // anything else CBP's 2026 change moved (none drawn now), while still exploded (reassembly starts at 0.8)
       const step = shown1 < 0.2 ? 0 : shown1 < 0.44 ? 1 : shown1 < 0.76 ? 2 : 3;
-      steps.forEach((li, i) => li.classList.toggle("on", i === step));
-      caption.textContent = L.captions[step];
+      caps.forEach((c, i) => (c.hidden = i !== step));
       tbstate.textContent = L.sheetStates[step];
       setStamp(shown1 > 0.76);
       plannote.classList.toggle("on", shown1 > 0.5 && shown1 < 0.97);
       gun?.frame(ex, mvv, dt, (now_ - start) / 1000, cbpv);
     }
-    if (near(f2) || near(bridge)) {
+    if (near(f2) && (!horizontal() || (s > 0.2 && s < 1.8))) {
       const p = fig2Progress();
       shown2 = reduce ? p : shown2 + (p - shown2) * 0.15;
       layoutF2(reduce ? 1 : shown2);
-      drawBridge();
     }
-    if (near(f3wrap)) {
+    if (near(f3) && (!horizontal() || s > 1.2)) {
       const t = reduce ? 1 : fig3Progress();
       if (Math.abs(t - t3) > 0.001) {
         t3 = t;
         drawRuler(t);
         drawField(t);
+        endcta.classList.toggle("on", t > 0.97);
       }
     }
     raf = requestAnimationFrame(frame);
@@ -241,15 +271,17 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   // Lay every figure out once, so each is in its start state (or its end
   // state with reduced motion) before any scrolling.
   layoutF2(reduce ? 1 : 0);
-  drawBridge();
   drawRuler(reduce ? 1 : 0);
   drawField(reduce ? 1 : 0);
+  endcta.classList.toggle("on", reduce);
   raf = requestAnimationFrame(frame);
 
   return () => {
     cancelAnimationFrame(raf);
     ro.disconnect();
     barRo.disconnect();
+    track.removeEventListener("focusin", onFocus);
+    hzgo.forEach((b) => b.removeEventListener("click", onGo));
     gun?.dispose();
     field.replaceChildren();
     wires.forEach((w) => {

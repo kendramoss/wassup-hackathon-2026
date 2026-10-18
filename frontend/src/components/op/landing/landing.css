@@ -6,24 +6,34 @@
 .lp .dimn { font-size: 10px; letter-spacing: .02em; color: var(--dimension); }
 .lp .flag { display: inline-block; height: 11px; width: auto; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); vertical-align: -1px; }
 
-/* ---- hero + fig.1 ---- */
-.lp .scrolly { position: relative; height: 300vh; }
-.lp .stick { position: sticky; top: var(--bar); height: calc(100vh - var(--bar)); display: grid; grid-template-columns: minmax(340px, 30%) 1fr; gap: 32px; padding: 28px var(--gutter) 24px; }
-.lp .left { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
-.lp .hero-d, .lp .hero-m { display: flex; flex-direction: column; gap: 14px; }
-.lp .hero-m { display: none; }
+/* ---- hero ---- */
+.lp .hero { display: flex; flex-direction: column; gap: 14px; padding: 36px var(--gutter) 28px; }
+.lp .hero h1 { max-width: 22ch; }
+.lp .hero .sub { max-width: 64ch; }
 .lp h1 { font-size: clamp(30px, 2.9vw, 50px); line-height: 1.06; letter-spacing: -.055em; font-weight: 500; color: var(--ink); }
 .lp .sub { font-size: 15px; color: var(--body); }
 .lp .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
-.lp .steps { list-style: none; margin: auto 0 0; padding: 0; border-top: 1px dashed var(--guide); }
-.lp .steps li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); color: var(--dim); transition: color .3s; }
-.lp .steps li:not(.on) .n { color: var(--faint); }
-.lp .steps .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid currentColor; border-radius: 50%; font-size: 11px; }
-.lp .steps b { display: block; font-weight: 500; font-size: 13px; }
-.lp .steps p { font-size: 13px; }
-.lp .steps li.on { color: var(--ink); }
-.lp .steps li.on .n { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.lp .steps li.on p { color: var(--body); }
+
+/* ---- the stage (D93) ----
+   Wide screens: .hz is 11 screens of scroll plus one pinned screen; the
+   track's three panes move sideways under the sticky AppBar. Phones (below)
+   stack the panes. */
+.lp .hz { position: relative; height: calc(1100vh + 100vh - var(--bar)); }
+.lp .hzpin { position: sticky; top: var(--bar); height: calc(100vh - var(--bar)); overflow: hidden; }
+.lp .track { display: flex; width: 300%; height: 100%; will-change: transform; }
+.lp .pane { position: relative; flex: 0 0 calc(100% / 3); min-width: 0; height: 100%; }
+.lp .p1 { display: flex; flex-direction: column; padding: 16px var(--gutter) 44px; }
+.lp .p1 .sheet { flex: 1; }
+.lp .hzprog { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 14px; height: 18px; border-top: 1px solid var(--line); }
+.lp .hzprog i { position: absolute; left: 0; top: -1px; height: 1px; background: var(--ok); width: 0; }
+.lp .hzprog button { position: absolute; top: 2px; transform: translateX(-50%); font: inherit; font-size: 10.5px; letter-spacing: .04em; color: var(--dimension); background: var(--paper); padding: 0 6px; cursor: pointer; }
+.lp .hzprog button::before { content: ""; position: absolute; left: 50%; top: -7px; height: 7px; border-left: 1px solid var(--dimension); }
+.lp .hzprog button[aria-current] { color: var(--ok); }
+.lp .hzprog button:nth-of-type(1) { left: 0; transform: none; padding-left: 0; }
+.lp .hzprog button:nth-of-type(1)::before { left: 0; }
+.lp .hzprog button:nth-of-type(2) { left: 50%; }
+.lp .hzprog button:nth-of-type(3) { left: auto; right: 0; transform: none; padding-right: 0; }
+.lp .hzprog button:nth-of-type(3)::before { left: auto; right: 0; }
 
 .lp .sheet { position: relative; margin: 0; min-height: 0; border: 1px solid var(--edge); background: var(--sheet); border-radius: 2px; box-shadow: 4px 4px 0 var(--shadow); overflow: hidden; }
 .lp .sheet canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
@@ -47,25 +57,23 @@
 .lp .callout.cn, .lp .callout.cn .org { color: var(--ok); }
 .lp .callout.cn .ball { border-color: var(--ok); }
 .lp .callout.hot { background: var(--ok-wash); }
-.lp .legend { position: absolute; left: 20px; bottom: 16px; display: flex; gap: 16px; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; pointer-events: none; }
+.lp .legend { margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--line); display: flex; gap: 16px; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; pointer-events: none; }
 .lp .legend i { display: inline-block; width: 18px; border-top: 2px solid var(--ink); vertical-align: middle; margin-right: 6px; }
 .lp .legend i.cn { border-color: var(--ok); }
 .lp .tblock { position: absolute; right: 20px; bottom: 16px; display: grid; grid-template-columns: auto auto; border: 1px solid var(--edge); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); background: var(--sheet); pointer-events: none; }
 .lp .tblock span { padding: 5px 10px; border-right: 1px solid var(--edge); border-bottom: 1px solid var(--edge); }
 .lp .tblock span:nth-child(2n) { border-right: 0; }
 .lp .tblock span:nth-last-child(-n + 2) { border-bottom: 0; }
-.lp .note { position: absolute; left: 20px; bottom: 40px; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); pointer-events: none; }
-.lp .caption { display: none; }
+.lp .note { margin-top: 3px; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); pointer-events: none; }
+/* The caption box: lower left, opposite the title block; one phase at a time. */
+.lp .caption { position: absolute; left: 20px; bottom: 16px; width: min(420px, calc(100% - 340px)); border: 1px solid var(--ink); background: var(--sheet); padding: 10px 14px; }
+.lp .caption .eyebrow { color: var(--ink); }
+.lp .caption p { margin-top: 4px; font-size: 13px; color: var(--body); }
+.lp .caption a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 .lp .sheet.nogl canvas { display: none; }
 
-/* ---- bridge ---- */
-.lp .bridge { position: relative; height: 30vh; }
-.lp .bridge svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.lp .bridge p { position: absolute; left: var(--gutter); bottom: 10px; font-size: 13px; color: var(--body); background: var(--paper); padding-right: 8px; }
-
 /* ---- fig.2 ---- */
-.lp .f2 { position: relative; height: 220vh; }
-.lp .f2 .pin { position: sticky; top: var(--bar); height: calc(100vh - var(--bar)); overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 28px; padding: 24px var(--gutter); }
+.lp .f2 .pin { height: 100%; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 28px; padding: 24px var(--gutter); }
 .lp .f2 .head, .lp .f2 .foot { max-width: 1240px; width: 100%; margin: 0 auto; }
 .lp .f2 .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .lp .f2 .now { font-size: 13px; color: var(--body); min-height: 20px; }
@@ -106,8 +114,8 @@
 .lp .letter i { display: block; height: 6px; background: var(--wash); margin: 6px 0; }
 
 /* ---- fig.3 ---- */
-.lp .f3wrap { max-width: 1240px; margin: 0 auto; padding: 40px var(--gutter) 0; height: 230vh; }
-.lp .test { position: sticky; top: calc(var(--bar) + 20px); background: var(--sheet); border: 1px solid var(--edge); box-shadow: 4px 4px 0 var(--shadow); padding: 46px 52px 40px; }
+.lp .f3wrap { display: flex; align-items: center; justify-content: center; padding: 16px var(--gutter) 44px; }
+.lp .test { position: relative; width: 100%; max-width: 1240px; background: var(--sheet); border: 1px solid var(--edge); box-shadow: 4px 4px 0 var(--shadow); padding: 46px 52px 40px; }
 .lp .reg { position: absolute; width: 26px; height: 26px; }
 .lp .reg::before, .lp .reg::after { content: ""; position: absolute; background: var(--ink); }
 .lp .reg::before { left: 12.5px; top: 0; width: 1px; height: 26px; }
@@ -165,7 +173,10 @@
 .lp .forag .mid { border: 1.5px solid var(--ink); background: var(--sheet); padding: 8px 14px; text-align: center; }
 .lp .forag .mid b { font-weight: 500; display: block; }
 .lp .testfoot { margin-top: 18px; display: flex; justify-content: space-between; gap: 12px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
-.lp .testfoot a { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
+.lp .endcta { display: flex; align-items: center; gap: 20px; text-transform: none; letter-spacing: 0; opacity: 0; transform: translateY(4px); transition: opacity .35s, transform .35s; }
+.lp .endcta.on, .lp .endcta:focus-within { opacity: 1; transform: none; }
+.lp .testfoot { align-items: center; }
+.lp .testfoot .endcta > a:first-child { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---- who + footer ---- */
 .lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
@@ -177,10 +188,13 @@
 /* ---- phones ---- */
 @media (max-width: 900px) {
   .lp { --gutter: 16px; }
-  .lp .hero-m { display: flex; padding: 24px var(--gutter) 8px; }
-  .lp .scrolly { height: auto; }
-  .lp .stick { position: static; height: auto; display: block; padding: 0; }
-  .lp .left { display: none; }
+  .lp .hero { padding: 24px var(--gutter) 8px; }
+  .lp .hz { height: auto; }
+  .lp .hzpin { position: static; height: auto; overflow: visible; }
+  .lp .track { display: block; width: auto; transform: none !important; }
+  .lp .pane { height: auto; }
+  .lp .p1 { display: block; padding: 0; }
+  .lp .hzprog { display: none; }
   .lp .scroller { height: 360vh; position: relative; }
   .lp .sheet { position: sticky; top: var(--bar); height: calc(100vh - var(--bar)); border-left: 0; border-right: 0; box-shadow: none; }
   .lp .stamp { left: 12px; right: auto; top: 56px; min-width: 0; padding: 6px 10px; }
@@ -188,16 +202,17 @@
   .lp .plannote { left: 12px; right: 12px; top: auto; bottom: 96px; max-width: none; }
   .lp .sheethead { left: 12px; right: 12px; top: 12px; }
   .lp .tblock, .lp .note, .lp .legend { display: none; }
-  .lp .caption { display: block; position: absolute; left: 12px; right: 12px; bottom: 12px; margin: 0; background: var(--sheet); border: 1px solid var(--edge); padding: 8px 10px; font-size: 12.5px; color: var(--body); }
+  .lp .caption { left: 12px; right: 12px; bottom: 12px; width: auto; border-color: var(--edge); padding: 8px 10px; }
+  .lp .caption p { font-size: 12.5px; }
   .lp .callout { font-size: 10px; }
-  .lp .bridge { height: 18vh; }
-  .lp .f2 { height: auto; }
-  .lp .f2 .pin { position: static; height: auto; padding: 24px var(--gutter); }
+  .lp .f2 .pin { height: auto; padding: 24px var(--gutter); }
   .lp .stage { height: auto; display: flex; flex-direction: column; gap: 22px; padding: 4px 0; }
   .lp .mini { position: relative; left: auto; top: auto; margin: 0; width: 100%; height: auto; min-height: 220px; transform: none !important; opacity: 1 !important; }
   .lp svg.path { display: none; }
-  .lp .f3wrap { height: auto; padding-bottom: 20px; }
-  .lp .test { position: relative; top: auto; padding: 40px 18px 30px; }
+  .lp .f3wrap { display: block; padding: 0 var(--gutter) 20px; }
+  .lp .test { padding: 40px 18px 30px; }
+  .lp .testfoot { flex-direction: column; align-items: flex-start; }
+  .lp .endcta { flex-wrap: wrap; gap: 12px 20px; }
   .lp .crop { display: none; }
   .lp .ruler { display: none; } /* too small to read at phone width; the claims below carry the numbers */
   .lp .panels, .lp .claims, .lp .forag, .lp .whobox { grid-template-columns: 1fr; }
@@ -220,12 +235,11 @@
 .lp .sheethead .dimn, .lp .sheethead .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (min-width: 901px) { .lp .sheethead > div { min-width: 0; max-width: calc(100% - 270px); } }
 @media (min-width: 901px) and (max-width: 1439px) {
-  .lp .stick { grid-template-columns: minmax(300px, 34%) 1fr; gap: 24px; }
   .lp .tblock, .lp .note { display: none; }
   .lp .stamp { min-width: 0; padding: 8px 12px; }
   .lp .stamp .held { font-size: 21px; }
   .lp .sheethead > div { max-width: calc(100% - 256px); }
-  .lp .plannote { display: none; } /* step 3 on the left says the same, and the note would cover part labels */
+  .lp .plannote { display: none; } /* the caption says the same, and the note would cover part labels */
   .lp .legend span:last-child { display: none; } /* "Drag to turn" */
   .lp .f2 .now { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 }
@@ -235,13 +249,7 @@
    tightens, only the current step keeps its text, and fig.3 stops pinning
    when it can't fit. */
 @media (min-width: 901px) and (max-height: 820px) {
-  .lp .stick { padding-top: 18px; padding-bottom: 16px; }
-  .lp .left { gap: 10px; overflow: hidden; }
-  .lp .hero-d { gap: 10px; }
-  .lp h1 { font-size: clamp(24px, min(2.9vw, 5.4vh), 50px); }
-  .lp .sub { font-size: 13.5px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-  .lp .steps li { padding: 7px 0; }
-  .lp .steps li:not(.on) p { display: none; }
+  .lp .p1, .lp .f3wrap { padding-top: 10px; padding-bottom: 38px; }
   .lp .f2 .pin { gap: 16px; padding-top: 14px; padding-bottom: 14px; }
   .lp .test { padding: 30px 40px 26px; }
   .lp .mv { font-size: 48px; }
@@ -249,16 +257,12 @@
   .lp .field { height: 190px; }
 }
 @media (min-width: 901px) and (max-height: 640px) {
-  .lp .hero-d > .dimn, .lp .ctas > :not(:first-child) { display: none; }
-  .lp .sub { -webkit-line-clamp: 1; line-clamp: 1; }
-  .lp .steps b, .lp .steps p { font-size: 12px; }
+  .lp .caption p { font-size: 12px; }
   .lp .f2 .foot { display: none; }
   .lp .stamp { top: 14px; }
   .lp .tblock, .lp .note, .lp .plannote { display: none; }
 }
-@media (min-width: 901px) and (max-height: 700px) {
-  .lp .f3wrap { height: auto; padding-bottom: 40px; }
-  .lp .test { position: relative; top: auto; }
+@media (min-width: 901px) and (max-height: 760px) {
   .lp .forag { display: none; }
 }
 
