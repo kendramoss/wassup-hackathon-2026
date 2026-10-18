@@ -404,6 +404,8 @@ export function Landing() {
         <a href={L.repo} target="_blank" rel="noreferrer">
           GitHub
         </a>
+        <Link href="/privacy">{copy.legal.footer.privacy}</Link>
+        <Link href="/terms">{copy.legal.footer.terms}</Link>
       </footer>
     </div>
   );
