@@ -17,13 +17,13 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   // The sections read as buttons, not loose text (18 Oct): one segmented
   // group, the current one filled.
   const item = (on: boolean) =>
-    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors sm:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
+    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors lg:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
   return (
-    // From lg up the bar is three columns, so the section buttons sit in the
-    // true middle: logo and case breadcrumb left, actions right.
+    // From md up the bar is three columns, so the section buttons sit in the
+    // true middle on one row: logo and case breadcrumb left, actions right.
     <header
       className={cx(
-        "no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-paper px-4 py-2 sm:px-10 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-6",
+        "no-print flex min-h-14 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-paper px-4 py-2 sm:px-10 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-4 lg:gap-x-6",
         sticky && "sticky top-0 z-30",
       )}
     >
@@ -50,10 +50,10 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
         {/* Hidden below lg, where the page heading names the case (#95). */}
         <div data-case-crumb="" className="hidden min-w-0 items-center border-line empty:hidden lg:flex lg:border-l lg:pl-5" />
       </div>
-      {/* Below lg the buttons take their own centred row under the logo. */}
+      {/* Below md (phones) the buttons take their own centred row under the logo. */}
       <nav
         aria-label="Main"
-        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] sm:text-[15px] lg:order-none lg:w-auto"
+        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] md:order-none md:w-auto lg:text-[15px]"
       >
         <div className="flex gap-1 rounded-[2px] border border-edge bg-sheet p-1 shadow-btn sm:gap-1.5">
           <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
@@ -69,12 +69,12 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       </nav>
       {/* "Not a ruling" left the bar on 18 Oct (owner's call); it stays in
           the landing footer, on the accuracy page and on the broker draft. */}
-      <div className="ml-auto flex min-w-0 items-center justify-end gap-4 lg:ml-0">
+      <div className="ml-auto flex min-w-0 items-center justify-end gap-4 md:ml-0">
         <span className="flex shrink-0 items-center gap-4">
           <SignIn />
           <ButtonLink href="/cases/new" className="min-h-9 py-1.5" aria-label={copy.cases.newCase}>
-            <span className="md:hidden" aria-hidden="true">+ New</span>
-            <span className="hidden md:inline" aria-hidden="true">{copy.cases.newCase}</span>
+            <span className="lg:hidden" aria-hidden="true">+ New</span>
+            <span className="hidden lg:inline" aria-hidden="true">{copy.cases.newCase}</span>
           </ButtonLink>
         </span>
       </div>
