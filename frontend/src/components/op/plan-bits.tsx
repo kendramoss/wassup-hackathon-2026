@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { DutyBreakdown } from "./duty-breakdown";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
@@ -149,7 +150,9 @@ function DutyNote({ text }: { text: string }) {
   );
 }
 
-export function EconomicsEditor({ value, onChange, product, countries }: { value: Economics; onChange: (e: Economics) => void; product?: Product; countries: string[] }) {
+// priced: the case's economics_priced, for the Section 301 breakdown of
+// live rates (D90); the inputs stay the user's own.
+export function EconomicsEditor({ value, onChange, product, countries, priced }: { value: Economics; onChange: (e: Economics) => void; product?: Product; countries: string[]; priced?: Economics | null }) {
   const id = useId();
   const rates = value.duty_rates ?? {};
   const costs = value.group_costs ?? {};
@@ -273,6 +276,7 @@ export function EconomicsEditor({ value, onChange, product, countries }: { value
           ))}
         </div>
       )}
+      <DutyBreakdown e={priced} className="mt-3" />
       {value.duty_rates_note && (
         <details className="mt-3 text-xs text-dim">
           <summary className="inline-flex min-h-6 cursor-pointer items-center text-ok">Sources and caveats</summary>

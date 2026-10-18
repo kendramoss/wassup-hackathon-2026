@@ -8,6 +8,7 @@ import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
+import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
@@ -144,6 +145,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
       {moneyOpen && (
         <MoneyDrawer
           value={c.economics ?? undefined}
+          priced={pricedEconomics(c)}
           product={product ?? undefined}
           countries={[...new Set((product?.plants ?? []).map((p) => p.country).concat(c.prediction?.origin_country ?? []).filter(Boolean))]}
           onClose={() => setMoneyOpen(false)}
@@ -185,6 +187,7 @@ function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
           {fetched ? `, fetched ${fetched}` : ""}. Section 301, forced-labor and 232 duties may apply on top.
         </span>
       )}
+      <DutyBreakdown e={e} className="basis-full" />
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
       {onEdit ? (
         <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
