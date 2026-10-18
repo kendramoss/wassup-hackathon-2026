@@ -29,12 +29,12 @@ The precedent check is not fully repeatable from run to run (D31, D33). The heat
 
 ## 3. Click path (main story, ~2:00 of the 2:45)
 
-1. **Cases home.** The seeded demo cases. Open the heat gun. (For a plan that clears the bar, open the LED tub light instead: section 5.)
+1. **Cases home.** The seeded demo cases. Open the heat gun.
 2. **Product.** CBP's 2022 facts for the Kobalt heat gun, as pasted. "Find the likely origin".
 3. **Result.** Verdict, confidence ruler against the 0.92 bar, the earlier rulings with what CBP held, the check against CBP's own 2022 ruling (China). Below the bar: the follow-up questions.
 4. **Ask the case** (optional, ~15 s; the answer is recorded already): "Why this origin, and which earlier ruling is closest?"
 5. **Scenarios.** As today vs motor-fan assembly in Thailand vs motor-fan + PCBA: origin, confidence and net per year.
-6. **Plan.** The streamed search (replay: fast), then the best plan, or "No plan cleared the bar" with the closest move.
+6. **Plan.** The estimate line under the button (7 moves, time, cost; replays cost nothing), then the streamed search (replay: fast). The plan shown: motor-fan assembly, PCBA and switch/cord in Thailand, check 0.96 on N345938. Open the backtest: CBP's 2026 change (N357771) moved the same parts plus the outer shells, which are already Thai in this setup, so the page does not claim an exact match. Open "How the check found this" to show the agent's searches and the rulings it read. Point at a below-bar row (motor-fan alone, 0.90) and its near-miss advice: this is the bar doing its job. See section 6.
 7. **Draft for broker.** The letter, with the below-bar banner if it applies. Print or download.
 8. **Accuracy.** The results page: overall and fast-path accuracy with CIs, labelled official (Vertex) or proxy.
 
@@ -122,4 +122,21 @@ Prediction: China 0.98, auto. Plan, `backend-00045-hh2`, seeded (D76), 320 s, `v
 The top plan moves exactly what CBP's real change moved (backtest: matches N351143). Duty rates are illustrative: no ruling classifies the tub light.
 
 History, for the record: the first production search (`backend-00043-bvb`) lost all three checks to Vertex 504s. The second (`backend-00044-q8k`, unseeded) checked LED PCBA at 0.90 on H304910. With Anas's approval, those three verdicts were deleted and checked once more with the seed, giving the result above (D76). The heat gun's verdicts were never touched.
+
+## 6. Heat gun: the plan that clears the bar (production, 18 Oct)
+`case_878d76540b91`, revision `backend-00051-kmk`. Seven moves; one is shown.
+
+| Move | Result | Check | For | Against |
+|---|---|---|---|---|
+| **Motor-fan assembly, PCBA and switch, cord and minor parts in Thailand** | **shown** | **0.96** | **N345938** | none |
+| Motor-fan assembly in Thailand | below the bar (closest) | 0.90 | N325810 | none |
+| The other five | below the bar or no supporting precedent | — | — | — |
+
+- **Net:** $285k/yr (illustrative economics).
+- **Backtest against N357771** (CBP, 29 Jan 2026, Thailand): the plan moves the motor, fan, PCBA, knob, power cord and back cover. CBP's change also moved the outer shells, whose moulding is already Thai in this setup.
+
+**How it got here, for the record:**
+1. The first searches (pairs of groups only) never tried a three-group move (D84 added them).
+2. The first production check on that move had 4 of its 6 searches come back empty, because CBP's search needs every word to match. It stored 0.96, "origin changes", with no supporting ruling.
+3. After the relaxed search fix (D89), and with Anas's approval, that one stored verdict was deleted and checked once more: 0.96 on N345938, shown. The other six verdicts were never touched.
 
