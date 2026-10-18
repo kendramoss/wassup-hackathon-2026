@@ -765,3 +765,12 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Unchanged:**
   - Phones (900 px and under) keep the stacked figures.
   - With reduced motion the panes cut instead of sliding, and the figures show their final state.
+
+## D94 — undelabs.dev, and Google sign-in on (18 Oct)
+- **Domain:** the frontend is mapped to `https://undelabs.dev` through a Cloud Run domain mapping, with DNS on Cloudflare. The run.app URL stays valid. The Developers page and docs now give the domain. `www.undelabs.dev` was still provisioning its certificate when this was written.
+- **Google sign-in (D68):** turned on with OAuth client `88903435351-i8mugbokimlne3ns8rlsql93qrc7mths.apps.googleusercontent.com`, a Web client.
+  - It allows the JavaScript origins `https://undelabs.dev` and the run.app URL. It has no redirect URIs, because the popup flow doesn't use one.
+  - It is set as the backend's `TEAMS_AUDIENCE` and the frontend's `GOOGLE_CLIENT_ID`. The client ID is public; the client secret is unused and never stored in the repo.
+  - The consent screen is External and in Testing: only listed test users can sign in. The home, privacy and terms links are on undelabs.dev.
+- **Visitor cookies are per domain:** anonymous cases made on the run.app URL do not show on undelabs.dev. Pinned demos and signed-in users' cases show on both.
+

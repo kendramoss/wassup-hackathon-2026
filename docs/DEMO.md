@@ -29,7 +29,7 @@ The precedent check is not fully repeatable from run to run (D31, D33). The heat
 
 ## 3. Click path (main story, ~2:00 of the 2:45)
 
-Checked against production (`frontend-88903435351.us-central1.run.app`, heat gun `case_878d76540b91`) on 18 Oct after the rename. Every number below is what that case shows; nothing re-runs a model, because predictions and verdicts are cached.
+Checked against production (https://undelabs.dev, also `frontend-88903435351.us-central1.run.app`; heat gun `case_878d76540b91`) on 18 Oct after the rename. Every number below is what that case shows; nothing re-runs a model, because predictions and verdicts are cached.
 
 1. **Cases home.** The pinned demo cases, newest first. Open "Heat gun, 2022 setup (Kobalt 12.5-amp)". Say: "The header reads Unde Labs; *unde* is Latin for 'from where?'."
 2. **Product.** CBP's own 2022 facts for the Kobalt heat gun, as pasted (N328954). Point at "Find the likely origin".
