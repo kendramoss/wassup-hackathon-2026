@@ -726,6 +726,23 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
     const pl = plants.find((p) => p.id === id);
     setComps(product.components.map((c, j) => (j === i ? { ...c, plant: id || undefined, made_in: pl?.country || c.made_in } : c)));
   };
+  // A name typed into "Made at" or "At plant" that isn't a plant yet becomes
+  // one (18 Oct), in a single change so the new plant and its use land
+  // together. A name that matches a plant reuses it.
+  const plantByName = (v: string) => plants.find((p) => p.id === v || (p.name ?? "").trim().toLowerCase() === v.trim().toLowerCase());
+  const newPlant = (name: string, country: string): Plant => ({ id: plantId(plants.map((x) => x.id)), name: name.trim(), country, capabilities: [] });
+  const madeAt = (i: number, v: string) => {
+    const known = v === "" ? undefined : plantByName(v);
+    if (v === "" || known) return pickPlant(i, known?.id ?? "");
+    const pl = newPlant(v, product.components[i]?.made_in ?? "");
+    onChange({ ...product, plants: [...plants, pl], components: product.components.map((c, j) => (j === i ? { ...c, plant: pl.id } : c)) });
+  };
+  const opAt = (i: number, v: string) => {
+    const known = plantByName(v);
+    if (known) return setOps(ops.map((x, j) => (j === i ? { ...x, plant: known.id } : x)));
+    const pl = newPlant(v, "");
+    onChange({ ...product, plants: [...plants, pl], operations: ops.map((x, j) => (j === i ? { ...x, plant: pl.id } : x)) });
+  };
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
@@ -810,7 +827,17 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
                       <input id={`field-part-name-${i}`} aria-label="Part name" placeholder="e.g. electric motor" className={cell} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
                     </td>
                     <td className="py-1 pr-2">
-                      <Combobox ariaLabel="Made at" placeholder="Search your plants" className={cell} value={c.plant ?? ""} onChange={(v) => pickPlant(i, v)} options={plantOptions} />
+                      <Combobox
+                        ariaLabel="Made at"
+                        placeholder="Search or add a supplier"
+                        className={cell}
+                        value={c.plant ?? ""}
+                        onChange={(v) => madeAt(i, v)}
+                        options={plantOptions}
+                        allowCustom
+                        customLabel={(t) => `Add “${t}” as a new supplier`}
+                        customHint="adds it to Plants"
+                      />
                     </td>
                     <td className="py-1 pr-2">
                       <Combobox
@@ -863,11 +890,14 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
               <input aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cell} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
               <Combobox
                 ariaLabel="At plant"
-                placeholder="Search your plants"
+                placeholder="Search or add a plant"
                 className={cell}
                 value={o.plant}
-                onChange={(v) => setOps(ops.map((x, j) => (j === i ? { ...x, plant: v } : x)))}
+                onChange={(v) => opAt(i, v)}
                 options={plantOptions.filter((x) => x.value)}
+                allowCustom
+                customLabel={(t) => `Add “${t}” as a new plant`}
+                customHint="adds it to Plants"
               />
               <Combobox
                 ariaLabel="Operation group"

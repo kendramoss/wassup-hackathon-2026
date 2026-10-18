@@ -28,6 +28,8 @@ export function Combobox({
   allowCustom = false,
   invalid = false,
   flags = false,
+  customLabel = (t: string) => `Use “${t}”`,
+  customHint = "not in the list",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -40,6 +42,9 @@ export function Combobox({
   invalid?: boolean;
   // Show a flag before the typed value too (country fields).
   flags?: boolean;
+  // How the "keep what I typed" option reads.
+  customLabel?: (typed: string) => string;
+  customHint?: string;
 }) {
   const auto = useId();
   const inputId = id ?? auto;
@@ -62,7 +67,7 @@ export function Combobox({
   }, [options, query]);
   const typed = (query ?? "").trim();
   const custom = allowCustom && typed !== "" && !options.some((o) => o.label.toLowerCase() === typed.toLowerCase());
-  const items: ComboOption[] = custom ? [...matches, { value: typed, label: `Use “${typed}”`, hint: "not in the list" }] : matches;
+  const items: ComboOption[] = custom ? [...matches, { value: typed, label: customLabel(typed), hint: customHint }] : matches;
 
   const place = () => {
     const r = input.current?.getBoundingClientRect();
