@@ -208,6 +208,8 @@ type api struct {
 	shared     *sharedLimiter // nil unless Deps.RateStore is set
 	rulingMu   sync.Mutex
 	rulingMemo map[string]rulingDTO
+	askMu      sync.Mutex
+	askMemo    map[string]caseagent.Answer
 }
 
 func (a *api) meta() map[string]any {

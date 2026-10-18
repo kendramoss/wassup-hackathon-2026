@@ -132,6 +132,7 @@ type fakeAgent struct {
 	last  caseagent.Input
 	hold  chan struct{} // Ask signals entry, then waits for release
 	reply *caseagent.Answer
+	calls int
 }
 
 func (f *fakeAgent) Ask(_ context.Context, in caseagent.Input) (caseagent.Answer, error) {
@@ -142,6 +143,7 @@ func (f *fakeAgent) Ask(_ context.Context, in caseagent.Input) (caseagent.Answer
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.last = in
+	f.calls++
 	if f.reply != nil {
 		return *f.reply, nil
 	}
