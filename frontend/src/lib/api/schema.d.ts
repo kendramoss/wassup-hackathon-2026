@@ -2190,8 +2190,21 @@ export interface components {
             duty_rates_note?: string;
             /** @description Response only: origins whose rate came from the sourced duty table (product.hts set; the user's rates win; D52) */
             duty_rates_from_table?: string[];
-            /** @description Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win; never column 2 or US origins). MFN only: Section 301, forced-labor and 232 duties are not included (D65) */
+            /** @description Response only: origins whose rate is the live HTS MFN rate (DUTY_LIVE_MFN=on, subheading not in the table; the user's rates win; never column 2 or US origins). With the Section 301 table (D90), each origin's China Section 301 list duty and 2026 country-wide Section 301 duty are added to the MFN rate (see duty_additional); Section 232 duties are not included (D65, D90) */
             duty_rates_live_mfn?: string[];
+            /**
+             * @description Response only (D90): per origin, the HTS Chapter 99 duties added to its live MFN rate. These come from China's Section 301
+             *     lists (U.S. note 20: 9903.88.01/.02/.03/.04 at 25%, .15 at 7.5%), less whole-subheading exclusions, and from the 2026 country-wide
+             *     Section 301 duties (9903.05.20–.84, 91 FR 47318) less the U.S. note 52 exemptions that cover a whole subheading. Exclusions for
+             *     described products, and exemptions tied to a use or an entry claim, are not applied; duty_rates_note names them to check.
+             */
+            duty_additional?: {
+                [key: string]: {
+                    name?: string;
+                    heading?: string;
+                    rate?: number;
+                }[];
+            };
             /** @description group -> plant id -> yearly USD */
             group_costs?: {
                 [key: string]: {

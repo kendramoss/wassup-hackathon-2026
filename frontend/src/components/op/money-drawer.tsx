@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { DutyBreakdown } from "./duty-breakdown";
 import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
@@ -63,10 +64,13 @@ export function MoneyDrawer({
   countries,
   onSave,
   onClose,
+  priced,
 }: {
   value: Economics | undefined;
   product?: Product;
   countries: string[];
+  // The case's economics_priced, for the Section 301 breakdown (D90).
+  priced?: Economics | null;
   onSave: (e: Economics) => void;
   onClose: () => void;
 }) {
@@ -171,7 +175,8 @@ export function MoneyDrawer({
               </label>
             ))}
           </div>
-          {e.duty_rates_note && <p className="duo mt-2 text-xs text-dim">{e.duty_rates_note}</p>}
+          <DutyBreakdown e={priced} className="mt-2" />
+          {(e.duty_rates_note ?? priced?.duty_rates_note) && <p className="duo mt-2 text-xs text-dim">{e.duty_rates_note ?? priced?.duty_rates_note}</p>}
           <p className="duo mt-1.5 text-xs text-dim">Rates are typed in %; saved as fractions (41.7% → 0.417).</p>
         </section>
 
