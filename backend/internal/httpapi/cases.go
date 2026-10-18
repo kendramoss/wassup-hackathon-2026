@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -131,6 +133,9 @@ type Deps struct {
 	// USITC HTS for subheadings the table does not cover; the table always
 	// wins (D65).
 	LiveMFN *duty.Live
+	// DutyAdd adds Chapter 99 duties to live MFN rates (Section 301, D90);
+	// nil adds none.
+	DutyAdd *duty.Adder
 	// Textile, when set, predicts cases the router labels textile_102_21
 	// under 19 CFR 102.21 instead of leaving them out of scope (D51).
 	// TextileFastPath is its auto-accept bar; 0 sends every textile case to
@@ -962,11 +967,19 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 		}
 		return e
 	}
-	rates, filled := m.Fill(e.DutyRates, origins)
+	rates, filled, extras, check := m.FillWith(e.DutyRates, origins, a.d.DutyAdd)
 	if len(filled) > 0 {
 		e.DutyRates, e.DutyRatesLiveMFN = rates, filled
 	}
-	e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNote(filled))
+	if len(extras) > 0 {
+		e.DutyAdditional = extras
+	}
+	if a.d.DutyAdd != nil && len(filled) > 0 {
+		e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNoteWith(filled))
+	} else {
+		e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNote(filled))
+	}
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, additionalNote(a.d.DutyAdd, extras, check))
 	return e
 }
 
@@ -1318,4 +1331,39 @@ func (a *api) verifierVersion() string {
 		return a.d.VerifierPromptVersion
 	}
 	return verifier.PromptVersion
+}
+
+// additionalNote says which Chapter 99 duties were added to live MFN rates,
+// and which product exclusions the user should check (D90).
+func additionalNote(add *duty.Adder, extras map[string][]duty.Extra, check map[string][]duty.Exclusion) string {
+	if add == nil || (len(extras) == 0 && len(check) == 0) {
+		return ""
+	}
+	var parts []string
+	for _, o := range sortedKeys(extras) {
+		var es []string
+		for _, x := range extras[o] {
+			es = append(es, fmt.Sprintf("%s %s +%g%%", x.Name, x.Heading, math.Round(x.Rate*1000)/10))
+		}
+		parts = append(parts, o+": "+strings.Join(es, ", "))
+	}
+	n := ""
+	if len(parts) > 0 {
+		n = "Additional duties added to the MFN rate (" + add.Source() + "): " + strings.Join(parts, "; ") + "."
+	}
+	for _, o := range sortedKeys(check) {
+		for _, x := range check[o] {
+			n += fmt.Sprintf(" A product exclusion may apply for %s (%s, until %s): %s. Not applied; check whether it covers this product.", o, x.Heading, x.EndDate, x.Description)
+		}
+	}
+	return strings.TrimSpace(n)
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	ks := make([]string, 0, len(m))
+	for k := range m {
+		ks = append(ks, k)
+	}
+	sort.Strings(ks)
+	return ks
 }

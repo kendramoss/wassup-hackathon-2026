@@ -663,3 +663,30 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
   - Cost per search $0.27 / $0.23, wall time 136 s / 93 s.
   - Rows: `eval/results/plan-{heatgun-2022,tublight-2025}-relaxed-search-litellm.json`.
 - The cache key is unchanged, so stored verdicts stay. Production's three-group verdict for the heat gun (0.96, unsupported) is stored. It changes only if that one verdict is deleted and checked again, which is Anas's call (D56).
+
+## D90 — Section 301 duties for every product, parsed from HTS Chapter 99 (18 Oct)
+- Live HTS rates (D65) gave only the MFN rate. For a Chinese-origin product that understates the duty the plan saves: the heat gun's real China–Thailand gap is 25 points (Section 301 List 2), and MFN alone shows 0. The tariff saving is the product's main incentive, so it has to be right beyond the one hand-sourced line (D52).
+- **Data** (`backend/internal/duty/additional.json`, built by `scripts/duty301/build.py`), parsed from the official HTS 2026 Rev 21 Chapter 99 PDF:
+  - **China Section 301, U.S. note 20:**
+    - List 1, 9903.88.01: 856 subheadings
+    - List 2, 9903.88.02: 283
+    - List 3, 9903.88.03: 5,906
+    - List 3's named products, 9903.88.04 (note 20(g)): 11. The task brief called it 20(h); the extractor corrected that.
+    - List 4A, 9903.88.15: 2,958, at 7.5%
+    - Lists 1–3 are at 25%, read from each heading's note.
+    - 10,014 subheadings in all, none on two lists.
+  - Each list was extracted twice by independent parsers (a regex over joined text, and line-wise fixed-width chunks) and diffed: 0 disagreements.
+  - **2026 country-wide Section 301** (headings 9903.05.20–.84, 91 FR 47318), 65 headings:
+    - +12.5% for 38 countries (China, Thailand, Vietnam among them)
+    - +10% for 17 (Malaysia, Mexico, Canada, India among them)
+    - a floor of 10% or 12.5% total for the EU, Japan, South Korea, Switzerland and Taiwan (note 52(k)). EU duties apply to each member state.
+  - **Note 52 exemptions:**
+    - Whole-subheading lists (52(b), and the country lists in 52(j)) are applied.
+    - Lists that depend on a use or an entry claim (civil aircraft 52(d), pharmaceutical use 52(e), CAFTA-DR claims in 52(j)(6)(iii) and (7)(iii)) and named articles (52(c), 52(j)(n)(ii)) are not applied. They are named in the note instead.
+    - Two parsers agreed on all 34 lists.
+  - **Product exclusions** (9903.88.69/.70, 178, until 9 Nov 2026) are all for described products or statistical numbers, so none removes a subheading's duty. When one may apply, it is named in the note.
+- **Behaviour:** with live MFN on, each origin's rate is MFN plus its additional duties. `duty_additional` lists them per origin, and the note names the headings and what to check. Section 232 is still not included and is said so. The hand-sourced table (D52) still wins for its line. A test checks that the parsed data reproduces it exactly (heat gun: China 41.7%, Thailand 16.7%, Vietnam 16.7%, Malaysia 14.2%).
+- **Caveats:**
+  - This is a text-layer extraction, not proofread against the rendered PDF.
+  - The HTS text does not say whether note 52(b) is the notice's Annex II Part A.
+  - Classification is the user's: a wrong HTS number gives wrong duties.

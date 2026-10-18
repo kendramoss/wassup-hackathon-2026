@@ -22,6 +22,8 @@ func fakeHTS(t *testing.T) (*duty.Live, *atomic.Int32) {
 		switch r.URL.Query().Get("keyword") {
 		case "8516.79.00":
 			_, _ = w.Write([]byte(`[{"htsno":"8516.79.00","description":"Other","general":"2.7%"}]`))
+		case "8516.21.00":
+			_, _ = w.Write([]byte(`[{"htsno":"8516.21.00","description":"Storage heating radiators","general":"3.7%"}]`))
 		case "6505.00.90":
 			_, _ = w.Write([]byte(`[{"htsno":"6505.00.90","description":"Other","general":"20.7¢/kg + 7.5%"}]`))
 		case "5555.55.55":
@@ -193,5 +195,32 @@ func TestPlanLiveMFNSkipsUSOrigin(t *testing.T) {
 	e := hs.planner.got.Economics
 	if e.DutyRates["China"] != 0.027 || len(e.DutyRates) != 2 || strings.Join(e.DutyRatesLiveMFN, ",") != "China" {
 		t.Errorf("US target filled: rates = %v live = %v", e.DutyRates, e.DutyRatesLiveMFN)
+	}
+}
+
+func TestPlanLiveMFNAddsSection301(t *testing.T) {
+	live, _ := fakeHTS(t)
+	add, err := duty.LoadAdditional()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.LiveMFN, d.DutyAdd = live, add })
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunWithHTS(t, "8516.21.00"))
+	body := `{"target":"Vietnam","economics":{"illustrative":true,"annual_import_value_usd":1000000}}`
+	if code, out := hs.do(t, "POST", "/v1/cases/"+c["id"].(string)+"/plan", body); code != http.StatusOK {
+		t.Fatalf("plan = %d %v", code, out)
+	}
+	e := hs.planner.got.Economics
+	// 8516.21.00 is on List 3 (+25%); China and Vietnam both owe the 2026
+	// country-wide duty (+12.5%). The gap is the List 3 duty.
+	if e.DutyRates["China"] != 0.412 || e.DutyRates["Vietnam"] != 0.162 {
+		t.Errorf("rates = %v, want China 0.412, Vietnam 0.162", e.DutyRates)
+	}
+	if len(e.DutyAdditional["China"]) != 2 || e.DutyAdditional["China"][1].Heading != "9903.88.03" {
+		t.Errorf("additional = %+v", e.DutyAdditional)
+	}
+	if !strings.Contains(e.DutyRatesNote, "Additional duties added to the MFN rate") || !strings.Contains(e.DutyRatesNote, "9903.88.03 +25%") ||
+		strings.Contains(e.DutyRatesNote, "Section 301, forced-labor, 232) not included") {
+		t.Errorf("note = %q", e.DutyRatesNote)
 	}
 }
