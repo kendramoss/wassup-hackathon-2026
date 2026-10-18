@@ -1,6 +1,6 @@
 # One-time GCP setup (run by a project owner)
 
-Status (15 Oct): steps 1–3 are done and the corpus is uploaded (`make upload-corpus`). Step 4 is partial: `agent-backend` has `roles/storage.objectViewer` on the corpus bucket, and it does not have `roles/datastore.user` because granting that project role needs `setIamPolicy` (Editor cannot). Step 5: `agent-backend` already has `roles/aiplatform.user` (also `roles/cloudbuild.builds.viewer` and `roles/run.viewer`). A project owner still needs to grant `roles/datastore.user`.
+Status (18 Oct): all steps are done. The corpus is uploaded (`make upload-corpus`). `agent-backend` has `roles/storage.objectViewer` on the corpus bucket, `roles/datastore.user` (granted by the project owner; it needs `setIamPolicy`, which Editor lacks) and `roles/aiplatform.user`, plus `roles/cloudbuild.builds.viewer` and `roles/run.viewer`.
 
 Project `wassup-hackathon-2026`, region `us-central1`. The API runs as `agent-backend@`.
 
