@@ -1,10 +1,25 @@
 # Origin Proof
 
-**Plan the production change before you build it.** Origin Proof predicts the country of origin U.S. Customs and Border Protection (CBP) would likely assign to a manufactured product, citing only earlier CBP rulings, and searches where operations could be performed for plans that would reach a target origin. Each plan is checked against precedent and shown only if it is **precedent-supported**.
+**Plan the production change before you build it.**
+
+**Live app:** https://frontend-guxax2teha-uc.a.run.app · Google Cloud AI Builder Cup 2026 (JAPAC), theme: Manufacturing.
+
+## What it is, in plain terms
+
+When a product is imported into the United States, U.S. Customs and Border Protection (CBP) decides its **country of origin**. That decision sets the duty. For goods with parts from several countries, CBP asks where the product was "substantially transformed", meaning where it became a new thing. A factory moving work out of China often can't tell in advance whether its new setup will count as, say, Thai origin. Finding out usually means paying advisers and waiting weeks for a CBP ruling.
+
+Origin Proof is a web app that answers that question ahead of time:
+
+1. **Describe the product.** Paste a description, or upload the bill of materials: what the parts are, where each is made, and which plant does each step.
+2. **See the likely origin.** An AI model (Gemini on Vertex AI) reads the product together with the most similar past CBP rulings. It predicts the origin CBP would likely assign, cites the rulings it relied on and gives a confidence. On 377 held-out real rulings it was right **90%** of the time; the best simple rule of thumb scored 60%.
+3. **Get a plan for a target country.** Pick the origin you want, e.g. Thailand. The app tries moving groups of manufacturing steps between your plants. Each move is checked by an AI agent that searches real CBP rulings. A plan is shown only if an earlier ruling backs it, and those plans are marked **precedent-supported**. Plans are ranked by duty saved minus the extra cost you enter.
+4. **Hand it to a broker.** The chosen plan exports as a draft ruling request for a customs broker to review and file.
+
+It is built for the trade-compliance or industrialisation lead at a contract manufacturer moving work to Thailand, Vietnam, Malaysia, Korea or Taiwan.
 
 > Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.
 
-Google Cloud AI Builder Cup 2026 (JAPAC), theme: Manufacturing.
+The rest of this README covers the method, results and limitations, and how to run it.
 
 ## The problem
 
@@ -110,7 +125,7 @@ Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confir
 | Path | What |
 |---|---|
 | `backend/` | Go API and CLIs. Packages: `domain`, `config`, `llm` (Vertex, fake), `corpus`, `retrieval`, `engine`, `router`, `triage`, `planner` (+ `templates/`), `verifier` (ADK), `clarify`, `cross`, `export`, `store`, `httpapi`, `evalkit`, `evalsummary` |
-| `frontend/` | Next.js app (being rebuilt for Origin Proof) |
+| `frontend/` | Next.js app: landing page, cases (predict, plan, scenarios, export), triage queue, accuracy page, developer docs |
 | `eval/` | Splits, labels, flip pairs (sha256-pinned), result files, `RESULTS.md` |
 | `docs/` | `ARCHITECTURE.md`, `DECISIONS.md`, `PROMPTS.md`, `api/openapi.yaml`, `DUTY-SOURCES.md`, `NUMBERS.md`, `SETUP-GCP.md` |
 
