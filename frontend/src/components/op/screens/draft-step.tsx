@@ -16,9 +16,11 @@ export function DraftStep() {
 // form fills them in the live letter. Everything else is shown as returned.
 const fields = [
   { key: "[REQUESTER NAME]", label: "Requester (company)", hint: "Named in the opening paragraph" },
-  { key: "[NAME]", label: "Signed by" },
+  { key: "[NAME]", label: "Name (signs the letter)" },
   { key: "[TITLE]", label: "Title" },
-  { key: "[COMPANY, ADDRESS, CONTACT]", label: "Company, address, contact", area: true },
+  { key: "[COMPANY]", label: "Company" },
+  { key: "[ADDRESS]", label: "Address", area: true },
+  { key: "[CONTACT]", label: "Email and phone" },
 ] as const;
 
 type Format = "markdown" | "cfr177";
@@ -81,7 +83,15 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const paras = text.split(/\n\s*\n/);
   const noticeAt = paras.findIndex((p) => /below the confidence bar/i.test(p));
   const notice = noticeAt >= 0 ? paras[noticeAt].replace(/^[>*_\s]+|[*_\s]+$/g, "") : null;
-  const body = noticeAt >= 0 ? paras.filter((_, i) => i !== noticeAt).join("\n\n") : text;
+  const kept = noticeAt >= 0 ? paras.filter((_, i) => i !== noticeAt) : paras;
+  // The "Draft for review…" lead is about the letter, not in it: shown above
+  // the page (and printed there), so the page reads as the letter itself.
+  // The leading quoted notes ("> Draft for review…", "> Laid out on…").
+  const leadN = kept.findIndex((p) => !p.trim().startsWith(">"));
+  const leads = kept.slice(0, Math.max(0, leadN)).map((p) => p.replace(/^\s*>\s?/gm, "").replace(/\*\*/g, "").trim());
+  const lead = leads.length ? leads.join(" ") : null;
+  const body = kept.slice(Math.max(0, leadN)).join("\n\n");
+  const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   const record = () => void api.exportDraft(id, { ...pick, format }).catch(() => {});
 
@@ -167,25 +177,40 @@ function Draft({ id, c, setCase }: CaseCtx) {
           {error ? <ErrorBox error={error} onRetry={load} /> : null}
           {!draft && !error && <Spinner label="Drafting the letter…" />}
           {draft && (
-            <article className="letter duo rounded-[2px] border border-edge bg-white px-6 py-8 text-[13.5px] leading-relaxed shadow-[4px_4px_0_var(--shadow)] sm:px-12">
-              {notice && (
-                <p role="note" className="mb-6 border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
-                  {notice}
-                </p>
-              )}
+            <>
+            {(notice || lead) && (
+              <div className="mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
+                {notice && (
+                  <p role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
+                    {notice}
+                  </p>
+                )}
+                {lead && (
+                  <p role="note" className="border border-line bg-sheet px-4 py-2.5 text-[12.5px] text-dim">
+                    {lead}
+                  </p>
+                )}
+              </div>
+            )}
+            <article
+              className="letter mx-auto max-w-[760px] border border-line bg-white px-7 py-10 text-[15px] leading-[1.7] text-ink shadow-[0_1px_2px_rgba(19,33,58,0.08),0_14px_36px_rgba(19,33,58,0.12)] sm:px-16 sm:py-16"
+              style={{ fontFamily: "Georgia, 'Times New Roman', Times, serif" }}
+            >
+              {/* The 177.2 letter has its own [FILL IN: date] line. */}
+              {!/\[FILL IN: date\]/.test(body) && <p className="mb-10 text-right text-[14px] text-dim">{dated}</p>}
               <ReactMarkdown
                 components={{
-                  h1: (p) => <h1 className="mb-4 text-lg font-medium uppercase tracking-[0.04em]" {...p} />,
-                  h2: (p) => <h2 className="mb-2 mt-6 text-[13px] font-medium uppercase tracking-[0.06em]" {...p} />,
-                  h3: (p) => <h3 className="mb-2 mt-4 text-[13px] font-medium" {...p} />,
-                  p: (p) => <p className="mt-3" {...p} />,
+                  h1: (p) => <h1 className="mb-6 text-center text-[17px] font-bold" {...p} />,
+                  h2: (p) => <h2 className="mb-2 mt-7 text-[15px] font-bold" {...p} />,
+                  h3: (p) => <h3 className="mb-2 mt-5 text-[15px] font-bold italic" {...p} />,
+                  p: (p) => <p className="mt-4" {...p} />,
                   ul: (p) => <ul className="mt-2 list-disc pl-5" {...p} />,
                   ol: (p) => <ol className="mt-2 list-decimal pl-5" {...p} />,
                   a: (p) => <a className="text-ok underline underline-offset-2" target="_blank" rel="noreferrer" {...p} />,
                   code: ({ children }) => {
                     const t = String(children);
                     return t.startsWith("[FILL IN") ? (
-                      <mark className="rounded-[2px] bg-ask-wash px-1 text-ask">{t}</mark>
+                      <mark className="rounded-[2px] bg-ask-wash px-1 font-sans text-[13px] text-ask">{t}</mark>
                     ) : (
                       <code className="font-mono text-[12.5px]">{t}</code>
                     );
@@ -195,8 +220,9 @@ function Draft({ id, c, setCase }: CaseCtx) {
                 {body.replace(fillIn, (m) => "`" + m + "`")}
               </ReactMarkdown>
               {/* The letter's body usually opens with the same notice; print it once. */}
-              {draft.disclaimer && !body.includes(draft.disclaimer.slice(0, 40)) && <p className="mt-8 border-t border-line pt-3 text-xs text-dim">{draft.disclaimer}</p>}
+              {draft.disclaimer && !text.includes(draft.disclaimer.slice(0, 40)) && <p className="mt-10 border-t border-line pt-3 text-xs text-dim">{draft.disclaimer}</p>}
             </article>
+            </>
           )}
         </div>
       </Main>

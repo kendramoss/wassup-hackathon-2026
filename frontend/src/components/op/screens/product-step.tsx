@@ -169,7 +169,8 @@ function flagField(selector: string, message: string) {
   if (!el) return;
   const target = el.classList.contains("sr-only") ? (el.closest("label") ?? el) : el;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  // Centred both ways, so a field inside the scrolling parts table comes into view too.
+  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center", inline: "center" });
   el.focus({ preventScroll: true });
   document.querySelectorAll("[data-missing]").forEach((x) => x.removeAttribute("data-missing"));
   document.querySelectorAll(".missing-tip").forEach((x) => x.remove());
