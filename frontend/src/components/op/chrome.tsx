@@ -17,7 +17,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   // The sections read as buttons, not loose text (18 Oct): one segmented
   // group, the current one filled.
   const item = (on: boolean) =>
-    cx("flex min-h-9 items-center rounded-[2px] px-2.5 transition-colors sm:px-3.5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
+    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors sm:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
   return (
     // From lg up the bar is three columns, so the section buttons sit in the
     // true middle: logo and case breadcrumb left, actions right.
@@ -53,9 +53,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       {/* Below lg the buttons take their own centred row under the logo. */}
       <nav
         aria-label="Main"
-        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] sm:text-sm lg:order-none lg:w-auto"
+        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] sm:text-[15px] lg:order-none lg:w-auto"
       >
-        <div className="flex gap-0.5 rounded-[2px] border border-edge bg-sheet p-0.5 shadow-btn">
+        <div className="flex gap-1 rounded-[2px] border border-edge bg-sheet p-1 shadow-btn sm:gap-1.5">
           <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
             {copy.nav.cases}
           </Link>
