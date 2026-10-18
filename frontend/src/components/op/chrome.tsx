@@ -6,6 +6,7 @@ import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
 import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "./action-bar";
+import { LogoMark } from "./logo";
 import { SignIn } from "./sign-in";
 import { Button, ButtonLink, cx } from "./ui";
 
@@ -21,7 +22,7 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           is read on click, so the bar still prerenders. */}
       <Link
         href="/"
-        className="shrink-0 text-[19px] font-semibold tracking-[-0.03em]"
+        className="flex shrink-0 items-center gap-2.5 text-[19px] font-semibold tracking-[-0.03em]"
         onClick={(e) => {
           if (window.location.pathname !== "/") return;
           e.preventDefault();
@@ -29,7 +30,10 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
           window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
         }}
       >
-        Unde <i className="not-italic text-ok">Labs</i>
+        <LogoMark size={24} />
+        <span>
+          Unde <i className="not-italic text-brand">Labs</i>
+        </span>
       </Link>
       <nav aria-label="Main" className="flex shrink-0 gap-5 whitespace-nowrap text-sm">
         <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
