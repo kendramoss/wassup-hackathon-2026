@@ -80,6 +80,7 @@ type FamilyCheck =
   | { state: "busy"; typed: string }
   | { state: "match"; typed: string; family: string; confidence: number; reason: string; applied: boolean }
   | { state: "none"; typed: string; reason: string }
+  | { state: "unclear"; typed: string; family?: string; reason?: string }
   | { state: "error"; typed: string; message: string };
 
 function FamilyNote({ check, onUse }: { check: FamilyCheck; onUse: (family: string) => void }) {
@@ -95,6 +96,22 @@ function FamilyNote({ check, onUse }: { check: FamilyCheck; onUse: (family: stri
       <p role="alert" className={cx(box, "border-line bg-sheet text-dim")}>
         {check.message}
       </p>
+    );
+  if (check.state === "unclear")
+    return (
+      <div role="status" className={cx(box, "border-ask-line bg-ask-wash text-body")}>
+        <b className="font-medium text-ask">&ldquo;{check.typed}&rdquo; doesn&apos;t name a product type.</b>{" "}
+        {check.family ? (
+          <>
+            From your parts it looks like {familyName(check.family)}.{" "}
+            <button type="button" onClick={() => onUse(check.family!)} className="min-h-7 text-ok underline underline-offset-2">
+              Use this family
+            </button>
+          </>
+        ) : (
+          <>Type what the product is, e.g. &ldquo;hair dryer&rdquo; or &ldquo;LED floodlight&rdquo;, or pick from the list.</>
+        )}
+      </div>
     );
   if (check.state === "none")
     return (
@@ -327,10 +344,20 @@ export function ProductStep() {
       setFamCheck(null);
       return;
     }
+    // Under 2 letters isn't sent; the check itself flags text that names
+    // nothing ("jskdf"), so acronyms like "TV" or "LCD" still work.
+    if ((v.match(/[a-z]/gi) ?? []).length < 2) {
+      setFamCheck({ state: "unclear", typed: v });
+      return;
+    }
     setFamCheck({ state: "busy", typed: v });
     try {
       const { result: r } = await api.familyCheck({ text: v, product: product.components.length ? { ...product, name: name.trim() } : undefined });
-      if (r.family === "none") {
+      if (r.typed_unclear) {
+        // Never credit a match to text that names nothing; the parts' family
+        // is offered, not applied.
+        setFamCheck({ state: "unclear", typed: v, family: r.family === "none" ? undefined : r.family, reason: r.reason });
+      } else if (r.family === "none") {
         setFamily("");
         setFamCheck({ state: "none", typed: v, reason: r.reason });
       } else {
@@ -473,7 +500,16 @@ export function ProductStep() {
                     customLabel={(t) => `Check “${t}” with AI`}
                     customHint="finds the closest family"
                   />
-                  {famCheck && <FamilyNote check={famCheck} onUse={(f) => { setFamily(f); setFamilyTouched(true); setFamCheck({ ...(famCheck as Extract<FamilyCheck, { state: "match" }>), applied: true }); }} />}
+                  {famCheck && (
+                    <FamilyNote
+                      check={famCheck}
+                      onUse={(f) => {
+                        setFamily(f);
+                        setFamilyTouched(true);
+                        setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
+                      }}
+                    />
+                  )}
                 </>
               )}
             </Field>

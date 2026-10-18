@@ -813,6 +813,8 @@ export interface paths {
                                 reason: string;
                                 /** @description A short name for the product, e.g. Hair dryer */
                                 product_name?: string;
+                                /** @description The typed text alone names no product type (e.g. random letters); a family here comes from the product's parts */
+                                typed_unclear?: boolean;
                             };
                             /** @example family-check-v1 */
                             prompt_version?: string;
@@ -965,8 +967,13 @@ export interface paths {
                             reasons_unavailable?: boolean;
                             trace?: Record<string, never> | null;
                             llm_provider?: string;
-                            /** @example hts-suggest-v1 */
+                            /** @example hts-suggest-v2 */
                             prompt_version?: string;
+                            /**
+                             * @description cross: candidates from a live CBP rulings search mixed with the local index; index: the local index only (CBP's search was unreachable). D92
+                             * @enum {string}
+                             */
+                            source?: "cross" | "index";
                             disclaimer?: string;
                         };
                     };
