@@ -36,7 +36,7 @@ func CFR177(in Input) string {
 	}
 
 	b.WriteString("[FILL IN: date]\n\n")
-	b.WriteString("Director, National Commodity Specialist Division\nRegulations and Rulings, Office of International Trade\nU.S. Customs and Border Protection\n201 Varick Street, Suite 501\nNew York, NY 10014\n\n")
+	b.WriteString("Director, National Commodity Specialist Division  \nRegulations and Rulings, Office of International Trade  \nU.S. Customs and Border Protection  \n201 Varick Street, Suite 501  \nNew York, NY 10014\n\n")
 	b.WriteString("(Or filed electronically through eRulings, https://erulings.cbp.gov.)\n\n")
 	fmt.Fprintf(&b, "**RE: Request for a binding ruling under 19 C.F.R. Part 177 — country of origin of %s**\n\n", name)
 	b.WriteString("Dear Director:\n\n")
@@ -157,6 +157,7 @@ func CFR177(in Input) string {
 
 	b.WriteString("## 11. Declaration and signature\n\n")
 	b.WriteString("I am authorized to make this request on behalf of the requester (19 C.F.R. §§ 177.1(c), 177.2(c)). To the best of my knowledge and belief, the facts stated in this request and its exhibits are accurate and complete. Please address the ruling letter to [FILL IN: the requester or its agent].\n\n")
-	b.WriteString("Sincerely,\n\n[FILL IN: signature]\n[FILL IN: name of signer]\n[FILL IN: title]\n[FILL IN: company, address, email, telephone]\n")
+	// One line each, as a letter is signed; "  " ends a Markdown line (18 Oct).
+	b.WriteString("Sincerely,\n\n[FILL IN: signature]  \n[FILL IN: name of signer]  \n[FILL IN: title]  \n[FILL IN: company]  \n[FILL IN: address]  \n[FILL IN: email and telephone]\n")
 	return b.String()
 }

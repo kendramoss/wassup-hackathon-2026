@@ -100,7 +100,7 @@ func TestCFR177Contents(t *testing.T) {
 	}
 	// The Markdown draft's placeholders are filled by the Draft page's form;
 	// the 177.2 letter uses [FILL IN: ...] only.
-	for _, old := range []string{"[REQUESTER NAME]", "[NAME]", "[TITLE]", "[COMPANY, ADDRESS, CONTACT]"} {
+	for _, old := range []string{"[REQUESTER NAME]", "[NAME]", "[TITLE]", "[COMPANY]", "[ADDRESS]", "[CONTACT]"} {
 		if strings.Contains(md, old) {
 			t.Errorf("letter uses the markdown placeholder %s", old)
 		}

@@ -46,7 +46,7 @@ func Markdown(in Input) string {
 		fmt.Fprintf(&b, "> **Below the confidence bar:** Unde's precedent check rated this change %.2f, under its %.2f bar. Treat the cited support as weaker and confirm with counsel.\n\n",
 			in.BelowBar.Confidence, in.BelowBar.Bar)
 	}
-	b.WriteString("U.S. Customs and Border Protection\nNational Commodity Specialist Division\nNew York, NY\n\n")
+	b.WriteString("U.S. Customs and Border Protection  \nNational Commodity Specialist Division  \nNew York, NY\n\n")
 	name := in.ProductName
 	if name == "" {
 		name = "the subject merchandise"
@@ -80,7 +80,8 @@ func Markdown(in Input) string {
 	b.WriteString("## Earlier CBP rulings considered\n\n")
 	b.WriteString(strings.Join(citations(in), "\n") + "\n\n")
 	b.WriteString("## Attachments\n\n- Bill of materials with country of origin of each component\n- Process flow and photographs of each manufacturing step\n- [OTHER SUPPORTING DOCUMENTS]\n\n")
-	b.WriteString("Sincerely,\n\n[NAME]\n[TITLE]\n[COMPANY, ADDRESS, CONTACT]\n")
+	// One line each, as a letter is signed; "  " ends a Markdown line (18 Oct).
+	b.WriteString("Sincerely,\n\n[NAME]  \n[TITLE]  \n[COMPANY]  \n[ADDRESS]  \n[CONTACT]\n")
 	return b.String()
 }
 
