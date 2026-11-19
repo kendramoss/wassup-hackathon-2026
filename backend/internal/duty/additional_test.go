@@ -3,6 +3,7 @@ package duty
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 const fixtureAdditional = `{"source":"HTS Chapter 99","hts_revision":"Rev 21","checked":"2026-10-18",
@@ -48,8 +49,9 @@ func TestAdditionalForOrigin(t *testing.T) {
 		// Not listed, no country duty: nothing.
 		{"8419.89.95", "Germany", 0, "", 0},
 	}
+	active := time.Date(2026, 11, 8, 0, 0, 0, 0, time.UTC) // before the fixture's end date
 	for _, c := range cases {
-		ex, may := a.For(c.hts, c.origin, 0.042)
+		ex, may := a.ForAsOf(c.hts, c.origin, 0.042, active)
 		var hs []string
 		sum := 0.0
 		for _, e := range ex {
@@ -58,6 +60,47 @@ func TestAdditionalForOrigin(t *testing.T) {
 		}
 		if Total(0, ex) != c.want || strings.Join(hs, ",") != c.names || len(may) != c.check {
 			t.Errorf("%s %s: extras %v (sum %v) check %v, want %v %q %d", c.hts, c.origin, ex, sum, may, c.want, c.names, c.check)
+		}
+	}
+}
+
+func TestExpiredExclusionsAreNotSuggested(t *testing.T) {
+	a, err := parseAdditional([]byte(fixtureAdditional))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		day  string
+		want int
+	}{
+		{"2026-11-08T12:00:00Z", 1}, // before
+		{"2026-11-09T12:00:00Z", 1}, // on the last day
+		{"2026-11-10T00:00:00Z", 0}, // after
+	} {
+		asOf, _ := time.Parse(time.RFC3339, tc.day)
+		ex, may := a.ForAsOf("9405.42.84", "China", 0.042, asOf)
+		if len(ex) == 0 || len(may) != tc.want {
+			t.Errorf("%s: extras %v check %v, want %d exclusion(s)", tc.day, ex, may, tc.want)
+		}
+	}
+}
+
+func TestFillWithUsesRateSnapshotDateForExclusions(t *testing.T) {
+	a, _ := parseAdditional([]byte(fixtureAdditional))
+	r := 0.042
+	base := MFN{HTS: "9405.42.84", General: "4.2%", Rate: &r, Supported: true}
+	for _, tc := range []struct {
+		fetched string
+		want    int
+	}{
+		{"2026-11-08T12:00:00Z", 1},
+		{"2026-11-10T12:00:00Z", 0},
+	} {
+		m := base
+		m.FetchedAt, _ = time.Parse(time.RFC3339, tc.fetched)
+		_, _, _, check := m.FillWith(nil, []string{"China"}, a)
+		if len(check["China"]) != tc.want {
+			t.Errorf("fetched %s: check %v, want %d", tc.fetched, check, tc.want)
 		}
 	}
 }

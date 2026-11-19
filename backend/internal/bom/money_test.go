@@ -43,6 +43,43 @@ func TestParseMoneyNoColumns(t *testing.T) {
 	}
 }
 
+func TestPlantIdentityIsSharedByProductAndMoney(t *testing.T) {
+	rows := readCSV(t, `name,country,plant,group,qty,unit_cost_usd,annual_units
+motor,PRC,,motor_assembly,1,20,1000
+assembly,Viet Nam,,final_assembly,1,5,`)
+	m, w := ParseMoney(rows, Options{})
+	if len(w) != 0 {
+		t.Fatalf("warnings = %v", w)
+	}
+	if got := m.GroupCosts["motor_assembly"]["china"]; got != 20000 {
+		t.Errorf("PRC cost = %v, want 20000 under china: %v", got, m.GroupCosts)
+	}
+	if got := m.GroupCosts["final_assembly"]["vietnam"]; got != 5000 {
+		t.Errorf("Viet Nam cost = %v, want 5000 under vietnam: %v", got, m.GroupCosts)
+	}
+	p, _, err := Parse(rows, Options{Name: "x"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []string{"china", "vietnam"} {
+		if _, ok := p.PlantByID(id); !ok {
+			t.Errorf("product has no plant %q: %+v", id, p.Plants)
+		}
+	}
+	if _, ok := p.PlantByID("prc"); ok {
+		t.Errorf("dangling raw alias plant: %+v", p.Plants)
+	}
+}
+
+func TestPlantIdentityKeepsExplicitPlantColumn(t *testing.T) {
+	rows := readCSV(t, `name,country,plant,group,qty,unit_cost_usd,annual_units
+motor,PRC,Rayong plant,motor_assembly,1,20,1000`)
+	m, _ := ParseMoney(rows, Options{})
+	if got := m.GroupCosts["motor_assembly"]["rayong_plant"]; got != 20000 {
+		t.Errorf("explicit plant cost = %v, want 20000: %v", got, m.GroupCosts)
+	}
+}
+
 func TestAmountRejectsNonFiniteNumbers(t *testing.T) {
 	for _, s := range []string{"Inf", "+Inf", "Infinity", "+Infinity", "$Inf", "-Inf", "NaN", "1e309"} {
 		if _, ok := amount(s); ok {

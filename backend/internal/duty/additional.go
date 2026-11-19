@@ -7,6 +7,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -198,8 +199,25 @@ func (a *Adder) conditional(i int, sub string) []ConditionalExempt {
 
 // For lists the additional duties on hts for origin given its MFN rate, and
 // the exclusions and conditional exemptions the user should check (they are
-// not applied).
+// not applied). Applicability is judged at the current date.
 func (a *Adder) For(hts, origin string, mfn float64) (extras []Extra, mayExclude []Exclusion) {
+	return a.ForAsOf(hts, origin, mfn, time.Now().UTC())
+}
+
+// exclusionActiveOn treats an ISO end date as inclusive: the exclusion is
+// suggested on its last day but not after. Undated or unparseable entries are
+// kept, so bad metadata cannot silently hide a possible exclusion.
+func exclusionActiveOn(end string, asOf time.Time) bool {
+	if end == "" {
+		return true
+	}
+	until, err := time.Parse(time.DateOnly, end)
+	return err != nil || asOf.Before(until.AddDate(0, 0, 1))
+}
+
+// ForAsOf is For with an explicit effective date, so a rate snapshot can
+// report only exclusions that had not expired when its rates were fetched.
+func (a *Adder) ForAsOf(hts, origin string, mfn float64, asOf time.Time) (extras []Extra, mayExclude []Exclusion) {
 	if a == nil {
 		return nil, nil
 	}
@@ -212,7 +230,11 @@ func (a *Adder) For(hts, origin string, mfn float64) (extras []Extra, mayExclude
 		extras = append(extras, Extra{Name: l.Name, Heading: l.Heading, Rate: l.Rate})
 	}
 	if len(extras) > 0 {
-		mayExclude = a.partial[sub]
+		for _, e := range a.partial[sub] {
+			if exclusionActiveOn(e.EndDate, asOf) {
+				mayExclude = append(mayExclude, e)
+			}
+		}
 	}
 	for _, i := range a.country[o] {
 		if a.exempted(i, sub) {

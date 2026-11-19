@@ -315,7 +315,7 @@ func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (m
 	extras := map[string][]Extra{}
 	check := map[string][]Exclusion{}
 	for _, o := range filled {
-		ex, may := add.For(m.HTS, o, *m.Rate)
+		ex, may := add.ForAsOf(m.HTS, o, *m.Rate, m.FetchedAt)
 		if len(ex) > 0 {
 			extras[o] = ex
 			out[o] = Total(*m.Rate, ex)
