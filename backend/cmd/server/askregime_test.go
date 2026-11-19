@@ -181,11 +181,7 @@ func TestAskWhatIfMatchesSavedScenario(t *testing.T) {
 			if s != a {
 				t.Errorf("scenario %+v != ask %+v", s, a)
 			}
-			if tc.regime == "substantial_transformation" {
-				if a.regime != router.RegimeTextile && a.regime != "substantial_transformation" {
-					t.Errorf("regime %q", a.regime)
-				}
-			} else if a.regime != tc.regime {
+			if a.regime != tc.regime {
 				t.Errorf("ask regime %q want %q", a.regime, tc.regime)
 			}
 			if w["provisional"] != nil {
