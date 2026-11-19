@@ -27,7 +27,7 @@ import (
 )
 
 // PromptVersion is recorded with every answer.
-const PromptVersion = "case-agent-v3" // v3: regime context (not every case is substantial transformation); what_if reports the applied regime, review route and provisional state (#319)
+const PromptVersion = "case-agent-v4" // v4: get_case_facts pages the facts past get_case's first 6000 characters; what_if takes the full revised facts, at most 12000 characters, and is told to shorten and retry when rejected (#320, #321). v3: regime context (not every case is substantial transformation); what_if reports the applied regime, review route and provisional state (#319)
 
 // Limits per question.
 const (
@@ -43,8 +43,9 @@ Which legal test a prediction used depends on the regime the case was routed to.
 
 Tools:
 - get_case: the facts, the prediction (origin, confidence, decisive step, reasoning, earlier rulings used), the review route, any plans and scenarios. Call it first. It may not name the regime; if it does not, do not guess one.
+- get_case_facts: the case facts by character offset and limit (at most 4000 per call). get_case shows only the first 6000 characters and says when the facts are INCOMPLETE; when it does, call get_case_facts from the offset it names (then next_offset) until "end of facts" before you answer anything that depends on the facts.
 - search_rulings / read_ruling: earlier CBP rulings (dated before the case). Use them to support or test an answer.
-- what_if: re-run the origin prediction on revised facts. Use it when the user asks what would happen if something changed; pass the full revised facts, changing only what the user asked about. Its result states the regime that answered (or "unknown"), the review route and whether the result is provisional.
+- what_if: re-run the origin prediction on revised facts. Use it when the user asks what would happen if something changed; pass the full revised facts, changing only what the user asked about, at most 12000 characters. If it says the facts are too long and nothing was predicted, shorten the full revised facts (keep the facts that decide origin) and call it again. Its result states the regime that answered (or "unknown"), the review route and whether the result is provisional.
 
 Rules:
 - Answer only about this case and CBP origin practice. Ground every claim in the case or a ruling you read; cite ruling numbers like N351460.
