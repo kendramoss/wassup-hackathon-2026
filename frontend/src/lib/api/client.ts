@@ -17,6 +17,8 @@ export type PlanRequest = S["PlanRequest"];
 export type PlanResult = S["PlanResult"];
 export type Plan = S["Plan"];
 export type Economics = S["Economics"];
+// PUT /cases/{id}/economics returns only the stored economics, not the case.
+export type EconomicsResponse = { case_id: string; economics: Economics };
 export type TargetSummary = S["TargetSummary"];
 export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
@@ -66,6 +68,16 @@ export class ApiError extends Error {
   ) {
     super(message);
   }
+}
+
+// Folds a money save into the case on screen. The response carries no
+// product, prediction or scenarios, so those stay. economics_priced was
+// worked out from the old inputs; dropping it makes readers fall back to the
+// saved economics until the next plan or scenario run prices it again.
+export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
+  if (r.case_id && c.id && r.case_id !== c.id) return c;
+  const { economics_priced: _stale, ...rest } = c as CaseResponse & { economics_priced?: Economics | null };
+  return { ...rest, economics: r.economics };
 }
 
 export const SIGNIN_EXPIRED = "op:signin-expired";
@@ -158,7 +170,7 @@ export const api = {
     post<BatchResponse>("/cases/batch", { items }, signal),
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
-  putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
+  putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
   moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", body, signal),
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),

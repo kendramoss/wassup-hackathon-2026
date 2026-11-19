@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { api, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
+import { api, mergeEconomics, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
@@ -78,7 +78,8 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     setMoneyOpen(false);
     setError(null);
     try {
-      setCase(await api.putEconomics(id, e));
+      const r = await api.putEconomics(id, e);
+      setCase(mergeEconomics(c, r));
     } catch (err) {
       setError(err);
     }
