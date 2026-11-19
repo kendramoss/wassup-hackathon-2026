@@ -1489,7 +1489,7 @@ export interface paths {
                         "application/json": {
                             checked: number;
                             changed: string[];
-                            /** @description Case id -> Watch.basis for each changed case; only basis precedent is a ruling change */
+                            /** @description Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change */
                             changed_basis?: {
                                 [key: string]: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
                             };
@@ -2127,7 +2127,7 @@ export interface components {
              */
             watch_status: "unchanged" | "changed" | null;
             /**
-             * @description Why (Watch.basis); null until re-checked or for a watch saved without it, which is unknown, not confirmed
+             * @description Why (Watch.basis); null until re-checked or for a watch saved without it, which is unknown, not confirmed. With watch_status set and watch_basis null the result is a legacy one: read it as unknown and re-check (the screens show Re-check needed), never as Changed or Unchanged
              * @enum {string|null}
              */
             watch_basis?: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified" | null;
@@ -2389,7 +2389,7 @@ export interface components {
             /** @description null until re-checked */
             watch?: components["schemas"]["Watch"] | null;
         };
-        /** @description The latest re-check. status is only the origin comparison. basis says whether a difference can be read as a ruling change: only basis=precedent means "the precedents moved". A watch saved before basis existed has no basis; read that as unknown, not as confirmed. */
+        /** @description The latest re-check. status is only the origin comparison. basis says whether a difference can be read as a ruling change: only basis=precedent means "the precedents moved". A watch saved before basis existed has no basis; read that as unknown, not as confirmed, and not as changed or unchanged: the next POST /watch replaces it. */
         Watch: {
             /** Format: date-time */
             checked_at?: string;

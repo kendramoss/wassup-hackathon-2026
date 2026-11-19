@@ -25,6 +25,7 @@ function Result({ id, c, setCase }: CaseCtx) {
   const target = planTarget(c);
   const route = c.triage?.route;
   const wk = watchView(c.watch?.status, c.watch?.basis, c.watch?.triage?.route).kind;
+  const watchBoxed = wk === "changed" || wk === "review" || wk === "recheck"; // the exception boxes, not the folded line
   const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
@@ -39,7 +40,7 @@ function Result({ id, c, setCase }: CaseCtx) {
         {/* Reading order: the answer's reasons, then what would sharpen it
             (optional), then the evidence behind it, folded. */}
         <div className="flex min-w-0 flex-col gap-6">
-          {wk === "changed" || wk === "review" ? <WatchLine c={c} setCase={setCase} /> : null}
+          {watchBoxed ? <WatchLine c={c} setCase={setCase} /> : null}
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
               <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(conf(p.confidence)) : "Why"}</h2>
@@ -78,7 +79,7 @@ function Result({ id, c, setCase }: CaseCtx) {
                 </ul>
               </Fold>
             ) : null}
-            {wk !== "changed" && wk !== "review" ? (
+            {!watchBoxed ? (
               <Fold title="Ruling watch" meta={c.watch ? `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}` : "not re-checked"}>
                 <WatchLine c={c} setCase={setCase} />
               </Fold>
@@ -196,7 +197,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
 
 // Ruling watch as one line in the evidence column (was a full-width band).
 // A changed result is the exception: it gets the ink dashed "look again" box.
-function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
+export function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const w = c.watch;
@@ -212,16 +213,16 @@ function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
     }
   };
   const view = watchView(w?.status, w?.basis, w?.triage?.route, w?.triage?.reason);
-  const changed = view.kind === "changed" || view.kind === "review";
+  const changed = view.kind === "changed" || view.kind === "review" || view.kind === "recheck";
   return (
     <section aria-label="Ruling watch" className={cx("duo text-[13px]", changed && "border border-ask-line bg-ask-wash p-3")}>
-      {changed && <h3 className="eyebrow mb-1">Ruling watch</h3>}
+      {changed && <p className="eyebrow mb-1">Ruling watch</p>}
       <p>
         {!w && <>Not re-checked against rulings after {formatDate(c.date)}.</>}
         {w && view.kind === "unchanged" && <>Unchanged with today&apos;s rulings ({formatDate(w.checked_at)}).</>}
-        {w && view.kind === "review" && (
+        {w && (view.kind === "review" || view.kind === "recheck") && (
           <>
-            <b className="font-medium text-ask">Needs review:</b> {view.note}{" "}
+            <b className="font-medium text-ask">{view.label}:</b> {view.note}{" "}
           </>
         )}
         {w && view.kind === "changed" && (

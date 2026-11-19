@@ -6,8 +6,9 @@ import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
+import { whatIfView } from "@/lib/whatif-state";
 import { Elapsed, ErrorBox } from "./chrome";
-import { Button, Country, Drawer, Flag, RulingLink, Ruler } from "./ui";
+import { Button, Country, Drawer, Flag, RulingLink, Ruler, cx } from "./ui";
 import { planTarget } from "./plan-target";
 
 type Step = { tool?: string; arg?: string };
@@ -274,42 +275,59 @@ function stepWords(s: Step): string {
   }
 }
 
-function TurnView({ t, caseId }: { t: Turn; caseId: string }) {
+export function TurnView({ t, caseId }: { t: Turn; caseId: string }) {
   const cited = t.cited_rulings ?? [];
   return (
     <div>
       <Q>{t.question}</Q>
-      {t.whatIfs?.map((w, i) => (
-        <div key={i} className="mt-3 grid gap-3.5 border border-edge bg-white px-3.5 py-3 shadow-[3px_3px_0_var(--shadow)] sm:grid-cols-[minmax(0,1fr)_150px]">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.06em] text-ok">What if · {w.change}</p>
-            <p className="mt-1 flex items-center gap-2 text-2xl tracking-[-0.05em]">
-              <Flag country={w.origin} size={20} />
-              {w.origin}
-            </p>
-            {w.decisive_step && <p className="duo clamp-2 mt-1 text-xs text-dim">{w.decisive_step}</p>}
+      {t.whatIfs?.map((w, i) => {
+        const v = whatIfView(w);
+        return (
+          <div key={i} className="mt-3 grid gap-3.5 border border-edge bg-white px-3.5 py-3 shadow-[3px_3px_0_var(--shadow)] sm:grid-cols-[minmax(0,1fr)_150px]">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.06em] text-ok">What if · {w.change}</p>
+              {v.originLabel && <p className="mt-1 text-[11px] uppercase tracking-[0.06em] text-ask">{v.originLabel}</p>}
+              <p className={cx("flex items-center gap-2 text-2xl tracking-[-0.05em]", v.originLabel ? "mt-0.5" : "mt-1")}>
+                <Flag country={w.origin} size={20} />
+                {w.origin}
+              </p>
+              {w.decisive_step && <p className="duo clamp-2 mt-1 text-xs text-dim">{w.decisive_step}</p>}
+              <p className="mt-1.5 text-[11.5px] text-dim">{v.regimeLabel}</p>
+              {v.kind !== "confirmed" && (
+                <div role="note" className="mt-2 border border-ask-line bg-ask-wash px-2.5 py-2 text-[12.5px] text-ask">
+                  <b className="font-medium">{v.headline}.</b> {v.note}
+                </div>
+              )}
+            </div>
+            <div className="grid content-between gap-2">
+              {v.showRuler ? (
+                <Ruler value={w.confidence} label={`${BAR} auto-accept`} width={150} caption={`confidence ${conf(w.confidence)}`} />
+              ) : (
+                <p className="text-xs text-dim">confidence {conf(w.confidence)}</p>
+              )}
+              {w.change && (
+                <div>
+                  <Link
+                    href={`/cases/${encodeURIComponent(caseId)}/scenarios?add=${encodeURIComponent(w.change)}`}
+                    // The scenario runs on the facts this card ran on, not the
+                    // original text plus a one-line change (#115). Too long for
+                    // the URL, so they go through session storage.
+                    onClick={() => {
+                      try {
+                        if (w.facts) sessionStorage.setItem(`op-whatif:${caseId}:${w.change}`, w.facts);
+                      } catch {}
+                    }}
+                    className="text-xs text-ok hover:underline"
+                  >
+                    Add as a scenario →
+                  </Link>
+                  {v.scenarioWarning && <p className="mt-1 text-[11.5px] text-dim">{v.scenarioWarning}</p>}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="grid content-between gap-2">
-            <Ruler value={w.confidence} label={`${BAR} auto-accept`} width={150} caption={`confidence ${conf(w.confidence)}`} />
-            {w.change && (
-              <Link
-                href={`/cases/${encodeURIComponent(caseId)}/scenarios?add=${encodeURIComponent(w.change)}`}
-                // The scenario runs on the facts this card ran on, not the
-                // original text plus a one-line change (#115). Too long for
-                // the URL, so they go through session storage.
-                onClick={() => {
-                  try {
-                    if (w.facts) sessionStorage.setItem(`op-whatif:${caseId}:${w.change}`, w.facts);
-                  } catch {}
-                }}
-                className="text-xs text-ok hover:underline"
-              >
-                Add as a scenario →
-              </Link>
-            )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <Answer text={t.answer ?? ""} cited={cited} />
       {cited.length > 0 && (
         <div className="mt-2.5 text-xs">

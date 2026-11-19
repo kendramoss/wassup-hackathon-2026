@@ -85,8 +85,6 @@ function Draft({ id, c, setCase }: CaseCtx) {
   // downloaded (18 Oct). The below-bar note is the amber one.
   const body = text;
   const notes = draft?.notes ?? [];
-  const notice = notes.find((n) => /below the confidence bar/i.test(n)) ?? null;
-  const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   // Recording answers with the letter as the case stands now. The letter goes
@@ -188,20 +186,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
           {!draft && !error && <Spinner label="Drafting the letter…" />}
           {draft && (
             <>
-            {(notice || lead) && (
-              <div className="no-print mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
-                {notice && (
-                  <p role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
-                    {notice}
-                  </p>
-                )}
-                {lead && (
-                  <p role="note" className="border border-line bg-sheet px-4 py-2.5 text-[12.5px] text-dim">
-                    {lead}
-                  </p>
-                )}
-              </div>
-            )}
+            <ReviewNotes notes={notes} />
             <article
               className="letter mx-auto max-w-[760px] border border-line bg-white px-7 py-10 text-[15px] leading-[1.7] text-ink shadow-[0_1px_2px_rgba(19,33,58,0.08),0_14px_36px_rgba(19,33,58,0.12)] sm:px-16 sm:py-16"
               style={{ fontFamily: "Georgia, 'Times New Roman', Times, serif" }}
@@ -250,5 +235,32 @@ function Draft({ id, c, setCase }: CaseCtx) {
         </div>
       </Footer>
     </>
+  );
+}
+
+// The reviewer notes beside the letter (screen only, never printed). Each note
+// is its own paragraph so the "Legal framework not confirmed" warning is not
+// run together with the standing disclaimer; the words are the server's, as
+// sent. The below-bar note is the amber one.
+export function ReviewNotes({ notes }: { notes: string[] }) {
+  if (!notes.length) return null;
+  return (
+    <div className="no-print mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
+      {notes.map((n, i) =>
+        /below the confidence bar/i.test(n) ? (
+          <p key={i} role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
+            {n}
+          </p>
+        ) : /^legal framework not confirmed/i.test(n) ? (
+          <p key={i} role="note" className="border border-ask-line bg-ask-wash px-4 py-2.5 text-[12.5px] text-ask">
+            {n}
+          </p>
+        ) : (
+          <p key={i} role="note" className="border border-line bg-sheet px-4 py-2.5 text-[12.5px] text-dim">
+            {n}
+          </p>
+        ),
+      )}
+    </div>
   );
 }

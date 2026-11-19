@@ -183,7 +183,7 @@ function DemoCard({ c }: { c: CaseSummary }) {
   );
 }
 
-function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange: (c: CaseSummary[]) => void }) {
+export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange: (c: CaseSummary[]) => void }) {
   const [renaming, setRenaming] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [rowError, setRowError] = useState<{ id: string; error: unknown } | null>(null);
