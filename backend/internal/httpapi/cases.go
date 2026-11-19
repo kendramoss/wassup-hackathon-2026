@@ -248,6 +248,8 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusBadRequest, "invalid_input", err.Error()
 	case errors.Is(err, apikey.ErrBadRequest):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, errSuperseded):
+		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
@@ -844,6 +846,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.planStream(w, r, c, req)
 		return
 	}
+	fp := inputFingerprint(c)
 	res, err := a.d.Planner.Plan(r.Context(), req)
 	if err != nil {
 		a.fail(w, r, err)
@@ -853,6 +856,9 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
 			record(r.Context(), latest, ev)
@@ -1052,6 +1058,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	s := openStream(w)
 	defer s.close()
 	send := s.send
+	fp := inputFingerprint(c)
 	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) {
 		switch e.Kind {
 		case planner.EventStarted:
@@ -1068,6 +1075,9 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(req.Economics, latest.Economics)
 			record(r.Context(), latest, ev)
@@ -1112,6 +1122,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	fp := inputFingerprint(c)
 	var in exportRequest
 	if r.ContentLength != 0 {
 		if err := decode(w, r, &in); err != nil {
@@ -1209,6 +1220,9 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if err := stillCurrent(latest, fp); err != nil {
+			return err
+		}
 		latest.ExportedAt, latest.UpdatedAt = &now, now
 		summary := "draft ruling request for " + what
 		if format == formatCFR177 {

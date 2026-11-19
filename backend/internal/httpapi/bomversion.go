@@ -1,7 +1,10 @@
 package httpapi
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -230,4 +233,34 @@ func bomUpload(w http.ResponseWriter, r *http.Request) (io.ReadCloser, bool, err
 		return nil, false, fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
 	return io.NopCloser(strings.NewReader(in.CSV)), in.Apply, nil
+}
+
+// errSuperseded means the case's inputs changed (a new BOM, new answers)
+// while a result was being worked out from the old ones.
+var errSuperseded = errors.New("conflict: the case changed while this ran; the result was discarded, run it again")
+
+// inputFingerprint identifies what a plan search, a country comparison and a
+// draft are worked out from: the product, the facts the prediction used, the
+// excluded rulings, the known origin, the family and the date. Money, chat,
+// history and the result fields are not part of it.
+func inputFingerprint(c store.Case) string {
+	b, _ := json.Marshal(struct {
+		Date, Facts, Family string
+		Product             any
+		Exclude             []string
+		CurrentOrigin       any
+	}{c.Date, c.Facts, c.Family, c.Product, c.Exclude, c.CurrentOrigin})
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
+}
+
+// stillCurrent is called inside a store update with the latest case: it
+// refuses the write when the inputs differ from fp, the fingerprint taken
+// before the work began. Plan, SSE plan, target comparison and export share
+// it, so the check and the save are one atomic step.
+func stillCurrent(latest *store.Case, fp string) error {
+	if inputFingerprint(*latest) != fp {
+		return errSuperseded
+	}
+	return nil
 }
