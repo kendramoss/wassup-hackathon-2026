@@ -204,7 +204,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 // bomUpload reads the BOM and the apply flag from a multipart upload (file,
 // apply) or a JSON body {csv, apply}.
 func bomUpload(w http.ResponseWriter, r *http.Request) (io.ReadCloser, bool, error) {
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+	if isMultipart(r) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
 		if err := r.ParseMultipartForm(maxUpload); err != nil {
 			return nil, false, fmt.Errorf("%w: upload: %v", domain.ErrInvalid, err)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -37,6 +38,18 @@ func TestRequestIDFromCaller(t *testing.T) {
 	h.ServeHTTP(rec, req)
 	if got := rec.Header().Get("X-Request-ID"); got != "abc123" {
 		t.Fatalf("X-Request-ID = %q", got)
+	}
+}
+
+func TestWriteJSONEncodeFailureIsNotAnEmptySuccess(t *testing.T) {
+	rec := httptest.NewRecorder()
+	writeJSON(rec, http.StatusOK, map[string]any{"bad": math.Inf(1)})
+	var body ErrorBody
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("status %d, body %q: %v", rec.Code, rec.Body.String(), err)
+	}
+	if rec.Code != http.StatusInternalServerError || body.Code != "internal" {
+		t.Fatalf("status %d, body %+v; want a 500 error with a JSON body", rec.Code, body)
 	}
 }
 
