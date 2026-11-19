@@ -63,7 +63,12 @@ var (
 	// bareAndSubject: after a plain "and" an unknown clause must open with its
 	// own subject, else "A and B are unknown" would keep A as a fact.
 	bareAndSubject = regexp.MustCompile(`(?i)^(the|a|an|its|their|his|her|our|my|it|this|that|these|those|there|whether)\b`)
-	relative       = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when|it|this|they|these|those|he|she|the (same|former|latter))\b`)
+	// ownSubject: an unknown clause must have its own subject and finite verb
+	// ("its value share is unknown"). An elliptical tail ("but unknown",
+	// "; unclear", "though not stated") qualifies the prior claim, so the
+	// sentence is dropped whole instead.
+	ownSubject = regexp.MustCompile(`(?i)^\S+(\s+\S+)*?\s+(is|are|was|were|am|has|have|does|do|did|remains?|stays?)\b`)
+	relative   = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when|it|this|they|these|those|he|she|the (same|former|latter))\b`)
 	// scoped marks a sentence whose clauses may be conditioned or qualified by
 	// one another (condition, scope, speaker uncertainty, hedged degree).
 	// Cutting such a sentence could promote a qualified claim to a fact, so it
@@ -109,6 +114,9 @@ func splitKnown(s string) []string {
 		t := strings.TrimSpace(ps[i].text)
 		ps[i].text, ps[i].unknown = t, hedge.MatchString(t)
 		if t == "" {
+			return nil
+		}
+		if ps[i].unknown && !ownSubject.MatchString(t) {
 			return nil
 		}
 		if ps[i].unknown && (relative.MatchString(t) || leadingVerb.MatchString(t) ||

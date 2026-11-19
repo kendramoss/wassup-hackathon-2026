@@ -119,3 +119,23 @@ func TestFactualMixedPositiveControlsKeepNegation(t *testing.T) {
 		}
 	}
 }
+
+// An unknown piece without its own subject qualifies the claim before it.
+func TestFactualEllipticalUnknownDropsWhole(t *testing.T) {
+	for _, in := range elliptical {
+		if got := factual(in); got != "" {
+			t.Errorf("factual(%q) = %q, want it dropped whole", in, got)
+		}
+	}
+	if got := factual("The motor is made in Thailand but its share is unknown."); got != "The motor is made in Thailand." {
+		t.Errorf("positive control = %q", got)
+	}
+}
+
+var elliptical = []string{
+	"The motor is made in Thailand, but unknown.",
+	"The motor is made in Thailand, though unknown.",
+	"The motor is made in Thailand; unclear.",
+	"The motor is made in Thailand, but not stated.",
+	"The motor is made in Thailand, although unclear, and the housing is cast in Vietnam.",
+}

@@ -87,3 +87,24 @@ func TestAnswersQualifiedMixedNotPromoted(t *testing.T) {
 		}
 	}
 }
+
+func TestAnswersEllipticalUnknownNotPromoted(t *testing.T) {
+	for _, bad := range []string{
+		"The motor is made in Thailand, but unknown.",
+		"The motor is made in Thailand, though unknown.",
+		"The motor is made in Thailand; unclear.",
+		"The motor is made in Thailand, but not stated.",
+		"The motor is made in Thailand, although unclear, and the housing is cast in Vietnam.",
+	} {
+		hs, id := staleHarness(t, nil)
+		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/answers", mixedAnswerBody(bad+" The gearbox is cast in Mexico."))
+		if code != http.StatusOK {
+			t.Fatalf("%q: %d %v", bad, code, out)
+		}
+		facts := hs.engine.last.Facts
+		ans := facts[strings.Index(facts, "ADDITIONAL FACTS"):]
+		if strings.Contains(ans, "Thailand") || strings.Contains(ans, "Vietnam") || !strings.Contains(ans, "A: The gearbox is cast in Mexico.\n") {
+			t.Errorf("%q: engine answer block wrong:\n%s", bad, ans)
+		}
+	}
+}
