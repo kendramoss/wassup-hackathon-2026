@@ -59,3 +59,31 @@ func TestAnswersAllUnknownStillRejected(t *testing.T) {
 		t.Errorf("engine ran for rejected answers")
 	}
 }
+
+// Qualified, conditional or referential mixed answers are never promoted to a
+// plain fact in the engine input; only the independent known sentence is kept.
+func TestAnswersQualifiedMixedNotPromoted(t *testing.T) {
+	for _, bad := range []string{
+		"The motor is made in Thailand, though I am not sure, and the housing is unknown.",
+		"If the motor is made in Thailand, the share is unknown, and the housing is cast in Vietnam.",
+		"The motor was made in Thailand, unless it is unknown, and packed in Vietnam.",
+	} {
+		hs, id := staleHarness(t, nil)
+		calls := hs.engine.calls
+		if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/answers", mixedAnswerBody(bad)); code != http.StatusBadRequest {
+			t.Errorf("%q alone: %d %v, want 400", bad, code, out)
+		}
+		if hs.engine.calls != calls {
+			t.Errorf("%q: engine ran", bad)
+		}
+		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/answers", mixedAnswerBody(bad+" The housing is cast in Vietnam."))
+		if code != http.StatusOK {
+			t.Fatalf("%q + known sentence: %d %v", bad, code, out)
+		}
+		facts := hs.engine.last.Facts
+		ans := facts[strings.Index(facts, "ADDITIONAL FACTS"):]
+		if strings.Contains(ans, "Thailand") || strings.Contains(ans, "unless") || strings.Contains(ans, "If ") || !strings.Contains(facts, "A: The housing is cast in Vietnam.") {
+			t.Errorf("engine facts promoted a qualified claim or lost the known sentence:\n%s", facts)
+		}
+	}
+}

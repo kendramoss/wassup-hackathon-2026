@@ -31,11 +31,9 @@ func TestFactualSplitsMixedClauses(t *testing.T) {
 		{"two sentences", "The motor is made in Thailand, but its share is unknown. We assemble it in Mexico.", "The motor is made in Thailand. We assemble it in Mexico."},
 		{"negation kept", "The motor is not made in China, but the firmware origin is unknown.", "The motor is not made in China."},
 		{"known qualifier", "The motor is from a well-known Thai supplier, but its price is unknown.", "The motor is from a well-known Thai supplier."},
-		{"question mark", "Is it? The motor is made in Thailand but its price is unknown!", "Is it?"},
+		{"terminal punctuation kept", "The motor is made in Thailand but its price is unknown!", "The motor is made in Thailand!"},
+		{"question sentence is its own sentence", "Is it new? The motor is made in Thailand but its price is unknown.", "Is it new? The motor is made in Thailand."},
 	} {
-		if c.name == "question mark" {
-			continue
-		}
 		if got := factual(c.in); got != c.want {
 			t.Errorf("%s: factual(%q) = %q, want %q", c.name, c.in, got, c.want)
 		}
@@ -67,11 +65,11 @@ func TestFactualNeverKeepsUnknownClauses(t *testing.T) {
 func TestAppendAnswersMixedAcrossQuestions(t *testing.T) {
 	out, ok := AppendAnswers("Facts.\n", []Answer{
 		{Question: "Where is the motor made?", Answer: "The motor is made in Thailand, but its value share is unknown."},
-		{Question: "Firmware?", Answer: "Unknown, but I think it is flashed in-house."},
+		{Question: "Firmware?", Answer: "Unknown, but I think it is flashed in-house."}, // qualified: dropped whole
 		{Question: "Resin?", Answer: "Not stated."},
 	})
 	if !ok || !strings.Contains(out, "A: The motor is made in Thailand.\n") || strings.Contains(out, "value share") ||
-		strings.Contains(out, "Resin") || strings.Contains(out, "Firmware?") && !strings.Contains(out, "flashed") {
+		strings.Contains(out, "Resin") || strings.Contains(out, "Firmware?") || strings.Contains(out, "flashed") {
 		t.Errorf("AppendAnswers =\n%s", out)
 	}
 	if _, ok := AppendAnswers("Facts.\n", []Answer{{Question: "a", Answer: "Unknown."}, {Question: "b", Answer: "The share is not stated, and the origin is unclear."}}); ok {
@@ -86,6 +84,38 @@ func TestFactualBareAndNeedsClauseOnBothSides(t *testing.T) {
 	} {
 		if got := factual(in); strings.Contains(got, "firmware") || strings.Contains(got, "share") {
 			t.Errorf("factual(%q) = %q kept an unknown subject", in, got)
+		}
+	}
+}
+
+// Splitting must never turn a qualified, conditional or referential claim into
+// a plain fact: such sentences are dropped whole (the conservative side).
+func TestFactualDoesNotPromoteQualifiedClauses(t *testing.T) {
+	for _, in := range []string{
+		"The motor is made in Thailand, though I am not sure, and the housing is unknown.",
+		"If the motor is made in Thailand, the share is unknown, and the housing is cast in Vietnam.",
+		"The motor was made in Thailand, unless it is unknown, and packed in Vietnam.",
+		"The motor is probably made in Thailand, but the share is unknown.",
+		"I think the motor is made in Thailand, but the share is unknown.",
+		"The motor is made in Thailand, but that is unknown.",
+		"The motor is made in Thailand, but it is not stated.",
+		"The motor is made in Thailand only when the share is unknown.",
+		"Whether the motor is made in Thailand, the share is unknown.",
+		"The motor is made in Thailand, but its share is not unknown.",
+	} {
+		if got := factual(in); got != "" {
+			t.Errorf("factual(%q) = %q, want it dropped whole", in, got)
+		}
+	}
+}
+
+func TestFactualMixedPositiveControlsKeepNegation(t *testing.T) {
+	for in, want := range map[string]string{
+		"The motor is not made in China, and the firmware origin is unknown.":         "The motor is not made in China.",
+		"The firmware origin is unknown, but the motor is never imported from China.": "The motor is never imported from China.",
+	} {
+		if got := factual(in); got != want {
+			t.Errorf("factual(%q) = %q, want %q", in, got, want)
 		}
 	}
 }

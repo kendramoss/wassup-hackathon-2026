@@ -63,7 +63,17 @@ var (
 	// bareAndSubject: after a plain "and" an unknown clause must open with its
 	// own subject, else "A and B are unknown" would keep A as a fact.
 	bareAndSubject = regexp.MustCompile(`(?i)^(the|a|an|its|their|his|her|our|my|it|this|that|these|those|there|whether)\b`)
-	relative       = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when)\b`)
+	relative       = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when|it|this|they|these|those|he|she|the (same|former|latter))\b`)
+	// scoped marks a sentence whose clauses may be conditioned or qualified by
+	// one another (condition, scope, speaker uncertainty, hedged degree).
+	// Cutting such a sentence could promote a qualified claim to a fact, so it
+	// is dropped whole, as before.
+	scoped = regexp.MustCompile(`(?i)\b(if|unless|whether|until|except|excluding|provided|providing|assuming|assume|only|otherwise|when|once|depend\w*|subject to|pending|` +
+		`maybe|perhaps|probably|possibly|presumably|apparently|likely|unlikely|might|may|could|would|should|` +
+		`think|thought|believe|guess|suppose|seems?|appears?|expect(ed)?|hope|approximately|roughly|about|around|` +
+		`not (\w+ly )?(sure|certain|confirmed|verified)|unsure|uncertain|unconfirmed|unverified|tentative|no idea|don'?t know|do not know|` +
+		`sometimes|usually|mostly|partly|some|several|many|most)\b`)
+	negatedUnknown = regexp.MustCompile(`(?i)\b(not|never|no)\s+(un(known|clear)|n/a)\b`)
 )
 
 // splitKnown cuts a sentence that mentions something unknown into clauses and
@@ -72,6 +82,9 @@ var (
 // a clause with no subject of its own, a verbless fragment on the unknown side)
 // it returns nothing, which is the old drop-the-sentence behaviour.
 func splitKnown(s string) []string {
+	if scoped.MatchString(s) || negatedUnknown.MatchString(s) {
+		return nil
+	}
 	term := ""
 	if last := s[len(s)-1]; last == '.' || last == '!' || last == '?' {
 		term = string(last)
