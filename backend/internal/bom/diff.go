@@ -53,7 +53,7 @@ func Diff(before, after domain.Product) []Change {
 		nc := after.Components[j]
 		fromPlant, toPlant := plantName(before, oc.Plant), plantName(after, nc.Plant)
 		// A bought-in component has no plant; only compare plants both name.
-		plantMoved := fromPlant != "" && toPlant != "" && plantID(fromPlant) != plantID(toPlant)
+		plantMoved := fromPlant != "" && toPlant != "" && PlantIdentity(fromPlant) != PlantIdentity(toPlant)
 		switch {
 		case !sameCountry(oc.MadeIn, nc.MadeIn):
 			c := Change{Kind: CountryChanged, Name: nc.Name, FromCountry: oc.MadeIn, ToCountry: nc.MadeIn,
@@ -87,7 +87,7 @@ func Diff(before, after domain.Product) []Change {
 		matched[j] = true
 		no := after.Operations[j]
 		toPlant, toCountry := plantName(after, no.Plant), plantCountry(after, no.Plant)
-		if !sameCountry(fromCountry, toCountry) || plantID(fromPlant) != plantID(toPlant) {
+		if !sameCountry(fromCountry, toCountry) || PlantIdentity(fromPlant) != PlantIdentity(toPlant) {
 			out = append(out, Change{Kind: OperationMoved, Name: no.Name, FromCountry: fromCountry, ToCountry: toCountry, FromPlant: fromPlant, ToPlant: toPlant,
 				Summary: fmt.Sprintf("operation moved to %s (%s), was %s (%s): %s", toPlant, toCountry, fromPlant, fromCountry, no.Name)})
 		}
@@ -145,30 +145,59 @@ func plantCountry(p domain.Product, id string) string {
 	return pl.Country
 }
 
-// KeepPlantIDs returns after with each plant that has the same name as a
-// plant in before (compared as plant IDs are made: case and punctuation
-// ignored) given before's ID, and component and operation references
+// KeepPlantIDs returns after with each plant that is the same supplier as a
+// plant in before (same PlantIdentity: case, spacing and Unicode form ignored,
+// punctuation kept) given before's ID, and component and operation references
 // rewritten to match. A BOM upload names plants by ID from their names
 // ("rayong_plant"), while a stored product may use its own ("th"); keeping
 // the stored IDs keeps the case's economics (group costs by plant ID) and
-// current origin pointing at the same plants. A rename that would clash
-// with another plant's ID is skipped.
+// current origin pointing at the same plants.
+//
+// A stored ID is never given to a different supplier: a plant of after with
+// no counterpart in before whose ID is one of before's IDs gets a hashed ID
+// instead (see hashedID). A name that is ambiguous in before (two plants with
+// the same identity) is not matched. The result does not depend on plant order.
 func KeepPlantIDs(before, after domain.Product) domain.Product {
-	byName := map[string]string{}
+	byIdentity := map[string]string{}
+	ambiguous := map[string]bool{}
+	beforeIDs := map[string]bool{}
 	for _, pl := range before.Plants {
-		byName[plantID(pl.Name)] = pl.ID
+		beforeIDs[pl.ID] = true
+		k := PlantIdentity(pl.Name)
+		if _, dup := byIdentity[k]; dup {
+			ambiguous[k] = true
+		}
+		byIdentity[k] = pl.ID
 	}
 	rename := map[string]string{}
-	used := map[string]bool{}
+	taken := map[string]bool{}
+	var unmatched []domain.Plant
 	for _, pl := range after.Plants {
-		used[pl.ID] = true
-	}
-	for _, pl := range after.Plants {
-		id, ok := byName[plantID(pl.Name)]
-		if !ok || id == pl.ID || used[id] {
+		k := PlantIdentity(pl.Name)
+		if id, ok := byIdentity[k]; ok && !ambiguous[k] && !taken[id] {
+			taken[id] = true
+			if id != pl.ID {
+				rename[pl.ID] = id
+			}
 			continue
 		}
-		rename[pl.ID], used[id] = id, true
+		unmatched = append(unmatched, pl)
+	}
+	for _, pl := range unmatched {
+		taken[pl.ID] = true
+	}
+	for _, pl := range unmatched {
+		if !beforeIDs[pl.ID] {
+			continue
+		}
+		identity := PlantIdentity(pl.Name)
+		for n := 8; ; n += 8 {
+			c := hashedID(identity, n)
+			if n >= 64 || (!taken[c] && !beforeIDs[c]) {
+				rename[pl.ID], taken[c] = c, true
+				break
+			}
+		}
 	}
 	if len(rename) == 0 {
 		return after
