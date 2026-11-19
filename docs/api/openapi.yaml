@@ -226,6 +226,7 @@ paths:
           that was not in `start` (its plan has `from_advice: true`); `total` grows by one from that `move_started` on.
         - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
         - `: keep-alive` comment lines every 10 s.
+        - `error` with code `conflict` and `retryable: true` when the case's inputs changed (new BOM or answers) while the search ran: the result was discarded, not saved. D97.
         Input errors (400/404) are returned as normal JSON responses before the stream starts.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
@@ -241,6 +242,7 @@ paths:
               schema: { $ref: "#/components/schemas/PlanResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/plan/estimate:
@@ -281,6 +283,7 @@ paths:
         and processing by country, question, position with the earlier rulings, prior consideration,
         documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the
         case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400.
+        409 `conflict` when the case's inputs, or the stored plan the draft was chosen from, changed during the request (nothing is recorded; draft again). D97.
         Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
@@ -315,6 +318,7 @@ paths:
               schema: { $ref: "#/components/schemas/ExportResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/answers:
     post:
       summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact
@@ -636,6 +640,7 @@ paths:
                   targets: { type: array, items: { $ref: "#/components/schemas/TargetSummary" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/economics:

@@ -397,6 +397,7 @@ export interface paths {
          *       that was not in `start` (its plan has `from_advice: true`); `total` grows by one from that `move_started` on.
          *     - `done`: the same body as the 200 JSON response (`plan` is the ranked PlanResult), or `error` {code, message, retryable}.
          *     - `: keep-alive` comment lines every 10 s.
+         *     - `error` with code `conflict` and `retryable: true` when the case's inputs changed (new BOM or answers) while the search ran: the result was discarded, not saved. D97.
          *     Input errors (400/404) are returned as normal JSON responses before the stream starts.
          */
         post: {
@@ -425,6 +426,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
@@ -502,7 +504,7 @@ export interface paths {
         put?: never;
         /**
          * Draft a CBP ruling request for the case (Markdown)
-         * @description Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials and processing by country, question, position with the earlier rulings, prior consideration, documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400. Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
+         * @description Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials and processing by country, question, position with the earlier rulings, prior consideration, documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400. 409 `conflict` when the case's inputs, or the stored plan the draft was chosen from, changed during the request (nothing is recorded; draft again). D97. Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
          */
         post: {
             parameters: {
@@ -545,6 +547,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -1110,6 +1113,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
