@@ -19,6 +19,11 @@ const ruling = (id: string) => {
 };
 
 export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) => string }) {
+  // A reload opens the story from the hero. The browser otherwise restores
+  // the scroll position it was on, dropping the visitor mid-way through the
+  // pinned stage with no way to see the heat gun from the start.
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  scrollTo({ top: 0, behavior: "instant" });
   const $ = <T extends Element = HTMLElement>(k: string) => root.querySelector<T>(`[data-k="${k}"]`)!;
   const $$ = <T extends Element = HTMLElement>(k: string) => [...root.querySelectorAll<T>(`[data-k="${k}"]`)];
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
