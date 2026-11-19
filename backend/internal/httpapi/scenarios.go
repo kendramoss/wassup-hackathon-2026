@@ -230,6 +230,7 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 	}
 	start := time.Now()
 	now := start.UTC()
+	fp := inputFingerprint(*sc) // what this check is worked out from (D97)
 	c := domain.Case{ID: sc.ID, Date: now, Facts: sc.Facts, Product: sc.Product, Exclude: sc.Exclude}
 	res, err := a.d.Engine.Predict(ctx, c)
 	if err != nil {
@@ -259,6 +260,11 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		return nil
 	}
 	saved, err := a.d.Cases.Update(ctx, sc.ID, func(latest *store.Case) error {
+		// A new BOM or answers replaced the inputs while this ran: the
+		// result belongs to the old facts, so it is discarded, not attached.
+		if err := stillCurrent(latest, fp); err != nil {
+			return err
+		}
 		latest.Watch = watch
 		record(ctx, latest, ev)
 		return nil

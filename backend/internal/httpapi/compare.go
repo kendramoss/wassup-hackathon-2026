@@ -60,6 +60,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
+	fp := inputFingerprint(c)
 	econ := in.Economics
 	if econ.AnnualImportValueUSD == 0 && c.Economics != nil {
 		econ = *c.Economics
@@ -103,6 +104,9 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	if !a.demoReadOnly(r, c) {
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
 			latest.Targets, latest.UpdatedAt = cmp, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
 			record(r.Context(), latest, ev)

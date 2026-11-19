@@ -1,7 +1,10 @@
 package httpapi
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -177,7 +180,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		// the case goes back to the origin step (the history keeps them);
 		// scenarios are the user's own setups and stay.
 		latest.Answers, latest.OriginalFacts = nil, ""
-		latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
+		clearDerived(latest)
 		// CBP's ruling was on the previous BOM. Kept, a plan search would tell
 		// the verifier CBP had ruled on this product (D17), scenarios would
 		// start from it and the draft would cite it.
@@ -230,4 +233,88 @@ func bomUpload(w http.ResponseWriter, r *http.Request) (io.ReadCloser, bool, err
 		return nil, false, fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
 	return io.NopCloser(strings.NewReader(in.CSV)), in.Apply, nil
+}
+
+// clearDerived drops what was worked out from the previous facts: the plan
+// search, the target comparison, the watch and the export mark. History and
+// the user's own scenarios stay.
+func clearDerived(latest *store.Case) {
+	latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
+}
+
+// errSuperseded means the case's inputs changed (a new BOM, new answers)
+// while a result was being worked out from the old ones.
+var errSuperseded = errors.New("conflict: the case changed while this ran; the result was discarded, run it again")
+
+// inputFingerprint identifies what a plan search, a country comparison and a
+// draft are worked out from: the product, the facts the prediction used, the
+// excluded rulings, the known origin, the family and the date. Money, chat,
+// history and the result fields are not part of it.
+func inputFingerprint(c store.Case) string {
+	// Stores differ on an empty list (Memory turns [] into nil, File and
+	// Firestore drop it), so nil and empty are one value.
+	ex := c.Exclude
+	if len(ex) == 0 {
+		ex = nil
+	}
+	b, _ := json.Marshal(struct {
+		Date, Facts, Family string
+		Product             any
+		Exclude             []string
+		CurrentOrigin       any
+	}{c.Date, c.Facts, c.Family, c.Product, ex, c.CurrentOrigin})
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
+}
+
+// stillCurrent is called inside a store update with the latest case: it
+// refuses the write when the inputs differ from fp, the fingerprint taken
+// before the work began. Plan, SSE plan, target comparison and export share
+// it, so the check and the save are one atomic step.
+func stillCurrent(latest *store.Case, fp string) error {
+	if inputFingerprint(*latest) != fp {
+		return errSuperseded
+	}
+	return nil
+}
+
+// stillCurrentPlan is stillCurrent for an export: the inputs and, when a plan
+// was chosen, the stored search it was chosen from.
+func stillCurrentPlan(latest *store.Case, fp, target, src string) error {
+	if err := stillCurrent(latest, fp); err != nil {
+		return err
+	}
+	if src != "" && planSourceFingerprint(*latest, target) != src {
+		return errSuperseded
+	}
+	return nil
+}
+
+// retryable reports whether a failed request is worth sending again as it
+// is: server-side failures, and a superseded result (run it again).
+func retryable(status int, err error) bool {
+	return status >= 500 || errors.Is(err, errSuperseded)
+}
+
+// planSourceFingerprint identifies the stored result an export draws its
+// chosen plan from: the latest plan search, or one country's search in the
+// comparison when target is given. A replaced search changes it, so a draft
+// of a plan that is no longer the stored one is not marked exported.
+func planSourceFingerprint(c store.Case, target string) string {
+	var src any
+	if target != "" {
+		if c.Targets != nil {
+			if res, ok := c.Targets.Results[domain.NormalizeCountry(target)]; ok {
+				src = res
+			}
+		}
+	} else if c.Plan != nil {
+		src = c.Plan
+	}
+	if src == nil {
+		return ""
+	}
+	b, _ := json.Marshal(src)
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
 }

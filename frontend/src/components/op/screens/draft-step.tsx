@@ -3,7 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { api, type ExportResponse } from "@/lib/api/client";
+import { api, ApiError, type ExportResponse } from "@/lib/api/client";
+import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { Button, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -88,10 +89,23 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  const record = () => void api.exportDraft(id, { ...pick, format }).catch(() => {});
+  // Recording answers with the letter as the case stands now. The letter goes
+  // out only if that answer matches the preview on screen (raw content, before
+  // the requester's own fields are filled in). Anything else, including a
+  // failed recording, shows an error with the server's own message, drops the
+  // stale draft and does not download or print it. See lib/record-export.ts.
+  const record = async () => {
+    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }), draft?.content ?? "");
+    if (r.ok) return true;
+    setDrafts({});
+    if (r.reason === "failed" && r.error) setError(r.error);
+    else if (r.reason === "changed") setError(new ApiError("The case changed after this letter was drafted. Draft it again.", 409, "conflict", true));
+    else setError(new ApiError("Couldn't confirm this letter is current. Try again.", 0, "internal", true));
+    return false;
+  };
 
-  const download = () => {
-    record();
+  const download = async () => {
+    if (!(await record())) return;
     const blob = new Blob([text], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -228,9 +242,8 @@ function Draft({ id, c, setCase }: CaseCtx) {
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown
           </Button>
-          <Button onClick={() => {
-              record();
-              window.print();
+          <Button onClick={async () => {
+              if (await record()) window.print();
             }} disabled={!draft}>
             Print the letter
           </Button>

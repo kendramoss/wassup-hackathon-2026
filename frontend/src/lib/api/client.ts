@@ -17,6 +17,8 @@ export type PlanRequest = S["PlanRequest"];
 export type PlanResult = S["PlanResult"];
 export type Plan = S["Plan"];
 export type Economics = S["Economics"];
+// PUT /cases/{id}/economics returns only the stored economics, not the case.
+export type EconomicsResponse = { case_id: string; economics: Economics };
 export type TargetSummary = S["TargetSummary"];
 export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
@@ -68,9 +70,83 @@ export class ApiError extends Error {
   }
 }
 
+// Folds a money save into a case. The response carries no product,
+// prediction or scenarios, so those stay. economics_priced was worked out
+// from the old inputs and is dropped, so this is only the fallback when the
+// authoritative case can't be re-read (see saveEconomics). A response for a
+// different case is an error, never a silent success.
+export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
+  if (r.case_id !== c.id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
+  const next: CaseResponse = { ...c, economics: r.economics };
+  delete next.economics_priced;
+  return next;
+}
+
+// One writer at a time for a case's money inputs and scenario run: a run
+// sends the economics it started with and the server stores them, so a save
+// overlapping a run (either order) would be lost. start() returns a release
+// function, or null while another operation holds the lock.
+export function opLock() {
+  let held = false;
+  return {
+    start(): (() => void) | null {
+      if (held) return null;
+      held = true;
+      return () => {
+        held = false;
+      };
+    },
+    get held() {
+      return held;
+    },
+  };
+}
+
+export type SaveEconomicsIO = {
+  // The newest case this screen holds, read synchronously. Its identity is
+  // the change token: any update to the screen replaces it.
+  latest: () => CaseResponse;
+  apply: (c: CaseResponse) => void;
+};
+
+// Saves money inputs, then shows the backend's own view of the case so the
+// sourced duty rates and labels (economics_priced) are right at once.
+// The re-read can lose a race with another update (a scenario run finishing
+// meanwhile): if the screen's case changed while it was in flight its answer
+// may predate that update, so it is discarded and re-read. If it never
+// settles, or fails, the saved economics are merged into the newest case,
+// never into the one from when the save began.
+export async function saveEconomics(id: string, economics: Economics, io: SaveEconomicsIO, tries = 3): Promise<void> {
+  const r = await api.putEconomics(id, economics);
+  if (r.case_id !== id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
+  // The screen may have moved to another case (reused component): never
+  // write this case's answer over it.
+  if (io.latest().id !== id) return;
+  for (let i = 0; i < tries; i++) {
+    const seen = io.latest();
+    let fresh: CaseResponse;
+    try {
+      fresh = await api.getCase(id);
+    } catch {
+      break;
+    }
+    if (io.latest().id !== id) return;
+    if (fresh.id !== id) break;
+    if (io.latest() === seen) {
+      io.apply(fresh);
+      return;
+    }
+  }
+  if (io.latest().id !== id) return;
+  io.apply(mergeEconomics(io.latest(), r));
+}
+
 export const SIGNIN_EXPIRED = "op:signin-expired";
 
-const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network"]);
+// "conflict" (409): the case changed while a plan, comparison or export ran and
+// the result was discarded (D97). Running it again is right, the same as the
+// streamed error event, which the server marks retryable.
+const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network", "conflict"]);
 
 async function toError(res: Response): Promise<ApiError> {
   const err = await readError(res);
@@ -158,7 +234,7 @@ export const api = {
     post<BatchResponse>("/cases/batch", { items }, signal),
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
-  putEconomics: (id: string, economics: Economics) => post<CaseResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
+  putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
   moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", body, signal),
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),

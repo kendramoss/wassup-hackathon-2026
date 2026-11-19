@@ -248,6 +248,8 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusBadRequest, "invalid_input", err.Error()
 	case errors.Is(err, apikey.ErrBadRequest):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, errSuperseded):
+		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
@@ -405,11 +407,18 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	return sc, c, nil
 }
 
+// ScopeUnavailableReason is the triage reason when a configured scope router
+// failed. It does not say the case is out of scope, nor that it is in scope.
+const ScopeUnavailableReason = "scope unavailable: the scope router failed, so the legal regime is not confirmed; an expert reviews"
+
 // classify runs router and engine concurrently and decides triage. The router
 // labels scope only; it never changes the engine's answer. st, when set, is
 // told each step as it runs (nil: not reported); it never changes the result.
 func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
 	var label *router.Label
+	// scopeUnavailable is set only when a configured router failed. It is not
+	// the same as label == nil with no router configured (unchanged behaviour).
+	scopeUnavailable := false
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
@@ -420,6 +429,7 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
 				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
+				scopeUnavailable = true // read after wg.Wait
 				return
 			}
 			label = &l
@@ -467,6 +477,12 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	if scopeUnavailable {
+		// Scope was not established: keep the provisional prediction, never
+		// auto-accept, and skip clarify (inScope false), which would turn the
+		// review into questions as if the case were known to be in scope.
+		return res.Prediction, nil, domain.Triage{Route: domain.RouteNeedsReview, Reason: ScopeUnavailableReason}, false, nil
 	}
 	inScope, scopeReason, subfamily := true, "", ""
 	if label != nil {
@@ -544,6 +560,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	if a.refuseDemoEdit(w, r, sc) {
 		return
 	}
+	fp := inputFingerprint(sc)
 	var in answersRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)
@@ -582,9 +599,17 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	ev := predictionEvent("answered", sc, start)
 	ev.Summary = fmt.Sprintf("%d answer(s) added; ", len(in.Answers)) + ev.Summary
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
+		// New BOM or other input changes while this ran: the answers were
+		// appended to old facts, so discard rather than overwrite.
+		if err := stillCurrent(latest, fp); err != nil {
+			return err
+		}
 		latest.OriginalFacts, latest.Answers = sc.OriginalFacts, sc.Answers
 		latest.Facts, latest.UpdatedAt = sc.Facts, sc.UpdatedAt
 		latest.Prediction, latest.Router, latest.Triage, latest.Clarify = sc.Prediction, sc.Router, sc.Triage, sc.Clarify
+		// The plan, comparison, watch and draft came from the old facts
+		// (every accepted answer adds a fact); scenarios and history stay.
+		clearDerived(latest)
 		record(r.Context(), latest, ev)
 		return nil
 	})
@@ -844,6 +869,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.planStream(w, r, c, req)
 		return
 	}
+	fp := inputFingerprint(c)
 	res, err := a.d.Planner.Plan(r.Context(), req)
 	if err != nil {
 		a.fail(w, r, err)
@@ -853,6 +879,9 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
 			record(r.Context(), latest, ev)
@@ -1052,6 +1081,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	s := openStream(w)
 	defer s.close()
 	send := s.send
+	fp := inputFingerprint(c)
 	res, err := a.d.Planner.PlanWithProgress(r.Context(), req, func(e planner.Event) {
 		switch e.Kind {
 		case planner.EventStarted:
@@ -1068,6 +1098,9 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(req.Economics, latest.Economics)
 			record(r.Context(), latest, ev)
@@ -1076,7 +1109,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	}
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
-		send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
+		send("error", map[string]any{"code": code, "message": msg, "retryable": retryable(status, err)})
 		return
 	}
 	out := a.meta()
@@ -1112,6 +1145,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	fp := inputFingerprint(c)
 	var in exportRequest
 	if r.ContentLength != 0 {
 		if err := decode(w, r, &in); err != nil {
@@ -1177,6 +1211,14 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 		chosen = p
 	}
+	srcTarget := in.Target
+	if in.MoveKey == "" {
+		srcTarget = "" // plan_index always reads the latest plan search
+	}
+	chosenFrom := ""
+	if chosen != nil {
+		chosenFrom = planSourceFingerprint(c, srcTarget)
+	}
 	if p := chosen; p != nil {
 		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
 		if c.Product != nil { // the letter lists where things are made after the move
@@ -1209,6 +1251,9 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if err := stillCurrentPlan(latest, fp, srcTarget, chosenFrom); err != nil {
+			return err
+		}
 		latest.ExportedAt, latest.UpdatedAt = &now, now
 		summary := "draft ruling request for " + what
 		if format == formatCFR177 {

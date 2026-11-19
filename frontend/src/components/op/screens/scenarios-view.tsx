@@ -1,8 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
-import { api, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
@@ -74,28 +74,52 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
+  // The newest case this screen holds, so a slow money save or re-read never
+  // writes back the case from when it started.
+  // Kept current by an effect (not during render) and by commit().
+  const latest = useRef(c);
+  useEffect(() => {
+    latest.current = c;
+  }, [c]);
+  // A money save and a scenario run must not overlap: the run would store
+  // the economics it started with over the save.
+  const lock = useRef(opLock()).current;
+  const [saving, setSaving] = useState(false);
+  const commit = (next: CaseResponse) => {
+    latest.current = next;
+    setCase(next);
+  };
   const saveMoney = async (e: Economics) => {
     setMoneyOpen(false);
+    const release = lock.start();
+    if (!release) return;
+    setSaving(true);
     setError(null);
     try {
-      setCase(await api.putEconomics(id, e));
+      await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
       setError(err);
+    } finally {
+      release();
+      setSaving(false);
     }
   };
 
   const run = async () => {
+    const release = lock.start();
+    if (!release) return;
     setBusy(true);
     setError(null);
     try {
       const body = drafts.map((d) =>
         d.mode === "facts" || !product ? { label: d.label, facts: d.facts } : { label: d.label, product: variant(product, d.groups, d.plant) },
       );
-      setCase(await api.scenarios(id, { scenarios: body, economics: c.economics }));
+      commit(await api.scenarios(id, { scenarios: body, economics: c.economics }));
       setEditing(false);
     } catch (e) {
       setError(e);
     } finally {
+      release();
       setBusy(false);
     }
   };
@@ -120,16 +144,17 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
           )}
         </div>
 
-        <MoneyStrip c={c} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
+        <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
-            <Button onClick={run} disabled={busy || drafts.length === 0}>
+            <Button onClick={run} disabled={busy || saving || drafts.length === 0}>
               {sc.length ? "Run again" : "Predict the scenarios"}
             </Button>
             {busy && <Spinner label="Predicting each scenario…" />}
+            {saving && <Spinner label="Saving money inputs…" />}
           </div>
         )}
 
@@ -166,7 +191,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
 // is worked out from, and the drawer to change them.
 // Rates come from economics_priced (D56): what the user typed plus the
 // sourced duty rates the plan search uses. Edits still go to economics.
-function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
+function MoneyStrip({ c, onEdit, locked }: { c: CaseResponse; onEdit?: () => void; locked?: boolean }) {
   const e = pricedEconomics(c);
   const groups = Object.keys(e?.group_costs ?? {}).length;
   const live = liveMfnOrigins(e);
@@ -190,7 +215,7 @@ function MoneyStrip({ c, onEdit }: { c: CaseResponse; onEdit?: () => void }) {
       <DutyBreakdown e={e} className="basis-full" />
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
       {onEdit ? (
-        <button type="button" onClick={onEdit} className="ml-auto min-h-8 text-ok hover:underline">
+        <button type="button" onClick={onEdit} disabled={locked} title={locked ? "Wait for the current save or prediction to finish" : undefined} className="ml-auto min-h-8 text-ok hover:underline disabled:cursor-not-allowed disabled:text-dim disabled:no-underline">
           {c.economics ? "Edit inputs" : "+ Add money inputs"}
         </button>
       ) : (
