@@ -14,10 +14,20 @@ export type Filled = {
   duty: { country: string; rate: number; source: "table" | "live" | "given" }[];
   hts?: string;
   htsSuggested?: boolean;
+  // Set when the product's own HTS number is not a valid 8- or 10-digit
+  // number: nothing was looked up or filled, and the user is told why (#306).
+  htsNote?: string;
   failed?: boolean;
 };
 
 const fileLabels: Record<string, string> = { annual_import_value_usd: "imports a year", group_costs: "yearly cost of each group" };
+
+// invalidHtsNote returns the API's hts_note only when it reports a malformed
+// HTS (a note with no hts_source). With a suggested HTS the note is the broker
+// reminder the screen already shows, so it is not repeated.
+export function invalidHtsNote(r: { hts_note?: string; hts_source?: string }): string | undefined {
+  return r.hts_note && !r.hts_source ? r.hts_note : undefined;
+}
 
 // prefillMoney fills the duty rates the economics lack. The user's own rates
 // win; a failed call leaves the economics as they were.
@@ -39,7 +49,7 @@ export async function prefillMoney(
     const changed = duty.some((d) => d.source !== "given");
     return {
       economics: changed || economics ? { ...(economics ?? {}), ...r.economics } : economics,
-      filled: { fromFile, duty, hts: r.hts, htsSuggested: r.hts_source === "suggested" },
+      filled: { fromFile, duty, hts: r.hts, htsSuggested: r.hts_source === "suggested", htsNote: invalidHtsNote(r) },
     };
   } catch {
     return { economics, filled: { fromFile, duty: [], failed: true } };
@@ -92,7 +102,7 @@ const pct = (r: number) => `${Math.round(r * 1000) / 10}%`;
 
 export function PrefillNote({ f, onEdit, className }: { f: Filled; onEdit?: () => void; className?: string }) {
   const auto = f.duty.filter((d) => d.source !== "given");
-  if (!f.fromFile.length && !auto.length && !f.failed) {
+  if (!f.fromFile.length && !auto.length && !f.failed && !f.htsNote) {
     return (
       <p className={cx("text-[12px] text-dim", className)}>
         No HTS number to price duty from yet. Add one (or use &ldquo;Suggest&rdquo;) and duty rates fill in.
@@ -111,6 +121,7 @@ export function PrefillNote({ f, onEdit, className }: { f: Filled; onEdit?: () =
           </li>
         )}
         {f.htsSuggested && f.hts && <li>HTS {f.hts} was suggested from similar CBP rulings: confirm the classification with a broker.</li>}
+        {f.htsNote && <li>{f.htsNote}</li>}
         {f.failed && <li>Duty rates couldn&apos;t be looked up just now; enter them by hand.</li>}
       </ul>
       {onEdit && (
