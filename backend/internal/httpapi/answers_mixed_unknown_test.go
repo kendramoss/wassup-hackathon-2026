@@ -95,6 +95,12 @@ func TestAnswersEllipticalUnknownNotPromoted(t *testing.T) {
 		"The motor is made in Thailand; unclear.",
 		"The motor is made in Thailand, but not stated.",
 		"The motor is made in Thailand, although unclear, and the housing is cast in Vietnam.",
+		"The motor is made in Thailand, but not stated where it is made.",
+		"The motor is made in Thailand, but unclear which country it is.",
+		"The motor is made in Thailand, but unknown who is the maker.",
+		"The motor is made in Thailand, but which country it is is unclear.",
+		"The motor is made in Thailand, but where it is made is not stated.",
+		"The motor is made in Thailand, but what the maker is is unknown.",
 	} {
 		hs, id := staleHarness(t, nil)
 		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/answers", mixedAnswerBody(bad+" The gearbox is cast in Mexico."))
@@ -106,5 +112,17 @@ func TestAnswersEllipticalUnknownNotPromoted(t *testing.T) {
 		if strings.Contains(ans, "Thailand") || strings.Contains(ans, "Vietnam") || !strings.Contains(ans, "A: The gearbox is cast in Mexico.\n") {
 			t.Errorf("%q: engine answer block wrong:\n%s", bad, ans)
 		}
+	}
+}
+
+func TestAnswersIndependentUnknownSubjectKeepsKnownClause(t *testing.T) {
+	hs, id := staleHarness(t, nil)
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/answers", mixedAnswerBody("The motor is made in Thailand, but the maker of the firmware is not stated. The gearbox is cast in Mexico.")); code != http.StatusOK {
+		t.Fatalf("%d %v", code, out)
+	}
+	facts := hs.engine.last.Facts
+	ans := facts[strings.Index(facts, "ADDITIONAL FACTS"):]
+	if !strings.Contains(ans, "A: The motor is made in Thailand. The gearbox is cast in Mexico.\n") || strings.Contains(ans, "firmware") {
+		t.Errorf("engine answer block wrong:\n%s", ans)
 	}
 }

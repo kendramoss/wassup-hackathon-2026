@@ -67,8 +67,13 @@ var (
 	// ("its value share is unknown"). An elliptical tail ("but unknown",
 	// "; unclear", "though not stated") qualifies the prior claim, so the
 	// sentence is dropped whole instead.
-	ownSubject = regexp.MustCompile(`(?i)^\S+(\s+\S+)*?\s+(is|are|was|were|am|has|have|does|do|did|remains?|stays?)\b`)
-	relative   = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when|it|this|they|these|those|he|she|the (same|former|latter))\b`)
+	ownSubject = regexp.MustCompile(`(?i)^(the|a|an|its|their|his|her|our|my|this|that|these|those)\s+\S.*?\b(is|are|was|were|has|have|does|do|did|remains?|stays?)\b`)
+	// subjectBlock: the words before the first verb must be a plain noun
+	// phrase: no wh-word, negation or hedge (those make a later "is" belong to
+	// a subordinate clause, as in "not stated where it is made").
+	subjectBlock = regexp.MustCompile(`(?i)\b(not|no|never|n't|who|whom|whose|which|what|where|when|why|how|whether|unknown|unclear|unsure|stated|specified|known)\b|n't`)
+	verbWord     = regexp.MustCompile(`(?i)\b(is|are|was|were|has|have|does|do|did|remains?|stays?)\b`)
+	relative     = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when|it|this|they|these|those|he|she|the (same|former|latter))\b`)
 	// scoped marks a sentence whose clauses may be conditioned or qualified by
 	// one another (condition, scope, speaker uncertainty, hedged degree).
 	// Cutting such a sentence could promote a qualified claim to a fact, so it
@@ -116,7 +121,7 @@ func splitKnown(s string) []string {
 		if t == "" {
 			return nil
 		}
-		if ps[i].unknown && !ownSubject.MatchString(t) {
+		if ps[i].unknown && !hasOwnSubject(t) {
 			return nil
 		}
 		if ps[i].unknown && (relative.MatchString(t) || leadingVerb.MatchString(t) ||
@@ -186,4 +191,14 @@ func AppendAnswers(facts string, as []Answer) (out string, ok bool) {
 		return facts, false
 	}
 	return strings.TrimRight(facts, "\n") + "\n\n" + answersHeader + strings.Join(lines, "\n") + "\n", true
+}
+
+// hasOwnSubject reports whether an unknown clause opens with a plain noun
+// phrase and then its own finite verb. It fails closed on anything else.
+func hasOwnSubject(t string) bool {
+	if !ownSubject.MatchString(t) {
+		return false
+	}
+	loc := verbWord.FindStringIndex(t)
+	return loc != nil && !subjectBlock.MatchString(t[:loc[0]])
 }

@@ -138,4 +138,22 @@ var elliptical = []string{
 	"The motor is made in Thailand; unclear.",
 	"The motor is made in Thailand, but not stated.",
 	"The motor is made in Thailand, although unclear, and the housing is cast in Vietnam.",
+	"The motor is made in Thailand, but not stated where it is made.",
+	"The motor is made in Thailand, but unclear which country it is.",
+	"The motor is made in Thailand, but unknown who is the maker.",
+	"The motor is made in Thailand, but which country it is is unclear.",
+	"The motor is made in Thailand, but where it is made is not stated.",
+	"The motor is made in Thailand, but what the maker is is unknown.",
+}
+
+func TestFactualIndependentUnknownSubjectStillSplits(t *testing.T) {
+	for _, in := range []string{
+		"The motor is made in Thailand, but its share is unknown.",
+		"The motor is made in Thailand, but the maker of the firmware is not stated.",
+		"The motor is made in Thailand; the housing origin is unclear.",
+	} {
+		if got := factual(in); got != "The motor is made in Thailand." {
+			t.Errorf("factual(%q) = %q", in, got)
+		}
+	}
 }
