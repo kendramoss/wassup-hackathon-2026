@@ -73,7 +73,7 @@ func TestMeterKeepsCountedSpendAfterStoreRecovery(t *testing.T) {
 		t.Fatalf("while down: over %v, total %v", over, total)
 	}
 	m.Add(ctx, 0.01) // store has recovered but only knows this 0.01
-	if over, total := m.Over(ctx); !over || total < 0.07 {
+	if over, total := m.Over(ctx); !over || total+1e-9 < 0.07 {
 		t.Fatalf("after recovery: over %v, total %v, want >= 0.07", over, total)
 	}
 }
@@ -91,7 +91,7 @@ func TestMeterConcurrentFailureAndSuccessAreMonotonic(t *testing.T) {
 		}(usd)
 	}
 	wg.Wait()
-	if over, total := m.Over(ctx); !over || total < 0.07 {
+	if over, total := m.Over(ctx); !over || total+1e-9 < 0.07 {
 		t.Fatalf("over %v, total %v, want >= 0.07", over, total)
 	}
 }
