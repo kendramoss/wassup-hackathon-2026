@@ -25,7 +25,7 @@ const maxUpload = 5 << 20
 func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 	var name, desc, family, fallback, hint string
 	var src io.Reader
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+	if isMultipart(r) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
 		if err := r.ParseMultipartForm(maxUpload); err != nil {
 			a.fail(w, r, fmt.Errorf("%w: upload: %v", domain.ErrInvalid, err))

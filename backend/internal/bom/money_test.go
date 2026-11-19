@@ -1,6 +1,7 @@
 package bom
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -39,6 +40,63 @@ func TestParseMoneyNoColumns(t *testing.T) {
 	m, w := ParseMoney(readCSV(t, "name,country,group\nmotor,China,motor_fan_assembly\n"), Options{})
 	if m.HTS != "" || m.AnnualImportValueUSD != 0 || m.GroupCosts != nil || w != nil {
 		t.Errorf("money = %+v, warnings = %v", m, w)
+	}
+}
+
+func TestAmountRejectsNonFiniteNumbers(t *testing.T) {
+	for _, s := range []string{"Inf", "+Inf", "Infinity", "+Infinity", "$Inf", "-Inf", "NaN", "1e309"} {
+		if _, ok := amount(s); ok {
+			t.Errorf("amount(%q) was accepted; want rejected", s)
+		}
+	}
+	for _, s := range []string{"0", "1.5", "$25", "20,000"} {
+		if f, ok := amount(s); !ok || !finite(f) {
+			t.Errorf("amount(%q) = %v, %v; want a finite number", s, f, ok)
+		}
+	}
+}
+
+func TestParseMoneyNonFiniteCellsAreIgnored(t *testing.T) {
+	csv := `name,country,group,qty,unit_cost_usd,annual_units,unit_price_usd
+motor,China,motor_fan_assembly,Inf,Inf,Inf,Inf`
+	m, w := ParseMoney(readCSV(t, csv), Options{})
+	if m.AnnualUnits != 0 || m.UnitPriceUSD != 0 || m.AnnualImportValueUSD != 0 || m.GroupCosts != nil {
+		t.Errorf("nonfinite cells were kept: %+v", m)
+	}
+	if len(w) != 3 {
+		t.Fatalf("warnings = %v, want one each for units, price and cost", w)
+	}
+	if _, err := json.Marshal(m); err != nil {
+		t.Errorf("money cannot be serialized: %v", err)
+	}
+}
+
+func TestParseMoneyOverflowIsIgnored(t *testing.T) {
+	csv := `name,country,group,qty,unit_cost_usd,annual_units,unit_price_usd
+motor,China,motor_fan_assembly,1e308,1e308,1e308,100
+fan,China,motor_fan_assembly,1,1e308,,`
+	m, w := ParseMoney(readCSV(t, csv), Options{})
+	if !finite(m.AnnualImportValueUSD) || !finite(m.AnnualUnits) || !finite(m.UnitPriceUSD) {
+		t.Errorf("nonfinite import value: %+v", m)
+	}
+	for group, plants := range m.GroupCosts {
+		for plant, cost := range plants {
+			if !finite(cost) {
+				t.Errorf("nonfinite group cost %s/%s: %v", group, plant, cost)
+			}
+		}
+	}
+	var tooLarge int
+	for _, msg := range w {
+		if strings.Contains(msg, "too large") {
+			tooLarge++
+		}
+	}
+	if tooLarge != 3 {
+		t.Errorf("overflow warnings = %v, want 3", w)
+	}
+	if _, err := json.Marshal(m); err != nil {
+		t.Errorf("money cannot be serialized: %v", err)
 	}
 }
 

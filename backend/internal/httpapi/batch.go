@@ -122,7 +122,7 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *api) batchItems(w http.ResponseWriter, r *http.Request) ([]batchItem, error) {
-	if !strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+	if !isMultipart(r) {
 		var in struct {
 			Items []batchItem `json:"items"`
 		}

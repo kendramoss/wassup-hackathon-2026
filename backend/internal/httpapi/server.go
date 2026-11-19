@@ -1,12 +1,15 @@
 package httpapi
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"log/slog"
+	"mime"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -162,7 +165,27 @@ func writeError(w http.ResponseWriter, status int, code, message string, details
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
+	// Encode before committing the status. encoding/json rejects values such as
+	// +Inf after emitting no bytes, so writing the header first would turn a
+	// serialization failure into an empty 200 that clients cannot parse.
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(v); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"code":"internal","message":"response could not be encoded"}`))
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	_, _ = w.Write(buf.Bytes())
+}
+
+// isMultipart reports whether the request body is a multipart form. Media
+// types and subtypes are case-insensitive (RFC 9110), while parameter values
+// such as the boundary keep their casing; net/http reads the boundary from
+// the header itself when the form is parsed. A malformed or unsupported type
+// falls through to the caller's JSON path, which returns a coherent error.
+func isMultipart(r *http.Request) bool {
+	mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	return err == nil && strings.EqualFold(mediaType, "multipart/form-data")
 }

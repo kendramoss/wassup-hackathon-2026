@@ -41,6 +41,32 @@ func TestImportFillsMoneyFromBOM(t *testing.T) {
 	}
 }
 
+func TestImportHandlesNonFiniteAndOverflowingMoney(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for _, tt := range []struct {
+		name, moneyRow string
+	}{
+		{"infinite cells", "main housing,Thailand,Rayong plant,housing_moulding,motor_fan_assembly,1,Inf,Inf,Inf\n"},
+		{"overflowing products", "main housing,Thailand,Rayong plant,housing_moulding,motor_fan_assembly,1e308,1e308,1e308,100\n"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			csv := "Part,Made in,Factory,Operation group,Plant capabilities,Qty,Unit cost (USD),Annual units,Unit price (USD)\n" + tt.moneyRow
+			body, _ := json.Marshal(map[string]any{"name": "Heat gun", "csv": csv})
+			code, out := hs.do(t, "POST", "/v1/products/import", string(body))
+			if code != http.StatusOK || out == nil {
+				t.Fatalf("import = %d %v; want a valid JSON success", code, out)
+			}
+			if _, err := json.Marshal(out); err != nil {
+				t.Errorf("response cannot be serialized: %v", err)
+			}
+			warnings, ok := out["warnings"].([]any)
+			if !ok || len(warnings) == 0 {
+				t.Fatalf("warnings = %v", out["warnings"])
+			}
+		})
+	}
+}
+
 const prefillProduct = `{"name":"Heat gun","hts":"8419.89.95","plants":[{"id":"cn","name":"China suppliers","country":"China"},{"id":"th","name":"Rayong","country":"Thailand"}],` +
 	`"components":[{"name":"motor","made_in":"China","plant":"cn","group":"motor_fan_assembly"}],"operations":[]}`
 
