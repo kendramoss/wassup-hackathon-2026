@@ -565,7 +565,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact */
+        /**
+         * Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact
+         * @description When the answers change the facts, the case's plan search, target comparison, watch result and exported mark are cleared (they were worked out from the old facts); history and scenarios stay. 409 `conflict` when the case's inputs (for example a new BOM) changed while the re-analysis ran; the answers are not saved, send them again. D97.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -597,6 +600,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
