@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
+import { askBody, askHistory } from "@/lib/ask-history";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
@@ -29,6 +30,9 @@ const subscribe = (l: () => void) => {
 };
 const extras = new Map<string, Extra>();
 const details = new Map<string, PrecedentRef>();
+// Turns a visitor asked on a pinned demo in this visit (the server never
+// stores them); the seeded turns are not in here.
+const visitorTurns = new Set<string>();
 const turnKey = (caseId: string, t: ChatTurn) => `${caseId}|${t.at ?? ""}|${t.question ?? ""}`;
 
 // "Ask about this case" (DESIGN.md, #46): a right-hand drawer on the case
@@ -78,7 +82,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     inflight.set(id, { q, since: Date.now() });
     emit();
     try {
-      const r = await api.ask(id, q);
+      const history = c.pinned ? askHistory(chat, (t) => visitorTurns.has(turnKey(id, t))) : [];
+      const r = await api.ask(id, askBody(q, !!c.pinned, history));
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
       // A demo answers without saving, so its chat lacks this turn: add it here.
@@ -86,6 +91,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         ? [...chat, { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], at: new Date().toISOString() }]
         : (r.chat ?? []);
       const last = next.at(-1);
+      if (c.pinned && last) visitorTurns.add(turnKey(id, last));
       if (last) extras.set(turnKey(id, last), { whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls });
       setOpen(null);
       setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);

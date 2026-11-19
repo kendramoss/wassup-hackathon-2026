@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -26,6 +27,43 @@ type askRequest struct {
 	Question string `json:"question"`
 	// Reset clears the case's conversation before asking (or alone).
 	Reset bool `json:"reset"`
+	// History is the visitor's own completed turns on a read-only pinned
+	// demo (#309). It is untrusted conversation text, not case evidence: it
+	// is validated, only affects this request's answer and memo key, and is
+	// never stored. On every other case it is ignored; the saved chat is the
+	// sole source.
+	History []askHistoryTurn `json:"history"`
+}
+
+type askHistoryTurn struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+}
+
+// MaxAskAnswer caps one supplied answer, in runes (questions keep the
+// 2,000-rune ask limit). A supplied history holds at most caseagent.MaxHistory
+// turns, so the payload is bounded; out-of-bound input is refused, never cut.
+const MaxAskAnswer = 4000
+
+// clientHistory validates the supplied turns of a pinned-demo ask.
+func clientHistory(in []askHistoryTurn) ([]caseagent.Turn, error) {
+	if len(in) > caseagent.MaxHistory {
+		return nil, fmt.Errorf("%w: history holds at most %d turns", domain.ErrInvalid, caseagent.MaxHistory)
+	}
+	out := make([]caseagent.Turn, len(in))
+	for i, t := range in {
+		q, a := strings.TrimSpace(t.Question), strings.TrimSpace(t.Answer)
+		switch {
+		case q == "" || a == "":
+			return nil, fmt.Errorf("%w: history turn %d needs a question and an answer", domain.ErrInvalid, i+1)
+		case utf8.RuneCountInString(q) > 2000:
+			return nil, fmt.Errorf("%w: history question %d is longer than 2,000 characters", domain.ErrInvalid, i+1)
+		case utf8.RuneCountInString(a) > MaxAskAnswer:
+			return nil, fmt.Errorf("%w: history answer %d is longer than %d characters", domain.ErrInvalid, i+1, MaxAskAnswer)
+		}
+		out[i] = caseagent.Turn{Question: q, Answer: a}
+	}
+	return out, nil
 }
 
 func (a *api) ask(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +83,13 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	readOnly := a.demoReadOnly(r, c)
+	var visitor []caseagent.Turn
+	if readOnly && !in.Reset {
+		if visitor, err = clientHistory(in.History); err != nil {
+			a.fail(w, r, err)
+			return
+		}
+	}
 	if in.Reset && readOnly {
 		a.refuseDemoEdit(w, r, c)
 		return
@@ -80,6 +125,15 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	hist := make([]caseagent.Turn, len(c.Chat))
 	for i, t := range c.Chat {
 		hist[i] = caseagent.Turn{Question: t.Question, Answer: t.Answer}
+	}
+	// A pinned demo has no visitor-specific saved chat: the visitor's own
+	// completed turns follow the seeded ones. The agent sees only the last
+	// MaxHistory turns, so that is also what the memo key covers.
+	if len(visitor) > 0 {
+		hist = append(hist, visitor...)
+	}
+	if len(hist) > caseagent.MaxHistory {
+		hist = hist[len(hist)-caseagent.MaxHistory:]
 	}
 	// The same question on the same case and conversation is answered from
 	// memory: the preset questions are asked again and again (18 Oct).
@@ -217,8 +271,11 @@ const maxAskMemo = 500
 func askKey(c store.Case, hist []caseagent.Turn, q string) string {
 	h := sha256.New()
 	fmt.Fprintf(h, "%s\x00%s\x00%s\x00", c.ID, c.UpdatedAt.Format(time.RFC3339Nano), strings.ToLower(strings.Join(strings.Fields(q), " ")))
+	// Length-prefixed, so turn boundaries cannot be forged by text that
+	// contains the separator.
+	fmt.Fprintf(h, "%d\x00", len(hist))
 	for _, t := range hist {
-		fmt.Fprintf(h, "%s\x00%s\x00", t.Question, t.Answer)
+		fmt.Fprintf(h, "%d:%s\x00%d:%s\x00", len(t.Question), t.Question, len(t.Answer), t.Answer)
 	}
 	return hex.EncodeToString(h.Sum(nil))
 }
