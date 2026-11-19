@@ -12,6 +12,7 @@ import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
 import { regimeOf } from "@/lib/regime";
+import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
 export function OriginStep() {
   return <CaseShell tab="origin">{(ctx) => <Result {...ctx} />}</CaseShell>;
@@ -327,8 +328,16 @@ function ReviewPanel({ c }: { c: CaseResponse }) {
 // answer field; the rest fold behind "N more questions".
 function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
   const qs = c.clarify!.questions!;
-  const [answers, setAnswers] = useState<string[]>(() => qs.map(() => ""));
-  const [unknown, setUnknown] = useState<boolean[]>(() => qs.map(() => false));
+  const [form, setForm] = useState<{ qs: string[]; state: AnswerState }>(() => ({ qs, state: blankAnswers(qs) }));
+  // Re-analysis can change the questions while this stays mounted: reconcile
+  // by question text so no answer or "I don't know" lands on another question.
+  let state = form.state;
+  if (form.qs !== qs && (form.qs.length !== qs.length || form.qs.some((q, i) => q !== qs[i]))) {
+    state = reconcileAnswers(form.qs, form.state, qs);
+    setForm({ qs, state });
+  }
+  const { answers, unknown } = state;
+  const setState = (next: AnswerState) => setForm({ qs, state: next });
   const [more, setMore] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -340,12 +349,9 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
     setError(null);
     try {
       setCase(
-        await api.answers(
-          c.id!,
-          qs.map((q, i) => ({ question: q, answer: unknown[i] ? "I don't know." : answers[i].trim() })).filter((a) => a.answer),
-        ),
+        await api.answers(c.id!, buildAnswerPayload(qs, state)),
       );
-      setAnswers(qs.map(() => ""));
+      setForm((f) => ({ ...f, state: blankAnswers(f.qs) }));
     } catch (e) {
       setError(e);
     } finally {
@@ -394,12 +400,12 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
               placeholder="Type your answer"
               value={unknown[i] ? "" : answers[i]}
               disabled={unknown[i]}
-              onChange={(e) => setAnswers(answers.map((a, j) => (j === i ? e.target.value : a)))}
+              onChange={(e) => setState({ answers: answers.map((a, j) => (j === i ? e.target.value : a)), unknown })}
             />
             <button
               type="button"
               aria-pressed={unknown[i]}
-              onClick={() => setUnknown(unknown.map((u, j) => (j === i ? !u : u)))}
+              onClick={() => setState({ answers, unknown: unknown.map((u, j) => (j === i ? !u : u)) })}
               className={cx("whitespace-nowrap rounded-[2px] border px-3 text-[13px]", unknown[i] ? "border-ask-line bg-ask-wash text-ask" : "border-line text-dim hover:bg-wash")}
             >
               {copy.result.idk}
