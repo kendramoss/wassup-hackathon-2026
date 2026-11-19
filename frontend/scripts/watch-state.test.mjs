@@ -4,7 +4,7 @@ import { watchView } from "../src/lib/watch-state.ts";
 
 test("a watch with no basis is never read as Changed or Unchanged", () => {
   // Saved before the legal regime was recorded: it cannot say the rulings
-  // moved or that they did not (D100). Re-check replaces it.
+  // moved or that they did not (D101). Re-check replaces it.
   for (const status of ["changed", "unchanged"]) {
     for (const basis of [undefined, null, "", "something-new"]) {
       const v = watchView(status, basis, undefined);

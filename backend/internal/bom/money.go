@@ -2,6 +2,7 @@ package bom
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -117,10 +118,20 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 		if plantName == "" {
 			plantName = cell(row, "country")
 		}
-		costs = append(costs, cost{group: g, plant: plantID(plantName), perUnit: f * qty})
+		perUnit := f * qty
+		if !finite(perUnit) {
+			warnings = append(warnings, fmt.Sprintf("row %d: unit cost times qty is too large; ignored", line))
+			continue
+		}
+		costs = append(costs, cost{group: g, plant: plantID(plantName), perUnit: perUnit})
 	}
 	if m.AnnualUnits > 0 && m.UnitPriceUSD > 0 {
-		m.AnnualImportValueUSD = m.AnnualUnits * m.UnitPriceUSD
+		v := m.AnnualUnits * m.UnitPriceUSD
+		if finite(v) {
+			m.AnnualImportValueUSD = v
+		} else {
+			warnings = append(warnings, "annual import value is too large; ignored")
+		}
 	}
 	if len(costs) > 0 {
 		if m.AnnualUnits == 0 {
@@ -131,11 +142,24 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 				if m.GroupCosts[c.group] == nil {
 					m.GroupCosts[c.group] = map[string]float64{}
 				}
-				m.GroupCosts[c.group][c.plant] += c.perUnit * m.AnnualUnits
+				next := c.perUnit * m.AnnualUnits
+				sum := m.GroupCosts[c.group][c.plant] + next
+				if !finite(next) || !finite(sum) {
+					warnings = append(warnings, fmt.Sprintf("group cost for %s at %s is too large; ignored", c.group, c.plant))
+					continue
+				}
+				m.GroupCosts[c.group][c.plant] = sum
 			}
 		}
 	}
 	return m, warnings
+}
+
+// finite reports whether a parsed or derived money value can be serialized as
+// JSON. encoding/json refuses NaN and Inf; leaving one in the result would
+// turn an import into an empty HTTP 200.
+func finite(f float64) bool {
+	return !math.IsNaN(f) && !math.IsInf(f, 0)
 }
 
 // SheetInfo reads the optional product-level columns: the product name
@@ -172,9 +196,10 @@ func SheetInfo(rows [][]string) (productName, family string) {
 	return productName, family
 }
 
-// amount reads a non-negative number, allowing "$", "," and spaces.
+// amount reads a non-negative finite number, allowing "$", "," and spaces.
+// ParseFloat accepts Inf with no error, which a plain f >= 0 check lets through.
 func amount(s string) (float64, bool) {
 	s = strings.NewReplacer("$", "", ",", "", " ", "", "USD", "", "usd", "").Replace(s)
 	f, err := strconv.ParseFloat(s, 64)
-	return f, err == nil && f >= 0
+	return f, err == nil && f >= 0 && finite(f)
 }

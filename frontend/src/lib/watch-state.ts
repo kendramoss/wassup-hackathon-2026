@@ -2,7 +2,7 @@
 // comparison; basis says whether a difference is the rulings. Only basis
 // "precedent" may say the rulings moved or did not. A watch with no basis was
 // saved before the legal regime was recorded, so it cannot be read either
-// way: it says "Re-check needed" until it is run again (D100). Nothing is
+// way: it says "Re-check needed" until it is run again (D101). Nothing is
 // deleted; the next re-check replaces it.
 
 export type WatchBasis = "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";

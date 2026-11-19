@@ -1282,7 +1282,7 @@ components:
         confidence: { type: number }
         decisive_step: { type: string }
         facts: { type: string, description: The revised facts the engine re-ran }
-        regime: { type: string, description: 'Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D99).' }
+        regime: { type: string, description: 'Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D100).' }
         specialist: { type: string, description: 'State of the selected specialist engine for this what-if (ok, failed, unconfigured); omitted when no specialist was selected' }
         scope: { type: string, description: 'Scope state of the run (no_router, configured_failed, confirmed, label_missing)' }
         route: { type: string, description: 'Triage route the same policy as a saved scenario gives these facts (auto, needs_review, needs_info)' }

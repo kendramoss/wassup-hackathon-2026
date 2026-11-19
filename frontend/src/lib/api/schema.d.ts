@@ -2266,7 +2266,7 @@ export interface components {
             decisive_step?: string;
             /** @description The revised facts the engine re-ran */
             facts?: string;
-            /** @description Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D99). */
+            /** @description Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D100). */
             regime?: string;
             /** @description State of the selected specialist engine for this what-if (ok, failed, unconfigured); omitted when no specialist was selected */
             specialist?: string;
