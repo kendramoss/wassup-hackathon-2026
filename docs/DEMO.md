@@ -127,6 +127,18 @@ One seed of `origin-proof-api-staging` revision `origin-proof-api-staging-00004-
 | Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
 | Dryer latch, assembled | China 0.98, auto | China | n/a |
 
+### Production (Vertex, recording day)
+One seed of production revision `backend-00023-mxc` (engine `gemini-4-argon`, `LLM_PROVIDER=vertex`) on 16 Oct. A first attempt stopped on a LiDAR plan 502; the cases from that attempt were deleted and this seed was resumed. Finished predictions and precedent checks came back from the Firestore caches (`engine_cache`, `verifier_cache`; D54, D50), so the heat-gun plan is the same answer as the first attempt, not a re-roll. Files: `eval/results/demo-seed-heatgun-{predict,plan,scenarios}-vertex-prod.json`, summary `eval/results/demo-seed-vertex-prod.json`. Pinned cases: heat gun `case_878d76540b91`, LiDAR `case_089ff641030e`, dryer latches `case_b4c60b15a9a9` and `case_c1bcdb3a17bf`, compare-targets `case_2762301d37f6`.
+
+| Demo | Prediction | CBP held | Plan |
+|---|---|---|---|
+| Heat gun (CBP facts) | China 0.85, needs info (no ruling on point; 3 questions; a conflict, leans A) | China (N328954) | none shown; closest PCBA in Thailand, check 0.75 |
+| LiDAR | Thailand 0.95, auto | Thailand (N359371, scenario I) | none shown; closest main boards and RX/TX PCBAs in Vietnam, no supporting precedent, check 0.45 |
+| Dryer latch, moulded | Thailand 0.98, auto | Thailand | n/a |
+| Dryer latch, assembled | China 0.99, auto | China | n/a |
+
+Heat gun extras: as today Thailand 0.78 net $0 (differs from CBP), motor-fan in Thailand 0.98 net $380k, motor-fan + PCBA 0.99 net $320k; watch unchanged; ask cited N328954, N351922 and N348083; countries: Thailand below the bar, Vietnam no plan, Malaysia no plan. Repeat search: verdicts identical=true, 6/6 from cache, 0.1 s. The heat-gun plan is below the bar, so the video uses the no-plan screen (closest move: Make PCBA (SMT) in Thailand, check 0.75). The compare-targets call returned 502 `model_unavailable` three times and succeeded on the next try. Neither proxy run above is the official outcome; this 16 Oct run is kept as a record, and the later 17–18 Oct production runs below are what the video now uses.
+
 **verifier-v2 (D74), LiteLLM proxy, 17 Oct, one run on a fresh cache:** the heat gun shows one plan clearing 0.92: motor-fan assembly + switch, cord and minor parts to Thailand, check 0.92, N347421 for, no counter-ruling, net $345k/yr (`eval/results/plan-heatgun-2022-verifier-v2-litellm.json`). Motor-fan + PCBA checked 0.90 and motor-fan alone 0.85. The landing named this LiteLLM plan until production's run (below) showed none over the bar; it now states production's closest move. The production run below is the demo's stored result.
 
 ### Production (Vertex, 17 Oct, verifier-v2, one run each)
