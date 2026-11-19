@@ -12,6 +12,13 @@ import (
 // with every component and its source (D52). Without hts it lists every line.
 // With Deps.LiveMFN, a subheading the table does not have is answered with
 // its live MFN rate from the USITC HTS (D65); the table always wins.
+// invalidHTSMessage answers a malformed HTS number on any route; it never
+// repeats the input.
+const invalidHTSMessage = "hts must be an 8- or 10-digit HTS number such as 8419.89.95 or 8419.89.9500 (one separator style: dot, space or dash)"
+
+// invalidHTSNote explains why a product's HTS number was not used to price.
+const invalidHTSNote = "The product's HTS number is not a valid 8- or 10-digit HTS number, so no duty rates were filled; enter the rates yourself or correct the HTS."
+
 func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 	if a.d.Duty == nil {
 		writeError(w, http.StatusServiceUnavailable, "internal", "the duty table is not loaded", nil)
@@ -20,6 +27,13 @@ func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 	hts := strings.TrimSpace(r.URL.Query().Get("hts"))
 	if hts == "" {
 		writeJSON(w, http.StatusOK, map[string]any{"lines": a.d.Duty.Lines()})
+		return
+	}
+	code, err := duty.ParseHTS(hts)
+	if err != nil {
+		// Checked before any table or live lookup, and before the not-found
+		// answer. The text is fixed: user input is never echoed back.
+		writeError(w, http.StatusBadRequest, "invalid_input", invalidHTSMessage, nil)
 		return
 	}
 	if l, ok := a.d.Duty.Line(hts); ok {
@@ -36,7 +50,7 @@ func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	writeError(w, http.StatusNotFound, "not_found", "no sourced duty rates for HTS "+duty.Normalize(hts)+"; enter the rates yourself", nil)
+	writeError(w, http.StatusNotFound, "not_found", "no sourced duty rates for HTS "+code.Subheading+"; enter the rates yourself", nil)
 }
 
 // liveMFN looks up hts on the HTS. A fetch (not a cached answer) takes from

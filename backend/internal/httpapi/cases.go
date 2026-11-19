@@ -914,6 +914,11 @@ func (a *api) priced(ctx context.Context, e planner.Economics, p *domain.Product
 	if a.d.Duty == nil || p == nil || p.HTS == "" || e.AnnualImportValueUSD <= 0 {
 		return e
 	}
+	if _, err := duty.ParseHTS(p.HTS); err != nil {
+		// Malformed: no table, live or auto fill, and say so.
+		e.DutyRatesNote = joinNote(e.DutyRatesNote, invalidHTSNote)
+		return e
+	}
 	if _, ok := a.d.Duty.Line(p.HTS); !ok {
 		return a.pricedLive(ctx, e, p.HTS, origins, fetch)
 	}

@@ -45,6 +45,9 @@ func (a *api) moneyPrefill(w http.ResponseWriter, r *http.Request) {
 	htsSource := ""
 	if code, ok := duty.LiveHTS(p.HTS); ok {
 		p.HTS, htsSource = code, "product"
+	} else if strings.TrimSpace(p.HTS) != "" {
+		// A given but malformed number: nothing is looked up, suggested or filled.
+		out["hts_note"] = invalidHTSNote
 	} else if a.d.HTS != nil && strings.TrimSpace(p.Name) != "" {
 		res, err := a.d.HTS.SuggestNamed(r.Context(), hts.ProductText(p), p.Name)
 		if err != nil && !res.ReasonsUnavailable {
