@@ -67,11 +67,11 @@ func Render(p domain.Product, t Template, detail ...string) string {
 		}
 		// Supplied product operations win; the template's are the default
 		// only when the product states none for the group.
-		ops := g.Operations
+		ops, note := g.Operations, templateAssumption
 		if custom := groupOperations(p, g.ID); len(custom) > 0 {
-			ops = custom
+			ops, note = custom, ""
 		}
-		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s.", plant.Country, subject, joinOps(ops))
+		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s%s.", plant.Country, subject, joinOps(ops), note)
 	}
 	if g, ok := t.Group("final_assembly"); ok && final != "" {
 		ops := g.Operations
@@ -82,6 +82,11 @@ func Render(p domain.Product, t Template, detail ...string) string {
 	}
 	return strings.TrimSpace(b.String()) + "\n"
 }
+
+// templateAssumption labels operations that come from the product-family
+// template rather than from the product, so they read as an assumption and not
+// as a supplied fact.
+const templateAssumption = " (assumed from the product-family template; no operations were supplied for this group)"
 
 // Apply returns a copy of p with each moved group's components and operations
 // at the destination plant (components then count as made in its country).

@@ -36,6 +36,9 @@ func TestRenderMovedGroupKeepsSuppliedOperations(t *testing.T) {
 	moved := Apply(p, domain.Move{{Group: "pcba", ToPlant: "th"}})
 	got := Render(moved, tm, "pcba")
 	want := "In Thailand, the printed circuit board assembly (PCBA) will be produced in-house: " + handSolder + "."
+	if strings.Contains(got, "assumed from") {
+		t.Errorf("supplied operations must not carry the template-assumption label:\n%s", got)
+	}
 	if !strings.Contains(got, want) {
 		t.Errorf("supplied operation missing or relocated wrongly:\n%s", got)
 	}
@@ -53,12 +56,15 @@ func TestRenderMovedGroupAbsentOperationsUsesTemplate(t *testing.T) {
 	if !strings.Contains(got, "In Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow") {
 		t.Errorf("template default missing when no operations supplied:\n%s", got)
 	}
+	if !strings.Contains(got, "test the PCBA"+templateAssumption+".") {
+		t.Errorf("template operations not labelled as an assumption:\n%s", got)
+	}
 }
 
 func TestRenderUnchangedGroupKeepsLimitedDetail(t *testing.T) {
 	p, tm := movedPCBAProduct(t, true)
 	got := Render(p, tm)
-	if strings.Contains(got, "produced in-house") || strings.Contains(got, handSolder) {
+	if strings.Contains(got, "produced in-house") || strings.Contains(got, "assumed from") || strings.Contains(got, handSolder) {
 		t.Errorf("unchanged group got processing detail:\n%s", got)
 	}
 }
