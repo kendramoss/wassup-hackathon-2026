@@ -361,7 +361,7 @@ paths:
         annual_units and unit_price_usd (first non-empty cell), hts (first non-empty cell; sets product.hts). A group's yearly
         cost at a plant is the sum of unit cost × qty × annual units; the import value is annual units × unit price.
         Each cost is keyed by the plant ID the product parser resolves for that row (the explicit plant, else the canonical country such as
-        PRC to china, D103), never by the raw country cell; a row naming a plant that is not in the sheet is skipped with a warning.
+        PRC to china, D104), never by the raw country cell; a row naming a plant that is not in the sheet is skipped with a warning.
         Product name and family (18 Oct): the given name and family win; then the sheet's product / product name and family /
         product family columns (a family by its id or name); then, with the family checker, a sure match (confidence >= 0.6) on
         the parts and its suggested product name. Leave family empty to let the file or the check choose it.
@@ -440,7 +440,7 @@ paths:
                   hts: { type: string, description: "The HTS number used; absent when there is none" }
                   hts_source: { type: string, enum: [product, suggested] }
                   hts_suggestion: { type: object, description: "The suggestion used, when hts_source is suggested (as in /v1/products/hts-suggest)" }
-                  hts_note: { type: string, example: "suggestion only — confirm the classification with a licensed broker", description: "Also set when the product's HTS is given but is not a valid 8- or 10-digit number: nothing is looked up or filled (D106)" }
+                  hts_note: { type: string, example: "suggestion only — confirm the classification with a licensed broker", description: "Also set when the product's HTS is given but is not a valid 8- or 10-digit number: nothing is looked up or filled (D107)" }
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
@@ -620,7 +620,7 @@ paths:
       summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
       description: |
         Ranking: countries with a shown plan first (best net per year), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
-        Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest. Invalid economics is 400 before pricing (D104).
+        Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest. Invalid economics is 400 before pricing (D105).
         Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
@@ -651,7 +651,7 @@ paths:
   /v1/cases/{id}/economics:
     put:
       summary: Replace the case's money inputs (no model calls)
-      description: Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics. The same validation (rates 0 to 1, no negative annual value, group cost or target cost, no non-finite number) runs on the effective economics of plan, plan/estimate, scenarios and compare-targets, supplied or reused, before any pricing, planner or model call; an invalid value is 400 `invalid_input` and nothing is saved (D104).
+      description: Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics. The same validation (rates 0 to 1, no negative annual value, group cost or target cost, no non-finite number) runs on the effective economics of plan, plan/estimate, scenarios and compare-targets, supplied or reused, before any pricing, planner or model call; an invalid value is 400 `invalid_input` and nothing is saved (D105).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       requestBody:
         required: true
@@ -752,7 +752,7 @@ paths:
     post:
       summary: Compare a newer bill of materials with the case's product (supplier change alert; off unless BOM_VERSIONS=on)
       description: |
-        D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants that are the same supplier (same normalized name, D103) keep the case's plant IDs.
+        D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants that are the same supplier (same normalized name, D104) keep the case's plant IDs.
         The new product is compared with the case's: components added or removed, a component made in another country or at another plant, operations added, removed or moved to another plant. Groups and capabilities are not compared (they change the plan search, not the origin).
         When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). If the case's facts are not the rendered old product (CBP's wording, a drafted description, clarify answers), the old product is rendered and predicted too (a second engine call) so origin_changed compares two BOMs, not two wordings (facts_basis: rendered). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
         Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers, and current_origin: CBP's ruling was on the old BOM); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
@@ -877,13 +877,13 @@ paths:
         answered with its live MFN (column 1 general) rate from the USITC HTS as `{hts, description, live_mfn}` (D65).
         A live fetch (not a cached answer) counts against the per-client lookup limit (429). A missing line or a
         failed fetch is 404, never 5xx.
-        `hts` is checked first (D106): 8 digits, or 10 with a statistical suffix, with one consistent separator (dot, space
+        `hts` is checked first (D107): 8 digits, or 10 with a statistical suffix, with one consistent separator (dot, space
         or dash). Letters, other lengths and mixed separators are 400 `invalid_input` with a short fixed message that does
         not echo the input. A query string that cannot be parsed at all (for example a raw `;` or a bad %-escape, even in
         another key) is refused whole with 400. A present but empty `hts` is 400; only an absent `hts` lists every line.
         With duplicate `hts` parameters the first one wins. A malformed number makes no lookup and no network call.
       parameters:
-        - { name: hts, in: query, required: false, schema: { type: string, example: "8419.89.95" }, description: "8 digits, or 10 with a statistical suffix; dots, spaces or dashes (one kind) allowed; omit to list every line. Present but empty or malformed is 400 (D106)." }
+        - { name: hts, in: query, required: false, schema: { type: string, example: "8419.89.95" }, description: "8 digits, or 10 with a statistical suffix; dots, spaces or dashes (one kind) allowed; omit to list every line. Present but empty or malformed is 400 (D107)." }
       responses:
         "200":
           description: One line (with hts) or {lines} (without), or a live MFN rate (D65)
@@ -1482,7 +1482,7 @@ components:
             lists (U.S. note 20: 9903.88.01/.02/.03/.04 at 25%, .15 at 7.5%), less whole-subheading exclusions, and from the 2026 country-wide
             Section 301 duties (9903.05.20–.84, 91 FR 47318) less the U.S. note 52 exemptions that cover a whole subheading. Exclusions for
             described products, and exemptions tied to a use or an entry claim, are not applied; duty_rates_note names them to check.
-            An exclusion is judged at one current UTC instant per pricing request, valid through its stored end date (a whole UTC day, D107); after it, duty_rates_note calls it historical and not applicable as of that date per the embedded end date, with no statement about later extensions, and an unreadable end date asks the user to confirm. Plan search, scenarios, compare-targets and money-prefill use the same instant for every origin.
+            An exclusion is judged at one current UTC instant per pricing request, valid through its stored end date (a whole UTC day, D108); after it, duty_rates_note calls it historical and not applicable as of that date per the embedded end date, with no statement about later extensions, and an unreadable end date asks the user to confirm. Plan search, scenarios, compare-targets and money-prefill use the same instant for every origin.
           additionalProperties:
             type: array
             items: { type: object, properties: { name: { type: string }, heading: { type: string }, rate: { type: number } } }
