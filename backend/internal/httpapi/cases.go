@@ -407,11 +407,18 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	return sc, c, nil
 }
 
+// ScopeUnavailableReason is the triage reason when a configured scope router
+// failed. It does not say the case is out of scope, nor that it is in scope.
+const ScopeUnavailableReason = "scope unavailable: the scope router failed, so the legal regime is not confirmed; an expert reviews"
+
 // classify runs router and engine concurrently and decides triage. The router
 // labels scope only; it never changes the engine's answer. st, when set, is
 // told each step as it runs (nil: not reported); it never changes the result.
 func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
 	var label *router.Label
+	// scopeUnavailable is set only when a configured router failed. It is not
+	// the same as label == nil with no router configured (unchanged behaviour).
+	scopeUnavailable := false
 	var wg sync.WaitGroup
 	if a.d.Router != nil {
 		wg.Add(1)
@@ -422,6 +429,7 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
 				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
+				scopeUnavailable = true // read after wg.Wait
 				return
 			}
 			label = &l
@@ -469,6 +477,12 @@ func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.P
 			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
 		}
 		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
+	}
+	if scopeUnavailable {
+		// Scope was not established: keep the provisional prediction, never
+		// auto-accept, and skip clarify (inScope false), which would turn the
+		// review into questions as if the case were known to be in scope.
+		return res.Prediction, nil, domain.Triage{Route: domain.RouteNeedsReview, Reason: ScopeUnavailableReason}, false, nil
 	}
 	inScope, scopeReason, subfamily := true, "", ""
 	if label != nil {
