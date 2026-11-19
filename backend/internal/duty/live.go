@@ -319,6 +319,40 @@ func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (m
 	return out, filled, extras, check
 }
 
+// FillResult is FillWithAsOf's outcome.
+type FillResult struct {
+	Rates   map[string]float64
+	Filled  []string
+	Extras  map[string][]Extra
+	Check   map[string][]Exclusion // valid or "review" exclusions to check; never applied
+	Expired map[string][]Exclusion // stored exclusions past their end date: historical only
+}
+
+// FillWithAsOf is FillWith with one explicit as-of instant used for every
+// origin, so exclusion dates are judged consistently in one call.
+func (m MFN) FillWithAsOf(rates map[string]float64, origins []string, add *Adder, asOf time.Time) FillResult {
+	out, filled := m.Fill(rates, origins)
+	r := FillResult{Rates: out, Filled: filled}
+	if add == nil || len(filled) == 0 {
+		return r
+	}
+	r.Extras, r.Check, r.Expired = map[string][]Extra{}, map[string][]Exclusion{}, map[string][]Exclusion{}
+	for _, o := range filled {
+		res := add.ForAsOf(m.HTS, o, *m.Rate, asOf)
+		if len(res.Extras) > 0 {
+			r.Extras[o] = res.Extras
+			out[o] = Total(*m.Rate, res.Extras)
+		}
+		if len(res.MayExclude) > 0 {
+			r.Check[o] = res.MayExclude
+		}
+		if len(res.Expired) > 0 {
+			r.Expired[o] = res.Expired
+		}
+	}
+	return r
+}
+
 // FillNote describes live-filled rates (or why none were) for
 // Economics.DutyRatesNote.
 func (m MFN) FillNote(filled []string) string { return m.fillNote(filled, false) }

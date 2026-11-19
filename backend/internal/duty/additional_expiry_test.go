@@ -203,3 +203,25 @@ func TestEmbeddedExclusionsExpireAfterNov9(t *testing.T) {
 		}
 	}
 }
+
+func TestFillWithAsOfSplitsExpired(t *testing.T) {
+	a := fixtureAdder(t, fixtureAdditional)
+	rate := 0.042
+	m := MFN{HTS: "9405.42.84", General: "4.2%", Rate: &rate, Supported: true}
+	for _, c := range []struct {
+		asOf       string
+		check, exp int
+	}{{"2026-11-09", 1, 0}, {"2026-11-10", 0, 1}} {
+		r := m.FillWithAsOf(nil, []string{"China", "Thailand"}, a, day(c.asOf))
+		if len(r.Check["China"]) != c.check || len(r.Expired["China"]) != c.exp || len(r.Extras["China"]) != 2 {
+			t.Errorf("%s: %+v", c.asOf, r)
+		}
+		if r.Rates["China"] != 0.042+0.075+0.125 {
+			t.Errorf("%s: rate %v", c.asOf, r.Rates["China"])
+		}
+	}
+	// FillWith keeps its shape.
+	if _, _, ex, _ := m.FillWith(nil, []string{"China"}, a); len(ex["China"]) != 2 {
+		t.Error("FillWith changed")
+	}
+}
