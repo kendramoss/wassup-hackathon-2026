@@ -186,6 +186,11 @@ type whatIfArgs struct {
 	Facts  string `json:"facts" jsonschema:"the full revised facts"`
 }
 
+type factsArgs struct {
+	Offset int `json:"offset" jsonschema:"rune offset to start at; 0 to the total"`
+	Limit  int `json:"limit,omitempty" jsonschema:"runes to return; default and maximum 4000"`
+}
+
 type noArgs struct{}
 
 type out struct {
@@ -216,6 +221,16 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 		func(agent.ToolContext, noArgs) (out, error) {
 			note(Step{Tool: "get_case"}, in.CaseSummary)
 			return out{in.CaseSummary}, nil
+		})
+	if err != nil {
+		return Answer{}, fmt.Errorf("caseagent: %w", err)
+	}
+	factsTool, err := functiontool.New(functiontool.Config{Name: "get_case_facts",
+		Description: "Read this case's facts by rune offset and limit (at most 4000 runes per call). get_case shows only the first 6000 runes; use this for the rest."},
+		func(_ agent.ToolContext, x factsArgs) (out, error) {
+			text := factsPage(in.Facts, x.Offset, x.Limit)
+			note(Step{"get_case_facts", fmt.Sprintf("offset=%d limit=%d", x.Offset, x.Limit)}, text)
+			return out{text}, nil
 		})
 	if err != nil {
 		return Answer{}, fmt.Errorf("caseagent: %w", err)
@@ -282,7 +297,7 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 		Model:                 m,
 		InstructionProvider:   func(agent.ReadonlyContext) (string, error) { return System, nil },
 		GenerateContentConfig: &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0)},
-		Tools:                 []tool.Tool{caseTool, searchTool, readTool, whatIfTool},
+		Tools:                 []tool.Tool{caseTool, factsTool, searchTool, readTool, whatIfTool},
 		BeforeToolCallbacks: []llmagent.BeforeToolCallback{
 			func(agent.ToolContext, tool.Tool, map[string]any) (map[string]any, error) {
 				mu.Lock()
