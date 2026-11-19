@@ -18,6 +18,7 @@ import {
 import { clonedFamily } from "@/lib/clone-family";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
+import { predictBody, productSignature, type Carried } from "@/lib/product-facts-reconcile";
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
@@ -288,7 +289,7 @@ export function ProductStep() {
   // or the AI check chooses it (18 Oct).
   const [familyTouched, setFamilyTouched] = useState(false);
   const [autoFilled, setAutoFilled] = useState<string[] | null>(null);
-  const [extra, setExtra] = useState<Pick<PredictRequest, "exclude_rulings" | "current_origin" | "facts">>({});
+  const [extra, setExtra] = useState<Carried>({});
   const [demoTitle, setDemoTitle] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResponse | null>(null);
   const [askName, setAskName] = useState(false);
@@ -318,7 +319,7 @@ export function ProductStep() {
       }
       setFacts(p.facts ?? "");
       if (d.plan?.economics) setEconomics(d.plan.economics);
-      setExtra({ exclude_rulings: p.exclude_rulings, current_origin: p.current_origin, facts: p.product ? p.facts : undefined });
+      setExtra({ exclude_rulings: p.exclude_rulings, current_origin: p.current_origin, facts: p.product ? p.facts : undefined, baseline: p.product ? productSignature(p.product) : undefined });
     }, setError);
   }, [demoId]);
 
@@ -387,7 +388,7 @@ export function ProductStep() {
       if (r.product) {
         setProduct({ ...r.product, name: name.trim() || r.product.name });
         if (!name.trim() && r.product.name) setName(r.product.name);
-        setExtra((x) => ({ ...x, facts }));
+        setExtra((x) => ({ ...x, facts, baseline: productSignature(r.product!) }));
         setDrafted(r.warnings ?? []);
         setTab("parts");
       }
@@ -404,22 +405,12 @@ export function ProductStep() {
     setError(null);
     // display_name names the case on Cases home, so a pasted description
     // never shows there as truncated facts.
+    // Facts and the demo's current origin ride along only while the parts
+    // still match what they were taken from (#292).
     const body: PredictRequest = {
-      date,
-      display_name: name.trim() || undefined,
-      exclude_rulings: extra.exclude_rulings,
-      current_origin: extra.current_origin,
+      ...predictBody({ date, tab, name, hts, family, facts, product, extra }),
       economics: hasAnyMoney(economics) ? economics : undefined,
     };
-    if (tab === "paste") {
-      // The backend rejects a product with no components, so a pasted
-      // description goes in as facts only.
-      body.facts = facts;
-    } else {
-      body.product = { ...product, name: name.trim(), hts: hts.trim() || undefined };
-      body.family = family || undefined;
-      if (extra.facts) body.facts = extra.facts; // demo or drafted: engine reads the text, product kept for the plan
-    }
     setStages([]);
     try {
       // Streams the steps when the backend has STREAM_PREDICT on; otherwise
