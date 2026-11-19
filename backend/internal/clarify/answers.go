@@ -42,10 +42,113 @@ func factual(answer string) string {
 
 func appendFact(keep []string, s string) []string {
 	s = strings.TrimSpace(s)
-	if s == "" || hedge.MatchString(s) || strings.Trim(s, ".-– ") == "" {
+	if s == "" || strings.Trim(s, ".-– ") == "" {
 		return keep
 	}
+	if hedge.MatchString(s) {
+		return append(keep, splitKnown(s)...)
+	}
 	return append(keep, s)
+}
+
+var (
+	// clauseBreak is a point where a sentence can be cut into clauses.
+	clauseBreak = regexp.MustCompile(`(?i)\s*;\s*|\s*,\s*(?:(?:but|and|however,?|although|though|while|whereas|yet)\s+)?|\s+(?:but|although|though|whereas|yet|while)\s+|\s+and\s+`)
+	bareAnd     = regexp.MustCompile(`(?i)^\s+and\s+$`)
+	// hasVerb: a kept clause must contain a finite verb, so a bare noun
+	// fragment of an unknown subject list is never kept as a fact.
+	hasVerb = regexp.MustCompile(`(?i)\b(is|are|was|were|am|has|have|had|does|did|will|would|can|could|must|should|made|built|cast|bought|sold|sent|come|comes|came|ship|ships|shipped|make|makes|use|uses|used|buy|buys|assemble|assembles|blend|blends|produce|produces|source|sources|remain|remains|stay|stays|contain|contains|cost|costs|import|imports|export|exports|[a-z]{3,}ed)\b`)
+	// leadingVerb: a clause that opens with a verb has its subject elsewhere.
+	leadingVerb = regexp.MustCompile(`(?i)^(is|are|was|were|am|has|have|had|does|did|will|would|can|could|must|should|made|built|cast|bought|sold|sent|came|comes|remain|remains|stay|stays|[a-z]{3,}ed)\b`)
+	// bareAndSubject: after a plain "and" an unknown clause must open with its
+	// own subject, else "A and B are unknown" would keep A as a fact.
+	bareAndSubject = regexp.MustCompile(`(?i)^(the|a|an|its|their|his|her|our|my|it|this|that|these|those|there|whether)\b`)
+	relative       = regexp.MustCompile(`(?i)^(which|who|whom|whose|that|where|when)\b`)
+)
+
+// splitKnown cuts a sentence that mentions something unknown into clauses and
+// returns the clauses that do not report missing information. It is
+// conservative: whenever the cut is not clearly delimited (a relative clause,
+// a clause with no subject of its own, a verbless fragment on the unknown side)
+// it returns nothing, which is the old drop-the-sentence behaviour.
+func splitKnown(s string) []string {
+	term := ""
+	if last := s[len(s)-1]; last == '.' || last == '!' || last == '?' {
+		term = string(last)
+		s = strings.TrimSpace(s[:len(s)-1])
+	}
+	locs := clauseBreak.FindAllStringIndex(s, -1)
+	if len(locs) == 0 {
+		return nil
+	}
+	type piece struct {
+		text, before string
+		unknown      bool
+	}
+	var ps []piece
+	prev, delim := 0, ""
+	for _, l := range locs {
+		ps = append(ps, piece{text: s[prev:l[0]], before: delim})
+		prev, delim = l[1], s[l[0]:l[1]]
+	}
+	ps = append(ps, piece{text: s[prev:], before: delim})
+	for i := range ps {
+		t := strings.TrimSpace(ps[i].text)
+		ps[i].text, ps[i].unknown = t, hedge.MatchString(t)
+		if t == "" {
+			return nil
+		}
+		if ps[i].unknown && (relative.MatchString(t) || leadingVerb.MatchString(t) ||
+			(bareAnd.MatchString(ps[i].before) && !bareAndSubject.MatchString(t))) {
+			return nil
+		}
+	}
+	// A piece next to an unknown clause across a bare "and" must be a clause
+	// itself ("A and the B are unknown" must not keep A).
+	for i, p := range ps {
+		if i > 0 && !p.unknown && ps[i-1].unknown && bareAnd.MatchString(p.before) && !hasVerb.MatchString(p.text) {
+			return nil
+		}
+		if i+1 < len(ps) && !p.unknown && ps[i+1].unknown && bareAnd.MatchString(ps[i+1].before) && !hasVerb.MatchString(p.text) {
+			return nil
+		}
+	}
+	// Rejoin runs of known pieces with their original delimiters.
+	var segs []string
+	cur := ""
+	flush := func() {
+		if cur != "" {
+			segs, cur = append(segs, cur), ""
+		}
+	}
+	for _, p := range ps {
+		if p.unknown {
+			flush()
+			continue
+		}
+		if cur == "" {
+			cur = p.text
+		} else {
+			cur += p.before + p.text
+		}
+	}
+	flush()
+	var out []string
+	for _, seg := range segs {
+		// A verbless run is the subject list of the unknown clause; a run
+		// that opens with a verb is the tail of one. Neither is a fact.
+		if !hasVerb.MatchString(seg) || leadingVerb.MatchString(seg) {
+			continue
+		}
+		if seg[len(seg)-1] != '.' && seg[len(seg)-1] != '!' && seg[len(seg)-1] != '?' {
+			if term == "" {
+				term = "."
+			}
+			seg += term
+		}
+		out = append(out, strings.ToUpper(seg[:1])+seg[1:])
+	}
+	return out
 }
 
 // AppendAnswers adds the factual part of each answer to the facts under a
