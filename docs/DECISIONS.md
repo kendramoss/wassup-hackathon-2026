@@ -879,10 +879,8 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Cost:** every cached verdict that cites a ruling, seeded demo verdicts included, misses once and is re-run. `ValidationEpoch` is a validation tag, not a prompt version; the `verifier-vN` names are unchanged because the prompts did not change.
 - **Limits:** a counter ruling is checked through the panel's proofs only; `ProofFor` is exported for fixtures.
 
-## D112 — A claimed origin change needs distinct, known origins (20 Nov, #297)
-- **Decision:** a verdict is supported only if the two origins, normalised through the domain country rules and compared as sets, are both known and different, and `origin_a` agrees with the known baseline when one is given. Equivalent origins (for example USA and United States of America, PRC and China), an unknown origin, or a baseline contradiction leave the move unsupported; the ruling citation is kept as validated. The same rule runs on fresh answers and on every cached replay. `ValidationEpoch` becomes `val2`.
-- **Why:** an answer with the same country on both sides and `changes_origin=true` was marked precedent-supported.
-- **Cost:** `val1` entries miss once. Comparison is strict on sets: Thailand/China differs from Thailand. "Thai" is not a country alias in the domain rules and was not added.
+## D112 — Reserved for #297 (origin consistency of a claimed change); not landed on this branch yet (20 Nov)
+- **Status:** the #297 rule is still in review and is not part of this branch. This entry is a placeholder so the later numbers stay fixed; it is replaced by the real text in the commit that lands #297.
 
 ## D113 — The engine prediction cache keys on the evidence revision (20 Nov, #316)
 - **Decision:** `corpus.RevisionOf` hashes every field the index or prompt reads (id, date, origin, holding, subject, facts, reasoning) in corpus order. The server stamps each engine's retriever with the revision of the exact slice it indexes, once at startup: main pool, textile after its reasoning overlay, USMCA and pharma subsets (`evidenceBM25`). The prediction cache key includes it. A retriever without a revision makes the cache a pass-through: nothing is read or written, and no fixed marker stands in. Seed and panel cache policies are unchanged. The hybrid retriever is eval-only.
