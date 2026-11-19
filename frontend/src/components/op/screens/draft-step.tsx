@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type ExportResponse } from "@/lib/api/client";
+import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { Button, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -88,10 +89,18 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  const record = () => void api.exportDraft(id, { ...pick, format }).catch(() => {});
+  // Recording is refused (409) when the case changed under this draft: show
+  // that, drop the stale letter and do not download or print it.
+  const record = async () => {
+    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }));
+    if (r.ok) return true;
+    setDrafts({});
+    setError(r.error);
+    return false;
+  };
 
-  const download = () => {
-    record();
+  const download = async () => {
+    if (!(await record())) return;
     const blob = new Blob([text], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -228,9 +237,8 @@ function Draft({ id, c, setCase }: CaseCtx) {
           <Button variant="ghost" onClick={download} disabled={!draft}>
             Download Markdown
           </Button>
-          <Button onClick={() => {
-              record();
-              window.print();
+          <Button onClick={async () => {
+              if (await record()) window.print();
             }} disabled={!draft}>
             Print the letter
           </Button>
