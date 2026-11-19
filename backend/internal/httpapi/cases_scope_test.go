@@ -331,14 +331,47 @@ func TestCaseListAdminKeepsGlobalListingAndSkipsProbesBeforeTheCap(t *testing.T)
 	if nonPinned[0] != "case_foreign_199" || nonPinned[1] != "case_foreign_198" {
 		t.Errorf("admin newest = %v, want case_foreign_199, case_foreign_198", nonPinned)
 	}
-	if e.cs.lists != 0 || len(e.cs.recent) == 0 || len(e.cs.recent) > 4 {
-		t.Errorf("admin reads: lists=%d recent=%v (want bounded, no full scan)", e.cs.lists, e.cs.recent)
+	if e.cs.lists != 0 || len(e.cs.recent) == 0 {
+		t.Errorf("admin reads: lists=%d recent=%v (want windowed ListRecent, no full scan)", e.cs.lists, e.cs.recent)
 	}
-	for _, n := range e.cs.recent {
-		if n > scopeLimit+8 {
-			t.Errorf("admin over-fetch grew to %d", n)
-		}
+}
+
+// Far more orphaned probes than any fixed number of widenings: the probes are
+// the newest cases and must still never take a cap slot, nor a real case be
+// lost, nor the cap be applied twice.
+func TestCaseListAdminManyOrphanProbes(t *testing.T) {
+	e := newScopeEnv(t, true)
+	for i := 0; i < 500; i++ {
+		e.put(t, newHealthProbeID(), store.Case{}, time.Duration(i)*time.Millisecond)
 	}
+	e.cs.reset()
+	got := e.listed(t, admin)
+	want := e.oracle(t, admin)
+	if fmt.Sprint(got) != fmt.Sprint(want) || len(got) != 4 {
+		t.Errorf("admin list = %v, want %v", got, want)
+	}
+	if got[2] != "case_foreign_199" || got[3] != "case_foreign_198" {
+		t.Errorf("admin newest = %v", got)
+	}
+	if e.cs.lists != 0 || len(e.cs.recent) > 12 {
+		t.Errorf("reads: lists=%d recent=%v (want logarithmic widening)", e.cs.lists, e.cs.recent)
+	}
+	// Only probes: nothing real is invented, loop terminates.
+	empty := newScopeEnvEmptyProbes(t)
+	if rows := empty.listed(t, admin); len(rows) != 0 {
+		t.Errorf("probe-only store listed %v", rows)
+	}
+}
+
+func newScopeEnvEmptyProbes(t *testing.T) *scopeEnv {
+	t.Helper()
+	e := &scopeEnv{cs: newScopeCases(), clock: time.Now().UTC()}
+	hs, _, _ := teamsHarness(t, func(d *Deps) { d.Cases, d.CasesListLimit = e.cs, scopeLimit })
+	e.hs = hs
+	for i := 0; i < 30; i++ {
+		e.put(t, newHealthProbeID(), store.Case{}, time.Duration(i)*time.Second)
+	}
+	return e
 }
 
 func TestCaseListOwnershipOffKeepsThePublicDemoIntent(t *testing.T) {

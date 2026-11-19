@@ -37,8 +37,8 @@ type firestoreDoc struct {
 	Pinned    bool      `firestore:"pinned"` // queried by ListRecent (D58)
 	// Workspace is queried by ListWorkspace (D68); absent for anonymous cases.
 	Workspace string `firestore:"workspace,omitempty"`
-	// Owner is queried by ListOwner (#301). Documents written before #301
-	// lack it and are not found by that query until they are next saved.
+	// Owner is written for a future owner query; ListOwner does not rely on
+	// it, because documents written before #301 lack it.
 	Owner string `firestore:"owner,omitempty"`
 	Case  []byte `firestore:"case_json_gz"`
 }
@@ -184,25 +184,26 @@ func (f *Firestore) ListWorkspace(ctx context.Context, workspace string) ([]Case
 	return out, nil
 }
 
-// ownerQuery is the owner listing: a single-field equality, which Firestore
-// serves from its automatic index. It deliberately has no OrderBy and no
-// Limit: ordering by updated_at together with the equality needs a composite
-// index (owner, updated_at desc), and no index change is authorized.
-func (f *Firestore) ownerQuery(owner string) firestore.Query {
-	return f.col.Where("owner", "==", owner)
-}
+// ownerScan is the owner listing's query: the whole collection, no filter.
+// A Where("owner", "==", ...) is NOT used because documents written before
+// #301 have no top-level owner field (the owner exists only inside the
+// gzipped case JSON), and Firestore cannot query a missing field: that
+// query would silently drop every legacy case.
+func (f *Firestore) ownerScan() firestore.Query { return f.col.Query }
 
-// ListOwner implements OwnerLister. Performance tradeoff: because the query
-// has no OrderBy or Limit it reads ALL of the owner's documents on every
-// call (cost grows with that one owner's case count, never with other
-// owners'), then sorts and caps in the app. With a composite index the same
-// query could be OrderBy(updated_at, Desc).Limit(n+pinned) and read n
-// documents; that is the follow-up if one owner's volume ever matters.
+// ListOwner implements OwnerLister. Cost, stated plainly: this is NOT a
+// database-scoped query. It reads and decodes EVERY case document, keeps
+// those whose decoded Case.Owner is owner (legacy and new documents alike),
+// then sorts and caps in the app. Read cost grows with the whole collection
+// until a separate migration writes the owner field on all documents; only
+// then can this become a Where("owner","==",owner) query. Documents saved
+// from now on do carry the owner field, but no deployment migration is
+// required for correctness.
 func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case, error) {
 	if owner == "" {
 		return nil, nil
 	}
-	it := f.ownerQuery(owner).Documents(ctx)
+	it := f.ownerScan().Documents(ctx)
 	defer it.Stop()
 	var out []Case
 	for {
@@ -214,12 +215,24 @@ func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case,
 			return nil, fmt.Errorf("store: list owner: %w", err)
 		}
 		c, err := decodeSnapshot(snap)
-		if err != nil || c.Owner != owner {
-			continue // skip a corrupt document; never trust the filter alone
+		if err != nil {
+			continue // skip a corrupt document rather than failing the list
 		}
 		out = append(out, c)
 	}
-	return CapRecent(out, n), nil
+	return ownedBy(out, owner, n), nil
+}
+
+// ownedBy keeps the cases whose Owner is owner, then pinned-first/newest
+// with the cap.
+func ownedBy(cs []Case, owner string, n int) []Case {
+	var out []Case
+	for _, c := range cs {
+		if c.Owner == owner {
+			out = append(out, c)
+		}
+	}
+	return CapRecent(out, n)
 }
 
 // ListRecent implements RecentLister: every pinned case plus the n most
@@ -284,9 +297,20 @@ func decodeSnapshot(snap *firestore.DocumentSnapshot) (Case, error) {
 	if err := snap.DataTo(&d); err != nil {
 		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
 	}
+	c, err := decodeDoc(d)
+	if err != nil {
+		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
+	}
+	return c, nil
+}
+
+// decodeDoc reads the case from its stored JSON. The owner is taken from
+// the JSON, never from the document's owner field, so documents saved
+// before that field existed decode with the right Owner.
+func decodeDoc(d firestoreDoc) (Case, error) {
 	var c Case
 	if err := gunzipJSON(d.Case, &c); err != nil {
-		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
+		return Case{}, err
 	}
 	return c, nil
 }

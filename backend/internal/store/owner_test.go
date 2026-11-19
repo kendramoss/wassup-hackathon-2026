@@ -170,9 +170,12 @@ func offlineFirestore(t *testing.T) *Firestore {
 	return NewFirestoreFromClient(c)
 }
 
-func TestFirestoreOwnerQueryIsOwnerEqualityOnly(t *testing.T) {
+// Firestore cannot query a missing field, so the owner listing must scan
+// the collection with no owner filter (an owner Where would silently omit
+// documents saved before #301).
+func TestFirestoreOwnerScanHasNoOwnerFilter(t *testing.T) {
 	f := offlineFirestore(t)
-	b, err := f.ownerQuery("owner_hash").Serialize()
+	b, err := f.ownerScan().Serialize()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,24 +184,57 @@ func TestFirestoreOwnerQueryIsOwnerEqualityOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	q := req.GetStructuredQuery()
-	fl := q.GetWhere().GetFieldFilter()
-	if fl == nil || fl.GetField().GetFieldPath() != "owner" || fl.GetOp() != firestorepb.StructuredQuery_FieldFilter_EQUAL ||
-		fl.GetValue().GetStringValue() != "owner_hash" {
-		t.Errorf("where = %v, want owner == owner_hash", q.GetWhere())
-	}
-	// No OrderBy (that needs a composite index with the equality) and no
-	// Limit (the cap is applied after the app-side sort).
-	if len(q.GetOrderBy()) != 0 || q.GetLimit() != nil {
-		t.Errorf("owner query has order %v / limit %v; it must be a single-field equality only", q.GetOrderBy(), q.GetLimit())
+	if q.GetWhere() != nil || len(q.GetOrderBy()) != 0 || q.GetLimit() != nil {
+		t.Errorf("owner scan must be the unfiltered collection, got where=%v order=%v limit=%v", q.GetWhere(), q.GetOrderBy(), q.GetLimit())
 	}
 	if fs := q.GetFrom(); len(fs) != 1 || fs[0].GetCollectionId() != FirestoreCollection {
 		t.Errorf("from = %v", fs)
 	}
 }
 
-func TestFirestoreDocCarriesOwnerForTheQuery(t *testing.T) {
-	d := docOf(Case{ID: "case_x", Owner: "o1"}, nil)
-	if d.Owner != "o1" {
+// A document saved before #301 has no top-level owner field; its owner is
+// only in the encoded case JSON. ListOwner's decode-and-filter must find it,
+// among many foreign cases and with new-style documents, ahead of the cap.
+func TestLegacyEncodedDocsAreFoundByOwner(t *testing.T) {
+	now := time.Now().UTC()
+	var docs []Case
+	add := func(c Case, legacy bool) {
+		gz, err := gzipJSON(c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		d := docOf(c, gz)
+		if legacy {
+			d.Owner = "" // as written before the field existed
+		}
+		got, err := decodeDoc(d)
+		if err != nil {
+			t.Fatal(err)
+		}
+		docs = append(docs, got)
+	}
+	add(Case{ID: "case_legacy_old", Owner: "alice", UpdatedAt: now.Add(-3 * time.Hour)}, true)
+	add(Case{ID: "case_legacy_mid", Owner: "alice", UpdatedAt: now.Add(-2 * time.Hour)}, true)
+	add(Case{ID: "case_new_new", Owner: "alice", UpdatedAt: now.Add(-time.Hour)}, false)
+	add(Case{ID: "case_legacy_pin", Owner: "alice", Pinned: true, UpdatedAt: now.Add(-9 * time.Hour)}, true)
+	for i := 0; i < 50; i++ {
+		add(Case{ID: fmt.Sprintf("case_foreign_%d", i), Owner: "bob", UpdatedAt: now.Add(-time.Duration(i) * time.Second)}, i%2 == 0)
+	}
+	add(Case{ID: "case_ownerless", UpdatedAt: now}, true)
+	if docs[0].Owner != "alice" {
+		t.Fatalf("legacy decode lost the owner: %+v", docs[0])
+	}
+	got := ownedBy(docs, "alice", 2)
+	if fmt.Sprint(ids(got)) != "[case_legacy_pin case_new_new case_legacy_mid]" {
+		t.Errorf("ownedBy = %v", ids(got))
+	}
+	if len(ownedBy(docs, "carol", 2)) != 0 {
+		t.Error("unknown owner matched")
+	}
+}
+
+func TestFirestoreDocStillWritesOwner(t *testing.T) {
+	if d := docOf(Case{ID: "case_x", Owner: "o1"}, nil); d.Owner != "o1" {
 		t.Errorf("owner not stored: %+v", d)
 	}
 }
