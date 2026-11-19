@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 )
 
 func TestExportCFR177Format(t *testing.T) {
@@ -96,7 +98,10 @@ func TestExportCFR177OnPinnedCaseDoesNotWriteForVisitors(t *testing.T) {
 }
 
 func TestExportCFR177TextileCase(t *testing.T) {
-	hs := newHarnessWith(t, "textile_102_21", func(d *Deps) { d.ExportCFR177 = true; d.Textile = &fakeEngine{conf: 0.97} })
+	hs := newHarnessWith(t, "textile_102_21", func(d *Deps) {
+		d.ExportCFR177 = true
+		d.Textile = traceEngine{version: engine.TextileVersion, origin: "Vietnam"}
+	})
 	_, c := hs.do(t, "POST", "/v1/cases/predict", `{"date":"2026-02-01","facts":"A knit sweater is knit in China and sewn in Vietnam."}`)
 	code, out := hs.do(t, "POST", "/v1/cases/"+c["id"].(string)+"/export", `{"format":"cfr177","preview":true}`)
 	md, _ := out["content"].(string)

@@ -148,7 +148,8 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 func chatTurn(q string, ans caseagent.Answer) store.ChatTurn {
 	whats := make([]store.ChatWhatIf, len(ans.WhatIfs))
 	for i, w := range ans.WhatIfs {
-		whats[i] = store.ChatWhatIf{Change: w.Change, Origin: w.Origin, Confidence: w.Confidence, Decisive: w.Decisive, Facts: w.Facts}
+		whats[i] = store.ChatWhatIf{Change: w.Change, Origin: w.Origin, Confidence: w.Confidence, Decisive: w.Decisive, Facts: w.Facts,
+			Regime: w.Regime, Specialist: w.Specialist, Scope: w.Scope, Route: string(w.Route), Reason: w.Reason, Provisional: w.Provisional}
 	}
 	steps := make([]store.ChatStep, len(ans.Steps))
 	for i, s := range ans.Steps {

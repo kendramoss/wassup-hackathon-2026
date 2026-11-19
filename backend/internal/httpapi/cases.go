@@ -411,92 +411,17 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 // failed. It does not say the case is out of scope, nor that it is in scope.
 const ScopeUnavailableReason = "scope unavailable: the scope router failed, so the legal regime is not confirmed; an expert reviews"
 
-// classify runs router and engine concurrently and decides triage. The router
-// labels scope only; it never changes the engine's answer. st, when set, is
-// told each step as it runs (nil: not reported); it never changes the result.
+// classify dispatches (router and engine, see dispatch) and decides triage.
+// The router labels scope only; it never changes an engine's answer. st, when
+// set, is told each step as it runs (nil: not reported); it never changes the
+// result.
 func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
-	var label *router.Label
-	// scopeUnavailable is set only when a configured router failed. It is not
-	// the same as label == nil with no router configured (unchanged behaviour).
-	scopeUnavailable := false
-	var wg sync.WaitGroup
-	if a.d.Router != nil {
-		wg.Add(1)
-		st.begin("router")
-		go func() {
-			defer wg.Done()
-			defer st.end("router") // a failed router is done too: scope unknown
-			l, err := a.d.Router.Classify(ctx, c.Facts)
-			if err != nil {
-				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
-				scopeUnavailable = true // read after wg.Wait
-				return
-			}
-			label = &l
-		}()
-	}
-	ectx := ctx
-	if st != nil {
-		ectx = engine.WithProgress(ctx, st.engineProgress)
-	}
-	res, err := a.d.Engine.Predict(ectx, c)
-	if err == nil {
-		st.end(engine.StageEngine) // a cached prediction reports no stages of its own
-	}
-	wg.Wait()
+	d, err := a.dispatch(ctx, c, st, nil)
 	if err != nil {
 		return domain.Prediction{}, nil, domain.Triage{}, false, err
 	}
-	if label != nil && label.Regime == router.RegimeTextile && a.d.Textile != nil {
-		// The textile engine reports its own precedents and engine stages
-		// again; settle closes them if it fails (the engine's answer stands).
-		tres, err := a.d.Textile.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope, but clarify (substantial transformation) does not apply
-			tr := triage.Textile(tres.Prediction, a.d.TextileFastPath)
-			if triage.AnsweredByFallback(tres.Prediction.Trace.ModelID, a.d.EngineModel) {
-				tr = triage.Fallback(tres.Prediction, a.d.FallbackFastPath, true, "")
-			}
-			return tres.Prediction, label, tr, false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	// The USMCA and pharma engines report their stages as textile does.
-	if label != nil && label.Regime == router.RegimeUSMCA && a.d.USMCA != nil {
-		ures, err := a.d.USMCA.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope, but clarify (substantial transformation) does not apply
-			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	if label != nil && label.Regime == router.RegimePharma && a.d.Pharma != nil {
-		pres, err := a.d.Pharma.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope; clarify is skipped, as for textile (not evaluated on this regime)
-			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	if scopeUnavailable {
-		// Scope was not established: keep the provisional prediction, never
-		// auto-accept, and skip clarify (inScope false), which would turn the
-		// review into questions as if the case were known to be in scope.
-		return res.Prediction, nil, domain.Triage{Route: domain.RouteNeedsReview, Reason: ScopeUnavailableReason}, false, nil
-	}
-	inScope, scopeReason, subfamily := true, "", ""
-	if label != nil {
-		inScope, scopeReason = label.Scope()
-		subfamily = label.Subfamily
-	}
-	if a.d.FamilyBars != nil {
-		return res.Prediction, label, triage.DecideByFamily(res.Prediction, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope, nil
-	}
-	tr := triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason)
-	if triage.AnsweredByFallback(res.Prediction.Trace.ModelID, a.d.EngineModel) {
-		tr = triage.Fallback(res.Prediction, a.d.FallbackFastPath, inScope, scopeReason)
-	}
-	return res.Prediction, label, tr, inScope, nil
+	tr, inScope := a.decide(d)
+	return d.Result.Prediction, d.Label, tr, inScope, nil
 }
 
 // analyse runs router and engine (concurrently), triage and, below the fast
@@ -752,8 +677,18 @@ func (a *api) watchFields(w *store.Watch) any {
 	if w == nil {
 		return nil
 	}
-	return map[string]any{"checked_at": w.CheckedAt, "status": w.Status, "prediction": w.Prediction,
+	out := map[string]any{"checked_at": w.CheckedAt, "status": w.Status, "prediction": w.Prediction,
 		"newer_rulings": a.precedentRefs(w.Newer), "precedents_detail": a.precedentRefs(w.Prediction.Precedents)}
+	// Provenance (#294), present only on results saved with it.
+	for k, v := range map[string]string{"basis": w.Basis, "regime": w.Regime, "original_regime": w.OriginalRegime, "scope": w.Scope, "specialist": w.Specialist} {
+		if v != "" {
+			out[k] = v
+		}
+	}
+	if w.Triage != nil {
+		out["triage"] = w.Triage
+	}
+	return out
 }
 
 // caseSummary is one row of the cases list.
@@ -768,6 +703,8 @@ type caseSummary struct {
 	Step        string   `json:"step"`
 	UpdatedAt   string   `json:"updated_at"`
 	Watch       *string  `json:"watch_status"` // null until re-checked; unchanged | changed
+	WatchBasis  *string  `json:"watch_basis"`  // why: store.WatchBasis*; null until re-checked or for a watch saved without provenance
+	WatchRoute  *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
 	Scenarios   int      `json:"scenario_count"`
 	Pinned      bool     `json:"pinned"`
 }
@@ -804,6 +741,13 @@ func summaryRow(c store.Case) caseSummary {
 	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
+		if c.Watch.Basis != "" {
+			row.WatchBasis = &c.Watch.Basis
+		}
+		if c.Watch.Triage != nil {
+			route := string(c.Watch.Triage.Route)
+			row.WatchRoute = &route
+		}
 	}
 	if c.Product != nil {
 		row.ProductName = c.Product.Name
@@ -1169,8 +1113,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	if c.Product != nil {
 		name = c.Product.Name
 	}
-	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction,
-		Textile: c.Router != nil && c.Router.Regime == router.RegimeTextile}
+	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
@@ -1232,14 +1175,24 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	// The letter's regime is the one that produced the prediction behind the
+	// requester's position (the plan's, when one is drafted), read from its
+	// stored trace; never the router's label, which a specialist failure
+	// leaves pointing at an engine that did not answer.
+	regimeNote := ""
+	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)
 	}
+	notes := export.Notes(ex, format == formatCFR177)
+	if regimeNote != "" {
+		notes = append(notes, regimeNote)
+	}
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
 		return
 	}
 	now := time.Now().UTC()
@@ -1265,7 +1218,49 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
+}
+
+const (
+	// exportRegimeUnknownNote: the stored trace names no known engine, so the
+	// draft is the general one and says so beside the letter.
+	exportRegimeUnknownNote = "Legal framework not confirmed: the engine that produced this prediction is not recorded, so Unde cannot tell which legal framework it was made under. This draft asks the general substantial-transformation question and makes no textile, Part 102 marking or pharmaceutical determination. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+	// exportRegimeProvisionalNote: a specialist-labelled case whose prediction
+	// (the case's, or a plan's) came from the general engine. Not necessarily
+	// a failure: plan searches always use the general engine.
+	exportRegimeProvisionalNote = "Legal framework not confirmed: this case looks like a %s case, but the prediction behind this draft was made by Unde's general engine, not that framework's engine. (A plan search always uses the general engine; the %s engine may also have been unavailable.) This draft asks the general substantial-transformation question and makes no %s determination, so treat the requester's position as provisional. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+)
+
+// exportRegimeLabel is a regime in words for the reviewer note.
+func exportRegimeLabel(regime string) string {
+	switch regime {
+	case router.RegimeTextile:
+		return "textile (19 CFR 102.21)"
+	case router.RegimeUSMCA:
+		return "Part 102 marking (19 CFR 102.11)"
+	case router.RegimePharma:
+		return "pharmaceutical (active ingredient)"
+	}
+	return regime
+}
+
+// exportRegime is the export regime of a prediction and, when the draft
+// needs one, a reviewer note for the unknown or provisional-general case. An
+// unrecognised trace is rendered as the general draft with a note rather than
+// blocked: the letter then makes no specialist claim, and older stored cases
+// and demos without a recorded engine stay exportable.
+func exportRegime(c store.Case, p domain.Prediction) (regime, note string) {
+	switch r := PredictionRegime(p); {
+	case r == "":
+		return "", exportRegimeUnknownNote
+	case r == RegimeGeneral:
+		if c.Router != nil && isSpecialist(c.Router.Regime) {
+			return "", fmt.Sprintf(exportRegimeProvisionalNote, exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime))
+		}
+		return "", ""
+	default:
+		return r, ""
+	}
 }
 
 // draftablePlan finds a plan by move key: any shown plan, or a rejected plan

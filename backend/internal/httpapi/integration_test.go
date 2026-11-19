@@ -49,18 +49,19 @@ func TestStreamedPredictKeepsTeamsOwnership(t *testing.T) {
 
 // A streamed predict sent to a regime engine (USMCA D61, pharma D62)
 // reports that engine's stages and closes every stage it opened, also when
-// the regime engine fails part-way and the case falls back to out of scope.
+// the regime engine fails part-way (a provisional general answer then goes to review).
 func TestStreamedPredictRegimeEngines(t *testing.T) {
 	const facts = `{"date":"2026-03-01","facts":"Bolt seals stamped and assembled in Mexico from Chinese steel wire."}`
 	failing := realEngine(func(llm.Request) (llm.Response, error) { return llm.Response{}, errors.New("model down") })
 	for _, tt := range []struct {
 		name, regime, origin string
+		engines              int // max "engine started" events: speculative general call, regime engine, and a provisional general call after a failure (the speculative one may be cancelled before it reports)
 		set                  func(*Deps)
 	}{
-		{"usmca answers", "usmca_part102", "China", func(d *Deps) { d.USMCA = realEngine(answerWith("0.9", 0)) }},
-		{"usmca fails", "usmca_part102", "China", func(d *Deps) { d.USMCA = failing }},
-		{"pharma answers", "pharma_api", "China", func(d *Deps) { d.Pharma = realEngine(answerWith("0.9", 0)) }},
-		{"pharma fails", "pharma_api", "China", func(d *Deps) { d.Pharma = failing }},
+		{"usmca answers", "usmca_part102", "China", 2, func(d *Deps) { d.USMCA = realEngine(answerWith("0.9", 0)) }},
+		{"usmca fails", "usmca_part102", "China", 3, func(d *Deps) { d.USMCA = failing }},
+		{"pharma answers", "pharma_api", "China", 2, func(d *Deps) { d.Pharma = realEngine(answerWith("0.9", 0)) }},
+		{"pharma fails", "pharma_api", "China", 3, func(d *Deps) { d.Pharma = failing }},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			hs := newHarnessWith(t, tt.regime, func(d *Deps) {
@@ -89,8 +90,8 @@ func TestStreamedPredictRegimeEngines(t *testing.T) {
 				}
 			}
 			// The main engine and the regime engine each report their stages.
-			if n := strings.Count(strings.Join(stages, ","), "engine started"); n != 2 {
-				t.Errorf("engine started %d times, want 2 (main and regime engine): %q", n, stages)
+			if n := strings.Count(strings.Join(stages, ","), "engine started"); n < 2 || n > tt.engines {
+				t.Errorf("engine started %d times, want 2..%d: %q", n, tt.engines, stages)
 			}
 			p := evs[len(evs)-1].data["prediction"].(map[string]any)
 			if p["origin_country"] != tt.origin {

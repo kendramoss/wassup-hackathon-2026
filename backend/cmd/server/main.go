@@ -472,13 +472,12 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		rateStore = ratelimit.NewMemory()
 		logger.Info("rate limits counted in fixed windows in memory")
 	}
-	return httpapi.Deps{
+	d := httpapi.Deps{
 		Demos:                 ds,
 		Engine:                predictor,
 		Router:                router.New(model, cfg.RouterModel, 2000),
 		Family:                familycheck.New(model, cfg.RouterModel, tmpls),
 		CostEstimator:         costest.New(model, cfg.RouterModel),
-		Agent:                 caseagent.New(model, cmp.Or(cfg.CaseAgentModel, cfg.EngineModel), searcher, predictor),
 		Extractor:             extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:            precedents,
@@ -521,7 +520,39 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logge
 		HTS:                   htsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
-	}, nil
+	}
+	// The agent's what_if uses the same dispatch and triage as a saved
+	// scenario (#319). It is built from d BEFORE d.Agent is set: the predictor
+	// copies d (engines, router, bars; the cache-wrapped engines above), and
+	// the agent needs the predictor while the HTTP handler needs the agent.
+	return withAgent(d, model, cmp.Or(cfg.CaseAgentModel, cfg.EngineModel), searcher), nil
+}
+
+// withAgent returns d with the case agent attached. The predictor is built
+// from d as it is here, before Agent is set (see the comment in newDeps).
+func withAgent(d httpapi.Deps, model llm.Model, modelID string, s verifier.Searcher) httpapi.Deps {
+	d.Agent = caseagent.New(model, modelID, s, newAskPredictor(d))
+	return d
+}
+
+// askPredictor adapts httpapi.CasePredictor to caseagent.Classifier. The agent
+// cannot import httpapi (httpapi imports caseagent), so the values are copied
+// here. The embedded Predict satisfies caseagent.Predictor.
+type askPredictor struct{ *httpapi.CasePredictor }
+
+func newAskPredictor(d httpapi.Deps) askPredictor { return askPredictor{httpapi.NewCasePredictor(d)} }
+
+// Classify runs the saved-scenario dispatch and triage. Regime is the one the
+// result's own trace names; an unrecognised trace stays "" (unknown) and is
+// never replaced by the router label or by general.
+func (p askPredictor) Classify(ctx context.Context, c domain.Case) (caseagent.Classification, error) {
+	k, err := p.CasePredictor.Classify(ctx, c)
+	if err != nil {
+		return caseagent.Classification{}, err
+	}
+	return caseagent.Classification{Result: k.Result, Regime: httpapi.PredictionRegime(k.Result.Prediction),
+		Selected: k.Selected, Scope: string(k.Scope), Specialist: string(k.Specialist),
+		Route: k.Triage.Route, Reason: k.Triage.Reason}, nil
 }
 
 // newCases builds the configured case store.

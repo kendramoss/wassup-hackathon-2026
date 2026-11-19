@@ -181,6 +181,28 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 	a.respond(w, http.StatusOK, a.caseFields(sc))
 }
 
+// WatchOriginalRegimeUnknownReason is the watch triage reason when the case's
+// stored prediction names no known engine: the regime it was made under is
+// not known, so a watch result is never auto-accepted against it.
+const WatchOriginalRegimeUnknownReason = "regime unavailable: the stored prediction names no known engine, so the watch result cannot be compared with it; an expert reviews"
+
+// watchBasis says why a watch result can or cannot be read as a precedent
+// change. Regime and method differences, a failed specialist and a missing
+// label are named so they never pass for a ruling-driven origin change.
+func watchBasis(sc store.Case, d Dispatch, orig string) string {
+	switch {
+	case d.Scope == ScopeLabelMissing || orig == "":
+		return store.WatchBasisUnverified
+	case d.Specialist == SpecialistFailed:
+		return store.WatchBasisSpecialistUnavailable
+	case d.Regime() != orig:
+		return store.WatchBasisRegime
+	case d.Result.Prediction.Trace.PromptVersion != sc.Prediction.Trace.PromptVersion:
+		return store.WatchBasisMethod
+	}
+	return store.WatchBasisPrecedent
+}
+
 // watchAll re-checks every analysed case (for a scheduler) and lists the
 // cases whose origin changed.
 func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
@@ -193,6 +215,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 3)
 	checked, changed, failed := 0, []string{}, []string{}
+	basis := map[string]string{} // why each changed case changed (store.WatchBasis*)
 	for _, c := range cs {
 		if c.Prediction.Origin == "" {
 			continue
@@ -213,11 +236,12 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 			checked++
 			if c.Watch.Status == store.WatchChanged {
 				changed = append(changed, c.ID)
+				basis[c.ID] = c.Watch.Basis
 			}
 		}(c)
 	}
 	wg.Wait()
-	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "failed": failed})
+	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "changed_basis": basis, "failed": failed})
 }
 
 // recheck predicts the case again with every precedent dated before today
@@ -232,9 +256,28 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 	now := start.UTC()
 	fp := inputFingerprint(*sc) // what this check is worked out from (D97)
 	c := domain.Case{ID: sc.ID, Date: now, Facts: sc.Facts, Product: sc.Product, Exclude: sc.Exclude}
-	res, err := a.d.Engine.Predict(ctx, c)
+	// The stored label is pinned: the watch answers the question on the
+	// regime the case was analysed under, never a fresh routing (router
+	// drift). One legacy control stays unpinned: no stored label, no router
+	// configured and a prediction made by the general engine, which is the
+	// no-router behaviour as before. A specialist or unknown prediction with
+	// no label is pinned to nothing (label missing: review), never routed or
+	// read as general.
+	orig := PredictionRegime(sc.Prediction)
+	var pin *pinned
+	if sc.Router != nil || a.d.Router != nil || orig != RegimeGeneral {
+		pin = &pinned{label: sc.Router}
+	}
+	d, err := a.dispatch(ctx, c, nil, pin)
 	if err != nil {
 		return err
+	}
+	res := d.Result
+	tr, _ := a.decide(d)
+	if orig == "" && tr.Route == domain.RouteAuto {
+		// The stored prediction names no known engine, so this result cannot
+		// be compared with it; the verdict does not auto-accept.
+		tr = domain.Triage{Route: domain.RouteNeedsReview, Reason: WatchOriginalRegimeUnknownReason}
 	}
 	newer := []string{}
 	if a.d.Precedents != nil {
@@ -249,10 +292,11 @@ func (a *api) recheck(ctx context.Context, sc *store.Case, save bool) error {
 		status = store.WatchChanged
 	}
 	// A background check is not case activity: UpdatedAt (list order) stays.
-	watch := &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer}
+	watch := &store.Watch{CheckedAt: now, Status: status, Prediction: res.Prediction, Newer: newer,
+		Basis: watchBasis(*sc, d, orig), Regime: d.Regime(), OriginalRegime: orig, Scope: string(d.Scope), Specialist: string(d.Specialist), Triage: &tr}
 	var u usage
 	u.trace(res.Prediction.Trace)
-	ev := u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used)", status, res.Prediction.Origin, len(newer)),
+	ev := u.on(store.Event{At: now, Kind: "watched", Summary: fmt.Sprintf("%s: origin %s with today's precedents (%d newer rulings used); %s, %s", status, res.Prediction.Origin, len(newer), watch.Basis, tr.Route),
 		Provider: res.Prediction.Trace.Provider, Model: res.Prediction.Trace.ModelID, Prompt: res.Prediction.Trace.PromptVersion}, start)
 	if !save {
 		sc.Watch = watch

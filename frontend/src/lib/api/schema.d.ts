@@ -1489,6 +1489,10 @@ export interface paths {
                         "application/json": {
                             checked: number;
                             changed: string[];
+                            /** @description Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change */
+                            changed_basis?: {
+                                [key: string]: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
+                            };
                             failed: string[];
                         };
                     };
@@ -2122,6 +2126,16 @@ export interface components {
              * @enum {string|null}
              */
             watch_status: "unchanged" | "changed" | null;
+            /**
+             * @description Why (Watch.basis); null until re-checked or for a watch saved without it, which is unknown, not confirmed. With watch_status set and watch_basis null the result is a legacy one: read it as unknown and re-check (the screens show Re-check needed), never as Changed or Unchanged
+             * @enum {string|null}
+             */
+            watch_basis?: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified" | null;
+            /**
+             * @description Route of the watch result's triage (Watch.triage.route); null as watch_basis
+             * @enum {string|null}
+             */
+            watch_route?: "auto" | "needs_review" | "needs_info" | null;
             scenario_count: number;
             /** @description A seeded demo case; listed first */
             pinned: boolean;
@@ -2252,6 +2266,18 @@ export interface components {
             decisive_step?: string;
             /** @description The revised facts the engine re-ran */
             facts?: string;
+            /** @description Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D100). */
+            regime?: string;
+            /** @description State of the selected specialist engine for this what-if (ok, failed, unconfigured); omitted when no specialist was selected */
+            specialist?: string;
+            /** @description Scope state of the run (no_router, configured_failed, confirmed, label_missing) */
+            scope?: string;
+            /** @description Triage route the same policy as a saved scenario gives these facts (auto, needs_review, needs_info) */
+            route?: string;
+            /** @description Reason for the route */
+            triage_reason?: string;
+            /** @description Set, with its reason, when the result is not regime-confirmed, for example a general answer after a specialist failure */
+            provisional?: string;
         };
         ChatStep: {
             tool?: string;
@@ -2361,16 +2387,39 @@ export interface components {
                 actor?: string;
             }[];
             /** @description null until re-checked */
-            watch?: {
-                /** Format: date-time */
-                checked_at?: string;
-                /** @enum {string} */
-                status?: "unchanged" | "changed";
-                prediction?: components["schemas"]["Prediction"];
-                /** @description precedents used that are dated after the case date */
-                newer_rulings?: components["schemas"]["PrecedentRef"][];
-                precedents_detail?: components["schemas"]["PrecedentRef"][];
-            } | null;
+            watch?: components["schemas"]["Watch"] | null;
+        };
+        /** @description The latest re-check. status is only the origin comparison. basis says whether a difference can be read as a ruling change: only basis=precedent means "the precedents moved". A watch saved before basis existed has no basis; read that as unknown, not as confirmed, and not as changed or unchanged: the next POST /watch replaces it. */
+        Watch: {
+            /** Format: date-time */
+            checked_at?: string;
+            /** @enum {string} */
+            status?: "unchanged" | "changed";
+            prediction?: components["schemas"]["Prediction"];
+            /** @description precedents used that are dated after the case date */
+            newer_rulings?: components["schemas"]["PrecedentRef"][];
+            precedents_detail?: components["schemas"]["PrecedentRef"][];
+            /**
+             * @description precedent: same regime and method, so a change is the rulings. regime: a different regime's engine answered. method: same regime, different engine prompt version. specialist_unavailable: the case's specialist engine failed and a provisional general answer was given. unverified: no stored scope label, or the stored prediction names no known engine, so it cannot be compared.
+             * @enum {string}
+             */
+            basis?: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
+            /** @description Regime whose engine produced watch.prediction (substantial_transformation, textile_102_21, usmca_part102, pharma_api) */
+            regime?: string;
+            /** @description Regime of the case's own prediction, from its trace; absent when unknown (never taken from the router label) */
+            original_regime?: string;
+            /**
+             * @description What is known about the regime; label_missing means the case has no stored router label
+             * @enum {string}
+             */
+            scope?: "no_router" | "configured_failed" | "confirmed" | "label_missing";
+            /**
+             * @description Outcome of the selected specialist engine; absent when no specialist regime was selected
+             * @enum {string}
+             */
+            specialist?: "ok" | "failed" | "unconfigured";
+            /** @description Verdict for the watch result (the same policy as the case triage; needs_review for unverified and specialist_unavailable) */
+            triage?: components["schemas"]["Triage"];
         };
         /** @description Only for in-scope cases below the fast-path bar (0.92). Never changes the predicted origin. */
         Clarify: {
