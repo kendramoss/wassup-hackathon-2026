@@ -4,6 +4,7 @@
 import { copy } from "@/lib/copy";
 import { ARRIVE, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
 import { inControl, isSpaceKey, keyDirection, wheelDirection } from "./input";
+import { advanceScroll, newScrollState, startScroll } from "./arrival";
 import { createHeatGun, type Country } from "./heat-gun";
 
 const L = copy.landing;
@@ -62,8 +63,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   // A programmatic jump is "seeking" for the heat gun: its phase follows the
   // scroll exactly, so a step lands on a settled state. fig.2 and fig.3 instead
   // replay their own animation over time once their stop is reached.
-  let seekTarget: number | null = null, seekUntil = 0;
-  let arrival: { pane: 2 | 3; start: number; duration: number } | null = null;
+  let scrollState = newScrollState(scrollY);
   // The pin fills the screen below the AppBar. Nudge the target so the
   // pane's main element sits in the middle of that stage, not against an edge.
   const centerFix = (paneIndex: number) => {
@@ -80,11 +80,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     const top = r
       ? scrollY + r.top + clamp01(progress / 4) * Math.max(1, r.height - innerHeight)
       : hz.getBoundingClientRect().top + scrollY - barH() + (progress / SCREENS) * travel() + centerFix(Math.round(paneAt(progress)));
-    seekTarget = top;
-    seekUntil = performance.now() + 2500;
     const now = performance.now();
-    const pane = arrivalFor(progress);
-    arrival = pane === null ? null : { pane, start: now, duration: pane === 2 ? 2800 : 3400 };
+    scrollState = startScroll(scrollState, scrollY, top, now + 2500, arrivalFor(progress), now);
     scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
   };
   // One input step advances one stop — the four heat-gun phases, then fig.2
@@ -100,9 +97,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     // up from the heat gun returns to the very top.
     const top = dest.kind === "bottom" ? document.documentElement.scrollHeight : 0;
     if (Math.abs(scrollY - top) < 2) return false;
-    seekTarget = top;
-    seekUntil = performance.now() + 2500;
-    arrival = null;
+    const now = performance.now();
+    scrollState = startScroll(scrollState, scrollY, top, now + 2500, null, now);
     scrollTo({ top, behavior: reduce ? "instant" : "smooth" });
     return true;
   };
@@ -314,8 +310,10 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   function frame(now_: number) {
     const dt = Math.min(0.05, (now_ - last) / 1000);
     last = now_;
-    const seeking = seekTarget !== null && now_ < seekUntil && Math.abs(scrollY - seekTarget) > 2;
-    if (seekTarget !== null && (!seeking || now_ >= seekUntil)) seekTarget = null;
+    const advanced = advanceScroll(scrollState, scrollY, now_);
+    scrollState = advanced.state;
+    const { seeking, interrupted } = advanced;
+    const arrival = scrollState.arrival;
     const s = horizontal() ? slid() : 0;
     if (horizontal()) {
       track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;
@@ -338,7 +336,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       // of snapping to the end of their scroll-driven animation.
       const a2 = arrival !== null && arrival.pane === 2 && now_ - arrival.start < arrival.duration ? arrival : null;
       const p = a2 ? ease(clamp01((now_ - a2.start) / a2.duration)) : fig2Progress();
-      shown2 = reduce || a2 !== null ? p : shown2 + (p - shown2) * 0.15;
+      shown2 = reduce || a2 !== null || interrupted ? p : shown2 + (p - shown2) * 0.15;
       layoutF2(reduce ? 1 : shown2);
     }
     if (near(f3) && (!horizontal() || s > 1.2)) {
