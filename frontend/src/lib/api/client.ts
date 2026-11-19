@@ -143,7 +143,10 @@ export async function saveEconomics(id: string, economics: Economics, io: SaveEc
 
 export const SIGNIN_EXPIRED = "op:signin-expired";
 
-const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network"]);
+// "conflict" (409): the case changed while a plan, comparison or export ran and
+// the result was discarded (D97). Running it again is right, the same as the
+// streamed error event, which the server marks retryable.
+const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network", "conflict"]);
 
 async function toError(res: Response): Promise<ApiError> {
   const err = await readError(res);
