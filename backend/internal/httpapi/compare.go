@@ -61,9 +61,10 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
 	fp := inputFingerprint(c)
-	econ := in.Economics
-	if econ.AnnualImportValueUSD == 0 && c.Economics != nil {
-		econ = *c.Economics
+	econ, err := effectiveEconomics(in.Economics, c.Economics)
+	if err != nil {
+		a.fail(w, r, err)
+		return
 	}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), targets...), true)
 	results := make([]planner.Result, len(targets))

@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -134,28 +133,6 @@ func columns(header []string) (map[string]int, error) {
 	return idx, nil
 }
 
-var nonID = regexp.MustCompile(`[^a-z0-9]+`)
-
-func plantID(name string) string {
-	id := strings.Trim(nonID.ReplaceAllString(strings.ToLower(name), "_"), "_")
-	if id == "" {
-		id = "plant"
-	}
-	return id
-}
-
-// plantKey is the identity shared by the product and its imported economics.
-// Without an explicit plant column the canonical country is the identity:
-// keying costs by a raw alias (PRC, Viet Nam) leaves group costs pointing at
-// plant IDs the product does not have, so scenario pricing adds the whole
-// target cost instead of the difference from the imported baseline.
-func plantKey(plantName, country string) string {
-	if plantName == "" {
-		plantName = domain.NormalizeCountry(country)
-	}
-	return plantID(plantName)
-}
-
 // Options are the product fields the sheet does not carry.
 type Options struct {
 	Name        string
@@ -191,6 +168,7 @@ func Parse(rows [][]string, opts Options) (domain.Product, []string, error) {
 		}
 		return ""
 	}
+	plantIDs := NewPlantIDs(rows)
 	plants := map[string]*domain.Plant{} // by id
 	var order []string
 	caps := map[string]map[string]bool{}
@@ -206,14 +184,8 @@ func Parse(rows [][]string, opts Options) (domain.Product, []string, error) {
 			problems = append(problems, fmt.Sprintf("row %d: name and country are required", line))
 			continue
 		}
-		plantName := cell(row, "plant")
-		if kind == "plant" && plantName == "" {
-			plantName = name
-		}
-		if plantName == "" {
-			plantName = country
-		}
-		id := plantKey(plantName, country)
+		plantName := rowPlantName(kind, name, cell(row, "plant"), country)
+		id := plantIDs.ID(plantName, country)
 		pl, ok := plants[id]
 		switch {
 		case !ok:
