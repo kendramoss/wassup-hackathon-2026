@@ -39,3 +39,51 @@ export const askHistory = (chat: readonly Shown[], isLocal: (t: Shown) => boolea
 export function askBody(question: string, pinned: boolean, history: readonly AskHistoryTurn[]) {
   return pinned && history.length > 0 ? { question, history: history.slice(-ASK_HISTORY_MAX) } : { question };
 }
+
+// Which turns of a pinned demo this visitor asked. The demo's chat comes back
+// from the server (seeded) and from use-case's sessionStorage copy (seeded +
+// visitor turns), so the chat alone cannot tell them apart after a reload.
+// This marker lives in the same per-tab sessionStorage, per case, keyed by
+// the turn's timestamp and the start of its question, and holds at most the
+// last ASK_HISTORY_MAX keys (older ones can never be sent). Never sent to the
+// server; the request carries only question and answer.
+type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+const ownKey = (caseId: string) => `op:ask-own:${caseId}`;
+export const turnMark = (t: Shown & { at?: string }) => `${t.at ?? ""}|${(t.question ?? "").trim().slice(0, 80)}`;
+
+const defaultStore = (): Store | null => {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage;
+  } catch {
+    return null;
+  }
+};
+
+export function ownedMarks(caseId: string, store: Store | null = defaultStore()): string[] {
+  try {
+    const v = JSON.parse(store?.getItem(ownKey(caseId)) ?? "[]");
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(-ASK_HISTORY_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markOwned(caseId: string, t: Shown & { at?: string }, store: Store | null = defaultStore()) {
+  try {
+    const marks = [...ownedMarks(caseId, store).filter((m) => m !== turnMark(t)), turnMark(t)].slice(-ASK_HISTORY_MAX);
+    store?.setItem(ownKey(caseId), JSON.stringify(marks));
+  } catch {}
+}
+
+export function clearOwned(caseId: string, store: Store | null = defaultStore()) {
+  try {
+    store?.removeItem(ownKey(caseId));
+  } catch {}
+}
+
+// What the next ask on this case sends: nothing unless it is a pinned demo.
+export function askRequest(caseId: string, pinned: boolean, chat: readonly (Shown & { at?: string })[], question: string, store: Store | null = defaultStore()) {
+  const marks = new Set(pinned ? ownedMarks(caseId, store) : []);
+  const ctx = pinned ? askContext(chat, (t) => marks.has(turnMark(t))) : { history: [], omitted: false };
+  return { body: askBody(question, pinned, ctx.history), omitted: ctx.omitted };
+}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
-import { askBody, askContext } from "@/lib/ask-history";
+import { askRequest, clearOwned, markOwned } from "@/lib/ask-history";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
@@ -30,11 +30,6 @@ const subscribe = (l: () => void) => {
 };
 const extras = new Map<string, Extra>();
 const details = new Map<string, PrecedentRef>();
-// Turns a visitor asked on a pinned demo in this visit (the server never
-// stores them); the seeded turns are not in here.
-const visitorTurns = new Set<string>();
-// Marks a pinned-demo turn as the visitor's own, so later asks send it.
-export const markVisitorTurn = (caseId: string, t: ChatTurn) => visitorTurns.add(turnKey(caseId, t));
 const turnKey = (caseId: string, t: ChatTurn) => `${caseId}|${t.at ?? ""}|${t.question ?? ""}`;
 
 // "Ask about this case" (DESIGN.md, #46): a right-hand drawer on the case
@@ -53,7 +48,12 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     () => null,
   );
   // What a pinned demo sends with the next question (nothing elsewhere).
-  const pinnedContext = c.pinned ? askContext(chat, (t) => visitorTurns.has(turnKey(id, t))) : { history: [], omitted: false };
+  const pinnedContext = askRequest(id, !!c.pinned, chat, "");
+  // The drawer may outlive a case switch: an answer for another case is not applied.
+  const live = useRef(id);
+  useEffect(() => {
+    live.current = id;
+  }, [id]);
   const [question, setQuestion] = useState("");
   const [error, setError] = useState<unknown>(null);
   const [open, setOpen] = useState<number | null>(null);
@@ -86,8 +86,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     inflight.set(id, { q, since: Date.now() });
     emit();
     try {
-      const { history } = pinnedContext;
-      const r = await api.ask(id, askBody(q, !!c.pinned, history));
+      const r = await api.ask(id, askRequest(id, !!c.pinned, chat, q).body);
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
       // A demo answers without saving, so its chat lacks this turn: add it here.
@@ -95,13 +94,15 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         ? [...chat, { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], at: new Date().toISOString() }]
         : (r.chat ?? []);
       const last = next.at(-1);
-      if (c.pinned && last) markVisitorTurn(id, last);
       if (last) extras.set(turnKey(id, last), { whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls });
       setOpen(null);
       setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);
       inflight.delete(id);
       emit();
-      onChat(next);
+      if (live.current === id) {
+        if (c.pinned && last) markOwned(id, last);
+        onChat(next);
+      }
     } catch (e) {
       inflight.delete(id);
       emit();
@@ -114,6 +115,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     setConfirming(false);
     try {
       await api.resetChat(id);
+      clearOwned(id);
       onChat([]);
     } catch (e) {
       setError(e);
