@@ -68,3 +68,51 @@ func TestRenderUnchangedGroupKeepsLimitedDetail(t *testing.T) {
 		t.Errorf("unchanged group got processing detail:\n%s", got)
 	}
 }
+
+// Final assembly follows the same rule as the other groups: supplied
+// operations are stated as supplied; the template's are an assumption, and
+// say so (the final reviewer's note on #290).
+func TestRenderFinalAssemblySuppliedOperationsUnlabelled(t *testing.T) {
+	p, tm := movedPCBAProduct(t, false)
+	moved := Apply(p, domain.Move{{Group: "pcba", ToPlant: "th"}})
+	got := Render(moved, tm, "pcba")
+	// The fixture supplies final-assembly operations: stated as given.
+	i := strings.Index(got, "Final assembly in ")
+	if i < 0 {
+		t.Fatalf("no final assembly paragraph:\n%s", got)
+	}
+	para := got[i:]
+	if j := strings.Index(para, "\n\n"); j >= 0 {
+		para = para[:j]
+	}
+	if strings.Contains(para, "assumed from") {
+		t.Errorf("supplied final-assembly operations were labelled an assumption:\n%s", para)
+	}
+}
+
+func TestRenderFinalAssemblyAbsentOperationsLabelled(t *testing.T) {
+	p, tm := movedPCBAProduct(t, false)
+	var kept []domain.Operation
+	for _, o := range p.Operations {
+		if o.Group != "final_assembly" {
+			kept = append(kept, o)
+		}
+	}
+	p.Operations = kept
+	// Final assembly is known only from a component placed in that group, so
+	// the paragraph is written from the template's steps.
+	p.Components = append(append([]domain.Component(nil), p.Components...), domain.Component{Name: "outer casing", MadeIn: "Thailand", Plant: "th", Group: "final_assembly"})
+	moved := Apply(p, domain.Move{{Group: "pcba", ToPlant: "th"}})
+	got := Render(moved, tm, "pcba")
+	i := strings.Index(got, "Final assembly in ")
+	if i < 0 {
+		t.Fatalf("no final assembly paragraph:\n%s", got)
+	}
+	para := got[i:]
+	if j := strings.Index(para, "\n\n"); j >= 0 {
+		para = para[:j]
+	}
+	if !strings.HasSuffix(strings.TrimSpace(para), templateAssumption+".") {
+		t.Errorf("template final-assembly operations not labelled as an assumption:\n%s", para)
+	}
+}

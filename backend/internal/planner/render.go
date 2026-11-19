@@ -74,11 +74,11 @@ func Render(p domain.Product, t Template, detail ...string) string {
 		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s%s.", plant.Country, subject, joinOps(ops), note)
 	}
 	if g, ok := t.Group("final_assembly"); ok && final != "" {
-		ops := g.Operations
+		ops, note := g.Operations, templateAssumption
 		if custom := groupOperations(p, "final_assembly"); len(custom) > 0 {
-			ops = custom
+			ops, note = custom, ""
 		}
-		fmt.Fprintf(&b, "\n\nFinal assembly in %s: %s.", final, joinOps(ops))
+		fmt.Fprintf(&b, "\n\nFinal assembly in %s: %s%s.", final, joinOps(ops), note)
 	}
 	return strings.TrimSpace(b.String()) + "\n"
 }
