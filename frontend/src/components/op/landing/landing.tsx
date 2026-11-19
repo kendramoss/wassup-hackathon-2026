@@ -390,14 +390,6 @@ export function Landing() {
                 </section>
               </div>
             </div>
-            <nav className="hzprog" aria-label={L.progress}>
-              <i data-k="hzfill" />
-              {L.figs.map((f, i) => (
-                <button key={f} type="button" data-k="hzgo" data-i={i} aria-label={L.goTo(f)}>
-                  {f}
-                </button>
-              ))}
-            </nav>
           </div>
         </div>
 
