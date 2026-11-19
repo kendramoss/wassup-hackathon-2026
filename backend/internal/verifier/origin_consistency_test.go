@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
-
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
 // answerOrigins is a final answer with chosen origins, a claimed change and a
@@ -38,6 +36,8 @@ func TestFreshRejectsEquivalentOriginsButAcceptsDistinct(t *testing.T) {
 		"alias USA":            {"USA", "United States of America"},
 		"alias PRC":            {"PRC", "China"},
 		"alias Viet Nam":       {"Viet Nam", "Vietnam"},
+		"Thai is Thailand":     {"Thai", "Thailand"},
+		"Burma is Myanmar":     {"Burma", "myanmar"},
 		"alias Korea":          {"Republic of Korea", "South Korea"},
 		"article":              {"The Philippines", "Philippines"},
 		"alternatives reorder": {"Indonesia/Malaysia", "Malaysia or Indonesia"},
@@ -56,6 +56,7 @@ func TestFreshRejectsEquivalentOriginsButAcceptsDistinct(t *testing.T) {
 		"China to Thailand":         {"China", "Thailand"},
 		"PRC to Thailand":           {"PRC", "Thailand"},
 		"China to Thailand/Vietnam": {"China", "Thailand/Vietnam"},
+		"Burma to Thai":             {"Burma", "Thai"},
 	} {
 		tk := task()
 		tk.Target = ""
@@ -75,6 +76,9 @@ func TestFreshRejectsUnknownOrMissingOrigins(t *testing.T) {
 	for name, c := range map[string][2]string{
 		"empty a": {"", "Thailand"}, "empty b": {"China", ""}, "both empty": {"", ""},
 		"unknown a": {"Unknown", "Thailand"}, "unknown b": {"China", "unknown"},
+		"unknown member": {"Unknown/China", "Thailand"}, "trailing slash": {"China/", "Thailand"},
+		"leading slash": {"China", "/Thailand"}, "double slash": {"China//Vietnam", "Thailand"},
+		"comma list a": {"China, Thailand", "China"}, "comma list b": {"China", "Thailand, Vietnam"},
 	} {
 		tk := task()
 		tk.Target = ""
@@ -95,6 +99,19 @@ func TestFreshKnownBaselineContradictionIsUnsupported(t *testing.T) {
 	}
 	if res := freshOrigins(t, tk, "PRC", "Thailand", true); !res.Verdict.PrecedentSupported {
 		t.Errorf("origin_a alias of the known baseline rejected: %+v", res.Verdict)
+	}
+	// Ambiguous baselines fail closed instead of skipping the check.
+	for _, k := range []string{"unknown", "China, Vietnam", "Unknown/China"} {
+		amb := tk
+		amb.KnownOriginA = k
+		if res := freshOrigins(t, amb, "China", "Thailand", true); res.Verdict.PrecedentSupported {
+			t.Errorf("ambiguous baseline %q accepted: %+v", k, res.Verdict)
+		}
+	}
+	burma := tk
+	burma.KnownOriginA = "Myanmar"
+	if res := freshOrigins(t, burma, "Burma", "Thailand", true); !res.Verdict.PrecedentSupported {
+		t.Errorf("Burma against Myanmar baseline rejected: %+v", res.Verdict)
 	}
 	// Counterexample: the same verdict is fine against a different baseline, so
 	// the rule is about agreement with the task's baseline, not about origins.
@@ -125,6 +142,11 @@ func TestCachedOriginInconsistentVerdictIsAMissAndRepaired(t *testing.T) {
 	}
 	for name, c := range map[string]tc{
 		"alias equal":        {base, "USA", "United States", true},
+		"Thai Thailand":      {base, "Thai", "Thailand", true},
+		"Burma Myanmar":      {base, "Burma", "Myanmar", true},
+		"unknown member":     {base, "Unknown/China", "Thailand", true},
+		"trailing slash":     {base, "China/", "Thailand", true},
+		"comma list":         {base, "China, Thailand", "China", true},
 		"USA aliases":        {base, "US", "United States", true},
 		"identical":          {base, "Thailand", "Thailand", true},
 		"unknown":            {base, "Unknown", "Thailand", true},
@@ -156,6 +178,14 @@ func TestCachedOriginInconsistentVerdictIsAMissAndRepaired(t *testing.T) {
 				t.Errorf("repaired verdict not reused: %+v calls=%d", r, inner.calls)
 			}
 		})
+	}
+	// An ambiguous baseline never replays a supported verdict.
+	amb := base
+	amb.KnownOriginA = "unknown"
+	ac, _, _ := newFixedCache()
+	seed(t, ac, amb, goodResult(amb))
+	if _, ok, _ := ac.Peek(context.Background(), amb); ok {
+		t.Error("ambiguous baseline replayed")
 	}
 	// Control: genuinely distinct origins (and an aliased known baseline) replay.
 	c, inner, _ := newFixedCache()
@@ -281,17 +311,54 @@ func TestPanelAndMajorityOriginBoundaries(t *testing.T) {
 	}
 }
 
-// Missing proof data reads as a miss, not a crash or an invented origin.
+// Unit checks of the shared helper, including the ambiguous cases.
 func TestOriginViolationUnits(t *testing.T) {
-	known := Task{KnownOriginA: "unknown"} // a non-baseline is ignored, not invented
-	if originViolation("China", "Thailand", known) != "" {
-		t.Error("unusable baseline must not reject")
+	for name, c := range map[string]struct{ a, b string }{
+		"Thai/Thailand":        {"Thai", "Thailand"},
+		"Burma/Myanmar":        {"Burma", "myanmar"},
+		"unknown member":       {"Unknown/China", "Thailand"},
+		"unknown member b":     {"China", "Thailand/unknown"},
+		"trailing slash":       {"China/", "Thailand"},
+		"leading slash":        {"China", "/Thailand"},
+		"double slash":         {"China//Vietnam", "Thailand"},
+		"comma list":           {"China, Thailand", "China"},
+		"comma list b":         {"China", "Thailand, Vietnam"},
+		"empty":                {"", "Thailand"},
+		"whitespace":           {"  ", "Thailand"},
+		"or with empty member": {"China or ", "Thailand"},
+		"only unknown":         {"unknown", "unknown"},
+	} {
+		if originViolation(c.a, c.b, Task{}) == "" {
+			t.Errorf("%s: %q -> %q accepted", name, c.a, c.b)
+		}
+	}
+	for name, c := range map[string]struct{ a, b string }{
+		"China/Thailand":  {"China", "Thailand"},
+		"PRC/Thai":        {"PRC", "Thai"},
+		"Burma/Thailand":  {"Burma", "Thailand"},
+		"set vs member":   {"Thailand/China", "Thailand"},
+		"or alternatives": {"China or Vietnam", "Thailand"},
+	} {
+		if why := originViolation(c.a, c.b, Task{}); why != "" {
+			t.Errorf("%s: genuine change rejected: %s", name, why)
+		}
+	}
+	// Baseline: aliases match; contradiction and ambiguous baselines fail closed.
+	if originViolation("PRC", "Thai", Task{KnownOriginA: "China"}) != "" {
+		t.Error("alias baseline rejected")
+	}
+	if originViolation("Burma", "Thailand", Task{KnownOriginA: "Myanmar"}) != "" {
+		t.Error("Burma/Myanmar baseline rejected")
 	}
 	if originViolation("China", "Thailand", Task{KnownOriginA: "Türkiye"}) == "" {
-		t.Error("baseline Türkiye vs China must reject")
+		t.Error("baseline Türkiye vs China accepted")
 	}
-	if originViolation("Thailand/China", "Thailand", Task{}) != "" {
-		t.Error("A/B vs A is a distinct set and not equivalent")
+	for _, k := range []string{"unknown", "China, Vietnam", "Unknown/China", "China/"} {
+		if originViolation("China", "Thailand", Task{KnownOriginA: k}) == "" {
+			t.Errorf("ambiguous baseline %q bypassed the contradiction check", k)
+		}
 	}
-	_ = domain.Verdict{}
+	if originViolation("China", "Thailand", Task{KnownOriginA: "  "}) != "" {
+		t.Error("blank KnownOriginA means no baseline")
+	}
 }

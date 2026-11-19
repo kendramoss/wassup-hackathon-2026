@@ -16,6 +16,8 @@ var countryAliases = map[string]string{
 	"taiwan (roc)": "Taiwan", "uk": "United Kingdom", "great britain": "United Kingdom", "england": "United Kingdom",
 	"the netherlands": "Netherlands", "holland": "Netherlands", "czechia": "Czech Republic", "turkiye": "Turkey",
 	"türkiye": "Turkey", "hong kong sar": "Hong Kong",
+	// Explicit demonym/former name added for #297 (verifier origin consistency).
+	"thai": "Thailand", "burma": "Myanmar",
 }
 
 var nonCountryChars = regexp.MustCompile(`[^a-z .'()]`)

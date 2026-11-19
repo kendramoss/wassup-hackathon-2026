@@ -249,37 +249,59 @@ func ProofFor(t Task, eligible ...string) *Proof {
 	return newProof(t, m)
 }
 
-// originParts is the set of countries in an origin string, through the domain
-// normalisation (aliases, spellings, "A/B" alternatives), sorted. An empty or
-// "unknown" origin has no parts: it is never turned into a country.
-func originParts(s string) []string {
-	var out []string
-	for _, p := range domain.CountryParts(domain.NormalizeCountry(s)) {
-		if p != "" && !strings.EqualFold(p, "unknown") {
-			out = append(out, p)
-		}
+// originAlt splits a raw origin into alternatives the way domain.NormalizeCountry
+// does ("/", "|", "and/or", "or"), so every member can be checked before
+// normalisation silently drops empty ones.
+var originAlt = regexp.MustCompile(`\s*(?:/|\||\band/or\b|\bor\b)\s*`)
+
+// originParts is the sorted set of countries in a raw origin string, through
+// the domain normalisation (aliases, spellings), and whether the string is
+// usable at all. It is not usable, and ok is false, when it is empty, when any
+// "/"-alternative is empty or "unknown" ("Unknown/China", "China/", "A//B"
+// are never read as just "China"), or when it contains a comma: a list such
+// as "China, Thailand" is not a supported single representation and the
+// normaliser would glue it into one bogus country, so it is ambiguous.
+func originParts(s string) (parts []string, ok bool) {
+	if strings.TrimSpace(s) == "" || strings.Contains(s, ",") {
+		return nil, false
 	}
-	slices.Sort(out)
-	return slices.Compact(out)
+	for _, m := range originAlt.Split(strings.TrimSpace(s), -1) {
+		n := domain.NormalizeCountry(m)
+		if n == "" || strings.EqualFold(n, "unknown") {
+			return nil, false
+		}
+		parts = append(parts, n)
+	}
+	slices.Sort(parts)
+	return slices.Compact(parts), true
 }
 
 // originViolation reports why a verdict claiming that the move changes origin
 // from originA to originB cannot be supported for t, or "" when the claim is
-// coherent. It is conservative: a missing/unknown origin is not a change, two
-// origins that normalise to the same countries are not a change, and when
-// t.KnownOriginA holds, originA must normalise to it. A KnownOriginA that
-// itself normalises to nothing is not a baseline. Used for fresh acceptance
-// and, through cachedViolation, for every cached replay.
+// coherent. It is conservative and never invents a country or assumes a
+// change: an unknown, empty or malformed origin (any member, a comma list) is
+// not a change; origins that normalise to the same countries are not a
+// change; and when t.KnownOriginA is set, originA must normalise to it. A
+// KnownOriginA that is set but unusable (unknown, malformed) is an ambiguous
+// baseline: it fails closed rather than skipping the contradiction check.
+// Used for fresh acceptance and, through cachedViolation, for every replay.
 func originViolation(originA, originB string, t Task) string {
-	a, b := originParts(originA), originParts(originB)
-	if len(a) == 0 || len(b) == 0 {
-		return "origin unknown or missing"
+	a, okA := originParts(originA)
+	b, okB := originParts(originB)
+	if !okA || !okB {
+		return "origin unknown, missing or malformed"
 	}
 	if slices.Equal(a, b) {
 		return "claimed origin change between equivalent origins"
 	}
-	if k := originParts(t.KnownOriginA); len(k) > 0 && !slices.Equal(k, a) {
-		return "origin_a contradicts the known baseline"
+	if strings.TrimSpace(t.KnownOriginA) != "" {
+		k, okK := originParts(t.KnownOriginA)
+		if !okK {
+			return "known baseline is ambiguous"
+		}
+		if !slices.Equal(k, a) {
+			return "origin_a contradicts the known baseline"
+		}
 	}
 	return ""
 }
@@ -579,9 +601,11 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	reachesTarget := t.Target == "" || res.OriginB == domain.NormalizeCountry(t.Target)
 	// A claimed change must be a real one: equivalent origins ("Thai" and
 	// "Thailand") or an origin_a that contradicts CBP's known holding for A
-	// are not a supported move (originViolation), whatever the ruling says.
+	// are not a supported move (originViolation), whatever the ruling says. The
+	// raw answer is checked: normalisation would silently drop an empty or
+	// unknown "/" member.
 	vd.PrecedentSupported = ans.ChangesOrigin && reachesTarget && vd.SupportingRuling != "" &&
-		originViolation(res.OriginA, res.OriginB, t) == ""
+		originViolation(ans.OriginA, ans.OriginB, t) == ""
 	if err := vd.Validate(); err != nil {
 		return res, fmt.Errorf("verifier: %w: %v", llm.ErrBadResponse, err)
 	}
