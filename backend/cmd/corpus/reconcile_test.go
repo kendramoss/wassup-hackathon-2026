@@ -247,18 +247,48 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 		t.Error("extra name with a path must be refused")
 	}
 
-	// An owned name that is now a symlink is left alone, target untouched.
-	dir2 := t.TempDir()
-	writeFile(t, filepath.Join(dir2, buildManifest), `{"version":1,"ids":["N100001"]}`)
-	if err := os.Symlink(outside, filepath.Join(dir2, "N100001.txt")); err != nil {
-		t.Skip("symlinks unavailable")
+	// A ruling-shaped symlink is an actionable error before any mutation, with
+	// or without a manifest; the entry and its target are preserved.
+	for _, withManifest := range []bool{true, false} {
+		d := t.TempDir()
+		if withManifest {
+			writeFile(t, filepath.Join(d, buildManifest), `{"version":1,"ids":["N100001"]}`)
+		} else {
+			writeFile(t, filepath.Join(d, "split_meta.jsonl"), `{"ruling":"N100001"}`+"\n")
+		}
+		writeFile(t, filepath.Join(d, "N100003.txt"), "regular control\n")
+		link := filepath.Join(d, "N100001.txt")
+		if err := os.Symlink(outside, link); err != nil {
+			t.Skip("symlinks unavailable")
+		}
+		_, err := reconcile(d, buildManifest, "split_meta.jsonl", "", map[string][]byte{"N100002": []byte("new\n")}, nil, nil)
+		if err == nil || !strings.Contains(err.Error(), "N100001.txt") || !strings.Contains(err.Error(), "Nothing was changed") {
+			t.Fatalf("manifest=%v: symlink must be an actionable error, got %v", withManifest, err)
+		}
+		if st, lerr := os.Lstat(link); lerr != nil || st.Mode()&os.ModeSymlink == 0 {
+			t.Errorf("manifest=%v: the symlink itself must be preserved", withManifest)
+		}
+		if b, _ := os.ReadFile(outside); string(b) != "must survive\n" {
+			t.Errorf("manifest=%v: symlink target changed: %q", withManifest, b)
+		}
+		if exists(filepath.Join(d, "N100002.txt")) || !exists(filepath.Join(d, "N100003.txt")) {
+			t.Errorf("manifest=%v: a refused reconcile must write and remove nothing", withManifest)
+		}
 	}
-	res, err := reconcile(dir2, buildManifest, "split_meta.jsonl", "", map[string][]byte{}, nil, nil)
-	if err != nil {
+}
+
+// Regular Part 102 style files (protected) and a symlink-free directory are
+// unaffected by the guard.
+func TestSymlinkGuardLeavesRegularFilesAlone(t *testing.T) {
+	d := t.TempDir()
+	writeFile(t, filepath.Join(d, "H100001.txt"), "part 102 regular\n")
+	writeFile(t, filepath.Join(d, "split_meta.jsonl"), `{"ruling":"N100001"}`+"\n")
+	writeFile(t, filepath.Join(d, "N100001.txt"), "old\n")
+	if _, err := reconcile(d, buildManifest, "split_meta.jsonl", "", map[string][]byte{"N100002": []byte("new\n")}, nil, map[string]bool{"H100001": true}); err != nil {
 		t.Fatal(err)
 	}
-	if len(res.Skipped) != 1 || !exists(filepath.Join(dir2, "N100001.txt")) || !exists(outside) {
-		t.Errorf("symlink must be skipped, not removed: %+v", res)
+	if !exists(filepath.Join(d, "H100001.txt")) || !exists(filepath.Join(d, "N100002.txt")) || exists(filepath.Join(d, "N100001.txt")) {
+		t.Error("regular-file reconcile changed behaviour")
 	}
 }
 

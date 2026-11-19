@@ -175,6 +175,9 @@ func reconcile(dir, manifestName, legacyMeta, legacyHint string, facts map[strin
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return res, err
 	}
+	if err := refuseRulingSymlinks(dir); err != nil {
+		return res, err
+	}
 	old, found, err := readManifest(dir, manifestName)
 	if err != nil {
 		return res, err
@@ -398,4 +401,28 @@ func reportReconcile(cmd, dir string, res reconcileResult) {
 	for _, id := range res.Skipped {
 		fmt.Fprintf(os.Stderr, "%s: left %s.txt alone (not a regular file)\n", cmd, id)
 	}
+}
+
+// refuseRulingSymlinks fails, before anything is changed, when the directory
+// holds a ruling-shaped name (<id>.txt) that is not a regular file. corpus.Load
+// reads such names through os.ReadFile, which follows a symlink to content
+// outside the directory, and reconcile can neither prove nor safely replace
+// it. The entry and its target are never removed or modified: the operator
+// decides.
+func refuseRulingSymlinks(dir string) error {
+	ents, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	var bad []string
+	for _, e := range ents {
+		if factsFileName.MatchString(e.Name()) && !e.Type().IsRegular() {
+			bad = append(bad, e.Name())
+		}
+	}
+	if len(bad) == 0 {
+		return nil
+	}
+	sort.Strings(bad)
+	return fmt.Errorf("%s holds ruling file name(s) that are not regular files (%s): corpus.Load would follow them to content outside the facts directory. Nothing was changed and nothing was removed. Replace each with a regular file or move it away, then rerun", dir, strings.Join(bad, ", "))
 }
