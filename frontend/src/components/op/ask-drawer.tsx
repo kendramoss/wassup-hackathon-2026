@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
-import { askBody, askHistory } from "@/lib/ask-history";
+import { askBody, askContext } from "@/lib/ask-history";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
@@ -33,6 +33,8 @@ const details = new Map<string, PrecedentRef>();
 // Turns a visitor asked on a pinned demo in this visit (the server never
 // stores them); the seeded turns are not in here.
 const visitorTurns = new Set<string>();
+// Marks a pinned-demo turn as the visitor's own, so later asks send it.
+export const markVisitorTurn = (caseId: string, t: ChatTurn) => visitorTurns.add(turnKey(caseId, t));
 const turnKey = (caseId: string, t: ChatTurn) => `${caseId}|${t.at ?? ""}|${t.question ?? ""}`;
 
 // "Ask about this case" (DESIGN.md, #46): a right-hand drawer on the case
@@ -50,6 +52,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     () => inflight.get(id) ?? null,
     () => null,
   );
+  // What a pinned demo sends with the next question (nothing elsewhere).
+  const pinnedContext = c.pinned ? askContext(chat, (t) => visitorTurns.has(turnKey(id, t))) : { history: [], omitted: false };
   const [question, setQuestion] = useState("");
   const [error, setError] = useState<unknown>(null);
   const [open, setOpen] = useState<number | null>(null);
@@ -82,7 +86,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     inflight.set(id, { q, since: Date.now() });
     emit();
     try {
-      const history = c.pinned ? askHistory(chat, (t) => visitorTurns.has(turnKey(id, t))) : [];
+      const { history } = pinnedContext;
       const r = await api.ask(id, askBody(q, !!c.pinned, history));
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
@@ -91,7 +95,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         ? [...chat, { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], at: new Date().toISOString() }]
         : (r.chat ?? []);
       const last = next.at(-1);
-      if (c.pinned && last) visitorTurns.add(turnKey(id, last));
+      if (c.pinned && last) markVisitorTurn(id, last);
       if (last) extras.set(turnKey(id, last), { whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls });
       setOpen(null);
       setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);
@@ -229,6 +233,11 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
           </Button>
         </form>
         {/* The agent gets the last 6 turns; the thread keeps up to 20 (#118). */}
+        {pinnedContext.omitted && (
+          <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim" data-testid="ask-context-note">
+            An earlier answer was too long to carry into follow-up questions, so Ask will not see it. Restate any details you need.
+          </p>
+        )}
         {turns.length >= 6 && <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim">Ask remembers your last 6 questions.</p>}
       </div>
     </Drawer>

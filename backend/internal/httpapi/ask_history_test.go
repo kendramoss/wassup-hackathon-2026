@@ -145,3 +145,27 @@ func TestAskNormalCaseIgnoresClientHistory(t *testing.T) {
 		}
 	}
 }
+
+// A long completed answer reaches the server as the client's bounded marker:
+// the follow-up is 200, the agent sees the marker, and the memo is keyed on it.
+func TestAskDemoOmittedAnswerMarker(t *testing.T) {
+	const marker = "[Earlier answer omitted from context because it exceeded the limit; ask the user to restate relevant details.]"
+	hs := newHarness(t, "substantial_transformation")
+	id := pinnedDemo(t, hs, 0)
+	if code, out := hs.do(t, "POST", "/v1/cases/"+id+"/ask", histBody("next?", [2]string{"Long one?", marker})); code != 200 {
+		t.Fatalf("ask = %d %v", code, out)
+	}
+	if h := hs.agent.last.History; len(h) != 1 || h[0].Answer != marker {
+		t.Errorf("agent history = %+v, want the marker", h)
+	}
+	// Another visitor's different (real) answer to the same question is another memo entry.
+	hs.do(t, "POST", "/v1/cases/"+id+"/ask", histBody("next?", [2]string{"Long one?", "short"}))
+	hs.do(t, "POST", "/v1/cases/"+id+"/ask", histBody("next?", [2]string{"Long one?", marker}))
+	if hs.agent.calls != 2 {
+		t.Errorf("agent calls = %d, want 2", hs.agent.calls)
+	}
+	// The unchanged server bound still refuses a raw oversize answer.
+	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/ask", histBody("x?", [2]string{"q", strings.Repeat("a", 4001)})); code != 400 {
+		t.Errorf("raw oversize = %d, want 400", code)
+	}
+}

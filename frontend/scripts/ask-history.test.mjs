@@ -33,3 +33,21 @@ test("the request carries history for a pinned demo only", () => {
   assert.deepEqual(askBody("next?", false, h), { question: "next?" });
   assert.equal(askBody("n", true, Array.from({ length: 9 }, () => h[0])).history.length, 6);
 });
+
+import { ASK_OMITTED, askContext } from "../src/lib/ask-history.ts";
+
+test("an answer over 4000 runes is replaced whole by the marker, counted in runes", () => {
+  const exact = "語".repeat(4000);
+  const long = "語".repeat(4001);
+  const c = askContext([turn(1, { local: true, answer: exact }), turn(2, { local: true, answer: long })], local);
+  assert.equal(c.history[0].answer, exact); // at the limit: unchanged
+  assert.equal(c.history[1].answer, ASK_OMITTED); // no prefix kept
+  assert.equal(c.history[1].question, "q2"); // the question is kept
+  assert.equal(c.omitted, true);
+  assert.equal(askContext([turn(1, { local: true })], local).omitted, false);
+});
+
+test("a long answer older than the last 6 turns does not raise the notice", () => {
+  const chat = [turn(0, { local: true, answer: "x".repeat(5000) }), ...Array.from({ length: 6 }, (_, i) => turn(i + 1, { local: true }))];
+  assert.equal(askContext(chat, local).omitted, false);
+});
