@@ -2,9 +2,12 @@ package httpapi
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,24 +21,79 @@ type HealthCheck struct {
 	Run  func(context.Context) error
 }
 
-// HealthProbeID is the case the store check writes and deletes; it never
-// shows in the case list.
+// HealthProbeID is the fixed ID the store check used before #315. Probes now
+// use newHealthProbeID; this stays so IsHealthProbeID still hides a legacy
+// record left behind by an older revision.
 const HealthProbeID = "healthcheck_probe"
+
+const healthProbePrefix = HealthProbeID + "_"
+
+// newHealthProbeID returns a per-invocation ID: the prefix plus 128 random
+// bits (32 hex chars, 50 chars total, within the store's 64-char ID rule).
+// Collisions are negligible, so concurrent probes, in one process or across
+// instances, never touch each other's record and need no coordination.
+func newHealthProbeID() string {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		panic(err) // crypto/rand does not fail on supported platforms
+	}
+	return healthProbePrefix + hex.EncodeToString(b[:])
+}
+
+// IsHealthProbeID reports whether id names a store-check probe case: the
+// legacy fixed ID or healthcheck_probe_ followed by 32 lowercase hex chars.
+// Case listings use it to keep probes out of results.
+func IsHealthProbeID(id string) bool {
+	if id == HealthProbeID {
+		return true
+	}
+	h, ok := strings.CutPrefix(id, healthProbePrefix)
+	if !ok || len(h) != 32 {
+		return false
+	}
+	for _, c := range h {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
+}
 
 // StoreCheck writes, reads and deletes a probe case, so missing permissions
 // (e.g. roles/datastore.user on Firestore) show up before a user's save fails.
+// Each run owns a unique ID, so overlapping probes cannot delete each other's
+// record. The first Put/Get/Delete error is the one reported; when the probe
+// fails or is cancelled midway, the record is removed best-effort on a
+// detached, bounded context and that cleanup's own error is ignored.
 func StoreCheck(cs store.Cases) HealthCheck {
 	return HealthCheck{Name: "case_store", Run: func(ctx context.Context) error {
+		id := newHealthProbeID()
+		cleanup := func() {
+			cctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), probeCleanupTimeout)
+			defer cancel()
+			_ = cs.Delete(cctx, id)
+		}
 		now := time.Now().UTC()
-		if err := cs.Put(ctx, store.Case{ID: HealthProbeID, Date: now.Format(time.DateOnly), Facts: "health check", CreatedAt: now, UpdatedAt: now}); err != nil {
+		if err := cs.Put(ctx, store.Case{ID: id, Date: now.Format(time.DateOnly), Facts: "health check", CreatedAt: now, UpdatedAt: now}); err != nil {
+			cleanup() // the write may have landed even though the caller saw an error
 			return err
 		}
-		if _, err := cs.Get(ctx, HealthProbeID); err != nil {
+		if _, err := cs.Get(ctx, id); err != nil {
+			cleanup()
 			return err
 		}
-		return cs.Delete(ctx, HealthProbeID)
+		if err := cs.Delete(ctx, id); err != nil {
+			if ctx.Err() != nil {
+				cleanup() // the check's own deadline/cancel, not a store refusal
+			}
+			return err
+		}
+		return nil
 	}}
 }
+
+// probeCleanupTimeout bounds the best-effort removal of an abandoned probe.
+const probeCleanupTimeout = 5 * time.Second
 
 // ModelCheck makes one small call to the given model.
 func ModelCheck(name string, m llm.Model, modelID string) HealthCheck {

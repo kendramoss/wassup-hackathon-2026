@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
+import { askRequest, clearOwned, markOwned } from "@/lib/ask-history";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
@@ -46,6 +47,13 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     () => inflight.get(id) ?? null,
     () => null,
   );
+  // What a pinned demo sends with the next question (nothing elsewhere).
+  const pinnedContext = askRequest(id, !!c.pinned, chat, "");
+  // The drawer may outlive a case switch: an answer for another case is not applied.
+  const live = useRef(id);
+  useEffect(() => {
+    live.current = id;
+  }, [id]);
   const [question, setQuestion] = useState("");
   const [error, setError] = useState<unknown>(null);
   const [open, setOpen] = useState<number | null>(null);
@@ -78,7 +86,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     inflight.set(id, { q, since: Date.now() });
     emit();
     try {
-      const r = await api.ask(id, q);
+      const r = await api.ask(id, askRequest(id, !!c.pinned, chat, q).body);
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
       // A demo answers without saving, so its chat lacks this turn: add it here.
@@ -91,7 +99,10 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
       setAnnounced(`Answer: ${(reply.answer ?? "").slice(0, 300)}`);
       inflight.delete(id);
       emit();
-      onChat(next);
+      if (live.current === id) {
+        if (c.pinned && last) markOwned(id, last);
+        onChat(next);
+      }
     } catch (e) {
       inflight.delete(id);
       emit();
@@ -104,6 +115,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     setConfirming(false);
     try {
       await api.resetChat(id);
+      clearOwned(id);
       onChat([]);
     } catch (e) {
       setError(e);
@@ -223,6 +235,11 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
           </Button>
         </form>
         {/* The agent gets the last 6 turns; the thread keeps up to 20 (#118). */}
+        {pinnedContext.omitted && (
+          <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim" data-testid="ask-context-note">
+            An earlier answer was too long to carry into follow-up questions, so Ask will not see it. Restate any details you need.
+          </p>
+        )}
         {turns.length >= 6 && <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim">Ask remembers your last 6 questions.</p>}
       </div>
     </Drawer>

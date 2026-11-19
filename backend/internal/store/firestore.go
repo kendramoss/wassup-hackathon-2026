@@ -37,11 +37,14 @@ type firestoreDoc struct {
 	Pinned    bool      `firestore:"pinned"` // queried by ListRecent (D58)
 	// Workspace is queried by ListWorkspace (D68); absent for anonymous cases.
 	Workspace string `firestore:"workspace,omitempty"`
-	Case      []byte `firestore:"case_json_gz"`
+	// Owner is written for a future owner query; ListOwner does not rely on
+	// it, because documents written before #301 lack it.
+	Owner string `firestore:"owner,omitempty"`
+	Case  []byte `firestore:"case_json_gz"`
 }
 
 func docOf(c Case, gz []byte) firestoreDoc {
-	return firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Workspace: c.Workspace, Case: gz}
+	return firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Workspace: c.Workspace, Owner: c.Owner, Case: gz}
 }
 
 // NewFirestore connects to database (empty means "(default)") in project
@@ -181,11 +184,99 @@ func (f *Firestore) ListWorkspace(ctx context.Context, workspace string) ([]Case
 	return out, nil
 }
 
+// ownerScan is the owner listing's query: the whole collection, no filter.
+// A Where("owner", "==", ...) is NOT used because documents written before
+// #301 have no top-level owner field (the owner exists only inside the
+// gzipped case JSON), and Firestore cannot query a missing field: that
+// query would silently drop every legacy case.
+func (f *Firestore) ownerScan() firestore.Query { return f.col.Query }
+
+// ListOwner implements OwnerLister. Cost, stated plainly: this is NOT a
+// database-scoped query. It reads and decodes EVERY case document, keeps
+// those whose decoded Case.Owner is owner (legacy and new documents alike),
+// then sorts and caps in the app. Read cost grows with the whole collection
+// until a separate migration writes the owner field on all documents; only
+// then can this become a Where("owner","==",owner) query. Documents saved
+// from now on do carry the owner field, but no deployment migration is
+// required for correctness.
+func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case, error) {
+	if owner == "" {
+		return nil, nil
+	}
+	all, err := f.scanAll(ctx, "list owner")
+	if err != nil {
+		return nil, err
+	}
+	return ownedBy(all, owner, n), nil
+}
+
+// scanAll reads and decodes every case document, skipping corrupt ones. It is
+// the one decode path for the listings that cannot trust top-level metadata
+// (owner, pinned) on documents written before those fields existed.
+func (f *Firestore) scanAll(ctx context.Context, what string) ([]Case, error) {
+	it := f.ownerScan().Documents(ctx)
+	defer it.Stop()
+	var out []Case
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			return out, nil
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: %s: %w", what, err)
+		}
+		c, err := decodeSnapshot(snap)
+		if err != nil {
+			continue // skip a corrupt document rather than failing the list
+		}
+		out = append(out, c)
+	}
+}
+
+// pinnedOf keeps the cases whose decoded Pinned is true, newest first. The
+// encoded case is the truth: a stale top-level pinned field on a document
+// whose case is not pinned must not expose it.
+func pinnedOf(cs []Case) []Case {
+	var out []Case
+	for _, c := range cs {
+		if c.Pinned {
+			out = append(out, c)
+		}
+	}
+	return CapRecent(out, 0)
+}
+
+// ownedBy keeps the cases whose Owner is owner, then pinned-first/newest
+// with the cap.
+func ownedBy(cs []Case, owner string, n int) []Case {
+	var out []Case
+	for _, c := range cs {
+		if c.Owner == owner {
+			out = append(out, c)
+		}
+	}
+	return CapRecent(out, n)
+}
+
 // ListRecent implements RecentLister: every pinned case plus the n most
 // recently updated others, reading only those documents (D58). A pinned case
 // saved before the pinned field existed is found by the second query only
 // while it is among the newest; re-pinning it (PUT /pin) writes the field.
+// With n <= 0 (pinned cases only) every document is decoded instead, so a
+// legacy pinned demo is found whatever its top-level metadata says.
 func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
+	if n <= 0 {
+		// Pinned cases only. A Where("pinned","==",true) misses a demo saved
+		// before the top-level pinned field existed and could expose one
+		// whose field is stale, so decode every document and keep the cases
+		// that are really pinned. Cost: one full-collection read, like
+		// ListOwner, until a separate migration writes the field everywhere.
+		all, err := f.scanAll(ctx, "list pinned")
+		if err != nil {
+			return nil, err
+		}
+		return pinnedOf(all), nil
+	}
 	seen := map[string]bool{}
 	var out []Case
 	add := func(q firestore.Query) error {
@@ -240,9 +331,20 @@ func decodeSnapshot(snap *firestore.DocumentSnapshot) (Case, error) {
 	if err := snap.DataTo(&d); err != nil {
 		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
 	}
+	c, err := decodeDoc(d)
+	if err != nil {
+		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
+	}
+	return c, nil
+}
+
+// decodeDoc reads the case from its stored JSON. The owner is taken from
+// the JSON, never from the document's owner field, so documents saved
+// before that field existed decode with the right Owner.
+func decodeDoc(d firestoreDoc) (Case, error) {
 	var c Case
 	if err := gunzipJSON(d.Case, &c); err != nil {
-		return Case{}, fmt.Errorf("store: decode %s: %w", snap.Ref.ID, err)
+		return Case{}, err
 	}
 	return c, nil
 }

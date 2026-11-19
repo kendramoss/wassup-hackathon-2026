@@ -40,7 +40,7 @@ func TestMeterCapsTheDayAndResets(t *testing.T) {
 	f := &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
 		return llm.Response{Text: "{}", Usage: llm.Usage{InputTokens: 10000, OutputTokens: 1000}}, nil
 	}}
-	model := m.Model(f)
+	model := m.Attempts(f)
 	model.Generate(ctx, llm.Request{Model: "gemini-4-argon"})
 	if over, total := m.Over(ctx); over || total != 0.03 {
 		t.Fatalf("after one call: over %v, total %v", over, total)

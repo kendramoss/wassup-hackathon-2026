@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
-         * @description With deep=1 it also writes, reads and deletes a probe case and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
+         * @description With deep=1 it also writes, reads and deletes a probe case with its own random ID (D118) and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
          */
         get: {
             parameters: {
@@ -198,7 +198,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List all cases, pinned (seeded demos) first, then most recently updated */
+        /**
+         * List the cases the caller can see, pinned (seeded demos) first, then most recently updated
+         * @description Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1211,6 +1214,11 @@ export interface paths {
                     "application/json": {
                         question?: string;
                         reset?: boolean;
+                        /** @description Pinned demos only (D120): the visitor's own completed turns this visit. The demo is never written, so the server cannot remember them. Ignored on every other case, where the saved chat is the only source. More than 6 turns, an empty question or answer, a question over 2000 characters or an answer over 4000 is a 400. The agent sees the seeded demo chat followed by these turns, cut to the last 6, and the answer memo covers exactly that history. A client replaces an entire answer longer than 4000 characters with a short omission marker before sending it. */
+                        history?: {
+                            question: string;
+                            answer: string;
+                        }[];
                     };
                 };
             };

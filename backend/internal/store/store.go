@@ -292,6 +292,38 @@ func ListWorkspace(ctx context.Context, cs Cases, workspace string) ([]Case, err
 	return out, nil
 }
 
+// OwnerLister is a store that can list one owner's cases without reading
+// every case. Optional, like RecentLister and WorkspaceLister (#301).
+type OwnerLister interface {
+	ListOwner(ctx context.Context, owner string, n int) ([]Case, error)
+}
+
+// ListOwner lists the cases whose Owner is owner: the owner's pinned cases
+// plus the n most recently updated others, pinned first then newest. The
+// owner is applied BEFORE the cap, so another owner's newer cases can never
+// push this owner's out. An empty owner lists nothing (cases with no owner
+// are not "owned by the empty owner"). A store without a ListOwner falls
+// back to one full List, filtered here: correct, but it reads every case.
+func ListOwner(ctx context.Context, cs Cases, owner string, n int) ([]Case, error) {
+	if owner == "" {
+		return nil, nil
+	}
+	if ol, ok := cs.(OwnerLister); ok {
+		return ol.ListOwner(ctx, owner, n)
+	}
+	all, err := cs.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var out []Case
+	for _, c := range all {
+		if c.Owner == owner {
+			out = append(out, c)
+		}
+	}
+	return CapRecent(out, n), nil
+}
+
 // CapRecent sorts cases pinned first then newest, and keeps every pinned
 // case plus the first n others.
 func CapRecent(cs []Case, n int) []Case {
@@ -355,6 +387,22 @@ func (m *Memory) List(_ context.Context) ([]Case, error) {
 	}
 	sortNewest(out)
 	return out, nil
+}
+
+// ListOwner implements OwnerLister.
+func (m *Memory) ListOwner(_ context.Context, owner string, n int) ([]Case, error) {
+	if owner == "" {
+		return nil, nil
+	}
+	m.mu.RLock()
+	var out []Case
+	for _, c := range m.cases {
+		if c.Owner == owner {
+			out = append(out, c)
+		}
+	}
+	m.mu.RUnlock()
+	return CapRecent(out, n), nil
 }
 
 func sortNewest(cs []Case) {

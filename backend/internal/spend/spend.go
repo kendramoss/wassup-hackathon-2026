@@ -92,8 +92,21 @@ func (m *Meter) UntilReset() time.Duration {
 	return now.Truncate(24 * time.Hour).Add(24 * time.Hour).Sub(now)
 }
 
-// Model wraps an llm.Model and adds each call's cost to the meter.
-func (m *Meter) Model(inner llm.Model) llm.Model { return &metered{inner: inner, m: m} }
+// Attempts wraps a raw provider client and adds each call's cost to the meter.
+// Install it directly over each raw provider client, below pace, retry and
+// fallback, so every provider call is charged once at its own model's price
+// (even when it returns an unusable answer or fails after reporting usage),
+// and do not wrap the result again. Wrapping an already metered client is a
+// no-op, and a nil meter leaves inner unchanged.
+func (m *Meter) Attempts(inner llm.Model) llm.Model {
+	if m == nil {
+		return inner
+	}
+	if x, ok := inner.(*metered); ok && x.m == m {
+		return inner
+	}
+	return &metered{inner: inner, m: m}
+}
 
 type metered struct {
 	inner llm.Model
@@ -104,6 +117,8 @@ func (x *metered) Provider() string { return x.inner.Provider() }
 
 func (x *metered) Generate(ctx context.Context, req llm.Request) (llm.Response, error) {
 	resp, err := x.inner.Generate(ctx, req)
+	// Zero usage (a transport error, or no usageMetadata) costs 0, so Add
+	// ignores it; an unpriced model also costs 0 (evalkit.Cost).
 	model := resp.ModelID
 	if model == "" {
 		model = req.Model

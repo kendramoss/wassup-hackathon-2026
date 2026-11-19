@@ -214,7 +214,9 @@ export const api = {
   watchAll: () => post<WatchRunResponse>("/watch/run"),
   compareTargets: (id: string, targets: string[], signal?: AbortSignal) =>
     post<CompareResponse>(`/cases/${enc(id)}/compare-targets`, { targets }, signal),
-  ask: (id: string, question: string, signal?: AbortSignal) => post<AskResponse>(`/cases/${enc(id)}/ask`, { question }, signal),
+  // history: a pinned demo's visitor turns (askBody builds it); see lib/ask-history.
+  ask: (id: string, body: { question: string; history?: { question: string; answer: string }[] }, signal?: AbortSignal) =>
+    post<AskResponse>(`/cases/${enc(id)}/ask`, body, signal),
   resetChat: (id: string) => post<AskResponse>(`/cases/${enc(id)}/ask`, { reset: true }),
   demos: () => call<DemoList>("/demos"),
   demo: (id: string) => call<Demo>(`/demos/${enc(id)}`),

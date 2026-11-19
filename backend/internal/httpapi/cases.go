@@ -712,12 +712,17 @@ type caseSummary struct {
 	Pinned      bool     `json:"pinned"`
 }
 
+// listCases lists the cases the caller may see: pinned demos first, then the
+// newest limit others. Visibility is applied BEFORE the cap (#301): the
+// candidates are read through the caller's own scope, so a busy deployment's
+// foreign cases and orphaned health probes can never occupy the slots of the
+// caller's own cases. Health probes are excluded before the cap too.
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	limit := a.d.CasesListLimit
 	if limit <= 0 {
 		limit = 200
 	}
-	cs, err := store.ListRecent(r.Context(), a.d.Cases, limit)
+	cs, err := a.candidateCases(r, limit)
 	if err == nil {
 		cs, err = a.workspaceCases(r.Context(), cs)
 	}
@@ -727,16 +732,108 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	shown := make([]store.Case, 0, len(cs))
 	for _, c := range cs {
-		if c.ID != HealthProbeID && a.visible(r, c) {
+		if !IsHealthProbeID(c.ID) && a.visible(r, c) {
 			shown = append(shown, c)
 		}
 	}
-	shown = store.CapRecent(shown, limit) // a no-op unless workspace cases were added
+	shown = store.CapRecent(shown, limit) // visible() is re-checked above; the cap comes last
 	rows := make([]caseSummary, 0, len(shown))
 	for _, c := range shown {
 		rows = append(rows, summaryRow(c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
+}
+
+// candidateCases reads the cases the request's principal can possibly see,
+// without ever capping a store-wide listing before visibility is known.
+// The caller re-checks visible() and caps.
+//
+//   - Admin sees everything: the global recent window (pinned plus the newest
+//     limit others), widened (doubling, no fixed read limit) until orphaned health
+//     probes no longer take its slots.
+//   - Ownership off, no user, no API key (the old public-demo mode): every
+//     anonymous case is meant to be shared, but team and broker cases are
+//     not, and there is no owner to query, so this reads the full list and
+//     filters. Cost tradeoff: one full scan per listing (O(all cases)); it
+//     keeps the documented default correct and is only a dev/demo setting.
+//   - Everyone else (visitor, signed-in user, broker key): the pinned demos
+//     (one pinned-only read) plus the caller's own owners, each through the
+//     store's ListOwner (memory: its own map; Firestore: a full collection
+//     read filtered on the decoded owner, see Firestore.ListOwner). A
+//     signed-in user's owners are their user hash and the browser's visitor
+//     hash; workspace cases are added by workspaceCases. A caller with no
+//     owner gets the pinned demos only.
+func (a *api) candidateCases(r *http.Request, limit int) ([]store.Case, error) {
+	ctx := r.Context()
+	if a.isAdmin(r) {
+		return a.recentWithoutProbes(ctx, limit)
+	}
+	id := identityOf(ctx)
+	_, withKey := keyFrom(ctx)
+	if id.email == "" && !withKey && !a.d.CaseOwnership {
+		return a.d.Cases.List(ctx)
+	}
+	cs, err := store.ListRecent(ctx, a.d.Cases, 0) // the pinned demos
+	if err != nil {
+		return nil, err
+	}
+	owners := []string{ownerOf(r)}
+	if id.email != "" {
+		owners = []string{id.owner, ownerOf(r)}
+	}
+	have := make(map[string]bool, len(cs))
+	for _, c := range cs {
+		have[c.ID] = true
+	}
+	queried := map[string]bool{"": true}
+	for _, o := range owners {
+		if queried[o] {
+			continue
+		}
+		queried[o] = true
+		mine, err := store.ListOwner(ctx, a.d.Cases, o, limit)
+		if err != nil {
+			return nil, err
+		}
+		for _, c := range mine {
+			if !have[c.ID] { // an owned pinned case is already in hand
+				have[c.ID] = true
+				cs = append(cs, c)
+			}
+		}
+	}
+	return cs, nil
+}
+
+// recentWithoutProbes is the store's recent window with orphaned health
+// probes not counted against it. It reads pinned plus the newest n others and
+// doubles n until the window holds limit non-probe others or the store has no
+// more others than n. Termination and completeness: n grows geometrically, so
+// n eventually exceeds the number of cases; the first window with limit real
+// others contains the newest limit real others (probes are only dropped), so
+// the cap cannot lose or admit a wrong case. There is no fixed read limit:
+// with P orphaned probes it takes O(log(P/limit)) reads and at most 2x the
+// documents the correct answer needs.
+func (a *api) recentWithoutProbes(ctx context.Context, limit int) ([]store.Case, error) {
+	for n := limit; ; n *= 2 {
+		cs, err := store.ListRecent(ctx, a.d.Cases, n)
+		if err != nil {
+			return nil, err
+		}
+		others, probes := 0, 0
+		for _, c := range cs {
+			if c.Pinned {
+				continue
+			}
+			others++
+			if IsHealthProbeID(c.ID) {
+				probes++
+			}
+		}
+		if probes == 0 || others < n || others-probes >= limit {
+			return cs, nil
+		}
+	}
 }
 
 // summaryRow is a case's row on Cases home.

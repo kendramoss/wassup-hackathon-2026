@@ -108,23 +108,25 @@ func run(logger *slog.Logger, smoke bool) error {
 	if err != nil {
 		return err
 	}
-	// One gate for every client, including the engine's fallback Vertex
-	// client, so a plan search's moves do not call the model together (D78).
-	gate := llm.NewGate(cfg.LLMMaxInFlight, cfg.LLMCoolDown)
-	paced := llm.WithPace(base, cfg.LLMCallGap, gate)
-	if cfg.LLMCallGap > 0 || cfg.LLMMaxInFlight > 0 {
-		logger.Info("model calls paced", "max_in_flight", cfg.LLMMaxInFlight, "gap_after_overload", cfg.LLMCallGap.String(), "cool_down", cfg.LLMCoolDown.String())
+	// The smoke check stays unmetered, as before. Otherwise the spend meter is
+	// built first so it can sit on each raw client (see buildModels).
+	var meter *spend.Meter
+	var cases store.Cases
+	if !smoke {
+		if cases, err = newCases(context.Background(), cfg, logger); err != nil {
+			return err
+		}
+		meter = newMeter(cfg, cases, logger)
 	}
-	model := llm.WithLogging(llm.WithRetry(paced, cfg.LLMMaxRetries, time.Second), logger)
-	if smoke {
-		return runSmoke(ctx, model, cfg)
-	}
-	engineModel, err := newEngineModel(ctx, cfg, paced, model, gate, logger)
+	model, engineModel, err := buildModels(ctx, cfg, base, meter, logger, smoke)
 	if err != nil {
 		return err
 	}
+	if smoke {
+		return runSmoke(ctx, model, cfg)
+	}
 
-	deps, err := newDeps(cfg, model, engineModel, logger)
+	deps, err := newDeps(cfg, model, engineModel, cases, meter, logger)
 	if err != nil {
 		return err
 	}
@@ -144,6 +146,41 @@ func run(logger *slog.Logger, smoke bool) error {
 		return fmt.Errorf("server: %w", err)
 	}
 	return nil
+}
+
+// buildModels wraps the raw provider client into the shared model and the
+// engine model. The spend meter (D59) is installed exactly once per raw
+// client, directly over it and below pace, retry and fallback: every provider
+// attempt is charged once at its own model's price, including attempts that
+// fail or return an unusable answer after reporting usage. Nothing above this
+// layer meters again. A nil meter leaves the clients unmetered.
+func buildModels(ctx context.Context, cfg config.Config, base llm.Model, meter *spend.Meter, logger *slog.Logger, smoke bool) (model, engineModel llm.Model, err error) {
+	// One gate for every client, including the engine's fallback Vertex
+	// client, so a plan search's moves do not call the model together (D78).
+	gate := llm.NewGate(cfg.LLMMaxInFlight, cfg.LLMCoolDown)
+	paced := llm.WithPace(meter.Attempts(base), cfg.LLMCallGap, gate)
+	if cfg.LLMCallGap > 0 || cfg.LLMMaxInFlight > 0 {
+		logger.Info("model calls paced", "max_in_flight", cfg.LLMMaxInFlight, "gap_after_overload", cfg.LLMCallGap.String(), "cool_down", cfg.LLMCoolDown.String())
+	}
+	model = llm.WithLogging(llm.WithRetry(paced, cfg.LLMMaxRetries, time.Second), logger)
+	if smoke {
+		return model, nil, nil
+	}
+	engineModel, err = newEngineModel(ctx, cfg, paced, model, gate, meter, logger)
+	return model, engineModel, err
+}
+
+// newMeter builds the daily spend meter, on Firestore when cases are there so
+// all instances share one total.
+func newMeter(cfg config.Config, cases store.Cases, logger *slog.Logger) *spend.Meter {
+	var spendStore spend.Store = spend.NewMemory()
+	if fs, ok := cases.(*store.Firestore); ok {
+		spendStore = fs.Spend()
+	}
+	if cfg.DailySpendCapUSD > 0 {
+		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
+	}
+	return spend.New(spendStore, cfg.DailySpendCapUSD)
 }
 
 // newBase builds the configured provider with no retry. The router, verifier,
@@ -173,7 +210,7 @@ func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 // a fallback (default gemini-3.8-flash), the primary is tried EngineAttempts
 // times and then the fallback model is called once, from a client in
 // FallbackEngineLocation (global).
-func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, gate *llm.Gate, logger *slog.Logger) (llm.Model, error) {
+func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Model, gate *llm.Gate, meter *spend.Meter, logger *slog.Logger) (llm.Model, error) {
 	if cfg.FallbackEngineModel == "" {
 		return shared, nil
 	}
@@ -191,35 +228,19 @@ func newEngineModel(ctx context.Context, cfg config.Config, base, shared llm.Mod
 		if err != nil {
 			return nil, err
 		}
-		fb = llm.WithPace(v, cfg.LLMCallGap, gate)
+		fb = llm.WithPace(meter.Attempts(v), cfg.LLMCallGap, gate)
 	default:
-		fb = base
+		fb = base // already metered, so it is not metered again
 	}
 	logger.Info("engine fallback on", "model", cfg.FallbackEngineModel, "location", cfg.FallbackEngineLocation, "primary_attempts", cfg.EngineAttempts, "fast_path", cfg.FallbackFastPath)
 	return llm.WithFallback(primary, llm.WithLogging(fb, logger), cfg.FallbackEngineModel), nil
 }
 
 // newDeps loads the corpus and builds engine, router, verifier and planner.
-// model is the shared client. engineModel is the engine's client, which may
+// model is the shared client, already metered at the raw client (see
+// buildModels). engineModel is the engine's client, which may
 // fall back to another model.
-func newDeps(cfg config.Config, model, engineModel llm.Model, logger *slog.Logger) (httpapi.Deps, error) {
-	cases, err := newCases(context.Background(), cfg, logger)
-	if err != nil {
-		return httpapi.Deps{}, err
-	}
-	// Every model call counts toward the daily spend cap (D59), on Firestore
-	// when cases are there so all instances share one total. The engine client
-	// is wrapped on its own: with a fallback it is not the shared client.
-	var spendStore spend.Store = spend.NewMemory()
-	if fs, ok := cases.(*store.Firestore); ok {
-		spendStore = fs.Spend()
-	}
-	meter := spend.New(spendStore, cfg.DailySpendCapUSD)
-	model = meter.Model(model)
-	engineModel = meter.Model(engineModel)
-	if cfg.DailySpendCapUSD > 0 {
-		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
-	}
+func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases, meter *spend.Meter, logger *slog.Logger) (httpapi.Deps, error) {
 	labels, err := corpus.LoadLabels(cfg.LabelsPath)
 	if err != nil {
 		return httpapi.Deps{}, err
