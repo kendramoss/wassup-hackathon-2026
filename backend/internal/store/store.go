@@ -5,6 +5,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"sort"
 	"sync"
@@ -123,6 +124,34 @@ type ChatWhatIf struct {
 	Confidence float64 `json:"confidence"`
 	Decisive   string  `json:"decisive_step"`
 	Facts      string  `json:"facts,omitempty"`
+	// Regime is the regime that answered; Specialist, Scope, Route and
+	// Reason are the dispatch and triage of that run (#319). Provisional is
+	// set when the result was not regime-confirmed. All are omitted when
+	// empty; a record without Regime predates them and is written out as
+	// unknown and not confirmed (see MarshalJSON).
+	Regime      string `json:"regime,omitempty"`
+	Specialist  string `json:"specialist,omitempty"`
+	Scope       string `json:"scope,omitempty"`
+	Route       string `json:"route,omitempty"`
+	Reason      string `json:"triage_reason,omitempty"`
+	Provisional string `json:"provisional,omitempty"`
+}
+
+// LegacyProvisional is the provisional note given to a what-if saved before
+// regime provenance was recorded.
+const LegacyProvisional = "the regime of this saved what-if was not recorded, so it is not confirmed"
+
+// MarshalJSON writes a what-if with no recorded regime as regime "unknown"
+// with a provisional note, so omitted fields are never read as confirmed.
+func (w ChatWhatIf) MarshalJSON() ([]byte, error) {
+	type plain ChatWhatIf
+	if w.Regime == "" {
+		w.Regime = "unknown"
+		if w.Provisional == "" {
+			w.Provisional = LegacyProvisional
+		}
+	}
+	return json.Marshal(plain(w))
 }
 
 // ChatStep is one tool call the agent made while answering.

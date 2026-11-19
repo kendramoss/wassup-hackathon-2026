@@ -244,3 +244,40 @@ func TestWithAgentUsesDepsEnginesNotBarePredict(t *testing.T) {
 		t.Errorf("agent did not use the specialist from Deps: %v", w)
 	}
 }
+
+// Provenance survives the saved chat: real HTTP Ask -> stored case -> GET.
+func TestAskProvenanceSurvivesReload(t *testing.T) {
+	for _, tc := range []struct {
+		name, regime, version string
+		specErr               error
+		wantRegime, wantSpec  string
+		provisional           bool
+	}{
+		{"healthy pharma", router.RegimePharma, engine.PharmaVersion, nil, router.RegimePharma, "ok", false},
+		{"specialist failure", router.RegimeTextile, engine.TextileVersion, errors.New("down"), "substantial_transformation", "failed", true},
+		{"unknown trace", router.RegimeUSMCA, "mystery-v9", nil, "unknown", "ok", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := build(t, tc.regime, tc.version, "X", tc.specErr, nil)
+			c := call(t, r.h, "POST", "/v1/cases/predict", `{"date":"2026-03-01","facts":"Knit polyester neck gaiters, knit in Vietnam from Chinese yarn."}`)
+			id := c["id"].(string)
+			live := call(t, r.h, "POST", "/v1/cases/"+id+"/ask", `{"question":"what if?"}`)
+			lw := live["reply"].(map[string]any)["what_ifs"].([]any)[0].(map[string]any)
+			got := call(t, r.h, "GET", "/v1/cases/"+id, "")
+			chat := got["chat"].([]any)
+			if len(chat) != 1 {
+				t.Fatalf("chat = %v", chat)
+			}
+			w := chat[0].(map[string]any)["what_ifs"].([]any)[0].(map[string]any)
+			if w["regime"] != tc.wantRegime || w["specialist"] != lw["specialist"] || w["scope"] != "confirmed" || w["route"] != lw["route"] || w["triage_reason"] != lw["triage_reason"] || w["provisional"] != lw["provisional"] {
+				t.Errorf("stored %v live %v", w, lw)
+			}
+			if tc.wantSpec != "ok" && w["specialist"] != tc.wantSpec {
+				t.Errorf("specialist %v", w["specialist"])
+			}
+			if (w["provisional"] != nil) != tc.provisional || (tc.provisional && w["route"] != "needs_review") {
+				t.Errorf("provisional/route wrong: %v", w)
+			}
+		})
+	}
+}
