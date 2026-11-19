@@ -42,6 +42,10 @@ const (
 	SpecialistUnconfigured SpecialistState = "unconfigured" // selected regime has no enabled engine
 )
 
+// LabelMissingReason is the triage reason for a pinned dispatch with no stored
+// router label (a legacy case): the regime is unknown, so it never auto-accepts.
+const LabelMissingReason = "scope unavailable: the case has no stored scope label, so the legal regime is not confirmed; an expert reviews"
+
 // SpecialistUnavailableReason is the triage reason when the engine of the
 // regime the router selected errored. The prediction is then a provisional
 // general one; the regime's rules were not applied.
@@ -73,26 +77,34 @@ func (d Dispatch) Regime() string {
 }
 
 // PredictionRegime reports the regime whose engine produced a stored
-// prediction, from its trace prompt version. It is "" when the trace names
-// none. Unlike the router label, it stays true after a specialist failure
-// left a provisional general prediction on a specialist-labelled case.
+// prediction, from its trace prompt version. It is "" when the version is not
+// one of the known engine versions (callers then fall back to the label and
+// must not assume general). Unlike the router label, it stays true after a
+// specialist failure left a provisional general prediction on a
+// specialist-labelled case.
+//
+// Known namespace: the base versions engine.PromptVersion (general),
+// TextileVersion and TextileVersion2 (textile), USMCAVersion, PharmaVersion,
+// each optionally followed by "+<suffix>" (rules, precedent reasoning). A new
+// prompt version must be added here; it is never guessed from a prefix.
 func PredictionRegime(p domain.Prediction) string {
-	v := p.Trace.PromptVersion
-	switch {
-	case v == "":
-		return ""
-	case strings.HasPrefix(v, engine.TextileVersion):
+	base, _, _ := strings.Cut(p.Trace.PromptVersion, "+")
+	switch base {
+	case engine.PromptVersion:
+		return RegimeGeneral
+	case engine.TextileVersion, engine.TextileVersion2:
 		return router.RegimeTextile
-	case strings.HasPrefix(v, engine.USMCAVersion):
+	case engine.USMCAVersion:
 		return router.RegimeUSMCA
-	case strings.HasPrefix(v, engine.PharmaVersion):
+	case engine.PharmaVersion:
 		return router.RegimePharma
 	}
-	return RegimeGeneral
+	return ""
 }
 
 // pinned makes dispatch skip the router and use a stored label (nil: the
-// case has none; ScopeLabelMissing). For the watch re-check (#294).
+// case has none; ScopeLabelMissing, which decide always sends to review with
+// LabelMissingReason). For the watch re-check (#294).
 type pinned struct{ label *router.Label }
 
 func (a *api) specialist(regime string) Predictor {
@@ -250,6 +262,9 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 	case SpecialistFailed:
 		return domain.Triage{Route: domain.RouteNeedsReview, Reason: SpecialistUnavailableReason(d.Selected)}, false
 	}
+	if d.Scope == ScopeLabelMissing {
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: LabelMissingReason}, false
+	}
 	if d.Scope == ScopeConfiguredFailed {
 		// Scope was not established: keep the provisional prediction, never
 		// auto-accept, and skip clarify (inScope false), which would turn the
@@ -304,7 +319,10 @@ func (p *CasePredictor) Classify(ctx context.Context, c domain.Case) (Classifica
 	return Classification{Dispatch: d, Triage: tr, InScope: in}, nil
 }
 
-// Predict returns the dispatched engine result (caseagent.Predictor).
+// Predict returns the dispatched engine result (caseagent.Predictor). It
+// hides triage and whether the result is a provisional general one after a
+// specialist failure; a caller that shows or acts on the result (#319 Ask
+// what_if) must use Classify and surface Triage and Specialist.
 func (p *CasePredictor) Predict(ctx context.Context, c domain.Case) (engine.Result, error) {
 	cl, err := p.Classify(ctx, c)
 	return cl.Result, err

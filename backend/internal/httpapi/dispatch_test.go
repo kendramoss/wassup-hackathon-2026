@@ -270,13 +270,37 @@ func TestDispatchScopeStates(t *testing.T) {
 func TestPredictionRegime(t *testing.T) {
 	for v, want := range map[string]string{
 		"": "", engine.PromptVersion: RegimeGeneral, engine.PromptVersion + "+" + engine.RulesVersion: RegimeGeneral,
-		engine.TextileVersion: router.RegimeTextile, engine.USMCAVersion: router.RegimeUSMCA, engine.PharmaVersion: router.RegimePharma,
+		engine.PromptVersion + "+" + engine.RulesVersion + "+" + engine.ReasoningVersion: RegimeGeneral,
+		engine.TextileVersion: router.RegimeTextile, engine.TextileVersion2: router.RegimeTextile,
+		engine.TextileVersion + "+" + engine.RulesVersion:  router.RegimeTextile,
+		engine.TextileVersion2 + "+" + engine.RulesVersion: router.RegimeTextile,
+		engine.USMCAVersion: router.RegimeUSMCA, engine.USMCAVersion + "+" + engine.RulesVersion: router.RegimeUSMCA,
+		engine.PharmaVersion: router.RegimePharma, engine.PharmaVersion + "+" + engine.RulesVersion: router.RegimePharma,
+		// Not in the known namespace: never guessed as a regime or as general.
+		"textile-v3": "", "textile-v10": "", "textile-v1x": "", "usmca-v2": "", "pharma-v2": "", "custom": "",
+		"engine-v10": "", "engine-v1x": "",
 	} {
 		var p domain.Prediction
 		p.Trace.PromptVersion = v
 		if got := PredictionRegime(p); got != want {
 			t.Errorf("PredictionRegime(%q) = %q, want %q", v, got, want)
 		}
+	}
+}
+
+// A label-missing (legacy) pinned dispatch never auto-accepts, whatever the
+// confidence, and never claims a regime or runs clarify.
+func TestLabelMissingNeverAutoAccepts(t *testing.T) {
+	var d Deps
+	newHarnessWith(t, "substantial_transformation", func(dd *Deps) { d = *dd })
+	cp := NewCasePredictor(d)
+	got, err := cp.a.dispatch(context.Background(), domain.Case{ID: "x", Facts: "gaiters"}, nil, &pinned{})
+	if err != nil || got.Result.Prediction.Confidence < d.FastPathConf {
+		t.Fatalf("control not above the bar: %v %+v", err, got.Result.Prediction)
+	}
+	tr, in := cp.a.decide(got)
+	if tr.Route != domain.RouteNeedsReview || tr.Reason != LabelMissingReason || in {
+		t.Errorf("decide = %+v inScope %v", tr, in)
 	}
 }
 
