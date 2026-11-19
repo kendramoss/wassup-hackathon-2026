@@ -7,7 +7,7 @@ import (
 )
 
 func TestPlantIdentity(t *testing.T) {
-	same := [][2]string{{"A-B", " a-b "}, {"Zürich", "Zürich"}, {"ＡＢ plant", "ab plant"}, {"A  B", "a b"}, {"A​B", "ab"}}
+	same := [][2]string{{"A-B", " a-b "}, {"Zürich", "Zürich"}, {"ＡＢ plant", "ab plant"}, {"A  B", "a b"}, {"A\u200bB", "ab"}}
 	for _, c := range same {
 		if PlantIdentity(c[0]) != PlantIdentity(c[1]) {
 			t.Errorf("%q and %q should be the same supplier", c[0], c[1])
