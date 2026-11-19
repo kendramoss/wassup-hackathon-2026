@@ -849,6 +849,7 @@ paths:
                 properties:
                   checked: { type: integer }
                   changed: { type: array, items: { type: string } }
+                  changed_basis: { type: object, description: "Case id -> Watch.basis for each changed case; only basis precedent is a ruling change", additionalProperties: { type: string, enum: [precedent, regime, method, specialist_unavailable, unverified] } }
                   failed: { type: array, items: { type: string } }
   /v1/rulings/{id}:
     get:
@@ -1175,6 +1176,8 @@ components:
           description: Furthest workflow step reached (export once a draft has been exported)
         updated_at: { type: string, format: date-time }
         watch_status: { type: [string, "null"], enum: [unchanged, changed, null], description: null until re-checked }
+        watch_basis: { type: [string, "null"], enum: [precedent, regime, method, specialist_unavailable, unverified, null], description: "Why (Watch.basis); null until re-checked or for a watch saved without it, which is unknown, not confirmed" }
+        watch_route: { type: [string, "null"], enum: [auto, needs_review, needs_info, null], description: "Route of the watch result's triage (Watch.triage.route); null as watch_basis" }
         scenario_count: { type: integer }
         pinned: { type: boolean, description: A seeded demo case; listed first }
     Error:
@@ -1388,14 +1391,35 @@ components:
                   latency_ms: { type: integer, description: Wall time of the step }
                   actor: { type: string, format: email, description: "The signed-in user who took the step (TEAMS=on, D68); absent for anonymous visitors" }
             watch:
-              type: [object, "null"]
+              oneOf:
+                - { $ref: "#/components/schemas/Watch" }
+                - { type: "null" }
               description: null until re-checked
-              properties:
-                checked_at: { type: string, format: date-time }
-                status: { type: string, enum: [unchanged, changed] }
-                prediction: { $ref: "#/components/schemas/Prediction" }
-                newer_rulings: { type: array, description: "precedents used that are dated after the case date", items: { $ref: "#/components/schemas/PrecedentRef" } }
-                precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+    Watch:
+      type: object
+      description: |
+        The latest re-check. status is only the origin comparison. basis says whether a difference can be read as a ruling change: only basis=precedent means "the precedents moved". A watch saved before basis existed has no basis; read that as unknown, not as confirmed.
+      properties:
+        checked_at: { type: string, format: date-time }
+        status: { type: string, enum: [unchanged, changed] }
+        prediction: { $ref: "#/components/schemas/Prediction" }
+        newer_rulings: { type: array, description: "precedents used that are dated after the case date", items: { $ref: "#/components/schemas/PrecedentRef" } }
+        precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+        basis:
+          type: string
+          enum: [precedent, regime, method, specialist_unavailable, unverified]
+          description: "precedent: same regime and method, so a change is the rulings. regime: a different regime's engine answered. method: same regime, different engine prompt version. specialist_unavailable: the case's specialist engine failed and a provisional general answer was given. unverified: no stored scope label, or the stored prediction names no known engine, so it cannot be compared."
+        regime: { type: string, description: "Regime whose engine produced watch.prediction (substantial_transformation, textile_102_21, usmca_part102, pharma_api)" }
+        original_regime: { type: string, description: "Regime of the case's own prediction, from its trace; absent when unknown (never taken from the router label)" }
+        scope:
+          type: string
+          enum: [no_router, configured_failed, confirmed, label_missing]
+          description: What is known about the regime; label_missing means the case has no stored router label
+        specialist:
+          type: string
+          enum: [ok, failed, unconfigured]
+          description: Outcome of the selected specialist engine; absent when no specialist regime was selected
+        triage: { $ref: "#/components/schemas/Triage", description: "Verdict for the watch result (the same policy as the case triage; needs_review for unverified and specialist_unavailable)" }
     Clarify:
       type: object
       description: Only for in-scope cases below the fast-path bar (0.92). Never changes the predicted origin.

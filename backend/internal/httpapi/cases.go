@@ -703,6 +703,8 @@ type caseSummary struct {
 	Step        string   `json:"step"`
 	UpdatedAt   string   `json:"updated_at"`
 	Watch       *string  `json:"watch_status"` // null until re-checked; unchanged | changed
+	WatchBasis  *string  `json:"watch_basis"`  // why: store.WatchBasis*; null until re-checked or for a watch saved without provenance
+	WatchRoute  *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
 	Scenarios   int      `json:"scenario_count"`
 	Pinned      bool     `json:"pinned"`
 }
@@ -739,6 +741,13 @@ func summaryRow(c store.Case) caseSummary {
 	row := caseSummary{ID: c.ID, Date: c.Date, Step: c.Step(), UpdatedAt: c.UpdatedAt.Format(time.RFC3339), Scenarios: len(c.Scenarios), Pinned: c.Pinned}
 	if c.Watch != nil {
 		row.Watch = &c.Watch.Status
+		if c.Watch.Basis != "" {
+			row.WatchBasis = &c.Watch.Basis
+		}
+		if c.Watch.Triage != nil {
+			route := string(c.Watch.Triage.Route)
+			row.WatchRoute = &route
+		}
 	}
 	if c.Product != nil {
 		row.ProductName = c.Product.Name

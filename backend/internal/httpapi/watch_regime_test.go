@@ -401,3 +401,38 @@ func TestWatchProvenanceSurvivesGET(t *testing.T) {
 		}
 	})
 }
+
+// The cases list says why a watch is what it is, so Cases home can tell a
+// method or regime difference, or a review outcome, from a ruling change.
+// A watch saved before the provenance fields has both null.
+func TestCaseListCarriesWatchBasisAndRoute(t *testing.T) {
+	rc := regimeCases[0]
+	spec := &specialistFake{version: rc.version, origin: rc.origin}
+	hs, id, cases, _ := watchRegimeHarness(t, rc, spec, nil)
+	row := func() map[string]any {
+		_, list := hs.do(t, "GET", "/v1/cases", "")
+		return list["cases"].([]any)[0].(map[string]any)
+	}
+	if r := row(); r["watch_basis"] != nil || r["watch_route"] != nil {
+		t.Errorf("before any watch: %v", r)
+	}
+	doWatch(t, hs, id)
+	if r := row(); r["watch_status"] != "unchanged" || r["watch_basis"] != "precedent" || r["watch_route"] != "auto" {
+		t.Errorf("healthy: %v", r)
+	}
+	spec.err = errGeneralDown
+	doWatch(t, hs, id)
+	if r := row(); r["watch_basis"] != "specialist_unavailable" || r["watch_route"] != "needs_review" {
+		t.Errorf("failed: %v", r)
+	}
+	// A watch from before the provenance fields: basis and route stay null.
+	if _, err := cases.Update(context.Background(), id, func(c *store.Case) error {
+		c.Watch.Basis, c.Watch.Triage = "", nil
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if r := row(); r["watch_status"] == nil || r["watch_basis"] != nil || r["watch_route"] != nil {
+		t.Errorf("legacy watch: %v", r)
+	}
+}

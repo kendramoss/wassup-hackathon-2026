@@ -1,5 +1,6 @@
 "use client";
 
+import { watchView } from "@/lib/watch-state";
 import Link from "next/link";
 import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
@@ -23,6 +24,7 @@ function Result({ id, c, setCase }: CaseCtx) {
   const p = c.prediction ?? {};
   const target = planTarget(c);
   const route = c.triage?.route;
+  const wk = watchView(c.watch?.status, c.watch?.basis, c.watch?.triage?.route).kind;
   const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
@@ -37,7 +39,7 @@ function Result({ id, c, setCase }: CaseCtx) {
         {/* Reading order: the answer's reasons, then what would sharpen it
             (optional), then the evidence behind it, folded. */}
         <div className="flex min-w-0 flex-col gap-6">
-          {c.watch?.status === "changed" ? <WatchLine c={c} setCase={setCase} /> : null}
+          {wk === "changed" || wk === "review" ? <WatchLine c={c} setCase={setCase} /> : null}
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
               <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(conf(p.confidence)) : "Why"}</h2>
@@ -76,8 +78,8 @@ function Result({ id, c, setCase }: CaseCtx) {
                 </ul>
               </Fold>
             ) : null}
-            {c.watch?.status !== "changed" ? (
-              <Fold title="Ruling watch" meta={c.watch ? `unchanged, ${formatDate(c.watch.checked_at)}` : "not re-checked"}>
+            {wk !== "changed" && wk !== "review" ? (
+              <Fold title="Ruling watch" meta={c.watch ? `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}` : "not re-checked"}>
                 <WatchLine c={c} setCase={setCase} />
               </Fold>
             ) : null}
@@ -209,14 +211,20 @@ function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
       setBusy(false);
     }
   };
-  const changed = w?.status === "changed";
+  const view = watchView(w?.status, w?.basis, w?.triage?.route, w?.triage?.reason);
+  const changed = view.kind === "changed" || view.kind === "review";
   return (
     <section aria-label="Ruling watch" className={cx("duo text-[13px]", changed && "border border-ask-line bg-ask-wash p-3")}>
       {changed && <h3 className="eyebrow mb-1">Ruling watch</h3>}
       <p>
         {!w && <>Not re-checked against rulings after {formatDate(c.date)}.</>}
-        {w && !changed && <>Unchanged with today&apos;s rulings ({formatDate(w.checked_at)}).</>}
-        {w && changed && (
+        {w && view.kind === "unchanged" && <>Unchanged with today&apos;s rulings ({formatDate(w.checked_at)}).</>}
+        {w && view.kind === "review" && (
+          <>
+            <b className="font-medium text-ask">Needs review:</b> {view.note}{" "}
+          </>
+        )}
+        {w && view.kind === "changed" && (
           <>
             <b className="font-medium text-ask">Changed:</b> with today&apos;s rulings it&apos;s <Country name={w.prediction?.origin_country} /> ({conf(w.prediction?.confidence)}).{" "}
             {w.newer_rulings?.map((r) => (

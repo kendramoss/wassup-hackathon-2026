@@ -1,5 +1,6 @@
 "use client";
 
+import { watchView } from "@/lib/watch-state";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
@@ -265,8 +266,8 @@ function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange: (c: Ca
                 <td className="px-3.5 py-3">
                   <StatusChip route={c.triage_route} />
                 </td>
-                <td className={cx("px-3.5 py-3 text-xs", c.watch_status === "changed" ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
-                  {c.watch_status === "changed" ? "Changed" : c.watch_status === "unchanged" ? "Unchanged" : "—"}
+                <td className={cx("px-3.5 py-3 text-xs", watchOf(c).kind === "changed" || watchOf(c).kind === "review" ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
+                  {watchOf(c).label}
                 </td>
                 <td className="px-3.5 py-3">{c.scenario_count || "—"}</td>
                 <td className="px-3.5 py-3 text-dim">
@@ -346,4 +347,9 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
       )}
     </div>
   );
+}
+
+// The list row's watch reading; the same rule as the case page (watch-state).
+function watchOf(c: { watch_status: string | null; watch_basis?: string | null; watch_route?: string | null }) {
+  return watchView(c.watch_status, c.watch_basis, c.watch_route as "auto" | "needs_review" | "needs_info" | null);
 }
