@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -168,7 +167,7 @@ func agentCaseText(c store.Case) string {
 	if c.CurrentOrigin != nil && c.CurrentOrigin.Country != "" {
 		fmt.Fprintf(&b, "CBP's ruling on the current setup: %s (%s).\n", c.CurrentOrigin.Country, c.CurrentOrigin.Ruling)
 	}
-	fmt.Fprintf(&b, "\nFACTS:\n%s\n", corpus.Truncate(c.Facts, 6000))
+	fmt.Fprintf(&b, "\n%s", caseagent.FactsSection(c.Facts))
 	p := c.Prediction
 	fmt.Fprintf(&b, "\nPREDICTION: origin %s, confidence %.2f. Decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Review route: %s (%s).\n",
 		p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), c.Triage.Route, c.Triage.Reason)

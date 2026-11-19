@@ -3,6 +3,7 @@ package domain
 import (
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Plant is a site where operations can be performed.
@@ -131,6 +132,21 @@ type Case struct {
 // prompt. The research harness truncated facts at 12,000 characters.
 const MaxFactsRunes = 12000
 
+// CanonicalFacts is the one form of free-text facts that is predicted, shown,
+// stored and re-submitted: surrounding whitespace removed and exactly one
+// terminal newline, as predict feeds the engine (D20). The limit is on the
+// text itself, so the terminal newline is not counted. ok is false when the
+// text is empty or longer than MaxFactsRunes runes; callers must reject, never
+// truncate. Applying it to its own result changes nothing.
+func CanonicalFacts(s string) (facts string, runes int, ok bool) {
+	t := strings.TrimSpace(s)
+	runes = utf8.RuneCountInString(t)
+	if t == "" || runes > MaxFactsRunes {
+		return "", runes, false
+	}
+	return t + "\n", runes, true
+}
+
 // MinFactsRunes is the shortest free-text description accepted without a
 // structured product: the Step 1 form asks for more than 20 characters.
 const MinFactsRunes = 20
@@ -153,7 +169,8 @@ func (c Case) Validate() error {
 	if !c.Date.IsZero() && c.Date.After(time.Now().AddDate(0, 0, 1)) {
 		errs.add("date %s is in the future; use the case date (today or earlier)", c.Date.Format("2006-01-02"))
 	}
-	if n := len([]rune(c.Facts)); n > MaxFactsRunes {
+	// The terminal newline of canonical facts is not part of the limit.
+	if n := utf8.RuneCountInString(strings.TrimSuffix(c.Facts, "\n")); n > MaxFactsRunes {
 		errs.add("facts is %d characters; max %d", n, MaxFactsRunes)
 	}
 	if c.Product != nil {

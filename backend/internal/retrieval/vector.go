@@ -12,6 +12,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"sync"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -148,6 +149,9 @@ type Hybrid struct {
 	Vectors    *Vectors
 	Embedder   llm.Embedder
 	Candidates int
+
+	revOnce sync.Once
+	rev     string
 }
 
 // Search implements Retriever.
