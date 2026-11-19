@@ -166,7 +166,12 @@ func fromGenaiResponse(out *genai.GenerateContentResponse, requested string, lat
 		if out.PromptFeedback != nil && out.PromptFeedback.BlockReason != "" {
 			reason = "prompt blocked: " + string(out.PromptFeedback.BlockReason)
 		}
-		return Response{}, fmt.Errorf("vertex: %w: %s", ErrBadResponse, reason)
+		if len(out.Candidates) > 0 {
+			resp.FinishReason = string(out.Candidates[0].FinishReason)
+		}
+		// The provider reported usage even though the answer is unusable;
+		// return it with the error so the spend meter can charge it.
+		return resp, fmt.Errorf("vertex: %w: %s", ErrBadResponse, reason)
 	}
 	cand := out.Candidates[0]
 	resp.FinishReason = string(cand.FinishReason)
@@ -177,7 +182,8 @@ func fromGenaiResponse(out *genai.GenerateContentResponse, requested string, lat
 		case p.FunctionCall != nil:
 			args, err := json.Marshal(p.FunctionCall.Args)
 			if err != nil {
-				return Response{}, fmt.Errorf("vertex: %w: encode args of %s: %v", ErrBadResponse, p.FunctionCall.Name, err)
+				return Response{Provider: resp.Provider, ModelID: resp.ModelID, Usage: resp.Usage, FinishReason: resp.FinishReason, Latency: latency},
+					fmt.Errorf("vertex: %w: encode args of %s: %v", ErrBadResponse, p.FunctionCall.Name, err)
 			}
 			id := p.FunctionCall.ID
 			if id == "" {
