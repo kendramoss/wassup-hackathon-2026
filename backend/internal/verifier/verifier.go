@@ -3,6 +3,7 @@ package verifier
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -305,14 +306,22 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		toolErrors++
 		mu.Unlock()
 	}
-	seen := map[string]bool{} // rulings that appeared in any tool result
-	note := func(s Step, out string, found []string) {
+	// eligible holds the only identities a verdict may cite: rulings the
+	// agent retrieved directly (a search hit, or a read_ruling result) that
+	// pass the date bound and Task.Exclude. Ids that merely appear inside
+	// ruling text (cross-references) are never added.
+	eligible := map[string]bool{}
+	allow := func(ids []string) {
+		mu.Lock()
+		defer mu.Unlock()
+		for _, id := range ids {
+			eligible[id] = true
+		}
+	}
+	note := func(s Step, found []string) {
 		mu.Lock()
 		defer mu.Unlock()
 		steps = append(steps, s)
-		for _, id := range rulingRef.FindAllString(out, -1) {
-			seen[id] = true
-		}
 		tool := "search"
 		if s.Tool == "read_ruling" {
 			tool = "read"
@@ -330,7 +339,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			return toolOut{}, err
 		}
 		out := formatHits(hits)
-		note(Step{"search_rulings", a.Query}, out, hitIDs(hits))
+		allow(eligibleHits(hits, t.Before, exclude))
+		note(Step{"search_rulings", a.Query}, hitIDs(hits))
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -349,7 +359,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		if id := strings.TrimSpace(a.Ruling); out != notFound && domain.ValidRulingID(id) {
 			found = []string{id}
 		}
-		note(Step{"read_ruling", a.Ruling}, out, found)
+		allow(eligibleRead(strings.TrimSpace(a.Ruling), out, t.Before, exclude))
+		note(Step{"read_ruling", a.Ruling}, found)
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -376,7 +387,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 		} else {
 			out := formatHits(hits)
-			note(Step{"first_search", q}, out, hitIDs(hits))
+			allow(eligibleHits(hits, t.Before, exclude))
+			note(Step{"first_search", q}, hitIDs(hits))
 			message += "\n\nFIRST SEARCH (run for you, for the change between A and B):\n" + out
 		}
 	}
@@ -464,7 +476,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		if !domain.ValidRulingID(id) {
 			return ""
 		}
-		if !seen[id] {
+		if !eligible[id] || exclude[id] { // acceptance re-checks the exclusions itself
 			res.Dropped = append(res.Dropped, id)
 			return ""
 		}
@@ -488,4 +500,40 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	res.Verdict = vd
 	return res, nil
+}
+
+// eligibleHits lists the search hits a verdict may cite: well-formed ids dated
+// strictly before the bound and not excluded. A backend that ignored the
+// bound or the exclusions gets no credit for it here.
+func eligibleHits(hits []Hit, before time.Time, exclude map[string]bool) []string {
+	var ids []string
+	for _, h := range hits {
+		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && !h.Date.IsZero() && h.Date.Before(before) {
+			ids = append(ids, h.ID)
+		}
+	}
+	return ids
+}
+
+// readHeader is the "[ID | date]" line read_ruling results start with.
+var readHeader = regexp.MustCompile(`^\[([NH][0-9]{6})(?: \| ([0-9]{4}-[0-9]{2}-[0-9]{2}))?`)
+
+// eligibleRead returns the ruling a read_ruling call actually returned, if
+// any: the result's own header must name the id asked for, the id must not
+// be excluded, and a header date must be before the bound. Ids mentioned in
+// the text of the result are never eligible.
+func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []string {
+	if out == notFound || !domain.ValidRulingID(id) || exclude[id] {
+		return nil
+	}
+	m := readHeader.FindStringSubmatch(out)
+	if m == nil || m[1] != id {
+		return nil
+	}
+	if m[2] != "" {
+		if d, err := time.Parse(time.DateOnly, m[2]); err != nil || !d.Before(before) {
+			return nil
+		}
+	}
+	return []string{id}
 }
