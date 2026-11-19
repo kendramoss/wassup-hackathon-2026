@@ -1426,7 +1426,7 @@ export interface paths {
         put?: never;
         /**
          * Re-check the prediction with every precedent available today
-         * @description The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs.
+         * @description The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs. 409 `conflict` when the case's inputs (a new BOM or answers) changed during the re-check: the result is discarded, not saved (D97). In the scheduler run such a case is listed in `failed`.
          */
         post: {
             parameters: {
@@ -1450,6 +1450,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
