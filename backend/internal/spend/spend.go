@@ -30,6 +30,7 @@ type Meter struct {
 	mu    sync.Mutex
 	day   string
 	total float64 // last known total for day (this instance's view)
+	debt  float64 // spend counted locally after a failed store write; the store never saw it
 }
 
 // New returns a meter; capUSD <= 0 disables the cap (Over is always false).
@@ -49,12 +50,17 @@ func (m *Meter) Add(ctx context.Context, usd float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.day != day {
-		m.day, m.total = day, 0
+		m.day, m.total, m.debt = day, 0, 0
 	}
 	if err == nil {
-		m.total = total
+		// The store's total covers every write that reached it. Our debt is
+		// still missing from that number, so keep it on top. max also keeps
+		// spend counted by an earlier failed write whose retry landed after
+		// this one, so recovery can never lower the meter.
+		m.total = max(total+m.debt, m.total)
 	} else {
-		m.total += usd // store unavailable: keep counting locally
+		m.total += usd
+		m.debt += usd // store unavailable: keep counting locally
 	}
 }
 
@@ -69,10 +75,10 @@ func (m *Meter) Over(ctx context.Context) (bool, float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.day != day {
-		m.day, m.total = day, 0
+		m.day, m.total, m.debt = day, 0, 0
 	}
-	if err == nil && total > m.total {
-		m.total = total
+	if err == nil {
+		m.total = max(total+m.debt, m.total)
 	}
 	return m.total >= m.cap, m.total
 }

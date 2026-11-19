@@ -114,16 +114,13 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 				qty = qf
 			}
 		}
-		plantName := cell(row, "plant")
-		if plantName == "" {
-			plantName = cell(row, "country")
-		}
+		id := plantKey(cell(row, "plant"), cell(row, "country"))
 		perUnit := f * qty
 		if !finite(perUnit) {
 			warnings = append(warnings, fmt.Sprintf("row %d: unit cost times qty is too large; ignored", line))
 			continue
 		}
-		costs = append(costs, cost{group: g, plant: plantID(plantName), perUnit: perUnit})
+		costs = append(costs, cost{group: g, plant: id, perUnit: perUnit})
 	}
 	if m.AnnualUnits > 0 && m.UnitPriceUSD > 0 {
 		v := m.AnnualUnits * m.UnitPriceUSD
