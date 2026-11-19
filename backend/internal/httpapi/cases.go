@@ -1205,11 +1205,25 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 const (
 	// exportRegimeUnknownNote: the stored trace names no known engine, so the
 	// draft is the general one and says so beside the letter.
-	exportRegimeUnknownNote = "The engine that produced this prediction is not recorded, so Unde cannot tell which legal regime it was made under. This draft asks the general substantial-transformation question and is not a textile, Part 102 or pharmaceutical determination. Check which regime applies before filing."
-	// exportRegimeProvisionalNote: a specialist-labelled case whose stored
-	// prediction came from the general engine.
-	exportRegimeProvisionalNote = "This case was routed to the %s regime, but the prediction behind the requester's position came from the general engine, so it is provisional. This draft asks the general substantial-transformation question and is not a %s determination. Treat the position as provisional and have an expert review it before filing."
+	exportRegimeUnknownNote = "Legal framework not confirmed: the engine that produced this prediction is not recorded, so Unde cannot tell which legal framework it was made under. This draft asks the general substantial-transformation question and makes no textile, Part 102 marking or pharmaceutical determination. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+	// exportRegimeProvisionalNote: a specialist-labelled case whose prediction
+	// (the case's, or a plan's) came from the general engine. Not necessarily
+	// a failure: plan searches always use the general engine.
+	exportRegimeProvisionalNote = "Legal framework not confirmed: this case looks like a %s case, but the prediction behind this draft was made by Unde's general engine, not that framework's engine. (A plan search always uses the general engine; the %s engine may also have been unavailable.) This draft asks the general substantial-transformation question and makes no %s determination, so treat the requester's position as provisional. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
 )
+
+// exportRegimeLabel is a regime in words for the reviewer note.
+func exportRegimeLabel(regime string) string {
+	switch regime {
+	case router.RegimeTextile:
+		return "textile (19 CFR 102.21)"
+	case router.RegimeUSMCA:
+		return "Part 102 marking (19 CFR 102.11)"
+	case router.RegimePharma:
+		return "pharmaceutical (active ingredient)"
+	}
+	return regime
+}
 
 // exportRegime is the export regime of a prediction and, when the draft
 // needs one, a reviewer note for the unknown or provisional-general case. An
@@ -1222,7 +1236,7 @@ func exportRegime(c store.Case, p domain.Prediction) (regime, note string) {
 		return "", exportRegimeUnknownNote
 	case r == RegimeGeneral:
 		if c.Router != nil && isSpecialist(c.Router.Regime) {
-			return "", fmt.Sprintf(exportRegimeProvisionalNote, c.Router.Regime, c.Router.Regime)
+			return "", fmt.Sprintf(exportRegimeProvisionalNote, exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime), exportRegimeLabel(c.Router.Regime))
 		}
 		return "", ""
 	default:

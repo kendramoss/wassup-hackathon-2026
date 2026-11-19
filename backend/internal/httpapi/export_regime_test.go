@@ -9,6 +9,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 )
 
@@ -64,32 +65,32 @@ var (
 func TestExportRegimeMatrixThroughHandler(t *testing.T) {
 	gen := traceEngine{version: engine.PromptVersion, origin: "China"}
 	for _, tc := range []struct {
-		name         string
-		routerRegime string
-		special      traceEngine
-		want         regimeWant
-		wantNotes    []string // substrings, each must appear in some note
-		notWantNotes []string
+		name           string
+		routerRegime   string
+		special        traceEngine
+		want           regimeWant
+		wantNotes      []string // substrings, each must appear in some note
+		notWantNotes   []string
+		generalVersion string // overrides the general engine's trace
 	}{
-		{"general", "substantial_transformation", traceEngine{}, wantGeneral, nil, []string{"routed to the", "not recorded"}},
-		{"textile", router.RegimeTextile, traceEngine{version: engine.TextileVersion, origin: "Vietnam"}, wantTextile, nil, []string{"routed to the", "not recorded"}},
-		{"textile v2", router.RegimeTextile, traceEngine{version: engine.TextileVersion2 + "+rules", origin: "Vietnam"}, wantTextile, nil, []string{"not recorded"}},
-		{"usmca", router.RegimeUSMCA, traceEngine{version: engine.USMCAVersion, origin: "Mexico"}, wantUSMCA, nil, []string{"routed to the", "not recorded"}},
-		{"pharma", router.RegimePharma, traceEngine{version: engine.PharmaVersion, origin: "India"}, wantPharma, nil, []string{"routed to the", "not recorded"}},
+		{"general", "substantial_transformation", traceEngine{}, wantGeneral, nil, []string{"looks like a", "not recorded"}, ""},
+		{"textile", router.RegimeTextile, traceEngine{version: engine.TextileVersion, origin: "Vietnam"}, wantTextile, nil, []string{"looks like a", "not recorded"}, ""},
+		{"textile v2", router.RegimeTextile, traceEngine{version: engine.TextileVersion2 + "+rules", origin: "Vietnam"}, wantTextile, nil, []string{"not recorded"}, ""},
+		{"usmca", router.RegimeUSMCA, traceEngine{version: engine.USMCAVersion, origin: "Mexico"}, wantUSMCA, nil, []string{"looks like a", "not recorded"}, ""},
+		{"pharma", router.RegimePharma, traceEngine{version: engine.PharmaVersion, origin: "India"}, wantPharma, nil, []string{"looks like a", "not recorded"}, ""},
 		// Specialist labelled, specialist failed, general answered: general draft, flagged.
-		{"textile failed, provisional general", router.RegimeTextile, traceEngine{err: errors.New("down")}, wantGeneral, []string{"routed to the textile_102_21 regime", "not a textile_102_21 determination"}, nil},
-		{"usmca failed, provisional general", router.RegimeUSMCA, traceEngine{err: errors.New("down")}, wantGeneral, []string{"routed to the usmca_part102 regime", "not a usmca_part102 determination"}, nil},
-		{"pharma failed, provisional general", router.RegimePharma, traceEngine{err: errors.New("down")}, wantGeneral, []string{"routed to the pharma_api regime"}, nil},
+		{"textile failed, provisional general", router.RegimeTextile, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a textile (19 CFR 102.21) case", "makes no textile (19 CFR 102.21) determination"}, nil, ""},
+		{"usmca failed, provisional general", router.RegimeUSMCA, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a Part 102 marking (19 CFR 102.11) case", "makes no Part 102 marking (19 CFR 102.11) determination"}, nil, ""},
+		{"pharma failed, provisional general", router.RegimePharma, traceEngine{err: errors.New("down")}, wantGeneral, []string{"looks like a pharmaceutical (active ingredient) case"}, nil, ""},
 		// Unknown traces never confirm a specialist or general, whatever the router said.
-		{"unknown version under a textile label", router.RegimeTextile, traceEngine{version: "mystery-v9", origin: "Vietnam"}, wantGeneral, []string{"not recorded"}, []string{"routed to the"}},
-		{"empty version under a usmca label", router.RegimeUSMCA, traceEngine{version: "", origin: "Mexico"}, wantGeneral, []string{"not recorded"}, nil},
-		{"unknown version, general label", "substantial_transformation", traceEngine{}, wantGeneral, nil, nil}, // placeholder replaced below
+		{"unknown version under a textile label", router.RegimeTextile, traceEngine{version: "mystery-v9", origin: "Vietnam"}, wantGeneral, []string{"not recorded"}, []string{"looks like a"}, ""},
+		{"empty version under a usmca label", router.RegimeUSMCA, traceEngine{version: "", origin: "Mexico"}, wantGeneral, []string{"not recorded"}, nil, ""},
+		{"unknown version, general label", "substantial_transformation", traceEngine{}, wantGeneral, []string{"not recorded"}, nil, "mystery-v9"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			g := gen
-			if tc.name == "unknown version, general label" {
-				g = traceEngine{version: "mystery-v9", origin: "China"}
-				tc.wantNotes = []string{"not recorded"}
+			if tc.generalVersion != "" {
+				g = traceEngine{version: tc.generalVersion, origin: "China"}
 			}
 			hs := regimeHarness(t, tc.routerRegime, g, tc.special)
 			code, c := hs.do(t, "POST", "/v1/cases/predict", exportFacts)
@@ -120,6 +121,18 @@ func TestExportRegimeMatrixThroughHandler(t *testing.T) {
 				for _, w := range tc.wantNotes {
 					if !strings.Contains(notes, w) {
 						t.Errorf("%s notes missing %q: %s", format, w, notes)
+					}
+				}
+				if len(tc.wantNotes) > 0 {
+					for _, w := range []string{"Legal framework not confirmed", "The broker or counsel must select the appropriate framework", "not validated legal advice"} {
+						if !strings.Contains(notes, w) {
+							t.Errorf("%s notes missing %q: %s", format, w, notes)
+						}
+					}
+					for _, raw := range []string{"textile_102_21", "usmca_part102", "pharma_api"} {
+						if strings.Contains(notes, raw) {
+							t.Errorf("%s notes show raw identifier %q: %s", format, raw, notes)
+						}
 					}
 				}
 				for _, a := range tc.notWantNotes {
@@ -196,9 +209,68 @@ func TestExportRegimeWithoutRequestedCountry(t *testing.T) {
 	}
 }
 
-// A drafted plan's own prediction decides the regime, not the case's: the
-// planner's trace here is empty, so the draft is general with the unknown note.
-func TestExportPlanDraftUsesPlanPredictionRegime(t *testing.T) {
+// enginePlanner is the real planner's behaviour: plan variants are predicted
+// by the general engine, so each plan carries an engine-v1 trace.
+type enginePlanner struct{ *fakePlanner }
+
+func (p enginePlanner) Plan(ctx context.Context, r planner.Request) (planner.Result, error) {
+	res, err := p.fakePlanner.Plan(ctx, r)
+	for i := range res.Plans {
+		res.Plans[i].Prediction.Trace = domain.Trace{ModelID: "gemini-4-argon", PromptVersion: engine.PromptVersion}
+	}
+	return res, err
+}
+
+// A plan draft in a specialist-labelled case: the plan's own (general engine)
+// prediction decides the regime, and the note describes that honestly
+// (general planner, not a claimed failure, nothing confirmed).
+func TestExportPlanDraftInSpecialistCase(t *testing.T) {
+	for _, regime := range []string{router.RegimeTextile, router.RegimeUSMCA, router.RegimePharma} {
+		t.Run(regime, func(t *testing.T) {
+			spec := traceEngine{version: map[string]string{router.RegimeTextile: engine.TextileVersion, router.RegimeUSMCA: engine.USMCAVersion, router.RegimePharma: engine.PharmaVersion}[regime], origin: "China"}
+			hs := newHarnessWith(t, regime, func(d *Deps) {
+				d.ExportCFR177 = true
+				d.Engine = traceEngine{version: engine.PromptVersion, origin: "China"}
+				d.Planner = enginePlanner{&fakePlanner{}}
+				d.Textile, d.USMCA, d.Pharma = spec, spec, spec
+			})
+			_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+			id := c["id"].(string)
+			hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+			for _, format := range []string{"markdown", "cfr177"} {
+				code, prev := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":0,"format":"`+format+`","preview":true}`)
+				if code != 200 {
+					t.Fatalf("%s plan preview = %d %v", format, code, prev)
+				}
+				letter, notes := prev["content"].(string), joinNotes(prev)
+				// The plan's prediction (Thailand, variant facts) is the position.
+				if !strings.Contains(letter, "product of Thailand") || !strings.Contains(letter, "variant facts") && format == "cfr177" {
+					t.Errorf("%s letter is not the plan's position:\n%s", format, letter)
+				}
+				if strings.Contains(letter, "102.21") || strings.Contains(letter, "Part 102 rules") || strings.Contains(letter, "active pharmaceutical ingredient") {
+					t.Errorf("%s plan letter claims a specialist framework", format)
+				}
+				for _, w := range []string{"Legal framework not confirmed", "made by Unde's general engine", "A plan search always uses the general engine", "must select the appropriate framework"} {
+					if !strings.Contains(notes, w) {
+						t.Errorf("%s notes missing %q: %s", format, w, notes)
+					}
+				}
+				for _, bad := range []string{"failed", "not recorded", regime} {
+					if strings.Contains(notes, bad) {
+						t.Errorf("%s notes wrongly say %q: %s", format, bad, notes)
+					}
+				}
+				rcode, rec := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":0,"format":"`+format+`"}`)
+				if rcode != 200 || rec["content"] != prev["content"] || joinNotes(rec) != notes {
+					t.Errorf("%s recorded plan export differs from preview (%d)", format, rcode)
+				}
+			}
+		})
+	}
+}
+
+// A plan whose trace is empty is unknown, not general.
+func TestExportPlanDraftWithUnrecordedTrace(t *testing.T) {
 	hs := regimeHarness(t, router.RegimeTextile, traceEngine{version: engine.PromptVersion, origin: "China"}, traceEngine{version: engine.TextileVersion, origin: "Vietnam"})
 	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
 	id := c["id"].(string)
