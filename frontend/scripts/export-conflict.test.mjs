@@ -10,17 +10,18 @@ import { fileURLToPath } from "node:url";
 const client = fileURLToPath(new URL("../src/lib/api/client.ts", import.meta.url));
 const rec = fileURLToPath(new URL("../src/lib/record-export.ts", import.meta.url));
 
-function run({ status, body, previewed, pick = {}, format = "markdown" }) {
+function run({ status, body, previewed, pick = {}, format = "markdown", network = false }) {
   const code = `
     import { api } from ${JSON.stringify(client)};
     import { recordExport } from ${JSON.stringify(rec)};
     const seen = [];
     globalThis.fetch = async (url, init) => {
+      if (${network}) throw new TypeError("fetch failed");
       seen.push({ url, body: JSON.parse(init.body) });
       return new Response(JSON.stringify(${JSON.stringify(body)}), { status: ${status}, headers: { "content-type": "application/json" } });
     };
     const pick = ${JSON.stringify(pick)};
-    const r = await recordExport(() => api.exportDraft("c1", { ...pick, format: ${JSON.stringify(format)} }), ${JSON.stringify(previewed)}, pick);
+    const r = await recordExport(() => api.exportDraft("c1", { ...pick, format: ${JSON.stringify(format)} }), ${JSON.stringify(previewed)});
     console.log(JSON.stringify({ ok: r.ok, reason: r.reason, code: r.error?.code, status: r.error?.status, retryable: r.error?.retryable, message: r.error?.message, seen }));
   `;
   const r = spawnSync(process.execPath, ["--experimental-transform-types", "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
@@ -63,7 +64,8 @@ test("409 conflict is returned, retryable, with the server message", () => {
   const msg = "conflict: the case changed while this ran; the result was discarded, run it again";
   const r = run({ status: 409, body: { code: "conflict", message: msg }, previewed: LETTER });
   assert.equal(r.ok, false);
-  assert.equal(r.reason, "conflict");
+  assert.equal(r.reason, "failed");
+  assert.equal(r.code, "conflict");
   assert.equal(r.status, 409);
   assert.equal(r.retryable, true);
   assert.equal(r.message, msg);
@@ -73,14 +75,37 @@ test("chosen plan gone (400 invalid_input with a move or plan selection): held b
   const body = { code: "invalid_input", message: 'invalid input: move_key "m@th": run a plan search first' };
   const a = run({ status: 400, body, previewed: LETTER, pick: { move_key: "m@th" } });
   assert.equal(a.ok, false);
-  assert.equal(a.reason, "gone");
-  assert.equal(run({ status: 400, body, previewed: LETTER, pick: { plan_index: 0 } }).reason, "gone");
+  assert.equal(a.reason, "failed");
+  assert.equal(a.code, "invalid_input");
+  assert.match(a.message, /run a plan search first/, "the server's own message is kept");
+  assert.equal(run({ status: 400, body, previewed: LETTER, pick: { plan_index: 0 } }).ok, false);
 });
 
-test("controls: a 400 with no chosen plan, 404, 500 and network failures still let a previewed letter through (recording could not be checked)", () => {
-  assert.equal(run({ status: 400, body: { code: "invalid_input", message: "x" }, previewed: LETTER }).ok, true);
-  assert.equal(run({ status: 404, body: { code: "not_found", message: "x" }, previewed: LETTER }).ok, true);
-  assert.equal(run({ status: 500, body: { code: "internal", message: "x" }, previewed: LETTER }).ok, true);
+test("fail closed: 500, network, 404 and a 400 with no selection all hold the letter back, with the client's own error", () => {
+  for (const [status, code] of [[500, "internal"], [404, "not_found"], [400, "invalid_input"]]) {
+    const r = run({ status, body: { code, message: `server said ${status}` }, previewed: LETTER });
+    assert.equal(r.ok, false, `${status}`);
+    assert.equal(r.reason, "failed");
+    assert.equal(r.status, status);
+    assert.equal(r.code, code);
+    assert.equal(r.message, `server said ${status}`, "the real message is kept");
+  }
+  const net = run({ status: 200, body: {}, previewed: LETTER, network: true });
+  assert.equal(net.ok, false);
+  assert.equal(net.reason, "failed");
+  assert.equal(net.code, "network");
+  assert.equal(net.retryable, true);
+});
+
+test("authorization failures are held back as themselves, not relabelled as a conflict", () => {
+  for (const [status, code] of [[401, "unauthenticated"], [403, "forbidden"]]) {
+    const r = run({ status, body: { code, message: "no" }, previewed: LETTER });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, "failed");
+    assert.equal(r.code, code);
+    assert.notEqual(r.code, "conflict");
+    assert.equal(r.retryable, false, "no Retry offered for an authorization failure");
+  }
 });
 
 test("a success with no letter is not trusted", () => {

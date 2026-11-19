@@ -89,16 +89,18 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  // Recording answers with the letter as the case stands now. It must match
-  // the preview on screen; if the case changed (409, a different letter, a
-  // chosen plan that is gone) show that, drop the stale draft and do not
-  // download or print it. Compared raw, before the requester's own fields
-  // are filled in. See lib/record-export.ts for what is let through.
+  // Recording answers with the letter as the case stands now. The letter goes
+  // out only if that answer matches the preview on screen (raw content, before
+  // the requester's own fields are filled in). Anything else, including a
+  // failed recording, shows an error with the server's own message, drops the
+  // stale draft and does not download or print it. See lib/record-export.ts.
   const record = async () => {
-    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }), draft?.content ?? "", pick);
+    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }), draft?.content ?? "");
     if (r.ok) return true;
     setDrafts({});
-    setError(r.error ?? new ApiError("The case changed after this letter was drafted. Draft it again.", 409, "conflict", true));
+    if (r.reason === "failed" && r.error) setError(r.error);
+    else if (r.reason === "changed") setError(new ApiError("The case changed after this letter was drafted. Draft it again.", 409, "conflict", true));
+    else setError(new ApiError("Couldn't confirm this letter is current. Try again.", 0, "internal", true));
     return false;
   };
 
