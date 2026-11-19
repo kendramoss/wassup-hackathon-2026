@@ -2,12 +2,11 @@
 // three figures; each only does work while it is near the viewport, and
 // with prefers-reduced-motion every figure shows its state without tweening.
 import { copy } from "@/lib/copy";
+import { ARRIVE, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
 import { createHeatGun, type Country } from "./heat-gun";
 
 const L = copy.landing;
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const ease = (t: number) => t * t * (3 - 2 * t);
-const ramp = (p: number, a: number, b: number) => ease(clamp01((p - a) / (b - a)));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const SVGNS = "http://www.w3.org/2000/svg";
 const ruling = (id: string) => {
@@ -34,15 +33,15 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
 
   // ---- the stage -------------------------------------------------------------
   // Wide screens pin one stage and move its three panes sideways as the page
-  // scrolls down (D93). Scroll is native: the page position, in screens past
-  // the stage's top, is split into the figures' phases below. Phones stack
-  // the panes and each figure keeps its own scroll progress.
-  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), hzfill = $("hzfill");
+  // scrolls down (D93). Each wheel gesture steps to one settled stop; the page
+  // position, in screens past the stage's top, drives the figures below.
+  // Phones stack the panes and each figure keeps its own scroll progress.
+  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), hzfill = $("hzfill"), scroller = $("scroller");
   const panes = [...track.children] as HTMLElement[];
   // Screens of scroll: fig.1 plays over 0–4, slides to fig.2 over 4–5.5,
   // fig.2 fills over 5.3–7.5, slides to fig.3 over 7.5–9, fig.3 settles
-  // over 8.9–10.5 and holds on the way into the cases until 11.
-  const SCREENS = 11, ARRIVE = [0, 5.5, 10.6];
+  // over 8.9–10.5 and holds on the way into the cases until 11. The stops
+  // (in timeline.ts) land on phase 1 and on finished figures.
   const horizontal = () => wide();
   // The pin sticks once the stage's top reaches the AppBar, so progress
   // counts from there.
@@ -52,25 +51,97 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   // Panes moved so far: eased while scrolling, a cut with reduced motion.
   const slid = () => {
     const P = at();
-    return reduce ? (P >= 4.75 ? 1 : 0) + (P >= 8.25 ? 1 : 0) : ramp(P, 4, 5.5) + ramp(P, 7.5, 9);
+    return reduce ? (P >= 4.75 ? 1 : 0) + (P >= 8.25 ? 1 : 0) : paneAt(P);
   };
-  const goTo = (i: number, smooth: boolean) =>
-    scrollTo({ top: hz.getBoundingClientRect().top + scrollY - barH() + (ARRIVE[i] / SCREENS) * travel(), behavior: smooth && !reduce ? "smooth" : "instant" });
+  // A programmatic jump is "seeking" for the heat gun: its phase follows the
+  // scroll exactly, so a step lands on a settled state. fig.2 and fig.3 instead
+  // replay their own animation over time once their stop is reached.
+  let seekTarget: number | null = null, seekUntil = 0;
+  let arrival: { pane: 2 | 3; start: number; duration: number } | null = null;
+  // The pin fills the screen below the AppBar. Nudge the target so the
+  // pane's main element sits in the middle of that stage, not against an edge.
+  const centerFix = (paneIndex: number) => {
+    if (!horizontal() || hz.getBoundingClientRect().top > barH() + 2) return 0;
+    const main = panes[paneIndex]?.querySelector<HTMLElement>(".sheet, .stage, .test");
+    if (!main) return 0;
+    const r = main.getBoundingClientRect();
+    return r.top + r.height / 2 - (barH() + (innerHeight - barH()) / 2);
+  };
+  const goTo = (progress: number, smooth: boolean) => {
+    // On phones the panes stack, so a phase stop maps onto fig.1's own sticky
+    // scroller rather than the wide stage's single 11-screen timeline.
+    const r = horizontal() ? null : scroller.getBoundingClientRect();
+    const top = r
+      ? scrollY + r.top + clamp01(progress / 4) * Math.max(1, r.height - innerHeight)
+      : hz.getBoundingClientRect().top + scrollY - barH() + (progress / SCREENS) * travel() + centerFix(Math.round(paneAt(progress)));
+    seekTarget = top;
+    seekUntil = performance.now() + 2500;
+    const now = performance.now();
+    const pane = arrivalFor(progress);
+    arrival = pane === null ? null : { pane, start: now, duration: pane === 2 ? 2800 : 3400 };
+    scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
+  };
   const hzgo = $$<HTMLButtonElement>("hzgo");
-  const onGo = (e: Event) => goTo(Number((e.currentTarget as HTMLElement).dataset.i), true);
+  const onGo = (e: Event) => goTo(ARRIVE[Number((e.currentTarget as HTMLElement).dataset.i)], true);
   hzgo.forEach((b) => b.addEventListener("click", onGo));
+  // One input step advances one stop — the four heat-gun phases, then fig.2
+  // and fig.3. From the hero the first down step goes straight to the heat gun;
+  // one more down goes to the page bottom, one more up to the page top.
+  const step = (dir: number) => {
+    const dest = nextDestination(at(), dir > 0 ? 1 : -1);
+    if (dest.kind === "stop") {
+      goTo(dest.progress, true);
+      return true;
+    }
+    // One more down from fig.3 takes in the whole rest of the page; one more
+    // up from the heat gun returns to the very top.
+    const top = dest.kind === "bottom" ? document.documentElement.scrollHeight : 0;
+    if (Math.abs(scrollY - top) < 2) return false;
+    seekTarget = top;
+    seekUntil = performance.now() + 2500;
+    arrival = null;
+    scrollTo({ top, behavior: reduce ? "instant" : "smooth" });
+    return true;
+  };
+  let lastWheel = 0;
+  const onWheel = (e: WheelEvent) => {
+    if (!horizontal()) return;
+    const dir = Math.sign(e.deltaY);
+    if (!dir) return;
+    const now = performance.now();
+    // A trackpad flick emits a burst of events; count it as one gesture.
+    const burst = now - lastWheel < 220;
+    lastWheel = now;
+    if (burst) { e.preventDefault(); return; }
+    if (step(dir)) e.preventDefault();
+  };
+  window.addEventListener("wheel", onWheel, { passive: false });
+  let lastKey = 0;
+  const onKey = (e: KeyboardEvent) => {
+    if (!horizontal()) return;
+    const t = e.target as HTMLElement | null;
+    if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
+    const forward = e.key === "ArrowDown" || e.key === "PageDown" || e.key === " " || e.key === "Spacebar";
+    const back = e.key === "ArrowUp" || e.key === "PageUp";
+    if (!forward && !back) return;
+    const now = performance.now();
+    if (now - lastKey < 220) { e.preventDefault(); return; } // key repeat
+    lastKey = now;
+    if (step(forward ? 1 : -1)) e.preventDefault();
+  };
+  window.addEventListener("keydown", onKey);
   // Tabbing into a pane that is off to the side brings it into view; the pin
   // clips sideways, so the browser would otherwise scroll it on its own.
   const onFocus = (e: FocusEvent) => {
     if (!horizontal()) return;
     hzpin.scrollLeft = 0;
     const i = panes.findIndex((p) => p.contains(e.target as Node));
-    if (i >= 0 && Math.round(slid()) !== i) goTo(i, false);
+    if (i >= 0 && Math.round(slid()) !== i) goTo(ARRIVE[i], false);
   };
   track.addEventListener("focusin", onFocus);
 
   // ---- fig.1 ----------------------------------------------------------------
-  const scroller = $("scroller"), gunSheet = $("gunsheet");
+  const gunSheet = $("gunsheet");
   let gun: ReturnType<typeof createHeatGun> | null = null;
   try {
     gun = createHeatGun({ canvas: $<HTMLCanvasElement>("canvas"), labels: $("labels"), leaders: $<SVGSVGElement>("leaders"), flag, reduce });
@@ -238,6 +309,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   function frame(now_: number) {
     const dt = Math.min(0.05, (now_ - last) / 1000);
     last = now_;
+    const seeking = seekTarget !== null && now_ < seekUntil && Math.abs(scrollY - seekTarget) > 2;
+    if (seekTarget !== null && (!seeking || now_ >= seekUntil)) seekTarget = null;
     const s = horizontal() ? slid() : 0;
     if (horizontal()) {
       track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;
@@ -246,11 +319,11 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     } else track.style.transform = "";
     if (near(gunSheet) && s < 1) {
       const p = fig1Progress();
-      shown1 = reduce ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
+      shown1 = reduce || seeking ? p : shown1 + (p - shown1) * (1 - Math.exp(-dt * 7));
       const ex = ramp(shown1, 0.12, 0.36) - ramp(shown1, 0.8, 0.95);
       const mvv = ramp(shown1, 0.46, 0.7);
       const cbpv = ramp(shown1, 0.74, 0.82); // anything else CBP's 2026 change moved (none drawn now), while still exploded (reassembly starts at 0.8)
-      const step = shown1 < 0.2 ? 0 : shown1 < 0.44 ? 1 : shown1 < 0.76 ? 2 : 3;
+      const step = stepAt(shown1);
       caps.forEach((c, i) => (c.hidden = i !== step));
       tbstate.textContent = L.sheetStates[step];
       setStamp(shown1 > 0.76);
@@ -258,12 +331,17 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
       gun?.frame(ex, mvv, dt, (now_ - start) / 1000, cbpv);
     }
     if (near(f2) && (!horizontal() || (s > 0.2 && s < 1.8))) {
-      const p = fig2Progress();
-      shown2 = reduce ? p : shown2 + (p - shown2) * 0.15;
+      // On arrival, replay the four sheets one by one on a slow clock instead
+      // of snapping to the end of their scroll-driven animation.
+      const a2 = arrival !== null && arrival.pane === 2 && now_ - arrival.start < arrival.duration ? arrival : null;
+      const p = a2 ? ease(clamp01((now_ - a2.start) / a2.duration)) : fig2Progress();
+      shown2 = reduce || a2 !== null ? p : shown2 + (p - shown2) * 0.15;
       layoutF2(reduce ? 1 : shown2);
     }
     if (near(f3) && (!horizontal() || s > 1.2)) {
-      const t = reduce ? 1 : fig3Progress();
+      // Same for fig.3: an eased, unhurried settle into the centred grid.
+      const a3 = arrival !== null && arrival.pane === 3 && now_ - arrival.start < arrival.duration ? arrival : null;
+      const t = reduce ? 1 : a3 ? ease(clamp01((now_ - a3.start) / a3.duration)) : fig3Progress();
       if (Math.abs(t - t3) > 0.001) {
         t3 = t;
         drawRuler(t);
@@ -287,6 +365,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     barRo.disconnect();
     track.removeEventListener("focusin", onFocus);
     hzgo.forEach((b) => b.removeEventListener("click", onGo));
+    window.removeEventListener("wheel", onWheel);
+    window.removeEventListener("keydown", onKey);
     gun?.dispose();
     field.replaceChildren();
     wires.forEach((w) => {
