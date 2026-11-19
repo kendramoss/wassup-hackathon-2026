@@ -1094,8 +1094,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	if c.Product != nil {
 		name = c.Product.Name
 	}
-	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction,
-		Textile: c.Router != nil && c.Router.Regime == router.RegimeTextile}
+	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
@@ -1157,14 +1156,24 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	// The letter's regime is the one that produced the prediction behind the
+	// requester's position (the plan's, when one is drafted), read from its
+	// stored trace; never the router's label, which a specialist failure
+	// leaves pointing at an engine that did not answer.
+	regimeNote := ""
+	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
 	content := export.Markdown(ex)
 	if format == formatCFR177 {
 		content = export.CFR177(ex)
 	}
+	notes := export.Notes(ex, format == formatCFR177)
+	if regimeNote != "" {
+		notes = append(notes, regimeNote)
+	}
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
-		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
+		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
 		return
 	}
 	now := time.Now().UTC()
@@ -1190,7 +1199,35 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": export.Notes(ex, format == formatCFR177)})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
+}
+
+const (
+	// exportRegimeUnknownNote: the stored trace names no known engine, so the
+	// draft is the general one and says so beside the letter.
+	exportRegimeUnknownNote = "The engine that produced this prediction is not recorded, so Unde cannot tell which legal regime it was made under. This draft asks the general substantial-transformation question and is not a textile, Part 102 or pharmaceutical determination. Check which regime applies before filing."
+	// exportRegimeProvisionalNote: a specialist-labelled case whose stored
+	// prediction came from the general engine.
+	exportRegimeProvisionalNote = "This case was routed to the %s regime, but the prediction behind the requester's position came from the general engine, so it is provisional. This draft asks the general substantial-transformation question and is not a %s determination. Treat the position as provisional and have an expert review it before filing."
+)
+
+// exportRegime is the export regime of a prediction and, when the draft
+// needs one, a reviewer note for the unknown or provisional-general case. An
+// unrecognised trace is rendered as the general draft with a note rather than
+// blocked: the letter then makes no specialist claim, and older stored cases
+// and demos without a recorded engine stay exportable.
+func exportRegime(c store.Case, p domain.Prediction) (regime, note string) {
+	switch r := PredictionRegime(p); {
+	case r == "":
+		return "", exportRegimeUnknownNote
+	case r == RegimeGeneral:
+		if c.Router != nil && isSpecialist(c.Router.Regime) {
+			return "", fmt.Sprintf(exportRegimeProvisionalNote, c.Router.Regime, c.Router.Regime)
+		}
+		return "", ""
+	default:
+		return r, ""
+	}
 }
 
 // draftablePlan finds a plan by move key: any shown plan, or a rejected plan
