@@ -52,7 +52,7 @@ func TestUSMCARegime(t *testing.T) {
 		{name: "fast path 0: always review", regime: "usmca_part102", eng: &usmcaEngine{conf: 0.97}, origin: "Mexico", route: "needs_review", prefix: triage.USMCAPrefix, engRuns: 1},
 		{name: "above the bar: auto", regime: "usmca_part102", eng: &usmcaEngine{conf: 0.97}, fast: 0.9, origin: "Mexico", route: "auto", prefix: triage.USMCAPrefix, engRuns: 1},
 		{name: "below the bar: review", regime: "usmca_part102", eng: &usmcaEngine{conf: 0.97}, fast: 0.99, origin: "Mexico", route: "needs_review", prefix: triage.USMCAPrefix, engRuns: 1},
-		{name: "engine error: out of scope", regime: "usmca_part102", eng: &usmcaEngine{err: errors.New("boom")}, fast: 0.9, origin: "China", route: "needs_review", prefix: "out of scope", engRuns: 1},
+		{name: "engine error: specialist unavailable, provisional general", regime: "usmca_part102", eng: &usmcaEngine{err: errors.New("boom")}, fast: 0.9, origin: "China", route: "needs_review", prefix: "specialist unavailable", engRuns: 1},
 		{name: "other regimes never reach it", regime: "substantial_transformation", eng: &usmcaEngine{conf: 0.97}, fast: 0.9, origin: "China", prefix: "confidence"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

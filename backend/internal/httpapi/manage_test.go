@@ -229,7 +229,7 @@ func TestPharmaRegime(t *testing.T) {
 		{"no bar: review", "pharma_api", pharmaEngine{conf: 0.97}, 0, "India", "needs_review", triage.PharmaPrefix, engine.PharmaVersion},
 		{"above the bar: auto", "pharma_api", pharmaEngine{conf: 0.97}, 0.95, "India", "auto", triage.PharmaPrefix, engine.PharmaVersion},
 		{"below the bar: review", "pharma_api", pharmaEngine{conf: 0.97}, 0.99, "India", "needs_review", triage.PharmaPrefix, engine.PharmaVersion},
-		{"engine error: out of scope", "pharma_api", pharmaEngine{err: errors.New("model down")}, 0.95, "China", "needs_review", "out of scope", "engine-v1"},
+		{"engine error: specialist unavailable, provisional general", "pharma_api", pharmaEngine{err: errors.New("model down")}, 0.95, "China", "needs_review", "specialist unavailable", "engine-v1"},
 		{"other regime untouched", "substantial_transformation", pharmaEngine{conf: 0.97}, 0.95, "China", "auto", "confidence", "engine-v1"},
 	}
 	for _, tt := range tests {

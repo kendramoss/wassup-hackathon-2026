@@ -411,92 +411,17 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 // failed. It does not say the case is out of scope, nor that it is in scope.
 const ScopeUnavailableReason = "scope unavailable: the scope router failed, so the legal regime is not confirmed; an expert reviews"
 
-// classify runs router and engine concurrently and decides triage. The router
-// labels scope only; it never changes the engine's answer. st, when set, is
-// told each step as it runs (nil: not reported); it never changes the result.
+// classify dispatches (router and engine, see dispatch) and decides triage.
+// The router labels scope only; it never changes an engine's answer. st, when
+// set, is told each step as it runs (nil: not reported); it never changes the
+// result.
 func (a *api) classify(ctx context.Context, c domain.Case, st *stages) (domain.Prediction, *router.Label, domain.Triage, bool, error) {
-	var label *router.Label
-	// scopeUnavailable is set only when a configured router failed. It is not
-	// the same as label == nil with no router configured (unchanged behaviour).
-	scopeUnavailable := false
-	var wg sync.WaitGroup
-	if a.d.Router != nil {
-		wg.Add(1)
-		st.begin("router")
-		go func() {
-			defer wg.Done()
-			defer st.end("router") // a failed router is done too: scope unknown
-			l, err := a.d.Router.Classify(ctx, c.Facts)
-			if err != nil {
-				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
-				scopeUnavailable = true // read after wg.Wait
-				return
-			}
-			label = &l
-		}()
-	}
-	ectx := ctx
-	if st != nil {
-		ectx = engine.WithProgress(ctx, st.engineProgress)
-	}
-	res, err := a.d.Engine.Predict(ectx, c)
-	if err == nil {
-		st.end(engine.StageEngine) // a cached prediction reports no stages of its own
-	}
-	wg.Wait()
+	d, err := a.dispatch(ctx, c, st, nil)
 	if err != nil {
 		return domain.Prediction{}, nil, domain.Triage{}, false, err
 	}
-	if label != nil && label.Regime == router.RegimeTextile && a.d.Textile != nil {
-		// The textile engine reports its own precedents and engine stages
-		// again; settle closes them if it fails (the engine's answer stands).
-		tres, err := a.d.Textile.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope, but clarify (substantial transformation) does not apply
-			tr := triage.Textile(tres.Prediction, a.d.TextileFastPath)
-			if triage.AnsweredByFallback(tres.Prediction.Trace.ModelID, a.d.EngineModel) {
-				tr = triage.Fallback(tres.Prediction, a.d.FallbackFastPath, true, "")
-			}
-			return tres.Prediction, label, tr, false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "textile engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	// The USMCA and pharma engines report their stages as textile does.
-	if label != nil && label.Regime == router.RegimeUSMCA && a.d.USMCA != nil {
-		ures, err := a.d.USMCA.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope, but clarify (substantial transformation) does not apply
-			return ures.Prediction, label, triage.USMCA(ures.Prediction, a.d.USMCAFastPath), false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "USMCA engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	if label != nil && label.Regime == router.RegimePharma && a.d.Pharma != nil {
-		pres, err := a.d.Pharma.Predict(ectx, c)
-		st.settle()
-		if err == nil { // in scope; clarify is skipped, as for textile (not evaluated on this regime)
-			return pres.Prediction, label, triage.Pharma(pres.Prediction, a.d.PharmaFastPath), false, nil
-		}
-		a.d.Logger.WarnContext(ctx, "pharma engine failed; treating as out of scope", "request_id", RequestID(ctx), "err", err)
-	}
-	if scopeUnavailable {
-		// Scope was not established: keep the provisional prediction, never
-		// auto-accept, and skip clarify (inScope false), which would turn the
-		// review into questions as if the case were known to be in scope.
-		return res.Prediction, nil, domain.Triage{Route: domain.RouteNeedsReview, Reason: ScopeUnavailableReason}, false, nil
-	}
-	inScope, scopeReason, subfamily := true, "", ""
-	if label != nil {
-		inScope, scopeReason = label.Scope()
-		subfamily = label.Subfamily
-	}
-	if a.d.FamilyBars != nil {
-		return res.Prediction, label, triage.DecideByFamily(res.Prediction, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope, nil
-	}
-	tr := triage.Decide(res.Prediction, a.d.FastPathConf, inScope, scopeReason)
-	if triage.AnsweredByFallback(res.Prediction.Trace.ModelID, a.d.EngineModel) {
-		tr = triage.Fallback(res.Prediction, a.d.FallbackFastPath, inScope, scopeReason)
-	}
-	return res.Prediction, label, tr, inScope, nil
+	tr, inScope := a.decide(d)
+	return d.Result.Prediction, d.Label, tr, inScope, nil
 }
 
 // analyse runs router and engine (concurrently), triage and, below the fast
