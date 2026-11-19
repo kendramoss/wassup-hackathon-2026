@@ -546,6 +546,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	if a.refuseDemoEdit(w, r, sc) {
 		return
 	}
+	fp := inputFingerprint(sc)
 	var in answersRequest
 	if err := decode(w, r, &in); err != nil {
 		a.fail(w, r, err)
@@ -584,9 +585,17 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	ev := predictionEvent("answered", sc, start)
 	ev.Summary = fmt.Sprintf("%d answer(s) added; ", len(in.Answers)) + ev.Summary
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
+		// New BOM or other input changes while this ran: the answers were
+		// appended to old facts, so discard rather than overwrite.
+		if err := stillCurrent(latest, fp); err != nil {
+			return err
+		}
 		latest.OriginalFacts, latest.Answers = sc.OriginalFacts, sc.Answers
 		latest.Facts, latest.UpdatedAt = sc.Facts, sc.UpdatedAt
 		latest.Prediction, latest.Router, latest.Triage, latest.Clarify = sc.Prediction, sc.Router, sc.Triage, sc.Clarify
+		// The plan, comparison, watch and draft came from the old facts
+		// (every accepted answer adds a fact); scenarios and history stay.
+		clearDerived(latest)
 		record(r.Context(), latest, ev)
 		return nil
 	})

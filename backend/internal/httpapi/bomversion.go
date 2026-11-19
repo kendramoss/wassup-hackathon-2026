@@ -180,7 +180,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		// the case goes back to the origin step (the history keeps them);
 		// scenarios are the user's own setups and stay.
 		latest.Answers, latest.OriginalFacts = nil, ""
-		latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
+		clearDerived(latest)
 		// CBP's ruling was on the previous BOM. Kept, a plan search would tell
 		// the verifier CBP had ruled on this product (D17), scenarios would
 		// start from it and the draft would cite it.
@@ -233,6 +233,13 @@ func bomUpload(w http.ResponseWriter, r *http.Request) (io.ReadCloser, bool, err
 		return nil, false, fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
 	return io.NopCloser(strings.NewReader(in.CSV)), in.Apply, nil
+}
+
+// clearDerived drops what was worked out from the previous facts: the plan
+// search, the target comparison, the watch and the export mark. History and
+// the user's own scenarios stay.
+func clearDerived(latest *store.Case) {
+	latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
 }
 
 // errSuperseded means the case's inputs changed (a new BOM, new answers)
