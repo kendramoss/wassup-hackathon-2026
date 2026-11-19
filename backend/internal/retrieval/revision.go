@@ -6,8 +6,6 @@ import (
 	"encoding/hex"
 	"math"
 	"sort"
-
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
 // Revisioned is implemented by retrievers that can name the exact evidence
@@ -27,28 +25,13 @@ func RevisionOf(r Retriever) string {
 	return ""
 }
 
-// WithRevision records the corpus revision (corpus.Store.Revision(), the
-// single canonical hash of every effective evidence field) of the store idx
-// was built from. The index may cover only part of that store or carry
-// reasoning attached afterwards, so the reported revision also folds in the
-// indexed ruling ids and their Reasoning; the corpus hash itself is not
-// recomputed. An empty storeRev leaves idx unversioned (Revision "").
-func (idx *BM25) WithRevision(storeRev string) *BM25 {
-	if storeRev == "" {
-		idx.rev = ""
-		return idx
-	}
-	docs := make([]domain.Ruling, len(idx.docs))
-	copy(docs, idx.docs)
-	sort.Slice(docs, func(i, j int) bool { return docs[i].ID < docs[j].ID })
-	h := sha256.New()
-	writeField(h, "bm25/v1")
-	writeField(h, storeRev)
-	for _, d := range docs {
-		writeField(h, d.ID)
-		writeField(h, d.Reasoning)
-	}
-	idx.rev = hex.EncodeToString(h.Sum(nil))
+// WithRevision records the revision of the exact rulings idx was built
+// from. Pass corpus.RevisionOf(rulings) over the same slice given to NewBM25
+// (the single canonical producer, #317; it covers every field the index and
+// prompt read, including Reasoning attached by WithReasoning). It is stored
+// verbatim: no hashing happens here. An empty rev leaves idx unversioned.
+func (idx *BM25) WithRevision(rev string) *BM25 {
+	idx.rev = rev
 	return idx
 }
 

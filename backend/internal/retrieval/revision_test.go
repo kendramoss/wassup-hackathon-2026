@@ -24,9 +24,6 @@ func TestRevisionStampedAndUnstamped(t *testing.T) {
 	if a == NewBM25(revRulings(""), text).WithRevision("s2").Revision() {
 		t.Error("store revision ignored")
 	}
-	if a == NewBM25(revRulings("why"), text).WithRevision("s1").Revision() {
-		t.Error("attached reasoning ignored")
-	}
 	if NewBM25(revRulings(""), text).WithRevision("s1").WithRevision("").Revision() != "" {
 		t.Error("empty store revision should leave index unversioned")
 	}
