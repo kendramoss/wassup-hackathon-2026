@@ -136,6 +136,9 @@ type Deps struct {
 	// DutyAdd adds Chapter 99 duties to live MFN rates (Section 301, D90);
 	// nil adds none.
 	DutyAdd *duty.Adder
+	// Now is the clock for exclusion end dates: read once per pricing
+	// request, as a UTC instant. Nil: the real clock.
+	Now func() time.Time
 	// Textile, when set, predicts cases the router labels textile_102_21
 	// under 19 CFR 102.21 instead of leaving them out of scope (D51).
 	// TextileFastPath is its auto-accept bar; 0 sends every textile case to
@@ -845,9 +848,9 @@ func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetc
 		return planner.Request{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ := in.Economics
-	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
-		econ = *c.Economics
+	econ, err := effectiveEconomics(in.Economics, c.Economics) // omitted: the case's latest
+	if err != nil {
+		return planner.Request{}, err
 	}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
 	req := planner.Request{
@@ -914,6 +917,11 @@ func (a *api) priced(ctx context.Context, e planner.Economics, p *domain.Product
 	if a.d.Duty == nil || p == nil || p.HTS == "" || e.AnnualImportValueUSD <= 0 {
 		return e
 	}
+	if _, err := duty.ParseHTS(p.HTS); err != nil {
+		// Malformed: no table, live or auto fill, and say so.
+		e.DutyRatesNote = joinNote(e.DutyRatesNote, invalidHTSNote)
+		return e
+	}
 	if _, ok := a.d.Duty.Line(p.HTS); !ok {
 		return a.pricedLive(ctx, e, p.HTS, origins, fetch)
 	}
@@ -948,7 +956,9 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 		}
 		return e
 	}
-	rates, filled, extras, check := m.FillWith(e.DutyRates, origins, a.d.DutyAdd)
+	asOf := a.asOf() // one instant for every origin of this request
+	fr := m.FillWithAsOf(e.DutyRates, origins, a.d.DutyAdd, asOf)
+	rates, filled, extras, check := fr.Rates, fr.Filled, fr.Extras, fr.Check
 	if len(filled) > 0 {
 		e.DutyRates, e.DutyRatesLiveMFN = rates, filled
 	}
@@ -960,8 +970,17 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 	} else {
 		e.DutyRatesNote = joinNote(e.DutyRatesNote, m.FillNote(filled))
 	}
-	e.DutyRatesNote = joinNote(e.DutyRatesNote, additionalNote(a.d.DutyAdd, extras, check))
+	e.DutyRatesNote = joinNote(e.DutyRatesNote, additionalNote(a.d.DutyAdd, extras, check, fr.Expired, asOf))
 	return e
+}
+
+// asOf is the current UTC instant from the injected clock; a nil clock is
+// the real one, so date filtering is never switched off.
+func (a *api) asOf() time.Time {
+	if a.d.Now == nil {
+		return time.Now().UTC()
+	}
+	return a.d.Now().UTC()
 }
 
 // missingRate reports whether any of origins has no duty rate (column 2 and
@@ -1386,9 +1405,11 @@ func (a *api) verifierVersion() string {
 }
 
 // additionalNote says which Chapter 99 duties were added to live MFN rates,
-// and which product exclusions the user should check (D90).
-func additionalNote(add *duty.Adder, extras map[string][]duty.Extra, check map[string][]duty.Exclusion) string {
-	if add == nil || (len(extras) == 0 && len(check) == 0) {
+// which product exclusions the user should check, and which stored ones had
+// ended by the as-of date (D90). Exclusions are never applied. An expired one
+// is historical metadata only: the note makes no statement about extensions.
+func additionalNote(add *duty.Adder, extras map[string][]duty.Extra, check, expired map[string][]duty.Exclusion, asOf time.Time) string {
+	if add == nil || (len(extras) == 0 && len(check) == 0 && len(expired) == 0) {
 		return ""
 	}
 	var parts []string
@@ -1405,7 +1426,20 @@ func additionalNote(add *duty.Adder, extras map[string][]duty.Extra, check map[s
 	}
 	for _, o := range sortedKeys(check) {
 		for _, x := range check[o] {
-			n += fmt.Sprintf(" A product exclusion may apply for %s (%s, until %s): %s. Not applied; check whether it covers this product.", o, x.Heading, x.EndDate, x.Description)
+			if x.Status == duty.StatusReview {
+				n += fmt.Sprintf(" A product exclusion for %s (%s) has an end date that could not be read: %s. Not applied; confirm its dates before relying on it.", o, x.Heading, strings.TrimSpace(x.Description))
+				continue
+			}
+			until := ""
+			if x.EndDate != "" { // conditional exemptions carry no end date
+				until = ", until " + x.EndDate
+			}
+			n += fmt.Sprintf(" A product exclusion may apply for %s (%s%s): %s. Not applied; check whether it covers this product.", o, x.Heading, until, x.Description)
+		}
+	}
+	for _, o := range sortedKeys(expired) {
+		for _, x := range expired[o] {
+			n += fmt.Sprintf(" Stored product exclusion for %s (%s, %s) is historical, not applicable as of %s per the embedded end date (%s); this makes no statement about any later extension. Not applied.", o, x.Heading, x.Description, asOf.UTC().Format(time.DateOnly), x.EndDate)
 		}
 	}
 	return strings.TrimSpace(n)

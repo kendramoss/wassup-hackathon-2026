@@ -81,6 +81,45 @@ type Exclusion struct {
 	WholeSubheading bool   `json:"whole_subheading"`
 	Description     string `json:"description"`
 	EndDate         string `json:"end_date"`
+	// Status is set on output only: "" (valid on the as-of date), "expired"
+	// (its stored end_date is before the as-of date; historical only) or
+	// "review" (no readable end_date or as-of date; confirm before relying).
+	Status string `json:"status,omitempty"`
+}
+
+// Exclusion statuses.
+const (
+	StatusExpired = "expired"
+	StatusReview  = "review"
+)
+
+// exclusionEndLayout is the stored end_date format (additional.json).
+const exclusionEndLayout = "2006-01-02"
+
+// exclusionStatus classifies e on the UTC calendar date of asOf. An exclusion
+// is valid through its end_date (D90: "until 9 Nov 2026"), so the end date
+// itself is still valid. An unreadable end_date or a zero asOf is "review".
+func exclusionStatus(e Exclusion, asOf time.Time) string {
+	end, err := time.Parse(exclusionEndLayout, e.EndDate)
+	if err != nil || asOf.IsZero() {
+		return StatusReview
+	}
+	y, m, d := asOf.UTC().Date()
+	if time.Date(y, m, d, 0, 0, 0, 0, time.UTC).After(end) {
+		return StatusExpired
+	}
+	return ""
+}
+
+// AsOfResult is the outcome of ForAsOf.
+type AsOfResult struct {
+	Extras []Extra
+	// MayExclude are exclusions valid on the date, plus "review" ones;
+	// they are reported, never applied.
+	MayExclude []Exclusion
+	// Expired are stored exclusions whose end date had passed: historical,
+	// not applicable now. Nothing is said about whether they were extended.
+	Expired []Exclusion
 }
 
 // Extra is one additional duty that applies.
@@ -96,20 +135,39 @@ type Adder struct {
 	lists   []map[string]bool
 	country map[string][]int // origin → indices into file.Country
 	exempt  []map[string]bool
-	cond    []map[string][]ConditionalExempt // per country duty: subheading → exemptions
-	whole   map[string]map[string]bool       // heading → excluded subheadings
-	partial map[string][]Exclusion           // subheading → described-product exclusions
+	cond    []map[string][]ConditionalExempt  // per country duty: subheading → exemptions
+	whole   map[string]map[string][]Exclusion // heading → subheading → whole-subheading exclusions
+	now     func() time.Time                  // default as-of clock for For; nil = no expiry filtering
+	partial map[string][]Exclusion            // subheading → described-product exclusions
 }
 
 // LoadAdditional reads the embedded additional duties.
-func LoadAdditional() (*Adder, error) { return parseAdditional(additionalJSON) }
+// Its For method uses the real clock; use WithClock to inject another.
+func LoadAdditional() (*Adder, error) {
+	a, err := parseAdditional(additionalJSON)
+	if err != nil {
+		return nil, err
+	}
+	a.now = time.Now
+	return a, nil
+}
+
+// WithClock returns a copy whose For method uses now as the as-of date.
+func (a *Adder) WithClock(now func() time.Time) *Adder {
+	if a == nil {
+		return nil
+	}
+	c := *a
+	c.now = now
+	return &c
+}
 
 func parseAdditional(b []byte) (*Adder, error) {
 	var f AdditionalFile
 	if err := json.Unmarshal(b, &f); err != nil {
 		return nil, fmt.Errorf("duty: decode additional duties: %w", err)
 	}
-	a := &Adder{file: f, country: map[string][]int{}, whole: map[string]map[string]bool{}, partial: map[string][]Exclusion{}}
+	a := &Adder{file: f, country: map[string][]int{}, whole: map[string]map[string][]Exclusion{}, partial: map[string][]Exclusion{}}
 	for _, l := range f.Lists {
 		if l.Rate <= 0 || l.Rate > 1 || len(l.Subheadings) == 0 {
 			return nil, fmt.Errorf("duty: list %s: rate %v, %d subheadings", l.Heading, l.Rate, len(l.Subheadings))
@@ -147,9 +205,10 @@ func parseAdditional(b []byte) (*Adder, error) {
 	for _, e := range f.Exclusions {
 		if e.WholeSubheading {
 			if a.whole[e.Heading] == nil {
-				a.whole[e.Heading] = map[string]bool{}
+				a.whole[e.Heading] = map[string][]Exclusion{}
 			}
-			a.whole[e.Heading][Normalize(e.HTS)] = true
+			k := Normalize(e.HTS)
+			a.whole[e.Heading][k] = append(a.whole[e.Heading][k], e)
 			continue
 		}
 		a.partial[Normalize(e.HTS)] = append(a.partial[Normalize(e.HTS)], e)
@@ -197,42 +256,80 @@ func (a *Adder) conditional(i int, sub string) []ConditionalExempt {
 	return out
 }
 
-// For lists the additional duties on hts for origin given its MFN rate, and
-// the exclusions and conditional exemptions the user should check (they are
-// not applied). Applicability is judged at the current date.
+// For is ForAsOf at the Adder's clock; without one nothing is filtered by
+// date (every stored exclusion is reported, as before) and expired ones are
+// not separated out. Prefer ForAsOf with the request's entry date.
 func (a *Adder) For(hts, origin string, mfn float64) (extras []Extra, mayExclude []Exclusion) {
-	return a.ForAsOf(hts, origin, mfn, time.Now().UTC())
-}
-
-// exclusionActiveOn treats an ISO end date as inclusive: the exclusion is
-// suggested on its last day but not after. Undated or unparseable entries are
-// kept, so bad metadata cannot silently hide a possible exclusion.
-func exclusionActiveOn(end string, asOf time.Time) bool {
-	if end == "" {
-		return true
-	}
-	until, err := time.Parse(time.DateOnly, end)
-	return err != nil || asOf.Before(until.AddDate(0, 0, 1))
-}
-
-// ForAsOf is For with an explicit effective date, so a rate snapshot can
-// report only exclusions that had not expired when its rates were fetched.
-func (a *Adder) ForAsOf(hts, origin string, mfn float64, asOf time.Time) (extras []Extra, mayExclude []Exclusion) {
 	if a == nil {
 		return nil, nil
 	}
+	if a.now == nil {
+		r := a.lookup(hts, origin, mfn, time.Time{}, false)
+		return r.Extras, r.MayExclude
+	}
+	r := a.ForAsOf(hts, origin, mfn, a.now())
+	return r.Extras, r.MayExclude
+}
+
+// ForAsOf lists the additional duties on hts for origin given its MFN rate,
+// as of the date asOf (its UTC calendar date), and the exclusions and
+// conditional exemptions the user should check (they are not applied).
+// Stored exclusions past their end date are returned in Expired, never in
+// MayExclude. A whole-subheading exclusion removes the list duty only while
+// valid; once it has lapsed the stored duty is listed again and the
+// exclusion appears in Expired, without any statement on extensions.
+func (a *Adder) ForAsOf(hts, origin string, mfn float64, asOf time.Time) AsOfResult {
+	if a == nil {
+		return AsOfResult{}
+	}
+	return a.lookup(hts, origin, mfn, asOf, true)
+}
+
+func (a *Adder) lookup(hts, origin string, mfn float64, asOf time.Time, dated bool) AsOfResult {
+	var res AsOfResult
 	sub := Normalize(hts)
 	o := domain.NormalizeCountry(origin)
+	status := func(e Exclusion) string {
+		if !dated {
+			return ""
+		}
+		return exclusionStatus(e, asOf)
+	}
 	for i, l := range a.file.Lists {
-		if domain.NormalizeCountry(l.Origin) != o || !a.lists[i][sub] || a.whole[l.Heading][sub] {
+		if domain.NormalizeCountry(l.Origin) != o || !a.lists[i][sub] {
 			continue
 		}
-		extras = append(extras, Extra{Name: l.Name, Heading: l.Heading, Rate: l.Rate})
+		removed := false
+		for _, e := range a.whole[l.Heading][sub] {
+			switch st := status(e); st {
+			case "":
+				removed = true
+			case StatusExpired:
+				e.Status = st
+				res.Expired = append(res.Expired, e)
+			default: // unreadable date: keep the duty and ask for review
+				e.Status = st
+				e.Description = reviewText(e.Description)
+				res.MayExclude = append(res.MayExclude, e)
+			}
+		}
+		if removed {
+			continue
+		}
+		res.Extras = append(res.Extras, Extra{Name: l.Name, Heading: l.Heading, Rate: l.Rate})
 	}
-	if len(extras) > 0 {
+	if len(res.Extras) > 0 {
 		for _, e := range a.partial[sub] {
-			if exclusionActiveOn(e.EndDate, asOf) {
-				mayExclude = append(mayExclude, e)
+			switch st := status(e); st {
+			case "":
+				res.MayExclude = append(res.MayExclude, e)
+			case StatusExpired:
+				e.Status = st
+				res.Expired = append(res.Expired, e)
+			default:
+				e.Status = st
+				e.Description = reviewText(e.Description)
+				res.MayExclude = append(res.MayExclude, e)
 			}
 		}
 	}
@@ -248,13 +345,17 @@ func (a *Adder) ForAsOf(hts, origin string, mfn float64, asOf time.Time) (extras
 		if rate <= 0 {
 			continue
 		}
-		extras = append(extras, Extra{Name: c.Name, Heading: c.Heading, Rate: rate})
+		res.Extras = append(res.Extras, Extra{Name: c.Name, Heading: c.Heading, Rate: rate})
 		for _, ce := range a.conditional(i, sub) {
-			mayExclude = append(mayExclude, Exclusion{Heading: c.Heading, HTS: sub, Description: ce.Note + ": " + ce.Condition})
+			res.MayExclude = append(res.MayExclude, Exclusion{Heading: c.Heading, HTS: sub, Description: ce.Note + ": " + ce.Condition})
 		}
 	}
-	sort.SliceStable(extras, func(i, j int) bool { return extras[i].Heading < extras[j].Heading })
-	return extras, mayExclude
+	sort.SliceStable(res.Extras, func(i, j int) bool { return res.Extras[i].Heading < res.Extras[j].Heading })
+	return res
+}
+
+func reviewText(d string) string {
+	return d + " (end date unreadable or no as-of date: confirm this exclusion's dates before relying on it)"
 }
 
 // Total is the MFN rate plus the extras, rounded to basis points.

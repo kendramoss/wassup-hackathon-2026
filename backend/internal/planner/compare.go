@@ -1,8 +1,10 @@
 package planner
 
 import (
+	"fmt"
 	"math"
 	"sort"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -34,13 +36,16 @@ type Comparison struct {
 // structured product, if it has one; groups it places at a different plant
 // count as moves.
 //
-// A structured setup that moves no operation group is the current setup: its
-// duty stays at the current origin's rate and it saves nothing, even when the
-// engine predicts a different origin for it.
+// A structured setup that is materially equivalent to the current one (no
+// group move, same component origins, plant countries, operations and
+// capabilities) is the current setup: its duty stays at the current origin's
+// rate and it saves nothing, even when the engine predicts a different origin
+// for it. Any material difference, with or without a group move, is priced
+// at the scenario's origin.
 func Compare(e Economics, current *domain.Product, variant *domain.Product, currentOrigin, origin string) Comparison {
 	c := Comparison{Illustrative: e.Illustrative, Moved: domain.Move{},
 		OriginDiffersFromCurrent: domain.NormalizeCountry(origin) != domain.NormalizeCountry(currentOrigin)}
-	if current != nil && variant != nil && len(movesBetween(*current, *variant)) == 0 {
+	if current != nil && variant != nil && len(movesBetween(*current, *variant)) == 0 && materiallyEquivalent(*current, *variant) {
 		origin = currentOrigin
 	}
 	r2, ok2 := e.DutyRate(origin)
@@ -62,6 +67,36 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 		c.NetUSD = ptr(round2(*c.DutySavingsUSD - *c.AddedCostUSD))
 	}
 	return c
+}
+
+// materiallyEquivalent reports whether two structured products describe the
+// same production setup for origin purposes. Order of lists and display-only
+// labels (product and plant names, description) are ignored; component name,
+// origin country, plant, group, operations, plant country and capabilities
+// are compared (names case/space-folded, countries normalised).
+func materiallyEquivalent(a, b domain.Product) bool {
+	return setupSignature(a) == setupSignature(b)
+}
+
+func setupSignature(p domain.Product) string {
+	fold := func(s string) string { return strings.ToLower(strings.Join(strings.Fields(s), " ")) }
+	var parts []string
+	for _, pl := range p.Plants {
+		caps := make([]string, 0, len(pl.Capabilities))
+		for _, c := range pl.Capabilities {
+			caps = append(caps, fold(c))
+		}
+		sort.Strings(caps)
+		parts = append(parts, fmt.Sprintf("P%q|%q|%q", pl.ID, domain.NormalizeCountry(pl.Country), strings.Join(caps, ",")))
+	}
+	for _, c := range p.Components {
+		parts = append(parts, fmt.Sprintf("C%q|%q|%q|%q", fold(c.Name), domain.NormalizeCountry(c.MadeIn), c.Plant, fold(c.Group)))
+	}
+	for _, o := range p.Operations {
+		parts = append(parts, fmt.Sprintf("O%q|%q|%q", fold(o.Name), o.Plant, fold(o.Group)))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, "\n")
 }
 
 // movesBetween lists the operation groups the variant performs at a different

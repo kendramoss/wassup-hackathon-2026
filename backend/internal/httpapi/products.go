@@ -106,7 +106,7 @@ func (a *api) importProduct(w http.ResponseWriter, r *http.Request) {
 			p.HTS, sources["hts"] = code, "file"
 			out["product"] = p
 		} else {
-			warnings = append(warnings, fmt.Sprintf("hts %q is not an 8- or 10-digit HTS number; ignored", m.HTS))
+			warnings = append(warnings, "hts in the file is not a valid 8- or 10-digit HTS number; ignored")
 		}
 	}
 	if m.AnnualImportValueUSD > 0 || len(m.GroupCosts) > 0 {

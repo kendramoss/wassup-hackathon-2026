@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -15,18 +16,20 @@ import (
 // import value, duty rates between 0 and 1, and non-negative group costs.
 func validateEconomics(e planner.Economics) error {
 	var bad []string
-	if e.AnnualImportValueUSD < 0 {
+	if math.IsNaN(e.AnnualImportValueUSD) || math.IsInf(e.AnnualImportValueUSD, 0) {
+		bad = append(bad, "annual_import_value_usd must be a finite number")
+	} else if e.AnnualImportValueUSD < 0 {
 		bad = append(bad, "annual_import_value_usd must not be negative")
 	}
 	for c, r := range e.DutyRates {
-		if r < 0 || r > 1 {
+		if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r > 1 {
 			bad = append(bad, fmt.Sprintf("duty_rates[%s] = %v; give a fraction between 0 and 1 (0.25 = 25%%)", c, r))
 		}
 	}
 	for g, plants := range e.GroupCosts {
 		for p, v := range plants {
-			if v < 0 {
-				bad = append(bad, fmt.Sprintf("group_costs[%s][%s] must not be negative", g, p))
+			if math.IsNaN(v) || math.IsInf(v, 0) || v < 0 {
+				bad = append(bad, fmt.Sprintf("group_costs[%s][%s] must be a finite number, not negative", g, p))
 			}
 		}
 	}
@@ -34,6 +37,27 @@ func validateEconomics(e planner.Economics) error {
 		return fmt.Errorf("%w: economics: %s", domain.ErrInvalid, strings.Join(bad, "; "))
 	}
 	return nil
+}
+
+// effectiveEconomics is the economics a plan, estimate, scenarios or
+// compare-targets call will use: the supplied body when it carries an annual
+// value, else the case's stored economics (the one reuse rule, see
+// economicsFrom). The supplied body and the effective economics are both
+// validated, so invalid input is refused whether it is used or ignored, and
+// legacy invalid stored economics are refused when reused. Callers run it
+// before any pricing, engine call or write.
+func effectiveEconomics(supplied planner.Economics, stored *planner.Economics) (planner.Economics, error) {
+	if err := validateEconomics(supplied); err != nil {
+		return planner.Economics{}, err
+	}
+	econ := supplied
+	if econ.AnnualImportValueUSD == 0 && stored != nil {
+		econ = *stored
+	}
+	if err := validateEconomics(econ); err != nil {
+		return planner.Economics{}, err
+	}
+	return econ, nil
 }
 
 // putEconomics replaces the case's money inputs without running anything;

@@ -80,32 +80,24 @@ func NewLive(userAgent string, ttl, timeout time.Duration) *Live {
 	return &Live{BaseURL: DefaultHTSBaseURL, UserAgent: userAgent, HTTP: &http.Client{Timeout: timeout}, TTL: ttl, FailTTL: time.Minute}
 }
 
-// LiveHTS returns the 8-digit subheading (NNNN.NN.NN) of an 8- or 10-digit
-// HTS number, or false for anything else.
+// LiveHTS returns the 8-digit subheading (NNNN.NN.NN) of a number ParseHTS
+// accepts, or false for anything else.
 func LiveHTS(hts string) (string, bool) {
-	var d strings.Builder
-	for _, r := range hts {
-		switch {
-		case r >= '0' && r <= '9':
-			d.WriteRune(r)
-		case r == '.' || r == ' ':
-		default:
-			return "", false
-		}
-	}
-	if n := d.Len(); n != 8 && n != 10 {
+	c, err := ParseHTS(hts)
+	if err != nil {
 		return "", false
 	}
-	return Normalize(d.String()), true
+	return c.Subheading, true
 }
 
 // Cached answers from the cache only: ok is false when hts would need a
 // fetch. An HTS number that is not 8 or 10 digits is answered (ErrNoRate).
 func (l *Live) Cached(hts string) (m MFN, ok bool, err error) {
-	sub, valid := LiveHTS(hts)
-	if !valid {
-		return MFN{}, true, fmt.Errorf("%w: %q is not an 8- or 10-digit HTS number", ErrNoRate, hts)
+	c, perr := ParseHTS(hts)
+	if perr != nil {
+		return MFN{}, true, perr
 	}
+	sub := c.Subheading
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	e, hit := l.cache[sub]
@@ -306,7 +298,8 @@ func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float6
 
 // FillWith is Fill with the additional duties of each origin added to the
 // MFN rate (D90). It returns, per filled origin, the extras applied and the
-// described-product exclusions to check.
+// described-product exclusions to check. It reads the clock once per origin;
+// pricing code uses FillWithAsOf so all origins of a request share one instant.
 func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (map[string]float64, []string, map[string][]Extra, map[string][]Exclusion) {
 	out, filled := m.Fill(rates, origins)
 	if add == nil || len(filled) == 0 {
@@ -315,7 +308,7 @@ func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (m
 	extras := map[string][]Extra{}
 	check := map[string][]Exclusion{}
 	for _, o := range filled {
-		ex, may := add.ForAsOf(m.HTS, o, *m.Rate, m.FetchedAt)
+		ex, may := add.For(m.HTS, o, *m.Rate)
 		if len(ex) > 0 {
 			extras[o] = ex
 			out[o] = Total(*m.Rate, ex)
@@ -325,6 +318,40 @@ func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (m
 		}
 	}
 	return out, filled, extras, check
+}
+
+// FillResult is FillWithAsOf's outcome.
+type FillResult struct {
+	Rates   map[string]float64
+	Filled  []string
+	Extras  map[string][]Extra
+	Check   map[string][]Exclusion // valid or "review" exclusions to check; never applied
+	Expired map[string][]Exclusion // stored exclusions past their end date: historical only
+}
+
+// FillWithAsOf is FillWith with one explicit as-of instant used for every
+// origin, so exclusion dates are judged consistently in one call.
+func (m MFN) FillWithAsOf(rates map[string]float64, origins []string, add *Adder, asOf time.Time) FillResult {
+	out, filled := m.Fill(rates, origins)
+	r := FillResult{Rates: out, Filled: filled}
+	if add == nil || len(filled) == 0 {
+		return r
+	}
+	r.Extras, r.Check, r.Expired = map[string][]Extra{}, map[string][]Exclusion{}, map[string][]Exclusion{}
+	for _, o := range filled {
+		res := add.ForAsOf(m.HTS, o, *m.Rate, asOf)
+		if len(res.Extras) > 0 {
+			r.Extras[o] = res.Extras
+			out[o] = Total(*m.Rate, res.Extras)
+		}
+		if len(res.MayExclude) > 0 {
+			r.Check[o] = res.MayExclude
+		}
+		if len(res.Expired) > 0 {
+			r.Expired[o] = res.Expired
+		}
+	}
+	return r
 }
 
 // FillNote describes live-filled rates (or why none were) for

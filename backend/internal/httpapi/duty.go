@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
@@ -12,14 +13,40 @@ import (
 // with every component and its source (D52). Without hts it lists every line.
 // With Deps.LiveMFN, a subheading the table does not have is answered with
 // its live MFN rate from the USITC HTS (D65); the table always wins.
+// invalidHTSMessage answers a malformed HTS number on any route; it never
+// repeats the input.
+const invalidHTSMessage = "hts must be an 8- or 10-digit HTS number such as 8419.89.95 or 8419.89.9500 (one separator style: dot, space or dash)"
+
+// invalidHTSNote explains why a product's HTS number was not used to price.
+const invalidHTSNote = "The product's HTS number is not a valid 8- or 10-digit HTS number, so no duty rates were filled; enter the rates yourself or correct the HTS."
+
 func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 	if a.d.Duty == nil {
 		writeError(w, http.StatusServiceUnavailable, "internal", "the duty table is not loaded", nil)
 		return
 	}
-	hts := strings.TrimSpace(r.URL.Query().Get("hts"))
-	if hts == "" {
+	// Parse the raw query explicitly: URL.Query() silently drops a pair it
+	// cannot parse (an unescaped ';', a bad %-escape), which would read as an
+	// absent hts and list the whole table. A query that does not parse is
+	// refused whole (even if the bad pair is another key); only an absent
+	// hts key lists the table. A present hts, even empty, must be valid. With
+	// repeated hts keys the first value is used.
+	q, qerr := url.ParseQuery(r.URL.RawQuery)
+	vals, present := q["hts"]
+	if qerr != nil || (present && len(vals) == 0) {
+		writeError(w, http.StatusBadRequest, "invalid_input", invalidHTSMessage, nil)
+		return
+	}
+	if !present {
 		writeJSON(w, http.StatusOK, map[string]any{"lines": a.d.Duty.Lines()})
+		return
+	}
+	hts := strings.TrimSpace(vals[0])
+	code, err := duty.ParseHTS(hts)
+	if err != nil {
+		// Checked before any table or live lookup, and before the not-found
+		// answer. The text is fixed: user input is never echoed back.
+		writeError(w, http.StatusBadRequest, "invalid_input", invalidHTSMessage, nil)
 		return
 	}
 	if l, ok := a.d.Duty.Line(hts); ok {
@@ -36,7 +63,7 @@ func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	writeError(w, http.StatusNotFound, "not_found", "no sourced duty rates for HTS "+duty.Normalize(hts)+"; enter the rates yourself", nil)
+	writeError(w, http.StatusNotFound, "not_found", "no sourced duty rates for HTS "+code.Subheading+"; enter the rates yourself", nil)
 }
 
 // liveMFN looks up hts on the HTS. A fetch (not a cached answer) takes from
