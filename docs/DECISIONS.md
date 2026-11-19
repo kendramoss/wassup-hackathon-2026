@@ -15,6 +15,7 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 >   - the Go module path, routes and `/v1` paths
 >   - `docs/issues/*`, `PR-*.md`, `plans/`, design keyframes and earlier decision entries
 > - Follow-up, needs a cloud migration: rename the secret, the bucket and the staging service.
+> - Naming audit (19 Nov 2026, #272): the explicit mapping (Unde Labs / Unde ← Origin Proof; repo and GCP project `wassup-hackathon-2026`) is now in the README and the GitHub About description leads with Unde Labs. Env-var fallback inventory: only `ORIGINPROOF_RESEARCH_RESULTS` remains — a deprecated alias of `UNDE_RESEARCH_RESULTS` in `backend/internal/retrieval/parity_test.go` — and it is kept until existing local setups no longer use it. No technical identifier was renamed.
 
 ## D1 — Build inside the existing team repo's `backend/` and `frontend/` (15 Oct)
 - **Decision:** Origin Proof's Go API lives in `backend/` (Cloud Run service `backend`), the Next.js app in `frontend/` (service `frontend`). The template deploy-agent code there was removed.

@@ -109,6 +109,22 @@ make run                                # API on :8080
 
 To work on the UI with no model calls and no cost, set `LLM_PROVIDER=fake`. Tests, evals, the API list and deploy notes are in [docs/DETAILS.md](docs/DETAILS.md#run-locally).
 
+## Naming
+
+| | |
+|---|---|
+| Product / team | **Unde Labs** — the product itself is *Unde* |
+| Former name | Origin Proof (renamed 18 Oct 2026) |
+| Repository / GCP project | `wassup-hackathon-2026` |
+
+The rename was user-facing. Legacy technical identifiers are kept on purpose so
+stored data and deployments still work: the `origin-proof-*` hash salts, Secret
+Manager secret, corpus bucket and staging Cloud Run service, plus research paths
+and recorded eval artefacts. See [docs/DECISIONS.md](docs/DECISIONS.md). The one
+remaining env-var fallback, `ORIGINPROOF_RESEARCH_RESULTS`, is a deprecated alias
+of `UNDE_RESEARCH_RESULTS` in a single opt-in parity test; it stays until no local
+setup still depends on it.
+
 ## Repository
 
 | Path | What's there |
