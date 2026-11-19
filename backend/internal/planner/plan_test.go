@@ -47,7 +47,7 @@ func (f *fakeVerifier) Verify(_ context.Context, t verifier.Task) (verifier.Resu
 	if f.supported {
 		v.SupportingRuling = "N350001"
 	}
-	return verifier.Result{Verdict: v, ModelCalls: 5, Steps: make([]verifier.Step, 4), Usage: llm.Usage{InputTokens: 20000, OutputTokens: 900}}, nil
+	return verifier.Result{Verdict: v, Proof: verifier.ProofFor(t, "N350001", "N340000"), ModelCalls: 5, Steps: make([]verifier.Step, 4), Usage: llm.Usage{InputTokens: 20000, OutputTokens: 900}}, nil
 }
 
 func runPlan(t *testing.T, v *fakeVerifier) (Result, *fakeEngine) {

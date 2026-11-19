@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"os"
 	"slices"
 	"time"
@@ -83,62 +82,105 @@ func (c *Cache) key(t Task) string {
 	return hex.EncodeToString(h[:])
 }
 
-// ValidationEpoch names the acceptance rules a cached verdict is re-checked
-// against on lookup (cachedViolation). It is NOT part of the cache key and is
-// not a prompt version: the prompts did not change, so keys and traces keep
-// their verifier-vN names (a stored safe verdict still hits). It only names
-// the slot where a re-run replaces an unsafe legacy verdict, because the blob
-// stores never overwrite a key. Bump it when cachedViolation gains a rule that
-// older repaired entries might break (#297 adds origin consistency).
+// ValidationEpoch names the acceptance rules a cached verdict is validated
+// against (cachedViolation). It is a validation namespace only: it is NOT part
+// of the cache key and NOT a prompt version (prompts did not change; keys and
+// traces keep their verifier-vN names). Fresh verdicts store a Proof stamped
+// with it; a verdict that cites a ruling is replayed only with a Proof of the
+// current epoch. Blob stores never overwrite a key, so a fresh verdict that
+// replaces an unusable stored one goes to repairKey. Bump it when
+// cachedViolation gains a rule (#297 adds origin consistency).
 const ValidationEpoch = "val1"
 
-// repairKey is where a verdict that replaced an unsafe legacy one is stored.
+// repairKey is where a verdict that replaced an unusable stored one is kept.
 func repairKey(key string) string { return key + "-" + ValidationEpoch }
 
-// cachedViolation reports why a stored verdict must not be replayed for a
-// task whose exclusions are exclude, or "" when it is safe. This is the
-// shared cache-compatibility contract (#295, reused by #297): add new
-// acceptance rules here and every lookup, Peek and Verify applies them to
-// stored payloads. Rules, all independent of what the verdict says about
-// origin:
-//   - the supporting or counter ruling must not be in the task's Exclude;
-//   - when the verdict has a trail, its supporting ruling must be an identity
-//     in it (search hit or ruling read), so a ruling only mentioned in text
-//     is not replayed as supported.
+// cachedViolation reports why a verdict may not be replayed (or returned) for
+// task t, or "" when it is safe. This is the shared cache-compatibility
+// contract (#295, reused by #297). A verdict that cites no ruling has nothing
+// to prove. One that cites a supporting or counter ruling needs current proof:
+//   - r.Proof present, of the current ValidationEpoch, recorded for the same
+//     Before date and the same exclusion set as t;
+//   - every cited ruling is in Proof.Eligible (validated direct retrievals of
+//     that run) and not in t.Exclude.
 //
-// Verdicts stored before D80 have no trail; they cannot be checked against
-// one and are kept (only the exclusion rule applies), so seeded demo verdicts
-// keep replaying (D56). A verdict that cites nothing has nothing to check. A
-// counter-ruling is only checked against Exclude: a panel can take it from
-// another run's trail.
-func cachedViolation(v domain.Verdict, exclude []string) string {
+// The display Trail is never consulted: it lists rejected, future and
+// mismatched reads. Entries without proof, including legacy and seeded demo
+// verdicts, are a miss.
+func cachedViolation(r Result, t Task) string {
+	v := r.Verdict
+	cited := []string{}
 	for _, id := range []string{v.SupportingRuling, v.CounterRuling} {
-		if id != "" && slices.Contains(exclude, id) {
+		if id != "" {
+			cited = append(cited, id)
+		}
+	}
+	for _, id := range cited {
+		if slices.Contains(t.Exclude, id) {
 			return "cites excluded ruling " + id
 		}
 	}
-	if v.SupportingRuling != "" && len(v.Trail) > 0 {
-		inTrail := false
-		for _, st := range v.Trail {
-			if slices.Contains(st.Rulings, v.SupportingRuling) {
-				inTrail = true
-			}
-		}
-		if !inTrail {
-			return "supporting ruling " + v.SupportingRuling + " not in the retrieved trail"
+	if len(cited) == 0 {
+		return ""
+	}
+	p := r.Proof
+	switch {
+	case p == nil:
+		return "no validation proof"
+	case p.Epoch != ValidationEpoch:
+		return "proof from epoch " + p.Epoch
+	case p.Before != t.Before.Format(time.DateOnly):
+		return "proof for a different date bound"
+	case !slices.Equal(p.Exclude, sortedCopy(t.Exclude)):
+		return "proof for different exclusions"
+	}
+	for _, id := range cited {
+		if !slices.Contains(p.Eligible, id) {
+			return "cited ruling " + id + " not validated"
 		}
 	}
 	return ""
+}
+
+// sanitize removes citations that fail cachedViolation from a fresh result so
+// an unsafe supported verdict is never returned; it reports whether it changed
+// anything. Dropped names what was removed.
+func sanitize(r Result, t Task) (Result, bool) {
+	changed := false
+	for cachedViolation(r, t) != "" {
+		changed = true
+		v := r.Verdict
+		switch {
+		case v.CounterRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.CounterRuling) || slices.Contains(t.Exclude, v.CounterRuling)):
+			r.Dropped = append(r.Dropped, v.CounterRuling)
+			r.Verdict.CounterRuling = ""
+		case v.SupportingRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.SupportingRuling) || slices.Contains(t.Exclude, v.SupportingRuling)):
+			r.Dropped = append(r.Dropped, v.SupportingRuling)
+			r.Verdict.SupportingRuling, r.Verdict.PrecedentSupported = "", false
+		default: // proof itself is for another task or epoch
+			if v.CounterRuling != "" {
+				r.Dropped = append(r.Dropped, v.CounterRuling)
+				r.Verdict.CounterRuling = ""
+			}
+			if v.SupportingRuling != "" {
+				r.Dropped = append(r.Dropped, v.SupportingRuling)
+				r.Verdict.SupportingRuling, r.Verdict.PrecedentSupported = "", false
+			}
+		}
+	}
+	return r, changed
 }
 
 // Verify returns the stored verdict for t, or runs inner and stores it.
 // A cached result reports no model calls, tool steps or usage, and Cached.
 // A failed cache read is an error (re-running could give a different
 // verdict); a failed write only loses the cache entry. A stored verdict that
-// fails cachedViolation for t counts as absent.
+// fails cachedViolation for t counts as absent. A fresh verdict that fails it
+// is sanitized (unproven citations removed, no longer supported) and not
+// stored.
 func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 	key := c.key(t)
-	r, ok, stale, err := c.lookup(ctx, key, t.Exclude)
+	r, ok, stale, err := c.lookup(ctx, key, t)
 	if err != nil {
 		return Result{}, err
 	}
@@ -149,12 +191,10 @@ func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 	if err != nil {
 		return r, err
 	}
-	if r.ToolErrors > 0 { // reached without some evidence: let the next run verify again
-		return r, nil
+	if clean, changed := sanitize(r, t); changed {
+		return clean, nil
 	}
-	// A fresh verdict must itself pass the stored-payload rules, or the next
-	// lookup would throw it away; it is returned either way.
-	if cachedViolation(r.Verdict, t.Exclude) != "" {
+	if r.ToolErrors > 0 { // reached without some evidence: let the next run verify again
 		return r, nil
 	}
 	if b, err := json.Marshal(r); err == nil {
@@ -170,26 +210,24 @@ func (c *Cache) Verify(ctx context.Context, t Task) (Result, error) {
 // false when none is stored or the stored one is unsafe for t. The plan-search
 // estimate uses it read-only (D87).
 func (c *Cache) Peek(ctx context.Context, t Task) (Result, bool, error) {
-	r, ok, _, err := c.lookup(ctx, c.key(t), t.Exclude)
+	r, ok, _, err := c.lookup(ctx, c.key(t), t)
 	return r, ok, err
 }
 
-// lookup reads the verdict stored under key. An unsafe one (cachedViolation)
-// is skipped: stale reports that, and the replacement slot is read instead.
-func (c *Cache) lookup(ctx context.Context, key string, exclude []string) (r Result, ok, stale bool, err error) {
-	for _, k := range []string{key, repairKey(key)} {
+// lookup reads the verdict stored under key, then under its repair slot. An
+// unusable or unproven one is skipped; stale reports that, so a fresh verdict
+// is written to the repair slot (stores never overwrite a key).
+func (c *Cache) lookup(ctx context.Context, key string, t Task) (r Result, ok, stale bool, err error) {
+	for i, k := range []string{key, repairKey(key)} {
 		b, found, err := c.blobs.Get(ctx, k)
 		if err != nil {
 			return Result{}, false, false, fmt.Errorf("verifier: read cache: %w", err)
 		}
-		var got Result
-		if !found || json.Unmarshal(b, &got) != nil {
-			if k == key {
-				return Result{}, false, false, nil
-			}
-			return Result{}, false, true, nil
+		if !found {
+			return Result{}, false, stale || i == 1, nil
 		}
-		if cachedViolation(got.Verdict, exclude) != "" {
+		var got Result
+		if json.Unmarshal(b, &got) != nil || cachedViolation(got, t) != "" {
 			stale = true
 			continue
 		}

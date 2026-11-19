@@ -13,13 +13,13 @@ import (
 
 type countingChecker struct{ calls int }
 
-func (c *countingChecker) Verify(context.Context, Task) (Result, error) {
+func (c *countingChecker) Verify(_ context.Context, t Task) (Result, error) {
 	c.calls++
 	conf := 0.95
 	if c.calls > 1 {
 		conf = 0.92 // a fresh run would drift
 	}
-	return Result{Verdict: domain.Verdict{PrecedentSupported: true, Confidence: conf, SupportingRuling: "N350001"}, ModelCalls: 4, Steps: make([]Step, 3)}, nil
+	return Result{Verdict: domain.Verdict{PrecedentSupported: true, Confidence: conf, SupportingRuling: "N350001"}, Proof: ProofFor(t, "N350001"), ModelCalls: 4, Steps: make([]Step, 3)}, nil
 }
 
 func TestCacheReturnsTheSameVerdict(t *testing.T) {

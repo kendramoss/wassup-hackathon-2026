@@ -3,6 +3,7 @@ package verifier
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"sync"
 )
@@ -63,6 +64,7 @@ func (p *Panel) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	var yes, no []Result
 	counter := ""
+	var counterProof *Proof
 	for _, x := range runs {
 		if x.Verdict.PrecedentSupported {
 			yes = append(yes, x)
@@ -70,7 +72,7 @@ func (p *Panel) Verify(ctx context.Context, t Task) (Result, error) {
 			no = append(no, x)
 		}
 		if counter == "" && x.Verdict.CounterRuling != "" {
-			counter = x.Verdict.CounterRuling
+			counter, counterProof = x.Verdict.CounterRuling, x.Proof
 		}
 	}
 	group := no
@@ -79,8 +81,20 @@ func (p *Panel) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 	sort.SliceStable(group, func(i, j int) bool { return group[i].Verdict.Confidence < group[j].Verdict.Confidence })
 	best := group[(len(group)-1)/2] // median; the lower one of an even pair
-	if best.Verdict.CounterRuling == "" {
-		best.Verdict.CounterRuling = counter
+	if best.Verdict.CounterRuling == "" && counter != "" {
+		// A counter from another lane is kept only with that lane's validated
+		// proof for the same task bounds, merged in; otherwise it is dropped.
+		if bp, cp := best.Proof, counterProof; bp != nil && cp != nil && bp.Epoch == cp.Epoch && bp.Before == cp.Before &&
+			slices.Equal(bp.Exclude, cp.Exclude) && slices.Contains(cp.Eligible, counter) {
+			merged := *bp
+			merged.Eligible = slices.Clone(bp.Eligible)
+			if !slices.Contains(merged.Eligible, counter) {
+				merged.Eligible = append(merged.Eligible, counter)
+				slices.Sort(merged.Eligible)
+			}
+			best.Proof = &merged
+			best.Verdict.CounterRuling = counter
+		}
 	}
 	best.ModelCalls, best.Steps, best.Usage, best.ToolErrors = total.ModelCalls, total.Steps, total.Usage, total.ToolErrors
 	best.Verdict.Agreement = fmt.Sprintf("%d/%d", len(group), len(runs))

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -208,9 +209,53 @@ type Result struct {
 	Dropped []string
 	// Cached is true when the verdict came from Cache, not a fresh run.
 	Cached bool
+	// Proof is the current-validation evidence behind the cited rulings. A
+	// cached verdict that cites a ruling is replayed only with a Proof that
+	// matches the task (see cachedViolation); the display Trail is not proof.
+	Proof *Proof `json:"proof,omitempty"`
 	// ToolErrors counts search/read calls that failed (e.g. CROSS down). A
 	// verdict reached without that evidence is not cached (D58).
 	ToolErrors int
+}
+
+// Proof records which rulings a fresh run actually retrieved directly and
+// validated (valid id, not excluded, dated before the bound, read header
+// naming the id), together with the task bounds they were validated against
+// and the validation epoch. It is stored with the cached verdict.
+type Proof struct {
+	Epoch    string   `json:"epoch"`
+	Before   string   `json:"before"`
+	Exclude  []string `json:"exclude"`
+	Eligible []string `json:"eligible"`
+}
+
+func newProof(t Task, eligible map[string]bool) *Proof {
+	p := &Proof{Epoch: ValidationEpoch, Before: t.Before.Format(time.DateOnly), Exclude: sortedCopy(t.Exclude)}
+	for id := range eligible {
+		p.Eligible = append(p.Eligible, id)
+	}
+	slices.Sort(p.Eligible)
+	return p
+}
+
+// ProofFor builds the current-epoch proof that the given rulings were
+// validated for task t. Production code gets it from Verify; fixtures use it
+// to model a genuinely validated fresh run.
+func ProofFor(t Task, eligible ...string) *Proof {
+	m := map[string]bool{}
+	for _, id := range eligible {
+		m[id] = true
+	}
+	return newProof(t, m)
+}
+
+func sortedCopy(ss []string) []string {
+	out := slices.Clone(ss)
+	if out == nil {
+		out = []string{}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
 }
 
 // Options configures the verifier.
@@ -461,6 +506,9 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 
 	res := Result{Steps: steps, ModelCalls: m.calls, Usage: m.usage, ToolErrors: toolErrors}
+	mu.Lock()
+	res.Proof = newProof(t, eligible)
+	mu.Unlock()
 	var ans answer
 	if err := (llm.Response{Text: final}).DecodeJSON(&ans); err != nil {
 		return res, fmt.Errorf("verifier: final answer: %w", err)
@@ -508,7 +556,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 func eligibleHits(hits []Hit, before time.Time, exclude map[string]bool) []string {
 	var ids []string
 	for _, h := range hits {
-		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && !h.Date.IsZero() && h.Date.Before(before) {
+		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && inBound(h.Date, before) {
 			ids = append(ids, h.ID)
 		}
 	}
@@ -530,10 +578,21 @@ func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []s
 	if m == nil || m[1] != id {
 		return nil
 	}
-	if m[2] != "" {
-		if d, err := time.Parse(time.DateOnly, m[2]); err != nil || !d.Before(before) {
-			return nil
+	if m[2] == "" {
+		if !before.IsZero() {
+			return nil // a bounded task needs the header date to prove the bound
 		}
+	} else if d, err := time.Parse(time.DateOnly, m[2]); err != nil || !inBound(d, before) {
+		return nil
 	}
 	return []string{id}
+}
+
+// inBound reports whether a ruling dated d may be precedent for a task bounded
+// by before. A bounded task never accepts an unknown (zero) date.
+func inBound(d, before time.Time) bool {
+	if before.IsZero() {
+		return true
+	}
+	return !d.IsZero() && d.Before(before)
 }
