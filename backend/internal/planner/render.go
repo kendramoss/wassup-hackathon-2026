@@ -65,7 +65,13 @@ func Render(p domain.Product, t Template, detail ...string) string {
 		if comps := groupComponents(p, g.ID); len(comps) > 0 {
 			subject = joinAnd(comps)
 		}
-		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s.", plant.Country, subject, joinOps(g.Operations))
+		// Supplied product operations win; the template's are the default
+		// only when the product states none for the group.
+		ops := g.Operations
+		if custom := groupOperations(p, g.ID); len(custom) > 0 {
+			ops = custom
+		}
+		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s.", plant.Country, subject, joinOps(ops))
 	}
 	if g, ok := t.Group("final_assembly"); ok && final != "" {
 		ops := g.Operations
