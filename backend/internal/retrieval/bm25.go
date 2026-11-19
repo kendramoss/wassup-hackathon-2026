@@ -42,6 +42,7 @@ type BM25 struct {
 	idf  map[string]float64
 	k1   float64
 	b    float64
+	rev  string // see WithRevision
 }
 
 var tokenPattern = regexp.MustCompile(`[a-z]{3,}`)
