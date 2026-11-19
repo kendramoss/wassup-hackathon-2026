@@ -89,8 +89,8 @@ func (c *Cache) key(t Task) string {
 // with it; a verdict that cites a ruling is replayed only with a Proof of the
 // current epoch. Blob stores never overwrite a key, so a fresh verdict that
 // replaces an unusable stored one goes to repairKey. Bump it when
-// cachedViolation gains a rule (#297 adds origin consistency).
-const ValidationEpoch = "val1"
+// cachedViolation gains a rule (val2: origin consistency, #297).
+const ValidationEpoch = "val2"
 
 // repairKey is where a verdict that replaced an unusable stored one is kept.
 func repairKey(key string) string { return key + "-" + ValidationEpoch }
@@ -123,6 +123,16 @@ func cachedViolation(r Result, t Task) string {
 	}
 	if v.PrecedentSupported && v.SupportingRuling == "" {
 		return "supported without a supporting ruling" // support needs a validated direct citation
+	}
+	if v.PrecedentSupported {
+		// val2: the origins stored with the verdict must show a real change.
+		// A stored verdict without them (legacy) is not checkable: a miss.
+		if !r.ChangesOrigin {
+			return "supported without a changes_origin answer"
+		}
+		if why := originViolation(r.OriginA, r.OriginB, t); why != "" {
+			return why
+		}
 	}
 	if len(cited) == 0 {
 		return ""
@@ -158,6 +168,12 @@ func sanitize(r Result, t Task) (Result, bool) {
 		case v.PrecedentSupported && v.SupportingRuling == "":
 			// Nothing to drop and nothing invented: the flag is simply not
 			// backed by a citation, so it is cleared.
+			r.Verdict.PrecedentSupported = false
+		case v.PrecedentSupported && (!r.ChangesOrigin || originViolation(r.OriginA, r.OriginB, t) != ""):
+			// The ruling may be real, but the claimed change is not (equivalent
+			// origins, unknown origin, or contradicting the known baseline):
+			// clear the flag only. Citations are kept as they were validated;
+			// nothing is dropped or invented.
 			r.Verdict.PrecedentSupported = false
 		case v.CounterRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.CounterRuling) || slices.Contains(t.Exclude, v.CounterRuling)):
 			r.Dropped = append(r.Dropped, v.CounterRuling)

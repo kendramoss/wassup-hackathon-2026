@@ -249,6 +249,41 @@ func ProofFor(t Task, eligible ...string) *Proof {
 	return newProof(t, m)
 }
 
+// originParts is the set of countries in an origin string, through the domain
+// normalisation (aliases, spellings, "A/B" alternatives), sorted. An empty or
+// "unknown" origin has no parts: it is never turned into a country.
+func originParts(s string) []string {
+	var out []string
+	for _, p := range domain.CountryParts(domain.NormalizeCountry(s)) {
+		if p != "" && !strings.EqualFold(p, "unknown") {
+			out = append(out, p)
+		}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
+}
+
+// originViolation reports why a verdict claiming that the move changes origin
+// from originA to originB cannot be supported for t, or "" when the claim is
+// coherent. It is conservative: a missing/unknown origin is not a change, two
+// origins that normalise to the same countries are not a change, and when
+// t.KnownOriginA holds, originA must normalise to it. A KnownOriginA that
+// itself normalises to nothing is not a baseline. Used for fresh acceptance
+// and, through cachedViolation, for every cached replay.
+func originViolation(originA, originB string, t Task) string {
+	a, b := originParts(originA), originParts(originB)
+	if len(a) == 0 || len(b) == 0 {
+		return "origin unknown or missing"
+	}
+	if slices.Equal(a, b) {
+		return "claimed origin change between equivalent origins"
+	}
+	if k := originParts(t.KnownOriginA); len(k) > 0 && !slices.Equal(k, a) {
+		return "origin_a contradicts the known baseline"
+	}
+	return ""
+}
+
 func sortedCopy(ss []string) []string {
 	out := slices.Clone(ss)
 	if out == nil {
@@ -542,7 +577,11 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		vd.Confidence = *ans.Confidence
 	}
 	reachesTarget := t.Target == "" || res.OriginB == domain.NormalizeCountry(t.Target)
-	vd.PrecedentSupported = ans.ChangesOrigin && reachesTarget && vd.SupportingRuling != ""
+	// A claimed change must be a real one: equivalent origins ("Thai" and
+	// "Thailand") or an origin_a that contradicts CBP's known holding for A
+	// are not a supported move (originViolation), whatever the ruling says.
+	vd.PrecedentSupported = ans.ChangesOrigin && reachesTarget && vd.SupportingRuling != "" &&
+		originViolation(res.OriginA, res.OriginB, t) == ""
 	if err := vd.Validate(); err != nil {
 		return res, fmt.Errorf("verifier: %w: %v", llm.ErrBadResponse, err)
 	}

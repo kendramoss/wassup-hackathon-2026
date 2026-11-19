@@ -19,7 +19,7 @@ func (c *countingChecker) Verify(_ context.Context, t Task) (Result, error) {
 	if c.calls > 1 {
 		conf = 0.92 // a fresh run would drift
 	}
-	return Result{Verdict: domain.Verdict{PrecedentSupported: true, Confidence: conf, SupportingRuling: "N350001"}, Proof: ProofFor(t, "N350001"), ModelCalls: 4, Steps: make([]Step, 3)}, nil
+	return Result{OriginA: "China", OriginB: "Thailand", ChangesOrigin: true, Verdict: domain.Verdict{PrecedentSupported: true, Confidence: conf, SupportingRuling: "N350001"}, Proof: ProofFor(t, "N350001"), ModelCalls: 4, Steps: make([]Step, 3)}, nil
 }
 
 func TestCacheReturnsTheSameVerdict(t *testing.T) {

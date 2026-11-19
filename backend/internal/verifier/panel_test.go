@@ -23,7 +23,7 @@ func verdict(supported bool, conf float64, support, counter string) Result {
 			ids = append(ids, id)
 		}
 	}
-	return Result{ModelCalls: 2, Proof: ProofFor(Task{}, ids...), Verdict: domain.Verdict{PrecedentSupported: supported, Confidence: conf, SupportingRuling: support, CounterRuling: counter}}
+	return Result{OriginA: "China", OriginB: "Thailand", ChangesOrigin: supported, ModelCalls: 2, Proof: ProofFor(Task{}, ids...), Verdict: domain.Verdict{PrecedentSupported: supported, Confidence: conf, SupportingRuling: support, CounterRuling: counter}}
 }
 
 func TestPanelRunsOnlyNearTheBar(t *testing.T) {

@@ -28,9 +28,18 @@ func cacheTask() Task {
 }
 
 func goodResult(t Task) Result {
-	return Result{Verdict: domain.Verdict{PrecedentSupported: true, Confidence: 0.9, SupportingRuling: "N350001", CounterRuling: "N340000",
+	return Result{OriginA: "China", OriginB: "Thailand", ChangesOrigin: true, Verdict: domain.Verdict{PrecedentSupported: true, Confidence: 0.9, SupportingRuling: "N350001", CounterRuling: "N340000",
 		Trail: []domain.TrailStep{{Tool: "search", Query: "q", Rulings: []string{"N350001", "N340000"}}}},
 		Proof: ProofFor(t, "N350001", "N340000")}
+}
+
+// withDistinctOrigins gives a supported fixture the origins of a real change
+// (China -> Thailand) so tests of other rules are not decided by the origin rule.
+func withDistinctOrigins(r Result) Result {
+	if r.Verdict.PrecedentSupported {
+		r.OriginA, r.OriginB, r.ChangesOrigin = "China", "Thailand", true
+	}
+	return r
 }
 
 func seed(t *testing.T, c *Cache, tk Task, r Result) {
@@ -76,6 +85,7 @@ func TestCacheMissesWithoutCurrentProof(t *testing.T) {
 		"proof for other exclusions":             {Verdict: domain.Verdict{PrecedentSupported: true, SupportingRuling: "N350001", Confidence: 0.9}, Proof: ProofFor(otherEx, "N350001")},
 	}
 	for name, legacy := range cases {
+		legacy = withDistinctOrigins(legacy) // isolate the proof rules from the origin rule
 		t.Run(name, func(t *testing.T) {
 			c, inner, blobs := newFixedCache()
 			seed(t, c, tk, legacy)
@@ -136,6 +146,7 @@ func TestFreshUnprovenVerdictIsSanitizedAndNotStored(t *testing.T) {
 		"excluded support": {Verdict: domain.Verdict{PrecedentSupported: true, SupportingRuling: "N328954", Confidence: 0.97},
 			Proof: ProofFor(tk, "N328954")},
 	} {
+		bad = withDistinctOrigins(bad)
 		t.Run(name, func(t *testing.T) {
 			blobs := &memBlobs{m: map[string][]byte{}}
 			c := NewCacheIn(&fixedChecker{make: func(Task) Result { return bad }}, blobs, "m")
@@ -202,6 +213,7 @@ func TestSupportedWithoutSupportingRulingIsNotReplayedOrReturned(t *testing.T) {
 	withProof := empty
 	withProof.Proof = ProofFor(tk)
 	for name, stored := range map[string]Result{"legacy": empty, "current proof": withProof} {
+		stored = withDistinctOrigins(stored) // only the missing citation is under test
 		t.Run("stored "+name, func(t *testing.T) {
 			c, inner, _ := newFixedCache()
 			seed(t, c, tk, stored)
