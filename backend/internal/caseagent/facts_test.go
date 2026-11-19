@@ -181,7 +181,7 @@ func TestHistoryBoundUnchanged(t *testing.T) {
 		h = append(h, Turn{Question: fmt.Sprintf("Q%d?", i), Answer: fmt.Sprintf("A%d.", i)})
 	}
 	m := userMessage(Input{Question: "now", History: h})
-	if strings.Contains(m, "Q2?") || !strings.Contains(m, "Q3?") || !strings.Contains(m, "Q8?") || strings.Count(m, "\nQ: ") != 5 && strings.Count(m, "Q: ") != 6 {
+	if strings.Contains(m, "Q2?") || !strings.Contains(m, "Q3?") || !strings.Contains(m, "Q8?") || strings.Count(m, "\nQ: ") != MaxHistory || !strings.HasPrefix(m, "EARLIER IN THIS CONVERSATION:\nQ: Q3?") {
 		t.Errorf("history not bounded to %d: %q", MaxHistory, m)
 	}
 }

@@ -20,7 +20,6 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 	"google.golang.org/genai"
 
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
@@ -187,6 +186,7 @@ type whatIfArgs struct {
 }
 
 type factsArgs struct {
+	// Offset is required in the tool schema (no omitempty); 0 means the start.
 	Offset int `json:"offset" jsonschema:"rune offset to start at; 0 to the total"`
 	Limit  int `json:"limit,omitempty" jsonschema:"runes to return; default and maximum 4000"`
 }
@@ -270,12 +270,19 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 			if n >= MaxWhatIfs {
 				return out{"what-if budget used; answer with what you have"}, nil
 			}
-			facts := strings.TrimSpace(x.Facts)
-			if facts == "" {
-				return out{"facts are required"}, nil
+			facts, runes, ok := domain.CanonicalFacts(x.Facts)
+			if !ok {
+				if runes == 0 {
+					return out{"facts are required"}, nil
+				}
+				// Never predict a prefix: the card, the saved turn and
+				// Add-as-scenario must all hold what was predicted.
+				msg := fmt.Sprintf("these revised facts are %d characters; the limit is %d. Nothing was predicted. Shorten the full revised facts to at most %d characters (keep the facts that decide origin) and call what_if again.", runes, domain.MaxFactsRunes, domain.MaxFactsRunes)
+				note(Step{"what_if", x.Change}, msg)
+				return out{msg}, nil
 			}
-			wc := domain.Case{ID: "what-if", Date: in.Date, Facts: corpus.Truncate(facts, domain.MaxFactsRunes) + "\n", Exclude: in.Exclude}
-			w, text, err := a.runWhatIf(ctx, wc, x.Change, facts)
+			wc := domain.Case{ID: "what-if", Date: in.Date, Facts: facts, Exclude: in.Exclude}
+			w, text, err := a.runWhatIf(ctx, wc, x.Change)
 			if err != nil {
 				return out{}, err
 			}
@@ -381,14 +388,14 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 
 // runWhatIf runs the revised facts through the same dispatch and triage as a
 // saved scenario when the predictor can classify, and says so when it cannot.
-func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change, facts string) (WhatIf, string, error) {
+func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change string) (WhatIf, string, error) {
 	if cl, ok := a.engine.(Classifier); ok {
 		k, err := cl.Classify(ctx, c)
 		if err != nil {
 			return WhatIf{}, "", err
 		}
 		p := k.Result.Prediction
-		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: facts,
+		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts,
 			Regime: k.Regime, Specialist: k.Specialist, Scope: k.Scope, Route: k.Route, Reason: k.Reason, Provisional: k.Provisional()}
 		if w.Regime == "" {
 			w.Regime = "unknown"
@@ -414,7 +421,7 @@ func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change, facts stri
 		return WhatIf{}, "", err
 	}
 	p := res.Prediction
-	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: facts, Regime: "unclassified",
+	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts, Regime: "unclassified",
 		Provisional: "this run had no regime dispatch or review route"}
 	text := fmt.Sprintf("origin %s, confidence %.2f, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: unclassified. PROVISIONAL: %s; an expert reviews. Do not present this origin as settled or regime-correct.",
 		p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Provisional)

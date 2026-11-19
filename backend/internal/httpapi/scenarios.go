@@ -141,9 +141,9 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 // scenarioFacts is a scenario's facts text: given directly, or rendered from
 // a structured product with the case family's template.
 func (a *api) scenarioFacts(s scenarioInput, family string) (string, error) {
-	facts := strings.TrimSpace(s.Facts)
+	var facts string
 	switch {
-	case facts != "" && s.Product != nil:
+	case strings.TrimSpace(s.Facts) != "" && s.Product != nil:
 		return "", fmt.Errorf("%w: give facts or product, not both", domain.ErrInvalid)
 	case s.Product != nil:
 		if err := s.Product.Validate(); err != nil {
@@ -154,11 +154,20 @@ func (a *api) scenarioFacts(s scenarioInput, family string) (string, error) {
 			return "", fmt.Errorf("%w: a product scenario needs a case family with a template; known: %s", domain.ErrInvalid, a.families())
 		}
 		facts = planner.Render(*s.Product, tm)
-	case facts == "":
-		return "", fmt.Errorf("%w: facts or product is required", domain.ErrInvalid)
-	}
-	if !strings.HasSuffix(facts, "\n") { // same format as predict (D20)
-		facts += "\n"
+		if !strings.HasSuffix(facts, "\n") { // same format as predict (D20)
+			facts += "\n"
+		}
+	default:
+		// The canonical form the case agent's what_if predicts and returns,
+		// so Add-as-scenario of its facts stores exactly what was predicted.
+		var n int
+		var ok bool
+		if facts, n, ok = domain.CanonicalFacts(s.Facts); !ok {
+			if n == 0 {
+				return "", fmt.Errorf("%w: facts or product is required", domain.ErrInvalid)
+			}
+			return "", fmt.Errorf("%w: facts are %d characters; max %d", domain.ErrInvalid, n, domain.MaxFactsRunes)
+		}
 	}
 	return facts, nil
 }
