@@ -1086,7 +1086,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 	}
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
-		send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
+		send("error", map[string]any{"code": code, "message": msg, "retryable": retryable(status, err)})
 		return
 	}
 	out := a.meta()
@@ -1188,6 +1188,14 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 		chosen = p
 	}
+	srcTarget := in.Target
+	if in.MoveKey == "" {
+		srcTarget = "" // plan_index always reads the latest plan search
+	}
+	chosenFrom := ""
+	if chosen != nil {
+		chosenFrom = planSourceFingerprint(c, srcTarget)
+	}
 	if p := chosen; p != nil {
 		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
 		if c.Product != nil { // the letter lists where things are made after the move
@@ -1220,7 +1228,7 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
-		if err := stillCurrent(latest, fp); err != nil {
+		if err := stillCurrentPlan(latest, fp, srcTarget, chosenFrom); err != nil {
 			return err
 		}
 		latest.ExportedAt, latest.UpdatedAt = &now, now

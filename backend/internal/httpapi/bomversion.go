@@ -244,12 +244,18 @@ var errSuperseded = errors.New("conflict: the case changed while this ran; the r
 // excluded rulings, the known origin, the family and the date. Money, chat,
 // history and the result fields are not part of it.
 func inputFingerprint(c store.Case) string {
+	// Stores differ on an empty list (Memory turns [] into nil, File and
+	// Firestore drop it), so nil and empty are one value.
+	ex := c.Exclude
+	if len(ex) == 0 {
+		ex = nil
+	}
 	b, _ := json.Marshal(struct {
 		Date, Facts, Family string
 		Product             any
 		Exclude             []string
 		CurrentOrigin       any
-	}{c.Date, c.Facts, c.Family, c.Product, c.Exclude, c.CurrentOrigin})
+	}{c.Date, c.Facts, c.Family, c.Product, ex, c.CurrentOrigin})
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:])
 }
@@ -263,4 +269,45 @@ func stillCurrent(latest *store.Case, fp string) error {
 		return errSuperseded
 	}
 	return nil
+}
+
+// stillCurrentPlan is stillCurrent for an export: the inputs and, when a plan
+// was chosen, the stored search it was chosen from.
+func stillCurrentPlan(latest *store.Case, fp, target, src string) error {
+	if err := stillCurrent(latest, fp); err != nil {
+		return err
+	}
+	if src != "" && planSourceFingerprint(*latest, target) != src {
+		return errSuperseded
+	}
+	return nil
+}
+
+// retryable reports whether a failed request is worth sending again as it
+// is: server-side failures, and a superseded result (run it again).
+func retryable(status int, err error) bool {
+	return status >= 500 || errors.Is(err, errSuperseded)
+}
+
+// planSourceFingerprint identifies the stored result an export draws its
+// chosen plan from: the latest plan search, or one country's search in the
+// comparison when target is given. A replaced search changes it, so a draft
+// of a plan that is no longer the stored one is not marked exported.
+func planSourceFingerprint(c store.Case, target string) string {
+	var src any
+	if target != "" {
+		if c.Targets != nil {
+			if res, ok := c.Targets.Results[domain.NormalizeCountry(target)]; ok {
+				src = res
+			}
+		}
+	} else if c.Plan != nil {
+		src = c.Plan
+	}
+	if src == nil {
+		return ""
+	}
+	b, _ := json.Marshal(src)
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
 }
