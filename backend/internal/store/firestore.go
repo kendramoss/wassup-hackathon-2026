@@ -203,16 +203,27 @@ func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case,
 	if owner == "" {
 		return nil, nil
 	}
+	all, err := f.scanAll(ctx, "list owner")
+	if err != nil {
+		return nil, err
+	}
+	return ownedBy(all, owner, n), nil
+}
+
+// scanAll reads and decodes every case document, skipping corrupt ones. It is
+// the one decode path for the listings that cannot trust top-level metadata
+// (owner, pinned) on documents written before those fields existed.
+func (f *Firestore) scanAll(ctx context.Context, what string) ([]Case, error) {
 	it := f.ownerScan().Documents(ctx)
 	defer it.Stop()
 	var out []Case
 	for {
 		snap, err := it.Next()
 		if errors.Is(err, iterator.Done) {
-			break
+			return out, nil
 		}
 		if err != nil {
-			return nil, fmt.Errorf("store: list owner: %w", err)
+			return nil, fmt.Errorf("store: %s: %w", what, err)
 		}
 		c, err := decodeSnapshot(snap)
 		if err != nil {
@@ -220,7 +231,19 @@ func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case,
 		}
 		out = append(out, c)
 	}
-	return ownedBy(out, owner, n), nil
+}
+
+// pinnedOf keeps the cases whose decoded Pinned is true, newest first. The
+// encoded case is the truth: a stale top-level pinned field on a document
+// whose case is not pinned must not expose it.
+func pinnedOf(cs []Case) []Case {
+	var out []Case
+	for _, c := range cs {
+		if c.Pinned {
+			out = append(out, c)
+		}
+	}
+	return CapRecent(out, 0)
 }
 
 // ownedBy keeps the cases whose Owner is owner, then pinned-first/newest
@@ -239,7 +262,21 @@ func ownedBy(cs []Case, owner string, n int) []Case {
 // recently updated others, reading only those documents (D58). A pinned case
 // saved before the pinned field existed is found by the second query only
 // while it is among the newest; re-pinning it (PUT /pin) writes the field.
+// With n <= 0 (pinned cases only) every document is decoded instead, so a
+// legacy pinned demo is found whatever its top-level metadata says.
 func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
+	if n <= 0 {
+		// Pinned cases only. A Where("pinned","==",true) misses a demo saved
+		// before the top-level pinned field existed and could expose one
+		// whose field is stale, so decode every document and keep the cases
+		// that are really pinned. Cost: one full-collection read, like
+		// ListOwner, until a separate migration writes the field everywhere.
+		all, err := f.scanAll(ctx, "list pinned")
+		if err != nil {
+			return nil, err
+		}
+		return pinnedOf(all), nil
+	}
 	seen := map[string]bool{}
 	var out []Case
 	add := func(q firestore.Query) error {
@@ -266,9 +303,6 @@ func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
 	}
 	if err := add(f.col.Where("pinned", "==", true)); err != nil {
 		return nil, err
-	}
-	if n <= 0 {
-		return CapRecent(out, 0), nil // pinned cases only; no second query
 	}
 	if err := add(f.col.OrderBy("updated_at", firestore.Desc).Limit(n + len(out))); err != nil {
 		return nil, err
