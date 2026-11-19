@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { api, type ExportResponse } from "@/lib/api/client";
+import { api, ApiError, type ExportResponse } from "@/lib/api/client";
 import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
@@ -89,13 +89,16 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const lead = notes.filter((n) => n !== notice).join(" ") || null;
   const dated = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  // Recording is refused (409) when the case changed under this draft: show
-  // that, drop the stale letter and do not download or print it.
+  // Recording answers with the letter as the case stands now. It must match
+  // the preview on screen; if the case changed (409, a different letter, a
+  // chosen plan that is gone) show that, drop the stale draft and do not
+  // download or print it. Compared raw, before the requester's own fields
+  // are filled in. See lib/record-export.ts for what is let through.
   const record = async () => {
-    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }));
+    const r = await recordExport(() => api.exportDraft(id, { ...pick, format }), draft?.content ?? "", pick);
     if (r.ok) return true;
     setDrafts({});
-    setError(r.error);
+    setError(r.error ?? new ApiError("The case changed after this letter was drafted. Draft it again.", 409, "conflict", true));
     return false;
   };
 
