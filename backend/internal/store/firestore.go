@@ -37,11 +37,14 @@ type firestoreDoc struct {
 	Pinned    bool      `firestore:"pinned"` // queried by ListRecent (D58)
 	// Workspace is queried by ListWorkspace (D68); absent for anonymous cases.
 	Workspace string `firestore:"workspace,omitempty"`
-	Case      []byte `firestore:"case_json_gz"`
+	// Owner is queried by ListOwner (#301). Documents written before #301
+	// lack it and are not found by that query until they are next saved.
+	Owner string `firestore:"owner,omitempty"`
+	Case  []byte `firestore:"case_json_gz"`
 }
 
 func docOf(c Case, gz []byte) firestoreDoc {
-	return firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Workspace: c.Workspace, Case: gz}
+	return firestoreDoc{ID: c.ID, UpdatedAt: c.UpdatedAt, Pinned: c.Pinned, Workspace: c.Workspace, Owner: c.Owner, Case: gz}
 }
 
 // NewFirestore connects to database (empty means "(default)") in project
@@ -181,6 +184,44 @@ func (f *Firestore) ListWorkspace(ctx context.Context, workspace string) ([]Case
 	return out, nil
 }
 
+// ownerQuery is the owner listing: a single-field equality, which Firestore
+// serves from its automatic index. It deliberately has no OrderBy and no
+// Limit: ordering by updated_at together with the equality needs a composite
+// index (owner, updated_at desc), and no index change is authorized.
+func (f *Firestore) ownerQuery(owner string) firestore.Query {
+	return f.col.Where("owner", "==", owner)
+}
+
+// ListOwner implements OwnerLister. Performance tradeoff: because the query
+// has no OrderBy or Limit it reads ALL of the owner's documents on every
+// call (cost grows with that one owner's case count, never with other
+// owners'), then sorts and caps in the app. With a composite index the same
+// query could be OrderBy(updated_at, Desc).Limit(n+pinned) and read n
+// documents; that is the follow-up if one owner's volume ever matters.
+func (f *Firestore) ListOwner(ctx context.Context, owner string, n int) ([]Case, error) {
+	if owner == "" {
+		return nil, nil
+	}
+	it := f.ownerQuery(owner).Documents(ctx)
+	defer it.Stop()
+	var out []Case
+	for {
+		snap, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("store: list owner: %w", err)
+		}
+		c, err := decodeSnapshot(snap)
+		if err != nil || c.Owner != owner {
+			continue // skip a corrupt document; never trust the filter alone
+		}
+		out = append(out, c)
+	}
+	return CapRecent(out, n), nil
+}
+
 // ListRecent implements RecentLister: every pinned case plus the n most
 // recently updated others, reading only those documents (D58). A pinned case
 // saved before the pinned field existed is found by the second query only
@@ -212,6 +253,9 @@ func (f *Firestore) ListRecent(ctx context.Context, n int) ([]Case, error) {
 	}
 	if err := add(f.col.Where("pinned", "==", true)); err != nil {
 		return nil, err
+	}
+	if n <= 0 {
+		return CapRecent(out, 0), nil // pinned cases only; no second query
 	}
 	if err := add(f.col.OrderBy("updated_at", firestore.Desc).Limit(n + len(out))); err != nil {
 		return nil, err

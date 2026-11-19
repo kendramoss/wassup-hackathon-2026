@@ -135,9 +135,9 @@ func teamVisible(r *http.Request, id identity, c store.Case) bool {
 	return o != "" && o == c.Owner
 }
 
-// workspaceCases adds the user's workspace cases to a listing already capped
-// at the newest others, so a busy deployment does not push them out of the
-// list. The caller caps again after filtering for visibility.
+// workspaceCases adds the user's workspace cases (one ListWorkspace read,
+// de-duplicated) to the candidate listing, so a busy deployment does not
+// push them out of the list. The caller filters for visibility, then caps.
 func (a *api) workspaceCases(ctx context.Context, cs []store.Case) ([]store.Case, error) {
 	ws := identityOf(ctx).workspace
 	if ws == "" {
