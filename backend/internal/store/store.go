@@ -203,7 +203,28 @@ type Watch struct {
 	Prediction domain.Prediction `json:"prediction"`
 	// Newer are the precedents used that are dated after the case date.
 	Newer []string `json:"newer_rulings"`
+	// Provenance (#294), all omitted from results saved before it. Status
+	// stays the origin comparison; Basis says why it can be trusted as a
+	// precedent change. Regime is the regime whose engine produced
+	// Prediction; OriginalRegime is the regime of the case's own prediction
+	// ("" when its trace names no known engine). Scope and Specialist are the
+	// dispatch states; Triage is the verdict for the watch result.
+	Basis          string         `json:"basis,omitempty"`
+	Regime         string         `json:"regime,omitempty"`
+	OriginalRegime string         `json:"original_regime,omitempty"`
+	Scope          string         `json:"scope,omitempty"`
+	Specialist     string         `json:"specialist,omitempty"`
+	Triage         *domain.Triage `json:"triage,omitempty"`
 }
+
+// Watch bases: why a watch result differs, or does not, from the case.
+const (
+	WatchBasisPrecedent             = "precedent"              // same regime and method: any change is the precedents
+	WatchBasisRegime                = "regime"                 // a different regime's engine answered
+	WatchBasisMethod                = "method"                 // same regime, a different engine method (prompt version)
+	WatchBasisSpecialistUnavailable = "specialist_unavailable" // the stored regime's engine failed; provisional general
+	WatchBasisUnverified            = "unverified"             // no stored label or unknown original regime: not comparable
+)
 
 // Step is how far the case has progressed in the UI flow.
 func (c Case) Step() string {
