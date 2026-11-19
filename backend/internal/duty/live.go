@@ -80,32 +80,24 @@ func NewLive(userAgent string, ttl, timeout time.Duration) *Live {
 	return &Live{BaseURL: DefaultHTSBaseURL, UserAgent: userAgent, HTTP: &http.Client{Timeout: timeout}, TTL: ttl, FailTTL: time.Minute}
 }
 
-// LiveHTS returns the 8-digit subheading (NNNN.NN.NN) of an 8- or 10-digit
-// HTS number, or false for anything else.
+// LiveHTS returns the 8-digit subheading (NNNN.NN.NN) of a number ParseHTS
+// accepts, or false for anything else.
 func LiveHTS(hts string) (string, bool) {
-	var d strings.Builder
-	for _, r := range hts {
-		switch {
-		case r >= '0' && r <= '9':
-			d.WriteRune(r)
-		case r == '.' || r == ' ':
-		default:
-			return "", false
-		}
-	}
-	if n := d.Len(); n != 8 && n != 10 {
+	c, err := ParseHTS(hts)
+	if err != nil {
 		return "", false
 	}
-	return Normalize(d.String()), true
+	return c.Subheading, true
 }
 
 // Cached answers from the cache only: ok is false when hts would need a
 // fetch. An HTS number that is not 8 or 10 digits is answered (ErrNoRate).
 func (l *Live) Cached(hts string) (m MFN, ok bool, err error) {
-	sub, valid := LiveHTS(hts)
-	if !valid {
-		return MFN{}, true, fmt.Errorf("%w: %q is not an 8- or 10-digit HTS number", ErrNoRate, hts)
+	c, perr := ParseHTS(hts)
+	if perr != nil {
+		return MFN{}, true, perr
 	}
+	sub := c.Subheading
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	e, hit := l.cache[sub]
