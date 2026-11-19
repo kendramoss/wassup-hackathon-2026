@@ -298,7 +298,8 @@ func (m MFN) Fill(rates map[string]float64, origins []string) (map[string]float6
 
 // FillWith is Fill with the additional duties of each origin added to the
 // MFN rate (D90). It returns, per filled origin, the extras applied and the
-// described-product exclusions to check.
+// described-product exclusions to check. It reads the clock once per origin;
+// pricing code uses FillWithAsOf so all origins of a request share one instant.
 func (m MFN) FillWith(rates map[string]float64, origins []string, add *Adder) (map[string]float64, []string, map[string][]Extra, map[string][]Exclusion) {
 	out, filled := m.Fill(rates, origins)
 	if add == nil || len(filled) == 0 {
