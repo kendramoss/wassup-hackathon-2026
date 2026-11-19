@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -341,4 +342,62 @@ func TestWatchSpecialistStaleSaveRefused(t *testing.T) {
 			}
 		})
 	}
+}
+
+// The provenance survives a GET after the POST watch, for a healthy
+// specialist, a failed one and a legacy no-label case; the scheduler run
+// says why each case changed.
+func TestWatchProvenanceSurvivesGET(t *testing.T) {
+	same := func(t *testing.T, hs harness, id string, post map[string]any) map[string]any {
+		t.Helper()
+		_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+		g := got["watch"].(map[string]any)
+		for _, k := range []string{"basis", "regime", "original_regime", "scope", "specialist", "triage", "status"} {
+			if !reflect.DeepEqual(g[k], post[k]) {
+				t.Errorf("GET watch.%s = %v, POST gave %v", k, g[k], post[k])
+			}
+		}
+		return g
+	}
+	rc := regimeCases[0]
+	t.Run("healthy specialist", func(t *testing.T) {
+		hs, id, _, _ := watchRegimeHarness(t, rc, &specialistFake{version: rc.version, origin: rc.origin}, nil)
+		_, w := doWatch(t, hs, id)
+		if g := same(t, hs, id, w); g["basis"] != "precedent" || g["scope"] != "confirmed" {
+			t.Errorf("watch = %v", g)
+		}
+	})
+	t.Run("specialist failed", func(t *testing.T) {
+		spec := &specialistFake{version: rc.version, origin: rc.origin}
+		hs, id, _, _ := watchRegimeHarness(t, rc, spec, nil)
+		spec.err = errGeneralDown
+		_, w := doWatch(t, hs, id)
+		if g := same(t, hs, id, w); g["specialist"] != "failed" || triageOf(g)["route"] != "needs_review" {
+			t.Errorf("watch = %v", g)
+		}
+	})
+	t.Run("legacy no router no label specialist trace", func(t *testing.T) {
+		var cases store.Cases
+		hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Router = nil; cases = d.Cases })
+		_, c := hs.do(t, "POST", "/v1/cases/predict", dispatchBody)
+		id := c["id"].(string)
+		_, _ = cases.Update(context.Background(), id, func(c *store.Case) error { c.Prediction.Trace.PromptVersion = "textile-v2"; return nil })
+		_, w := doWatch(t, hs, id)
+		if g := same(t, hs, id, w); g["basis"] != "unverified" || g["scope"] != "label_missing" {
+			t.Errorf("watch = %v", g)
+		}
+	})
+	t.Run("method drift is not a precedent change in the run summary", func(t *testing.T) {
+		var cases store.Cases
+		hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { cases = d.Cases })
+		_, c := hs.do(t, "POST", "/v1/cases/predict", dispatchBody)
+		id := c["id"].(string)
+		_, _ = cases.Update(context.Background(), id, func(c *store.Case) error { c.Prediction.Trace.PromptVersion = "engine-v1+rules-v1"; return nil })
+		hs.engine.later = "Thailand"
+		_, run := hs.doAs(t, "POST", "/v1/watch/run", "", map[string]string{"X-Admin-Token": testAdmin})
+		cb, _ := run["changed_basis"].(map[string]any)
+		if len(run["changed"].([]any)) != 1 || cb[id] != "method" {
+			t.Errorf("run = %v", run)
+		}
+	})
 }

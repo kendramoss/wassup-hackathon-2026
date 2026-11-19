@@ -677,8 +677,18 @@ func (a *api) watchFields(w *store.Watch) any {
 	if w == nil {
 		return nil
 	}
-	return map[string]any{"checked_at": w.CheckedAt, "status": w.Status, "prediction": w.Prediction,
+	out := map[string]any{"checked_at": w.CheckedAt, "status": w.Status, "prediction": w.Prediction,
 		"newer_rulings": a.precedentRefs(w.Newer), "precedents_detail": a.precedentRefs(w.Prediction.Precedents)}
+	// Provenance (#294), present only on results saved with it.
+	for k, v := range map[string]string{"basis": w.Basis, "regime": w.Regime, "original_regime": w.OriginalRegime, "scope": w.Scope, "specialist": w.Specialist} {
+		if v != "" {
+			out[k] = v
+		}
+	}
+	if w.Triage != nil {
+		out["triage"] = w.Triage
+	}
+	return out
 }
 
 // caseSummary is one row of the cases list.

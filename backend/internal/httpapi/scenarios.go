@@ -178,33 +178,13 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.watchResponse(sc))
+	a.respond(w, http.StatusOK, a.caseFields(sc))
 }
 
 // WatchOriginalRegimeUnknownReason is the watch triage reason when the case's
 // stored prediction names no known engine: the regime it was made under is
 // not known, so a watch result is never auto-accepted against it.
 const WatchOriginalRegimeUnknownReason = "regime unavailable: the stored prediction names no known engine, so the watch result cannot be compared with it; an expert reviews"
-
-// watchResponse is the case with the watch provenance added (#294). The
-// provenance lives here, not in watchFields, because that is cases.go.
-func (a *api) watchResponse(sc store.Case) map[string]any {
-	out := a.caseFields(sc)
-	w, ok := out["watch"].(map[string]any)
-	if !ok || sc.Watch == nil {
-		return out
-	}
-	for k, v := range map[string]string{"basis": sc.Watch.Basis, "regime": sc.Watch.Regime, "original_regime": sc.Watch.OriginalRegime,
-		"scope": sc.Watch.Scope, "specialist": sc.Watch.Specialist} {
-		if v != "" {
-			w[k] = v
-		}
-	}
-	if sc.Watch.Triage != nil {
-		w["triage"] = sc.Watch.Triage
-	}
-	return out
-}
 
 // watchBasis says why a watch result can or cannot be read as a precedent
 // change. Regime and method differences, a failed specialist and a missing
@@ -235,6 +215,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, 3)
 	checked, changed, failed := 0, []string{}, []string{}
+	basis := map[string]string{} // why each changed case changed (store.WatchBasis*)
 	for _, c := range cs {
 		if c.Prediction.Origin == "" {
 			continue
@@ -255,11 +236,12 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 			checked++
 			if c.Watch.Status == store.WatchChanged {
 				changed = append(changed, c.ID)
+				basis[c.ID] = c.Watch.Basis
 			}
 		}(c)
 	}
 	wg.Wait()
-	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "failed": failed})
+	writeJSON(w, http.StatusOK, map[string]any{"checked": checked, "changed": changed, "changed_basis": basis, "failed": failed})
 }
 
 // recheck predicts the case again with every precedent dated before today
