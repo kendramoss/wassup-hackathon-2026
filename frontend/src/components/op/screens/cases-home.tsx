@@ -266,7 +266,7 @@ export function YourCases({ cases, onChange }: { cases: CaseSummary[]; onChange:
                 <td className="px-3.5 py-3">
                   <StatusChip route={c.triage_route} />
                 </td>
-                <td className={cx("px-3.5 py-3 text-xs", watchOf(c).kind === "changed" || watchOf(c).kind === "review" ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
+                <td className={cx("px-3.5 py-3 text-xs", watchOf(c).attention ? "font-medium text-ask" : c.watch_status ? "text-ok" : "text-dim")}>
                   {watchOf(c).label}
                 </td>
                 <td className="px-3.5 py-3">{c.scenario_count || "—"}</td>

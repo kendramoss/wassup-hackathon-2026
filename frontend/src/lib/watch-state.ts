@@ -15,6 +15,12 @@ export type WatchView = {
   kind: "none" | "changed" | "unchanged" | "review" | "recheck";
   label: string; // short, for the cases list
   note: string; // why, for the detail; "" for changed, unchanged and none
+  // A person should look: any kind but none and a plain unchanged, plus a
+  // genuine change. Screens style these as attention, never as quiet or fine.
+  attention: boolean;
+  // For a genuine change only: why a person must also look at it ("" when its
+  // route is not a review route). The change itself is not demoted.
+  reviewNote: string;
 };
 
 // What each non-precedent basis means, written for the person reading it.
@@ -39,22 +45,34 @@ export function watchView(
   route: Route,
   reason?: string,
 ): WatchView {
-  if (!status) return { kind: "none", label: "—", note: "" };
+  if (!status) return { kind: "none", label: "—", note: "", attention: false, reviewNote: "" };
   if (basis === "precedent") {
     // A real ruling change stays a change even when the result also needs a
     // person; only an unchanged origin is turned into a review.
-    if (status === "changed") return { kind: "changed", label: "Changed", note: "" };
+    if (status === "changed") {
+      const why = reviewReason(route, reason);
+      const flagged = route === "needs_review" || route === "needs_info";
+      return {
+        kind: "changed",
+        label: "Changed",
+        note: "",
+        attention: true,
+        reviewNote: flagged ? ["It changed, and the re-check also needs a person to look.", why].filter(Boolean).join(" ") : "",
+      };
+    }
     if (route === "needs_review" || route === "needs_info") {
       return {
         kind: "review",
         label: "Needs review",
         note: ["The origin is the same with today's rulings, but the re-check needs a person to look.", reviewReason(route, reason)].filter(Boolean).join(" "),
+        attention: true,
+        reviewNote: "",
       };
     }
-    return { kind: "unchanged", label: "Unchanged", note: "" };
+    return { kind: "unchanged", label: "Unchanged", note: "", attention: false, reviewNote: "" };
   }
   if (basis && basis in WHY) {
-    return { kind: "review", label: "Needs review", note: [WHY[basis as keyof typeof WHY], reviewReason(route, reason)].filter(Boolean).join(" ") };
+    return { kind: "review", label: "Needs review", note: [WHY[basis as keyof typeof WHY], reviewReason(route, reason)].filter(Boolean).join(" "), attention: true, reviewNote: "" };
   }
-  return { kind: "recheck", label: "Re-check needed", note: LEGACY };
+  return { kind: "recheck", label: "Re-check needed", note: LEGACY, attention: true, reviewNote: "" };
 }

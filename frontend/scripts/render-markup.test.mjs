@@ -127,3 +127,45 @@ test("the below-bar note stays the amber one and nothing is dropped", () => {
   assert.match(html(ReviewNotes, { notes: [below] }), /border-ask-line bg-ask-wash/);
   assert.equal(html(ReviewNotes, { notes: [] }), "");
 });
+
+// ---- N1: the list cell's colour class and the changed+review detail ---------
+
+const cellOf = (extra) => {
+  const m = html(YourCases, { onChange() {}, cases: [row(extra)] });
+  // The watch cell is the 4th <td> of the row (Product, origin, Status, Ruling watch).
+  const cells = [...m.matchAll(/<td class="([^"]*)">([\s\S]*?)<\/td>/g)];
+  assert.ok(cells.length >= 4, "row has its cells");
+  return { cls: cells[3][1], label: text(cells[3][2]) };
+};
+
+test("the list cell is styled as attention for Re-check needed, Needs review and Changed, and as quiet for Unchanged", () => {
+  for (const [extra, label] of [
+    [{ watch_status: "changed" }, "Re-check needed"],
+    [{ watch_status: "unchanged" }, "Re-check needed"],
+    [{ watch_status: "unchanged", watch_basis: "method" }, "Needs review"],
+    [{ watch_status: "unchanged", watch_basis: "precedent", watch_route: "needs_review" }, "Needs review"],
+    [{ watch_status: "changed", watch_basis: "precedent", watch_route: "auto" }, "Changed"],
+    [{ watch_status: "changed", watch_basis: "precedent", watch_route: "needs_review" }, "Changed"],
+  ]) {
+    const c = cellOf(extra);
+    assert.equal(c.label, label, JSON.stringify(extra));
+    assert.match(c.cls, /\bfont-medium\b/, `${label} ${JSON.stringify(extra)}`);
+    assert.match(c.cls, /\btext-ask\b/, `${label} ${JSON.stringify(extra)}`);
+    assert.doesNotMatch(c.cls, /\btext-ok\b/, `${label} ${JSON.stringify(extra)}`);
+  }
+  const quiet = cellOf({ watch_status: "unchanged", watch_basis: "precedent", watch_route: "auto" });
+  assert.equal(quiet.label, "Unchanged");
+  assert.match(quiet.cls, /\btext-ok\b/);
+  assert.doesNotMatch(quiet.cls, /\btext-ask\b/);
+  assert.match(cellOf({ watch_status: null }).cls, /\btext-dim\b/);
+});
+
+test("a changed precedent result needing review shows Changed and the review reason in the detail", () => {
+  const m = text(line(watch({ basis: "precedent", triage: { route: "needs_review", reason: "confidence 0.60 is below the bar" } })));
+  assert.match(m, /Changed:/);
+  assert.match(m, /needs a person to look/);
+  assert.match(m, /below the bar/);
+  const auto = text(line(watch({ basis: "precedent", triage: { route: "auto", reason: "confidence 0.97 >= 0.92 and in scope" } })));
+  assert.match(auto, /Changed:/);
+  assert.doesNotMatch(auto, /needs a person|0\.97 >= 0\.92|in scope/);
+});

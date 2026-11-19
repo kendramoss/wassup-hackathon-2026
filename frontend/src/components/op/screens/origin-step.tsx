@@ -24,8 +24,9 @@ function Result({ id, c, setCase }: CaseCtx) {
   const p = c.prediction ?? {};
   const target = planTarget(c);
   const route = c.triage?.route;
-  const wk = watchView(c.watch?.status, c.watch?.basis, c.watch?.triage?.route).kind;
-  const watchBoxed = wk === "changed" || wk === "review" || wk === "recheck"; // the exception boxes, not the folded line
+  const wv = watchView(c.watch?.status, c.watch?.basis, c.watch?.triage?.route);
+  const wk = wv.kind;
+  const watchBoxed = wv.attention; // the exception box, not the folded line
   const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
@@ -213,7 +214,7 @@ export function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseRe
     }
   };
   const view = watchView(w?.status, w?.basis, w?.triage?.route, w?.triage?.reason);
-  const changed = view.kind === "changed" || view.kind === "review" || view.kind === "recheck";
+  const changed = view.attention;
   return (
     <section aria-label="Ruling watch" className={cx("duo text-[13px]", changed && "border border-ask-line bg-ask-wash p-3")}>
       {changed && <p className="eyebrow mb-1">Ruling watch</p>}
@@ -228,6 +229,7 @@ export function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseRe
         {w && view.kind === "changed" && (
           <>
             <b className="font-medium text-ask">Changed:</b> with today&apos;s rulings it&apos;s <Country name={w.prediction?.origin_country} /> ({conf(w.prediction?.confidence)}).{" "}
+            {view.reviewNote ? <>{view.reviewNote}{" "}</> : null}
             {w.newer_rulings?.map((r) => (
               <span key={r.id}>
                 <RulingLink id={r.id} /> ({formatMonth(r.date)}){" "}

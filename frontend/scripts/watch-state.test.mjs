@@ -75,3 +75,36 @@ test("a precedent result sent to review keeps the triage reason only when it is 
   const approving = watchView("unchanged", "precedent", "needs_info", "more facts needed");
   assert.match(approving.note, /more facts needed/);
 });
+
+// ---- N1: attention state and the changed+review pair ------------------------
+
+test("every state that needs a person's attention says so; unchanged and none do not", () => {
+  const attention = (status, basis, route) => watchView(status, basis, route).attention;
+  assert.equal(attention("changed", "precedent", "auto"), true);
+  assert.equal(attention("changed", undefined, undefined), true, "legacy Re-check needed");
+  assert.equal(attention("unchanged", undefined, undefined), true, "legacy Re-check needed");
+  for (const basis of ["regime", "method", "specialist_unavailable", "unverified"]) assert.equal(attention("unchanged", basis, "auto"), true, basis);
+  assert.equal(attention("unchanged", "precedent", "needs_review"), true);
+  assert.equal(attention("unchanged", "precedent", "auto"), false);
+  assert.equal(attention(null, null, null), false);
+});
+
+test("a genuine precedent change stays Changed and also shows that a person must look", () => {
+  for (const route of ["needs_review", "needs_info"]) {
+    const v = watchView("changed", "precedent", route, "confidence 0.60 is below the bar");
+    assert.equal(v.kind, "changed");
+    assert.equal(v.label, "Changed");
+    assert.equal(v.attention, true);
+    assert.match(v.reviewNote, /needs a person to look/);
+    assert.match(v.reviewNote, /below the bar/);
+  }
+});
+
+test("a precedent change on the auto route shows no review text and no approving reason", () => {
+  const v = watchView("changed", "precedent", "auto", "confidence 0.97 >= 0.92 and in scope");
+  assert.equal(v.kind, "changed");
+  assert.equal(v.reviewNote, "");
+  assert.equal(v.attention, true, "a change is always worth a look");
+  const none = watchView("changed", "precedent", undefined, "confidence 0.97 >= 0.92 and in scope");
+  assert.equal(none.reviewNote, "");
+});
