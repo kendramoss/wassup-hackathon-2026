@@ -2,12 +2,12 @@
   "_doc": "SHA-256 of every model prompt and the version it is recorded under (D72). Regenerate with: cd backend \u0026\u0026 go test ./internal/promptsnap -update. The test refuses to update while a prompt's text changed and its version did not.",
   "prompts": {
     "caseagent.request": {
-      "version": "case-agent-v3",
-      "sha256": "87ea6c3e03220815dddac3af8b6763fb066e727073ece7d8c9f7a7eb155e5117"
+      "version": "case-agent-v4",
+      "sha256": "45a382eafcaff10f79310ae578da8dbb19838fc4dcd0e85d6a1490d26200513b"
     },
     "caseagent.system": {
-      "version": "case-agent-v3",
-      "sha256": "54f1517d1fbea51e3bde377fd99257609725ae5893a0c5892d98dda30bfb7909"
+      "version": "case-agent-v4",
+      "sha256": "b9cf36688928b43a3f8f11b45c0ee266db644f68a196454f266fadbefadcb984"
     },
     "clarify.answers": {
       "version": "answers-v2",

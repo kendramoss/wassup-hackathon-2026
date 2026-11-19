@@ -566,7 +566,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26); 400 if no answer adds a fact
+         * Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26), while a sentence that states a fact together with something unknown is kept whole and verbatim, unknown part included, so the analysis reads the requester's own uncertainty (D115); conditional, hedged or ambiguous mixed sentences are left out whole; 400 if no answer adds a fact
          * @description When the answers change the facts, the case's plan search, target comparison, watch result and exported mark are cleared (they were worked out from the old facts); history and scenarios stay. 409 `conflict` when the case's inputs (for example a new BOM) changed while the re-analysis ran; the answers are not saved, send them again. D97.
          */
         post: {
@@ -1194,7 +1194,7 @@ export interface paths {
         put?: never;
         /**
          * Ask the case agent a question about this case
-         * @description An ADK agent with tools get_case, search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on revised facts, at most 2 per question).
+         * @description An ADK agent with tools get_case (the first 6000 characters of the facts, with a notice when more exist), get_case_facts (the facts by character offset, at most 4000 per call), search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on the full revised facts, at most 12,000 characters, at most 2 per question; longer facts are refused with a message and nothing is predicted) (D116).
          *     The conversation is kept on the case (last 20 turns; the last 6 are given as context). {"reset": true} clears it. Typical latency 15–40 s through the proxy.
          */
         post: {
@@ -1279,6 +1279,7 @@ export interface paths {
                         scenarios: {
                             /** @description defaults to 'Scenario N' */
                             label?: string;
+                            /** @description Free text, trimmed and stored with one terminal newline; at most 12,000 characters, not counting that newline (400 beyond) (D116) */
                             facts?: string;
                             product?: components["schemas"]["Product"];
                         }[];
@@ -2269,7 +2270,7 @@ export interface components {
             origin?: string;
             confidence?: number;
             decisive_step?: string;
-            /** @description The revised facts the engine re-ran */
+            /** @description The revised facts the engine re-ran: trimmed, with one terminal newline. The same string is stored on the chat turn and is accepted unchanged by POST /v1/cases/{id}/scenarios (D116). */
             facts?: string;
             /** @description Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D100). */
             regime?: string;

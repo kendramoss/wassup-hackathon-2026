@@ -20,7 +20,6 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 	"google.golang.org/genai"
 
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
@@ -28,7 +27,7 @@ import (
 )
 
 // PromptVersion is recorded with every answer.
-const PromptVersion = "case-agent-v3" // v3: regime context (not every case is substantial transformation); what_if reports the applied regime, review route and provisional state (#319)
+const PromptVersion = "case-agent-v4" // v4: get_case_facts pages the facts past get_case's first 6000 characters; what_if takes the full revised facts, at most 12000 characters, and is told to shorten and retry when rejected (#320, #321). v3: regime context (not every case is substantial transformation); what_if reports the applied regime, review route and provisional state (#319)
 
 // Limits per question.
 const (
@@ -44,8 +43,9 @@ Which legal test a prediction used depends on the regime the case was routed to.
 
 Tools:
 - get_case: the facts, the prediction (origin, confidence, decisive step, reasoning, earlier rulings used), the review route, any plans and scenarios. Call it first. It may not name the regime; if it does not, do not guess one.
+- get_case_facts: the case facts by character offset and limit (at most 4000 per call). get_case shows only the first 6000 characters and says when the facts are INCOMPLETE; when it does, call get_case_facts from the offset it names (then next_offset) until "end of facts" before you answer anything that depends on the facts.
 - search_rulings / read_ruling: earlier CBP rulings (dated before the case). Use them to support or test an answer.
-- what_if: re-run the origin prediction on revised facts. Use it when the user asks what would happen if something changed; pass the full revised facts, changing only what the user asked about. Its result states the regime that answered (or "unknown"), the review route and whether the result is provisional.
+- what_if: re-run the origin prediction on revised facts. Use it when the user asks what would happen if something changed; pass the full revised facts, changing only what the user asked about, at most 12000 characters. If it says the facts are too long and nothing was predicted, shorten the full revised facts (keep the facts that decide origin) and call it again. Its result states the regime that answered (or "unknown"), the review route and whether the result is provisional.
 
 Rules:
 - Answer only about this case and CBP origin practice. Ground every claim in the case or a ruling you read; cite ruling numbers like N351460.
@@ -186,6 +186,12 @@ type whatIfArgs struct {
 	Facts  string `json:"facts" jsonschema:"the full revised facts"`
 }
 
+type factsArgs struct {
+	// Offset is required in the tool schema (no omitempty); 0 means the start.
+	Offset int `json:"offset" jsonschema:"rune offset to start at; 0 to the total"`
+	Limit  int `json:"limit,omitempty" jsonschema:"runes to return; default and maximum 4000"`
+}
+
 type noArgs struct{}
 
 type out struct {
@@ -216,6 +222,16 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 		func(agent.ToolContext, noArgs) (out, error) {
 			note(Step{Tool: "get_case"}, in.CaseSummary)
 			return out{in.CaseSummary}, nil
+		})
+	if err != nil {
+		return Answer{}, fmt.Errorf("caseagent: %w", err)
+	}
+	factsTool, err := functiontool.New(functiontool.Config{Name: "get_case_facts",
+		Description: "Read this case's facts by rune offset and limit (at most 4000 runes per call). get_case shows only the first 6000 runes; use this for the rest."},
+		func(_ agent.ToolContext, x factsArgs) (out, error) {
+			text := factsPage(in.Facts, x.Offset, x.Limit)
+			note(Step{"get_case_facts", fmt.Sprintf("offset=%d limit=%d", x.Offset, x.Limit)}, text)
+			return out{text}, nil
 		})
 	if err != nil {
 		return Answer{}, fmt.Errorf("caseagent: %w", err)
@@ -255,12 +271,19 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 			if n >= MaxWhatIfs {
 				return out{"what-if budget used; answer with what you have"}, nil
 			}
-			facts := strings.TrimSpace(x.Facts)
-			if facts == "" {
-				return out{"facts are required"}, nil
+			facts, runes, ok := domain.CanonicalFacts(x.Facts)
+			if !ok {
+				if runes == 0 {
+					return out{"facts are required"}, nil
+				}
+				// Never predict a prefix: the card, the saved turn and
+				// Add-as-scenario must all hold what was predicted.
+				msg := fmt.Sprintf("these revised facts are %d characters; the limit is %d. Nothing was predicted. Shorten the full revised facts to at most %d characters (keep the facts that decide origin) and call what_if again.", runes, domain.MaxFactsRunes, domain.MaxFactsRunes)
+				note(Step{"what_if", x.Change}, msg)
+				return out{msg}, nil
 			}
-			wc := domain.Case{ID: "what-if", Date: in.Date, Facts: corpus.Truncate(facts, domain.MaxFactsRunes) + "\n", Exclude: in.Exclude}
-			w, text, err := a.runWhatIf(ctx, wc, x.Change, facts)
+			wc := domain.Case{ID: "what-if", Date: in.Date, Facts: facts, Exclude: in.Exclude}
+			w, text, err := a.runWhatIf(ctx, wc, x.Change)
 			if err != nil {
 				return out{}, err
 			}
@@ -282,7 +305,7 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 		Model:                 m,
 		InstructionProvider:   func(agent.ReadonlyContext) (string, error) { return System, nil },
 		GenerateContentConfig: &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0)},
-		Tools:                 []tool.Tool{caseTool, searchTool, readTool, whatIfTool},
+		Tools:                 []tool.Tool{caseTool, factsTool, searchTool, readTool, whatIfTool},
 		BeforeToolCallbacks: []llmagent.BeforeToolCallback{
 			func(agent.ToolContext, tool.Tool, map[string]any) (map[string]any, error) {
 				mu.Lock()
@@ -366,14 +389,14 @@ func (a *Agent) Ask(ctx context.Context, in Input) (Answer, error) {
 
 // runWhatIf runs the revised facts through the same dispatch and triage as a
 // saved scenario when the predictor can classify, and says so when it cannot.
-func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change, facts string) (WhatIf, string, error) {
+func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change string) (WhatIf, string, error) {
 	if cl, ok := a.engine.(Classifier); ok {
 		k, err := cl.Classify(ctx, c)
 		if err != nil {
 			return WhatIf{}, "", err
 		}
 		p := k.Result.Prediction
-		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: facts,
+		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts,
 			Regime: k.Regime, Specialist: k.Specialist, Scope: k.Scope, Route: k.Route, Reason: k.Reason, Provisional: k.Provisional()}
 		if w.Regime == "" {
 			w.Regime = "unknown"
@@ -399,7 +422,7 @@ func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change, facts stri
 		return WhatIf{}, "", err
 	}
 	p := res.Prediction
-	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: facts, Regime: "unclassified",
+	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts, Regime: "unclassified",
 		Provisional: "this run had no regime dispatch or review route"}
 	text := fmt.Sprintf("origin %s, confidence %.2f, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: unclassified. PROVISIONAL: %s; an expert reviews. Do not present this origin as settled or regime-correct.",
 		p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Provisional)

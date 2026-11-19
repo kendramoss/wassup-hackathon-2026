@@ -100,3 +100,79 @@ func TestPharmaSplitIsDated(t *testing.T) {
 		t.Errorf("server list: %d rulings, %v", len(server), err)
 	}
 }
+
+func revisionFixture(t *testing.T, facts map[string]string, labels []Label) *Store {
+	t.Helper()
+	dir := t.TempDir()
+	for id, f := range facts {
+		if err := os.WriteFile(filepath.Join(dir, id+".txt"), []byte(f), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s, err := Load(labels, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return s
+}
+
+func revLabel(id, date, origin, holding, subject string) Label {
+	return Label{Ruling: id, Date: date, Subject: subject, PrimaryOrigin: &origin, Evidence: []string{holding}}
+}
+
+func TestStoreRevision(t *testing.T) {
+	facts := map[string]string{"N100001": "alpha facts\n", "N100002": "beta facts\n"}
+	base := []Label{
+		revLabel("N100001", "2025-01-02", "Thailand", "Origin is Thailand.", "Heat gun"),
+		revLabel("N100002", "2025-01-03", "Vietnam", "Origin is Vietnam.", "Lamp"),
+	}
+	r0 := revisionFixture(t, facts, base).Revision()
+	if len(r0) != 64 {
+		t.Fatalf("revision %q is not hex sha256", r0)
+	}
+	if again := revisionFixture(t, facts, base).Revision(); again != r0 {
+		t.Error("same inputs must give the same revision (no run paths or timestamps)")
+	}
+	// A label without a usable origin or facts is not evidence.
+	extra := append(append([]Label{}, base...), Label{Ruling: "N100009", Date: "2025-02-01"}, revLabel("N100008", "2025-02-01", "PRC", "x", "no facts file"))
+	if got := revisionFixture(t, facts, extra).Revision(); got != r0 {
+		t.Error("rulings outside the store must not change the revision")
+	}
+
+	changed := map[string]struct {
+		facts  map[string]string
+		labels []Label
+	}{
+		"facts corrected": {map[string]string{"N100001": "alpha facts corrected\n", "N100002": "beta facts\n"}, base},
+		"origin":          {facts, []Label{revLabel("N100001", "2025-01-02", "PRC", "Origin is Thailand.", "Heat gun"), base[1]}},
+		"holding":         {facts, []Label{revLabel("N100001", "2025-01-02", "Thailand", "Origin is Thailand!", "Heat gun"), base[1]}},
+		"date":            {facts, []Label{revLabel("N100001", "2025-01-04", "Thailand", "Origin is Thailand.", "Heat gun"), base[1]}},
+		"subject":         {facts, []Label{revLabel("N100001", "2025-01-02", "Thailand", "Origin is Thailand.", "Heater"), base[1]}},
+		"removed":         {map[string]string{"N100001": "alpha facts\n"}, base},
+		"added":           {map[string]string{"N100001": "alpha facts\n", "N100002": "beta facts\n", "N100003": "g\n"}, append(append([]Label{}, base...), revLabel("N100003", "2025-01-05", "India", "h", "s"))},
+		// BM25 breaks score ties by corpus position, so order is evidence.
+		"order": {facts, []Label{base[1], base[0]}},
+	}
+	for name, c := range changed {
+		if got := revisionFixture(t, c.facts, c.labels).Revision(); got == r0 {
+			t.Errorf("%s: revision unchanged", name)
+		}
+	}
+	// Field boundaries are unambiguous.
+	a := revisionFixture(t, map[string]string{"N100001": "ab\n"}, []Label{revLabel("N100001", "2025-01-02", "Thailand", "c", "")})
+	b := revisionFixture(t, map[string]string{"N100001": "a\n"}, []Label{revLabel("N100001", "2025-01-02", "Thailand", "bc", "")})
+	if a.Revision() == b.Revision() {
+		t.Error("field boundaries must be part of the hash")
+	}
+}
+
+func TestRevisionOfCoversReasoning(t *testing.T) {
+	s := revisionFixture(t, map[string]string{"N100001": "f\n"}, []Label{revLabel("N100001", "2025-01-02", "Thailand", "h", "s")})
+	if RevisionOf(s.Rulings()) != s.Revision() {
+		t.Error("RevisionOf over the store rulings must equal Store.Revision")
+	}
+	with := WithReasoning(s.Rulings(), map[string]string{"N100001": "CBP reasoning"})
+	if RevisionOf(with) == s.Revision() {
+		t.Error("attached reasoning is shown in the prompt, so it must change the revision")
+	}
+}

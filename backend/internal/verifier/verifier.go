@@ -3,6 +3,8 @@ package verifier
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -207,9 +209,110 @@ type Result struct {
 	Dropped []string
 	// Cached is true when the verdict came from Cache, not a fresh run.
 	Cached bool
+	// Proof is the current-validation evidence behind the cited rulings. A
+	// cached verdict that cites a ruling is replayed only with a Proof that
+	// matches the task (see cachedViolation); the display Trail is not proof.
+	Proof *Proof `json:"proof,omitempty"`
 	// ToolErrors counts search/read calls that failed (e.g. CROSS down). A
 	// verdict reached without that evidence is not cached (D58).
 	ToolErrors int
+}
+
+// Proof records which rulings a fresh run actually retrieved directly and
+// validated (valid id, not excluded, dated before the bound, read header
+// naming the id), together with the task bounds they were validated against
+// and the validation epoch. It is stored with the cached verdict.
+type Proof struct {
+	Epoch    string   `json:"epoch"`
+	Before   string   `json:"before"`
+	Exclude  []string `json:"exclude"`
+	Eligible []string `json:"eligible"`
+}
+
+func newProof(t Task, eligible map[string]bool) *Proof {
+	p := &Proof{Epoch: ValidationEpoch, Before: t.Before.Format(time.DateOnly), Exclude: sortedCopy(t.Exclude)}
+	for id := range eligible {
+		p.Eligible = append(p.Eligible, id)
+	}
+	slices.Sort(p.Eligible)
+	return p
+}
+
+// ProofFor builds the current-epoch proof that the given rulings were
+// validated for task t. Production code gets it from Verify; fixtures use it
+// to model a genuinely validated fresh run.
+func ProofFor(t Task, eligible ...string) *Proof {
+	m := map[string]bool{}
+	for _, id := range eligible {
+		m[id] = true
+	}
+	return newProof(t, m)
+}
+
+// originAlt splits a raw origin into alternatives the way domain.NormalizeCountry
+// does ("/", "|", "and/or", "or"), so every member can be checked before
+// normalisation silently drops empty ones.
+var originAlt = regexp.MustCompile(`\s*(?:/|\||\band/or\b|\bor\b)\s*`)
+
+// originParts is the sorted set of countries in a raw origin string, through
+// the domain normalisation (aliases, spellings), and whether the string is
+// usable at all. It is not usable, and ok is false, when it is empty, when any
+// "/"-alternative is empty or "unknown" ("Unknown/China", "China/", "A//B"
+// are never read as just "China"), or when it contains a comma: a list such
+// as "China, Thailand" is not a supported single representation and the
+// normaliser would glue it into one bogus country, so it is ambiguous.
+func originParts(s string) (parts []string, ok bool) {
+	if strings.TrimSpace(s) == "" || strings.Contains(s, ",") {
+		return nil, false
+	}
+	for _, m := range originAlt.Split(strings.TrimSpace(s), -1) {
+		n := domain.NormalizeCountry(m)
+		if n == "" || strings.EqualFold(n, "unknown") {
+			return nil, false
+		}
+		parts = append(parts, n)
+	}
+	slices.Sort(parts)
+	return slices.Compact(parts), true
+}
+
+// originViolation reports why a verdict claiming that the move changes origin
+// from originA to originB cannot be supported for t, or "" when the claim is
+// coherent. It is conservative and never invents a country or assumes a
+// change: an unknown, empty or malformed origin (any member, a comma list) is
+// not a change; origins that normalise to the same countries are not a
+// change; and when t.KnownOriginA is set, originA must normalise to it. A
+// KnownOriginA that is set but unusable (unknown, malformed) is an ambiguous
+// baseline: it fails closed rather than skipping the contradiction check.
+// Used for fresh acceptance and, through cachedViolation, for every replay.
+func originViolation(originA, originB string, t Task) string {
+	a, okA := originParts(originA)
+	b, okB := originParts(originB)
+	if !okA || !okB {
+		return "origin unknown, missing or malformed"
+	}
+	if slices.Equal(a, b) {
+		return "claimed origin change between equivalent origins"
+	}
+	if strings.TrimSpace(t.KnownOriginA) != "" {
+		k, okK := originParts(t.KnownOriginA)
+		if !okK {
+			return "known baseline is ambiguous"
+		}
+		if !slices.Equal(k, a) {
+			return "origin_a contradicts the known baseline"
+		}
+	}
+	return ""
+}
+
+func sortedCopy(ss []string) []string {
+	out := slices.Clone(ss)
+	if out == nil {
+		out = []string{}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
 }
 
 // Options configures the verifier.
@@ -305,14 +408,22 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		toolErrors++
 		mu.Unlock()
 	}
-	seen := map[string]bool{} // rulings that appeared in any tool result
-	note := func(s Step, out string, found []string) {
+	// eligible holds the only identities a verdict may cite: rulings the
+	// agent retrieved directly (a search hit, or a read_ruling result) that
+	// pass the date bound and Task.Exclude. Ids that merely appear inside
+	// ruling text (cross-references) are never added.
+	eligible := map[string]bool{}
+	allow := func(ids []string) {
+		mu.Lock()
+		defer mu.Unlock()
+		for _, id := range ids {
+			eligible[id] = true
+		}
+	}
+	note := func(s Step, found []string) {
 		mu.Lock()
 		defer mu.Unlock()
 		steps = append(steps, s)
-		for _, id := range rulingRef.FindAllString(out, -1) {
-			seen[id] = true
-		}
 		tool := "search"
 		if s.Tool == "read_ruling" {
 			tool = "read"
@@ -330,7 +441,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			return toolOut{}, err
 		}
 		out := formatHits(hits)
-		note(Step{"search_rulings", a.Query}, out, hitIDs(hits))
+		allow(eligibleHits(hits, t.Before, exclude))
+		note(Step{"search_rulings", a.Query}, hitIDs(hits))
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -349,7 +461,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		if id := strings.TrimSpace(a.Ruling); out != notFound && domain.ValidRulingID(id) {
 			found = []string{id}
 		}
-		note(Step{"read_ruling", a.Ruling}, out, found)
+		allow(eligibleRead(strings.TrimSpace(a.Ruling), out, t.Before, exclude))
+		note(Step{"read_ruling", a.Ruling}, found)
 		return toolOut{out}, nil
 	})
 	if err != nil {
@@ -376,7 +489,8 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 			failed()
 		} else {
 			out := formatHits(hits)
-			note(Step{"first_search", q}, out, hitIDs(hits))
+			allow(eligibleHits(hits, t.Before, exclude))
+			note(Step{"first_search", q}, hitIDs(hits))
 			message += "\n\nFIRST SEARCH (run for you, for the change between A and B):\n" + out
 		}
 	}
@@ -449,6 +563,9 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 	}
 
 	res := Result{Steps: steps, ModelCalls: m.calls, Usage: m.usage, ToolErrors: toolErrors}
+	mu.Lock()
+	res.Proof = newProof(t, eligible)
+	mu.Unlock()
 	var ans answer
 	if err := (llm.Response{Text: final}).DecodeJSON(&ans); err != nil {
 		return res, fmt.Errorf("verifier: final answer: %w", err)
@@ -464,7 +581,7 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		if !domain.ValidRulingID(id) {
 			return ""
 		}
-		if !seen[id] {
+		if !eligible[id] || exclude[id] { // acceptance re-checks the exclusions itself
 			res.Dropped = append(res.Dropped, id)
 			return ""
 		}
@@ -482,10 +599,63 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 		vd.Confidence = *ans.Confidence
 	}
 	reachesTarget := t.Target == "" || res.OriginB == domain.NormalizeCountry(t.Target)
-	vd.PrecedentSupported = ans.ChangesOrigin && reachesTarget && vd.SupportingRuling != ""
+	// A claimed change must be a real one: equivalent origins ("Thai" and
+	// "Thailand") or an origin_a that contradicts CBP's known holding for A
+	// are not a supported move (originViolation), whatever the ruling says. The
+	// raw answer is checked: normalisation would silently drop an empty or
+	// unknown "/" member.
+	vd.PrecedentSupported = ans.ChangesOrigin && reachesTarget && vd.SupportingRuling != "" &&
+		originViolation(ans.OriginA, ans.OriginB, t) == ""
 	if err := vd.Validate(); err != nil {
 		return res, fmt.Errorf("verifier: %w: %v", llm.ErrBadResponse, err)
 	}
 	res.Verdict = vd
 	return res, nil
+}
+
+// eligibleHits lists the search hits a verdict may cite: well-formed ids dated
+// strictly before the bound and not excluded. A backend that ignored the
+// bound or the exclusions gets no credit for it here.
+func eligibleHits(hits []Hit, before time.Time, exclude map[string]bool) []string {
+	var ids []string
+	for _, h := range hits {
+		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && inBound(h.Date, before) {
+			ids = append(ids, h.ID)
+		}
+	}
+	return ids
+}
+
+// readHeader is the "[ID | date]" line read_ruling results start with.
+var readHeader = regexp.MustCompile(`^\[([NH][0-9]{6})(?: \| ([0-9]{4}-[0-9]{2}-[0-9]{2}))?`)
+
+// eligibleRead returns the ruling a read_ruling call actually returned, if
+// any: the result's own header must name the id asked for, the id must not
+// be excluded, and a header date must be before the bound. Ids mentioned in
+// the text of the result are never eligible.
+func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []string {
+	if out == notFound || !domain.ValidRulingID(id) || exclude[id] {
+		return nil
+	}
+	m := readHeader.FindStringSubmatch(out)
+	if m == nil || m[1] != id {
+		return nil
+	}
+	if m[2] == "" {
+		if !before.IsZero() {
+			return nil // a bounded task needs the header date to prove the bound
+		}
+	} else if d, err := time.Parse(time.DateOnly, m[2]); err != nil || !inBound(d, before) {
+		return nil
+	}
+	return []string{id}
+}
+
+// inBound reports whether a ruling dated d may be precedent for a task bounded
+// by before. A bounded task never accepts an unknown (zero) date.
+func inBound(d, before time.Time) bool {
+	if before.IsZero() {
+		return true
+	}
+	return !d.IsZero() && d.Before(before)
 }

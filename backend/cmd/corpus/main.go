@@ -7,6 +7,17 @@
 //	corpus build   [-raw DIR] [-facts DIR]
 //	    Split each ruling into its facts section (corpus.SplitFacts) and write
 //	    DIR/<id>.txt plus DIR/split_meta.jsonl.
+//	    The facts directory carries .generated_manifest.json naming the files
+//	    this command wrote; a rebuild removes exactly the manifest-listed
+//	    <id>.txt files whose raw input is gone. Files outside the manifest
+//	    (Part 102 facts from usmca-label, user files, output predating the
+//	    manifest) are never touched; a directory without a manifest is not
+//	    pruned. A directory from before manifests is bootstrapped from the
+//	    previous build's split_meta.jsonl; with neither, unexplained ruling
+//	    files make the build fail (nothing changed) instead of staying stale.
+//	corpus bundle  [-from DIR] [-to DIR]
+//	    Copy built facts files into the bundled directory (make bundle-corpus)
+//	    and remove only the files a previous bundle copied that are gone.
 //	corpus embed   [-facts DIR] [-out FILE] [-dims 768]
 //	    Embed the facts of every labelled ruling (gemini-embedding-001 via the
 //	    configured LLM provider) into a vector index for hybrid retrieval.
@@ -26,7 +37,7 @@
 package main
 
 import (
-	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -42,6 +53,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
@@ -50,7 +62,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -59,6 +71,8 @@ func main() {
 		err = fetch(os.Args[2:])
 	case "build":
 		err = build(os.Args[2:])
+	case "bundle":
+		err = bundle(os.Args[2:])
 	case "compare":
 		err = compare(os.Args[2:])
 	case "embed":
@@ -159,6 +173,7 @@ func build(args []string) error {
 	fl := flag.NewFlagSet("build", flag.ExitOnError)
 	rawDir := fl.String("raw", "../data/corpus/raw", "CROSS JSON directory")
 	factsDir := fl.String("facts", "../data/corpus/facts", "output directory for facts files")
+	keep := fl.String("keep-labels", "../eval/data/labels_usmca.jsonl", "labels file whose facts are generated separately (usmca-label); never pruned")
 	_ = fl.Parse(args)
 
 	files, err := filepath.Glob(filepath.Join(*rawDir, "*.json"))
@@ -166,16 +181,13 @@ func build(args []string) error {
 		return err
 	}
 	sort.Strings(files)
-	if err := os.MkdirAll(*factsDir, 0o755); err != nil {
-		return err
-	}
-	metaF, err := os.Create(filepath.Join(*factsDir, "split_meta.jsonl"))
+	protect, err := protectedIDs(*keep)
 	if err != nil {
 		return err
 	}
-	defer metaF.Close()
-	w := bufio.NewWriter(metaF)
-	defer w.Flush()
+	// Compute every output before touching the facts directory.
+	facts := map[string][]byte{}
+	var meta bytes.Buffer
 	for _, fn := range files {
 		b, err := os.ReadFile(fn)
 		if err != nil {
@@ -185,18 +197,23 @@ func build(args []string) error {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return fmt.Errorf("%s: %w", fn, err)
 		}
-		facts, meta := corpus.SplitFacts(r.Text)
-		// Trailing newline as in the research facts files, so prompts match.
-		if err := os.WriteFile(filepath.Join(*factsDir, r.RulingNumber+".txt"), []byte(facts+"\n"), 0o644); err != nil {
-			return err
+		if !domain.ValidRulingID(r.RulingNumber) {
+			return fmt.Errorf("%s: ruling number %q is not a CBP ruling number", fn, r.RulingNumber)
 		}
+		text, m := corpus.SplitFacts(r.Text)
+		// Trailing newline as in the research facts files, so prompts match.
+		facts[r.RulingNumber] = []byte(text + "\n")
 		line, _ := json.Marshal(struct {
 			Ruling string `json:"ruling"`
 			corpus.SplitMeta
-		}{r.RulingNumber, meta})
-		_, _ = w.Write(append(line, '\n'))
+		}{r.RulingNumber, m})
+		meta.Write(append(line, '\n'))
 	}
-	fmt.Fprintf(os.Stderr, "build: %d facts files in %s\n", len(files), *factsDir)
+	res, err := reconcile(*factsDir, buildManifest, "split_meta.jsonl", "Move them out of the facts directory (or restore the older split_meta.jsonl that listed them) and rerun.", facts, map[string][]byte{"split_meta.jsonl": meta.Bytes()}, protect)
+	if err != nil {
+		return err
+	}
+	reportReconcile("build", *factsDir, res)
 	return nil
 }
 

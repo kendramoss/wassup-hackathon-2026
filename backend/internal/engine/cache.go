@@ -11,6 +11,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/retrieval"
 )
 
 // Cache stores engine predictions so the same facts, date and exclusions get
@@ -18,7 +19,13 @@ import (
 // demo replay then depend on the model only the first time, which matters
 // when the provider is short of capacity (429 and 504 from Vertex), and a
 // replayed case gives exactly the recorded answer. The key includes the
-// model, prompt version, K and voting, so a prompt change re-predicts.
+// model, prompt version, K and voting, so a prompt change re-predicts, and
+// the revision of the evidence the retriever searches, so an added, removed
+// or corrected precedent re-predicts instead of replaying a stale citation.
+// A retriever that cannot name its evidence revision (no Revision method, or
+// an empty one) makes the cache a pass-through: nothing is read or written,
+// because any fixed marker would reuse answers across different evidence.
+// An engine with no retriever (or K = 0) has no evidence and keeps caching.
 type Cache struct {
 	inner *Engine
 	blobs blob.Store
@@ -27,7 +34,18 @@ type Cache struct {
 // NewCache wraps e with a prediction cache in blobs.
 func NewCache(e *Engine, blobs blob.Store) *Cache { return &Cache{inner: e, blobs: blobs} }
 
+// evidence returns the evidence revision for the key and whether the cache
+// may be used at all.
+func (c *Cache) evidence() (rev string, ok bool) {
+	if c.inner.retr == nil || c.inner.opts.K <= 0 {
+		return "", true
+	}
+	rev = retrieval.RevisionOf(c.inner.retr)
+	return rev, rev != ""
+}
+
 func (c *Cache) key(model string, k domain.Case) string {
+	rev, _ := c.evidence()
 	ex := slices.Clone(k.Exclude)
 	slices.Sort(ex)
 	b, _ := json.Marshal(struct {
@@ -35,7 +53,8 @@ func (c *Cache) key(model string, k domain.Case) string {
 		K, Votes                      int
 		VoteBelow                     float64
 		Exclude                       []string
-	}{model, c.inner.promptVersion(), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex})
+		Evidence                      string `json:",omitempty"` // empty only without a retriever
+	}{model, c.inner.promptVersion(), k.Facts, k.Date.Format(time.DateOnly), c.inner.opts.K, c.inner.opts.Votes, c.inner.opts.VoteBelow, ex, rev})
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
 }
@@ -52,7 +71,7 @@ type cached struct {
 // A case whose ID is a ruling number is not cached: its precedents exclude
 // that ruling, which the key does not cover (eval rows only).
 func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
-	if !cacheable(k) {
+	if _, ok := c.evidence(); !cacheable(k) || !ok {
 		return c.inner.Predict(ctx, k)
 	}
 	if r, ok, err := c.Peek(ctx, k); err != nil {
@@ -84,7 +103,7 @@ func cacheable(k domain.Case) bool {
 // so it does not satisfy this lookup and a later primary success is not
 // blocked (D56). The plan-search estimate uses it read-only (D87).
 func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
-	if !cacheable(k) {
+	if _, ok := c.evidence(); !cacheable(k) || !ok {
 		return Result{}, false, nil
 	}
 	b, ok, err := c.blobs.Get(ctx, c.key(c.inner.opts.Model, k))

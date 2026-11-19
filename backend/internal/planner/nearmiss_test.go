@@ -41,7 +41,7 @@ func (confByMove) Verify(_ context.Context, t verifier.Task) (verifier.Result, e
 	case strings.Contains(t.FactsB, "In Thailand, the main housing"):
 		c = 0.86
 	}
-	return verifier.Result{Verdict: domain.Verdict{PrecedentSupported: true, SupportingRuling: "N325810", Confidence: c}}, nil
+	return verifier.Result{OriginA: "China", OriginB: "Thailand", ChangesOrigin: true, Verdict: domain.Verdict{PrecedentSupported: true, SupportingRuling: "N325810", Confidence: c}, Proof: verifier.ProofFor(t, "N325810")}, nil
 }
 
 type fakeAdvisor struct {

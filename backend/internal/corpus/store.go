@@ -1,6 +1,9 @@
 package corpus
 
 import (
+	"crypto/sha256"
+	"encoding/binary"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -22,6 +25,7 @@ type Store struct {
 	rulings []domain.Ruling
 	byID    map[string]int
 	labels  map[string]Label
+	rev     string
 }
 
 // Load builds a store from labels and a directory of facts files
@@ -53,7 +57,42 @@ func Load(labels []Label, factsDir string) (*Store, error) {
 			Origin:  domain.NormalizeCountry(l.Origin()),
 		})
 	}
+	s.rev = RevisionOf(s.rulings)
 	return s, nil
+}
+
+// Revision identifies the evidence the store can put in front of the engine
+// and retriever. It is computed once by Load, so it is immutable and costs
+// nothing per request. It changes when a ruling is added, removed or
+// corrected, or when the corpus order changes (BM25 breaks score ties by
+// corpus position), and not with paths, mtimes or unused labels. Reasoning
+// attached after Load (WithReasoning) is not included; use RevisionOf on the
+// final ruling slice for that.
+func (s *Store) Revision() string { return s.rev }
+
+// RevisionOf is the hex sha256 over rulings in order. Each ruling
+// contributes every field the retriever indexes or the prompt renders (ID,
+// date, origin, holding, subject, facts, reasoning), length-prefixed so field
+// boundaries cannot collide.
+func RevisionOf(rulings []domain.Ruling) string {
+	h := sha256.New()
+	put := func(v string) {
+		var n [8]byte
+		binary.BigEndian.PutUint64(n[:], uint64(len(v)))
+		h.Write(n[:])
+		h.Write([]byte(v))
+	}
+	put("corpus-revision-v1")
+	for _, r := range rulings {
+		put(r.ID)
+		put(r.Date.Format("2006-01-02"))
+		put(r.Origin)
+		put(r.Holding)
+		put(r.Subject)
+		put(r.Facts)
+		put(r.Reasoning)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // Rulings returns all rulings in corpus order. Callers must not modify it.

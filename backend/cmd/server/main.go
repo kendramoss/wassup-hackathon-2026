@@ -253,7 +253,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		return httpapi.Deps{}, fmt.Errorf("corpus: no precedent facts in %s (run: go run ./cmd/corpus fetch && go run ./cmd/corpus build)", cfg.FactsDir)
 	}
 	logger.Info("corpus loaded", "precedents", pool.Len(), "facts_dir", cfg.FactsDir)
-	eng := engine.New(engineModel, retrieval.NewBM25(pool.Rulings(), engine.PrecedentText),
+	eng := engine.New(engineModel, evidenceBM25(pool.Rulings()),
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
 	crossClient := cross.NewHTTPClient(cross.UserAgent)
 	local, err := verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir)
@@ -294,7 +294,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			tpool = corpus.WithReasoning(tpool, reasons)
 			opts.System, opts.Version, opts.PrecedentReasoning = engine.TextileSystem2, engine.TextileVersion2, true
 		}
-		textileEng = engine.New(engineModel, retrieval.NewBM25(tpool, engine.PrecedentText), opts)
+		textileEng = engine.New(engineModel, evidenceBM25(tpool), opts)
 		logger.Info("textile engine on", "precedents", len(tpool), "prompt", opts.Version, "fast_path", cfg.TextileFastPath)
 	}
 	var precedents httpapi.PrecedentStore = pool
@@ -311,7 +311,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		if upool.Len() == 0 {
 			return httpapi.Deps{}, fmt.Errorf("USMCA engine: no ruling in %s has facts in %s", cfg.USMCALabels, cfg.FactsDir)
 		}
-		usmcaEng = engine.New(engineModel, retrieval.NewBM25(upool.Rulings(), engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+		usmcaEng = engine.New(engineModel, evidenceBM25(upool.Rulings()), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.USMCASystem, Version: engine.USMCAVersion})
 		// Most USMCA precedents (2015-2022) are not in labels.jsonl; the API
 		// looks them up here too so their details are not lost.
@@ -330,7 +330,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 				ppool = append(ppool, r)
 			}
 		}
-		pharmaEng = engine.New(engineModel, retrieval.NewBM25(ppool, engine.PrecedentText), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
+		pharmaEng = engine.New(engineModel, evidenceBM25(ppool), engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
 		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
 	}
@@ -632,4 +632,14 @@ func runSmoke(ctx context.Context, model llm.Model, cfg config.Config) error {
 		"llm_provider": resp.Provider, "model_id": resp.ModelID, "usage": resp.Usage,
 		"latency_ms": resp.Latency.Milliseconds(), "finish_reason": resp.FinishReason, "answer": answer,
 	})
+}
+
+// evidenceBM25 indexes exactly rs and stamps the index with the revision of
+// that same slice (corpus.RevisionOf), computed once at startup. The slice
+// must be the final one: textile after WithReasoning, USMCA and pharma as the
+// subsets they index, never the Load-time Store.Revision of a wider pool. The
+// engine prediction cache keys on this revision and bypasses itself for a
+// retriever without one (#316).
+func evidenceBM25(rs []domain.Ruling) *retrieval.BM25 {
+	return retrieval.NewBM25(rs, engine.PrecedentText).WithRevision(corpus.RevisionOf(rs))
 }
