@@ -20,19 +20,21 @@ func TestAppendAnswersDropsHedgesAndUnknowns(t *testing.T) {
 	}
 }
 
+// Policy: a mixed sentence with an accepted known clause is returned whole and
+// verbatim (qualifiers kept); the model reads the uncertainty.
 func TestFactualSplitsMixedClauses(t *testing.T) {
 	for _, c := range []struct{ name, in, want string }{
-		{"but", "The motor is made in Thailand, but its value share is unknown.", "The motor is made in Thailand."},
-		{"but no comma", "The motor is made in Thailand but its value share is unknown.", "The motor is made in Thailand."},
-		{"semicolon", "The motor is made in Thailand; the firmware origin is not stated.", "The motor is made in Thailand."},
-		{"and", "The housing is moulded in Vietnam and the resin source is unknown.", "The housing is moulded in Vietnam."},
-		{"unknown first", "The firmware origin is unknown, but the motor is made in Thailand.", "The motor is made in Thailand."},
-		{"keeps both sides", "The motor is made in Thailand, the value share is unknown, and the housing is cast in Vietnam.", "The motor is made in Thailand. The housing is cast in Vietnam."},
-		{"two sentences", "The motor is made in Thailand, but its share is unknown. We assemble it in Mexico.", "The motor is made in Thailand. We assemble it in Mexico."},
-		{"negation kept", "The motor is not made in China, but the firmware origin is unknown.", "The motor is not made in China."},
-		{"known qualifier", "The motor is from a well-known Thai supplier, but its price is unknown.", "The motor is from a well-known Thai supplier."},
-		{"terminal punctuation kept", "The motor is made in Thailand but its price is unknown!", "The motor is made in Thailand!"},
-		{"question sentence is its own sentence", "Is it new? The motor is made in Thailand but its price is unknown.", "Is it new? The motor is made in Thailand."},
+		{"but", "The motor is made in Thailand, but its value share is unknown.", "The motor is made in Thailand, but its value share is unknown."},
+		{"but no comma", "The motor is made in Thailand but its value share is unknown.", "The motor is made in Thailand but its value share is unknown."},
+		{"semicolon", "The motor is made in Thailand; the firmware origin is not stated.", "The motor is made in Thailand; the firmware origin is not stated."},
+		{"and", "The housing is moulded in Vietnam and the resin source is unknown.", "The housing is moulded in Vietnam and the resin source is unknown."},
+		{"unknown first", "The firmware origin is unknown, but the motor is made in Thailand.", "The firmware origin is unknown, but the motor is made in Thailand."},
+		{"keeps both sides", "The motor is made in Thailand, the value share is unknown, and the housing is cast in Vietnam.", "The motor is made in Thailand, the value share is unknown, and the housing is cast in Vietnam."},
+		{"two sentences", "The motor is made in Thailand, but its share is unknown. We assemble it in Mexico.", "The motor is made in Thailand, but its share is unknown. We assemble it in Mexico."},
+		{"negation kept", "The motor is not made in China, but the firmware origin is unknown.", "The motor is not made in China, but the firmware origin is unknown."},
+		{"known qualifier", "The motor is from a well-known Thai supplier, but its price is unknown.", "The motor is from a well-known Thai supplier, but its price is unknown."},
+		{"terminal punctuation kept", "The motor is made in Thailand but its price is unknown!", "The motor is made in Thailand but its price is unknown!"},
+		{"question sentence is its own sentence", "Is it new? The motor is made in Thailand but its price is unknown.", "Is it new? The motor is made in Thailand but its price is unknown."},
 	} {
 		if got := factual(c.in); got != c.want {
 			t.Errorf("%s: factual(%q) = %q, want %q", c.name, c.in, got, c.want)
@@ -68,7 +70,7 @@ func TestAppendAnswersMixedAcrossQuestions(t *testing.T) {
 		{Question: "Firmware?", Answer: "Unknown, but I think it is flashed in-house."}, // qualified: dropped whole
 		{Question: "Resin?", Answer: "Not stated."},
 	})
-	if !ok || !strings.Contains(out, "A: The motor is made in Thailand.\n") || strings.Contains(out, "value share") ||
+	if !ok || !strings.Contains(out, "A: The motor is made in Thailand, but its value share is unknown.\n") ||
 		strings.Contains(out, "Resin") || strings.Contains(out, "Firmware?") || strings.Contains(out, "flashed") {
 		t.Errorf("AppendAnswers =\n%s", out)
 	}
@@ -111,8 +113,8 @@ func TestFactualDoesNotPromoteQualifiedClauses(t *testing.T) {
 
 func TestFactualMixedPositiveControlsKeepNegation(t *testing.T) {
 	for in, want := range map[string]string{
-		"The motor is not made in China, and the firmware origin is unknown.":         "The motor is not made in China.",
-		"The firmware origin is unknown, but the motor is never imported from China.": "The motor is never imported from China.",
+		"The motor is not made in China, and the firmware origin is unknown.":         "The motor is not made in China, and the firmware origin is unknown.",
+		"The firmware origin is unknown, but the motor is never imported from China.": "The firmware origin is unknown, but the motor is never imported from China.",
 	} {
 		if got := factual(in); got != want {
 			t.Errorf("factual(%q) = %q, want %q", in, got, want)
@@ -127,7 +129,7 @@ func TestFactualEllipticalUnknownDropsWhole(t *testing.T) {
 			t.Errorf("factual(%q) = %q, want it dropped whole", in, got)
 		}
 	}
-	if got := factual("The motor is made in Thailand but its share is unknown."); got != "The motor is made in Thailand." {
+	if got := factual("The motor is made in Thailand but its share is unknown."); got != "The motor is made in Thailand but its share is unknown." {
 		t.Errorf("positive control = %q", got)
 	}
 }
@@ -152,8 +154,28 @@ func TestFactualIndependentUnknownSubjectStillSplits(t *testing.T) {
 		"The motor is made in Thailand, but the maker of the firmware is not stated.",
 		"The motor is made in Thailand; the housing origin is unclear.",
 	} {
-		if got := factual(in); got != "The motor is made in Thailand." {
-			t.Errorf("factual(%q) = %q", in, got)
+		if got := factual(in); got != in {
+			t.Errorf("factual(%q) = %q, want the sentence verbatim", in, got)
+		}
+	}
+}
+
+// Claim/source/origin/location unknown clauses attached to a head claim: the
+// sentence is either kept verbatim with its qualifier or dropped whole, never
+// reduced to the head alone.
+func TestFactualNeverReturnsHeadWithoutQualifier(t *testing.T) {
+	for _, in := range []string{
+		"The motor is made in Thailand, but the accuracy of this is unclear.",
+		"The motor is made in Thailand, but accuracy of this is unclear.",
+		"The motor is made in Thailand, but the source of that claim is unknown.",
+		"The motor is made in Thailand, but source of that claim unknown.",
+		"The motor is made in Thailand, but country of origin unknown.",
+		"The motor is made in Thailand, but the country of origin is unknown.",
+		"The motor is made in Thailand, but the location is not stated.",
+	} {
+		got := factual(in)
+		if got != "" && got != in {
+			t.Errorf("factual(%q) = %q, want verbatim or dropped whole", in, got)
 		}
 	}
 }

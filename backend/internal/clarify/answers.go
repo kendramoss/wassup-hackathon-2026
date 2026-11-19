@@ -46,7 +46,16 @@ func appendFact(keep []string, s string) []string {
 		return keep
 	}
 	if hedge.MatchString(s) {
-		return append(keep, splitKnown(s)...)
+		// Policy (ruling, review round 3): a mixed sentence with an accepted
+		// known clause is kept WHOLE and verbatim, unknown/qualifying clauses
+		// included, so no qualifier is ever deleted and the model reads the
+		// requester's own uncertainty. splitKnown only decides whether the
+		// sentence has a known clause; all-unknown and ambiguous sentences
+		// are dropped.
+		if len(splitKnown(s)) > 0 {
+			return append(keep, s)
+		}
+		return keep
 	}
 	return append(keep, s)
 }
@@ -86,7 +95,7 @@ var (
 	negatedUnknown = regexp.MustCompile(`(?i)\b(not|never|no)\s+(un(known|clear)|n/a)\b`)
 )
 
-// splitKnown cuts a sentence that mentions something unknown into clauses and
+// splitKnown (used only as a detector, see appendFact) cuts a sentence that mentions something unknown into clauses and
 // returns the clauses that do not report missing information. It is
 // conservative: whenever the cut is not clearly delimited (a relative clause,
 // a clause with no subject of its own, a verbless fragment on the unknown side)
