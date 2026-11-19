@@ -278,14 +278,16 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 		inScope, scopeReason = d.Label.Scope()
 		subfamily = d.Label.Subfamily
 	}
+	// The fallback-model guard runs before the family bars (#300): a family bar
+	// must not accept what the fallback model answered unless FALLBACK_FAST_PATH
+	// allows it.
+	if triage.AnsweredByFallback(p.Trace.ModelID, a.d.EngineModel) {
+		return triage.Fallback(p, a.d.FallbackFastPath, inScope, scopeReason), inScope
+	}
 	if a.d.FamilyBars != nil {
 		return triage.DecideByFamily(p, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope
 	}
-	tr := triage.Decide(p, a.d.FastPathConf, inScope, scopeReason)
-	if triage.AnsweredByFallback(p.Trace.ModelID, a.d.EngineModel) {
-		tr = triage.Fallback(p, a.d.FallbackFastPath, inScope, scopeReason)
-	}
-	return tr, inScope
+	return triage.Decide(p, a.d.FastPathConf, inScope, scopeReason), inScope
 }
 
 // Classification is a dispatch with its triage decision.
