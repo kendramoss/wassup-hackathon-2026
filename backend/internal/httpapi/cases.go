@@ -727,7 +727,7 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	shown := make([]store.Case, 0, len(cs))
 	for _, c := range cs {
-		if c.ID != HealthProbeID && a.visible(r, c) {
+		if !IsHealthProbeID(c.ID) && a.visible(r, c) {
 			shown = append(shown, c)
 		}
 	}
