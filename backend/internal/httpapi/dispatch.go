@@ -78,8 +78,8 @@ func (d Dispatch) Regime() string {
 
 // PredictionRegime reports the regime whose engine produced a stored
 // prediction, from its trace prompt version. It is "" when the version is not
-// one of the known engine versions (callers then fall back to the label and
-// must not assume general). Unlike the router label, it stays true after a
+// one of the known engine versions (callers must treat "" as unknown, never
+// as the router label or as general). Unlike the router label, it stays true after a
 // specialist failure left a provisional general prediction on a
 // specialist-labelled case.
 //

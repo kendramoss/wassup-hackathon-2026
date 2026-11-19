@@ -2252,6 +2252,18 @@ export interface components {
             decisive_step?: string;
             /** @description The revised facts the engine re-ran */
             facts?: string;
+            /** @description Regime whose engine answered this what-if (textile_102_21, usmca_part102, pharma_api, substantial_transformation). "unknown" when the stored trace does not say, "unclassified" when the answering predictor had no dispatch. A saved what-if recorded before this field existed is written as "unknown" with a provisional note and is never to be read as confirmed (#319, D99). */
+            regime?: string;
+            /** @description State of the selected specialist engine for this what-if (ok, failed, unconfigured); omitted when no specialist was selected */
+            specialist?: string;
+            /** @description Scope state of the run (no_router, configured_failed, confirmed, label_missing) */
+            scope?: string;
+            /** @description Triage route the same policy as a saved scenario gives these facts (auto, needs_review, needs_info) */
+            route?: string;
+            /** @description Reason for the route */
+            triage_reason?: string;
+            /** @description Set, with its reason, when the result is not regime-confirmed, for example a general answer after a specialist failure */
+            provisional?: string;
         };
         ChatStep: {
             tool?: string;
