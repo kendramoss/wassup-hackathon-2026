@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"syscall"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -71,11 +72,15 @@ func readManifest(dir, name string) ([]string, bool, error) {
 }
 
 // legacyOwned derives the owned ids of a directory written before manifests.
-// Provable evidence is the split_meta.jsonl a previous build wrote beside its
-// facts files (one line per ruling it generated). Without that evidence, any
-// ruling-shaped facts file that is neither produced now nor protected might
-// be stale generated output, so we refuse rather than leave it loaded.
-func legacyOwned(dir, metaName string, facts map[string][]byte, protect map[string]bool) ([]string, bool, error) {
+// The previous build's split_meta.jsonl (one line per ruling it generated)
+// proves ownership of those ids only. It is rewritten by every build, so
+// stale files left by earlier builds are not in it. Every other ruling-shaped
+// file that is neither produced now, protected nor proven owned could be such
+// a stale generated file that corpus.Load would still use, so we fail closed,
+// before any mutation, listing the unknown ids. hint is the operator advice.
+func legacyOwned(dir, metaName, hint string, facts map[string][]byte, protect map[string]bool) ([]string, bool, error) {
+	var ids []string
+	haveMeta := false
 	if metaName != "" {
 		p := filepath.Join(dir, metaName)
 		st, err := os.Lstat(p)
@@ -88,7 +93,6 @@ func legacyOwned(dir, metaName string, facts map[string][]byte, protect map[stri
 			if err != nil {
 				return nil, false, err
 			}
-			var ids []string
 			for i, ln := range strings.Split(strings.TrimSpace(string(b)), "\n") {
 				if ln == "" {
 					continue
@@ -101,32 +105,40 @@ func legacyOwned(dir, metaName string, facts map[string][]byte, protect map[stri
 				}
 				ids = append(ids, m.Ruling)
 			}
-			return ids, true, nil
+			haveMeta = true
 		case !errors.Is(err, fs.ErrNotExist):
 			return nil, false, err
 		}
+	}
+	proven := map[string]bool{}
+	for _, id := range ids {
+		proven[id] = true
 	}
 	ents, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, false, err
 	}
-	var unexplained []string
+	var unknown []string
 	for _, e := range ents {
 		n := e.Name()
 		if !factsFileName.MatchString(n) || !e.Type().IsRegular() {
 			continue
 		}
 		id := strings.TrimSuffix(n, ".txt")
-		if _, ok := facts[id]; ok || protect[id] {
+		if _, ok := facts[id]; ok || protect[id] || proven[id] {
 			continue
 		}
-		unexplained = append(unexplained, n)
+		unknown = append(unknown, id)
 	}
-	if len(unexplained) > 0 {
-		sort.Strings(unexplained)
-		return nil, false, fmt.Errorf("%s has no manifest or previous split_meta, so ownership of %d ruling file(s) cannot be proven (e.g. %s) and they might be stale generated facts that corpus.Load would still use; nothing was changed. Move them away or restore the previous split_meta.jsonl, then rerun", dir, len(unexplained), unexplained[0])
+	if len(unknown) > 0 {
+		sort.Strings(unknown)
+		shown := unknown
+		if len(shown) > 10 {
+			shown = shown[:10]
+		}
+		return nil, false, fmt.Errorf("%s has no manifest and %d ruling file(s) are not produced now, not protected and not proven generated, so they might be stale output that corpus.Load would still use: %s. Nothing was changed. %s", dir, len(unknown), strings.Join(shown, ", "), hint)
 	}
-	return nil, false, nil
+	return ids, haveMeta, nil
 }
 
 func manifestBytes(ids map[string]bool) []byte {
@@ -154,7 +166,7 @@ type reconcileResult struct {
 // manifest owned. Ids in protect are never removed. Everything is staged
 // before anything is replaced, so a failure while staging leaves the last
 // good output untouched.
-func reconcile(dir, manifestName, legacyMeta string, facts map[string][]byte, extras map[string][]byte, protect map[string]bool) (res reconcileResult, err error) {
+func reconcile(dir, manifestName, legacyMeta, legacyHint string, facts map[string][]byte, extras map[string][]byte, protect map[string]bool) (res reconcileResult, err error) {
 	for id := range facts {
 		if !domain.ValidRulingID(id) {
 			return res, fmt.Errorf("refusing ruling id %q: not a CBP ruling number", id)
@@ -169,7 +181,7 @@ func reconcile(dir, manifestName, legacyMeta string, facts map[string][]byte, ex
 	}
 	if !found {
 		// Legacy directory: bootstrap ownership only from provable evidence.
-		old, found, err = legacyOwned(dir, legacyMeta, facts, protect)
+		old, found, err = legacyOwned(dir, legacyMeta, legacyHint, facts, protect)
 		if err != nil {
 			return res, err
 		}
@@ -197,7 +209,7 @@ func reconcile(dir, manifestName, legacyMeta string, facts map[string][]byte, ex
 	stageFile := func(name string, b []byte) error {
 		dst := filepath.Join(dir, name)
 		tmp := dst + stageSuffix
-		if err := os.WriteFile(tmp, b, 0o644); err != nil {
+		if err := writeFresh(tmp, b); err != nil {
 			return err
 		}
 		stage = append(stage, staged{tmp, dst})
@@ -280,7 +292,7 @@ func reconcile(dir, manifestName, legacyMeta string, facts map[string][]byte, ex
 
 func writeAtomic(path string, b []byte) error {
 	tmp := path + stageSuffix
-	if err := os.WriteFile(tmp, b, 0o644); err != nil {
+	if err := writeFresh(tmp, b); err != nil {
 		return err
 	}
 	if err := os.Rename(tmp, path); err != nil {
@@ -290,18 +302,50 @@ func writeAtomic(path string, b []byte) error {
 	return nil
 }
 
+// writeFresh creates path as a new regular file. Stage names are ours, so a
+// leftover regular stage file (from a crash) is replaced; a symlink,
+// directory or anything else at that name is refused rather than followed.
+// O_EXCL|O_NOFOLLOW closes the window between the Lstat and the create.
+func writeFresh(path string, b []byte) error {
+	st, err := os.Lstat(path)
+	switch {
+	case err == nil:
+		if !st.Mode().IsRegular() {
+			return fmt.Errorf("refusing to stage over %s: not a regular file (remove it and rerun)", path)
+		}
+		if err := os.Remove(path); err != nil {
+			return err
+		}
+	case !errors.Is(err, fs.ErrNotExist):
+		return err
+	}
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0o644)
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write(b); err != nil {
+		f.Close()
+		_ = os.Remove(path)
+		return err
+	}
+	if err := f.Close(); err != nil {
+		_ = os.Remove(path)
+		return err
+	}
+	return nil
+}
+
 // protectedIDs reads the ruling ids of a labels file whose facts are
-// generated separately (usmca-label); a missing file protects nothing.
+// generated separately (usmca-label). An empty path is the explicit opt-out
+// (-keep-labels ""); a missing or unreadable file is an error, so a mistyped
+// path can never silently unprotect the Part 102 facts.
 func protectedIDs(path string) (map[string]bool, error) {
 	if path == "" {
 		return nil, nil
 	}
-	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
-		return nil, nil
-	}
 	ls, err := corpus.LoadLabels(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("-keep-labels %s: %w (pass -keep-labels \"\" only if no facts are generated separately)", path, err)
 	}
 	m := map[string]bool{}
 	for _, l := range ls {
@@ -338,7 +382,7 @@ func bundle(args []string) error {
 		}
 		facts[e.Name()[:len(e.Name())-len(".txt")]] = b
 	}
-	res, err := reconcile(*to, bundleManifest, "", facts, nil, protect)
+	res, err := reconcile(*to, bundleManifest, "", "Move those files out of the bundled directory (or add them to the source facts) and rerun; bundle keeps no metadata to prove them generated.", facts, nil, protect)
 	if err != nil {
 		return err
 	}

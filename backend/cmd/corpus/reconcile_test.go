@@ -190,7 +190,7 @@ func TestLegacyDirWithoutEvidenceFailsRatherThanStayStale(t *testing.T) {
 	raw, facts, keep := legacyFixture(t)
 	os.Remove(filepath.Join(facts, "split_meta.jsonl"))
 	err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", keep})
-	if err == nil || !strings.Contains(err.Error(), "cannot be proven") {
+	if err == nil || !strings.Contains(err.Error(), "not proven generated") {
 		t.Fatalf("want actionable ownership error, got %v", err)
 	}
 	if b, _ := os.ReadFile(filepath.Join(facts, "N100001.txt")); string(b) != "old\n" || !exists(filepath.Join(facts, "N100002.txt")) {
@@ -213,10 +213,8 @@ func TestBundleLegacyDirRefusesUnexplainedFiles(t *testing.T) {
 	if err := bundle([]string{"-from", from, "-to", to, "-keep-labels", keep}); err != nil {
 		t.Fatalf("explained legacy bundle should succeed: %v", err)
 	}
-	writeFile(t, filepath.Join(to, buildManifest), "")
-	os.Remove(filepath.Join(to, bundleManifest))
+	os.Remove(filepath.Join(to, bundleManifest)) // back to a legacy (manifest-less) directory
 	writeFile(t, filepath.Join(to, "N100002.txt"), "stale bundled\n")
-	os.Remove(filepath.Join(to, bundleManifest))
 	if err := bundle([]string{"-from", from, "-to", to, "-keep-labels", keep}); err == nil || !exists(filepath.Join(to, "N100002.txt")) {
 		t.Errorf("unexplained bundled file must fail the bundle untouched: %v", err)
 	}
@@ -230,7 +228,7 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	// Path traversal ids are rejected before anything changes.
 	writeFile(t, filepath.Join(dir, buildManifest), `{"version":1,"ids":["../victim"]}`)
 	writeFile(t, filepath.Join(dir, "N100001.txt"), "old\n")
-	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", map[string][]byte{"N100002": []byte("new\n")}, nil, nil); err == nil {
+	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", "", map[string][]byte{"N100002": []byte("new\n")}, nil, nil); err == nil {
 		t.Fatal("manifest with a path-like id must be refused")
 	}
 	if exists(filepath.Join(dir, "N100002.txt")) || !exists(filepath.Join(dir, "N100001.txt")) || !exists(outside) {
@@ -238,14 +236,14 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	}
 	// Corrupt manifest.
 	writeFile(t, filepath.Join(dir, buildManifest), `{not json`)
-	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", nil, nil, nil); err == nil {
+	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", "", nil, nil, nil); err == nil {
 		t.Error("corrupt manifest must be refused")
 	}
 	// Bad ids to write.
-	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", map[string][]byte{"../x": nil}, nil, nil); err == nil {
+	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", "", map[string][]byte{"../x": nil}, nil, nil); err == nil {
 		t.Error("bad output id must be refused")
 	}
-	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", nil, map[string][]byte{"../x": nil}, nil); err == nil {
+	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", "", nil, map[string][]byte{"../x": nil}, nil); err == nil {
 		t.Error("extra name with a path must be refused")
 	}
 
@@ -255,7 +253,7 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	if err := os.Symlink(outside, filepath.Join(dir2, "N100001.txt")); err != nil {
 		t.Skip("symlinks unavailable")
 	}
-	res, err := reconcile(dir2, buildManifest, "split_meta.jsonl", map[string][]byte{}, nil, nil)
+	res, err := reconcile(dir2, buildManifest, "split_meta.jsonl", "", map[string][]byte{}, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -267,7 +265,7 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 func TestBuildFailureKeepsLastGoodOutput(t *testing.T) {
 	root := t.TempDir()
 	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
-	none := filepath.Join(root, "none.jsonl")
+	none := ""
 	rawRuling(t, raw, "N100001")
 	runBuild(t, raw, facts, none)
 	good, _ := os.ReadFile(filepath.Join(facts, "N100001.txt"))
@@ -316,5 +314,70 @@ func TestBundleReconcilesOnlyBundledFiles(t *testing.T) {
 		if !exists(filepath.Join(to, n)) {
 			t.Errorf("%s must be preserved", n)
 		}
+	}
+}
+
+func TestLegacyStaleFileNotInLatestMetaFailsClosed(t *testing.T) {
+	root := t.TempDir()
+	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
+	rawRuling(t, raw, "N100001")
+	// An older build left N100002; the latest build's split_meta lists only N100001.
+	writeFile(t, filepath.Join(facts, "N100001.txt"), "old\n")
+	writeFile(t, filepath.Join(facts, "N100002.txt"), "stale from an older build\n")
+	writeFile(t, filepath.Join(facts, "split_meta.jsonl"), `{"ruling":"N100001"}`+"\n")
+	err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", ""})
+	if err == nil || !strings.Contains(err.Error(), "N100002") {
+		t.Fatalf("want fail-closed error naming N100002, got %v", err)
+	}
+	if b, _ := os.ReadFile(filepath.Join(facts, "N100001.txt")); string(b) != "old\n" || !exists(filepath.Join(facts, "N100002.txt")) || exists(filepath.Join(facts, buildManifest)) {
+		t.Error("nothing may change when ownership is unprovable")
+	}
+}
+
+func TestStageSymlinkIsNotFollowed(t *testing.T) {
+	root := t.TempDir()
+	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
+	victim := filepath.Join(root, "outside", "victim.txt")
+	writeFile(t, victim, "precious\n")
+	rawRuling(t, raw, "N100001")
+	writeFile(t, filepath.Join(facts, "x"), "") // create dir
+	os.Remove(filepath.Join(facts, "x"))
+	if err := os.Symlink(victim, filepath.Join(facts, "N100001.txt"+stageSuffix)); err != nil {
+		t.Skip("symlinks unavailable")
+	}
+	if err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", ""}); err == nil {
+		t.Fatal("stage name occupied by a symlink must be refused")
+	}
+	if b, _ := os.ReadFile(victim); string(b) != "precious\n" {
+		t.Error("file outside the facts dir was written through the stage symlink")
+	}
+	if exists(filepath.Join(facts, "N100001.txt")) || exists(filepath.Join(facts, buildManifest)) {
+		t.Error("nothing may be committed after a refused stage")
+	}
+}
+
+func TestLeftoverRegularStageFileIsReplaced(t *testing.T) {
+	root := t.TempDir()
+	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
+	rawRuling(t, raw, "N100001")
+	writeFile(t, filepath.Join(facts, "N100001.txt"+stageSuffix), "crash leftover\n")
+	runBuild(t, raw, facts, "")
+	if exists(filepath.Join(facts, "N100001.txt"+stageSuffix)) || !exists(filepath.Join(facts, "N100001.txt")) {
+		t.Error("a regular leftover stage file should be replaced and consumed")
+	}
+}
+
+func TestKeepLabelsBadPathFailsBeforePrune(t *testing.T) {
+	root := t.TempDir()
+	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
+	rawRuling(t, raw, "N100001")
+	rawRuling(t, raw, "N100002")
+	runBuild(t, raw, facts, "")
+	os.Remove(filepath.Join(raw, "N100002.json"))
+	if err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", filepath.Join(root, "typo.jsonl")}); err == nil {
+		t.Fatal("missing -keep-labels file must be an error")
+	}
+	if !exists(filepath.Join(facts, "N100002.txt")) {
+		t.Error("nothing may be pruned when the protect list cannot be read")
 	}
 }

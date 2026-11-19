@@ -209,7 +209,7 @@ func build(args []string) error {
 		}{r.RulingNumber, m})
 		meta.Write(append(line, '\n'))
 	}
-	res, err := reconcile(*factsDir, buildManifest, "split_meta.jsonl", facts, map[string][]byte{"split_meta.jsonl": meta.Bytes()}, protect)
+	res, err := reconcile(*factsDir, buildManifest, "split_meta.jsonl", "Move them out of the facts directory (or restore the older split_meta.jsonl that listed them) and rerun.", facts, map[string][]byte{"split_meta.jsonl": meta.Bytes()}, protect)
 	if err != nil {
 		return err
 	}
