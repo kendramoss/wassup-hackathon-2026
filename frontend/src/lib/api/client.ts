@@ -70,14 +70,49 @@ export class ApiError extends Error {
   }
 }
 
-// Folds a money save into the case on screen. The response carries no
-// product, prediction or scenarios, so those stay. economics_priced was
-// worked out from the old inputs; dropping it makes readers fall back to the
-// saved economics until the next plan or scenario run prices it again.
+// Folds a money save into a case. The response carries no product,
+// prediction or scenarios, so those stay. economics_priced was worked out
+// from the old inputs and is dropped, so this is only the fallback when the
+// authoritative case can't be re-read (see saveEconomics). A response for a
+// different case is an error, never a silent success.
 export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
-  if (r.case_id && c.id && r.case_id !== c.id) return c;
-  const { economics_priced: _stale, ...rest } = c as CaseResponse & { economics_priced?: Economics | null };
-  return { ...rest, economics: r.economics };
+  if (r.case_id !== c.id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
+  const next: CaseResponse = { ...c, economics: r.economics };
+  delete next.economics_priced;
+  return next;
+}
+
+export type SaveEconomicsIO = {
+  // The newest case this screen holds, read synchronously. Its identity is
+  // the change token: any update to the screen replaces it.
+  latest: () => CaseResponse;
+  apply: (c: CaseResponse) => void;
+};
+
+// Saves money inputs, then shows the backend's own view of the case so the
+// sourced duty rates and labels (economics_priced) are right at once.
+// The re-read can lose a race with another update (a scenario run finishing
+// meanwhile): if the screen's case changed while it was in flight its answer
+// may predate that update, so it is discarded and re-read. If it never
+// settles, or fails, the saved economics are merged into the newest case,
+// never into the one from when the save began.
+export async function saveEconomics(id: string, economics: Economics, io: SaveEconomicsIO, tries = 3): Promise<void> {
+  const r = await api.putEconomics(id, economics);
+  if (r.case_id !== id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
+  for (let i = 0; i < tries; i++) {
+    const seen = io.latest();
+    let fresh: CaseResponse;
+    try {
+      fresh = await api.getCase(id);
+    } catch {
+      break;
+    }
+    if (io.latest() === seen) {
+      io.apply(fresh);
+      return;
+    }
+  }
+  io.apply(mergeEconomics(io.latest(), r));
 }
 
 export const SIGNIN_EXPIRED = "op:signin-expired";

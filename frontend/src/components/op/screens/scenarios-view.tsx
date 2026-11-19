@@ -1,8 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
-import { api, mergeEconomics, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
+import { useMemo, useRef, useState } from "react";
+import { api, saveEconomics, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
@@ -74,12 +74,19 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
+  // The newest case this screen holds, so a slow money save or re-read never
+  // writes back the case from when it started.
+  const latest = useRef(c);
+  latest.current = c;
+  const commit = (next: CaseResponse) => {
+    latest.current = next;
+    setCase(next);
+  };
   const saveMoney = async (e: Economics) => {
     setMoneyOpen(false);
     setError(null);
     try {
-      const r = await api.putEconomics(id, e);
-      setCase(mergeEconomics(c, r));
+      await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
       setError(err);
     }
@@ -92,7 +99,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
       const body = drafts.map((d) =>
         d.mode === "facts" || !product ? { label: d.label, facts: d.facts } : { label: d.label, product: variant(product, d.groups, d.plant) },
       );
-      setCase(await api.scenarios(id, { scenarios: body, economics: c.economics }));
+      commit(await api.scenarios(id, { scenarios: body, economics: c.economics }));
       setEditing(false);
     } catch (e) {
       setError(e);

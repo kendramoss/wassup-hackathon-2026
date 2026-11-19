@@ -60,13 +60,86 @@ test("merged case drops the stale priced economics so old rates are not shown", 
   assert.equal("economics_priced" in out, false);
 });
 
-test("a response for another case does not overwrite the current one", () => {
+test("a response for another case throws instead of silently succeeding", () => {
   const out = run(`
-    const merged = mergeEconomics(fullCase, { case_id: "other", economics: { annual_import_value_usd: 7 } });
-    console.log(JSON.stringify(merged));
+    let err = null;
+    try { mergeEconomics(fullCase, { case_id: "other", economics: {} }); } catch (e) { err = e.message; }
+    console.log(JSON.stringify({ err }));
   `);
-  assert.equal(out.economics.annual_import_value_usd, 100);
-  assert.equal(out.economics_priced.duty_rates_note, "stale");
+  assert.match(out.err, /different case/);
+});
+
+// saveEconomics is the logic saveMoney runs (scenarios-view.tsx). These drive
+// it with controlled promises; they are not React render tests.
+const flow = (body) => run(`
+  import { saveEconomics } from ${JSON.stringify(client)};
+  const gate = () => { let go; const p = new Promise((r) => (go = r)); return { p, go }; };
+  let state = fullCase;
+  const io = { latest: () => state, apply: (c) => { state = c; } };
+  const priced = { annual_import_value_usd: 500, duty_rates: { CN: 0.1 }, duty_rates_note: "USITC fetched 2026-11-01" };
+  const serverCase = (extra = {}) => ({ ...fullCase, economics: { annual_import_value_usd: 500, duty_rates: { CN: 0.1 } }, economics_priced: priced, ...extra });
+  const scenarioDone = { ...fullCase, scenarios: [{ label: "As today" }, { label: "Moved" }] };
+  ${body}
+`.replace(/^\s*import \{ api, mergeEconomics \}.*$/m, ""));
+
+test("save keeps backend-priced economics: applies the re-read case", () => {
+  const out = flow(`
+    globalThis.fetch = async (url, init) => new Response(JSON.stringify(init.method === "PUT" ? { case_id: "c1", economics: serverCase().economics } : serverCase()), { status: 200 });
+    await saveEconomics("c1", serverCase().economics, io);
+    console.log(JSON.stringify(state));
+  `);
+  assert.equal(out.economics_priced.duty_rates_note, "USITC fetched 2026-11-01");
+  assert.equal(out.product.name, "Heat gun");
+});
+
+test("a scenario run finishing during the save is not overwritten by a stale re-read", () => {
+  const out = flow(`
+    const getGate = gate();
+    let gets = 0;
+    globalThis.fetch = async (url, init) => {
+      if (init.method === "PUT") return new Response(JSON.stringify({ case_id: "c1", economics: serverCase().economics }));
+      gets++;
+      if (gets === 1) { await getGate.p; return new Response(JSON.stringify(serverCase())); } // predates the run: 1 scenario
+      return new Response(JSON.stringify(serverCase({ scenarios: scenarioDone.scenarios })));
+    };
+    const saving = saveEconomics("c1", serverCase().economics, io);
+    await new Promise((r) => setTimeout(r, 10));
+    state = scenarioDone; // run() finished while the first re-read was in flight
+    getGate.go();
+    await saving;
+    console.log(JSON.stringify({ state, gets }));
+  `);
+  assert.equal(out.state.scenarios.length, 2);
+  assert.equal(out.state.economics_priced.duty_rates_note, "USITC fetched 2026-11-01");
+  assert.equal(out.gets, 2);
+});
+
+test("a scenario run finishing during the PUT survives when the re-read fails", () => {
+  const out = flow(`
+    const putGate = gate();
+    globalThis.fetch = async (url, init) => {
+      if (init.method === "PUT") { await putGate.p; return new Response(JSON.stringify({ case_id: "c1", economics: { annual_import_value_usd: 9 } })); }
+      return new Response(JSON.stringify({ code: "internal", message: "down" }), { status: 500 });
+    };
+    const saving = saveEconomics("c1", { annual_import_value_usd: 9 }, io);
+    state = scenarioDone;
+    putGate.go();
+    await saving;
+    console.log(JSON.stringify(state));
+  `);
+  assert.equal(out.scenarios.length, 2);
+  assert.equal(out.economics.annual_import_value_usd, 9);
+});
+
+test("a PUT for another case surfaces an error and leaves the case alone", () => {
+  const out = flow(`
+    globalThis.fetch = async () => new Response(JSON.stringify({ case_id: "zzz", economics: {} }));
+    let err = null;
+    try { await saveEconomics("c1", {}, io); } catch (e) { err = e.message; }
+    console.log(JSON.stringify({ err, same: state === fullCase }));
+  `);
+  assert.match(out.err, /different case/);
+  assert.equal(out.same, true);
 });
 
 test("next scenario submit sends the product and the refreshed economics", () => {
