@@ -1204,7 +1204,7 @@ components:
       properties:
         model_ids: { type: object, additionalProperties: { type: string }, example: { engine: gemini-4-argon, router: gemini-3.8-flash } }
         prompt_versions: { type: object, additionalProperties: { type: string }, example: { engine: engine-v1, router: router-v2 } }
-        llm_provider: { type: string, enum: [vertex, litellm, fake], description: "litellm results are labelled proxy, development only" }
+        llm_provider: { type: string, enum: [vertex, fake], description: "fake results are simulated, local development only; earlier litellm results are labelled proxy (D49)" }
         disclaimer: { type: string, example: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling." }
     Plant:
       type: object

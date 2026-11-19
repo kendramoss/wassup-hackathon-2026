@@ -89,6 +89,9 @@ export function seconds(ms: number): string {
   return `${Math.max(0, Math.round(ms / 1000))} s`;
 }
 
+// `litellm` is kept only to label results recorded before the proxy was
+// removed (D49); the live providers are `vertex` and `fake`. `fake` answers
+// are simulated and must stay visibly labelled as such.
 export function isProxy(provider: string | null | undefined): boolean {
   return provider === "litellm" || provider === "fake";
 }

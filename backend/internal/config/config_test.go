@@ -114,6 +114,31 @@ func TestValidation(t *testing.T) {
 	}
 }
 
+func TestNonfiniteFloatSettings(t *testing.T) {
+	keys := []string{
+		"FALLBACK_FAST_PATH", "FAST_PATH_CONFIDENCE", "PLAN_CONFIDENCE",
+		"VERIFIER_PANEL_LOW", "VERIFIER_PANEL_HIGH", "DAILY_SPEND_CAP_USD",
+		"TEXTILE_FAST_PATH", "USMCA_FAST_PATH", "PHARMA_FAST_PATH", "EVAL_SLICE_BAND_MIN",
+	}
+	for _, key := range keys {
+		for _, bad := range []string{"NaN", "Inf", "+Inf", "-Inf"} {
+			t.Run(key+"="+bad, func(t *testing.T) {
+				_, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{key: bad})))
+				want := key + "=\"" + bad + "\" must be a finite number"
+				if err == nil || !strings.Contains(err.Error(), want) {
+					t.Fatalf("FromEnv(%s=%s) error = %v, want it to contain %q", key, bad, err, want)
+				}
+			})
+		}
+	}
+	for v, want := range map[string]float64{"0": 0, "1.5": 1.5} {
+		c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"DAILY_SPEND_CAP_USD": v})))
+		if err != nil || c.DailySpendCapUSD != want {
+			t.Errorf("DAILY_SPEND_CAP_USD=%s: cap %v, err %v; want %v", v, c.DailySpendCapUSD, err, want)
+		}
+	}
+}
+
 func merge(a, b map[string]string) map[string]string {
 	out := map[string]string{}
 	for k, v := range a {

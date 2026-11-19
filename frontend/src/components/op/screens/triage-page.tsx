@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { api, type BatchResponse } from "@/lib/api/client";
 import { conf, seconds } from "@/lib/format";
+import { csvNumber, csvText, preview, type Preview } from "@/lib/triage-csv";
 import { Elapsed, ErrorBox, Main } from "../chrome";
 import { Button, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
 
@@ -11,57 +12,9 @@ import { Button, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
 // c-batch.html; frames p-batch-upload, p-batch-running, p-batch).
 
 type Row = BatchResponse["rows"][number];
-type Preview = { name: string; facts: string; date: string }[];
 
 const MAX = 20;
 const OUT = /^out of scope:\s*/i;
-
-// Enough CSV to preview the file before sending it: quoted fields may hold
-// commas, quotes ("") and line breaks. The backend parses it for real.
-function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (quoted) {
-      if (ch === '"' && text[i + 1] === '"') {
-        cell += '"';
-        i++;
-      } else if (ch === '"') quoted = false;
-      else cell += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === ",") {
-      row.push(cell);
-      cell = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && text[i + 1] === "\n") i++;
-      row.push(cell);
-      if (row.some((c) => c.trim())) rows.push(row);
-      row = [];
-      cell = "";
-    } else cell += ch;
-  }
-  row.push(cell);
-  if (row.some((c) => c.trim())) rows.push(row);
-  return rows;
-}
-
-function preview(text: string): Preview {
-  const [head, ...body] = parseCsv(text);
-  if (!head) return [];
-  const h = head.map((c) => c.trim().toLowerCase());
-  const ni = h.findIndex((c) => c === "name" || c === "product" || c === "sku");
-  const fi = h.findIndex((c) => c === "facts" || c === "description");
-  const di = h.findIndex((c) => c === "date" || c === "case date");
-  if (fi < 0) return [];
-  return body.map((r) => ({
-    name: (ni >= 0 ? r[ni] : "")?.trim() ?? "",
-    facts: r[fi]?.trim() ?? "",
-    date: (di >= 0 ? r[di] : "")?.trim() ?? "",
-  }));
-}
 
 // What to do next first: more facts, expert review, out of scope, then auto;
 // failures last, in red.
@@ -73,11 +26,6 @@ function rank(r: Row): number {
 
 // Model cost per product is cents, so three decimals: "$0.021".
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${n.toFixed(3)}`);
-
-function csvCell(v: unknown): string {
-  const s = v == null ? "" : String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
 
 export function TriagePage() {
   const inputId = useId();
@@ -316,7 +264,8 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
 
   const download = () => {
     const head = ["name", "case_id", "predicted_origin", "confidence", "triage_route", "out_of_scope", "reason", "cost_usd", "error"];
-    const lines = [head.join(","), ...rows.map((r) => head.map((k) => csvCell(r[k as keyof Row])).join(","))];
+    const numeric = new Set(["confidence", "cost_usd"]);
+    const lines = [head.join(","), ...rows.map((r) => head.map((k) => (numeric.has(k) ? csvNumber : csvText)(r[k as keyof Row])).join(","))];
     const url = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
     const a = document.createElement("a");
     a.href = url;

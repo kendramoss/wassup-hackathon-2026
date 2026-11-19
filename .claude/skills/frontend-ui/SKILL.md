@@ -10,7 +10,7 @@ The frontend is Next.js 16 with Tailwind 4 in `frontend/`. Read `frontend/AGENTS
 ## The brief (these win over any other design guidance)
 
 - **Minimal.** No gradients and no emojis. Icons only when they're functional (they label an action or a status); no decorative icons. Icons live in `frontend/src/components/icons.tsx`.
-- **We're building a product, not a brand.** Show the product working instead of describing it, the way Linear and Railway put their real UI in the hero. For us that means the agent's real output: tool calls, deploy steps, rollbacks, and the numbers it reports.
+- **We're building a product, not a brand.** Show the product working instead of describing it, the way Linear and Railway put their real UI in the hero. For us that means the case agent's real output: its reasoning, the origin decision and the numbers it reports.
 - **Tokens only.** Colours come from the CSS variables in `frontend/src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--subtle`, `--border`, `--accent`, `--danger`, `--success`), used as Tailwind colours (`bg-subtle`, `text-muted`). Never write raw colours in components. If you need a new colour, add a token for light and for dark, both dark blocks included.
 - **One accent colour**, used for the primary action and focus, not for decoration.
 - **Copy lives in `frontend/src/lib/site.ts`.** Sentence case, active voice, plain words, and say what happens ("Deploy to staging", not "Submit"). Errors say what went wrong and what to do next.

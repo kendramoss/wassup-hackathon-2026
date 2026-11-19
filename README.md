@@ -99,15 +99,21 @@ Next.js frontend (Cloud Run)  ──►  Go backend (Cloud Run)  ──►  Gemi
 
 ## Run it locally
 
-You need Go 1.27 and `make`. Fetching the public CBP rulings takes about 50 minutes, once.
+You need Go 1.27 and `make`. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
 
 ```bash
-cd backend && go run ./cmd/corpus fetch && go run ./cmd/corpus build && cd ..
-gcloud auth application-default login   # for Vertex AI
-make run                                # API on :8080
+make run                                # API on :8080, no GCP credentials needed for UI work
 ```
 
-To work on the UI with no model calls and no cost, set `LLM_PROVIDER=fake`. Tests, evals, the API list and deploy notes are in [docs/DETAILS.md](docs/DETAILS.md#run-locally).
+Predict/plan calls need a model. To work on the UI with fixed, clearly-labelled simulated answers and no cost, use the explicit fake mode:
+
+```bash
+LLM_PROVIDER=fake make run              # API on :8080
+# in a second terminal, point the frontend at it:
+cd frontend && BACKEND_URL=http://localhost:8080 npm run dev
+```
+
+For real model calls, get Application Default Credentials (`gcloud auth application-default login`, separate from `gcloud auth login`) and set `GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026`. `vertex` is the default; `fake` is refused on Cloud Run so production cannot silently use simulated results. Tests, evals, the API list and deploy notes are in [docs/DETAILS.md](docs/DETAILS.md#run-locally).
 
 ## Naming
 

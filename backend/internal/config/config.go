@@ -5,6 +5,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -431,6 +432,25 @@ func FromEnv(getenv func(string) string) (Config, error) {
 func (c Config) validate() error {
 	var errs []error
 	bad := func(format string, args ...any) { errs = append(errs, fmt.Errorf(format, args...)) }
+	// Defense in depth: the env.float parser rejects nonfinite values, but a
+	// Config built directly must not carry them either (all comparisons with
+	// NaN are false, so range checks alone cannot catch it).
+	for name, v := range map[string]float64{
+		"FALLBACK_FAST_PATH":   c.FallbackFastPath,
+		"FAST_PATH_CONFIDENCE": c.FastPathConfidence,
+		"PLAN_CONFIDENCE":      c.PlanConfidence,
+		"VERIFIER_PANEL_LOW":   c.VerifierPanelLow,
+		"VERIFIER_PANEL_HIGH":  c.VerifierPanelHigh,
+		"DAILY_SPEND_CAP_USD":  c.DailySpendCapUSD,
+		"TEXTILE_FAST_PATH":    c.TextileFastPath,
+		"USMCA_FAST_PATH":      c.USMCAFastPath,
+		"PHARMA_FAST_PATH":     c.PharmaFastPath,
+		"EVAL_SLICE_BAND_MIN":  c.EvalSliceBandMin,
+	} {
+		if math.IsNaN(v) || math.IsInf(v, 0) {
+			bad("%s must be a finite number, got %v", name, v)
+		}
+	}
 	if c.VerifierPrompt != "v1" && c.VerifierPrompt != "v2" && c.VerifierPrompt != "v3" {
 		bad("VERIFIER_PROMPT must be v1, v2 or v3, got %q", c.VerifierPrompt)
 	}
@@ -682,6 +702,14 @@ func (e *env) float(key string, def float64) float64 {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		e.errs = append(e.errs, fmt.Errorf("%s=%q is not a number", key, v))
+		return 0
+	}
+	// ParseFloat accepts NaN and Inf. They slip past comparison-only validation
+	// (every comparison with NaN is false) and, for the spend cap, silently
+	// disable the cap. Reject them here with the field name attached.
+	if math.IsNaN(f) || math.IsInf(f, 0) {
+		e.errs = append(e.errs, fmt.Errorf("%s=%q must be a finite number", key, v))
+		return 0
 	}
 	return f
 }

@@ -4,6 +4,7 @@
 //
 //   node scripts/interaction-check.mjs [http://localhost:8100] [case_id]
 import { chromium } from "playwright-core";
+import { reportInteractionResult } from "./lib/interaction-result.mjs";
 const base = (process.argv[2] ?? "http://localhost:8100").replace(/\/$/, "");
 const C = process.argv[3] ?? "case_354b8919d82e";
 const pages = ["/cases", "/cases/new", `/cases/${C}/origin`, `/cases/${C}/scenarios`, `/cases/${C}/plan`, `/cases/${C}/draft`, "/accuracy"];
@@ -64,5 +65,5 @@ for (const [vp, viewport] of Object.entries({ desktop: { width: 1366, height: 76
   }
 }
 await b.close();
-for (const i of [...new Set(issues)]) console.log(i);
-console.log(issues.length ? `${new Set(issues).size} issue(s)` : "No interaction issues.");
+// A caller checking the exit status must learn that issues were found (#311).
+process.exitCode = reportInteractionResult(issues) ? 1 : 0;

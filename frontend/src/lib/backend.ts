@@ -27,7 +27,7 @@ export function clientIP(request: Request): string | undefined {
 // as-is. Anything else (auth failures, crashes) is our problem, not theirs.
 const userErrors = new Set([400, 403, 409, 413, 429]);
 
-// Calls path on the backend. method defaults to POST (the chat routes).
+// Calls path on the backend. method defaults to POST.
 // On Cloud Run (K_SERVICE is set) the backend is private, so this
 // authenticates with an ID token for this service's identity; locally it
 // calls the backend as-is.
@@ -86,8 +86,8 @@ export function errorResponse(err: unknown): Response {
     }
     return Response.json({ error: err.message }, { status: err.status, headers });
   }
-  console.error("chat proxy:", err);
-  return Response.json({ error: "Could not reach the agent. Try again in a moment." }, { status: 502 });
+  console.error("backend proxy:", err);
+  return Response.json({ error: "Could not reach the Unde API. Try again in a moment." }, { status: 502 });
 }
 
 // Fetches a Google-signed ID token for audience from the metadata server.

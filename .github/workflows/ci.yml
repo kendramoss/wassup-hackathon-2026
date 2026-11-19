@@ -78,6 +78,11 @@ jobs:
 
   # Single check to require in branch protection: passes when every job that
   # needed to run passed (skipped jobs count as passing).
+  # Required check on main is "ci / ci-ok" (workflow name / job id); it covers
+  # gofmt, build, vet, staticcheck, backend tests, frontend lint and build.
+  # Main also requires a PR and an up-to-date branch. enforce_admins is on, so
+  # admins cannot merge with a failing/missing check; only a repo admin can
+  # change the rule in Settings > Branches (there is no code-path bypass).
   ci-ok:
     needs: [changes, backend, frontend]
     if: always()
