@@ -146,3 +146,39 @@ func TestImportMalformedHTSIgnored(t *testing.T) {
 		}
 	}
 }
+
+// Raw (unescaped) query forms that url.Query() would silently drop must not
+// fall through to the whole-table listing.
+func TestDutyRatesRawQueryEdges(t *testing.T) {
+	live, calls := fakeHTS(t)
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.LiveMFN = live })
+	for _, q := range []string{
+		"?hts=8419.89.95;drop", "?hts=8516.79.00;x=1", "?hts=", "?hts=%20", "?hts=+", "?hts", "?hts=%0A",
+		"?hts=%ZZ", "?hts=%3B", "?x=1;hts=8516.79.00", "?hts=8516.79.00&bad=%ZZ", "?hts=" + strings.Repeat("%20", 3000),
+	} {
+		code, out := hs.do(t, "GET", "/v1/duty-rates"+q, "")
+		msg, _ := out["message"].(string)
+		if code != http.StatusBadRequest || out["code"] != "invalid_input" || len(msg) > 300 || out["lines"] != nil {
+			t.Errorf("%.40q = %d %.200v, want bounded 400", q, code, out)
+		}
+	}
+	if calls.Load() != 0 {
+		t.Errorf("%d live calls", calls.Load())
+	}
+}
+
+func TestDutyRatesAbsentHTSStillLists(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for _, q := range []string{"", "?", "?x=1", "?other=%20"} {
+		if code, out := hs.do(t, "GET", "/v1/duty-rates"+q, ""); code != http.StatusOK || out["lines"] == nil {
+			t.Errorf("%q = %d %.100v, want the table", q, code, out)
+		}
+	}
+	// Duplicate hts: the first value is used.
+	if code, _ := hs.do(t, "GET", "/v1/duty-rates?hts=8419.89.95&hts=zzz", ""); code != http.StatusOK {
+		t.Errorf("first valid duplicate = %d", code)
+	}
+	if code, _ := hs.do(t, "GET", "/v1/duty-rates?hts=zzz&hts=8419.89.95", ""); code != http.StatusBadRequest {
+		t.Errorf("first invalid duplicate = %d", code)
+	}
+}

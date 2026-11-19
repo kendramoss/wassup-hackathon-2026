@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
@@ -24,11 +25,23 @@ func (a *api) dutyRates(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusServiceUnavailable, "internal", "the duty table is not loaded", nil)
 		return
 	}
-	hts := strings.TrimSpace(r.URL.Query().Get("hts"))
-	if hts == "" {
+	// Parse the raw query explicitly: URL.Query() silently drops a pair it
+	// cannot parse (an unescaped ';', a bad %-escape), which would read as an
+	// absent hts and list the whole table. A query that does not parse is
+	// refused whole (even if the bad pair is another key); only an absent
+	// hts key lists the table. A present hts, even empty, must be valid. With
+	// repeated hts keys the first value is used.
+	q, qerr := url.ParseQuery(r.URL.RawQuery)
+	vals, present := q["hts"]
+	if qerr != nil || (present && len(vals) == 0) {
+		writeError(w, http.StatusBadRequest, "invalid_input", invalidHTSMessage, nil)
+		return
+	}
+	if !present {
 		writeJSON(w, http.StatusOK, map[string]any{"lines": a.d.Duty.Lines()})
 		return
 	}
+	hts := strings.TrimSpace(vals[0])
 	code, err := duty.ParseHTS(hts)
 	if err != nil {
 		// Checked before any table or live lookup, and before the not-found
