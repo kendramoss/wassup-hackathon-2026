@@ -845,9 +845,9 @@ func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetc
 		return planner.Request{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ := in.Economics
-	if econ.AnnualImportValueUSD == 0 && c.Economics != nil { // omitted: use the case's latest
-		econ = *c.Economics
+	econ, err := effectiveEconomics(in.Economics, c.Economics) // omitted: the case's latest
+	if err != nil {
+		return planner.Request{}, err
 	}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
 	req := planner.Request{
