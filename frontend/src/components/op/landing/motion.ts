@@ -19,6 +19,11 @@ const ruling = (id: string) => {
 };
 
 export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) => string }) {
+  // A reload opens the story from the hero. The browser otherwise restores
+  // the scroll position it was on, dropping the visitor mid-way through the
+  // pinned stage with no way to see the heat gun from the start.
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  scrollTo({ top: 0, behavior: "instant" });
   const $ = <T extends Element = HTMLElement>(k: string) => root.querySelector<T>(`[data-k="${k}"]`)!;
   const $$ = <T extends Element = HTMLElement>(k: string) => [...root.querySelectorAll<T>(`[data-k="${k}"]`)];
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -36,7 +41,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   // scrolls down (D93). Each wheel gesture steps to one settled stop; the page
   // position, in screens past the stage's top, drives the figures below.
   // Phones stack the panes and each figure keeps its own scroll progress.
-  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), hzfill = $("hzfill"), scroller = $("scroller");
+  const hz = $("hz"), hzpin = $("hzpin"), track = $("track"), scroller = $("scroller");
   const panes = [...track.children] as HTMLElement[];
   // Screens of scroll: fig.1 plays over 0–4, slides to fig.2 over 4–5.5,
   // fig.2 fills over 5.3–7.5, slides to fig.3 over 7.5–9, fig.3 settles
@@ -81,9 +86,6 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     arrival = pane === null ? null : { pane, start: now, duration: pane === 2 ? 2800 : 3400 };
     scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
   };
-  const hzgo = $$<HTMLButtonElement>("hzgo");
-  const onGo = (e: Event) => goTo(ARRIVE[Number((e.currentTarget as HTMLElement).dataset.i)], true);
-  hzgo.forEach((b) => b.addEventListener("click", onGo));
   // One input step advances one stop — the four heat-gun phases, then fig.2
   // and fig.3. From the hero the first down step goes straight to the heat gun;
   // one more down goes to the page bottom, one more up to the page top.
@@ -314,8 +316,6 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     const s = horizontal() ? slid() : 0;
     if (horizontal()) {
       track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;
-      hzfill.style.width = `${(at() / SCREENS) * 100}%`;
-      hzgo.forEach((b, i) => b.toggleAttribute("aria-current", Math.round(s) === i));
     } else track.style.transform = "";
     if (near(gunSheet) && s < 1) {
       const p = fig1Progress();
@@ -364,7 +364,6 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     ro.disconnect();
     barRo.disconnect();
     track.removeEventListener("focusin", onFocus);
-    hzgo.forEach((b) => b.removeEventListener("click", onGo));
     window.removeEventListener("wheel", onWheel);
     window.removeEventListener("keydown", onKey);
     gun?.dispose();
