@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")
@@ -54,6 +55,22 @@ func goldenInputs() map[string]Input {
 			ProductName: "knit neck gaiter", Textile: true,
 			Facts:     "Polyester fabric is knit and dyed in China; the gaiters are cut and sewn in Vietnam.",
 			Requested: "Vietnam", Prediction: domain.Prediction{KeyFactors: []string{"Cut and sewn in Vietnam"}, CitedRulings: []string{"N364101"}},
+		},
+		// The same article through the explicit regime field.
+		"textile_regime": {
+			ProductName: "knit neck gaiter", Regime: router.RegimeTextile,
+			Facts:     "Polyester fabric is knit and dyed in China; the gaiters are cut and sewn in Vietnam.",
+			Requested: "Vietnam", Prediction: domain.Prediction{KeyFactors: []string{"Cut and sewn in Vietnam"}, CitedRulings: []string{"N364101"}},
+		},
+		"usmca": {
+			ProductName: "steel brackets", Regime: router.RegimeUSMCA,
+			Facts:     "Steel brackets are stamped in Mexico from coil made in China.",
+			Requested: "Mexico", Prediction: domain.Prediction{KeyFactors: []string{"Tariff shift met in Mexico"}, CitedRulings: []string{"N340187"}},
+		},
+		"pharma": {
+			ProductName: "ibuprofen tablets", Regime: router.RegimePharma,
+			Facts:     "Ibuprofen API is made in India; tableting and bottling take place in the United States.",
+			Requested: "India", Prediction: domain.Prediction{KeyFactors: []string{"API made in India"}, CitedRulings: []string{"N340187"}},
 		},
 	}
 }

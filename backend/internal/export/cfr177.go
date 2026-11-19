@@ -21,17 +21,15 @@ func CFR177(in Input) string {
 	if name == "" {
 		name = "the subject merchandise"
 	}
-	rule := "substantial transformation (19 C.F.R. § 134.1(b))"
-	if in.Textile {
-		rule = "19 C.F.R. § 102.21"
-	}
+	rt := in.regimeText()
 
 	b.WriteString("[FILL IN: date]\n\n")
 	b.WriteString("Director, National Commodity Specialist Division  \nRegulations and Rulings, Office of International Trade  \nU.S. Customs and Border Protection  \n201 Varick Street, Suite 501  \nNew York, NY 10014\n\n")
 	b.WriteString("(Or filed electronically through eRulings, https://erulings.cbp.gov.)\n\n")
 	fmt.Fprintf(&b, "**RE: Request for a binding ruling under 19 C.F.R. Part 177 — country of origin of %s**\n\n", name)
 	b.WriteString("Dear Director:\n\n")
-	fmt.Fprintf(&b, "Pursuant to 19 C.F.R. §§ 177.1 and 177.2, [FILL IN: requester's legal name] respectfully requests a binding ruling on the country of origin of %s, determined under %s, for purposes of country of origin marking (19 U.S.C. § 1304; 19 C.F.R. Part 134) and the application of Section 301 duties. The request concerns prospective importations.\n\n", name, rule)
+	fmt.Fprintf(&b, "Pursuant to 19 C.F.R. §§ 177.1 and 177.2, [FILL IN: requester's legal name] respectfully requests a binding ruling on the country of origin of %s, determined under %s, for purposes of country of origin marking (19 U.S.C. § 1304; 19 C.F.R. Part 134)%s. The request concerns prospective importations.", name, rt.rule, rt.cfrPurpose)
+	b.WriteString("\n\n")
 
 	b.WriteString("## 1. Interested parties\n\n")
 	b.WriteString("- Requester: [FILL IN: legal name, address, email and telephone]. Interest in the question (19 C.F.R. § 177.1(c)): [FILL IN: importer, exporter or other interest].\n")
@@ -112,13 +110,16 @@ func CFR177(in Input) string {
 	b.WriteString("[FILL IN: cost or share of value of each component, and the time and skill each step takes, if available].\n\n")
 
 	b.WriteString("## 6. Question presented\n\n")
-	fmt.Fprintf(&b, "What is the country of origin of %s, produced as described above, under %s, for purposes of country of origin marking and Section 301 duties?\n\n", name, rule)
+	fmt.Fprintf(&b, "What is the country of origin of %s, produced as described above, under %s, %s?\n\n", name, rt.rule, rt.cfrQuestion)
+	if rt.separate != "" {
+		b.WriteString(rt.separate + "\n\n")
+	}
 
 	b.WriteString("## 7. Requester's position and supporting authority\n\n")
 	if in.Requested != "" {
-		fmt.Fprintf(&b, "The requester submits that the merchandise is a product of %s", in.Requested)
+		fmt.Fprintf(&b, "The requester submits that the merchandise is a product of %s%s", in.Requested, rt.positionTail)
 	} else {
-		b.WriteString("The requester submits that the merchandise is a product of [FILL IN: country]")
+		b.WriteString("The requester submits that the merchandise is a product of [FILL IN: country]" + rt.positionTail)
 	}
 	if len(in.Prediction.KeyFactors) > 0 {
 		fmt.Fprintf(&b, ", based on these key factors: %s", listPhrase(in.Prediction.KeyFactors))
