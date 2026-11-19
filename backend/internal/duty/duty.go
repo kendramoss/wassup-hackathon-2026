@@ -95,8 +95,78 @@ func parse(b []byte) (*Table, error) {
 	return t, nil
 }
 
+// ErrInvalidHTS means a string is not a supported HTS number (see ParseHTS).
+// It also matches ErrNoRate, so a caller that treats "no line" as unpriced
+// treats a malformed number the same way.
+var ErrInvalidHTS = invalidHTSError{}
+
+type invalidHTSError struct{}
+
+func (invalidHTSError) Error() string { return "duty: not a supported HTS number" }
+func (invalidHTSError) Is(target error) bool {
+	return target == ErrNoRate
+}
+
+// HTSCode is a validated HTS number.
+type HTSCode struct {
+	Subheading  string // NNNN.NN.NN, the table and live-lookup key
+	Statistical string // the two statistical digits of a 10-digit number, else ""
+}
+
+// ParseHTS is the one strict HTS syntax check; Table.Line and LiveHTS both
+// use it. After trimming surrounding whitespace the number must be either
+//
+//	8 digits  NNNNNNNN, or NNNN<s>NN<s>NN
+//	10 digits NNNNNNNNNN, NNNN<s>NN<s>NNNN, or NNNN<s>NN<s>NN<s>NN
+//
+// where <s> is a single '.', ' ' or '-', the same one throughout. Digits are
+// ASCII 0-9 only. Letters, other characters, other lengths (6, 9, 11+),
+// doubled, leading or trailing separators and mixed separators are
+// rejected, never stripped or truncated. A 10-digit number keeps its
+// statistical suffix and maps to its 8-digit subheading.
+func ParseHTS(s string) (HTSCode, error) {
+	s = strings.TrimSpace(s)
+	bad := func() (HTSCode, error) {
+		return HTSCode{}, fmt.Errorf("%w: %q (want 8 or 10 digits, e.g. 8419.89.95 or 8419.89.9500)", ErrInvalidHTS, s)
+	}
+	var sep byte
+	if i := strings.IndexAny(s, ". -"); i >= 0 {
+		sep = s[i]
+	}
+	var d string
+	if sep == 0 {
+		d = s
+	} else {
+		parts := strings.Split(s, string(sep))
+		switch len(parts) {
+		case 3:
+			if len(parts[0]) != 4 || len(parts[1]) != 2 || (len(parts[2]) != 2 && len(parts[2]) != 4) {
+				return bad()
+			}
+		case 4:
+			if len(parts[0]) != 4 || len(parts[1]) != 2 || len(parts[2]) != 2 || len(parts[3]) != 2 {
+				return bad()
+			}
+		default:
+			return bad()
+		}
+		d = strings.Join(parts, "")
+	}
+	if len(d) != 8 && len(d) != 10 {
+		return bad()
+	}
+	for i := 0; i < len(d); i++ {
+		if d[i] < '0' || d[i] > '9' {
+			return bad()
+		}
+	}
+	return HTSCode{Subheading: d[:4] + "." + d[4:6] + "." + d[6:8], Statistical: d[8:]}, nil
+}
+
 // Normalize keeps the digits of an HTS number and formats them as
-// NNNN.NN.NN (extra statistical digits are dropped).
+// NNNN.NN.NN (extra statistical digits are dropped). It is a lenient
+// formatter for already-trusted text (table data, numbers matched by a
+// pattern), not a validator: untrusted input must go through ParseHTS first.
 func Normalize(hts string) string {
 	var d []rune
 	for _, r := range hts {
@@ -112,9 +182,14 @@ func Normalize(hts string) string {
 }
 
 // Line returns the rates for an HTS subheading (8 digits; a 10-digit
-// statistical number matches its subheading).
+// statistical number matches its subheading). A number ParseHTS rejects has
+// no line.
 func (t *Table) Line(hts string) (Line, bool) {
-	l, ok := t.lines[Normalize(hts)]
+	c, err := ParseHTS(hts)
+	if err != nil {
+		return Line{}, false
+	}
+	l, ok := t.lines[c.Subheading]
 	return l, ok
 }
 

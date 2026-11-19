@@ -51,7 +51,8 @@ func TestAdditionalForOrigin(t *testing.T) {
 	}
 	active := time.Date(2026, 11, 8, 0, 0, 0, 0, time.UTC) // before the fixture's end date
 	for _, c := range cases {
-		ex, may := a.ForAsOf(c.hts, c.origin, 0.042, active)
+		r := a.ForAsOf(c.hts, c.origin, 0.042, active)
+		ex, may := r.Extras, r.MayExclude
 		var hs []string
 		sum := 0.0
 		for _, e := range ex {
@@ -78,29 +79,40 @@ func TestExpiredExclusionsAreNotSuggested(t *testing.T) {
 		{"2026-11-10T00:00:00Z", 0}, // after
 	} {
 		asOf, _ := time.Parse(time.RFC3339, tc.day)
-		ex, may := a.ForAsOf("9405.42.84", "China", 0.042, asOf)
+		r := a.ForAsOf("9405.42.84", "China", 0.042, asOf)
+		ex, may := r.Extras, r.MayExclude
 		if len(ex) == 0 || len(may) != tc.want {
 			t.Errorf("%s: extras %v check %v, want %d exclusion(s)", tc.day, ex, may, tc.want)
 		}
 	}
 }
 
-func TestFillWithUsesRateSnapshotDateForExclusions(t *testing.T) {
+// An old rate snapshot must not make a lapsed exclusion look current: the
+// as-of date is the pricing request's own clock, not when the rates were
+// fetched (#305, upstream #340 used FetchedAt). Same boundary assertions as
+// the upstream test, driven by the request clock instead.
+func TestFillWithAsOfUsesRequestClockNotRateSnapshotDate(t *testing.T) {
 	a, _ := parseAdditional([]byte(fixtureAdditional))
 	r := 0.042
 	base := MFN{HTS: "9405.42.84", General: "4.2%", Rate: &r, Supported: true}
 	for _, tc := range []struct {
-		fetched string
-		want    int
+		name    string
+		fetched string // when the rate snapshot was taken
+		now     string // the pricing request's clock
+		want    int    // exclusions still suggested
+		expired int
 	}{
-		{"2026-11-08T12:00:00Z", 1},
-		{"2026-11-10T12:00:00Z", 0},
+		{"snapshot and request before the end date", "2026-11-08T12:00:00Z", "2026-11-08T12:00:00Z", 1, 0},
+		{"snapshot before, request on the last day", "2026-11-08T12:00:00Z", "2026-11-09T23:59:59Z", 1, 0},
+		{"old snapshot, request after the end date", "2026-11-08T12:00:00Z", "2026-11-10T00:00:00Z", 0, 1},
+		{"new snapshot, request after the end date", "2026-11-10T12:00:00Z", "2026-11-10T12:00:00Z", 0, 1},
 	} {
 		m := base
 		m.FetchedAt, _ = time.Parse(time.RFC3339, tc.fetched)
-		_, _, _, check := m.FillWith(nil, []string{"China"}, a)
-		if len(check["China"]) != tc.want {
-			t.Errorf("fetched %s: check %v, want %d", tc.fetched, check, tc.want)
+		now, _ := time.Parse(time.RFC3339, tc.now)
+		res := m.FillWithAsOf(nil, []string{"China"}, a, now)
+		if len(res.Check["China"]) != tc.want || len(res.Expired["China"]) != tc.expired {
+			t.Errorf("%s: check %v expired %v, want %d and %d", tc.name, res.Check, res.Expired, tc.want, tc.expired)
 		}
 	}
 }

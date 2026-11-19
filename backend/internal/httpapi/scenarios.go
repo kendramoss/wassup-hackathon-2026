@@ -44,6 +44,18 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if in.Economics != nil {
+		if err := validateEconomics(*in.Economics); err != nil {
+			a.fail(w, r, err)
+			return
+		}
+	}
+	if sc.Economics != nil && (in.Economics == nil || in.Economics.AnnualImportValueUSD <= 0) {
+		if err := validateEconomics(*sc.Economics); err != nil { // reused stored economics
+			a.fail(w, r, err)
+			return
+		}
+	}
 	if len(in.Scenarios) == 0 || len(in.Scenarios) > MaxScenarios {
 		a.fail(w, r, fmt.Errorf("%w: give 1 to %d scenarios", domain.ErrInvalid, MaxScenarios))
 		return
