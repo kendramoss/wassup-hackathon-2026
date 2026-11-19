@@ -97,8 +97,9 @@ func repairKey(key string) string { return key + "-" + ValidationEpoch }
 
 // cachedViolation reports why a verdict may not be replayed (or returned) for
 // task t, or "" when it is safe. This is the shared cache-compatibility
-// contract (#295, reused by #297). A verdict that cites no ruling has nothing
-// to prove. One that cites a supporting or counter ruling needs current proof:
+// contract (#295, reused by #297). PrecedentSupported requires a non-empty
+// supporting ruling. A verdict that cites no ruling and claims no support has
+// nothing to prove. One that cites a supporting or counter ruling needs current proof:
 //   - r.Proof present, of the current ValidationEpoch, recorded for the same
 //     Before date and the same exclusion set as t;
 //   - every cited ruling is in Proof.Eligible (validated direct retrievals of
@@ -119,6 +120,9 @@ func cachedViolation(r Result, t Task) string {
 		if slices.Contains(t.Exclude, id) {
 			return "cites excluded ruling " + id
 		}
+	}
+	if v.PrecedentSupported && v.SupportingRuling == "" {
+		return "supported without a supporting ruling" // support needs a validated direct citation
 	}
 	if len(cited) == 0 {
 		return ""
@@ -151,6 +155,10 @@ func sanitize(r Result, t Task) (Result, bool) {
 		changed = true
 		v := r.Verdict
 		switch {
+		case v.PrecedentSupported && v.SupportingRuling == "":
+			// Nothing to drop and nothing invented: the flag is simply not
+			// backed by a citation, so it is cleared.
+			r.Verdict.PrecedentSupported = false
 		case v.CounterRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.CounterRuling) || slices.Contains(t.Exclude, v.CounterRuling)):
 			r.Dropped = append(r.Dropped, v.CounterRuling)
 			r.Verdict.CounterRuling = ""

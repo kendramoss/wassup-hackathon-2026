@@ -193,3 +193,47 @@ func TestCacheValidationEpochIsNotThePromptVersion(t *testing.T) {
 		t.Error("validation change must not alter the prompt version")
 	}
 }
+
+// supported=true with an empty supporting ruling is never supported, whether
+// stored (legacy or with current proof) or fresh.
+func TestSupportedWithoutSupportingRulingIsNotReplayedOrReturned(t *testing.T) {
+	tk := cacheTask()
+	empty := Result{Verdict: domain.Verdict{PrecedentSupported: true, Confidence: 0.97}}
+	withProof := empty
+	withProof.Proof = ProofFor(tk)
+	for name, stored := range map[string]Result{"legacy": empty, "current proof": withProof} {
+		t.Run("stored "+name, func(t *testing.T) {
+			c, inner, _ := newFixedCache()
+			seed(t, c, tk, stored)
+			if _, ok, _ := c.Peek(context.Background(), tk); ok {
+				t.Fatal("Peek replayed supported verdict with empty support")
+			}
+			if r, _ := c.Verify(context.Background(), tk); r.Cached || inner.calls != 1 {
+				t.Errorf("replayed: %+v calls=%d", r, inner.calls)
+			}
+		})
+		t.Run("fresh "+name, func(t *testing.T) {
+			blobs := &memBlobs{m: map[string][]byte{}}
+			c := NewCacheIn(&fixedChecker{make: func(Task) Result { return stored }}, blobs, "m")
+			r, err := c.Verify(context.Background(), tk)
+			if err != nil || r.Verdict.PrecedentSupported || r.Verdict.SupportingRuling != "" || len(r.Dropped) != 0 {
+				t.Errorf("returned supported or invented a drop: %+v err=%v", r, err)
+			}
+			if len(blobs.m) != 0 {
+				t.Error("stored")
+			}
+		})
+	}
+	// Controls: a legitimate unsupported verdict with no citations replays; proven support hits.
+	c, inner, _ := newFixedCache()
+	seed(t, c, tk, Result{Verdict: domain.Verdict{Confidence: 0.3}})
+	if r, _ := c.Verify(context.Background(), tk); !r.Cached || inner.calls != 0 {
+		t.Errorf("unsupported no-citation verdict missed: %+v", r)
+	}
+	tk2 := cacheTask()
+	tk2.FactsB = "proven"
+	seed(t, c, tk2, goodResult(tk2))
+	if r, _ := c.Verify(context.Background(), tk2); !r.Cached || !r.Verdict.PrecedentSupported || inner.calls != 0 {
+		t.Errorf("proven support missed: %+v", r)
+	}
+}

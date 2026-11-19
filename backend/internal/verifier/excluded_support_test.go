@@ -3,7 +3,6 @@ package verifier
 import (
 	"context"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 // scriptSearch is a synthetic Searcher. When bypass is true it ignores the
 // exclusion map and date bound, as a buggy or compromised backend would.
 type scriptSearch struct {
-	mu     sync.Mutex
 	hits   []Hit
 	reads  map[string]string
 	bypass bool
