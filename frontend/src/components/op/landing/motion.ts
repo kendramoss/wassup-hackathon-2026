@@ -3,6 +3,7 @@
 // with prefers-reduced-motion every figure shows its state without tweening.
 import { copy } from "@/lib/copy";
 import { ARRIVE, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
+import { inControl, isSpaceKey, keyDirection, wheelDirection } from "./input";
 import { createHeatGun, type Country } from "./heat-gun";
 
 const L = copy.landing;
@@ -108,7 +109,7 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   let lastWheel = 0;
   const onWheel = (e: WheelEvent) => {
     if (!horizontal()) return;
-    const dir = Math.sign(e.deltaY);
+    const dir = wheelDirection(e);
     if (!dir) return;
     const now = performance.now();
     // A trackpad flick emits a burst of events; count it as one gesture.
@@ -123,13 +124,15 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     if (!horizontal()) return;
     const t = e.target as HTMLElement | null;
     if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
-    const forward = e.key === "ArrowDown" || e.key === "PageDown" || e.key === " " || e.key === "Spacebar";
-    const back = e.key === "ArrowUp" || e.key === "PageUp";
-    if (!forward && !back) return;
+    // A focused button (or equivalent control) owns Space: leave keydown
+    // untouched so the browser activates it instead of stepping the story.
+    if (isSpaceKey(e) && inControl(t)) return;
+    const dir = keyDirection(e);
+    if (!dir) return;
     const now = performance.now();
     if (now - lastKey < 220) { e.preventDefault(); return; } // key repeat
     lastKey = now;
-    if (step(forward ? 1 : -1)) e.preventDefault();
+    if (step(dir)) e.preventDefault();
   };
   window.addEventListener("keydown", onKey);
   // Tabbing into a pane that is off to the side brings it into view; the pin
