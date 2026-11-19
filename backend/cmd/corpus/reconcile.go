@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -69,6 +70,65 @@ func readManifest(dir, name string) ([]string, bool, error) {
 	return m.IDs, true, nil
 }
 
+// legacyOwned derives the owned ids of a directory written before manifests.
+// Provable evidence is the split_meta.jsonl a previous build wrote beside its
+// facts files (one line per ruling it generated). Without that evidence, any
+// ruling-shaped facts file that is neither produced now nor protected might
+// be stale generated output, so we refuse rather than leave it loaded.
+func legacyOwned(dir, metaName string, facts map[string][]byte, protect map[string]bool) ([]string, bool, error) {
+	if metaName != "" {
+		p := filepath.Join(dir, metaName)
+		st, err := os.Lstat(p)
+		switch {
+		case err == nil:
+			if !st.Mode().IsRegular() {
+				return nil, false, fmt.Errorf("%s is not a regular file", p)
+			}
+			b, err := os.ReadFile(p)
+			if err != nil {
+				return nil, false, err
+			}
+			var ids []string
+			for i, ln := range strings.Split(strings.TrimSpace(string(b)), "\n") {
+				if ln == "" {
+					continue
+				}
+				var m struct {
+					Ruling string `json:"ruling"`
+				}
+				if err := json.Unmarshal([]byte(ln), &m); err != nil || !domain.ValidRulingID(m.Ruling) {
+					return nil, false, fmt.Errorf("%s line %d is corrupt; fix or delete it, then rerun (nothing was changed)", p, i+1)
+				}
+				ids = append(ids, m.Ruling)
+			}
+			return ids, true, nil
+		case !errors.Is(err, fs.ErrNotExist):
+			return nil, false, err
+		}
+	}
+	ents, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, false, err
+	}
+	var unexplained []string
+	for _, e := range ents {
+		n := e.Name()
+		if !factsFileName.MatchString(n) || !e.Type().IsRegular() {
+			continue
+		}
+		id := strings.TrimSuffix(n, ".txt")
+		if _, ok := facts[id]; ok || protect[id] {
+			continue
+		}
+		unexplained = append(unexplained, n)
+	}
+	if len(unexplained) > 0 {
+		sort.Strings(unexplained)
+		return nil, false, fmt.Errorf("%s has no manifest or previous split_meta, so ownership of %d ruling file(s) cannot be proven (e.g. %s) and they might be stale generated facts that corpus.Load would still use; nothing was changed. Move them away or restore the previous split_meta.jsonl, then rerun", dir, len(unexplained), unexplained[0])
+	}
+	return nil, false, nil
+}
+
 func manifestBytes(ids map[string]bool) []byte {
 	m := manifest{Version: 1, IDs: make([]string, 0, len(ids))}
 	for id := range ids {
@@ -84,7 +144,9 @@ type reconcileResult struct {
 	Written  int
 	Pruned   []string
 	Skipped  []string // owned but obsolete files left alone (not a regular file)
-	Unmanned bool     // no previous manifest: nothing could be pruned
+	Unmanned bool     // no manifest and no legacy evidence: nothing could be pruned
+	// Bootstrapped: ownership came from a pre-manifest split_meta.jsonl.
+	Bootstrapped bool
 }
 
 // reconcile writes facts (id -> content as <id>.txt) and extras (exact file
@@ -92,7 +154,7 @@ type reconcileResult struct {
 // manifest owned. Ids in protect are never removed. Everything is staged
 // before anything is replaced, so a failure while staging leaves the last
 // good output untouched.
-func reconcile(dir, manifestName string, facts map[string][]byte, extras map[string][]byte, protect map[string]bool) (res reconcileResult, err error) {
+func reconcile(dir, manifestName, legacyMeta string, facts map[string][]byte, extras map[string][]byte, protect map[string]bool) (res reconcileResult, err error) {
 	for id := range facts {
 		if !domain.ValidRulingID(id) {
 			return res, fmt.Errorf("refusing ruling id %q: not a CBP ruling number", id)
@@ -104,6 +166,14 @@ func reconcile(dir, manifestName string, facts map[string][]byte, extras map[str
 	old, found, err := readManifest(dir, manifestName)
 	if err != nil {
 		return res, err
+	}
+	if !found {
+		// Legacy directory: bootstrap ownership only from provable evidence.
+		old, found, err = legacyOwned(dir, legacyMeta, facts, protect)
+		if err != nil {
+			return res, err
+		}
+		res.Bootstrapped = found
 	}
 	res.Unmanned = !found
 	var obsolete []string
@@ -247,7 +317,12 @@ func bundle(args []string) error {
 	fl := flag.NewFlagSet("bundle", flag.ExitOnError)
 	from := fl.String("from", "../data/corpus/facts", "built facts directory")
 	to := fl.String("to", "data/facts", "bundled facts directory")
+	keep := fl.String("keep-labels", "../eval/data/labels_usmca.jsonl", "labels file whose facts are bundled separately (Part 102); never pruned")
 	_ = fl.Parse(args)
+	protect, err := protectedIDs(*keep)
+	if err != nil {
+		return err
+	}
 	ents, err := os.ReadDir(*from)
 	if err != nil {
 		return err
@@ -263,7 +338,7 @@ func bundle(args []string) error {
 		}
 		facts[e.Name()[:len(e.Name())-len(".txt")]] = b
 	}
-	res, err := reconcile(*to, bundleManifest, facts, nil, nil)
+	res, err := reconcile(*to, bundleManifest, "", facts, nil, protect)
 	if err != nil {
 		return err
 	}
@@ -273,8 +348,8 @@ func bundle(args []string) error {
 
 func reportReconcile(cmd, dir string, res reconcileResult) {
 	fmt.Fprintf(os.Stderr, "%s: %d facts files in %s, %d obsolete removed\n", cmd, res.Written, dir, len(res.Pruned))
-	if res.Unmanned {
-		fmt.Fprintf(os.Stderr, "%s: no previous manifest in %s; nothing pruned (files from before manifests are left alone)\n", cmd, dir)
+	if res.Bootstrapped {
+		fmt.Fprintf(os.Stderr, "%s: no manifest in %s; ownership bootstrapped from the previous build's split_meta.jsonl\n", cmd, dir)
 	}
 	for _, id := range res.Skipped {
 		fmt.Fprintf(os.Stderr, "%s: left %s.txt alone (not a regular file)\n", cmd, id)

@@ -138,20 +138,87 @@ func TestBuildProtectsSeparatelyGeneratedIDEvenIfOwned(t *testing.T) {
 	}
 }
 
-func TestBuildWithoutManifestPrunesNothing(t *testing.T) {
+func legacyFixture(t *testing.T) (raw, facts, keep string) {
 	root := t.TempDir()
-	raw, facts := filepath.Join(root, "raw"), filepath.Join(root, "facts")
+	raw, facts, keep = filepath.Join(root, "raw"), filepath.Join(root, "facts"), filepath.Join(root, "labels_usmca.jsonl")
+	writeFile(t, keep, `{"ruling":"N300001","date":"2025-01-01"}`+"\n")
 	rawRuling(t, raw, "N100001")
-	writeFile(t, filepath.Join(facts, "N100002.txt"), "legacy output, no manifest\n")
-	runBuild(t, raw, facts, filepath.Join(root, "none.jsonl"))
-	if !exists(filepath.Join(facts, "N100002.txt")) {
-		t.Error("legacy directory without a manifest must not be pruned")
+	// Output of an old build: facts + split_meta, no manifest; N100002's raw is gone.
+	writeFile(t, filepath.Join(facts, "N100001.txt"), "old\n")
+	writeFile(t, filepath.Join(facts, "N100002.txt"), "stale generated\n")
+	writeFile(t, filepath.Join(facts, "split_meta.jsonl"), `{"ruling":"N100001"}`+"\n"+`{"ruling":"N100002"}`+"\n")
+	writeFile(t, filepath.Join(facts, "N300001.txt"), "part 102\n")
+	writeFile(t, filepath.Join(facts, "notes.txt"), "user\n")
+	return
+}
+
+func TestLegacyDirBootstrapsOwnershipFromSplitMeta(t *testing.T) {
+	raw, facts, keep := legacyFixture(t)
+	runBuild(t, raw, facts, keep)
+	if exists(filepath.Join(facts, "N100002.txt")) {
+		t.Error("stale legacy generated file should be pruned (proven by old split_meta)")
 	}
-	// From now on the new file is owned, the legacy one still is not.
-	os.Remove(filepath.Join(raw, "N100001.json"))
-	runBuild(t, raw, facts, filepath.Join(root, "none.jsonl"))
-	if exists(filepath.Join(facts, "N100001.txt")) || !exists(filepath.Join(facts, "N100002.txt")) {
-		t.Error("only manifest-owned files are pruned")
+	for _, n := range []string{"N100001.txt", "N300001.txt", "notes.txt", buildManifest} {
+		if !exists(filepath.Join(facts, n)) {
+			t.Errorf("%s missing", n)
+		}
+	}
+	one := "Vietnam"
+	labels := []corpus.Label{
+		{Ruling: "N100001", Date: "2025-01-01", PrimaryOrigin: &one, Evidence: []string{"h"}},
+		{Ruling: "N100002", Date: "2025-01-02", PrimaryOrigin: &one, Evidence: []string{"h"}},
+		{Ruling: "N300001", Date: "2025-01-03", PrimaryOrigin: &one, Evidence: []string{"h"}},
+	}
+	st, _ := corpus.Load(labels, facts)
+	if _, ok := st.Get("N100002"); ok || st.Len() != 2 {
+		t.Errorf("obsolete precedent still loaded, len=%d", st.Len())
+	}
+}
+
+func TestLegacyDirCorruptMetaStopsBeforeMutation(t *testing.T) {
+	raw, facts, keep := legacyFixture(t)
+	writeFile(t, filepath.Join(facts, "split_meta.jsonl"), "{\"ruling\":\"N100001\"}\n{garbage\n")
+	if err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", keep}); err == nil {
+		t.Fatal("corrupt legacy metadata must stop the build")
+	}
+	if b, _ := os.ReadFile(filepath.Join(facts, "N100001.txt")); string(b) != "old\n" || !exists(filepath.Join(facts, "N100002.txt")) || exists(filepath.Join(facts, buildManifest)) {
+		t.Error("nothing may change when legacy metadata is corrupt")
+	}
+}
+
+func TestLegacyDirWithoutEvidenceFailsRatherThanStayStale(t *testing.T) {
+	raw, facts, keep := legacyFixture(t)
+	os.Remove(filepath.Join(facts, "split_meta.jsonl"))
+	err := build([]string{"-raw", raw, "-facts", facts, "-keep-labels", keep})
+	if err == nil || !strings.Contains(err.Error(), "cannot be proven") {
+		t.Fatalf("want actionable ownership error, got %v", err)
+	}
+	if b, _ := os.ReadFile(filepath.Join(facts, "N100001.txt")); string(b) != "old\n" || !exists(filepath.Join(facts, "N100002.txt")) {
+		t.Error("nothing may change on refusal")
+	}
+	// A clean empty dir and a dir holding only protected/produced files are fine.
+	root := t.TempDir()
+	rawRuling(t, filepath.Join(root, "raw"), "N100001")
+	runBuild(t, filepath.Join(root, "raw"), filepath.Join(root, "facts"), keep)
+}
+
+func TestBundleLegacyDirRefusesUnexplainedFiles(t *testing.T) {
+	root := t.TempDir()
+	from, to := filepath.Join(root, "facts"), filepath.Join(root, "bundle")
+	keep := filepath.Join(root, "k.jsonl")
+	writeFile(t, keep, `{"ruling":"N300001","date":"2025-01-01"}`+"\n")
+	writeFile(t, filepath.Join(from, "N100001.txt"), "a\n")
+	writeFile(t, filepath.Join(to, "N100001.txt"), "old\n")
+	writeFile(t, filepath.Join(to, "N300001.txt"), "part 102\n")
+	if err := bundle([]string{"-from", from, "-to", to, "-keep-labels", keep}); err != nil {
+		t.Fatalf("explained legacy bundle should succeed: %v", err)
+	}
+	writeFile(t, filepath.Join(to, buildManifest), "")
+	os.Remove(filepath.Join(to, bundleManifest))
+	writeFile(t, filepath.Join(to, "N100002.txt"), "stale bundled\n")
+	os.Remove(filepath.Join(to, bundleManifest))
+	if err := bundle([]string{"-from", from, "-to", to, "-keep-labels", keep}); err == nil || !exists(filepath.Join(to, "N100002.txt")) {
+		t.Errorf("unexplained bundled file must fail the bundle untouched: %v", err)
 	}
 }
 
@@ -163,7 +230,7 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	// Path traversal ids are rejected before anything changes.
 	writeFile(t, filepath.Join(dir, buildManifest), `{"version":1,"ids":["../victim"]}`)
 	writeFile(t, filepath.Join(dir, "N100001.txt"), "old\n")
-	if _, err := reconcile(dir, buildManifest, map[string][]byte{"N100002": []byte("new\n")}, nil, nil); err == nil {
+	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", map[string][]byte{"N100002": []byte("new\n")}, nil, nil); err == nil {
 		t.Fatal("manifest with a path-like id must be refused")
 	}
 	if exists(filepath.Join(dir, "N100002.txt")) || !exists(filepath.Join(dir, "N100001.txt")) || !exists(outside) {
@@ -171,14 +238,14 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	}
 	// Corrupt manifest.
 	writeFile(t, filepath.Join(dir, buildManifest), `{not json`)
-	if _, err := reconcile(dir, buildManifest, nil, nil, nil); err == nil {
+	if _, err := reconcile(dir, buildManifest, "split_meta.jsonl", nil, nil, nil); err == nil {
 		t.Error("corrupt manifest must be refused")
 	}
 	// Bad ids to write.
-	if _, err := reconcile(t.TempDir(), buildManifest, map[string][]byte{"../x": nil}, nil, nil); err == nil {
+	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", map[string][]byte{"../x": nil}, nil, nil); err == nil {
 		t.Error("bad output id must be refused")
 	}
-	if _, err := reconcile(t.TempDir(), buildManifest, nil, map[string][]byte{"../x": nil}, nil); err == nil {
+	if _, err := reconcile(t.TempDir(), buildManifest, "split_meta.jsonl", nil, map[string][]byte{"../x": nil}, nil); err == nil {
 		t.Error("extra name with a path must be refused")
 	}
 
@@ -188,7 +255,7 @@ func TestReconcileRefusesBadManifestAndSymlinks(t *testing.T) {
 	if err := os.Symlink(outside, filepath.Join(dir2, "N100001.txt")); err != nil {
 		t.Skip("symlinks unavailable")
 	}
-	res, err := reconcile(dir2, buildManifest, map[string][]byte{}, nil, nil)
+	res, err := reconcile(dir2, buildManifest, "split_meta.jsonl", map[string][]byte{}, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,8 +296,10 @@ func TestBundleReconcilesOnlyBundledFiles(t *testing.T) {
 	writeFile(t, filepath.Join(from, buildManifest), "{}")
 	writeFile(t, filepath.Join(to, "N300001.txt"), "separately bundled part 102\n")
 	writeFile(t, filepath.Join(to, "keep.txt"), "user\n")
+	keep := filepath.Join(root, "k.jsonl")
+	writeFile(t, keep, `{"ruling":"N300001","date":"2025-01-01"}`+"\n")
 	b := func() {
-		if err := bundle([]string{"-from", from, "-to", to}); err != nil {
+		if err := bundle([]string{"-from", from, "-to", to, "-keep-labels", keep}); err != nil {
 			t.Fatal(err)
 		}
 	}

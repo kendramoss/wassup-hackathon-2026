@@ -25,7 +25,7 @@ verify-data: ## check committed eval data against eval/SHA256SUMS and the bundle
 	cd eval && shasum -a 256 -c SHA256SUMS
 	cmp eval/data/labels.jsonl backend/data/labels.jsonl
 	cmp eval/data/labels_usmca.jsonl backend/data/labels_usmca.jsonl
-	@if [ -d data/corpus/facts ]; then diff -rq data/corpus/facts backend/data/facts --exclude=split_meta.jsonl && echo "bundled facts match data/corpus/facts"; fi
+	@if [ -d data/corpus/facts ]; then diff -rq data/corpus/facts backend/data/facts --exclude=split_meta.jsonl --exclude=.generated_manifest.json --exclude=.bundle_manifest.json && echo "bundled facts match data/corpus/facts"; fi
 
 bundle-corpus: ## copy labels and the built facts corpus into backend/data (baked into the image); removes only bundled files whose source is gone (manifest-owned)
 	mkdir -p backend/data/facts

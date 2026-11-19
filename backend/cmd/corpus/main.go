@@ -12,7 +12,9 @@
 //	    <id>.txt files whose raw input is gone. Files outside the manifest
 //	    (Part 102 facts from usmca-label, user files, output predating the
 //	    manifest) are never touched; a directory without a manifest is not
-//	    pruned.
+//	    pruned. A directory from before manifests is bootstrapped from the
+//	    previous build's split_meta.jsonl; with neither, unexplained ruling
+//	    files make the build fail (nothing changed) instead of staying stale.
 //	corpus bundle  [-from DIR] [-to DIR]
 //	    Copy built facts files into the bundled directory (make bundle-corpus)
 //	    and remove only the files a previous bundle copied that are gone.
@@ -207,7 +209,7 @@ func build(args []string) error {
 		}{r.RulingNumber, m})
 		meta.Write(append(line, '\n'))
 	}
-	res, err := reconcile(*factsDir, buildManifest, facts, map[string][]byte{"split_meta.jsonl": meta.Bytes()}, protect)
+	res, err := reconcile(*factsDir, buildManifest, "split_meta.jsonl", facts, map[string][]byte{"split_meta.jsonl": meta.Bytes()}, protect)
 	if err != nil {
 		return err
 	}
