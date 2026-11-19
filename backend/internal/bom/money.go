@@ -5,6 +5,8 @@ import (
 	"math"
 	"strconv"
 	"strings"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
 // Money is what a BOM's optional money columns say (all optional):
@@ -67,6 +69,9 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 		}
 		return ""
 	}
+	// The plant IDs are Parse's: built once from the same rows, so a cost is
+	// keyed by the ID of the component's plant in the parsed product.
+	ids := NewPlantIDs(rows)
 	var warnings []string
 	type cost struct {
 		group, plant string
@@ -95,6 +100,11 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 				warnings = append(warnings, fmt.Sprintf("row %d: unit price %q is not a number; ignored", line, v))
 			}
 		}
+		// Parse rejects a row without a name or country (and fails the import),
+		// so it creates no cost here.
+		if cell(row, "name") == "" || domain.NormalizeCountry(cell(row, "country")) == "" {
+			continue
+		}
 		v := cell(row, "unit_cost")
 		if v == "" || strings.ToLower(cell(row, "type")) == "plant" {
 			continue
@@ -114,16 +124,17 @@ func ParseMoney(rows [][]string, opts Options) (Money, []string) {
 				qty = qf
 			}
 		}
-		plantName := cell(row, "plant")
-		if plantName == "" {
-			plantName = cell(row, "country")
-		}
 		perUnit := f * qty
 		if !finite(perUnit) {
 			warnings = append(warnings, fmt.Sprintf("row %d: unit cost times qty is too large; ignored", line))
 			continue
 		}
-		costs = append(costs, cost{group: g, plant: plantID(plantName), perUnit: perUnit})
+		plant, ok := ids.lookup(cell(row, "plant"), cell(row, "country"))
+		if !ok {
+			warnings = append(warnings, fmt.Sprintf("row %d: plant is not in the product; cost ignored", line))
+			continue
+		}
+		costs = append(costs, cost{group: g, plant: plant, perUnit: perUnit})
 	}
 	if m.AnnualUnits > 0 && m.UnitPriceUSD > 0 {
 		v := m.AnnualUnits * m.UnitPriceUSD
@@ -202,4 +213,12 @@ func amount(s string) (float64, bool) {
 	s = strings.NewReplacer("$", "", ",", "", " ", "", "USD", "", "usd", "").Replace(s)
 	f, err := strconv.ParseFloat(s, 64)
 	return f, err == nil && f >= 0 && finite(f)
+}
+
+// lookup is ID for a plant the sheet declares: ok is false for a name that no
+// accepted row contributed, whose fallback slug could equal another plant's ID.
+func (p PlantIDs) lookup(plant, country string) (string, bool) {
+	name := rowPlantName("", "", strings.TrimSpace(plant), country)
+	id, ok := p.byIdentity[PlantIdentity(name)]
+	return id, ok
 }
