@@ -2172,10 +2172,10 @@ export interface components {
                 [key: string]: string;
             };
             /**
-             * @description litellm results are labelled proxy, development only
+             * @description fake results are simulated, local development only; earlier litellm results are labelled proxy (D49)
              * @enum {string}
              */
-            llm_provider: "vertex" | "litellm" | "fake";
+            llm_provider: "vertex" | "fake";
             /** @example Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling. */
             disclaimer: string;
         };

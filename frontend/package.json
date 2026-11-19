@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test scripts/*.test.mjs",
     "ui-check": "node scripts/ui-check.mjs",
     "gen:api": "openapi-typescript ../docs/api/openapi.yaml -o src/lib/api/schema.d.ts"
   },
@@ -19,7 +20,6 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1",
     "three": "^0.186.1"
   },
   "devDependencies": {

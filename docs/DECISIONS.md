@@ -16,6 +16,8 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 >   - `docs/issues/*`, `PR-*.md`, `plans/`, design keyframes and earlier decision entries
 > - Follow-up, needs a cloud migration: rename the secret, the bucket and the staging service.
 > - Naming audit (19 Nov 2026, #272): the explicit mapping (Unde Labs / Unde ← Origin Proof; repo and GCP project `wassup-hackathon-2026`) is now in the README and the GitHub About description leads with Unde Labs. Env-var fallback inventory: only `ORIGINPROOF_RESEARCH_RESULTS` remains — a deprecated alias of `UNDE_RESEARCH_RESULTS` in `backend/internal/retrieval/parity_test.go` — and it is kept until existing local setups no longer use it. No technical identifier was renamed.
+>
+> **Historical chat/auto-deploy artifacts (13–16 Oct 2026, #279):** issues #2, #14 and #17 and commits `eab0964`, `c55d06b`, `b6424c6`, `10cceac` and `f907641` describe the earlier auto-deploy chat prototype. Its Go/cloud tooling was removed in `d9d339a`, its demo app in `364b755`, its frontend `/chat` UI in `3418ed7`, and its chat deploy smoke test in `2ed7423`. An inventory on 19 Nov 2026 found no runtime `in-memory sessions`, `/api/chat/stream` or `get_time` tool left: current `session.InMemoryService()` calls are per-request ADK runners, and `chat` fields belong to the live case-agent feature (`POST /v1/cases/{id}/ask`, `ChatTurn`, Ask drawer). Retained audit text, `docs/issues/*`, PR notes, design keyframes and earlier decision entries are historical records, per the D-rename note above. `/health`, CI and deploy checks are shared infrastructure, not chat leftovers. The stale `/chat` wording in the frontend README, the backend helper comments/log and the UI skill brief was corrected; the unused `remark-gfm` dependency was removed. No deployment or workflow behaviour changed.
 
 ## D1 — Build inside the existing team repo's `backend/` and `frontend/` (15 Oct)
 - **Decision:** Origin Proof's Go API lives in `backend/` (Cloud Run service `backend`), the Next.js app in `frontend/` (service `frontend`). The template deploy-agent code there was removed.
@@ -25,9 +27,10 @@ Short ADR-style entries: decision, alternatives, why. Newest last.
 ## D2 — Health check at `/health`, not `/healthz`
 - **Why:** Cloud Run reserves paths ending in `z` and returns 404 for them.
 
-## D3 — Two LLM providers behind `llm.Model`; LiteLLM is development-only
-- **Decision:** `LLM_PROVIDER=litellm|vertex|fake`. LiteLLM (OpenAI-compatible proxy) is used now because the team has no Vertex access yet. `config` refuses `litellm` and `fake` when `K_SERVICE` is set, and the deploy workflow sets `LLM_PROVIDER=vertex`.
-- **Why:** keeps the research proxy usable for development while guaranteeing the deployed service and official numbers come from Vertex. Every output records `llm_provider` and `model_id`.
+## D3 — Two LLM providers behind `llm.Model`; LiteLLM is development-only (superseded by D49)
+- **Superseded (19 Nov 2026, #280):** D49 removed LiteLLM; only `vertex` and `fake` are accepted today. This entry is kept as history. `fake` remains an explicit opt-in for offline UI work and is refused on Cloud Run.
+- **Decision (historical):** `LLM_PROVIDER=litellm|vertex|fake`. LiteLLM (OpenAI-compatible proxy) is used now because the team has no Vertex access yet. `config` refuses `litellm` and `fake` when `K_SERVICE` is set, and the deploy workflow sets `LLM_PROVIDER=vertex`.
+- **Why (historical):** keeps the research proxy usable for development while guaranteeing the deployed service and official numbers come from Vertex. Every output records `llm_provider` and `model_id`.
 
 ## D4 — Real API names differ from the build prompt
 - ADK for Go is imported as `google.golang.org/adk` (v1.8.0), not `github.com/google/adk-go`.
@@ -780,4 +783,9 @@ Anas approved the paid tuning job and a fallback engine. It is not in the 17 Oct
 - **Change:** `go run ./cmd/apikey issue -name NAME [-quota N] | list | disable ID` writes keys straight into Firestore, the store the server reads them from, using the operator's Application Default Credentials. It uses the same `apikey.Keys` and `store.FirestoreAPIKeys` as the server. The secret is printed once; only its hash is stored. There's no network path to the private backend and no admin token on the wire.
 - **Brokers call** `https://undelabs.dev/api/v1/...` with `X-API-Key`. The proxy forwards it (D91).
 - `API_KEYS=on` is set again in deploy.yml. It needs `CASES_STORE=firestore` and `ADMIN_TOKEN`, both already set.
+
+## D96 — Explicit local fake mode; no silent fallback in production (19 Nov, #280)
+- **Decision:** keep `LLM_PROVIDER=fake` as an explicit opt-in for offline UI work and tests. Do not make it the local default: ordinary local predict/plan output would be meaningless to a newcomer even though the provider is labelled.
+- **Verified:** the provider already exists (`config.ProviderFake`), is wired in `cmd/server/newBase`, needs no `GOOGLE_CLOUD_PROJECT`, and is refused when `K_SERVICE` is set. `vertex` is the default, deploy.yml sets `LLM_PROVIDER=vertex`, and engine fallback reuses the configured model rather than dropping to fake. Config boundary tests cover fake locally vs. fake on Cloud Run. The corpus is bundled (`backend/data`, baked into the image), so fetching is only needed to rebuild it; the Accuracy page uses embedded `summary.json`. Simulated answers are labelled through the recorded `llm_provider` (`isProxy()` still recognises historical `litellm` results) and published evaluation provenance is unchanged.
+- **Docs:** README and DETAILS.md now give a credential-free path (`LLM_PROVIDER=fake make run`, frontend with `BACKEND_URL`), state that ADC is only needed for `vertex`, and that the corpus is committed. D3 is marked superseded by D49; the OpenAPI enum drops `litellm`.
 

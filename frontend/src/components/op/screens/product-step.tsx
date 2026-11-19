@@ -15,6 +15,7 @@ import {
   type PredictStage,
   type Product,
 } from "@/lib/api/client";
+import { clonedFamily } from "@/lib/clone-family";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { ActionSlotProvider } from "../action-bar";
@@ -328,6 +329,13 @@ export function ProductStep() {
       if (c.date) setDate(c.date);
       setFacts(c.facts ?? "");
       setHts(c.product?.hts ?? "");
+      // The source case's family decides which planner groups exist. The old
+      // default is motorised tools, which silently drops LED/LiDAR moves (#298).
+      const sourceFamily = clonedFamily(c);
+      if (sourceFamily) {
+        setFamily(sourceFamily);
+        setFamilyTouched(true); // don't let a later BOM import reset it
+      }
       if (c.product?.components?.length) {
         setProduct(c.product);
         setTab("parts");

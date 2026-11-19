@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -108,10 +109,18 @@ func citations(in Input) []string {
 }
 
 func lowerFirst(s string) string {
-	if s == "" || (len(s) > 1 && unicode.IsUpper(rune(s[1]))) { // keep acronyms: PCBA, SMT
+	if s == "" {
 		return s
 	}
-	return strings.ToLower(s[:1]) + s[1:]
+	first, size := utf8.DecodeRuneInString(s)
+	if first == utf8.RuneError && size == 1 { // malformed UTF-8: leave it alone
+		return s
+	}
+	rest := s[size:]
+	if second, _ := utf8.DecodeRuneInString(rest); second != utf8.RuneError && unicode.IsUpper(second) {
+		return s // keep acronyms: PCBA, SMT
+	}
+	return string(unicode.ToLower(first)) + rest
 }
 
 // listPhrase joins key factors as "a, b and c", lowercasing each first letter;

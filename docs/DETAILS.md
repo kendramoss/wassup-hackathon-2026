@@ -86,11 +86,12 @@ Altana does agentic origin determination from BOM and value-chain data, with CBP
 
 ## Run locally
 
-Requirements: Go 1.27, `make`. The corpus (≈40 MB of public CBP rulings) is fetched once and never committed.
+Requirements: Go 1.27, `make`. The corpus (≈40 MB of public CBP rulings) is committed under `backend/data` and baked into the container image, so a fresh checkout runs offline. Fetching is only needed to rebuild it:
 
 ```bash
-cd backend && go run ./cmd/corpus fetch && go run ./cmd/corpus build && cd ..   # ~50 min at 1 request/s
-make test lint verify-data                                                        # offline
+make test lint verify-data                                                        # offline, no GCP credentials
+# only to rebuild the corpus (~50 min at 1 request/s):
+cd backend && go run ./cmd/corpus fetch && go run ./cmd/corpus build && cd ..
 ```
 
 Model access is configured by environment only:
@@ -100,13 +101,15 @@ Model access is configured by environment only:
 | `vertex` (default) | development, evals and deployment | `GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global` + `gcloud auth application-default login` |
 | `fake` | offline tests and UI work (fixed answer, no model calls) | `LLM_PROVIDER=fake` |
 
-The LiteLLM proxy used before Vertex access was removed (D49). Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
+The LiteLLM proxy used before Vertex access was removed (D49); only `vertex` and `fake` are accepted. Result files named `*-litellm.*` are earlier proxy runs and stay labelled "proxy" until re-run on Vertex. A gitignored `.env` at the repo root holds the local settings: `set -a; source .env; set +a; make run`.
 
-Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Couldn't reach the Unde API". For UI work with no model calls and no cost, set `LLM_PROVIDER=fake` (fixed answers; the Accuracy page and demo data are still real).
+Vertex needs **application-default credentials**, which are separate from `gcloud auth login`: run `gcloud auth application-default login` once, or the server exits at startup and every page shows "Couldn't reach the Unde API". For UI work with no model calls and no cost, use the explicit fake mode: `LLM_PROVIDER=fake make run` (fixed, clearly-labelled answers; the Accuracy page and demo data are still real). It needs no GCP project, is refused on Cloud Run, and the server prints both hints when Vertex credentials are missing. Cases are saved locally under `data/cases`; only `CASES_STORE=firestore` (Cloud Run) needs Firestore, and the precedent corpus is bundled.
 
 ```bash
-make run          # API on :8080; cases saved under data/cases (CASES_DIR; CASES_STORE=firestore on Cloud Run); contract in docs/api/openapi.yaml
-make smoke        # one live model call
+LLM_PROVIDER=fake make run                         # credential-free API on :8080 (simulated answers)
+# second terminal:
+cd frontend && BACKEND_URL=http://localhost:8080 npm run dev
+make smoke        # one live model call (needs vertex credentials)
 make eval-report  # summaries of the committed eval runs, no model calls
 ```
 

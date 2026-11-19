@@ -76,13 +76,22 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	if err := run(logger, *smoke); err != nil {
 		logger.Error("fatal", "err", err)
-		// The most common first-run failure (#146): signed in to gcloud, but
-		// without the separate application-default credentials Vertex needs.
-		if strings.Contains(err.Error(), "could not find default credentials") {
-			fmt.Fprintln(os.Stderr, "\nVertex AI needs application-default credentials: run `gcloud auth application-default login`.\nFor offline UI work with no model calls, set LLM_PROVIDER=fake.")
+		if hint := credentialHint(err); hint != "" {
+			fmt.Fprintln(os.Stderr, hint)
 		}
 		os.Exit(1)
 	}
+}
+
+// credentialHint is the first-run fix for the most common Vertex failure
+// (#146, #163): signed in to gcloud, but without the separate application-
+// default credentials. Returns "" for unrelated errors. Kept pure so the hint
+// can be unit-tested without starting a server.
+func credentialHint(err error) string {
+	if err == nil || !strings.Contains(err.Error(), "could not find default credentials") {
+		return ""
+	}
+	return "\nVertex AI needs application-default credentials: run `gcloud auth application-default login`.\nFor offline UI work with no model calls, set LLM_PROVIDER=fake."
 }
 
 func run(logger *slog.Logger, smoke bool) error {

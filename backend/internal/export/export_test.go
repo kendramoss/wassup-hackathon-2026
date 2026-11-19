@@ -3,6 +3,7 @@ package export
 import (
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -42,6 +43,45 @@ func TestListPhrase(t *testing.T) {
 	} {
 		if got := listPhrase(strings.Split(in, "|")); got != want {
 			t.Errorf("listPhrase(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestLowerFirstUnicode(t *testing.T) {
+	for in, want := range map[string]string{
+		"":                   "",
+		"Housing":            "housing",
+		"PCBA":               "PCBA", // acronym: second rune is uppercase
+		"SMT":                "SMT",
+		"Motor-fan assembly": "motor-fan assembly",
+		"Álgebra de control": "álgebra de control", // multibyte first rune lowered, bytes intact
+		"ΩMega assembly":     "ΩMega assembly",     // uppercase second rune keeps the acronym
+		"Σ soldadura":        "σ soldadura",
+		"中点 assembly":        "中点 assembly", // CJK has no case
+		"H":                  "h",
+		"Á":                  "á",
+	} {
+		if got := lowerFirst(in); got != want {
+			t.Errorf("lowerFirst(%q) = %q, want %q", in, got, want)
+		}
+	}
+	malformed := string([]byte{0xC3, 'a'})
+	if got := lowerFirst(malformed); got != malformed {
+		t.Errorf("lowerFirst(malformed UTF-8) = %q, want it unchanged", got)
+	}
+}
+
+func TestMultibyteKeyFactorsInDrafts(t *testing.T) {
+	factors := []string{"Álgebra de control", "Σ soldadura en China"}
+	in := Input{ProductName: "x", Facts: "f", Requested: "Thailand", CurrentRuled: "China (N1)",
+		PlanSummary: "Make Álgebra de control in Thailand",
+		Prediction:  domain.Prediction{KeyFactors: factors}}
+	for name, draft := range map[string]string{"markdown": Markdown(in), "cfr177": CFR177(in)} {
+		if !strings.Contains(draft, "álgebra de control") || !strings.Contains(draft, "σ soldadura en China") {
+			t.Errorf("%s draft has corrupted or unlowered factors:\n%s", name, draft)
+		}
+		if strings.ContainsRune(draft, utf8.RuneError) {
+			t.Errorf("%s draft contains replacement characters:\n%s", name, draft)
 		}
 	}
 }
