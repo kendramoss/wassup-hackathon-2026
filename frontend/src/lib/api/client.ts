@@ -82,6 +82,26 @@ export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseRespo
   return next;
 }
 
+// One writer at a time for a case's money inputs and scenario run: a run
+// sends the economics it started with and the server stores them, so a save
+// overlapping a run (either order) would be lost. start() returns a release
+// function, or null while another operation holds the lock.
+export function opLock() {
+  let held = false;
+  return {
+    start(): (() => void) | null {
+      if (held) return null;
+      held = true;
+      return () => {
+        held = false;
+      };
+    },
+    get held() {
+      return held;
+    },
+  };
+}
+
 export type SaveEconomicsIO = {
   // The newest case this screen holds, read synchronously. Its identity is
   // the change token: any update to the screen replaces it.
@@ -99,6 +119,9 @@ export type SaveEconomicsIO = {
 export async function saveEconomics(id: string, economics: Economics, io: SaveEconomicsIO, tries = 3): Promise<void> {
   const r = await api.putEconomics(id, economics);
   if (r.case_id !== id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
+  // The screen may have moved to another case (reused component): never
+  // write this case's answer over it.
+  if (io.latest().id !== id) return;
   for (let i = 0; i < tries; i++) {
     const seen = io.latest();
     let fresh: CaseResponse;
@@ -107,11 +130,14 @@ export async function saveEconomics(id: string, economics: Economics, io: SaveEc
     } catch {
       break;
     }
+    if (io.latest().id !== id) return;
+    if (fresh.id !== id) break;
     if (io.latest() === seen) {
       io.apply(fresh);
       return;
     }
   }
+  if (io.latest().id !== id) return;
   io.apply(mergeEconomics(io.latest(), r));
 }
 

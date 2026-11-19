@@ -152,3 +152,56 @@ test("next scenario submit sends the product and the refreshed economics", () =>
   assert.equal(out.body.scenarios[0].product.name, "Heat gun");
   assert.equal(out.body.economics.annual_import_value_usd, 500);
 });
+
+// Round 2: a run and a save must not overlap, and a late re-read must not
+// land on another case. Controlled promises; not React render tests.
+test("opLock refuses a second operation until the first releases (double action)", () => {
+  const out = run(`
+    import { opLock } from ${JSON.stringify(client)};
+    const l = opLock();
+    const a = l.start(); const b = l.start();
+    a(); const c = l.start();
+    console.log(JSON.stringify({ a: !!a, b: b === null, c: !!c }));
+  `);
+  assert.deepEqual(out, { a: true, b: true, c: true });
+});
+
+test("a save while a run is outstanding is refused, so the run cannot overwrite it", () => {
+  const out = run(`
+    import { opLock } from ${JSON.stringify(client)};
+    const l = opLock();
+    const run1 = l.start();            // run() in flight (pending promise)
+    const save = l.start();            // saveMoney attempted meanwhile
+    console.log(JSON.stringify({ saveRefused: save === null, runHeld: l.held }));
+  `);
+  assert.deepEqual(out, { saveRefused: true, runHeld: true });
+});
+
+test("a late re-read does not apply when the screen moved to another case", () => {
+  const out = flow(`
+    const getGate = gate();
+    globalThis.fetch = async (url, init) => {
+      if (init.method === "PUT") return new Response(JSON.stringify({ case_id: "c1", economics: {} }));
+      await getGate.p;
+      return new Response(JSON.stringify(serverCase()));
+    };
+    const saving = saveEconomics("c1", {}, io);
+    await new Promise((r) => setTimeout(r, 10));
+    const other = { ...fullCase, id: "c2", display_name: "Other" };
+    state = other;
+    getGate.go();
+    await saving;
+    console.log(JSON.stringify({ same: state === other }));
+  `);
+  assert.equal(out.same, true);
+});
+
+test("a re-read for the wrong case is not applied", () => {
+  const out = flow(`
+    globalThis.fetch = async (url, init) => new Response(JSON.stringify(init.method === "PUT" ? { case_id: "c1", economics: { annual_import_value_usd: 3 } } : { ...serverCase(), id: "c9" }));
+    await saveEconomics("c1", {}, io);
+    console.log(JSON.stringify(state));
+  `);
+  assert.equal(out.id, "c1");
+  assert.equal(out.economics.annual_import_value_usd, 3);
+});
