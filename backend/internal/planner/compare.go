@@ -88,6 +88,14 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 func (c *Comparison) priceOps(e Economics, current domain.Product, variant *domain.Product, currentOrigin, origin string) {
 	res := opsEvaluate(e, current, variant, c.Moved, currentOrigin, origin)
 	c.Operations = &res
+	// Dollar duty is unknown, not 0, when there is no annual import value or the
+	// duty effect could not be worked out. A known rate stays.
+	if e.AnnualImportValueUSD <= 0 {
+		c.AnnualDutyUSD = nil
+	}
+	if e.AnnualImportValueUSD <= 0 || res.Components.DutyEffectPerYear == nil {
+		c.DutySavingsUSD = nil
+	}
 	c.AddedCostUSD = res.Components.OperatingDelta
 	c.AmortizedOneTimeUSD = res.Components.AmortizedOneTimePerYear
 	c.NetUSD = res.NetModelledPerYear

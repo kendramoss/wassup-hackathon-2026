@@ -678,3 +678,31 @@ func TestOpsCompareSameIDChangedRefIsUnknown(t *testing.T) {
 		}
 	}
 }
+
+// N1: with no annual import value the dollar duty figures are unknown (nil),
+// not 0; a known rate and the feasibility stay. An explicit 0 rate with a
+// positive annual value is a known 0.
+func TestOpsCompareUnknownDutyIsNilNotZero(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	v := Apply(r.Product, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}})
+	e := r.Economics
+	e.AnnualImportValueUSD = 0
+	e.Operations = decodeOps(t, `{"max_lead_time_days":90,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":120}}}}}`)
+	c := Compare(e, &r.Product, &v, "China", "Thailand")
+	if c.AnnualDutyUSD != nil || c.DutySavingsUSD != nil || c.NetUSD != nil || f64(c.DutyRate) != 0.167 || c.Feasibility != "infeasible" || c.Operations.Components.DutyEffectPerYear != nil {
+		t.Errorf("annual 0: annual_duty %v savings %v net %v rate %v feas %q", c.AnnualDutyUSD, c.DutySavingsUSD, c.NetUSD, c.DutyRate, c.Feasibility)
+	}
+	// annual positive, the current origin has no rate: savings unknown, target dollars known
+	e.AnnualImportValueUSD = 2000000
+	e.DutyRates = map[string]float64{"Thailand": 0.167}
+	c = Compare(e, &r.Product, &v, "China", "Thailand")
+	if c.DutySavingsUSD != nil || c.NetUSD != nil || f64(c.AnnualDutyUSD) != 334000 {
+		t.Errorf("missing origin rate: savings %v net %v annual %v", c.DutySavingsUSD, c.NetUSD, c.AnnualDutyUSD)
+	}
+	// explicit 0 target rate with a positive annual value is a known 0
+	e.DutyRates = map[string]float64{"China": 0.25, "Thailand": 0}
+	c = Compare(e, &r.Product, &v, "China", "Thailand")
+	if f64(c.AnnualDutyUSD) != 0 || c.AnnualDutyUSD == nil || f64(c.DutySavingsUSD) != 500000 {
+		t.Errorf("explicit zero rate: annual %v savings %v", c.AnnualDutyUSD, c.DutySavingsUSD)
+	}
+}

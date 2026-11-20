@@ -1012,13 +1012,16 @@ func TestDecodeKeepsFirstValueStreaming(t *testing.T) {
 // whole and is compared (unpriced, feasibility kept); a fresh GET keeps it.
 // An inactive value-0 body still reuses the stored economics.
 func TestOpsScenarioSaveFollowsMoneySource(t *testing.T) {
-	opsZero := `{"annual_import_value_usd":0,"operations":{"max_lead_time_days":90,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":120}}}}}}`
+	opsZero := `{"annual_import_value_usd":0,"duty_rates":{"China":0.25,"Thailand":0.05},"operations":{"max_lead_time_days":90,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":120}}}}}}`
 	save := func(hs harness, id string, product any, econ string) (int, map[string]any) {
 		return hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"economics":`+econ+`,"scenarios":[{"label":"Motor in Thailand","product":`+mustJSON(product)+`}]}`)
 	}
 	check := func(t *testing.T, where string, c map[string]any) {
 		t.Helper()
 		cmp := comparisonOf(scenarioOf(t, c))
+		if cmp != nil && (cmp["annual_duty_usd"] != nil || cmp["duty_savings_usd"] != nil || cmp["duty_rate"] != 0.05) {
+			t.Errorf("%s: dollar duty must be null and the known rate kept: %v", where, cmp)
+		}
 		if cmp == nil || cmp["net_usd"] != nil || cmp["feasibility"] != "infeasible" || cmp["operations"] == nil || cmp["operations"].(map[string]any)["priced"] != false {
 			t.Errorf("%s: comparison = %v, want unpriced with feasibility kept", where, cmp)
 		}
