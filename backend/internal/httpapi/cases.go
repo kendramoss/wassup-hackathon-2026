@@ -403,10 +403,8 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
 		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
-		Owner: ownerOf(r)}
-	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
-		sc.Owner, sc.Workspace = u.owner, u.workspace
 	}
+	sc.Owner, sc.Workspace = a.principalOf(r).newCaseScope() // a signed-in user's (D68), else the credential owner
 	return sc, c, nil
 }
 
@@ -765,22 +763,18 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 //     owner gets the pinned demos only.
 func (a *api) candidateCases(r *http.Request, limit int) ([]store.Case, error) {
 	ctx := r.Context()
-	if a.isAdmin(r) {
+	p := a.principalOf(r)
+	if p.Admin {
 		return a.recentWithoutProbes(ctx, limit)
 	}
-	id := identityOf(ctx)
-	_, withKey := keyFrom(ctx)
-	if id.email == "" && !withKey && !a.d.CaseOwnership {
+	if !p.ownerScoped(a.d.CaseOwnership) {
 		return a.d.Cases.List(ctx)
 	}
 	cs, err := store.ListRecent(ctx, a.d.Cases, 0) // the pinned demos
 	if err != nil {
 		return nil, err
 	}
-	owners := []string{ownerOf(r)}
-	if id.email != "" {
-		owners = []string{id.owner, ownerOf(r)}
-	}
+	owners := p.listOwners()
 	have := make(map[string]bool, len(cs))
 	for _, c := range cs {
 		have[c.ID] = true

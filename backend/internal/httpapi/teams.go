@@ -119,22 +119,6 @@ func teamCase(c store.Case) bool {
 	return c.Workspace != "" || strings.HasPrefix(c.Owner, userOwnerPrefix)
 }
 
-// teamVisible reports whether a signed-in user may see c (not pinned, no
-// admin token): their workspace's cases, their own, and the anonymous cases
-// from the same browser.
-func teamVisible(r *http.Request, id identity, c store.Case) bool {
-	switch {
-	case c.Workspace != "" && c.Workspace == id.workspace:
-		return true
-	case c.Owner == id.owner:
-		return true
-	case teamCase(c):
-		return false
-	}
-	o := ownerOf(r)
-	return o != "" && o == c.Owner
-}
-
 // workspaceCases adds the user's workspace cases (one ListWorkspace read,
 // de-duplicated) to the candidate listing, so a busy deployment does not
 // push them out of the list. The caller filters for visibility, then caps.
