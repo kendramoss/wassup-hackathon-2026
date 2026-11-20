@@ -29,4 +29,8 @@ The proposed #275 task is a **precedent-verifier check on CBP before/after natur
 
 ## Commands
 
-`readiness-eval budget status|ack-halt`, `readiness-eval smoke --dry-run`, `readiness-eval eval --dry-run --fixtures F --config C --out O`. The dry runs use a fake model and a temporary ledger. Real evaluation is intentionally not available until the protocol is frozen and reviewed.
+`readiness-eval budget status|ack-halt|ack-failures`, `readiness-eval selfcheck` (offline: proves the network lock-down is active in the real binary), `readiness-eval smoke --dry-run`, `readiness-eval eval --dry-run --fixtures F --config C --out O`. The dry runs use a fake model and a temporary ledger. Real evaluation is intentionally not available until the protocol is frozen and reviewed.
+
+## Sequencing several runs under one cap
+
+One attempts ledger is bound to one frozen run: `Bind` refuses to rebind a key to a different value, so a run with a different config needs a new attempts file. The smoke run and the evaluation run therefore use separate, chained ledgers, but they must point at the same authoritative `SHAREDBUDGET.json`. A second ledger counts the first ledger's charges as external spend and refuses a reservation above what remains, so the $20 is never a fresh allowance per run. Never copy or reset the shared file to start a run with a clean allowance. Adding runs does not authorize them: each real run still needs every condition in this document, and none is authorized by the existence of this tool.
