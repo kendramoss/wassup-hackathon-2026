@@ -228,3 +228,25 @@ test("the privacy copy was not touched", async () => {
   assert.match(JSON.stringify(copy.legal.privacy), /op_visitor/);
   assert.doesNotMatch(JSON.stringify(copy.legal), /Marking origin|U\.S\. origin only/);
 });
+
+test("origin: the Auto-accepted chip's real hover text and the broker note on the same screen agree", async () => {
+  const app = await screen(OriginStep, caseJson());
+  const term = app.find((e) => e.type?.name === "Term" && /configured confidence and scope checks/.test(e.props.explain ?? ""));
+  assert.equal(term.length, 1, "the chip explains itself with the corrected text");
+  assert.equal(textOf(term[0].props.children), "Auto-accepted");
+  assert.doesNotMatch(term[0].props.explain, /skip expert review/);
+  assert.ok(noteText(notes(app)[0]).includes(R.origin));
+  // The rendered hover text, as the browser gets it.
+  const { html } = await import("./render-support.mjs");
+  const { StatusChip } = await import("../src/components/op/ui.tsx");
+  const m = html(StatusChip, { route: "auto", explain: true });
+  assert.match(m, /not legal approval/);
+  assert.doesNotMatch(m, /skip expert review/);
+});
+
+test("origin: a Part 102 result's chip reads Part 102 marking origin, not USMCA rules", async () => {
+  const app = await screen(OriginStep, caseJson({ prompt_versions: { engine: "usmca-v1" }, triage: { route: "needs_review", reason: "usmca rules: a new regime without a held-out result yet" } }));
+  const chips = app.find((e) => e.type?.name === "Chip").map((e) => textOf(e.props.children));
+  assert.ok(chips.includes("Part 102 marking origin"), chips.join("|"));
+  assert.ok(!chips.some((c) => /USMCA rules/.test(c)));
+});

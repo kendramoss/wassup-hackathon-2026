@@ -94,7 +94,7 @@ export const copy = {
     },
     auto: {
       match: /Auto-accepted/,
-      text: "Confident enough (0.92 or more) to skip expert review. On 377 held-out rulings these were right 96% of the time.",
+      text: "Confident enough (0.92 or more) to pass Unde's configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
     },
     hts: { match: /HTS/, text: "The US tariff code. It sets the duty rate." },
     needsInfo: {
@@ -316,11 +316,11 @@ export const copy = {
     label: "Review and scope",
     origin: "Even a high-confidence result is a prediction from earlier CBP rulings, not a ruling. Have a licensed customs broker review it before you rely on it.",
     plan: "These plans are suggestions, not rulings or CBP approvals. Have a licensed customs broker review a move before you act on it.",
-    bestBounded: "Best of the moves searched, using the costs you entered. Factors the model does not include are not counted.",
+    bestBounded: "Best of the moves searched, using the duty and cost assumptions shown, which may be prefilled or illustrative. In the legacy plan ranking a blank cost may count as zero, which is not a verified expense. Factors the model does not include are not counted.",
     compare: "This ranking is a suggestion for a licensed customs broker to review, not a ruling or a CBP approval.",
-    compareBounded: "Ranked among the countries you chose, from the moves searched and the costs you entered. Factors the model does not include are not counted.",
+    compareBounded: "Ranked among the countries you chose, from the moves searched and the duty and cost inputs shown, which may be prefilled or illustrative. A missing required input leaves that figure unpriced, and factors the model does not include are not assessed.",
     scenarios: "Scenarios are what-ifs, not rulings. Have a licensed customs broker review a result before you act on it.",
-    scenariosBounded: "Compared among the scenarios you entered, using the costs you entered. Factors the model does not include are not counted.",
+    scenariosBounded: "Compared among the scenarios you entered, using the duty and cost inputs shown, which may be prefilled or illustrative. A missing required input leaves that figure unpriced, and factors the model does not include are not assessed.",
   },
 
   // What the tool is for and not for (#282). Reviewed wording from
@@ -335,6 +335,9 @@ export const copy = {
     part177Label: "Ruling request letter (19 CFR Part 177)",
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
     compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
+    // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
+    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims; certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
+    noDetector: "Unde is for U.S. origin questions. It has no automatic check that detects or blocks a question about another country's rules, so do not use it for one.",
   },
 
   money: "Money · illustrative — editable",
