@@ -3039,8 +3039,8 @@ export interface components {
             proposed: {
                 duty_usd: number | null;
                 operating_usd: number | null;
-                /** @description Omitted when not applicable */
-                amortized_one_time_usd?: number | null;
+                /** @description Omitted when not applicable or unknown (the server never sends null) */
+                amortized_one_time_usd?: number;
                 total_usd: number | null;
             };
         };
@@ -3231,8 +3231,8 @@ export interface components {
                 to_plant?: string;
             }[];
             illustrative?: boolean;
-            /** @description Operations mode: one-time costs amortized per year. The server omits the key (it does not send null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value */
-            amortized_one_time_usd?: number | null;
+            /** @description Operations mode: one-time costs amortized per year. The server omits the key (it never sends null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value */
+            amortized_one_time_usd?: number;
             /**
              * @description Operations mode; mirrors operations.feasibility; omitted when not assessed
              * @enum {string}
