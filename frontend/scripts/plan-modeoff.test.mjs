@@ -49,9 +49,11 @@ const searchAgain = async (app) => {
   await app.flush();
 };
 // A server that stores the PUT body whole and returns the case as stored.
-function server(c, { putStatus, planBody = { case_id: "c1", plan: NEW }, gate } = {}) {
+function server(c, o = {}) {
+  const { planBody = { case_id: "c1", plan: NEW }, gate } = o;
   return (u, m, body, state) => {
     if (m === "PUT" && u.endsWith("/economics")) {
+      const putStatus = o.putStatus;
       if (putStatus) return json({ code: putStatus === 403 ? "forbidden" : "internal", message: "refused" }, putStatus);
       const go = () => {
         if (state.current.id === "c1") {
@@ -168,19 +170,63 @@ test("(f) the user clears the last operating fields (no Mode Off dialog): same P
   assert.equal(app.state.current.economics.operations, undefined);
 });
 
-test("(g) read-only (viewer) and pinned cases never PUT", async () => {
-  for (const extra of [{ can_write: false }, { pinned: true, can_write: false }, { pinned: true }]) {
-    const c = base(extra);
-    const app = await mount(PlanStep, c, server(c));
-    await openDrawer(app);
-    const b = app.btn("Search again with these inputs");
-    if (!extra.pinned || extra.can_write === false || true) {
-      // the gate is the button; call the handler regardless to prove the run itself never writes
-      await b.props.onClick();
+// The clear predicate is made TRUE first (stored ops active, local ops inactive
+// after a confirmed Mode Off, annual 0, writable): the writable press really
+// PUTs, but that PUT fails, so the discarded inputs are held on screen and the
+// stored money stays active. Then the capability changes underneath (the shell
+// re-reads the case: viewer, pinned, or a demo) and the SAME inputs are pressed
+// again: no PUT may leave. A last writable press (PUT now succeeds) is the control.
+test("(g) read-only, pinned and demo never PUT even with stored active / local inactive; the writable control does", async () => {
+  const conditions = [
+    ["viewer (can_write false)", { can_write: false }, null],
+    ["pinned", { pinned: true }, null],
+    ["pinned + viewer", { pinned: true, can_write: false }, null],
+    ["demo case (demo store entry)", {}, "heat-gun-demo"],
+  ];
+  for (const [name, caps, demoKey] of conditions) {
+    const c = base();
+    const o = { putStatus: 500 };
+    const app = await mount(PlanStep, c, server(c, o));
+    try {
+      await openDrawer(app);
+      await modeOff(app);
+      await searchAgain(app); // writable: the predicate holds, so a PUT is attempted (and fails)
+      assert.equal(app.calls.filter(isPut).length, 1, `${name}: the predicate is live while writable`);
+      assert.equal(app.calls.filter(isPlan).length, 0);
+      assert.equal(sw(app).props.checked, false, `${name}: local operations are inactive`);
+      // capability changes under the screen
+      if (demoKey) globalThis.localStorage = { getItem: () => demoKey, setItem() {}, removeItem() {} };
+      else {
+        app.state.current = { ...app.state.current, ...caps };
+        globalThis.window.dispatchEvent(new Event(ACCESS_STALE));
+        await app.flush();
+      }
+      assert.equal(sw(app).props.checked, false, `${name}: the held inputs are still inactive`);
+      assert.equal(app.state.current.economics.operations.horizon_years, 4, `${name}: stored operations are active`);
+      if (caps.can_write === false && !caps.pinned) assert.equal(app.btn("Search again with these inputs").props.disabled, true, "the gate disables the button");
+      await app.btn("Search again with these inputs").props.onClick(); // the handler itself must refuse to write
       await app.flush();
+      assert.equal(app.calls.filter(isPut).length, 1, `${name}: no further PUT`);
+      // (the unchanged legacy path still sends its plan POST and closes the drawer; only the save is refused)
+      assert.equal(app.calls.filter(isPlan).length, 1, `${name}: the plan alone goes, with no operations key`);
+      assert.equal("operations" in app.calls.filter(isPlan)[0].body.economics, false);
+      // control: back to writable and the save works, the PUT is sent
+      delete globalThis.localStorage;
+      app.state.current = { ...app.state.current, can_write: true, pinned: false };
+      globalThis.window.dispatchEvent(new Event(ACCESS_STALE));
+      await app.flush();
+      o.putStatus = undefined;
+      await openDrawer(app);
+      // a re-read reseeds the editor from the stored money: discard again, as a user would
+      if (sw(app).props.checked) await modeOff(app);
+      await app.btn("Search again with these inputs").props.onClick();
+      await app.flush();
+      assert.equal(app.calls.filter(isPut).length, 2, `${name}: writable control PUTs`);
+      assert.equal(app.calls.filter(isPlan).length, 2, `${name}: and then plans after it`);
+    } finally {
+      delete globalThis.localStorage;
+      app.unmount();
     }
-    assert.equal(app.calls.filter(isPut).length, 0, JSON.stringify(extra));
-    app.unmount();
   }
 });
 
