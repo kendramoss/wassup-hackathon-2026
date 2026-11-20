@@ -3231,7 +3231,7 @@ export interface components {
                 to_plant?: string;
             }[];
             illustrative?: boolean;
-            /** @description Operations mode: one-time costs amortized per year; null when unknown or not modelled */
+            /** @description Operations mode: one-time costs amortized per year. The server omits the key (it does not send null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value */
             amortized_one_time_usd?: number | null;
             /**
              * @description Operations mode; mirrors operations.feasibility; omitted when not assessed

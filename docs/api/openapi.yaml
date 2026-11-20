@@ -2046,7 +2046,7 @@ components:
         net_usd: { type: [number, "null"], description: savings minus added cost }
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
-        amortized_one_time_usd: { type: [number, "null"], description: "Operations mode: one-time costs amortized per year; null when unknown or not modelled" }
+        amortized_one_time_usd: { type: [number, "null"], description: "Operations mode: one-time costs amortized per year. The server omits the key (it does not send null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value" }
         feasibility: { type: string, enum: [feasible, infeasible, unknown], description: "Operations mode; mirrors operations.feasibility; omitted when not assessed" }
         operations: { $ref: "#/components/schemas/PlanOperations" }
         origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
