@@ -53,7 +53,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const fetchDraft = () => {
     api.exportDraft(id, { ...pick, preview: true }).then((d) => {
       setDrafts((x) => ({ ...x, markdown: d }));
-      if (c.step !== "export") setCase({ ...c, step: "export" });
+      setCase((d) => (d && d.step !== "export" ? { ...d, step: "export" } : d));
     }, setError);
     api.exportDraft(id, { ...pick, preview: true, format: "cfr177" }).then(
       (d) => {
