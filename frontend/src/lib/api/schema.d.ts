@@ -3236,7 +3236,7 @@ export interface components {
     };
     requestBodies: never;
     headers: {
-        /** @description Set to `completion-not-recorded` on a response from an audited route whose completion or single event could not be stored (for a write, the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled. */
+        /** @description Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off. */
         AuditIncomplete: "completion-not-recorded";
     };
     pathItems: never;
