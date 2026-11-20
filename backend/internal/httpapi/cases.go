@@ -1,12 +1,14 @@
 package httpapi
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -284,9 +286,19 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 }
 
 func decode(w http.ResponseWriter, r *http.Request, v any) error {
-	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBody))
+	body, rerr := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBody))
+	dec := json.NewDecoder(bytes.NewReader(body))
 	dec.DisallowUnknownFields()
-	if err := dec.Decode(v); err != nil {
+	err := rerr
+	if err == nil {
+		err = dec.Decode(v)
+	}
+	if err != nil {
+		if rerr == nil {
+			if perr := operationsDecodeError(body); perr != nil { // a bad operations block says which rule it broke
+				return fmt.Errorf("%w; request body: %v", perr, err) // and the outer decode error is kept, never replaced
+			}
+		}
 		return fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
 	return nil
@@ -423,9 +435,11 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 		return store.Case{}, domain.Case{}, err
 	}
 	if in.Economics != nil {
-		if err := validateEconomics(*in.Economics); err != nil {
+		if err := validateEconomicsFor(*in.Economics, in.Product, true); err != nil {
 			return store.Case{}, domain.Case{}, err
 		}
+		ec := cleanEconomics(*in.Economics) // an inactive operations block is not stored
+		in.Economics = &ec
 	}
 	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
 	if utf8.RuneCountInString(displayName) > MaxDisplayName {
@@ -613,6 +627,12 @@ func nonEmpty(s string) *string {
 }
 
 func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
+	f := a.caseFieldsBase(r, c)
+	moneyStaleFields(f, c)
+	return f
+}
+
+func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	return map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
@@ -942,7 +962,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	req, err := a.planRequestFor(r, c, in, true)
+	req, raw, err := a.planRequestFor(r, c, in, true)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -952,7 +972,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if wantsStream(r) {
-		a.planStream(w, r, c, req, in.Economics)
+		a.planStream(w, r, c, req, in.Economics, raw)
 		return
 	}
 	fp := inputFingerprint(c)
@@ -961,11 +981,15 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	stampBasis(&res, raw)
 	if !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, &in.Economics, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
@@ -982,22 +1006,25 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 
 // planRequestFor builds the planner request for a case and a plan body.
 // fetch false prices duty rates from the table and cached live rates only.
-func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (planner.Request, error) {
+// raw is the hash of the money the request is priced from, taken before the
+// tariff table or live lookup fills any rate (see rawBasis).
+func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (req planner.Request, raw string, err error) {
 	if c.Product == nil || c.Family == "" {
-		return planner.Request{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
+		return planner.Request{}, "", fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ, err := effectiveEconomics(in.Economics, c.Economics) // omitted: the case's latest
+	econ, err := effectiveEconomics(in.Economics, c.Economics, c.Product) // omitted: the case's latest
 	if err != nil {
-		return planner.Request{}, err
+		return planner.Request{}, "", err
 	}
+	raw = rawBasis(econ)
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
-	req := planner.Request{
+	req = planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
 		ActualChange: in.ActualChange,
 	}
-	return req, req.Validate()
+	return req, raw, req.Validate()
 }
 
 // planEstimate is POST /v1/cases/{id}/plan/estimate: the moves a plan
@@ -1022,7 +1049,7 @@ func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	req, err := a.planRequestFor(r, c, in, false)
+	req, _, err := a.planRequestFor(r, c, in, false)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -1170,6 +1197,7 @@ func productCountries(p *domain.Product) []string {
 // value leaves the stored one).
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
 	if e.AnnualImportValueUSD > 0 {
+		e = cleanEconomics(e) // an inactive operations block is not stored
 		return &e
 	}
 	return old
@@ -1181,7 +1209,7 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 // retryable}. Comments (": keep-alive") are sent every keepAlive. req carries
 // the priced economics the search runs on; raw is what the user sent, and the
 // only economics the case stores (as on the JSON path, D56).
-func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics) {
+func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics, basis string) {
 	s := openStream(w)
 	defer s.close()
 	send := s.send
@@ -1198,11 +1226,17 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			send("move_done", map[string]any{"key": e.Move, "plan": e.Plan, "done": e.Done, "total": e.Total})
 		}
 	})
+	if err == nil {
+		stampBasis(&res, basis)
+	}
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, &raw, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now

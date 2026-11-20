@@ -65,11 +65,12 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
 	fp := inputFingerprint(c)
-	econ, err := effectiveEconomics(in.Economics, c.Economics)
+	econ, err := effectiveEconomics(in.Economics, c.Economics, c.Product)
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	raw := rawBasis(econ)
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), targets...), true)
 	results := make([]planner.Result, len(targets))
 	errs := make([]error, len(targets))
@@ -93,6 +94,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	cmp := &store.TargetComparison{CheckedAt: time.Now().UTC(), Results: map[string]planner.Result{}}
 	for i, t := range targets {
+		stampBasis(&results[i], raw)
 		cmp.Results[t] = results[i]
 		cmp.Ranked = append(cmp.Ranked, summarise(t, results[i]))
 	}
@@ -110,6 +112,9 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, &in.Economics, raw); err != nil {
 				return err
 			}
 			latest.Targets, latest.UpdatedAt = cmp, now

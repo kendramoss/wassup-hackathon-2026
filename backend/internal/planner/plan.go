@@ -137,6 +137,13 @@ type Result struct {
 	Illustrative  bool              `json:"economics_illustrative"`
 	DutyNote      string            `json:"duty_rates_note,omitempty"`
 	Templates     map[string]string `json:"template_versions"`
+	// Objective and EconomicsBasis are present only in operations mode (#281).
+	// Objective says what the ranking means; EconomicsBasis is the hash of the
+	// raw money the search was priced from, stamped by the caller (it holds the
+	// raw economics; the planner sees the priced copy) so a reader can tell a
+	// stored result from other money.
+	Objective      *Objective `json:"objective,omitempty"`
+	EconomicsBasis string     `json:"economics_basis,omitempty"`
 }
 
 // Backtest compares the best plan with a real change.
@@ -196,6 +203,9 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 		Plans: []domain.Plan{}, Rejected: []domain.Plan{},
 		Illustrative: req.Economics.Illustrative, DutyNote: req.Economics.DutyRatesNote,
 		Templates: map[string]string{tm.Family: tm.Version}}
+	if req.Economics.Operations.Active() {
+		res.Objective = newObjective()
+	}
 	var mu sync.Mutex
 	addEngine := func(u llm.Usage) {
 		mu.Lock()
@@ -275,10 +285,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	complete := func(i int, pl domain.Plan) {
 		<-baseReady
 		if baseErr == nil && pl.Prediction.Origin != "" { // no origin when the prediction failed (D88)
-			var priced bool
-			pl.DutyEffectYear, pl.AddedCostYear, priced = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
-			pl.NetPriced = &priced
-			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
+			applyMoney(req, tm, &pl, moves[i], baseOrigin) // demotes in operations mode, before move_done below
 		}
 		mu.Lock()
 		defer mu.Unlock()
@@ -336,10 +343,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			pl, err := p.check(ctx, req, tm, m, Describe(req.Product, tm, m), baseFacts, target, knownA, knownRuling, addEngine, addVerifier)
 			if err == nil { // a failed followed move leaves the search as it was
 				pl.FromAdvice = true
-				var priced bool
-				pl.DutyEffectYear, pl.AddedCostYear, priced = economics(req, m, baseOrigin, pl.Prediction.Origin)
-				pl.NetPriced = &priced
-				pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
+				applyMoney(req, tm, &pl, m, baseOrigin)
 				if pl.Shown {
 					res.Plans = append(res.Plans, pl)
 				} else {
@@ -420,6 +424,10 @@ func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.
 // then other verified moves, then moves the engine says miss the target. The
 // current setup, when present, stays first.
 func order(res *Result) {
+	if res.Objective != nil { // operations mode (#281): its own comparator
+		orderOps(res)
+		return
+	}
 	sort.SliceStable(res.Plans, func(i, j int) bool { return res.Plans[i].NetYear > res.Plans[j].NetYear })
 	rank := map[domain.RejectionKind]int{domain.RejectCurrentSetup: -1, domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
 	sort.SliceStable(res.Rejected, func(i, j int) bool {

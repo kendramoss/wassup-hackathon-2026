@@ -46,13 +46,13 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if in.Economics != nil {
-		if err := validateEconomics(*in.Economics); err != nil {
+		if err := validateEconomicsFor(*in.Economics, sc.Product, false); err != nil {
 			a.fail(w, r, err)
 			return
 		}
 	}
 	if sc.Economics != nil && (in.Economics == nil || in.Economics.AnnualImportValueUSD <= 0) {
-		if err := validateEconomics(*sc.Economics); err != nil { // reused stored economics
+		if err := validateEconomicsFor(*sc.Economics, sc.Product, false); err != nil { // reused stored economics
 			a.fail(w, r, err)
 			return
 		}
@@ -109,6 +109,8 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+		ec := cleanEconomics(*in.Economics) // an inactive operations block is not stored
+		in.Economics = &ec
 		sc.Economics = in.Economics
 	}
 	a.compareScenarios(r.Context(), sc, out, true)

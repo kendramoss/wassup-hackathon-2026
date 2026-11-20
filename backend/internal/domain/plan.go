@@ -1,6 +1,10 @@
 package domain
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner/opcost"
+)
 
 // OperationGroup is a set of operations (and the components they produce)
 // that move between plants together, e.g. motor_fan_assembly = stamp
@@ -130,10 +134,14 @@ type Plan struct {
 	// whenever any group costs were entered). False: the search ran and could
 	// not, so a 0 is unknown. Absent: the plan was stored before this field
 	// and its pricing can't be proven either way.
-	NetPriced       *bool         `json:"net_priced,omitempty"`
-	Shown           bool          `json:"shown"`
-	RejectionReason string        `json:"rejection_reason,omitempty"`
-	RejectionKind   RejectionKind `json:"rejection_kind,omitempty"`
+	NetPriced *bool `json:"net_priced,omitempty"`
+	// Operations is the modelled operational cost and feasibility of this move
+	// (#281). Present only when the economics carried an operations block;
+	// absent otherwise, so a plan without one serialises exactly as before.
+	Operations      *opcost.Result `json:"operations,omitempty"`
+	Shown           bool           `json:"shown"`
+	RejectionReason string         `json:"rejection_reason,omitempty"`
+	RejectionKind   RejectionKind  `json:"rejection_kind,omitempty"`
 	// NearMiss, for the closest moves just under the plan bar, says what
 	// differs from the supporting ruling and what would match it (D81).
 	// Advice only: it does not change the verdict or Shown.
@@ -167,4 +175,12 @@ const (
 	RejectOtherOrigin RejectionKind = "engine_other_origin"
 	// RejectCheckFailed means the precedent check could not complete.
 	RejectCheckFailed RejectionKind = "check_failed"
+	// RejectOperationallyInfeasible means the move passed the legal gate but a
+	// constraint the user entered (lead time, minimum order) is known to fail.
+	// Only produced when the economics carry an operations block (#281).
+	RejectOperationallyInfeasible RejectionKind = "operationally_infeasible"
+	// RejectNetCostlier means the move passed the legal gate and is fully
+	// priced, but its modelled net per year is below zero. Only produced when
+	// the economics carry an operations block (#281).
+	RejectNetCostlier RejectionKind = "net_costlier"
 )

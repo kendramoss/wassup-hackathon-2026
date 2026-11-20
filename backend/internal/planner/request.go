@@ -8,6 +8,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner/opcost"
 )
 
 // Request is one plan search: a product as of a date, the product family
@@ -66,6 +67,10 @@ type Economics struct {
 	// GroupCosts is the annual cost of performing an operation group at a
 	// plant: group ID -> plant ID -> USD.
 	GroupCosts map[string]map[string]float64 `json:"group_costs"`
+	// Operations are the optional operational inputs (#281): labour,
+	// logistics, one-time investment, lead time and minimum orders. Absent,
+	// null, {} and {"groups":{}} are inactive: the legacy calculation runs.
+	Operations *opcost.Operations `json:"operations,omitempty"`
 }
 
 // Validate checks the request is complete.

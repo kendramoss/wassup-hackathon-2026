@@ -246,13 +246,14 @@ func agentCaseText(c store.Case) string {
 		fmt.Fprintf(&b, "Follow-up questions suggested: %s\n", strings.Join(c.Clarify.Questions, " | "))
 	}
 	if c.Plan != nil {
+		stale := planMoneyStale(c)
 		fmt.Fprintf(&b, "\nPLAN SEARCH (target %s):\n", c.Plan.Target)
 		for _, pl := range c.Plan.Plans {
 			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; %s; %s\n", pl.Description, pl.Prediction.Origin,
-				precedentCheckText(pl, true), netText(pl))
+				precedentCheckText(pl, true), planNetText(pl, stale))
 		}
 		for _, pl := range c.Plan.Rejected {
-			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false))
+			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s%s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false), costRejectionText(pl, stale))
 		}
 	}
 	for _, s := range c.Scenarios {
@@ -295,6 +296,26 @@ func precedentCheckText(p domain.Plan, withRuling bool) string {
 // the figure, including a real zero. Searched but not priced: never a figure.
 // Stored before the flag existed: a nonzero recorded figure is kept, labelled
 // as historical and unverified; an all-zero one can't be told from "unknown".
+func planNetText(p domain.Plan, stale bool) string {
+	if p.Operations != nil {
+		return opsNetText(p, stale)
+	}
+	return netText(p)
+}
+
+// costRejectionText adds why a cost demotion happened, so the agent does not
+// call a move the legal gate supported "not allowed". The reason carries money,
+// so it is left out when the money has changed since.
+func costRejectionText(p domain.Plan, stale bool) string {
+	if p.Operations == nil || stale {
+		return ""
+	}
+	if p.RejectionKind != domain.RejectNetCostlier && p.RejectionKind != domain.RejectOperationallyInfeasible {
+		return ""
+	}
+	return "; supported by precedent but demoted on the inputs entered: " + p.RejectionReason
+}
+
 func netText(p domain.Plan) string {
 	switch {
 	case p.NetPriced != nil && *p.NetPriced:
