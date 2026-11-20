@@ -72,7 +72,7 @@ func (r *rig) open(t *testing.T) {
 	must(t, err)
 	r.l = l
 	r.inner = &countModel{respond: okResp(100, 10)}
-	r.g = NewGuard(r.inner, l, r.tbl, Opts{AllowModelCalls: true, RunID: "t", Now: func() time.Time { return t0 }})
+	r.g = NewGuard(r.inner, l, r.tbl, Opts{AllowModelCalls: true, RunID: "t", Now: func() time.Time { return t0 }, RunEndsBy: t0.Add(time.Hour)})
 	t.Cleanup(func() { l.Close() })
 }
 
@@ -147,9 +147,9 @@ func TestOutputCapRequired(t *testing.T) {
 	if r.inner.n.Load() != 0 || r.l.Snapshot().AttemptsRaw != 0 {
 		t.Fatal("refusals reached the transport or reserved")
 	}
-	// An over-bound request is a sticky halt: later valid requests are refused too.
-	if _, err := r.g.Generate(context.Background(), req(10)); !errors.Is(err, ErrInputBound) {
-		t.Fatalf("input-bound halt must stick: %v", err)
+	// A known-unsent oversize refusal is per request, not a run halt (C8).
+	if _, err := r.g.Generate(context.Background(), req(10)); err != nil {
+		t.Fatalf("oversize refusal must not stop the run: %v", err)
 	}
 }
 
@@ -307,7 +307,7 @@ func TestPerCaseCapAndFailureStreak(t *testing.T) {
 	}
 	must(t, r.l.AckFailures("operator reviewed"))
 	r.inner.respond = okResp(10, 1)
-	r.g = NewGuard(r.inner, r.l, r.tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }}) // a human restarted the run
+	r.g = NewGuard(r.inner, r.l, r.tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }, RunEndsBy: t0.Add(time.Hour)}) // a human restarted the run
 	if _, err := r.g.Generate(WithCase(context.Background(), "f9"), req(10)); err != nil {
 		t.Fatal(err)
 	}
@@ -517,7 +517,7 @@ func TestExternalSpendAndReservationCounted(t *testing.T) {
 	defer l.Close()
 	tbl, _ := ParsePriceTable([]byte(priceJSON("2026-11-21T00:00:00Z", "2026-11-30T00:00:00Z", 4, 20)), 0)
 	m := &countModel{respond: okResp(1, 1)}
-	g := NewGuard(m, l, tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }})
+	g := NewGuard(m, l, tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }, RunEndsBy: t0.Add(time.Hour)})
 	if _, err := g.Generate(context.Background(), req(1000)); !errors.Is(err, ErrBudget) || m.n.Load() != 0 {
 		t.Fatalf("%v", err)
 	}
@@ -548,7 +548,7 @@ func TestAuthorizationGatesAndHardCap(t *testing.T) {
 	l, err := Open(r.att, r.shr)
 	must(t, err)
 	defer l.Close()
-	g := NewGuard(r.inner, l, r.tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }})
+	g := NewGuard(r.inner, l, r.tbl, Opts{AllowModelCalls: true, Now: func() time.Time { return t0 }, RunEndsBy: t0.Add(time.Hour)})
 	if _, err := g.Generate(context.Background(), req(8000)); !errors.Is(err, ErrBudget) {
 		t.Fatalf("hard cap must clamp cap_usd=500: %v", err)
 	}

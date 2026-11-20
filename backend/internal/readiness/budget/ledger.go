@@ -26,6 +26,11 @@ const (
 	TypeAck     = "ack_failures"
 	TypeHalt    = "halt"
 	TypeAckHalt = "ack_halt"
+	// TypeExt raises the remembered external spend/reservation floor; it can
+	// only rise. TypeExtReconcile is the audited exception, see
+	// ReconcileExternalReserved.
+	TypeExt          = "ext"
+	TypeExtReconcile = "ext_reconcile"
 )
 
 // Settle outcomes. Everything except OutcomeOK and OutcomeNotSent charges the
@@ -66,6 +71,8 @@ type Record struct {
 	HTTPStatus      int    `json:"http_status,omitempty"`
 	ErrorClass      string `json:"error_class,omitempty"`
 	Note            string `json:"note,omitempty"`
+	ExtSpentNanos   int64  `json:"ext_spent_nanos,omitempty"`
+	ExtResNanos     int64  `json:"ext_res_nanos,omitempty"`
 }
 
 // Status is the state recomputed from the chain.
@@ -79,6 +86,8 @@ type Status struct {
 	FailureStreak int
 	Halted        bool
 	HaltNote      string
+	ExtSpent      int64 // remembered floor of spend recorded by other payers
+	ExtRes        int64 // remembered floor of external reservations
 	CaseAttempts  map[string]int
 	CaseNanos     map[string]int64
 }
@@ -133,14 +142,24 @@ func (c *chainState) apply(r Record, raw []byte) error {
 		c.OpenNanos -= res.nanos
 		c.SpentNanos += r.ChargedNanos
 		c.CaseNanos[res.caseID] += r.ChargedNanos - res.nanos
-		if r.Outcome == OutcomeOK || r.Outcome == OutcomeNotSent {
+		if r.Outcome == OutcomeOK {
 			c.FailureStreak = 0
-		} else {
+		} else if r.Outcome != OutcomeNotSent { // known unsent: neither a success nor a failure
 			c.FailureStreak++
 			c.FailuresRaw++
 		}
 	case TypeAck:
 		c.FailureStreak = 0
+	case TypeExt:
+		if r.ExtSpentNanos < c.ExtSpent || r.ExtResNanos < c.ExtRes {
+			return fmt.Errorf("%w: external floor lowered at seq %d", ErrCorrupt, r.Seq)
+		}
+		c.ExtSpent, c.ExtRes = r.ExtSpentNanos, r.ExtResNanos
+	case TypeExtReconcile:
+		if len(r.Note) < 40 || r.ExtSpentNanos < c.ExtSpent || r.ExtSpentNanos+r.ExtResNanos < c.ExtSpent+c.ExtRes {
+			return fmt.Errorf("%w: unaudited or budget-returning reconcile at seq %d", ErrCorrupt, r.Seq)
+		}
+		c.ExtSpent, c.ExtRes = r.ExtSpentNanos, r.ExtResNanos
 	case TypeHalt:
 		c.Halted, c.HaltNote = true, r.Note
 	case TypeAckHalt:
@@ -321,8 +340,11 @@ func Inspect(attemptsPath, sharedPath string) (Status, int64, bool, error) {
 	if err != nil {
 		return Status{}, 0, false, err
 	}
-	if s.spentNanos < c.SpentNanos || s.attemptsRaw < c.AttemptsRaw || s.failuresRaw < c.FailuresRaw {
+	if s.spentNanos < c.SpentNanos+c.ExtSpent || s.attemptsRaw < c.AttemptsRaw || s.failuresRaw < c.FailuresRaw {
 		return c.Status, s.capNanos, s.authorized, fmt.Errorf("%w: shared counters below the chain", ErrTamper)
+	}
+	if s.extResNanos < c.ExtRes {
+		return c.Status, s.capNanos, s.authorized, ErrExtReservedLowered
 	}
 	return c.Status, s.capNanos, s.authorized, nil
 }
@@ -339,9 +361,62 @@ type Ledger struct {
 	now        func() time.Time
 }
 
-// extern is spend recorded in the shared file that the chain does not hold
-// (effective spent = max(chain, file)). Counted in full, kept constant.
-type extern struct{ spent, attempts, failures int64 }
+// extern holds counters recorded in the shared file that the chain does not
+// (effective = max(chain, file)); they only rise. External money lives in the
+// chain as TypeExt floors so a restart remembers it too.
+type extern struct{ attempts, failures int64 }
+
+// ErrExtReservedLowered means the external reservation in the shared file is
+// below the highest value the ledger has seen. It is refused until an audited
+// reconciliation (ReconcileExternalReserved).
+var ErrExtReservedLowered = fmt.Errorf("%w: external reservation lowered below the remembered floor", ErrTamper)
+
+// refreshExternalLocked is called under the lock on every Reserve and Settle.
+// It re-reads nothing itself; it takes the freshly read file. External money
+// and reservations are monotonic: a rise is remembered durably, a fall is a
+// conflict and fails closed. Nothing is ever reset to the chain alone.
+func (l *Ledger) refreshExternalLocked(s *shared) error {
+	extSpent := s.spentNanos - l.c.SpentNanos
+	if extSpent < l.c.ExtSpent {
+		return fmt.Errorf("%w: spent_usd below the ledger plus remembered external spend", ErrTamper)
+	}
+	if s.attemptsRaw < l.c.AttemptsRaw+l.ext.attempts || s.failuresRaw < l.c.FailuresRaw+l.ext.failures {
+		return fmt.Errorf("%w: shared counters edited downward", ErrTamper)
+	}
+	if s.extResNanos < l.c.ExtRes {
+		return ErrExtReservedLowered
+	}
+	l.ext.attempts, l.ext.failures = s.attemptsRaw-l.c.AttemptsRaw, s.failuresRaw-l.c.FailuresRaw
+	if extSpent > l.c.ExtSpent || s.extResNanos > l.c.ExtRes {
+		return l.appendLocked(Record{Type: TypeExt, ExtSpentNanos: extSpent, ExtResNanos: s.extResNanos})
+	}
+	return nil
+}
+
+// ReconcileExternalReserved is the only way to accept a lowered
+// external_reserved_usd. It needs a note of at least 40 characters naming
+// the evidence, and it refuses unless the spent_usd in the file rose by at
+// least the amount the reservation fell (money moved from reserved to spent,
+// not returned to the budget). It is deliberately not exposed on the CLI.
+func (l *Ledger) ReconcileExternalReserved(note string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if len(strings.TrimSpace(note)) < 40 {
+		return errors.New("budget: reconcile note must cite the evidence (40+ characters)")
+	}
+	s, err := readShared(l.sharedPath)
+	if err != nil {
+		return err
+	}
+	if s.extResNanos >= l.c.ExtRes {
+		return errors.New("budget: nothing to reconcile")
+	}
+	extSpent := s.spentNanos - l.c.SpentNanos
+	if extSpent-l.c.ExtSpent < l.c.ExtRes-s.extResNanos {
+		return fmt.Errorf("%w: reservation fell by more than spend rose; refusing to return budget", ErrTamper)
+	}
+	return l.appendLocked(Record{Type: TypeExtReconcile, Note: note, ExtSpentNanos: extSpent, ExtResNanos: s.extResNanos})
+}
 
 // Open takes the exclusive process lock (non-blocking: a second process fails
 // with ErrLocked), validates the whole chain, cross-checks the shared file,
@@ -382,13 +457,14 @@ func Open(attemptsPath, sharedPath string) (*Ledger, error) {
 		return failf(err)
 	}
 	l := &Ledger{path: attemptsPath, sharedPath: sharedPath, lock: lf, f: f, c: c, now: time.Now}
-	if s.spentNanos < c.SpentNanos || s.attemptsRaw < c.AttemptsRaw || s.failuresRaw < c.FailuresRaw {
-		return failf(fmt.Errorf("%w: shared counters below the chain", ErrTamper))
-	}
 	if s.resNanos > c.OpenNanos {
 		return failf(fmt.Errorf("%w: shared file holds a reservation the chain does not", ErrTamper))
 	}
-	l.ext = extern{s.spentNanos - c.SpentNanos, s.attemptsRaw - c.AttemptsRaw, s.failuresRaw - c.FailuresRaw}
+	// A lowered external reservation does not stop Open (so the audited
+	// reconcile can run) but Reserve refuses until then.
+	if err := l.refreshExternalLocked(s); err != nil && !errors.Is(err, ErrExtReservedLowered) {
+		return failf(err)
+	}
 	recovered := 0
 	for id, res := range c.open {
 		if err := l.appendLocked(Record{Type: TypeSettle, AttemptID: id, Outcome: OutcomeCrashRecovery, ChargedNanos: res.nanos, ErrorClass: "open_at_start"}); err != nil {
@@ -447,7 +523,7 @@ func (l *Ledger) appendLocked(r Record) error {
 }
 
 func (l *Ledger) syncSharedLocked(s *shared) error {
-	return writeShared(l.sharedPath, s, l.c.SpentNanos+l.ext.spent, l.c.OpenNanos,
+	return writeShared(l.sharedPath, s, l.c.SpentNanos+l.c.ExtSpent, l.c.OpenNanos,
 		l.c.AttemptsRaw+l.ext.attempts, l.c.FailuresRaw+l.ext.failures)
 }
 
@@ -503,8 +579,8 @@ func (l *Ledger) Reserve(q ReserveReq) (*Reservation, error) {
 	if !s.authorized {
 		return nil, ErrUnauthorized
 	}
-	if s.spentNanos < l.c.SpentNanos+l.ext.spent || s.attemptsRaw < l.c.AttemptsRaw+l.ext.attempts || s.failuresRaw < l.c.FailuresRaw+l.ext.failures {
-		return nil, fmt.Errorf("%w: shared counters edited downward", ErrTamper)
+	if err := l.refreshExternalLocked(s); err != nil {
+		return nil, err
 	}
 	if s.resNanos > l.c.OpenNanos {
 		return nil, fmt.Errorf("%w: shared reservation above the chain", ErrTamper)
@@ -516,7 +592,7 @@ func (l *Ledger) Reserve(q ReserveReq) (*Reservation, error) {
 	if q.Nanos <= 0 {
 		return nil, fmt.Errorf("%w: non-positive reservation", ErrBudget)
 	}
-	committed := l.c.SpentNanos + l.ext.spent + l.c.OpenNanos + s.extResNanos
+	committed := l.c.SpentNanos + l.c.ExtSpent + l.c.OpenNanos + l.c.ExtRes
 	if committed < 0 || committed+q.Nanos > cp || committed+q.Nanos < 0 {
 		return nil, ErrBudget
 	}
@@ -561,15 +637,28 @@ func (l *Ledger) Settle(r *Reservation, q SettleReq) error {
 	if !over && q.Charged > r.Nanos {
 		q.Charged = r.Nanos
 	}
+	// Read and reconcile the shared file BEFORE appending: the file still
+	// reflects the previous chain state, so external money is measured
+	// against it. The settle itself is recorded regardless (the chain is the
+	// truth); a conflicting edit then fails closed and is never overwritten.
+	s, rerr := readShared(l.sharedPath)
+	var terr error
+	if rerr == nil {
+		terr = l.refreshExternalLocked(s)
+	}
 	if err := l.appendLocked(Record{Type: TypeSettle, AttemptID: r.ID, Outcome: q.Outcome, ChargedNanos: q.Charged,
 		InTok: q.InTok, OutTok: q.OutTok, HTTPStatus: q.HTTPStatus, ErrorClass: q.ErrorClass}); err != nil {
 		return err
 	}
-	s, err := readShared(l.sharedPath)
-	if err == nil {
-		err = l.syncSharedLocked(s)
+	switch {
+	case rerr != nil:
+		l.poisoned = fmt.Errorf("%w: shared file read failed: %v", ErrPoisoned, rerr)
+		return l.poisoned
+	case terr != nil:
+		l.poisoned = fmt.Errorf("%w: %v", ErrPoisoned, terr)
+		return l.poisoned
 	}
-	if err != nil {
+	if err := l.syncSharedLocked(s); err != nil {
 		l.poisoned = fmt.Errorf("%w: shared file write failed: %v", ErrPoisoned, err)
 		return l.poisoned
 	}

@@ -17,9 +17,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"runtime/debug"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
@@ -32,10 +35,61 @@ import (
 const frozenMaxRetries = 1
 
 func main() {
-	// Nothing may reach the network around the guard.
+	lockDownDefaultHTTP()
+	os.Exit(run(os.Args[1:], os.Getenv, os.Stdout, os.Stderr))
+}
+
+// lockDownDefaultHTTP replaces the stdlib default transport so accidental
+// http.Get calls cannot reach the network. This is defense in depth, not a
+// sandbox: sockets and fresh transports are unaffected, so an OS-level egress
+// allowlist to the single gateway host is still required before a live run.
+func lockDownDefaultHTTP() {
 	http.DefaultTransport = budget.DenyTransport{}
 	http.DefaultClient.Transport = budget.DenyTransport{}
-	os.Exit(run(os.Args[1:], os.Getenv, os.Stdout, os.Stderr))
+}
+
+// signalContext cancels on Ctrl-C / SIGTERM. The guard settles an in-flight
+// attempt (charged in full) before returning, so an interrupt leaves no open
+// reservation and needs no ack-halt.
+func signalContext() (context.Context, context.CancelFunc) {
+	return signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+}
+
+// buildRevision is the clean VCS revision this binary was built from.
+func buildRevision() (string, error) {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "", errors.New("no build info")
+	}
+	rev, modified := "", ""
+	for _, kv := range bi.Settings {
+		switch kv.Key {
+		case "vcs.revision":
+			rev = kv.Value
+		case "vcs.modified":
+			modified = kv.Value
+		}
+	}
+	if rev == "" || modified != "false" {
+		return "", errors.New("binary was not built from a clean VCS checkout")
+	}
+	return rev, nil
+}
+
+// verifyFreeze checks the frozen config's bindings at startup. Empty or
+// mismatching values refuse the run; nothing is merely declared.
+func verifyFreeze(c FrozenConfig, pricingBytes []byte, guardCommit string) error {
+	if c.PricingProofSHA256 == "" || c.GuardCommit == "" {
+		return errors.New("frozen config must bind pricing_proof_sha256 and guard_commit before a real call")
+	}
+	h := sha256.Sum256(pricingBytes)
+	if hex.EncodeToString(h[:]) != c.PricingProofSHA256 {
+		return errors.New("pricing proof does not match the frozen pricing_proof_sha256")
+	}
+	if guardCommit != c.GuardCommit {
+		return errors.New("this binary's revision does not match the frozen guard_commit")
+	}
+	return nil
 }
 
 func run(args []string, getenv func(string) string, out, errw io.Writer) int {
@@ -55,6 +109,8 @@ func run(args []string, getenv func(string) string, out, errw io.Writer) int {
 		err = smokeCmd(args[1:], getenv, out)
 	case "eval":
 		err = evalCmd(args[1:], out)
+	case "selfcheck":
+		err = selfcheck(out)
 	default:
 		err = fmt.Errorf("unknown subcommand %q", args[0])
 	}
@@ -107,6 +163,8 @@ type FrozenConfig struct {
 	RetrievalCutoff     string `json:"retrieval_cutoff_exclusive"` // corpus items must be dated strictly before
 	PricingProofSHA256  string `json:"pricing_proof_sha256,omitempty"`
 	GuardCommit         string `json:"guard_commit,omitempty"`
+	// RunEndsBy is when the run must be over; the price proof has to stay valid until then.
+	RunEndsBy string `json:"run_ends_by"`
 }
 
 func loadConfig(path string) (FrozenConfig, string, error) {
@@ -136,11 +194,25 @@ func loadConfig(path string) (FrozenConfig, string, error) {
 	case c.VerifierSearch != "local":
 		return c, "", errors.New("frozen config: verifier_search must be \"local\"")
 	}
+	if _, err := time.Parse(time.RFC3339, c.RunEndsBy); err != nil {
+		return c, "", fmt.Errorf("frozen config: run_ends_by: %w", err)
+	}
 	if _, err := time.Parse(time.DateOnly, c.RetrievalCutoff); err != nil {
 		return c, "", fmt.Errorf("frozen config: retrieval_cutoff_exclusive: %w", err)
 	}
 	h := sha256.Sum256(b)
 	return c, hex.EncodeToString(h[:]), nil
+}
+
+// selfcheck proves the process-wide network lock-down is active in the real
+// main path. It makes no network connection.
+func selfcheck(out io.Writer) error {
+	_, err := http.Get("http://127.0.0.1:1/")
+	if err == nil || !errors.Is(err, budget.ErrNoPermit) {
+		return fmt.Errorf("default HTTP client is not locked down: %v", err)
+	}
+	fmt.Fprintln(out, "default http transport denied")
+	return nil
 }
 
 func budgetCmd(args []string, out io.Writer) error {
@@ -150,7 +222,8 @@ func budgetCmd(args []string, out io.Writer) error {
 	fl := flag.NewFlagSet("budget", flag.ContinueOnError)
 	att := fl.String("attempts", "", "attempts.jsonl path")
 	shr := fl.String("shared", "", "SHAREDBUDGET.json path")
-	note := fl.String("note", "", "ack-halt: what was reconciled and against what")
+	note := fl.String("note", "", "ack-halt / ack-failures: what was reconciled and against what")
+	operator := fl.Bool("operator-approved", false, "ack-failures: a person decided to resume after a failure streak")
 	if err := fl.Parse(args[1:]); err != nil {
 		return err
 	}
@@ -167,6 +240,25 @@ func budgetCmd(args []string, out io.Writer) error {
 			budget.FormatNanos(capN), budget.FormatNanos(st.SpentNanos), budget.FormatNanos(st.OpenNanos),
 			st.AttemptsRaw, st.FailuresRaw, st.FailureStreak, st.Halted, auth, st.Records)
 		return nil
+	case "ack-failures":
+		// Clears ONLY the consecutive-failure streak. It cannot touch money,
+		// counters, authorization or a sticky halt.
+		if !*operator || len(strings.TrimSpace(*note)) < 20 {
+			return errors.New("--operator-approved and a --note of 20+ characters are required")
+		}
+		l, err := budget.Open(*att, *shr)
+		if err != nil {
+			return err
+		}
+		defer l.Close()
+		st := l.Snapshot()
+		if st.Halted {
+			return errors.New("a sticky halt is active; reconcile and ack-halt first")
+		}
+		if st.FailureStreak == 0 {
+			return errors.New("no failure streak to clear")
+		}
+		return l.AckFailures(*note)
 	case "ack-halt":
 		if len(strings.TrimSpace(*note)) < 20 {
 			return errors.New("--note must say what was reconciled (20+ characters)")
@@ -210,7 +302,7 @@ func newDryRig(inner llm.Model, allowed map[string]bool) (*dryRig, error) {
 	if err != nil {
 		return nil, err
 	}
-	g := budget.NewGuard(inner, l, tbl, budget.Opts{AllowModelCalls: true, RunID: "dry-run", AllowedCases: allowed})
+	g := budget.NewGuard(inner, l, tbl, budget.Opts{AllowModelCalls: true, RunID: "dry-run", AllowedCases: allowed, RunEndsBy: now.Add(12 * time.Hour)})
 	return &dryRig{dir: d, g: g, model: llm.WithRetry(g, frozenMaxRetries, time.Millisecond), l: l}, nil
 }
 
@@ -241,7 +333,7 @@ func smokeCmd(args []string, getenv func(string) string, out io.Writer) error {
 	att := fl.String("attempts", "", "attempts.jsonl path")
 	shr := fl.String("shared", "", "SHAREDBUDGET.json path")
 	pricing := fl.String("pricing", "", "verified pricing-proof file")
-	alias := fl.String("alias", "", "gateway model alias")
+	cfgPath := fl.String("config", "", "frozen config (binds the pricing proof hash, guard commit and run window)")
 	if err := fl.Parse(args); err != nil {
 		return err
 	}
@@ -263,13 +355,31 @@ func smokeCmd(args []string, getenv func(string) string, out io.Writer) error {
 	if !*allow {
 		return errors.New("real smoke refused: pass --allow-model-calls (and the shared file must say calls_authorized=true after main's review); use --dry-run otherwise")
 	}
-	if *att == "" || *shr == "" || *pricing == "" || *alias == "" {
-		return errors.New("--attempts, --shared, --pricing and --alias are required for a real call")
+	if *att == "" || *shr == "" || *pricing == "" || *cfgPath == "" {
+		return errors.New("--attempts, --shared, --pricing and --config are required for a real call")
 	}
-	tbl, err := budget.LoadPriceTable(*pricing, 0)
+	cfg, _, err := loadConfig(*cfgPath)
 	if err != nil {
 		return err
 	}
+	pb, err := os.ReadFile(*pricing) // read once: the bytes hashed are the bytes parsed
+	if err != nil {
+		return err
+	}
+	rev, err := buildRevision()
+	if err != nil {
+		return err
+	}
+	if err := verifyFreeze(cfg, pb, rev); err != nil {
+		return err
+	}
+	runEnds, _ := time.Parse(time.RFC3339, cfg.RunEndsBy)
+	tbl, err := budget.ParsePriceTable(pb, 0)
+	if err != nil {
+		return err
+	}
+	ctx, stop := signalContext()
+	defer stop()
 	gw, err := gateway.FromEnv(2 * time.Minute)
 	if err != nil {
 		return err
@@ -279,10 +389,10 @@ func smokeCmd(args []string, getenv func(string) string, out io.Writer) error {
 		return err
 	}
 	defer l.Close()
-	g := budget.NewGuard(gw, l, tbl, budget.Opts{AllowModelCalls: true, RunID: "smoke", AllowedCases: map[string]bool{"smoke-synthetic": true}})
+	g := budget.NewGuard(gw, l, tbl, budget.Opts{AllowModelCalls: true, RunID: "smoke", AllowedCases: map[string]bool{"smoke-synthetic": true}, RunEndsBy: runEnds})
 	m := llm.WithRetry(g, frozenMaxRetries, 2*time.Second)
-	resp, err := m.Generate(budget.WithCase(context.Background(), "smoke-synthetic"),
-		llm.Request{Model: *alias, System: "Reply with the single word ok.", Messages: []llm.Message{{Role: llm.RoleUser, Content: "synthetic ping"}}, MaxOutputTokens: 16})
+	resp, err := m.Generate(budget.WithCase(ctx, "smoke-synthetic"),
+		llm.Request{Model: cfg.ModelAlias, System: "Reply with the single word ok.", Messages: []llm.Message{{Role: llm.RoleUser, Content: "synthetic ping"}}, MaxOutputTokens: 16})
 	if err != nil {
 		return err
 	}
@@ -400,11 +510,16 @@ func evalCmd(args []string, out io.Writer) error {
 		}
 		return of.Sync()
 	}
+	ctx, stop := signalContext()
+	defer stop()
 	var n, ok, errs, abst, leak, correct, halted int
 	var haltErr error
 	for _, f := range fx {
 		if done[f.ID] {
 			continue
+		}
+		if ctx.Err() != nil {
+			return fmt.Errorf("interrupted: %w (completed cases are recorded; resume skips them)", ctx.Err())
 		}
 		n++
 		if reason := leakCheck(f, cfg.RetrievalCutoff, testIDs); reason != "" {
@@ -421,7 +536,7 @@ func evalCmd(args []string, out io.Writer) error {
 			}
 			continue
 		}
-		resp, err := rig.model.Generate(budget.WithCase(context.Background(), f.ID), llm.Request{
+		resp, err := rig.model.Generate(budget.WithCase(ctx, f.ID), llm.Request{
 			Model: cfg.ModelAlias, System: cfg.PromptVersion, Messages: []llm.Message{{Role: llm.RoleUser, Content: f.Facts}},
 			MaxOutputTokens: cfg.MaxOutputTokens})
 		row := Row{Case: f.ID, Gold: f.Gold}

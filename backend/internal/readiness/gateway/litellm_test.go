@@ -20,7 +20,54 @@ import (
 
 const key = "sk-SENTINEL-GATEWAY-KEY"
 
-func permitCtx() context.Context { return budget.WithPermit(context.Background(), &budget.Permit{}) }
+var testNow = time.Date(2026, 11, 21, 12, 0, 0, 0, time.UTC)
+
+const testPrices = `{"schema":2,"entries":[{"alias":"alias","resolved_model_ids":["m"],"list_usd_per_mtok_in":4,"list_usd_per_mtok_out":20,"gateway_usd_per_mtok_in":4,"gateway_usd_per_mtok_out":20,"source":"t","verified_at":"2026-11-21T00:00:00Z","valid_until":"2026-11-30T00:00:00Z","max_output_enforced":true,"output_includes_reasoning":true}]}`
+
+// guarded wraps m in a real guard over a temp ledger; the only legitimate way
+// to obtain a permit. It returns a context-free call function.
+func guarded(t *testing.T, m llm.Model) (*budget.Guard, *budget.Ledger) {
+	t.Helper()
+	d := t.TempDir()
+	shr, att := filepath.Join(d, "SHAREDBUDGET.json"), filepath.Join(d, "attempts.jsonl")
+	os.WriteFile(shr, []byte(`{"cap_usd":20,"spent_usd":0,"reserved_usd":0,"attempts_raw":0,"failures_raw":0,"calls_authorized":true}`), 0o600)
+	tbl, err := budget.ParsePriceTable([]byte(testPrices), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l, err := budget.Open(att, shr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { l.Close() })
+	return budget.NewGuard(m, l, tbl, budget.Opts{AllowModelCalls: true, Now: func() time.Time { return testNow }, RunEndsBy: testNow.Add(time.Hour)}), l
+}
+
+// twice sends two wire attempts with one context, i.e. one permit.
+type twice struct{ c *Client }
+
+func (twice) Provider() string { return "x" }
+func (w twice) Generate(ctx context.Context, r llm.Request) (llm.Response, error) {
+	if _, err := w.c.Generate(ctx, r); err != nil {
+		return llm.Response{}, err
+	}
+	return w.c.Generate(ctx, r)
+}
+
+// capture records the raw adapter response before the guard judges it.
+type capture struct {
+	c    *Client
+	resp *llm.Response
+}
+
+func (capture) Provider() string { return "x" }
+func (w capture) Generate(ctx context.Context, r llm.Request) (llm.Response, error) {
+	resp, err := w.c.Generate(ctx, r)
+	*w.resp = resp
+	return resp, err
+}
+
+func ctxCase() context.Context { return budget.WithCase(context.Background(), "c") }
 
 func client(t *testing.T, url string) *Client {
 	t.Helper()
@@ -55,7 +102,8 @@ func TestRequestShape(t *testing.T) {
 		io.WriteString(w, okBody)
 	}))
 	defer srv.Close()
-	resp, err := client(t, srv.URL).Generate(permitCtx(), rq())
+	g, _ := guarded(t, client(t, srv.URL))
+	resp, err := g.Generate(ctxCase(), rq())
 	if err != nil || resp.Text != "hello" || resp.ModelID != "m" || resp.Usage.InputTokens != 11 || resp.Usage.OutputTokens != 3 {
 		t.Fatalf("%+v %v", resp, err)
 	}
@@ -78,7 +126,8 @@ func TestExactlyOneWireRequestOnFailureNoRetry(t *testing.T) {
 			hits.Add(1)
 			http.Error(w, "echo "+key, code)
 		}))
-		_, err := client(t, srv.URL).Generate(permitCtx(), rq())
+		g, _ := guarded(t, client(t, srv.URL))
+		_, err := g.Generate(ctxCase(), rq())
 		srv.Close()
 		var api *llm.APIError
 		if !errors.As(err, &api) || api.StatusCode != code || hits.Load() != 1 {
@@ -98,7 +147,8 @@ func TestRedirectsAreNeverFollowed(t *testing.T) {
 			srcHits.Add(1)
 			http.Redirect(w, r, target.URL+"/v1/chat/completions", code)
 		}))
-		_, err := client(t, src.URL).Generate(permitCtx(), rq())
+		g, _ := guarded(t, client(t, src.URL))
+		_, err := g.Generate(ctxCase(), rq())
 		src.Close()
 		target.Close()
 		if !errors.Is(err, ErrRedirect) || srcHits.Load() != 1 || targetHits.Load() != 0 {
@@ -115,13 +165,14 @@ func TestPermitCannotBeReplayed(t *testing.T) {
 	var hits atomic.Int64
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1); io.WriteString(w, okBody) }))
 	defer srv.Close()
-	c := client(t, srv.URL)
-	ctx := permitCtx()
-	if _, err := c.Generate(ctx, rq()); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := c.Generate(ctx, rq()); !errors.Is(err, budget.ErrPermitUsed) || hits.Load() != 1 {
+	g, l := guarded(t, twice{client(t, srv.URL)})
+	_, err := g.Generate(ctxCase(), rq())
+	if !errors.Is(err, budget.ErrPermitUsed) || hits.Load() != 1 {
 		t.Fatalf("err=%v hits=%d", err, hits.Load())
+	}
+	// The first wire attempt was sent and answered; the replay was known unsent.
+	if st := l.Snapshot(); st.AttemptsRaw != 1 {
+		t.Fatalf("%+v", st)
 	}
 }
 
@@ -177,8 +228,8 @@ func TestProxyEnvironmentIsRefusedNotCleared(t *testing.T) {
 func TestMaxTokensRequired(t *testing.T) {
 	r := rq()
 	r.MaxOutputTokens = 0
-	if _, err := client(t, "http://127.0.0.1:1").Generate(permitCtx(), r); err == nil {
-		t.Fatal("accepted a request without max tokens")
+	if _, err := client(t, "http://127.0.0.1:1").Generate(context.Background(), r); !errors.Is(err, budget.ErrNotSent) {
+		t.Fatalf("accepted a request without max tokens: %v", err)
 	}
 }
 
@@ -195,8 +246,11 @@ func TestBilledOutputTakesLargestFigure(t *testing.T) {
 		io.WriteString(w, `{"model":"m","choices":[{"message":{"content":"x"}}],"usage":{"prompt_tokens":10,"completion_tokens":5,"total_tokens":400,"completion_tokens_details":{"reasoning_tokens":7}}}`)
 	}))
 	defer srv.Close()
-	resp, err := client(t, srv.URL).Generate(permitCtx(), rq())
-	if err != nil || resp.Usage.OutputTokens != 390 {
+	var resp llm.Response
+	g, _ := guarded(t, capture{client(t, srv.URL), &resp})
+	r := rq()
+	r.MaxOutputTokens = 1000
+	if _, err := g.Generate(ctxCase(), r); err != nil || resp.Usage.OutputTokens != 390 {
 		t.Fatalf("%+v %v", resp.Usage, err)
 	}
 }
@@ -206,8 +260,10 @@ func TestMissingModelIDStaysEmpty(t *testing.T) {
 		io.WriteString(w, `{"choices":[{"message":{"content":"x"}}],"usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":2}}`)
 	}))
 	defer srv.Close()
-	resp, err := client(t, srv.URL).Generate(permitCtx(), rq())
-	if err != nil || resp.ModelID != "" {
+	var resp llm.Response
+	g, l := guarded(t, capture{client(t, srv.URL), &resp})
+	_, err := g.Generate(ctxCase(), rq())
+	if resp.ModelID != "" || !errors.Is(err, budget.ErrModelNotAllowed) || !l.Snapshot().Halted {
 		t.Fatalf("%q %v", resp.ModelID, err)
 	}
 }
@@ -241,7 +297,7 @@ func TestGuardedGatewayEndToEnd(t *testing.T) {
 	}
 	defer l.Close()
 	now := time.Date(2026, 11, 21, 12, 0, 0, 0, time.UTC)
-	g := budget.NewGuard(client(t, srv.URL), l, tbl, budget.Opts{AllowModelCalls: true, Now: func() time.Time { return now }})
+	g := budget.NewGuard(client(t, srv.URL), l, tbl, budget.Opts{AllowModelCalls: true, Now: func() time.Time { return now }, RunEndsBy: now.Add(time.Hour)})
 	r := rq()
 	r.Messages[0].Content = "PRIVATE-PROMPT-TEXT"
 	if _, err := g.Generate(budget.WithCase(context.Background(), "c"), r); err != nil {

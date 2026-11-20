@@ -159,6 +159,9 @@ func (g *Guard) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 	if req.MaxOutputTokens <= 0 {
 		return llm.Response{}, ErrNoOutputCap
 	}
+	if g.o.RunEndsBy.IsZero() || !g.o.RunEndsBy.After(g.o.Now()) {
+		return llm.Response{}, ErrNoRunWindow
+	}
 	if int64(req.MaxOutputTokens) > g.o.MaxOutputCeiling {
 		return llm.Response{}, ErrOutputCap
 	}
@@ -171,7 +174,11 @@ func (g *Guard) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 		return llm.Response{}, fmt.Errorf("budget: size request: %w", err)
 	}
 	if inUp > g.o.MaxInputTokens {
-		return llm.Response{}, g.halt(ErrInputBound, "request exceeded the configured input bound")
+		// Known unsent and free: refuse this request only. It is not a run
+		// halt, so one oversize case cannot stop the whole evaluation; the
+		// runner records that case as an error. A provider-reported prompt
+		// above the estimate is different (see the settle path) and halts.
+		return llm.Response{}, ErrInputBound
 	}
 	maxOut := int64(req.MaxOutputTokens)
 	base := CostNanos(inUp, price.inNano) + CostNanos(maxOut, price.outNano)
@@ -211,10 +218,18 @@ func (g *Guard) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 			panic(p)
 		}
 	}()
-	actx, cancel := context.WithTimeout(WithPermit(ctx, &Permit{}), g.o.AttemptTimeout)
+	actx, cancel := context.WithTimeout(withPermit(ctx, mintPermit()), g.o.AttemptTimeout)
 	defer cancel()
 	resp, callErr := g.inner.Generate(actx, req)
 	settled = true
+	if callErr != nil && errors.Is(callErr, ErrNotSent) {
+		// Known unsent: no money moved. Not a success and not a failure for
+		// the streak. Everything else below is charged in full.
+		if serr := g.ledger.Settle(res, SettleReq{Outcome: OutcomeNotSent, ErrorClass: classify(callErr)}); serr != nil {
+			return llm.Response{}, g.halt(errors.Join(callErr, serr), "")
+		}
+		return llm.Response{}, callErr
+	}
 	if callErr != nil {
 		sr := SettleReq{Outcome: OutcomeFailure, Charged: res.Nanos, ErrorClass: classify(callErr)}
 		var api *llm.APIError
@@ -277,6 +292,8 @@ func classify(err error) string {
 		return fmt.Sprintf("http_%d", api.StatusCode)
 	case errors.Is(err, ErrNoPermit), errors.Is(err, ErrPermitUsed):
 		return "permit"
+	case errors.Is(err, ErrNotSent):
+		return "not_sent"
 	case errors.Is(err, context.DeadlineExceeded):
 		return "timeout"
 	case errors.Is(err, context.Canceled):

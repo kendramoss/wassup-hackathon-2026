@@ -2,13 +2,17 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
+	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/readiness/budget"
 )
@@ -22,7 +26,7 @@ func do(t *testing.T, e map[string]string, args ...string) (int, string, string)
 	return code, o.String(), er.String()
 }
 
-const cfgJSON = `{"prompt_version":"engine-v1","model_alias":"dry-alias","max_output_tokens":256,"seed":20261017,"max_retries":1,"workers":1,"votes":1,"fallback_engine_model":"off","verifier_search":"local","retrieval_cutoff_exclusive":"2026-09-26"}`
+const cfgJSON = `{"prompt_version":"engine-v1","model_alias":"dry-alias","max_output_tokens":256,"seed":20261017,"max_retries":1,"workers":1,"votes":1,"fallback_engine_model":"off","verifier_search":"local","retrieval_cutoff_exclusive":"2026-09-26","run_ends_by":"2026-12-01T00:00:00Z"}`
 
 func write(t *testing.T, dir, name, s string) string {
 	p := filepath.Join(dir, name)
@@ -51,14 +55,16 @@ func TestRealCallsRefusedByDefault(t *testing.T) {
 		t.Fatalf("%d %s", code, er)
 	}
 	d := t.TempDir()
-	args := []string{"smoke", "--allow-model-calls", "--attempts", filepath.Join(d, "a.jsonl"), "--shared", filepath.Join(d, "s.json"), "--pricing", filepath.Join(d, "p.json"), "--alias", "x"}
+	args := []string{"smoke", "--allow-model-calls", "--attempts", filepath.Join(d, "a.jsonl"), "--shared", filepath.Join(d, "s.json"), "--pricing", filepath.Join(d, "p.json"), "--config", filepath.Join(d, "cfg.json")}
 	if code, _, _ := do(t, nil, args...); code == 0 {
 		t.Fatal("real smoke ran without a pricing proof")
 	}
 	write(t, d, "s.json", `{"cap_usd":20,"spent_usd":0,"reserved_usd":0,"attempts_raw":0,"failures_raw":0,"calls_authorized":false}`)
 	write(t, d, "p.json", `{"schema":2,"entries":[]}`)
-	if code, _, er := do(t, nil, args...); code == 0 || !strings.Contains(er, "LITELLM") {
-		t.Fatalf("expected a missing-credentials stop, got %d %s", code, er)
+	write(t, d, "cfg.json", cfgJSON)
+	// A test binary is not a clean VCS build and the config binds nothing: refused before any credential is touched.
+	if code, _, er := do(t, nil, args...); code == 0 || !(strings.Contains(er, "clean VCS") || strings.Contains(er, "must bind")) {
+		t.Fatalf("expected a freeze-binding stop, got %d %s", code, er)
 	}
 	if code, _, er := do(t, nil, "eval", "--fixtures", "x"); code == 0 || !strings.Contains(er, "refused") {
 		t.Fatalf("%d %s", code, er)
@@ -174,6 +180,7 @@ func TestFrozenConfigRejections(t *testing.T) {
 		"votes":        strings.Replace(cfgJSON, `"votes":1`, `"votes":3`, 1),
 		"cross search": strings.Replace(cfgJSON, `"local"`, `"cross"`, 1),
 		"bad cutoff":   strings.Replace(cfgJSON, `2026-09-26`, `soon`, 1),
+		"no run end":   strings.Replace(cfgJSON, `"run_ends_by":"2026-12-01T00:00:00Z"`, `"run_ends_by":""`, 1),
 		"unknown key":  strings.Replace(cfgJSON, `"seed"`, `"temperature":0.7,"seed"`, 1),
 	}
 	for name, js := range bad {
@@ -210,15 +217,6 @@ func TestEvalHaltsAfterTheCaseThatTrippedIt(t *testing.T) {
 	}
 }
 
-func TestDefaultTransportIsDeniedByMain(t *testing.T) {
-	saved, savedC := http.DefaultTransport, http.DefaultClient.Transport
-	defer func() { http.DefaultTransport, http.DefaultClient.Transport = saved, savedC }()
-	http.DefaultTransport, http.DefaultClient.Transport = budget.DenyTransport{}, budget.DenyTransport{}
-	if _, err := http.Get("http://127.0.0.1:1/"); err == nil {
-		t.Fatal("DefaultClient reached the network")
-	}
-}
-
 // The tool and its packages must stay out of the server build, and the tool
 // must not link the live CROSS client or the verifier/engine stack.
 func TestDependencyBoundaries(t *testing.T) {
@@ -240,5 +238,127 @@ func TestDependencyBoundaries(t *testing.T) {
 		if strings.Contains(tool, banned) {
 			t.Errorf("tool links %s", banned)
 		}
+	}
+}
+
+func TestVerifyFreezeBindsHashesAndCommit(t *testing.T) {
+	proof := []byte(`{"schema":2}`)
+	h := sha256.Sum256(proof)
+	good := FrozenConfig{PricingProofSHA256: hex.EncodeToString(h[:]), GuardCommit: "abc123"}
+	if err := verifyFreeze(good, proof, "abc123"); err != nil {
+		t.Fatal(err)
+	}
+	for name, c := range map[string]FrozenConfig{
+		"empty":        {},
+		"no commit":    {PricingProofSHA256: good.PricingProofSHA256},
+		"no hash":      {GuardCommit: "abc123"},
+		"wrong hash":   {PricingProofSHA256: strings.Repeat("0", 64), GuardCommit: "abc123"},
+		"wrong commit": {PricingProofSHA256: good.PricingProofSHA256, GuardCommit: "zzz"},
+	} {
+		if err := verifyFreeze(c, proof, "abc123"); err == nil {
+			t.Errorf("%s accepted", name)
+		}
+	}
+	if err := verifyFreeze(good, []byte(`{"schema":2,"x":1}`), "abc123"); err == nil {
+		t.Error("changed proof bytes accepted")
+	}
+}
+
+// C5: the real main path (built binary) locks the default HTTP client down.
+func TestBuiltBinaryLocksDownDefaultHTTP(t *testing.T) {
+	bin := filepath.Join(t.TempDir(), "readiness-eval")
+	c := exec.Command("go", "build", "-o", bin, ".")
+	c.Env = append(os.Environ(), "GOFLAGS=-mod=readonly")
+	if b, err := c.CombinedOutput(); err != nil {
+		t.Fatalf("build: %v %s", err, b)
+	}
+	out, err := exec.Command(bin, "selfcheck").CombinedOutput()
+	if err != nil || !strings.Contains(string(out), "default http transport denied") {
+		t.Fatalf("%v %s", err, out)
+	}
+	if out, err := exec.Command(bin, "smoke", "--dry-run").CombinedOutput(); err != nil || !strings.Contains(string(out), "no network") {
+		t.Fatalf("dry smoke through the real main: %v %s", err, out)
+	}
+}
+
+func TestLockDownDefaultHTTPFunction(t *testing.T) {
+	saved, savedC := http.DefaultTransport, http.DefaultClient.Transport
+	defer func() { http.DefaultTransport, http.DefaultClient.Transport = saved, savedC }()
+	lockDownDefaultHTTP()
+	if _, ok := http.DefaultTransport.(budget.DenyTransport); !ok {
+		t.Fatal("default transport not replaced")
+	}
+	var out bytes.Buffer
+	if err := selfcheck(&out); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// C8: Ctrl-C cancels the run context instead of killing the process mid-settle.
+func TestSignalContextCancelsOnInterrupt(t *testing.T) {
+	ctx, stop := signalContext()
+	defer stop()
+	if err := syscall.Kill(os.Getpid(), syscall.SIGINT); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-ctx.Done():
+	case <-time.After(2 * time.Second):
+		t.Fatal("SIGINT did not cancel the run context")
+	}
+}
+
+// C3: ack-failures clears only the failure streak.
+func TestAckFailuresClearsOnlyTheStreak(t *testing.T) {
+	d := t.TempDir()
+	shr := write(t, d, "SHAREDBUDGET.json", `{"cap_usd":20,"spent_usd":0,"reserved_usd":0,"attempts_raw":0,"failures_raw":0,"calls_authorized":false}`)
+	att := filepath.Join(d, "attempts.jsonl")
+	// Scratch copy in a temp dir only; never the real ledger.
+	write(t, d, "SHAREDBUDGET.json", `{"cap_usd":20,"spent_usd":0,"reserved_usd":0,"attempts_raw":0,"failures_raw":0,"calls_authorized":true}`)
+	l, err := budget.Open(att, shr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 3; i++ {
+		r, err := l.Reserve(budget.ReserveReq{Alias: "a", Nanos: 1000, MaxOut: 1, CaseID: "c" + string(rune('a'+i))})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := l.Settle(r, budget.SettleReq{Outcome: budget.OutcomeFailure, Charged: 1000}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	before := l.Snapshot()
+	l.Close()
+	if before.FailureStreak != 3 {
+		t.Fatalf("%+v", before)
+	}
+	stat := []string{"--attempts", att, "--shared", shr}
+	if code, _, _ := do(t, nil, append([]string{"budget", "ack-failures", "--note", "operator reviewed the 504 burst"}, stat...)...); code == 0 {
+		t.Fatal("ack-failures without --operator-approved")
+	}
+	if code, _, _ := do(t, nil, append([]string{"budget", "ack-failures", "--operator-approved", "--note", "short"}, stat...)...); code == 0 {
+		t.Fatal("ack-failures with a short note")
+	}
+	if code, _, er := do(t, nil, append([]string{"budget", "ack-failures", "--operator-approved", "--note", "operator reviewed the 504 burst"}, stat...)...); code != 0 {
+		t.Fatalf("%s", er)
+	}
+	l, err = budget.Open(att, shr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+	after := l.Snapshot()
+	if after.FailureStreak != 0 || after.SpentNanos != before.SpentNanos || after.AttemptsRaw != before.AttemptsRaw ||
+		after.FailuresRaw != before.FailuresRaw || after.OpenNanos != before.OpenNanos || after.Halted {
+		t.Fatalf("ack-failures changed more than the streak:\nbefore %+v\nafter  %+v", before, after)
+	}
+	b, _ := os.ReadFile(shr)
+	if !strings.Contains(string(b), `"calls_authorized": true`) {
+		t.Fatalf("authorization changed: %s", b)
+	}
+	// And with nothing to clear it refuses.
+	if code, _, _ := do(t, nil, append([]string{"budget", "ack-failures", "--operator-approved", "--note", "operator reviewed the 504 burst"}, stat...)...); code == 0 {
+		t.Fatal("ack-failures with no streak")
 	}
 }

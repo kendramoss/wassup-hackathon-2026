@@ -39,6 +39,13 @@ var (
 	ErrNoPermit        = errors.New("budget: request has no one-shot permit from the guard")
 	ErrPermitUsed      = errors.New("budget: permit already used (redirect or replay refused)")
 	ErrModelNotAllowed = errors.New("budget: resolved model id not in the verified allowlist")
+	ErrNoRunWindow     = errors.New("budget: RunEndsBy is not set or already past; the price proof lifetime must cover the run")
+	// ErrNotSent marks a failure raised before any byte could leave the
+	// process (encoding, URL allowlist, permit). Only the gateway adapter may
+	// wrap it; the guard then charges nothing for that attempt. Anything
+	// ambiguous (dial, TLS, write, read, timeout) is NOT this error and is
+	// charged in full.
+	ErrNotSent = errors.New("budget: request known not to have been sent")
 )
 
 // HardCapNanos is the user-approved total for the whole batch ($20).

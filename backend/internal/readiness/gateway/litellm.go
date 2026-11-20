@@ -59,12 +59,12 @@ type permitTransport struct {
 
 func (t permitTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	if err := budget.PermitFrom(r.Context()).Take(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", budget.ErrNotSent, err)
 	}
 	u := r.URL
 	okScheme := u.Scheme == "https" || (u.Scheme == "http" && t.allowHTTPLoop && isLoopback(u.Hostname()))
 	if !okScheme || u.Host != t.host || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != t.path {
-		return nil, errors.New("gateway: request target is not the allowlisted endpoint")
+		return nil, fmt.Errorf("%w: request target is not the allowlisted endpoint", budget.ErrNotSent)
 	}
 	return t.base.RoundTrip(r)
 }
@@ -216,15 +216,15 @@ type oaResponse struct {
 // Generate implements llm.Model with exactly one HTTP request.
 func (c *Client) Generate(ctx context.Context, req llm.Request) (llm.Response, error) {
 	if req.MaxOutputTokens <= 0 {
-		return llm.Response{}, errors.New("gateway: refusing a request without max output tokens")
+		return llm.Response{}, fmt.Errorf("%w: refusing a request without max output tokens", budget.ErrNotSent)
 	}
 	body, err := json.Marshal(build(req))
 	if err != nil {
-		return llm.Response{}, fmt.Errorf("gateway: encode request: %w", err)
+		return llm.Response{}, fmt.Errorf("%w: encode request: %v", budget.ErrNotSent, err)
 	}
 	hr, err := http.NewRequestWithContext(ctx, http.MethodPost, c.endpoint, bytes.NewReader(body))
 	if err != nil {
-		return llm.Response{}, errors.New("gateway: build request failed")
+		return llm.Response{}, fmt.Errorf("%w: build request failed", budget.ErrNotSent)
 	}
 	hr.GetBody = nil // a body that cannot be replayed cannot be silently retried
 	hr.Header.Set("Content-Type", "application/json")
@@ -232,11 +232,15 @@ func (c *Client) Generate(ctx context.Context, req llm.Request) (llm.Response, e
 	start := time.Now()
 	resp, err := c.hc.Do(hr)
 	if err != nil {
-		if errors.Is(err, budget.ErrPermitUsed) {
-			return llm.Response{}, fmt.Errorf("gateway: %w", budget.ErrPermitUsed)
-		}
-		if errors.Is(err, budget.ErrNoPermit) {
-			return llm.Response{}, fmt.Errorf("gateway: %w", budget.ErrNoPermit)
+		// Refused inside RoundTrip before any byte left the process.
+		if errors.Is(err, budget.ErrNotSent) {
+			if errors.Is(err, budget.ErrPermitUsed) {
+				return llm.Response{}, fmt.Errorf("gateway: %w: %w", budget.ErrNotSent, budget.ErrPermitUsed)
+			}
+			if errors.Is(err, budget.ErrNoPermit) {
+				return llm.Response{}, fmt.Errorf("gateway: %w: %w", budget.ErrNotSent, budget.ErrNoPermit)
+			}
+			return llm.Response{}, fmt.Errorf("gateway: %w", budget.ErrNotSent)
 		}
 		if ctx.Err() != nil {
 			return llm.Response{}, ctx.Err()

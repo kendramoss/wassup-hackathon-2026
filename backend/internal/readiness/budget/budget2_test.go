@@ -222,7 +222,7 @@ func TestEffectivePriceIsMaximumAndRunWindow(t *testing.T) {
 }
 
 func TestPermitIsOneShotAndDefaultTransportDenied(t *testing.T) {
-	p := &Permit{}
+	p := mintPermit()
 	if err := p.Take(); err != nil {
 		t.Fatal(err)
 	}
