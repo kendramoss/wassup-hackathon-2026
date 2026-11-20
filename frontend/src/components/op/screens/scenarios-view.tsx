@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Product, type Scenario } from "@/lib/api/client";
+import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Scenario } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
@@ -11,68 +11,36 @@ import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib
 import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
+import { exampleDrafts, initialDrafts, scenarioBody, type Draft } from "@/lib/scenario-drafts";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 export function ScenariosView() {
   return <CaseShell tab="scenarios">{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
 }
 
-type Draft = { label: string; mode: "move" | "facts"; groups: string[]; plant: string; facts: string };
-
-// Moves the chosen operation groups to a plant: their parts take that plant
-// and its country, their operations that plant.
-function variant(product: Product, groups: string[], plantId: string): Product {
-  const plant = product.plants?.find((p) => p.id === plantId);
-  if (!plant || groups.length === 0) return product;
-  const g = new Set(groups);
-  return {
-    ...product,
-    components: product.components.map((c) => (c.group && g.has(c.group) ? { ...c, plant: plant.id, made_in: plant.country } : c)),
-    operations: product.operations?.map((o) => (o.group && g.has(o.group) ? { ...o, plant: plant.id } : o)),
-  };
-}
-
-function Scenarios({ id, c, setCase }: CaseCtx) {
+export function Scenarios({ id, c, setCase }: CaseCtx) {
   const product = c.product;
   const groups = useMemo(
     () => [...new Set([...(product?.components ?? []), ...(product?.operations ?? [])].map((x) => x.group).filter((x): x is string => Boolean(x)))].filter((g) => g !== "final_assembly"),
     [product],
   );
-  const origin = c.prediction?.origin_country;
-  const otherPlant = product?.plants?.find((p) => p.country !== origin) ?? product?.plants?.[0];
-  const other = otherPlant?.id ?? "";
-  // Only groups that are not already made at that plant: moving the rest
-  // changes nothing (#83, the heat gun's housing and heating element).
-  const movable = groups.filter((g) =>
-    [...(product?.components ?? []), ...(product?.operations ?? [])].some((x) => x.group === g && x.plant !== other),
-  );
-  const to = otherPlant?.country ? ` to ${otherPlant.country}` : "";
-  // "Add as a scenario" from Ask: the what-if becomes a facts draft, kept
-  // beside the first two so the case stays at three scenarios at most.
+  // "Add as a scenario" from Ask (see withAsked).
   const add = useSearchParams().get("add")?.trim();
-  const [drafts, setDrafts] = useState<Draft[]>(() => {
-    const base: Draft[] = product?.plants?.length
-      ? [
-          { label: "As today", mode: "move" as const, groups: [], plant: other, facts: "" },
-          ...(movable.length >= 1 ? [{ label: `${groupName(movable[0])} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
-          ...(movable.length >= 2
-            ? [{ label: `${groupName(movable[0])} + ${groupName(movable[1])} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
-            : []),
-        ]
-      : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];
-    if (!add) return base;
-    const label = add.length > 60 ? add.slice(0, 59) + "…" : add;
-    // From Ask: the revised facts the what-if ran on, when the drawer left
-    // them; otherwise the original facts with the change appended (#115).
-    let revised: string | null = null;
-    try {
-      revised = sessionStorage.getItem(`op-whatif:${c.id}:${add}`);
-    } catch {}
-    return [...base.slice(0, 2), { label, mode: "facts", groups: [], plant: "", facts: revised ?? `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() }];
-  });
+  const [drafts, setDrafts] = useState<Draft[]>(() =>
+    initialDrafts(c, add, () => {
+      try {
+        return sessionStorage.getItem(`op-whatif:${c.id}:${add}`);
+      } catch {
+        return null;
+      }
+    }),
+  );
   const [editing, setEditing] = useState(Boolean(add) || !(c.scenarios?.length));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  // What Try again repeats: the failed money save with the values the user
+  // entered (for the case it was for), or null for a failed scenario run.
+  const [retrySave, setRetrySave] = useState<{ id: string; economics: Economics } | null>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
   // The newest case this screen holds, so a slow money save or re-read never
   // writes back the case from when it started.
@@ -95,10 +63,12 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     if (!release) return;
     setSaving(true);
     setError(null);
+    setRetrySave(null);
     try {
       await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
       setError(err);
+      setRetrySave({ id, economics: e });
     } finally {
       release();
       setSaving(false);
@@ -110,11 +80,9 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     if (!release) return;
     setBusy(true);
     setError(null);
+    setRetrySave(null);
     try {
-      const body = drafts.map((d) =>
-        d.mode === "facts" || !product ? { label: d.label, facts: d.facts } : { label: d.label, product: variant(product, d.groups, d.plant) },
-      );
-      commit(await api.scenarios(id, { scenarios: body, economics: c.economics }));
+      commit(await api.scenarios(id, { scenarios: scenarioBody(drafts, product), economics: c.economics }));
       setEditing(false);
     } catch (e) {
       setError(e);
@@ -147,7 +115,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
-        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {error ? <ErrorBox error={error} onRetry={retrySave ? (retrySave.id === id ? () => void saveMoney(retrySave.economics) : undefined) : run} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
             <Button onClick={run} disabled={busy || saving || drafts.length === 0}>
@@ -155,6 +123,28 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
             </Button>
             {busy && <Spinner label="Predicting each scenario…" />}
             {saving && <Spinner label="Saving money inputs…" />}
+            <Button
+              variant="ghost"
+              disabled={busy || saving}
+              onClick={() => setDrafts(exampleDrafts(c))}
+              title="Replace the scenarios above with the examples"
+            >
+              Reset to examples
+            </Button>
+            {sc.length > 0 && (
+              <Button
+                variant="ghost"
+                disabled={busy || saving}
+                onClick={() => {
+                  setDrafts(initialDrafts(c, undefined, () => null));
+                  setError(null);
+                  setRetrySave(null);
+                  setEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
+            )}
           </div>
         )}
 
@@ -225,8 +215,10 @@ function MoneyStrip({ c, onEdit, locked }: { c: CaseResponse; onEdit?: () => voi
   );
 }
 
-function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: (d: Draft[]) => void; c: CaseResponse; groups: string[] }) {
-  const set = (i: number, d: Partial<Draft>) => setDrafts(drafts.map((x, j) => (j === i ? { ...x, ...d } : x)));
+export function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setDrafts: (d: Draft[]) => void; c: CaseResponse; groups: string[] }) {
+  // Changing a move's groups or plant means the stored variant no longer applies.
+  const set = (i: number, d: Partial<Draft>) =>
+    setDrafts(drafts.map((x, j) => (j === i ? { ...x, ...d, ...("groups" in d || "plant" in d ? { stored: undefined } : {}) } : x)));
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       {drafts.map((d, i) => (

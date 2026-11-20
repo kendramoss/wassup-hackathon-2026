@@ -94,9 +94,10 @@ export function predictBody<P extends Shape & { name: string; hts?: string }>(i:
     body.product = { ...i.product, name: i.name.trim(), hts: i.hts.trim() || undefined };
     body.family = i.family || undefined;
     if (valid && i.extra.facts) body.facts = i.extra.facts;
-    // Edited parts and no family: the server cannot render, so send facts
-    // written from the edited tables rather than a 400 or the stale text.
-    else if (!valid && !body.family) body.facts = structuredFacts({ ...i.product, name: body.product.name });
+    // No family and no usable carried facts (edited parts, or a fresh or imported
+    // origin-only product): the server cannot render, so send facts written from
+    // the current tables rather than a 400 or the stale text.
+    else if (!body.family) body.facts = structuredFacts({ ...i.product, name: body.product.name });
   }
   return body;
 }

@@ -193,7 +193,7 @@ export function MoneyDrawer({
                 economics={{ ...e, group_costs: costs }}
                 onFill={(next, cells) => {
                   setE(next);
-                  setEst(cells);
+                  setEst((prev) => ({ ...prev, ...cells }));
                   setMode("each");
                 }}
                 className="mb-4"
