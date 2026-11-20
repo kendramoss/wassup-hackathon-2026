@@ -52,6 +52,10 @@ export type FamilyCheckResponse = Json<"/v1/products/family-check", "post">;
 export type CostEstimateResponse = Json<"/v1/products/cost-estimate", "post">;
 export type BomVersionResponse = Json<"/v1/cases/{id}/bom-version", "post">;
 export type Workspace = S["Workspace"];
+export type WorkspaceRole = S["WorkspaceRole"];
+// DELETE /workspaces/{id}/members/{email}: the removed email and the caller's
+// updated workspace (null when the caller left).
+export type RemoveMemberResponse = { removed: string; workspace: Workspace | null };
 export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
@@ -145,14 +149,20 @@ export async function saveEconomics(id: string, economics: Economics, io: SaveEc
 }
 
 export const SIGNIN_EXPIRED = "op:signin-expired";
+// A write was refused with 403 "forbidden" (#283): the caller's role, or the
+// case, may have changed since the screen loaded, so what the server says now
+// is the truth. Listeners (useCase, the workspace panel) re-read it. Only
+// non-GET calls raise it, so a refused read cannot loop.
+export const ACCESS_STALE = "op:access-stale";
 
 // "conflict" (409): the case changed while a plan, comparison or export ran and
 // the result was discarded (D97). Running it again is right, the same as the
 // streamed error event, which the server marks retryable.
 const retryableCodes = new Set(["backend_unreachable", "model_unavailable", "model_bad_response", "internal", "network", "conflict"]);
 
-async function toError(res: Response): Promise<ApiError> {
+async function toError(res: Response, method = "GET"): Promise<ApiError> {
   const err = await readError(res);
+  if (err.status === 403 && (err.code as string) === "forbidden" && method.toUpperCase() !== "GET" && typeof window !== "undefined") window.dispatchEvent(new Event(ACCESS_STALE));
   // The sign-in expired (D68): the header's sign-in button says so.
   if (err.status === 401 && (err.code as string) === "unauthenticated" && typeof window !== "undefined") window.dispatchEvent(new Event(SIGNIN_EXPIRED));
   return err;
@@ -184,7 +194,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
-  if (!res.ok) throw await toError(res);
+  if (!res.ok) throw await toError(res, init?.method);
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
@@ -256,6 +266,12 @@ export const api = {
   createWorkspace: (name: string) => post<Workspace>("/workspaces", { name }),
   inviteMember: (id: string, email: string) => post<Workspace>(`/workspaces/${enc(id)}/members`, { email }),
   joinWorkspace: (id: string) => post<Workspace>(`/workspaces/${enc(id)}/join`),
+  // Admin only (#283). The body is the role being set on the target member,
+  // which is what the endpoint is for; the caller's own authority never
+  // travels from here, the server reads it from the verified sign-in.
+  setMemberRole: (id: string, email: string, role: WorkspaceRole) => post<Workspace>(`/workspaces/${enc(id)}/members/${enc(email)}/role`, { role }, undefined, "PUT"),
+  // An admin removes anyone; any member removes themself (leave).
+  removeMember: (id: string, email: string) => call<RemoveMemberResponse>(`/workspaces/${enc(id)}/members/${enc(email)}`, { method: "DELETE" }),
 };
 
 // Plan search events (POST /v1/cases/{id}/plan with Accept: text/event-stream).
@@ -288,7 +304,7 @@ export async function streamPlan(
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
-  if (!res.ok) throw await toError(res);
+  if (!res.ok) throw await toError(res, "POST");
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) {
     // The backend answered with the plain JSON body.
     onEvent({ event: "done", data: await res.json() });
@@ -315,7 +331,7 @@ export async function streamPredict(body: PredictRequest, onStage: (s: PredictSt
   } catch {
     throw new ApiError("Couldn't reach Unde. Check your connection and try again.", 0, "network", true);
   }
-  if (!res.ok) throw await toError(res);
+  if (!res.ok) throw await toError(res, "POST");
   if (!res.headers.get("content-type")?.startsWith("text/event-stream")) return res.json() as Promise<CaseResponse>;
   // Set from the callback, so an object (TypeScript doesn't follow closures).
   const got: { case?: CaseResponse; error?: ApiError } = {};

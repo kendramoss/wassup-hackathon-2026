@@ -295,6 +295,15 @@ export const copy = {
     failed: "Sign-in didn't work. Try again.",
     account: (email: string) => `Account: ${email}`,
     signedInAs: "Signed in as",
+    // 401 unauthenticated for a visitor with no sign-in (#283, strict mode).
+    // A visitor id is not a sign-in, so this says to sign in, not to retry.
+    required: "Sign in to open your cases. The demos stay open without signing in.",
+    requiredLead: "Sign-in required",
+    demosLink: "Open a demo case →",
+  },
+  access: {
+    viewerRefused: "Your role in this workspace is viewer, so you can read this case but not change it. Ask a workspace admin for editor access.",
+    recheck: "Check my access again",
   },
 
   money: "Money · illustrative — editable",

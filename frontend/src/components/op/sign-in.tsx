@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SIGNIN_EXPIRED } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -46,7 +47,12 @@ export function SignIn() {
   const [s, setS] = useState<Session | null>(null);
   const [expired, setExpired] = useState(false);
   const [error, setError] = useState(false);
+  const [required, setRequired] = useState(false);
   const button = useRef<HTMLDivElement>(null);
+  const wasSignedIn = useRef(false);
+  useEffect(() => {
+    wasSignedIn.current = Boolean(s?.email);
+  }, [s?.email]);
 
   useEffect(() => {
     fetch("/api/session", { cache: "no-store" })
@@ -58,7 +64,10 @@ export function SignIn() {
   // proxy has dropped it, so say so and offer the button again.
   useEffect(() => {
     const lapse = () => {
-      setExpired(true);
+      // Only a signed-in user's token can expire. For a visitor with no
+      // sign-in a 401 means "sign in required" (strict mode): not an expiry.
+      if (wasSignedIn.current || s?.exp) setExpired(true);
+      else setRequired(true);
       setS((x) => x && { ...x, email: null, exp: null });
     };
     window.addEventListener(SIGNIN_EXPIRED, lapse);
@@ -105,7 +114,7 @@ export function SignIn() {
 
   // Google draws its own button inside; an expiry or failure is a dot on it,
   // with the reason in its label and tooltip, so the bar never widens.
-  const note = error ? copy.signIn.failed : expired ? copy.signIn.expired : null;
+  const note = error ? copy.signIn.failed : expired ? copy.signIn.expired : required ? copy.signIn.required : null;
   return (
     <span className="relative inline-flex size-10 shrink-0" title={note ?? copy.signIn.button}>
       <div ref={button} aria-label={note ?? copy.signIn.button} className="size-10" />
@@ -182,5 +191,49 @@ function Account({ email, name, picture }: { email: string; name: string | null;
         </div>
       )}
     </span>
+  );
+}
+
+// The state shown in place of a private case operation that answered 401
+// "unauthenticated" (#283). Signed out (or a visitor id only), the server
+// requires a sign-in: say so, offer the sign-in button, keep the demos one
+// click away, and do not retry on its own. After sign-in the page reloads and
+// the operation runs again. A signed-in user whose token lapsed gets the
+// expiry wording and one explicit retry.
+export function SignInRequired({ onRetry }: { onRetry?: () => void }) {
+  const [email, setEmail] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let live = true;
+    fetch("/api/session", { cache: "no-store" })
+      .then((r) => r.json() as Promise<Session>)
+      .then((x) => live && setEmail(x.email), () => live && setEmail(null));
+    return () => {
+      live = false;
+    };
+  }, []);
+  const expired = Boolean(email);
+  return (
+    <div role="status" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
+      <p className="duo">
+        {expired ? (
+          copy.signIn.expired
+        ) : (
+          <>
+            <b className="font-medium">{copy.signIn.requiredLead}.</b> {copy.signIn.required}
+          </>
+        )}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        {!expired && <SignIn />}
+        <Link href="/cases" className="text-ok underline underline-offset-2">
+          {copy.signIn.demosLink}
+        </Link>
+        {expired && onRetry && (
+          <button type="button" className="min-h-8 text-ok underline underline-offset-2" onClick={onRetry}>
+            {copy.retry}
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
