@@ -35,6 +35,8 @@ info:
 
     Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
 
+    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
+
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
@@ -1162,6 +1164,55 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+  /v1/audit:
+    get:
+      summary: List a tenant's audit events (workspace admin or admin token; audit enabled only)
+      description: "Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint."
+      security: [{ AdminToken: [] }, {}]
+      parameters:
+        - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other.", schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: cursor, in: query, description: Opaque; at most 512 bytes, schema: { type: string, maxLength: 512 } }
+        - { name: order, in: query, schema: { type: string, enum: [desc, asc], default: desc } }
+        - { name: action, in: query, schema: { $ref: "#/components/schemas/AuditAction" } }
+        - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
+        - { name: phase, in: query, schema: { $ref: "#/components/schemas/AuditPhase" } }
+        - { name: actor, in: query, description: An actor pseudonym from an event, never an email, schema: { type: string } }
+        - { name: object, in: query, description: An opaque object reference from an event, schema: { type: string } }
+        - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
+      responses:
+        "200":
+          description: One page of events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+  /v1/audit/verify:
+    get:
+      summary: Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
+      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it looks at the newest 2000 events for intents older than 5 minutes with no completion or failure (an in-doubt write), at most 50 seqs. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
+      security: [{ AdminToken: [] }, {}]
+      parameters:
+        - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in.", schema: { type: string } }
+        - { name: cursor, in: query, description: Resume token from a previous incomplete call, schema: { type: string, maxLength: 512 } }
+        - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
+      responses:
+        "200":
+          description: The verification result so far
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditVerifyResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
@@ -1249,6 +1300,10 @@ components:
       required: true
       description: The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint.
       schema: { type: string }
+  headers:
+    AuditIncomplete:
+      description: "Set to `completion-not-recorded` on a response to an audited write whose completion record could not be written after the change was made (the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled."
+      schema: { type: string, enum: [completion-not-recorded] }
   responses:
     Error:
       description: Error
@@ -1303,7 +1358,7 @@ components:
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable]
         message: { type: string }
         details: {}
     Workspace:
@@ -1327,6 +1382,84 @@ components:
       type: string
       enum: [viewer, editor, admin]
       description: The caller's role in the workspace, derived by the server from stored membership.
+    AuditAction:
+      type: string
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, auth.denied]
+      description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
+    AuditPhase:
+      type: string
+      enum: [intent, completion, single]
+    AuditOutcome:
+      type: string
+      enum: [allowed, denied, failed]
+    AuditEvent:
+      type: object
+      description: "One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. A field shown as empty is an empty string, not absent."
+      required: [tenant, seq, time, actor_kind, actor, target, action, phase, outcome, reason, detail, object, route, request_id, ref, prev_hash, hash]
+      properties:
+        tenant: { type: string, description: "`ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform`" }
+        seq: { type: integer, description: Per-tenant sequence, total and deterministic }
+        time: { type: string, format: date-time, description: Server clock in microseconds; non-decreasing within a tenant }
+        actor_kind: { type: string, enum: [user, apikey, admin, anonymous, system] }
+        actor: { type: string, description: "A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; empty for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess." }
+        target: { type: string, description: The affected member's pseudonym for invite, join, role change and removal; otherwise empty }
+        action: { $ref: "#/components/schemas/AuditAction" }
+        phase: { $ref: "#/components/schemas/AuditPhase" }
+        outcome: { $ref: "#/components/schemas/AuditOutcome" }
+        reason:
+          type: string
+          enum: ["", forbidden, hidden, unauthenticated, invalid_credential, invalid_input, conflict, not_found, upstream, unavailable, internal, superseded, audit_unavailable, rate_limited]
+          description: Empty when allowed
+        detail: { type: string, description: "A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or empty" }
+        object: { type: string, description: "A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; empty when none. Never a name." }
+        route: { type: string, description: The route pattern, with path parameters unexpanded }
+        request_id: { type: string, description: "The server-generated request id, or `h_` plus a hash of a client-supplied one" }
+        ref: { type: integer, description: "On a completion or failure, the seq of its intent; 0 when the intent could not be written or the event is not a completion" }
+        suppressed: { type: integer, description: "Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide." }
+        prev_hash: { type: string, description: "The previous event's hash; 64 zeros for seq 1" }
+        hash: { type: string, description: "SHA-256 over a fixed encoding of the other fields" }
+    AuditPage:
+      type: object
+      required: [tenant, retention_days, order, events]
+      properties:
+        tenant: { type: string }
+        retention_days: { type: integer }
+        order: { type: string, enum: [desc, asc] }
+        events: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } }
+        next_cursor: { type: string, description: Omitted at the end. Opaque; bound to tenant, order and filters. }
+    AuditVerifyResult:
+      type: object
+      description: "Verification covers only the events checked in this call. `ok` is true only for what was checked; read `complete` and `unresolved_intents` as described."
+      required: [tenant, ok, checked, complete, findings]
+      properties:
+        tenant: { type: string }
+        ok: { type: boolean }
+        checked: { type: integer }
+        first_seq: { type: integer }
+        last_seq: { type: integer }
+        checkpoint:
+          type: object
+          description: The retention checkpoint a legitimate purge left
+          properties:
+            through_seq: { type: integer }
+            purged_at: { type: string, format: date-time }
+        complete: { type: boolean, description: "False while more remains; then call again with `next_cursor`" }
+        next_cursor: { type: string, description: Present while `complete` is false }
+        findings:
+          type: array
+          items:
+            type: object
+            required: [seq, kind]
+            properties:
+              seq: { type: integer }
+              kind: { type: string, enum: [hash_mismatch, prev_mismatch, seq_gap, seq_reorder, time_regression, head_mismatch, checkpoint_mismatch, prefix_unanchored, tenant_mismatch, invalid_event] }
+        unresolved_intents:
+          type: object
+          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure in the newest 2000 events."
+          required: [count, seqs]
+          properties:
+            count: { type: integer }
+            seqs: { type: array, items: { type: integer }, description: At most 50 }
     APIKey:
       type: object
       description: A stored API key; the secret and its hash are never returned (D69).

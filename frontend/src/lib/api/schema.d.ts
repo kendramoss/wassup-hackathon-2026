@@ -2087,6 +2087,123 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a tenant's audit events (workspace admin or admin token; audit enabled only)
+         * @description Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    /** @description Opaque; at most 512 bytes */
+                    cursor?: string;
+                    order?: "desc" | "asc";
+                    action?: components["schemas"]["AuditAction"];
+                    outcome?: components["schemas"]["AuditOutcome"];
+                    phase?: components["schemas"]["AuditPhase"];
+                    /** @description An actor pseudonym from an event */
+                    actor?: string;
+                    /** @description An opaque object reference from an event */
+                    object?: string;
+                    /** @description RFC 3339 */
+                    from?: string;
+                    /** @description RFC 3339 */
+                    to?: string;
+                    /** @description Admin token only (required for it); 400 for any other caller */
+                    tenant?: string;
+                };
+                header?: {
+                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other. */
+                    "X-User-Token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description One page of events */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuditPage"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/audit/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
+         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it looks at the newest 2000 events for intents older than 5 minutes with no completion or failure (an in-doubt write), at most 50 seqs. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Resume token from a previous incomplete call */
+                    cursor?: string;
+                    /** @description Admin token only (required for it); 400 for any other caller */
+                    tenant?: string;
+                };
+                header?: {
+                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
+                    "X-User-Token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The verification result so far */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuditVerifyResult"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/eval/summary": {
         parameters: {
             query?: never;
@@ -2306,7 +2423,7 @@ export interface components {
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable";
             message: string;
             details?: unknown;
         };
@@ -2339,6 +2456,95 @@ export interface components {
          * @enum {string}
          */
         WorkspaceRole: "viewer" | "editor" | "admin";
+        /**
+         * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
+         * @enum {string}
+         */
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
+        /** @enum {string} */
+        AuditPhase: "intent" | "completion" | "single";
+        /** @enum {string} */
+        AuditOutcome: "allowed" | "denied" | "failed";
+        /** @description One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. A field shown as empty is an empty string, not absent. */
+        AuditEvent: {
+            /** @description `ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform` */
+            tenant: string;
+            /** @description Per-tenant sequence */
+            seq: number;
+            /**
+             * Format: date-time
+             * @description Server clock in microseconds; non-decreasing within a tenant
+             */
+            time: string;
+            /** @enum {string} */
+            actor_kind: "user" | "apikey" | "admin" | "anonymous" | "system";
+            /** @description A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; empty for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess. */
+            actor: string;
+            /** @description The affected member's pseudonym for invite */
+            target: string;
+            action: components["schemas"]["AuditAction"];
+            phase: components["schemas"]["AuditPhase"];
+            outcome: components["schemas"]["AuditOutcome"];
+            /**
+             * @description Empty when allowed
+             * @enum {string}
+             */
+            reason: "" | "forbidden" | "hidden" | "unauthenticated" | "invalid_credential" | "invalid_input" | "conflict" | "not_found" | "upstream" | "unavailable" | "internal" | "superseded" | "audit_unavailable" | "rate_limited";
+            /** @description A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or empty */
+            detail: string;
+            /** @description A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; empty when none. Never a name. */
+            object: string;
+            /** @description The route pattern */
+            route: string;
+            /** @description The server-generated request id, or `h_` plus a hash of a client-supplied one */
+            request_id: string;
+            /** @description On a completion or failure, the seq of its intent; 0 when the intent could not be written or the event is not a completion */
+            ref: number;
+            /** @description Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide. */
+            suppressed?: number;
+            /** @description The previous event's hash; 64 zeros for seq 1 */
+            prev_hash: string;
+            /** @description SHA-256 over a fixed encoding of the other fields */
+            hash: string;
+        };
+        AuditPage: {
+            tenant: string;
+            retention_days: number;
+            /** @enum {string} */
+            order: "desc" | "asc";
+            events: components["schemas"]["AuditEvent"][];
+            /** @description Omitted at the end. Opaque; bound to tenant */
+            next_cursor?: string;
+        };
+        /** @description Verification covers only the events checked in this call. `ok` is true only for what was checked; read `complete` and `unresolved_intents` as described. */
+        AuditVerifyResult: {
+            tenant: string;
+            ok: boolean;
+            checked: number;
+            first_seq?: number;
+            last_seq?: number;
+            /** @description The retention checkpoint a legitimate purge left */
+            checkpoint?: {
+                through_seq?: number;
+                /** Format: date-time */
+                purged_at?: string;
+            };
+            /** @description False while more remains; then call again with `next_cursor` */
+            complete: boolean;
+            /** @description Present while `complete` is false */
+            next_cursor?: string;
+            findings: {
+                seq: number;
+                /** @enum {string} */
+                kind: "hash_mismatch" | "prev_mismatch" | "seq_gap" | "seq_reorder" | "time_regression" | "head_mismatch" | "checkpoint_mismatch" | "prefix_unanchored" | "tenant_mismatch" | "invalid_event";
+            }[];
+            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure in the newest 2000 events. */
+            unresolved_intents?: {
+                count: number;
+                /** @description At most 50 */
+                seqs: number[];
+            };
+        };
         /** @description A stored API key; the secret and its hash are never returned (D69). */
         APIKey: {
             id: string;
@@ -3008,7 +3214,10 @@ export interface components {
         UserToken: string;
     };
     requestBodies: never;
-    headers: never;
+    headers: {
+        /** @description Set to `completion-not-recorded` on a response to an audited write whose completion record could not be written after the change was made (the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled. */
+        AuditIncomplete: "completion-not-recorded";
+    };
     pathItems: never;
 }
 export type $defs = Record<string, never>;
