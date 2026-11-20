@@ -910,7 +910,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if wantsStream(r) {
-		a.planStream(w, r, c, req)
+		a.planStream(w, r, c, req, in.Economics)
 		return
 	}
 	fp := inputFingerprint(c)
@@ -1136,8 +1136,10 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 // planStream runs the plan search as server-sent events: start {target,
 // moves}, baseline {plan}, move_started {key}, move_done {key, plan}, then
 // done (the same body as the JSON response) or error {code, message,
-// retryable}. Comments (": keep-alive") are sent every keepAlive.
-func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request) {
+// retryable}. Comments (": keep-alive") are sent every keepAlive. req carries
+// the priced economics the search runs on; raw is what the user sent, and the
+// only economics the case stores (as on the JSON path, D56).
+func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics) {
 	s := openStream(w)
 	defer s.close()
 	send := s.send
@@ -1162,7 +1164,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
-			latest.Economics = economicsFrom(req.Economics, latest.Economics)
+			latest.Economics = economicsFrom(raw, latest.Economics)
 			record(r.Context(), latest, ev)
 			return nil
 		})

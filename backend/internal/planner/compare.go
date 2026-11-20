@@ -59,14 +59,38 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 	if current != nil && variant != nil {
 		c.Moved = movesBetween(*current, *variant)
 		if len(e.GroupCosts) > 0 {
-			_, added := economics(Request{Economics: e, Product: *current}, c.Moved, "", "")
-			c.AddedCostUSD = ptr(added)
+			if added, known := knownAddedCost(e, *current, c.Moved); known {
+				c.AddedCostUSD = ptr(added)
+			}
 		}
 	}
 	if c.DutySavingsUSD != nil && c.AddedCostUSD != nil {
 		c.NetUSD = ptr(round2(*c.DutySavingsUSD - *c.AddedCostUSD))
 	}
 	return c
+}
+
+// knownAddedCost is the yearly cost of the moves, only when every moved group
+// has a cost entered at both its current plant and its destination. A missing
+// entry is unknown, not zero (D131); an explicit 0 is a known cost. A setup
+// that moves nothing costs nothing extra. The plan search keeps its own
+// semantics for blank costs (economics in plan.go).
+func knownAddedCost(e Economics, current domain.Product, m domain.Move) (float64, bool) {
+	var added float64
+	for _, gm := range m {
+		from, ok := groupPlant(current, gm.Group)
+		if !ok {
+			return 0, false
+		}
+		costs := e.GroupCosts[gm.Group]
+		fromCost, haveFrom := costs[from.ID]
+		toCost, haveTo := costs[gm.ToPlant]
+		if !haveFrom || !haveTo {
+			return 0, false
+		}
+		added += toCost - fromCost
+	}
+	return round2(added), true
 }
 
 // materiallyEquivalent reports whether two structured products describe the

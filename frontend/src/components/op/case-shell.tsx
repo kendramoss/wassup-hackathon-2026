@@ -14,7 +14,9 @@ import { Spinner } from "./ui";
 export type CaseCtx = {
   id: string;
   c: CaseResponse;
-  setCase: (c: CaseResponse) => void;
+  // Takes the new case, or an updater applied to the newest one: an async
+  // result merges into what the shell holds now, not the copy it rendered with.
+  setCase: (next: CaseResponse | ((d: CaseResponse | null) => CaseResponse | null)) => void;
   reload: () => void;
   // Opens the Ask drawer (also offered as a suggestion on screens).
   ask: () => void;

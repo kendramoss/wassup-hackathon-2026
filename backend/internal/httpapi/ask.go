@@ -163,10 +163,17 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	}
 	turn := chatTurn(q, ans)
 	// Usage is the agent model's own calls; engine calls made by its
-	// what_if tool are not included.
+	// what_if tool are not included. An answer served from memory made no
+	// model call, so it charges nothing again; it keeps the answer's
+	// provenance and says where it came from.
 	var u usage
-	u.trace(ans.Trace)
-	ev := u.on(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
+	summary := fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
+	if hit {
+		summary += ", answered from memory"
+	} else {
+		u.trace(ans.Trace)
+	}
+	ev := u.on(store.Event{Kind: "asked", Summary: summary,
 		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion}, start)
 	// On a demo case the visitor gets the answer, but it is not saved to the
 	// case's chat, so the next viewer does not see it (D57).
@@ -231,11 +238,11 @@ func agentCaseText(c store.Case) string {
 	if c.Plan != nil {
 		fmt.Fprintf(&b, "\nPLAN SEARCH (target %s):\n", c.Plan.Target)
 		for _, pl := range c.Plan.Plans {
-			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; precedent check %.2f, supporting %s; net $%.0f/yr\n", pl.Description, pl.Prediction.Origin,
-				verdictConf(pl), verdictRuling(pl), pl.NetYear)
+			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; %s; %s\n", pl.Description, pl.Prediction.Origin,
+				precedentCheckText(pl, true), netText(pl))
 		}
 		for _, pl := range c.Plan.Rejected {
-			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; precedent check %.2f\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, verdictConf(pl))
+			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false))
 		}
 	}
 	for _, s := range c.Scenarios {
@@ -256,11 +263,36 @@ func verdictConf(p domain.Plan) float64 {
 	return p.Verdict.Confidence
 }
 
-func verdictRuling(p domain.Plan) string {
-	if p.Verdict == nil || p.Verdict.SupportingRuling == "" {
-		return "none"
+// precedentCheckText states the precedent check as it stands: a plan with no
+// verdict never had one run, which is not the same as a confidence of 0.00.
+func precedentCheckText(p domain.Plan, withRuling bool) string {
+	if p.Verdict == nil {
+		return "precedent check not run"
 	}
-	return p.Verdict.SupportingRuling
+	s := fmt.Sprintf("precedent check %.2f", p.Verdict.Confidence)
+	if withRuling {
+		ruling := p.Verdict.SupportingRuling
+		if ruling == "" {
+			ruling = "none"
+		}
+		s += ", supporting " + ruling
+	}
+	return s
+}
+
+// netText states a plan's yearly net by what the search that made the plan
+// recorded (Plan.NetPriced), never by the case's current economics. Priced:
+// the figure, including a real zero. Searched but not priced: never a figure.
+// Stored before the flag existed: a nonzero recorded figure is kept, labelled
+// as historical and unverified; an all-zero one can't be told from "unknown".
+func netText(p domain.Plan) string {
+	switch {
+	case p.NetPriced != nil && *p.NetPriced:
+		return fmt.Sprintf("net $%.0f/yr", p.NetYear)
+	case p.NetPriced == nil && (p.NetYear != 0 || p.DutyEffectYear != 0 || p.AddedCostYear != 0):
+		return fmt.Sprintf("net $%.0f/yr (recorded by an earlier search; not verified as fully priced)", p.NetYear)
+	}
+	return "net not priced"
 }
 
 // maxAskMemo caps the remembered answers per instance.

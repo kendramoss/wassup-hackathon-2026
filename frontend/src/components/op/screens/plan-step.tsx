@@ -151,7 +151,8 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               finished = true;
               if (e.data.plan) {
                 setResult(e.data.plan);
-                setCase({ ...c, plan: e.data.plan, step: c.step === "export" ? "export" : "plan", economics });
+                const plan = e.data.plan;
+                setCase((d) => (d ? { ...d, plan, step: d.step === "export" ? "export" : "plan", economics } : d));
               }
               setProgress(null);
               break;

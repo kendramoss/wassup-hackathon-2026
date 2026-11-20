@@ -2575,6 +2575,15 @@ export interface components {
             duty_effect_per_year?: number;
             added_cost_per_year?: number;
             net_per_year?: number;
+            /**
+             * @description Whether the search could vouch for this plan's three yearly figures. True: an annual import value, a duty
+             *     rate for both the current and the plan's origin and, when any group costs were entered, a cost at both
+             *     plants of every moved group, so the figures are real even when 0 (with no group costs at all the supported
+             *     no-cost mode prices the duty side alone). False: the search ran and could not, so a 0 is unknown and any
+             *     nonzero figure rests on blanks read as 0. Absent: the plan was stored before this field, so its pricing
+             *     can't be proven either way.
+             */
+            net_priced?: boolean;
             shown?: boolean;
             rejection_reason?: string;
             /**

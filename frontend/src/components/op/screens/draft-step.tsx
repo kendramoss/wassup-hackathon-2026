@@ -34,7 +34,7 @@ const formats: { key: Format; label: string }[] = [
 // (D66). Wrapped as inline code so the letter can highlight them.
 const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 
-function Draft({ id, c, setCase }: CaseCtx) {
+function Draft({ id, setCase }: CaseCtx) {
   const params = useSearchParams();
   const move = params.get("move") ?? undefined;
   const target = params.get("target") ?? undefined;
@@ -53,7 +53,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const fetchDraft = () => {
     api.exportDraft(id, { ...pick, preview: true }).then((d) => {
       setDrafts((x) => ({ ...x, markdown: d }));
-      if (c.step !== "export") setCase({ ...c, step: "export" });
+      setCase((d) => (d && d.step !== "export" ? { ...d, step: "export" } : d));
     }, setError);
     api.exportDraft(id, { ...pick, preview: true, format: "cfr177" }).then(
       (d) => {
