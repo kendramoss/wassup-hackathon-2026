@@ -38,6 +38,9 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
   const [editing, setEditing] = useState(Boolean(add) || !(c.scenarios?.length));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  // What Try again repeats: the failed money save with the values the user
+  // entered (for the case it was for), or null for a failed scenario run.
+  const [retrySave, setRetrySave] = useState<{ id: string; economics: Economics } | null>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
   // The newest case this screen holds, so a slow money save or re-read never
   // writes back the case from when it started.
@@ -60,10 +63,12 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
     if (!release) return;
     setSaving(true);
     setError(null);
+    setRetrySave(null);
     try {
       await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
       setError(err);
+      setRetrySave({ id, economics: e });
     } finally {
       release();
       setSaving(false);
@@ -75,6 +80,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
     if (!release) return;
     setBusy(true);
     setError(null);
+    setRetrySave(null);
     try {
       commit(await api.scenarios(id, { scenarios: scenarioBody(drafts, product), economics: c.economics }));
       setEditing(false);
@@ -109,7 +115,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
         <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
-        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {error ? <ErrorBox error={error} onRetry={retrySave ? (retrySave.id === id ? () => void saveMoney(retrySave.economics) : undefined) : run} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
             <Button onClick={run} disabled={busy || saving || drafts.length === 0}>
@@ -132,6 +138,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
                 onClick={() => {
                   setDrafts(initialDrafts(c, undefined, () => null));
                   setError(null);
+                  setRetrySave(null);
                   setEditing(false);
                 }}
               >
