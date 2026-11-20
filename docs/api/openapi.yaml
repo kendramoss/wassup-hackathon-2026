@@ -1296,6 +1296,7 @@ components:
         watch_route: { type: [string, "null"], enum: [auto, needs_review, needs_info, null], description: "Route of the watch result's triage (Watch.triage.route); null as watch_basis" }
         scenario_count: { type: integer }
         pinned: { type: boolean, description: A seeded demo case; listed first }
+        can_write: { type: boolean, description: "Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
     Error:
       type: object
       required: [code, message]
@@ -1471,6 +1472,7 @@ components:
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
             pinned: { type: boolean }
+            can_write: { type: boolean, description: "Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
             display_name: { type: string }
             precedents_detail:
               type: array

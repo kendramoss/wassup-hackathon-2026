@@ -2301,6 +2301,8 @@ export interface components {
             scenario_count: number;
             /** @description A seeded demo case; listed first */
             pinned: boolean;
+            /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
+            can_write?: boolean;
         };
         Error: {
             /** @enum {string} */
@@ -2515,6 +2517,8 @@ export interface components {
             /** @enum {string} */
             step?: "product" | "origin" | "plan" | "export";
             pinned?: boolean;
+            /** @description Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
+            can_write?: boolean;
             display_name?: string;
             /** @description The earlier rulings in prediction.precedents, in the same order, with CBP's held origin */
             precedents_detail?: components["schemas"]["PrecedentRef"][];
