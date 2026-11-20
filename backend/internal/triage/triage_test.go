@@ -168,3 +168,28 @@ func TestEmbeddedFamilyBars(t *testing.T) {
 		t.Errorf("unknown family = %v %v", bar, fitted)
 	}
 }
+
+// #344: fallback detection compares the configured identity, not the
+// provider's resolved version, and never matches by prefix.
+func TestAnsweredByFallbackUsesRequestedIdentity(t *testing.T) {
+	const primary = "gemini-4-argon"
+	tests := []struct {
+		name string
+		t    domain.Trace
+		want bool
+	}{
+		{"empty trace", domain.Trace{}, false},
+		{"exact name", domain.Trace{ModelID: primary, RequestedModel: primary}, false},
+		{"alias resolved to version", domain.Trace{ModelID: primary + "-001", RequestedModel: primary}, false},
+		{"genuine fallback", domain.Trace{ModelID: "gemini-3.8-flash-002", RequestedModel: "gemini-3.8-flash"}, true},
+		{"fallback whose version looks like the primary", domain.Trace{ModelID: primary + "-001", RequestedModel: "gemini-3.8-flash"}, true},
+		{"unrelated model sharing the primary prefix", domain.Trace{ModelID: primary + "x", RequestedModel: primary + "x"}, true},
+		{"old trace, exact name", domain.Trace{ModelID: primary}, false},
+		{"old trace, other model", domain.Trace{ModelID: "tuned-flash"}, true},
+	}
+	for _, tt := range tests {
+		if got := AnsweredByFallback(tt.t, primary); got != tt.want {
+			t.Errorf("%s: got %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}

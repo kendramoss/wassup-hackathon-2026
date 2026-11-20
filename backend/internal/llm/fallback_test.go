@@ -105,3 +105,22 @@ func TestFallbackOffByDefault(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 }
+
+// #344: the fallback role is reported separately from the provider's version.
+func TestFallbackKeepsResolvedVersionAndReportsRole(t *testing.T) {
+	primary := &Fake{Respond: func(Request) (Response, error) {
+		return Response{}, &APIError{Provider: "vertex", StatusCode: 429}
+	}}
+	fallback := &Fake{Respond: func(Request) (Response, error) {
+		return Response{Text: "{}", ModelID: "tuned-flash-002"}, nil
+	}}
+	resp, err := WithFallback(primary, fallback, "tuned-flash").Generate(context.Background(), Request{Model: "gemini-4-argon"})
+	if err != nil || resp.RequestedModel != "tuned-flash" || resp.ModelID != "tuned-flash-002" {
+		t.Errorf("fallback resp = requested %q model %q err %v", resp.RequestedModel, resp.ModelID, err)
+	}
+	ok := &Fake{Respond: func(Request) (Response, error) { return Response{Text: "{}", ModelID: "gemini-4-argon-001"}, nil }}
+	resp, err = WithFallback(ok, fallback, "tuned-flash").Generate(context.Background(), Request{Model: "gemini-4-argon"})
+	if err != nil || resp.RequestedModel != "gemini-4-argon" || resp.ModelID != "gemini-4-argon-001" {
+		t.Errorf("primary resp = requested %q model %q err %v", resp.RequestedModel, resp.ModelID, err)
+	}
+}

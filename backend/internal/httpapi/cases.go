@@ -440,7 +440,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
 	// needs_review into needs_info, and it calls the primary model, which
 	// just failed.
-	if triage.AnsweredByFallback(pred.Trace.ModelID, a.d.EngineModel) {
+	if triage.AnsweredByFallback(pred.Trace, a.d.EngineModel) {
 		return nil
 	}
 	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {

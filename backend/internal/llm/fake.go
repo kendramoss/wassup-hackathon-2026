@@ -38,6 +38,9 @@ func (f *Fake) Generate(ctx context.Context, req Request) (Response, error) {
 	if resp.ModelID == "" {
 		resp.ModelID = req.Model
 	}
+	if resp.RequestedModel == "" {
+		resp.RequestedModel = req.Model
+	}
 	resp.Provider = "fake"
 	return resp, err
 }

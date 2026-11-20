@@ -83,7 +83,10 @@ func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
 	if err != nil {
 		return res, err
 	}
-	answered := res.Prediction.Trace.ModelID
+	// Store under the configured model that answered (the primary alias, or
+	// the fallback model), never the provider's resolved version: Peek reads
+	// the primary alias, so an alias answered as "<alias>-001" must land there.
+	answered := res.Prediction.Trace.Identity()
 	if answered == "" {
 		answered = c.inner.opts.Model
 	}
@@ -115,6 +118,10 @@ func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
 		return Result{}, false, nil
 	}
 	p := v.Prediction
+	if p.Trace.RequestedModel == "" {
+		// Stored before RequestedModel existed: this key is the primary's.
+		p.Trace.RequestedModel = c.inner.opts.Model
+	}
 	p.Trace.InputTokens, p.Trace.OutputTokens, p.Trace.LatencyMS, p.Trace.Cached = 0, 0, 0, true
 	return Result{Prediction: p, Flip: v.Flip, Votes: v.Votes, VoteCounts: v.VoteCounts}, true, nil
 }

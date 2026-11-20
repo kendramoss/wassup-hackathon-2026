@@ -87,10 +87,15 @@ type Response struct {
 	Usage     Usage
 	// ModelID is the model that answered, as reported by the provider when
 	// available, else the requested model.
-	ModelID      string
-	Provider     string
-	Latency      time.Duration
-	FinishReason string
+	ModelID string
+	// RequestedModel is the configured model name this call was sent to (the
+	// primary alias, or the fallback model after a fallback). Unlike ModelID
+	// it never changes with the provider's resolved version, so it names the
+	// role that answered: callers key caches and fallback review on it (#344).
+	RequestedModel string
+	Provider       string
+	Latency        time.Duration
+	FinishReason   string
 }
 
 // DecodeJSON unmarshals the response text into v. Models occasionally wrap
