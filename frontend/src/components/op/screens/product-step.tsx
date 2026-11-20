@@ -161,9 +161,13 @@ export function findGap(tab: Tab, name: string, date: string, facts: string, pro
     if (!c.name.trim()) return { field: `#field-part-name-${i}`, message: c.made_in.trim() ? "Name this part" : "Fill in or remove this empty part" };
     if (!c.made_in.trim()) return { field: `#field-part-country-${i}`, message: `Add the country ${c.name} is made in` };
   }
-  // The backend requires every processing step to be named.
+  // The backend requires every processing step to be named and to run at a
+  // plant in the list. Removing a plant leaves its steps unassigned, so this
+  // is where the user is sent to choose another.
+  const plantIds = new Set((product.plants ?? []).map((p) => p.id));
   for (const [i, o] of (product.operations ?? []).entries()) {
     if (!o.name.trim()) return { field: `#field-op-name-${i}`, message: "Name this processing step or remove it" };
+    if (!plantIds.has(o.plant)) return { field: `#field-op-plant-${i}`, message: `Choose the plant that does ${o.name.trim()}` };
   }
   return null;
 }
@@ -999,10 +1003,16 @@ function Field({ label, help, children }: { label: string; help?: string; childr
   );
 }
 
-// Plant IDs are made for the user ("th", "th2", …) and never shown.
-function plantId(taken: string[]) {
-  let n = taken.length + 1;
-  while (taken.includes(`p${n}`)) n++;
+// Plant IDs are made for the user ("p1", "p2", …) and never shown. A new id
+// skips every id a plant, part or step already holds, so it can never adopt a
+// reference left pointing at a plant that no longer exists.
+function plantId(product: Product) {
+  const taken = new Set<string>();
+  for (const p of product.plants ?? []) taken.add(p.id);
+  for (const c of product.components) if (c.plant) taken.add(c.plant);
+  for (const o of product.operations ?? []) if (o.plant) taken.add(o.plant);
+  let n = (product.plants ?? []).length + 1;
+  while (taken.has(`p${n}`)) n++;
   return `p${n}`;
 }
 
@@ -1017,6 +1027,18 @@ export function PartsEditor({ product, onChange }: { product: Product; onChange:
     { value: "", label: "A supplier not listed" },
     ...plants.map((p) => ({ value: p.id, label: `${p.name || "Unnamed plant"}${p.country ? ` · ${p.country}` : ""}` })),
   ];
+  // Removing a plant takes its references with it: a part keeps where it is
+  // made (made_in) but loses the plant, and a step is left unassigned for the
+  // user to give another plant. Nothing is moved to a different plant for them.
+  const removePlant = (i: number) => {
+    const gone = plants[i]?.id;
+    onChange({
+      ...product,
+      plants: plants.filter((_, j) => j !== i),
+      components: product.components.map((c) => (c.plant === gone ? { ...c, plant: undefined } : c)),
+      ...(product.operations ? { operations: ops.map((o) => (o.plant === gone ? { ...o, plant: "" } : o)) } : {}),
+    });
+  };
   const groupOptions: ComboOption[] = [{ value: "", label: "None" }, ...groups.map((g) => ({ value: g, label: groupName(g) }))];
   // Picking where a part is made fills its country from the plant.
   const pickPlant = (i: number, id: string) => {
@@ -1027,7 +1049,7 @@ export function PartsEditor({ product, onChange }: { product: Product; onChange:
   // one (18 Oct), in a single change so the new plant and its use land
   // together. A name that matches a plant reuses it.
   const plantByName = (v: string) => plants.find((p) => p.id === v || (p.name ?? "").trim().toLowerCase() === v.trim().toLowerCase());
-  const newPlant = (name: string, country: string): Plant => ({ id: plantId(plants.map((x) => x.id)), name: name.trim(), country, capabilities: [] });
+  const newPlant = (name: string, country: string): Plant => ({ id: plantId(product), name: name.trim(), country, capabilities: [] });
   const madeAt = (i: number, v: string) => {
     const known = v === "" ? undefined : plantByName(v);
     if (v === "" || known) return pickPlant(i, known?.id ?? "");
@@ -1069,7 +1091,7 @@ export function PartsEditor({ product, onChange }: { product: Product; onChange:
                   allowCustom
                   flags
                 />
-                <RemoveButton label={`Remove ${p.name || "plant"}`} onClick={() => setPlants(plants.filter((_, j) => j !== i))} />
+                <RemoveButton label={`Remove ${p.name || "plant"}`} onClick={() => removePlant(i)} />
               </div>
               <fieldset className="mt-2.5">
                 <legend className="text-[11px] text-dim">Could also make (used by the plan search)</legend>
@@ -1096,7 +1118,7 @@ export function PartsEditor({ product, onChange }: { product: Product; onChange:
             </li>
           ))}
         </ul>
-        <AddButton onClick={() => setPlants([...plants, { id: plantId(plants.map((x) => x.id)), name: "", country: "", capabilities: [] }])}>+ Add a plant</AddButton>
+        <AddButton onClick={() => setPlants([...plants, { id: plantId(product), name: "", country: "", capabilities: [] }])}>+ Add a plant</AddButton>
       </Panel>
 
       <Panel className="min-w-0">
@@ -1186,6 +1208,7 @@ export function PartsEditor({ product, onChange }: { product: Product; onChange:
             <li key={i} className="grid gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
               <input id={`field-op-name-${i}`} aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cell} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
               <Combobox
+                id={`field-op-plant-${i}`}
                 ariaLabel="At plant"
                 placeholder="Search or add a plant"
                 className={cell}

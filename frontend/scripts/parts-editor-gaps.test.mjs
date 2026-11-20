@@ -75,3 +75,75 @@ test("removing the blank step also clears the gap", () => {
   assert.deepEqual(ed.product.operations.map((o) => o.name), ["final assembly"]);
   assert.equal(gap(ed.product), null);
 });
+
+// ---- #369 (was #361): plant removal -----------------------------------
+test("removing a referenced plant clears its references but keeps made_in, and blocks until the step is reassigned", () => {
+  const ed = editor(drill());
+  ed.remove("Remove Monterrey assembly");
+  const p = ed.product;
+  assert.deepEqual(p.plants.map((x) => x.id), ["p1", "p2"]);
+  assert.deepEqual(dangling(p).filter((d) => d.startsWith("component")), [], "no part holds the removed plant");
+  const gearbox = p.components[0];
+  assert.equal(gearbox.plant, undefined);
+  assert.equal(gearbox.made_in, "Mexico", "the part's country is kept");
+  assert.equal(gearbox.group, "motor");
+  assert.equal(p.components[1].plant, "p2", "unrelated references are untouched");
+  assert.equal(p.operations[0].plant, "", "the step is explicitly unassigned, not moved to another plant");
+  assert.equal(p.operations[0].name, "final assembly");
+  const g = gap(p);
+  assert.ok(g, "submission is blocked");
+  assert.equal(g.field, "#field-op-plant-0");
+  assert.match(g.message, /final assembly/);
+  assert.equal(ed.combo("At plant", 0).props.id, "field-op-plant-0", "the gap's field exists on the combobox");
+});
+
+test("remove the newest plant then add another: the unchanged step does not move to the new plant", () => {
+  const ed = editor(drill());
+  ed.remove("Remove Monterrey assembly");
+  ed.add("Add a plant");
+  const added = ed.product.plants[2];
+  ed.input("Plant name", 2).props.onChange({ target: { value: "Gdansk works" } });
+  assert.equal(ed.product.operations[0].plant, "", "the step is still unassigned");
+  assert.notEqual(ed.product.operations[0].plant, added.id);
+  assert.ok(gap(ed.product), "still blocked until the user picks a plant for the step");
+  assert.equal(ed.product.components[0].plant, undefined, "the gearbox did not become a Polish-plant part");
+});
+
+test("deliberate reassignment through the At plant combobox unblocks submission", () => {
+  const ed = editor(drill());
+  ed.remove("Remove Monterrey assembly");
+  ed.combo("At plant", 0).props.onChange("p1");
+  assert.equal(ed.product.operations[0].plant, "p1");
+  assert.deepEqual(dangling(ed.product), []);
+  assert.equal(gap(ed.product), null);
+});
+
+test("removing an unreferenced plant, or a middle plant, only removes it", () => {
+  const ed = editor({ ...drill(), components: [{ name: "casing", made_in: "China" }], operations: [{ name: "final assembly", plant: "p1" }] });
+  ed.remove("Remove Chennai supplier");
+  assert.deepEqual(ed.product.plants.map((x) => x.id), ["p1", "p3"]);
+  assert.equal(ed.product.operations[0].plant, "p1");
+  assert.equal(gap(ed.product), null);
+});
+
+test("a plant added later never takes an id that a part or step still references", () => {
+  // A product that already holds a dangling reference (for example from an old
+  // import) must not have it adopted by the next new plant.
+  const p = drill();
+  p.plants = p.plants.slice(0, 2);
+  const ed = editor(p);
+  ed.add("Add a plant");
+  const ids = ed.product.plants.map((x) => x.id);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(!ids.includes("p3"), `new id ${ids[2]} must not adopt the dangling p3`);
+});
+
+test("typing a new plant name for a step creates a plant that only that step uses", () => {
+  const ed = editor(drill());
+  ed.remove("Remove Monterrey assembly");
+  ed.combo("At plant", 0).props.onChange("Gdansk works");
+  const created = ed.product.plants[2];
+  assert.equal(created.name, "Gdansk works");
+  assert.equal(ed.product.operations[0].plant, created.id);
+  assert.equal(ed.product.components[0].plant, undefined, "the gearbox, cleared earlier, is not attached to the new plant");
+});
