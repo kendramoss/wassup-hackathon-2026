@@ -34,7 +34,7 @@ const formats: { key: Format; label: string }[] = [
 // (D66). Wrapped as inline code so the letter can highlight them.
 const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 
-function Draft({ id, c, setCase }: CaseCtx) {
+function Draft({ id, setCase }: CaseCtx) {
   const params = useSearchParams();
   const move = params.get("move") ?? undefined;
   const target = params.get("target") ?? undefined;
