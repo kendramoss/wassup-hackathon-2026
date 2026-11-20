@@ -289,6 +289,7 @@ export interface paths {
                 /** @description Deleted */
                 204: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content?: never;
@@ -296,6 +297,7 @@ export interface paths {
                 401: components["responses"]["Error"];
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         options?: never;
@@ -1909,6 +1911,7 @@ export interface paths {
                 /** @description The updated workspace */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -1920,6 +1923,7 @@ export interface paths {
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -1965,6 +1969,7 @@ export interface paths {
                 /** @description The workspace as the caller sees it */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -1976,6 +1981,7 @@ export interface paths {
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         post?: never;
@@ -2018,6 +2024,7 @@ export interface paths {
                 /** @description The removed email and the caller's updated workspace view */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -2033,6 +2040,7 @@ export interface paths {
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         options?: never;
@@ -2070,6 +2078,7 @@ export interface paths {
                 /** @description The workspace joined */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -2079,6 +2088,7 @@ export interface paths {
                 401: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -2161,7 +2171,7 @@ export interface paths {
         };
         /**
          * Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
-         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes with no completion or failure anywhere in the verified retained range (an in-doubt write), at most 50 seqs; its own `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
+         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
          */
         get: {
             parameters: {
@@ -2193,6 +2203,7 @@ export interface paths {
                 401: components["responses"]["Error"];
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
             };
         };
@@ -2297,6 +2308,7 @@ export interface paths {
                 /** @description The key, shown once, and its record */
                 201: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -2309,6 +2321,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 403: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -2345,12 +2358,14 @@ export interface paths {
                 /** @description Disabled */
                 204: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         options?: never;
@@ -2521,6 +2536,8 @@ export interface components {
             tenant: string;
             ok: boolean;
             checked: number;
+            /** @description The head frozen by the first call: the highest seq this verification covers. Later appends are outside it. */
+            verified_through_seq: number;
             first_seq?: number;
             last_seq?: number;
             /** @description The retention checkpoint a legitimate purge left */
@@ -2533,18 +2550,19 @@ export interface components {
             complete: boolean;
             /** @description Present while `complete` is false */
             next_cursor?: string;
+            /** @description At most 100 per call */
             findings: {
                 seq: number;
                 /** @enum {string} */
                 kind: "hash_mismatch" | "prev_mismatch" | "seq_gap" | "seq_reorder" | "time_regression" | "head_mismatch" | "checkpoint_mismatch" | "prefix_unanchored" | "tenant_mismatch" | "invalid_event";
             }[];
-            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure anywhere in the verified retained range. `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound, never a claimed total. */
+            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq`; a later completion is not read. `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. */
             unresolved_intents?: {
-                /** @description A lower bound when `complete` is false */
+                /** @description Not exact when `complete` is false */
                 count: number;
                 /** @description At most 50 */
                 seqs: number[];
-                /** @description False when the state could not be carried across pages; `count` is then only a lower bound */
+                /** @description False when more than 64 intents were open at a page boundary; `count` is then not exact */
                 complete: boolean;
             };
         };

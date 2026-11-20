@@ -35,7 +35,7 @@ info:
 
     Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
 
-    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, and only as a lower bound when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
+    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
@@ -210,8 +210,9 @@ paths:
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
-        "204": { description: Deleted }
+        "204": { description: Deleted, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/pin:
@@ -1089,7 +1090,10 @@ paths:
           application/json:
             schema: { type: object, required: [email], properties: { email: { type: string, format: email, description: Lower-cased } } }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The updated workspace
           content:
             application/json:
@@ -1113,7 +1117,10 @@ paths:
           application/json:
             schema: { type: object, required: [role], additionalProperties: false, properties: { role: { $ref: "#/components/schemas/WorkspaceRole" } } }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The workspace as the caller sees it
           content:
             application/json:
@@ -1132,7 +1139,10 @@ paths:
         - { name: id, in: path, required: true, schema: { type: string } }
         - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The removed email and the caller's updated workspace view
           content:
             application/json:
@@ -1156,7 +1166,10 @@ paths:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The workspace joined
           content:
             application/json:
@@ -1196,13 +1209,14 @@ paths:
   /v1/audit/verify:
     get:
       summary: Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
-      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes with no completion or failure anywhere in the verified retained range (an in-doubt write), at most 50 seqs; its own `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
+      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
       security: [{ AdminToken: [] }, {}]
       parameters:
         - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in.", schema: { type: string } }
         - { name: cursor, in: query, description: Resume token from a previous incomplete call, schema: { type: string, maxLength: 512 } }
         - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
       responses:
+        "409": { $ref: "#/components/responses/Error" }
         "200":
           description: The verification result so far
           content:
@@ -1238,7 +1252,10 @@ paths:
                 name: { type: string, maxLength: 100, description: Who the key is for }
                 daily_quota: { type: integer, minimum: 1, maximum: 1000000, description: Requests a UTC day }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The key, shown once, and its record
           content:
             application/json:
@@ -1272,7 +1289,8 @@ paths:
       parameters:
         - { name: id, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f]{16}$" } }
       responses:
-        "204": { description: Disabled }
+        "503": { $ref: "#/components/responses/Error" }
+        "204": { description: Disabled, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
 components:
@@ -1430,11 +1448,12 @@ components:
     AuditVerifyResult:
       type: object
       description: "Verification covers only the events checked in this call. `ok` is true only for what was checked; read `complete` and `unresolved_intents` as described."
-      required: [tenant, ok, checked, complete, findings]
+      required: [tenant, ok, checked, verified_through_seq, complete, findings]
       properties:
         tenant: { type: string }
         ok: { type: boolean }
         checked: { type: integer }
+        verified_through_seq: { type: integer, description: "The head frozen by the first call: the highest seq this verification covers. Later appends are outside it." }
         first_seq: { type: integer }
         last_seq: { type: integer }
         checkpoint:
@@ -1447,6 +1466,8 @@ components:
         next_cursor: { type: string, description: Present while `complete` is false }
         findings:
           type: array
+          maxItems: 100
+          description: At most 100 per call
           items:
             type: object
             required: [seq, kind]
@@ -1455,12 +1476,12 @@ components:
               kind: { type: string, enum: [hash_mismatch, prev_mismatch, seq_gap, seq_reorder, time_regression, head_mismatch, checkpoint_mismatch, prefix_unanchored, tenant_mismatch, invalid_event] }
         unresolved_intents:
           type: object
-          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure anywhere in the verified retained range. `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound, never a claimed total."
+          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq`; a later completion is not read. `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact."
           required: [count, seqs, complete]
           properties:
-            count: { type: integer, description: "A lower bound when `complete` is false" }
+            count: { type: integer, description: "Not exact when `complete` is false" }
             seqs: { type: array, items: { type: integer }, description: At most 50 }
-            complete: { type: boolean, description: "False when the state could not be carried across pages; `count` is then only a lower bound" }
+            complete: { type: boolean, description: "False when more than 64 intents were open at a page boundary; `count` is then not exact" }
     APIKey:
       type: object
       description: A stored API key; the secret and its hash are never returned (D69).
