@@ -163,10 +163,17 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	}
 	turn := chatTurn(q, ans)
 	// Usage is the agent model's own calls; engine calls made by its
-	// what_if tool are not included.
+	// what_if tool are not included. An answer served from memory made no
+	// model call, so it charges nothing again; it keeps the answer's
+	// provenance and says where it came from.
 	var u usage
-	u.trace(ans.Trace)
-	ev := u.on(store.Event{Kind: "asked", Summary: fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", ")),
+	summary := fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
+	if hit {
+		summary += ", answered from memory"
+	} else {
+		u.trace(ans.Trace)
+	}
+	ev := u.on(store.Event{Kind: "asked", Summary: summary,
 		Provider: ans.Trace.Provider, Model: ans.Trace.ModelID, Prompt: ans.Trace.PromptVersion}, start)
 	// On a demo case the visitor gets the answer, but it is not saved to the
 	// case's chat, so the next viewer does not see it (D57).
