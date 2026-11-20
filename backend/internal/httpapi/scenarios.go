@@ -51,7 +51,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if sc.Economics != nil && (in.Economics == nil || in.Economics.AnnualImportValueUSD <= 0) {
+	if sc.Economics != nil && (in.Economics == nil || !ownsMoney(*in.Economics)) {
 		if err := validateEconomicsFor(*sc.Economics, sc.Product, false); err != nil { // reused stored economics
 			a.fail(w, r, err)
 			return
@@ -108,7 +108,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+	if in.Economics != nil && ownsMoney(*in.Economics) {
 		ec := cleanEconomics(*in.Economics) // an inactive operations block is not stored
 		in.Economics = &ec
 		sc.Economics = in.Economics
@@ -138,7 +138,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		if scenarioBasis(*latest) != basis0 {
 			return errSuperseded
 		}
-		if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+		if in.Economics != nil && ownsMoney(*in.Economics) {
 			latest.Economics = in.Economics
 		}
 		latest.Scenarios, latest.UpdatedAt = out, now

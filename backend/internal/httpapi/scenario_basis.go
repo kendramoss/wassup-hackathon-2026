@@ -76,7 +76,7 @@ func (a *api) compareScenarios(ctx context.Context, c store.Case, ss []store.Sce
 	for i := range ss {
 		ss[i].Comparison, ss[i].Basis = nil, basis
 	}
-	if c.Economics == nil || c.Economics.AnnualImportValueUSD <= 0 { // nothing to price: null, not $0
+	if c.Economics == nil || (c.Economics.AnnualImportValueUSD <= 0 && !c.Economics.Operations.Active()) { // nothing to price: null, not $0 (active operations still carry their feasibility)
 		return
 	}
 	origins := caseOrigins(c)

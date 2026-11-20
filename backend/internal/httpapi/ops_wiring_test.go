@@ -1006,3 +1006,59 @@ func TestDecodeKeepsFirstValueStreaming(t *testing.T) {
 		t.Errorf("an oversized first value = %d, want 400", code)
 	}
 }
+
+// Scenario saves follow the same money-source rule (ownsMoney): an explicit
+// active operations body at an annual value of 0 owns its money, is stored
+// whole and is compared (unpriced, feasibility kept); a fresh GET keeps it.
+// An inactive value-0 body still reuses the stored economics.
+func TestOpsScenarioSaveFollowsMoneySource(t *testing.T) {
+	opsZero := `{"annual_import_value_usd":0,"operations":{"max_lead_time_days":90,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":120}}}}}}`
+	save := func(hs harness, id string, product any, econ string) (int, map[string]any) {
+		return hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"economics":`+econ+`,"scenarios":[{"label":"Motor in Thailand","product":`+mustJSON(product)+`}]}`)
+	}
+	check := func(t *testing.T, where string, c map[string]any) {
+		t.Helper()
+		cmp := comparisonOf(scenarioOf(t, c))
+		if cmp == nil || cmp["net_usd"] != nil || cmp["feasibility"] != "infeasible" || cmp["operations"] == nil || cmp["operations"].(map[string]any)["priced"] != false {
+			t.Errorf("%s: comparison = %v, want unpriced with feasibility kept", where, cmp)
+		}
+	}
+	for _, withStored := range []bool{false, true} {
+		t.Run(fmt.Sprintf("stored economics=%v", withStored), func(t *testing.T) {
+			mem := store.NewMemory()
+			hs := bomHarness(t, func(d *Deps) { d.Cases = mem })
+			_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+			id := c["id"].(string)
+			_, prev := hs.uploadBOM(t, id, motorInThailand(t), "", nil)
+			if withStored {
+				putEcon(t, hs, id, econ2M)
+			}
+			code, out := save(hs, id, prev["product"], opsZero)
+			if code != http.StatusOK {
+				t.Fatalf("save %d %v", code, out)
+			}
+			check(t, "save response", out)
+			_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+			check(t, "fresh GET", got)
+			stored, _ := mem.Get(context.Background(), id)
+			if stored.Economics == nil || stored.Economics.Operations == nil || stored.Economics.AnnualImportValueUSD != 0 || len(stored.Economics.GroupCosts) != 0 {
+				t.Errorf("the request's operations did not replace the economics whole: %+v", stored.Economics)
+			}
+			if s := stored.Scenarios[0]; s.Basis != scenarioBasis(stored) || s.Comparison == nil {
+				t.Error("the stored comparison does not carry the stored case's basis")
+			}
+		})
+	}
+	t.Run("inactive value-0 body reuses the stored economics", func(t *testing.T) {
+		mem := store.NewMemory()
+		hs := bomHarness(t, func(d *Deps) { d.Cases = mem })
+		id, product := moneySeed(t, hs)
+		code, out := save(hs, id, product, `{"annual_import_value_usd":0,"operations":{}}`)
+		if code != http.StatusOK || netOf(t, out) != 380000 {
+			t.Fatalf("%d net %v", code, out)
+		}
+		if s, _ := mem.Get(context.Background(), id); s.Economics.AnnualImportValueUSD != 2000000 {
+			t.Errorf("stored economics replaced: %+v", s.Economics)
+		}
+	})
+}
