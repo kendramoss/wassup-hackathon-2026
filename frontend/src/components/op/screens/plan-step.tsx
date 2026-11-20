@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Explained, Term } from "../term";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
+import { api, ApiError, streamPlan, withStaleFlags, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
@@ -11,6 +11,9 @@ import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
+import { OperationalFields, opsErrorText } from "../operational-fields";
+import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
+import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
 import { EconomicsEditor, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
@@ -154,7 +157,15 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               if (e.data.plan) {
                 setResult(e.data.plan);
                 const plan = e.data.plan;
-                setCase((d) => (d ? { ...d, plan, step: d.step === "export" ? "export" : "plan", economics } : d));
+                // A plan just run is fresh by construction: its stale flag goes. The
+                // stored comparisons may or may not still match the money saved with
+                // this run, which only the server knows, so its flags are re-read.
+                setCase((d) => (d ? { ...withStaleFlags(d, { targets_economics_stale: d.targets_economics_stale }), plan, step: d.step === "export" ? "export" : "plan", economics } : d));
+                if (!c.pinned)
+                  api.getCase(id).then(
+                    (fresh) => setCase((d) => (d && d.id === fresh.id ? withStaleFlags(d, fresh) : d)),
+                    () => {},
+                  );
               }
               setProgress(null);
               break;
@@ -219,6 +230,12 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   }
 
   const searching = progress !== null;
+  // The stored plan was priced from money that has since changed (#281): its
+  // amounts are hidden, never shown as current. The legal facts stay.
+  const stale = Boolean(c.plan_economics_stale) && result !== null;
+  const readOnly = caseReadOnly(c);
+  const opsError = opsErrorText(error);
+  const demoted = (result?.rejected ?? []).filter(isCostRejection).length;
   const best = result?.plans?.[0];
   const closest = !best ? result?.rejected?.filter((p) => p.rejection_kind === "below_confidence_bar").sort((a, b) => (b.verdict?.confidence ?? 0) - (a.verdict?.confidence ?? 0))[0] : undefined;
   const lead = best ?? closest;
@@ -233,16 +250,20 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           target={target}
           below={!best}
           shown={result.plans?.length ?? 0}
+          stale={stale}
+          demoted={demoted}
+          objective={result.objective}
           // The search's own count; the "No change" baseline isn't a move.
           total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
         />
       ) : result ? (
-        <NoneBand target={target} />
+        <NoneBand target={target} demoted={demoted > 0} />
       ) : (
         <StartBand target={target} c={c} />
       )}
       <Main className="flex flex-col gap-8">
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {result && !searching && stale && <StaleMoneyBanner kind="plan" onRun={run} readOnly={readOnly} busy={!req} />}
         {result && !searching && <ReviewNote place="plan" best={Boolean(best)} />}
         {!result && !searching && (
           // The action first, then the inputs it uses: money is optional and
@@ -262,6 +283,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               <Fold title="Money inputs · illustrative, optional" meta={moneySummary(economics) || "none yet: plans show without a net per year"} open={!hasAnyMoney(economics)}>
                 <PrefillBar product={c.product} economics={economics} ready={req !== null} onFill={setEconomics} />
                 <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
+                <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} className="mt-4" />
               </Fold>
             </div>
           </div>
@@ -272,7 +294,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             comes after. Money inputs open in a drawer. */}
         {/* Top to bottom: the decision (band), every move searched, then why
             (left) beside what to do next (right); the rest folds (17 Oct). */}
-        {result && <AllMoves result={result} onDraft={draft} />}
+        {result && <AllMoves result={result} onDraft={draft} stale={stale} />}
         {result && (
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="flex min-w-0 flex-col gap-6">
@@ -321,6 +343,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
         {showMoney && (
           <MoneyDrawer onClose={() => setShowMoney(false)}>
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
+            <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} />
             <Button
               variant="ghost"
               {...writeGate(caseReadOnly(c))}
@@ -425,13 +448,32 @@ function sentence(p: Plan) {
   return movePhrase(p);
 }
 
-function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: string; below: boolean; shown: number; total: number }) {
+function PlanBand({
+  plan,
+  target,
+  below,
+  shown,
+  total,
+  stale,
+  demoted,
+  objective,
+}: {
+  plan: Plan;
+  target: string;
+  below: boolean;
+  shown: number;
+  total: number;
+  stale?: boolean;
+  demoted?: number;
+  objective?: PlanResult["objective"];
+}) {
   const v = plan.verdict?.confidence;
   return (
     <Band
       left={
         <>
           {below ? 0 : shown} of {total} moves cleared the <Term explain={copy.terms.bar.text}>{BAR} bar</Term>
+          {demoted ? ` (${demoted} more cleared it but not your operating inputs)` : null}
         </>
       }
       right={below ? "closest first: by precedent check" : "precedent-checked"}>
@@ -449,17 +491,7 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
         </div>
       </div>
       <div>
-        <p className="eyebrow">Net per year · illustrative</p>
-        <p className={cx("mt-1 text-[44px] leading-none tracking-[-0.05em]", below && "text-dim")}>{money(plan.net_per_year)}</p>
-        <p className="mt-2 text-xs text-dim">
-          {below && (
-            <>
-              if a broker confirms it
-              <br />
-            </>
-          )}
-          {money(plan.duty_effect_per_year)} duty saved − {money(plan.added_cost_per_year)} added cost
-        </p>
+        <BandNet plan={plan} below={below} stale={stale} objective={objective} />
       </div>
       <div>
         <p className="eyebrow">
@@ -471,12 +503,16 @@ function PlanBand({ plan, target, below, shown, total }: { plan: Plan; target: s
   );
 }
 
-function NoneBand({ target }: { target: string }) {
+function NoneBand({ target, demoted }: { target: string; demoted?: boolean }) {
   return (
     <Band>
       <div>
         <p className="eyebrow text-ask">Step 3 of 4 · No plan reached {target}</p>
-        <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
+        {demoted ? (
+          <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">{copy.opsResult.noneBand}</h1>
+        ) : (
+          <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
+        )}
       </div>
     </Band>
   );
@@ -574,7 +610,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
               </td>
               <td className="px-3.5 py-2.5">{r.plan ? outcome(r.plan) : <span className="text-dim">{r.started ? "Checking precedent…" : "Queued"}</span>}</td>
               <td className="px-3.5 py-2.5">{r.plan ? <MiniRuler value={r.plan.verdict?.confidence} /> : null}</td>
-              <td className="px-3.5 py-2.5">{r.plan ? money(r.plan.net_per_year) : ""}</td>
+              <td className="px-3.5 py-2.5">{r.plan ? netText(r.plan) : ""}</td>
             </tr>
           ))}
         </tbody>
@@ -639,7 +675,7 @@ function Reasoning({ text }: { text: string }) {
   );
 }
 
-function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: string) => void }) {
+function AllMoves({ result, onDraft, stale }: { result: PlanResult; onDraft: (key: string) => void; stale?: boolean }) {
   const rejected = result.rejected ?? [];
   // Shown plans first, then the rest closest first (precedent check, then
   // net), matching the band (DESIGN.md: "every row greyed, closest first");
@@ -648,7 +684,11 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
   const below = rejected.filter((p) => p.rejection_kind === "below_confidence_bar").sort(byCheck);
   const others = rejected.filter((p) => p.rejection_kind !== "below_confidence_bar" && p.rejection_kind !== "current_setup");
   const noChange = rejected.filter((p) => p.rejection_kind === "current_setup");
-  const every = [...(result.plans ?? []), ...below, ...others, ...noChange];
+  // Operations mode: the server's order is the ranking (shown plans priced
+  // first, then rejected rows with cost demotions ahead of the confidence-bar
+  // rows), so the rejected rows keep it; "No change" stays last.
+  const opsMode = [...(result.plans ?? []), ...rejected].some((p) => p.operations);
+  const every = opsMode ? [...(result.plans ?? []), ...rejected.filter((p) => p.rejection_kind !== "current_setup"), ...noChange] : [...(result.plans ?? []), ...below, ...others, ...noChange];
   // Count moves only, as the search band does; "No change" is the baseline.
   const moves = every.length - noChange.length;
   const [open, setOpen] = useState(false);
@@ -698,10 +738,15 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                             </>
                           ) : null}
                         </>
+                      ) : isCostRejection(p) ? (
+                        <>
+                          <b className="font-medium text-ink">{copy.opsResult.rejectedOps}.</b> {stale ? copy.opsResult.rejectedOpsStale : p.rejection_reason}
+                        </>
                       ) : (
                         p.rejection_reason
                       )}
                     </span>
+                    {p.operations && !stale && <OpsDetail ops={p.operations} objective={result.objective} className="mt-1.5" />}
                     {p.from_advice && <span className="mt-0.5 block text-xs text-ask">{copy.plan.advice.tried}</span>}
                     {p.near_miss && <NearMiss nm={p.near_miss} fallbackRuling={p.verdict?.supporting_ruling} />}
                     <CheckTrail trail={p.verdict?.trail} />
@@ -719,7 +764,8 @@ function AllMoves({ result, onDraft }: { result: PlanResult; onDraft: (key: stri
                   </td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 max-sm:col-start-2 max-sm:row-start-2 max-sm:p-0 max-sm:text-right">
                     <span className="mb-0.5 block text-[11px] uppercase tracking-[0.06em] text-dim sm:hidden">Net per year</span>
-                    {money(p.net_per_year)}
+                    {stale ? <span className="text-dim">{copy.stale.hidden}</span> : netText(p)}
+                    {p.operations && !stale && <OpsScope ops={p.operations} className="mt-1 max-w-[30ch] whitespace-normal text-[11px]" />}
                   </td>
                   <td className="px-3.5 py-2.5 text-right max-sm:col-span-2 max-sm:p-0 max-sm:text-left empty:max-sm:hidden">
                     {(p.shown || p.rejection_kind === "below_confidence_bar") && key ? (

@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
+import { BAR, conf, formatDate, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
+import { netText } from "../ops-view";
 import { backtestMatch, checkWords, movePhrase } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
@@ -171,7 +172,16 @@ function DemoCard({ c }: { c: CaseSummary }) {
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
-            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) · {money(best.net_per_year)}/yr {copy.plan.illustrativeShort}
+            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) ·{" "}
+            {full?.plan_economics_stale ? (
+              copy.stale.title.toLowerCase()
+            ) : (
+              <>
+                {netText(best)}
+                {best.operations ? "" : "/yr"} {copy.plan.illustrativeShort}
+                {best.operations ? " · modelled terms only" : ""}
+              </>
+            )}
             {backtestMatch(full?.plan?.backtest).matches ? <> · matches CBP&apos;s real change{backtestMatch(full?.plan?.backtest).ruling ? ` (${backtestMatch(full?.plan?.backtest).ruling})` : ""}</> : null}
           </>
         ) : full?.plan ? (

@@ -6,6 +6,8 @@ import { EstimateCosts, cellKey, type EstimatedCells } from "./money-prefill";
 import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
+import { opsActive } from "@/lib/ops";
+import { OperationalFields } from "./operational-fields";
 import { groupName } from "./plan-bits";
 import { Button, Country, Drawer, Flag, cx } from "./ui";
 
@@ -44,7 +46,7 @@ export function hasMoney(e: Economics | undefined): boolean {
 // money tier stays incomplete until hasMoney; this only decides whether the
 // saved numbers go with the case.
 export function hasAnyMoney(e: Economics | undefined): boolean {
-  return Boolean(e?.annual_import_value_usd || Object.keys(e?.duty_rates ?? {}).length || Object.keys(e?.group_costs ?? {}).length);
+  return Boolean(e?.annual_import_value_usd || Object.keys(e?.duty_rates ?? {}).length || Object.keys(e?.group_costs ?? {}).length || opsActive(e?.operations));
 }
 
 // "$2.0M imports a year · China 41.7%, Thailand 16.7% · 5 groups costed"
@@ -56,6 +58,7 @@ export function moneySummary(e: Economics | undefined): string {
   if (rates.length) parts.push(rates.map(([c, r]) => `${c} ${Math.round(r * 1000) / 10}%`).join(", "));
   const n = Object.keys(e.group_costs ?? {}).length;
   if (n) parts.push(`${n} group${n === 1 ? "" : "s"} costed`);
+  if (opsActive(e.operations)) parts.push("operating costs entered");
   return parts.join(" · ");
 }
 
@@ -66,6 +69,8 @@ export function MoneyDrawer({
   onSave,
   onClose,
   priced,
+  readOnly,
+  serverError,
 }: {
   value: Economics | undefined;
   product?: Product;
@@ -74,6 +79,10 @@ export function MoneyDrawer({
   priced?: Economics | null;
   onSave: (e: Economics) => void;
   onClose: () => void;
+  // Viewers read the inputs (can_write false); the server's 400 text for the
+  // last save shows beside the operating-cost fields it names.
+  readOnly?: boolean;
+  serverError?: string;
 }) {
   const id = useId();
   const plants = product?.plants ?? [];
@@ -343,6 +352,8 @@ export function MoneyDrawer({
             </>
           )}
         </section>
+
+        <OperationalFields value={e} onChange={setE} product={product} readOnly={readOnly} serverError={serverError} />
       </div>
     </Drawer>
   );

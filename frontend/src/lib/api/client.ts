@@ -17,9 +17,11 @@ export type PlanRequest = S["PlanRequest"];
 export type PlanResult = S["PlanResult"];
 export type Plan = S["Plan"];
 export type Economics = S["Economics"];
+export type Comparison = S["Comparison"];
 // PUT /cases/{id}/economics returns the stored economics, not the case, plus
 // the case's scenarios repriced with them (omitted when it has none).
-export type EconomicsResponse = { case_id: string; economics: Economics; scenarios?: Scenario[] };
+// The stale flags are true-only: a missing key means fresh (#281).
+export type EconomicsResponse = { case_id: string; economics: Economics; scenarios?: Scenario[] } & Pick<CaseResponse, "plan_economics_stale" | "targets_economics_stale">;
 export type TargetSummary = S["TargetSummary"];
 export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
@@ -60,6 +62,38 @@ export type WorkspacesMine = Json<"/v1/workspaces/mine", "get">;
 export type ChatTurn = NonNullable<AskResponse["chat"]>[number];
 export type WhatIf = NonNullable<NonNullable<AskResponse["reply"]>["what_ifs"]>[number];
 
+// ---- operating-cost inputs on the wire (#281) ----
+// A block counts as entered only when it carries a number, a basis, a unit, a
+// limit or a horizon. A note, or entries with only a ref or sources, are
+// inactive: the server does not store them and they change no result.
+type OpsBlock = NonNullable<Economics["operations"]>;
+const hasValue = (v: unknown) => v !== undefined && v !== null && v !== "";
+const PLANT_FIELDS = ["labour_usd_per_year", "logistics_usd_per_year", "capex_usd", "retooling_usd", "lead_time_days", "moq_units", "moq_unit"] as const;
+const plantHasValues = (p: NonNullable<NonNullable<OpsBlock["groups"]>[string]["plants"]>[string]) => PLANT_FIELDS.some((k) => hasValue(p[k]));
+const groupHasValues = (g: NonNullable<OpsBlock["groups"]>[string]) =>
+  hasValue(g.cost_basis) || hasValue(g.unit) || hasValue(g.annual_demand_units) || hasValue(g.orders_per_year) || Object.values(g.plants ?? {}).some(plantHasValues);
+
+export function opsActive(ops: OpsBlock | undefined | null): boolean {
+  if (!ops) return false;
+  return hasValue(ops.horizon_years) || hasValue(ops.max_lead_time_days) || Object.values(ops.groups ?? {}).some(groupHasValues);
+}
+
+// The economics as they go on the wire: an inactive operations block is left
+// out, so a request with no operating costs entered is the legacy request
+// exactly (the same object comes back when nothing changes).
+export function economicsOnWire<E extends Economics | undefined>(e: E): E {
+  if (!e || e.operations === undefined || opsActive(e.operations)) return e;
+  const rest = { ...e };
+  delete rest.operations;
+  return rest;
+}
+
+export const withoutOps = (e: Economics): Economics => {
+  const out = { ...e };
+  delete out.operations;
+  return out;
+};
+
 // ApiError carries the API's {code, message}. retryable marks model errors
 // worth a "Try again".
 export class ApiError extends Error {
@@ -75,6 +109,18 @@ export class ApiError extends Error {
   }
 }
 
+// plan_economics_stale / targets_economics_stale are true-only on the wire (#281):
+// a response that omits one means "fresh", so a merge copies a present true and
+// DELETES a cached one when the key is absent. Never inherits a stale flag.
+export function withStaleFlags(c: CaseResponse, from: Pick<CaseResponse, "plan_economics_stale" | "targets_economics_stale">): CaseResponse {
+  const next = { ...c };
+  if (from.plan_economics_stale === true) next.plan_economics_stale = true;
+  else delete next.plan_economics_stale;
+  if (from.targets_economics_stale === true) next.targets_economics_stale = true;
+  else delete next.targets_economics_stale;
+  return next;
+}
+
 // Folds a money save into a case. The response carries no product or
 // prediction, so those stay; its scenarios (repriced with the saved money)
 // replace the case's when present, else the case's stay. economics_priced was worked out
@@ -83,7 +129,7 @@ export class ApiError extends Error {
 // different case is an error, never a silent success.
 export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
   if (r.case_id !== c.id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
-  const next: CaseResponse = { ...c, economics: r.economics };
+  const next: CaseResponse = withStaleFlags({ ...c, economics: r.economics }, r);
   if (r.scenarios) next.scenarios = r.scenarios;
   delete next.economics_priced;
   return next;
@@ -210,19 +256,29 @@ function post<T>(path: string, body?: unknown, signal?: AbortSignal, method = "P
 
 const enc = encodeURIComponent;
 
+// A request that carries money: an inactive operating-cost block is left out,
+// so with nothing entered the request is the legacy request exactly (#281).
+function wireRequest<B extends { economics?: Economics }>(body: B): B {
+  const e = economicsOnWire(body.economics);
+  return e === body.economics ? body : { ...body, economics: e };
+}
+function noOps<B extends { economics?: Economics }>(body: B): B {
+  return body.economics?.operations === undefined ? body : { ...body, economics: withoutOps(body.economics) };
+}
+
 export const api = {
   listCases: () => call<{ cases: CaseSummary[] }>("/cases"),
   getCase: (id: string) => call<CaseResponse>(`/cases/${enc(id)}`),
-  predict: (body: PredictRequest) => post<CaseResponse>("/cases/predict", body),
+  predict: (body: PredictRequest) => post<CaseResponse>("/cases/predict", wireRequest(body)),
   answers: (id: string, answers: { question: string; answer: string }[]) =>
     post<CaseResponse>(`/cases/${enc(id)}/answers`, { answers }),
   // Cost and time of a plan search before it runs; no model call (D87).
-  planEstimate: (id: string, body: PlanRequest, signal?: AbortSignal) => post<{ case_id?: string; estimate?: PlanEstimate }>(`/cases/${enc(id)}/plan/estimate`, body, signal),
-  plan: (id: string, body: PlanRequest) => post<{ case_id?: string; plan?: PlanResult }>(`/cases/${enc(id)}/plan`, body),
+  planEstimate: (id: string, body: PlanRequest, signal?: AbortSignal) => post<{ case_id?: string; estimate?: PlanEstimate }>(`/cases/${enc(id)}/plan/estimate`, wireRequest(body), signal),
+  plan: (id: string, body: PlanRequest) => post<{ case_id?: string; plan?: PlanResult }>(`/cases/${enc(id)}/plan`, wireRequest(body)),
   exportDraft: (id: string, body: { plan_index?: number; move_key?: string; target?: string; preview?: boolean; format?: "markdown" | "cfr177" }) =>
     post<ExportResponse>(`/cases/${enc(id)}/export`, body),
   scenarios: (id: string, body: { scenarios: { label?: string; facts?: string; product?: Product }[]; economics?: Economics }) =>
-    post<CaseResponse>(`/cases/${enc(id)}/scenarios`, body),
+    post<CaseResponse>(`/cases/${enc(id)}/scenarios`, wireRequest(body)),
   watch: (id: string) => post<CaseResponse>(`/cases/${enc(id)}/watch`),
   watchAll: () => post<WatchRunResponse>("/watch/run"),
   compareTargets: (id: string, targets: string[], signal?: AbortSignal) =>
@@ -249,11 +305,13 @@ export const api = {
     post<BatchResponse>("/cases/batch", { items }, signal),
   rename: (id: string, display_name: string) => post<CaseResponse>(`/cases/${enc(id)}`, { display_name }, undefined, "PATCH"),
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
-  putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economics, undefined, "PUT"),
+  putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economicsOnWire(economics), undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
-  moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", body, signal),
+  // The lookups price duty and group costs only: the operating-cost block is
+  // not sent to them (a draft of it may not validate yet) and is never invented.
+  moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", noOps(body), signal),
   familyCheck: (body: { text: string; product?: Product }, signal?: AbortSignal) => post<FamilyCheckResponse>("/products/family-check", body, signal),
-  costEstimate: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<CostEstimateResponse>("/products/cost-estimate", body, signal),
+  costEstimate: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<CostEstimateResponse>("/products/cost-estimate", noOps(body), signal),
   bomVersion: (id: string, file: File, apply = false) => {
     const form = new FormData();
     form.append("file", file);
@@ -297,7 +355,7 @@ export async function streamPlan(
     res = await fetch(`/api/v1/cases/${enc(id)}/plan`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(wireRequest(body)),
       signal,
     });
   } catch (err) {
@@ -325,7 +383,7 @@ export async function streamPredict(body: PredictRequest, onStage: (s: PredictSt
     res = await fetch("/api/v1/cases/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(wireRequest(body)),
       cache: "no-store",
     });
   } catch {

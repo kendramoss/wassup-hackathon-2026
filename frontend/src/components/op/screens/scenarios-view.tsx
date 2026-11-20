@@ -11,6 +11,10 @@ import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
 import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
+import { opsErrorText } from "../operational-fields";
+import { OpsDetail, OpsScope, OpsUnknown } from "../ops-result";
+import { comparisonNetText, feasibilityText, figureText } from "../ops-view";
+import { opsActive } from "@/lib/ops";
 import { groupName } from "../plan-bits";
 import { ReviewNote } from "../review-note";
 import { exampleDrafts, initialDrafts, scenarioBody, type Draft } from "@/lib/scenario-drafts";
@@ -44,6 +48,9 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
   // entered (for the case it was for), or null for a failed scenario run.
   const [retrySave, setRetrySave] = useState<{ id: string; economics: Economics } | null>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
+  // The server refused the operating-cost inputs (400): the drawer reopens with
+  // what was typed and the message beside the fields it names.
+  const [opsFail, setOpsFail] = useState<{ economics: Economics; message: string } | null>(null);
   // The newest case this screen holds, so a slow money save or re-read never
   // writes back the case from when it started.
   // Kept current by an effect (not during render) and by commit().
@@ -66,11 +73,17 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
     setSaving(true);
     setError(null);
     setRetrySave(null);
+    setOpsFail(null);
     try {
       await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
       setError(err);
       setRetrySave({ id, economics: e });
+      const message = opsErrorText(err);
+      if (message) {
+        setOpsFail({ economics: e, message });
+        setMoneyOpen(true);
+      }
     } finally {
       release();
       setSaving(false);
@@ -162,11 +175,16 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
       </Main>
       {moneyOpen && (
         <MoneyDrawer
-          value={c.economics ?? undefined}
+          value={opsFail?.economics ?? c.economics ?? undefined}
+          serverError={opsFail?.message}
+          readOnly={caseReadOnly(c)}
           priced={pricedEconomics(c)}
           product={product ?? undefined}
           countries={[...new Set((product?.plants ?? []).map((p) => p.country).concat(c.prediction?.origin_country ?? []).filter(Boolean))]}
-          onClose={() => setMoneyOpen(false)}
+          onClose={() => {
+            setMoneyOpen(false);
+            setOpsFail(null);
+          }}
           onSave={saveMoney}
         />
       )}
@@ -207,6 +225,7 @@ function MoneyStrip({ c, onEdit, locked }: { c: CaseResponse; onEdit?: () => voi
       )}
       <DutyBreakdown e={e} className="basis-full" />
       {groups > 0 && <span className="text-dim">{groups} groups costed</span>}
+      {opsActive(c.economics?.operations) && <span className="text-dim">operating costs entered</span>}
       {onEdit ? (
         <button type="button" onClick={onEdit} disabled={locked} title={locked ? "Wait for the current save or prediction to finish" : undefined} className="ml-auto min-h-8 text-ok hover:underline disabled:cursor-not-allowed disabled:text-dim disabled:no-underline">
           {c.economics ? "Edit inputs" : "+ Add money inputs"}
@@ -341,7 +360,20 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
             )}
             <div className="mt-auto border-t border-line pt-3">
               <p className="eyebrow">Net per year · illustrative</p>
-              {cmp && cmp.net_usd !== null && cmp.net_usd !== undefined ? (
+              {cmp?.operations ? (
+                <>
+                  <p className={cx("mt-1 leading-none tracking-[-0.05em]", cmp.net_usd ? "text-[28px]" : "text-[20px]")}>{comparisonNetText(cmp)}</p>
+                  <p className="mt-1.5 text-xs text-dim">
+                    {nothingMoves
+                      ? `Nothing moves, so duty stays at ${cur ?? "the current origin"}'s ${pct(cmp.duty_rate)}`
+                      : `${figureText(cmp.operations.components.duty_effect_per_year, cmp.operations, ["duty"])} duty effect · ${figureText(cmp.operations.components.operating_delta_per_year, cmp.operations, ["operating", "group_cost", "labour", "logistics"])} operating change · ${figureText(cmp.amortized_one_time_usd, cmp.operations, ["amortized_one_time", "one_time", "capex", "retooling", "horizon"])} one-time a year · duty ${pct(cmp.duty_rate)}`}
+                  </p>
+                  {cmp.feasibility && <p className="mt-1 text-xs text-dim">{feasibilityText(cmp.operations)}</p>}
+                  <OpsScope ops={cmp.operations} className="mt-1.5" />
+                  <OpsUnknown ops={cmp.operations} className="mt-1.5" />
+                  <OpsDetail ops={cmp.operations} className="mt-1.5" />
+                </>
+              ) : cmp && cmp.net_usd !== null && cmp.net_usd !== undefined ? (
                 <>
                   <p className="mt-1 text-[28px] leading-none tracking-[-0.05em]">{money(cmp.net_usd)}</p>
                   <p className="mt-1.5 text-xs text-dim">
@@ -416,7 +448,7 @@ function Matrix({ sc: all, c }: { sc: Scenario[]; c: CaseResponse }) {
               <td className="px-3.5 py-2">$0</td>
               {sc.map((s, i) => (
                 <td key={i} className="px-3.5 py-2 font-medium">
-                  {money(s.comparison?.net_usd)}
+                  {comparisonNetText(s.comparison)}
                 </td>
               ))}
             </tr>

@@ -138,7 +138,10 @@ test("plan (legacy result): suggestion note, bounded best-of wording and the pla
 });
 
 test("plan (operations-like result): the same wording, and no future DTO field is read", async () => {
-  const forbidden = new Set(["not_modelled", "notModelled", "operations_mode", "modelled", "objective"]);
+  // #281 reads result.objective on the plan screen on purpose (the result
+  // cards, scripts/ops-results.test.mjs); this test is about the review note
+  // staying independent of any such field, so objective is no longer fenced.
+  const forbidden = new Set(["not_modelled", "notModelled", "operations_mode", "modelled"]);
   const result = new Proxy(planResult({ not_modelled: ["freight"], operations_mode: true, objective: { kind: "modelled" } }), {
     get(target, key, recv) {
       if (forbidden.has(key)) throw new Error(`the note read a future DTO field: ${String(key)}`);

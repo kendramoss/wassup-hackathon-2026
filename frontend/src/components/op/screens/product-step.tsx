@@ -22,6 +22,7 @@ import { predictBody, productSignature, type Carried } from "@/lib/product-facts
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
+import { opsErrorText } from "../operational-fields";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
 import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
@@ -893,6 +894,7 @@ export function ProductStep() {
           value={economics}
           product={product}
           countries={countries}
+          serverError={opsErrorText(error)}
           onClose={() => setMoneyOpen(false)}
           onSave={(e) => {
             autoEcon.current = false;
