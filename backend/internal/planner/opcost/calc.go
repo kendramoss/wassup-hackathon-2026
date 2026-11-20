@@ -2,6 +2,7 @@ package opcost
 
 import (
 	"math"
+	"math/big"
 	"sort"
 )
 
@@ -14,7 +15,7 @@ const (
 )
 
 // read looks at an entered number: nil is missing, a non-finite or oversized
-// one is bad (refused, never summed).
+// one is bad (refused, never summed). Negative zero is read as zero.
 func read(p *float64) (float64, readState) {
 	if p == nil {
 		return 0, rMissing
@@ -26,10 +27,17 @@ func readVal(v float64) (float64, readState) {
 	if !finite(v) || math.Abs(v) > MaxMagnitude {
 		return 0, rBad
 	}
-	return v, rOK
+	return nz(v), rOK
 }
 
 func inRange(f float64) bool { return finite(f) && math.Abs(f) <= MaxMagnitude }
+
+// term is one additive operating term over the moved groups. mod says some
+// moved group models it; u says an entered input it needs is missing or bad.
+type term struct {
+	mod, u               bool
+	delta, from, to, leg float64 // known sums; leg reads an unknown side as 0
+}
 
 type calc struct {
 	in    Input
@@ -38,10 +46,11 @@ type calc struct {
 	nm    map[string]bool
 	stale map[Item]bool
 
-	uGroup, uLabour, uLog, uOne bool
-	gAcc, lAcc, loAcc, otAcc    float64 // known sums
-	gLeg, lLeg, loLeg, otLeg    float64 // legacy sums: an unknown side reads 0
-	oneActive                   bool
+	group, labour, logistics term
+	uOne, modOne             bool
+	otAcc, otLeg             float64
+	oneActive                bool
+	d1, d2                   float64 // abs duty at the current and the new origin
 }
 
 func (c *calc) unknown(cat, factor, group, reason string) {
@@ -51,6 +60,15 @@ func (c *calc) unknown(cat, factor, group, reason string) {
 func (c *calc) fin(factor, group, reason string) { c.unknown("financial", factor, group, reason) }
 
 func (c *calc) notModelled(s string) { c.nm[s] = true }
+
+func (c *calc) hasFinancialUnknown() bool {
+	for u := range c.unk {
+		if u.Category == "financial" {
+			return true
+		}
+	}
+	return false
+}
 
 // entry resolves the user's entry for group g at plant p. usable is false when
 // there is no entry, or its ref no longer describes the product's plant.
@@ -104,7 +122,8 @@ func (c *calc) duty() (float64, bool) {
 	r1, s1 := read(c.in.FromRate)
 	r2, s2 := read(c.in.ToRate)
 	d := round2(v * (r1 - r2))
-	if s1 != rOK || s2 != rOK || !inRange(d) {
+	c.d1, c.d2 = round2(v*r1), round2(v*r2)
+	if s1 != rOK || s2 != rOK || !inRange(d) || !inRange(c.d1) || !inRange(c.d2) {
 		c.fin("duty", "", "arithmetic_range")
 		return 0, false
 	}
@@ -118,7 +137,10 @@ func (c *calc) cost(m Move) {
 	g := c.in.Ops.Groups[m.Group]
 	if m.FromPlant == "" { // ambiguous baseline: never pick a source plant
 		c.fin("operating", m.Group, "ambiguous_baseline")
-		c.uGroup, c.uLabour, c.uLog, c.uOne = true, true, true, true
+		for _, t := range []*term{&c.group, &c.labour, &c.logistics} {
+			t.mod, t.u = true, true
+		}
+		c.modOne, c.uOne = true, true
 		return
 	}
 	// Group cost: knownAddedCost semantics when any group cost was entered.
@@ -133,23 +155,22 @@ func (c *calc) cost(m Move) {
 		if !okT {
 			sT = rMissing
 		}
-		c.part(&c.uGroup, &c.gAcc, &c.gLeg, "group_cost", m.Group, sF, fv, sT, tv)
+		c.part(&c.group, "group_cost", m.Group, sF, fv, sT, tv)
 	} else {
 		c.notModelled("group_cost")
 		if g.CostBasis == BasisIncluded {
 			c.fin("group_cost", m.Group, "missing_group_cost")
-			c.uGroup = true
+			c.group.mod, c.group.u = true, true
 		}
 	}
 	// Labour and logistics: in scope when entered at any plant of the group.
 	for _, f := range []struct {
 		name string
 		get  func(PlantOps) *float64
-		u    *bool
-		a, l *float64
+		t    *term
 	}{
-		{"labour", func(p PlantOps) *float64 { return p.Labour }, &c.uLabour, &c.lAcc, &c.lLeg},
-		{"logistics", func(p PlantOps) *float64 { return p.Logistics }, &c.uLog, &c.loAcc, &c.loLeg},
+		{"labour", func(p PlantOps) *float64 { return p.Labour }, &c.labour},
+		{"logistics", func(p PlantOps) *float64 { return p.Logistics }, &c.logistics},
 	} {
 		entered := false
 		for _, p := range g.Plants {
@@ -162,9 +183,9 @@ func (c *calc) cost(m Move) {
 			c.notModelled(f.name + ":" + m.Group)
 		case !validBasis(g.CostBasis):
 			c.fin(f.name, m.Group, "cost_basis_missing")
-			*f.u = true
+			f.t.mod, f.t.u = true, true
 		case g.CostBasis == BasisIncluded:
-			// a breakdown of the group cost: never added
+			c.notModelled(f.name + "_in_group_cost:" + m.Group) // a breakdown: never added
 		default:
 			fp, _, fu := c.entry(m.Group, m.FromPlant)
 			tp, _, tu := c.entry(m.Group, m.ToPlant)
@@ -176,20 +197,23 @@ func (c *calc) cost(m Move) {
 			if tu {
 				tv, sT = read(f.get(tp))
 			}
-			c.part(f.u, f.a, f.l, f.name, m.Group, sF, fv, sT, tv)
+			c.part(f.t, f.name, m.Group, sF, fv, sT, tv)
 		}
 	}
 	c.oneTime(m, g)
 }
 
-// part records a "to minus from" difference.
-func (c *calc) part(u *bool, acc, leg *float64, factor, group string, sF readState, fv float64, sT readState, tv float64) {
-	*leg += tv - fv
+// part records a "to minus from" difference for a modelled term.
+func (c *calc) part(t *term, factor, group string, sF readState, fv float64, sT readState, tv float64) {
+	t.mod = true
+	t.leg += tv - fv
 	if sF == rOK && sT == rOK {
-		*acc += tv - fv
+		t.delta += tv - fv
+		t.from += fv
+		t.to += tv
 		return
 	}
-	*u = true
+	t.u = true
 	for _, s := range []struct {
 		st     readState
 		reason string
@@ -229,7 +253,7 @@ func (c *calc) oneTime(m Move, g GroupOps) {
 			c.notModelled(f.name + ":" + m.Group)
 			continue
 		}
-		c.oneActive = true
+		c.oneActive, c.modOne = true, true
 		tp, _, tu := c.entry(m.Group, m.ToPlant)
 		st := rMissing
 		var v float64
@@ -252,39 +276,59 @@ func (c *calc) oneTime(m Move, g GroupOps) {
 
 func ptr(f float64) *float64 { r := round2(f); return &r }
 
-// finish assembles components, the net and the legacy figures.
+// finish assembles components, sides, the net and the legacy figures.
 func (c *calc) finish(duty float64, dutyOK bool) {
 	r := &c.res
 	h, hs := read(c.in.Ops.HorizonYears)
 	if hs == rOK && h > 0 {
-		r.HorizonYears = c.in.Ops.HorizonYears
+		hv := h
+		r.HorizonYears = &hv
 	}
 	var cm Components
 	if dutyOK {
 		cm.DutyEffectPerYear = ptr(duty)
 	}
-	set := func(dst **float64, unknown bool, v float64, name string) {
-		if unknown {
-			return
+	// value returns a term's rounded value, or nil when unknown or not modelled.
+	value := func(t term, v float64, name string) *float64 {
+		if !t.mod || t.u {
+			return nil
 		}
 		if !inRange(v) || !inRange(round2(v)) {
 			c.fin(name, "", "arithmetic_range")
-			return
+			return nil
 		}
-		*dst = ptr(v)
+		return ptr(v)
 	}
-	set(&cm.GroupCostDelta, c.uGroup, c.gAcc, "group_cost")
-	set(&cm.LabourDelta, c.uLabour, c.lAcc, "labour")
-	set(&cm.LogisticsDelta, c.uLog, c.loAcc, "logistics")
-	if cm.GroupCostDelta != nil && cm.LabourDelta != nil && cm.LogisticsDelta != nil {
-		set(&cm.OperatingDelta, false, *cm.GroupCostDelta+*cm.LabourDelta+*cm.LogisticsDelta, "operating")
+	cm.GroupCostDelta = value(c.group, c.group.delta, "group_cost")
+	cm.LabourDelta = value(c.labour, c.labour.delta, "labour")
+	cm.LogisticsDelta = value(c.logistics, c.logistics.delta, "logistics")
+	terms := []struct {
+		t        *term
+		v        *float64
+		from, to float64
+	}{{&c.group, cm.GroupCostDelta, c.group.from, c.group.to}, {&c.labour, cm.LabourDelta, c.labour.from, c.labour.to},
+		{&c.logistics, cm.LogisticsDelta, c.logistics.from, c.logistics.to}}
+	// Aggregates sum the modelled terms only.
+	var opSum, fromSum, toSum float64
+	anyMod, anyUnk := false, false
+	for _, x := range terms {
+		anyMod = anyMod || x.t.mod
+		anyUnk = anyUnk || x.t.u || (x.t.mod && x.v == nil)
+		if x.v != nil {
+			opSum += *x.v
+			fromSum += round2(x.from)
+			toSum += round2(x.to)
+		}
 	}
-	set(&cm.OneTimeTotal, c.uOne, c.otAcc, "one_time")
+	if anyMod && !anyUnk {
+		cm.OperatingDelta = value(term{mod: true}, opSum, "operating")
+	}
+	if c.modOne && !c.uOne {
+		cm.OneTimeTotal = value(term{mod: true}, c.otAcc, "one_time")
+	}
 	legAmort := 0.0
 	switch {
-	case c.uOne:
-	case !c.oneActive:
-		cm.AmortizedOneTimePerYear = ptr(0)
+	case c.uOne || !c.oneActive:
 	case hs != rOK || h <= 0:
 		c.fin("horizon", "", "missing_horizon")
 	default:
@@ -301,10 +345,22 @@ func (c *calc) finish(duty float64, dutyOK bool) {
 		}
 	}
 	r.Components = cm
-	if cm.DutyEffectPerYear != nil && cm.OperatingDelta != nil && cm.AmortizedOneTimePerYear != nil {
-		n := round2(*cm.DutyEffectPerYear - *cm.OperatingDelta - *cm.AmortizedOneTimePerYear)
-		if inRange(n) {
+	op, am := derefZero(cm.OperatingDelta), derefZero(cm.AmortizedOneTimePerYear)
+	r.Baseline, r.Proposed = &Side{}, &Side{}
+	if dutyOK {
+		r.Baseline.DutyUSD, r.Proposed.DutyUSD = ptr(c.d1), ptr(c.d2)
+	}
+	if cm.OperatingDelta != nil {
+		r.Baseline.OperatingUSD, r.Proposed.OperatingUSD = ptr(fromSum), ptr(toSum)
+	}
+	r.Proposed.AmortizedOneTimeUSD = cm.AmortizedOneTimePerYear
+	if dutyOK && !c.hasFinancialUnknown() {
+		n := round2(*cm.DutyEffectPerYear - op - am)
+		bt := round2(c.d1 + derefZero(r.Baseline.OperatingUSD))
+		pt := round2(c.d2 + derefZero(r.Proposed.OperatingUSD) + am)
+		if inRange(n) && inRange(bt) && inRange(pt) {
 			r.NetModelledPerYear, r.Priced = &n, true
+			r.Baseline.TotalUSD, r.Proposed.TotalUSD = &bt, &pt
 		} else {
 			c.fin("net", "", "arithmetic_range")
 		}
@@ -313,19 +369,25 @@ func (c *calc) finish(duty float64, dutyOK bool) {
 		r.DutyEffectYear = duty
 	}
 	if r.Priced {
-		r.AddedCostYear, r.NetYear = *cm.OperatingDelta, *r.NetModelledPerYear
+		r.AddedCostYear, r.NetYear = op, *r.NetModelledPerYear
 	} else {
-		if add := round2(c.gLeg + c.lLeg + c.loLeg); inRange(add) {
+		if add := round2(c.group.leg + c.labour.leg + c.logistics.leg); inRange(add) {
 			r.AddedCostYear = add
 		}
 		if n := round2(r.DutyEffectYear - r.AddedCostYear - round2(legAmort)); inRange(n) {
 			r.NetYear = n
 		}
 	}
-	switch {
-	case r.Priced && *r.NetModelledPerYear < 0:
+	if r.Priced && *r.NetModelledPerYear < 0 {
 		r.Decision = DecisionCostlier
 	}
+}
+
+func derefZero(p *float64) float64 {
+	if p == nil {
+		return 0
+	}
+	return *p
 }
 
 // feasibility runs the lead-time and MOQ checks. They only decide the
@@ -388,7 +450,7 @@ func (c *calc) leadTime(limit int) {
 	c.res.Checks = append(c.res.Checks, ch)
 }
 
-func ptrRaw(f float64) *float64 { return &f }
+func ptrRaw(f float64) *float64 { f = nz(f); return &f }
 
 // moq checks the group's order size (demand / orders per year) against the
 // destination plant's minimum order quantity. Units must match exactly.
@@ -448,7 +510,7 @@ func (c *calc) moq(m Move) {
 	if size := d / o; finite(size) {
 		ch.Value = ptrRaw(size)
 	}
-	if d >= q*o {
+	if dec(d).Cmp(new(big.Rat).Mul(dec(q), dec(o))) >= 0 { // exact decimals: 55 = 25 * 2.2
 		ch.Status = Feasible
 	} else {
 		ch.Status, ch.Reason = Infeasible, "order_below_moq"

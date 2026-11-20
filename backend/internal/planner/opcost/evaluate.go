@@ -55,7 +55,14 @@ type Check struct {
 	Reason string   `json:"reason,omitempty"`
 }
 
-// Components are the yearly figures; nil is unknown, 0 is a known zero.
+// Components are the yearly figures of the MODELLED terms. A number, including
+// 0, is a computed value from entered inputs (an entered 0 is a known zero). nil
+// is never a zero: it is either unknown (the term is listed in Result.Unknown,
+// category financial) or not modelled (listed in Result.NotModelled: never
+// entered, or a labour/logistics breakdown already inside the group cost). The
+// aggregates sum only modelled terms, so an aggregate is nil when every term of
+// it is not modelled, and the net treats a not-modelled aggregate as neutral
+// (it adds nothing); that is a scope statement, not an expense of 0.
 type Components struct {
 	DutyEffectPerYear       *float64 `json:"duty_effect_per_year"`
 	GroupCostDelta          *float64 `json:"group_cost_delta_per_year"`
@@ -81,9 +88,28 @@ type Result struct {
 	Checks             []Check    `json:"checks"`
 	Assumptions        []string   `json:"assumptions"`
 	Decision           string     `json:"decision,omitempty"`
-	// The legacy plan fields: known parts, an unknown side read as 0 (as
-	// economics() reads a blank), only meaningful with Priced.
-	DutyEffectYear, AddedCostYear, NetYear float64
+	// Baseline and Proposed are the absolute yearly figures of the MODELLED
+	// terms of the moved groups, from the same arithmetic as the net. Unmoved
+	// groups are identical on both sides and cancel; terms listed in
+	// NotModelled are not in either side.
+	Baseline *Side `json:"baseline"`
+	Proposed *Side `json:"proposed"`
+
+	// The legacy plan fields: known parts, an unknown side read as 0, as
+	// economics() reads a blank. Private mechanics for the planner to copy into
+	// its own fields; never serialised (the authoritative figures are the
+	// nullable ones above).
+	DutyEffectYear, AddedCostYear, NetYear float64 `json:"-"`
+}
+
+// Side is one side of the comparison. nil is not a usable number: look in the
+// result's Unknown (an entered but incomplete input) or NotModelled (never
+// entered, or already inside the group cost).
+type Side struct {
+	DutyUSD             *float64 `json:"duty_usd"`
+	OperatingUSD        *float64 `json:"operating_usd"`
+	AmortizedOneTimeUSD *float64 `json:"amortized_one_time_usd,omitempty"` // proposed only
+	TotalUSD            *float64 `json:"total_usd"`
 }
 
 // Assumptions stated in every result.

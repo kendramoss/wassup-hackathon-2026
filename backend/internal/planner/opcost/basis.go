@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"sort"
 )
 
 // Basis is the canonical form of the operations inputs that change a result:
@@ -39,10 +38,12 @@ type BasisPlant struct {
 
 // CanonicalOps returns the basis of an operations block, nil when inactive,
 // so a case without operations has the same basis bytes as before this field.
+// It reads the normalised copy, so negative zero never reaches a hash.
 func CanonicalOps(o *Operations) *Basis {
 	if !o.Active() {
 		return nil
 	}
+	o = clean(o)
 	b := &Basis{HorizonYears: o.HorizonYears, MaxLeadTimeDays: o.MaxLeadTimeDays}
 	for gid, g := range o.Groups {
 		bg := BasisGroup{CostBasis: g.CostBasis, Unit: trim(g.Unit), Demand: g.AnnualDemandUnits, Orders: g.OrdersPerYear}
@@ -79,37 +80,51 @@ type MoneyBasis struct {
 	Operations           *Operations
 }
 
+// Canon is the one canonical form of the money inputs. Its first four fields
+// and their order are the shape scenarioBasis already hashes (so a case without
+// operations marshals to the same bytes as before); Ops is added only when
+// operations are active. httpapi's scenario basis and the plan stamp both use
+// CanonicalMoney, so they cannot diverge in what they normalise.
+type Canon struct {
+	Illustrative bool
+	Value        float64
+	Rates        map[string]float64
+	Groups       map[string]map[string]float64
+	Ops          *Basis `json:",omitempty"`
+}
+
+// CanonicalMoney normalises: empty maps become nil, negative zero becomes
+// zero, inactive operations become absent. The inputs are never changed.
+func CanonicalMoney(m MoneyBasis) Canon {
+	c := Canon{Illustrative: m.Illustrative, Value: nz(m.AnnualImportValueUSD), Ops: CanonicalOps(m.Operations)}
+	if len(m.DutyRates) > 0 {
+		c.Rates = make(map[string]float64, len(m.DutyRates))
+		for k, v := range m.DutyRates {
+			c.Rates[k] = nz(v)
+		}
+	}
+	for g, plants := range m.GroupCosts {
+		if len(plants) == 0 {
+			continue
+		}
+		if c.Groups == nil {
+			c.Groups = map[string]map[string]float64{}
+		}
+		row := make(map[string]float64, len(plants))
+		for p, v := range plants {
+			row[p] = nz(v)
+		}
+		c.Groups[g] = row
+	}
+	return c
+}
+
 // BasisHash is the one definition of "the money inputs" for the plan stamp.
 // Take it from the raw economics before pricing; the stored case holds the
 // same raw economics, so a fresh hash later is unchanged until the user edits
 // a cost or constraint.
 func BasisHash(m MoneyBasis) string {
-	var rates map[string]float64
-	if len(m.DutyRates) > 0 {
-		rates = m.DutyRates
-	}
-	var groups map[string]map[string]float64
-	keys := make([]string, 0, len(m.GroupCosts))
-	for g := range m.GroupCosts {
-		keys = append(keys, g)
-	}
-	sort.Strings(keys)
-	for _, g := range keys {
-		if len(m.GroupCosts[g]) == 0 {
-			continue
-		}
-		if groups == nil {
-			groups = map[string]map[string]float64{}
-		}
-		groups[g] = m.GroupCosts[g]
-	}
-	b, err := json.Marshal(struct {
-		Illustrative bool
-		Value        float64
-		Rates        map[string]float64
-		Groups       map[string]map[string]float64
-		Ops          *Basis
-	}{m.Illustrative, m.AnnualImportValueUSD, rates, groups, CanonicalOps(m.Operations)})
+	b, err := json.Marshal(CanonicalMoney(m))
 	if err != nil { // non-finite input: validation refuses it; never hash a constant for it
 		return "unhashable"
 	}

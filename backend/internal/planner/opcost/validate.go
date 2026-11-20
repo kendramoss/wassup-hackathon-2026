@@ -2,6 +2,7 @@ package opcost
 
 import (
 	"fmt"
+	"math/big"
 	"sort"
 	"unicode/utf8"
 )
@@ -174,7 +175,7 @@ func (v *validator) group(gid string, g GroupOps, env ValidateEnv) (maxOne float
 			switch {
 			case !ok:
 				v.add("included_requires_group_cost", pp, "an included breakdown needs the group cost entered for this plant")
-			case deref(p.Labour)+deref(p.Logistics) > gc:
+			case cents(new(big.Rat).Add(dec(deref(p.Labour)), dec(deref(p.Logistics)))).Cmp(cents(dec(gc))) > 0:
 				v.add("components_exceed_group_cost", pp, "labour plus logistics exceed the group cost")
 			}
 		}

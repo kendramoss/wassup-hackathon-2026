@@ -142,7 +142,7 @@ func TestIncludedNeverAdds(t *testing.T) {
 	in.plant("fa", "p2", func(p *PlantOps) { p.Capex, p.Retooling = nil, nil })
 	r := eval(t, in)
 	val(t, "operating", r.Components.OperatingDelta, 20_000) // group costs only
-	val(t, "labour", r.Components.LabourDelta, 0)
+	isNil(t, "labour (inside the group cost)", r.Components.LabourDelta)
 	val(t, "net", r.NetModelledPerYear, 180_000)
 	// a breakdown missing at one plant never nulls a known group total
 	in.plant("fa", "p2", func(p *PlantOps) { p.Labour, p.Logistics = nil, nil })
@@ -234,7 +234,7 @@ func TestGroupCostRuleC(t *testing.T) {
 	if !r.Priced || !has(r.NotModelled, "group_cost") {
 		t.Fatalf("no-table mode: %+v", r)
 	}
-	val(t, "group", r.Components.GroupCostDelta, 0)
+	isNil(t, "group (not modelled)", r.Components.GroupCostDelta)
 	val(t, "operating", r.Components.OperatingDelta, -40_000)
 	val(t, "net", r.NetModelledPerYear, 240_000)
 	// explicit zero group costs with labour-only: known
@@ -253,7 +253,7 @@ func TestOnlyHorizonActiveMatchesPlainGroupCosts(t *testing.T) {
 	in.Ops.HorizonYears = f(5)
 	r := eval(t, in)
 	val(t, "net", r.NetModelledPerYear, 180_000)
-	val(t, "amortized", r.Components.AmortizedOneTimePerYear, 0)
+	isNil(t, "amortized (not modelled)", r.Components.AmortizedOneTimePerYear)
 	if r.Assessed || r.Feasibility != "" || r.Decision != "" {
 		t.Fatalf("no constraint is active: %+v", r)
 	}
@@ -294,7 +294,7 @@ func TestSunkBaselineCapital(t *testing.T) {
 		t.Fatalf("baseline-only capex must not null the target: %+v", r.Unknown)
 	}
 	val(t, "net", r.NetModelledPerYear, 180_000)
-	val(t, "amortized", r.Components.AmortizedOneTimePerYear, 0)
+	isNil(t, "amortized (baseline capital only)", r.Components.AmortizedOneTimePerYear)
 	if len(r.SunkIgnored) != 2 || r.SunkIgnored[0] != (Item{"fa", "p1", "capex_usd"}) || r.SunkIgnored[1] != (Item{"fa", "p1", "retooling_usd"}) {
 		t.Fatalf("sunk_ignored: %+v", r.SunkIgnored)
 	}

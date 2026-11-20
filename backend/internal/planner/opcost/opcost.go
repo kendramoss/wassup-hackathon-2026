@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"strings"
 )
@@ -72,14 +73,25 @@ type PlantOps struct {
 	Sources      map[string]string `json:"sources,omitempty"`
 }
 
-// Decode reads an operations block strictly: an unknown field is an error, so
-// a typo can never silently fall back to legacy mode. "null" decodes to nil.
+// Decode reads exactly one operations block, strictly. Each failure carries a
+// slug: unknown_field (a field this API does not have), trailing_data (anything
+// after the one JSON value) or invalid_json (syntax, wrong type, out of range
+// number). "null" decodes to nil. This is the public pure decoder: callers
+// must not assume an outer HTTP decoder has already checked the block.
 func Decode(data []byte) (*Operations, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
 	var o *Operations
 	if err := dec.Decode(&o); err != nil {
-		return nil, fmt.Errorf("operations.unknown_field: %w", err)
+		slug := "invalid_json"
+		if strings.Contains(err.Error(), "unknown field") {
+			slug = "unknown_field"
+		}
+		return nil, fmt.Errorf("operations.%s: %w", slug, err)
+	}
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); err != io.EOF {
+		return nil, fmt.Errorf("operations.trailing_data: only one JSON value is allowed")
 	}
 	return o, nil
 }
@@ -108,12 +120,69 @@ func (o *Operations) Active() bool {
 	return false
 }
 
-// Normalize returns the block to store: nil when inactive.
+// Normalize returns the block to store: nil when inactive, else a deep copy in
+// which every entered number is canonical (-0 becomes 0; an entered 0 stays
+// non-nil, an absent field stays nil). The caller's data is never changed.
 func Normalize(o *Operations) *Operations {
 	if !o.Active() {
 		return nil
 	}
-	return o
+	return clean(o)
+}
+
+// nz canonicalises negative zero. It is the one place that does so.
+func nz(f float64) float64 {
+	if f == 0 {
+		return 0
+	}
+	return f
+}
+
+func nzp(p *float64) *float64 {
+	if p == nil {
+		return nil
+	}
+	v := nz(*p)
+	return &v
+}
+
+func nip(p *int) *int {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+
+func clean(o *Operations) *Operations {
+	c := &Operations{HorizonYears: nzp(o.HorizonYears), MaxLeadTimeDays: nip(o.MaxLeadTimeDays), Note: o.Note}
+	if o.Groups == nil {
+		return c
+	}
+	c.Groups = make(map[string]GroupOps, len(o.Groups))
+	for gid, g := range o.Groups {
+		cg := GroupOps{CostBasis: g.CostBasis, Unit: g.Unit, AnnualDemandUnits: nzp(g.AnnualDemandUnits), OrdersPerYear: nzp(g.OrdersPerYear)}
+		if g.Plants != nil {
+			cg.Plants = make(map[string]PlantOps, len(g.Plants))
+			for pid, p := range g.Plants {
+				cp := PlantOps{Labour: nzp(p.Labour), Logistics: nzp(p.Logistics), Capex: nzp(p.Capex), Retooling: nzp(p.Retooling),
+					LeadTimeDays: nip(p.LeadTimeDays), MOQUnits: nzp(p.MOQUnits), MOQUnit: p.MOQUnit}
+				if p.Ref != nil {
+					r := *p.Ref
+					cp.Ref = &r
+				}
+				if p.Sources != nil {
+					cp.Sources = make(map[string]string, len(p.Sources))
+					for k, v := range p.Sources {
+						cp.Sources[k] = v
+					}
+				}
+				cg.Plants[pid] = cp
+			}
+		}
+		c.Groups[gid] = cg
+	}
+	return c
 }
 
 func trim(s string) string { return strings.TrimSpace(s) }
@@ -123,11 +192,7 @@ func finite(f float64) bool { return !math.IsNaN(f) && !math.IsInf(f, 0) }
 // round2 rounds to cents (half away from zero in float64; not a decimal-exact
 // claim) and never returns negative zero.
 func round2(f float64) float64 {
-	r := math.Round(f*100) / 100
-	if r == 0 {
-		return 0
-	}
-	return r
+	return nz(math.Round(f*100) / 100)
 }
 
 func fold(s string) string { return strings.ToLower(strings.Join(strings.Fields(s), " ")) }
