@@ -146,7 +146,7 @@ test("scenarios with saved scenarios: Edit scenarios is gated for a read-only ca
 
 test("compare 403 on an enabled control: honest message, one attempt, case re-read and now gated", async () => {
   const forbidden = () => json({ code: "forbidden", message: "your role in this workspace does not allow this; ask a workspace admin for editor access" }, 403);
-  const app = await screen(compare, { case: { can_write: true }, serve: (u, m) => (u.endsWith("/compare-targets") ? forbidden() : null) });
+  const app = await screen(compare, { case: { can_write: true }, serve: (u) => (u.endsWith("/compare-targets") ? forbidden() : null) });
   const gets = () => app.calls.filter((x) => x.m === "GET" && x.u.endsWith("/cases/c1")).length;
   const before = gets();
   app.c.current = caseJson({ can_write: false });
