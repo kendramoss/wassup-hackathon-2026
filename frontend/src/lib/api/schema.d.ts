@@ -2161,7 +2161,7 @@ export interface paths {
         };
         /**
          * Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
-         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it looks at the newest 2000 events for intents older than 5 minutes with no completion or failure (an in-doubt write), at most 50 seqs. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
+         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes with no completion or failure anywhere in the verified retained range (an in-doubt write), at most 50 seqs; its own `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
          */
         get: {
             parameters: {
@@ -2465,7 +2465,7 @@ export interface components {
         AuditPhase: "intent" | "completion" | "single";
         /** @enum {string} */
         AuditOutcome: "allowed" | "denied" | "failed";
-        /** @description One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. A field shown as empty is an empty string, not absent. */
+        /** @description One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. Fields with no value are omitted from the JSON. */
         AuditEvent: {
             /** @description `ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform` */
             tenant: string;
@@ -2478,28 +2478,28 @@ export interface components {
             time: string;
             /** @enum {string} */
             actor_kind: "user" | "apikey" | "admin" | "anonymous" | "system";
-            /** @description A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; empty for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess. */
-            actor: string;
+            /** @description A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; omitted for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess. */
+            actor?: string;
             /** @description The affected member's pseudonym for invite */
-            target: string;
+            target?: string;
             action: components["schemas"]["AuditAction"];
             phase: components["schemas"]["AuditPhase"];
             outcome: components["schemas"]["AuditOutcome"];
             /**
-             * @description Empty when allowed
+             * @description Omitted when allowed
              * @enum {string}
              */
-            reason: "" | "forbidden" | "hidden" | "unauthenticated" | "invalid_credential" | "invalid_input" | "conflict" | "not_found" | "upstream" | "unavailable" | "internal" | "superseded" | "audit_unavailable" | "rate_limited";
-            /** @description A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or empty */
-            detail: string;
-            /** @description A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; empty when none. Never a name. */
-            object: string;
+            reason?: "forbidden" | "hidden" | "unauthenticated" | "invalid_credential" | "invalid_input" | "conflict" | "not_found" | "upstream" | "unavailable" | "internal" | "superseded" | "audit_unavailable" | "rate_limited";
+            /** @description A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or omitted */
+            detail?: string;
+            /** @description A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; omitted when none. Never a name. */
+            object?: string;
             /** @description The route pattern */
-            route: string;
+            route?: string;
             /** @description The server-generated request id, or `h_` plus a hash of a client-supplied one */
-            request_id: string;
-            /** @description On a completion or failure, the seq of its intent; 0 when the intent could not be written or the event is not a completion */
-            ref: number;
+            request_id?: string;
+            /** @description On a completion or failure, the seq of its intent; omitted when the event has none, including when the intent could not be written */
+            ref?: number;
             /** @description Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide. */
             suppressed?: number;
             /** @description The previous event's hash; 64 zeros for seq 1 */
@@ -2538,11 +2538,14 @@ export interface components {
                 /** @enum {string} */
                 kind: "hash_mismatch" | "prev_mismatch" | "seq_gap" | "seq_reorder" | "time_regression" | "head_mismatch" | "checkpoint_mismatch" | "prefix_unanchored" | "tenant_mismatch" | "invalid_event";
             }[];
-            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure in the newest 2000 events. */
+            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure anywhere in the verified retained range. `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound, never a claimed total. */
             unresolved_intents?: {
+                /** @description A lower bound when `complete` is false */
                 count: number;
                 /** @description At most 50 */
                 seqs: number[];
+                /** @description False when the state could not be carried across pages; `count` is then only a lower bound */
+                complete: boolean;
             };
         };
         /** @description A stored API key; the secret and its hash are never returned (D69). */
@@ -3067,7 +3070,7 @@ export interface components {
             name?: string;
             made_in?: string;
             plant?: string;
-            /** @description template group id, or empty */
+            /** @description template group id, or omitted */
             group?: string;
             /** @description 1-based paragraph of the facts; 0 if the model cited none */
             source_paragraph?: number;
@@ -3215,7 +3218,7 @@ export interface components {
     };
     requestBodies: never;
     headers: {
-        /** @description Set to `completion-not-recorded` on a response to an audited write whose completion record could not be written after the change was made (the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled. */
+        /** @description Set to `completion-not-recorded` on a response from an audited route whose completion or single event could not be stored (for a write, the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled. */
         AuditIncomplete: "completion-not-recorded";
     };
     pathItems: never;

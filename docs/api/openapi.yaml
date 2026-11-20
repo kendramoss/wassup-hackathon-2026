@@ -35,7 +35,7 @@ info:
 
     Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
 
-    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
+    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, and only as a lower bound when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
@@ -1196,7 +1196,7 @@ paths:
   /v1/audit/verify:
     get:
       summary: Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
-      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it looks at the newest 2000 events for intents older than 5 minutes with no completion or failure (an in-doubt write), at most 50 seqs. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
+      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call: when `complete` is false, call again with `next_cursor` and keep going until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes with no completion or failure anywhere in the verified retained range (an in-doubt write), at most 50 seqs; its own `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
       security: [{ AdminToken: [] }, {}]
       parameters:
         - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in.", schema: { type: string } }
@@ -1302,7 +1302,7 @@ components:
       schema: { type: string }
   headers:
     AuditIncomplete:
-      description: "Set to `completion-not-recorded` on a response to an audited write whose completion record could not be written after the change was made (the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled."
+      description: "Set to `completion-not-recorded` on a response from an audited route whose completion or single event could not be stored (for a write, the change stands and the response status is the true one). Not sent on a Server-Sent-Events response, whose headers are committed before the work runs. Present only when the audit trail is enabled."
       schema: { type: string, enum: [completion-not-recorded] }
   responses:
     Error:
@@ -1394,27 +1394,27 @@ components:
       enum: [allowed, denied, failed]
     AuditEvent:
       type: object
-      description: "One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. A field shown as empty is an empty string, not absent."
-      required: [tenant, seq, time, actor_kind, actor, target, action, phase, outcome, reason, detail, object, route, request_id, ref, prev_hash, hash]
+      description: "One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. Fields with no value are omitted from the JSON."
+      required: [tenant, seq, time, actor_kind, action, phase, outcome, prev_hash, hash]
       properties:
         tenant: { type: string, description: "`ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform`" }
         seq: { type: integer, description: Per-tenant sequence, total and deterministic }
         time: { type: string, format: date-time, description: Server clock in microseconds; non-decreasing within a tenant }
         actor_kind: { type: string, enum: [user, apikey, admin, anonymous, system] }
-        actor: { type: string, description: "A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; empty for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess." }
-        target: { type: string, description: The affected member's pseudonym for invite, join, role change and removal; otherwise empty }
+        actor: { type: string, description: "A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; omitted for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess." }
+        target: { type: string, description: The affected member's pseudonym for invite, join, role change and removal; otherwise omitted }
         action: { $ref: "#/components/schemas/AuditAction" }
         phase: { $ref: "#/components/schemas/AuditPhase" }
         outcome: { $ref: "#/components/schemas/AuditOutcome" }
         reason:
           type: string
-          enum: ["", forbidden, hidden, unauthenticated, invalid_credential, invalid_input, conflict, not_found, upstream, unavailable, internal, superseded, audit_unavailable, rate_limited]
-          description: Empty when allowed
-        detail: { type: string, description: "A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or empty" }
-        object: { type: string, description: "A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; empty when none. Never a name." }
+          enum: [forbidden, hidden, unauthenticated, invalid_credential, invalid_input, conflict, not_found, upstream, unavailable, internal, superseded, audit_unavailable, rate_limited]
+          description: Omitted when allowed
+        detail: { type: string, description: "A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or omitted" }
+        object: { type: string, description: "A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; omitted when none. Never a name." }
         route: { type: string, description: The route pattern, with path parameters unexpanded }
         request_id: { type: string, description: "The server-generated request id, or `h_` plus a hash of a client-supplied one" }
-        ref: { type: integer, description: "On a completion or failure, the seq of its intent; 0 when the intent could not be written or the event is not a completion" }
+        ref: { type: integer, description: "On a completion or failure, the seq of its intent; omitted when the event has none, including when the intent could not be written" }
         suppressed: { type: integer, description: "Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide." }
         prev_hash: { type: string, description: "The previous event's hash; 64 zeros for seq 1" }
         hash: { type: string, description: "SHA-256 over a fixed encoding of the other fields" }
@@ -1455,11 +1455,12 @@ components:
               kind: { type: string, enum: [hash_mismatch, prev_mismatch, seq_gap, seq_reorder, time_regression, head_mismatch, checkpoint_mismatch, prefix_unanchored, tenant_mismatch, invalid_event] }
         unresolved_intents:
           type: object
-          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure in the newest 2000 events."
-          required: [count, seqs]
+          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes with no completion or failure anywhere in the verified retained range. `complete` is false when too many intents were open at a page boundary to carry across pages, and `count` is then only a lower bound, never a claimed total."
+          required: [count, seqs, complete]
           properties:
-            count: { type: integer }
+            count: { type: integer, description: "A lower bound when `complete` is false" }
             seqs: { type: array, items: { type: integer }, description: At most 50 }
+            complete: { type: boolean, description: "False when the state could not be carried across pages; `count` is then only a lower bound" }
     APIKey:
       type: object
       description: A stored API key; the secret and its hash are never returned (D69).
@@ -1905,7 +1906,7 @@ components:
         name: { type: string }
         made_in: { type: string }
         plant: { type: string }
-        group: { type: string, description: "template group id, or empty" }
+        group: { type: string, description: "template group id, or omitted" }
         source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none" }
         group_guessed: { type: boolean, description: "no valid group from the text; pick one" }
     TargetSummary:
