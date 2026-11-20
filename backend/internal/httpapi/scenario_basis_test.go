@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -194,21 +195,49 @@ func TestScenarioReadRecomputeDoesNotMutateStoredCostsAndKeepsUnknown(t *testing
 	if after.Economics == nil || after.Economics.AnnualImportValueUSD != 100000 || after.Scenarios[0].Product == nil {
 		t.Errorf("costs or scenario definition lost: %+v", after)
 	}
-	// Remove the Thailand rate: the saving is unknown, not 0.
-	if err := func() error {
-		_, err := mem.Update(t.Context(), id, func(c *store.Case) error {
-			c.Economics.DutyRates = map[string]float64{"China": 0.25}
-			c.Scenarios[0].Basis = "old"
-			return nil
-		})
-		return err
-	}(); err != nil {
+}
+
+// The unknown-rate branch, reached for real: no tariff table is wired, so
+// nothing can fill the missing Thailand rate (with the table, priced() fills
+// MFN rates and a removed rate is silently restored). The saving, net and
+// duty rate are null, never a false $0, on the save, after a money save and on
+// a legacy ("" basis) read, and the definition stays.
+func TestUnknownRateStaysNullNotZero(t *testing.T) {
+	mem := store.NewMemory()
+	hs := bomHarness(t, func(d *Deps) { d.Cases = mem; d.Duty = nil; d.LiveMFN = nil })
+	id, _ := moneySeed(t, hs)
+	assertUnknown := func(where string, c map[string]any) {
+		t.Helper()
+		sc := scenarioOf(t, c)
+		cmp := comparisonOf(sc)
+		if cmp == nil || sc["product"] == nil {
+			t.Fatalf("%s: comparison or definition missing: %v", where, sc)
+		}
+		for _, k := range []string{"duty_rate", "duty_savings_usd", "net_usd", "annual_duty_usd"} {
+			if v, present := cmp[k]; present && v != nil {
+				t.Errorf("%s: %s = %v, want null (rate unknown)", where, k, v)
+			}
+		}
+	}
+	// The money save drops the Thailand rate.
+	out := putEcon(t, hs, id, `{"illustrative":true,"annual_import_value_usd":2000000,"duty_rates":{"China":0.25},"group_costs":{"motor_fan_assembly":{"cn":100000,"th":220000}}}`)
+	assertUnknown("PUT response", map[string]any{"scenarios": out["scenarios"]})
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	assertUnknown("GET", got)
+	// Legacy: stored with no basis, recomputed on first read (no fetch).
+	if _, err := mem.Update(t.Context(), id, func(c *store.Case) error {
+		c.Scenarios[0].Basis = ""
+		return nil
+	}); err != nil {
 		t.Fatal(err)
 	}
-	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
-	cmp := comparisonOf(scenarioOf(t, got))
-	if cmp == nil || (cmp["duty_savings_usd"] != nil && numOr(cmp, "duty_savings_usd", 0) == 0 && cmp["origin_differs_from_current"] == true) {
-		t.Errorf("unknown rate shown as a known value: %v", cmp)
+	_, got = hs.do(t, "GET", "/v1/cases/"+id, "")
+	assertUnknown("legacy GET", got)
+	// Control: giving the rate back prices it again.
+	putEcon(t, hs, id, econ2M)
+	_, got = hs.do(t, "GET", "/v1/cases/"+id, "")
+	if n := netOf(t, got); n != 380000 {
+		t.Errorf("net after the rate is back = %v", n)
 	}
 }
 
@@ -233,5 +262,47 @@ func TestScenarioBasisTracksBaselineNotNoise(t *testing.T) {
 		if scenarioBasis(v) == b0 {
 			t.Errorf("%s did not change the basis", name)
 		}
+	}
+}
+
+// The basis covers the economics a comparison is priced with, and only that.
+func TestScenarioBasisTracksEffectiveEconomics(t *testing.T) {
+	mk := func(mut func(*planner.Economics)) store.Case {
+		e := planner.Economics{Illustrative: true, AnnualImportValueUSD: 2e6,
+			DutyRates:  map[string]float64{"China": 0.25, "Thailand": 0},
+			GroupCosts: map[string]map[string]float64{"g": {"cn": 1, "th": 2}}}
+		if mut != nil {
+			mut(&e)
+		}
+		return store.Case{ID: "x", Date: "2026-01-14", Facts: "f", Economics: &e}
+	}
+	b0 := scenarioBasis(mk(nil))
+	if scenarioBasis(store.Case{ID: "x", Date: "2026-01-14", Facts: "f"}) == b0 {
+		t.Error("no economics equals some economics")
+	}
+	for name, mut := range map[string]func(*planner.Economics){
+		"value":        func(e *planner.Economics) { e.AnnualImportValueUSD = 4e6 },
+		"rate":         func(e *planner.Economics) { e.DutyRates["Thailand"] = 0.05 },
+		"rate removed": func(e *planner.Economics) { delete(e.DutyRates, "Thailand") },
+		"group cost":   func(e *planner.Economics) { e.GroupCosts["g"]["th"] = 3 },
+		"illustrative": func(e *planner.Economics) { e.Illustrative = false },
+	} {
+		if scenarioBasis(mk(mut)) == b0 {
+			t.Errorf("%s did not change the basis", name)
+		}
+	}
+	for name, mut := range map[string]func(*planner.Economics){
+		"note":             func(e *planner.Economics) { e.DutyRatesNote = "n" },
+		"table provenance": func(e *planner.Economics) { e.DutyRatesFromTable = []string{"China"} },
+		"empty group map":  func(e *planner.Economics) { e.GroupCosts["h"] = nil },
+	} {
+		if scenarioBasis(mk(mut)) != b0 {
+			t.Errorf("%s changed the basis", name)
+		}
+	}
+	nilAns, emptyAns := mk(nil), mk(nil)
+	emptyAns.Answers = []store.Answer{}
+	if scenarioBasis(nilAns) != scenarioBasis(emptyAns) {
+		t.Error("nil and empty answers differ")
 	}
 }

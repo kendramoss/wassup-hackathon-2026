@@ -13,20 +13,56 @@ import (
 
 // scenarioBasis stamps what a scenario comparison is worked out against: the
 // case's product, facts, answers, current origin (the known ruling's, else the
-// predicted one), family, date and excluded rulings. It builds on
-// inputFingerprint, so there is one definition of "the inputs".
-//
-// Extension point (#347): the money a comparison is priced with (economics:
-// import value, duty rates, group costs) belongs in the struct below, so one
-// helper decides whether any saved comparison is still current.
+// predicted one), family, date and excluded rulings, plus the money it is
+// priced with (pricedMoney). It builds on inputFingerprint, so there is one
+// definition of "the inputs", and it is the one helper that decides whether
+// any saved comparison is still current.
 func scenarioBasis(c store.Case) string {
+	answers := c.Answers
+	if len(answers) == 0 { // stores differ on nil and empty
+		answers = nil
+	}
 	b, _ := json.Marshal(struct {
 		Inputs  string
 		Answers []store.Answer
 		Origin  string
-	}{inputFingerprint(c), c.Answers, baselineOrigin(c)})
+		Money   *pricedMoney
+	}{inputFingerprint(c), answers, baselineOrigin(c), moneyBasis(c.Economics)})
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:])
+}
+
+// pricedMoney is the part of the case's economics planner.Compare reads: the
+// annual import value, the duty rate per origin, the group costs, and the
+// illustrative flag the comparison carries. Derived notes and provenance lists
+// (what filled a rate) are not inputs, so they are left out. Rates the tariff
+// table or the live lookup fill in at pricing time are a function of the
+// product's HTS, which the inputs already cover.
+type pricedMoney struct {
+	Illustrative bool
+	Value        float64
+	Rates        map[string]float64
+	Groups       map[string]map[string]float64
+}
+
+func moneyBasis(e *planner.Economics) *pricedMoney {
+	if e == nil {
+		return nil
+	}
+	m := &pricedMoney{Illustrative: e.Illustrative, Value: e.AnnualImportValueUSD}
+	if len(e.DutyRates) > 0 {
+		m.Rates = e.DutyRates
+	}
+	for g, plants := range e.GroupCosts {
+		if len(plants) == 0 {
+			continue
+		}
+		if m.Groups == nil {
+			m.Groups = map[string]map[string]float64{}
+		}
+		m.Groups[g] = plants
+	}
+	return m
 }
 
 // baselineOrigin is the origin a scenario is compared with: CBP's known one,
@@ -87,5 +123,19 @@ func (a *api) currentScenarios(c store.Case) []store.Scenario {
 func dropScenarioComparisons(c *store.Case) {
 	for i := range c.Scenarios {
 		c.Scenarios[i].Comparison, c.Scenarios[i].Basis = nil, ""
+	}
+}
+
+// repriceScenarios brings the stored comparisons up to date with the case as
+// it now stands (after its economics changed): only scenarios stamped with
+// another basis are recomputed, from cached rates (no network), so an
+// unchanged save leaves them as they were.
+func (a *api) repriceScenarios(ctx context.Context, c *store.Case) {
+	basis := scenarioBasis(*c)
+	for _, s := range c.Scenarios {
+		if s.Basis != basis {
+			a.compareScenarios(ctx, *c, c.Scenarios, false)
+			return
+		}
 	}
 }
