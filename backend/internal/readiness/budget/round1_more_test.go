@@ -38,26 +38,39 @@ func TestPermitUnforgeable(t *testing.T) {
 	}
 	// API shape: no exported way to build or attach one, no exported fields.
 	fset := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fset, ".", func(fi os.FileInfo) bool { return !strings.HasSuffix(fi.Name(), "_test.go") }, 0)
+	entries, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, pkg := range pkgs {
-		for _, f := range pkg.Files {
-			for _, d := range f.Decls {
-				switch d := d.(type) {
-				case *ast.FuncDecl:
-					if d.Recv == nil && d.Name.IsExported() && (strings.Contains(d.Name.Name, "Permit") && d.Name.Name != "PermitFrom") {
-						t.Errorf("exported permit constructor/attacher %s", d.Name.Name)
-					}
-				case *ast.GenDecl:
-					for _, sp := range d.Specs {
-						if ts, ok := sp.(*ast.TypeSpec); ok && ts.Name.Name == "Permit" {
-							for _, fld := range ts.Type.(*ast.StructType).Fields.List {
-								for _, n := range fld.Names {
-									if n.IsExported() {
-										t.Errorf("Permit has exported field %s", n.Name)
-									}
+	var files []*ast.File
+	for _, e := range entries {
+		name := e.Name()
+		if e.IsDir() || !strings.HasSuffix(name, ".go") || strings.HasSuffix(name, "_test.go") {
+			continue
+		}
+		f, err := parser.ParseFile(fset, name, nil, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		files = append(files, f)
+	}
+	if len(files) == 0 {
+		t.Fatal("no non-test source files parsed")
+	}
+	for _, f := range files {
+		for _, d := range f.Decls {
+			switch d := d.(type) {
+			case *ast.FuncDecl:
+				if d.Recv == nil && d.Name.IsExported() && (strings.Contains(d.Name.Name, "Permit") && d.Name.Name != "PermitFrom") {
+					t.Errorf("exported permit constructor/attacher %s", d.Name.Name)
+				}
+			case *ast.GenDecl:
+				for _, sp := range d.Specs {
+					if ts, ok := sp.(*ast.TypeSpec); ok && ts.Name.Name == "Permit" {
+						for _, fld := range ts.Type.(*ast.StructType).Fields.List {
+							for _, n := range fld.Names {
+								if n.IsExported() {
+									t.Errorf("Permit has exported field %s", n.Name)
 								}
 							}
 						}

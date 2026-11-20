@@ -203,8 +203,10 @@ func TestDenyFloodLimiterIsBoundedAndCountsHonestly(t *testing.T) {
 			t.Fatalf("denial %d within the cap was dropped", i)
 		}
 	}
-	if deny(tenA) || deny(tenA) {
-		t.Fatal("denials over the per-tenant cap were written")
+	for i := 0; i < 2; i++ {
+		if deny(tenA) {
+			t.Fatalf("denial %d over the per-tenant cap was written", i)
+		}
 	}
 	c.advance(61 * time.Second)
 	if !deny(tenA) {

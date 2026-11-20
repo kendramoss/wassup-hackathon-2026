@@ -306,7 +306,7 @@ func TestGuardedGatewayEndToEnd(t *testing.T) {
 		hits.Add(1)
 		switch mode {
 		case "504":
-			http.Error(w, "echo "+key, 504)
+			http.Error(w, "echo "+key, http.StatusGatewayTimeout)
 		case "reasoning":
 			io.WriteString(w, `{"model":"m","choices":[{"message":{"content":"x"}}],"usage":{"prompt_tokens":10,"completion_tokens":2,"total_tokens":9000}}`)
 		default:
