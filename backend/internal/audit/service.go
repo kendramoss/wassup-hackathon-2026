@@ -377,6 +377,9 @@ func (s *Service) verifyOnce(ctx context.Context, tenant string, cur *Cursor) (V
 		anchor, anchored := anchorFor(cp)
 		chk = &chainCheck{tenant: tenant, anchored: anchored, fromCP: cp != nil, expect: anchor}
 	} else {
+		if cur.Upper == 0 { // a cursor from before verification was snapshotted: no frozen head to judge against
+			return VerifyResult{}, false, ErrBadQuery
+		}
 		upper, upperHash = cur.Upper, cur.UpperHash
 		asOf = time.UnixMicro(cur.AsOfUS).UTC() // the age cutoff does not move between pages
 		if cpSeq(cp) > cur.Seq {                // the sweeper removed events this verification still has to read
@@ -403,7 +406,7 @@ func (s *Service) verifyOnce(ctx context.Context, tenant string, cur *Cursor) (V
 		}
 		chk.feed(e)
 	}
-	head2, cp2, err := s.store.State(ctx, tenant)
+	_, cp2, err := s.store.State(ctx, tenant)
 	if err != nil {
 		return VerifyResult{}, false, err
 	}
@@ -422,9 +425,32 @@ func (s *Service) verifyOnce(ctx context.Context, tenant string, cur *Cursor) (V
 	}
 	if complete {
 		chk.finish(Head{Seq: upper, Hash: upperHash}, cp2)
-		// The live head must not have gone backwards from the snapshot.
-		if head2.Seq < upper || (head2.Seq == upper && head2.Hash != upperHash) {
-			chk.add(head2.Seq, FindingHead)
+		// Tail consistency against the LIVE head. First look at what lies past
+		// the snapshot (a page that ended exactly at the snapshot has not
+		// observed it), THEN read the head again: a legitimate concurrent
+		// append moves the head atomically with its event, so the head read
+		// after the peek is at or beyond anything the peek saw. An event past
+		// a head that does not reach it is an orphan (or the head was rolled
+		// back): a finding, whatever its sequence number.
+		tail, err := s.store.Range(ctx, tenant, Range{Cursor: upper, Limit: 1})
+		if err != nil {
+			return VerifyResult{}, false, err
+		}
+		live, _, err := s.store.State(ctx, tenant)
+		if err != nil {
+			return VerifyResult{}, false, err
+		}
+		if live.Seq < upper || (live.Seq == upper && live.Hash != upperHash && !(upper == 0 && live.Hash == "")) {
+			chk.add(live.Seq, FindingHead) // the head went backwards, or changed at the same seq
+		}
+		if len(tail) > 0 {
+			t := tail[0]
+			if t.Seq == upper+1 && t.PrevHash != upperHash {
+				chk.add(t.Seq, FindingPrev) // a real append always chains to the head it was sealed on
+			}
+			if live.Seq < t.Seq || (live.Seq == t.Seq && live.Hash != t.Hash) {
+				chk.add(t.Seq, FindingHead)
+			}
 		}
 		un, err := s.unresolved(ctx, tenant, chk, asOf)
 		if err != nil {
