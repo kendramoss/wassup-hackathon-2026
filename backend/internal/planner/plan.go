@@ -275,7 +275,9 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	complete := func(i int, pl domain.Plan) {
 		<-baseReady
 		if baseErr == nil && pl.Prediction.Origin != "" { // no origin when the prediction failed (D88)
-			pl.DutyEffectYear, pl.AddedCostYear, pl.NetPriced = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
+			var priced bool
+			pl.DutyEffectYear, pl.AddedCostYear, priced = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
+			pl.NetPriced = &priced
 			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 		}
 		mu.Lock()
@@ -334,7 +336,9 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			pl, err := p.check(ctx, req, tm, m, Describe(req.Product, tm, m), baseFacts, target, knownA, knownRuling, addEngine, addVerifier)
 			if err == nil { // a failed followed move leaves the search as it was
 				pl.FromAdvice = true
-				pl.DutyEffectYear, pl.AddedCostYear, pl.NetPriced = economics(req, m, baseOrigin, pl.Prediction.Origin)
+				var priced bool
+				pl.DutyEffectYear, pl.AddedCostYear, priced = economics(req, m, baseOrigin, pl.Prediction.Origin)
+				pl.NetPriced = &priced
 				pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 				if pl.Shown {
 					res.Plans = append(res.Plans, pl)
@@ -482,16 +486,21 @@ func (p *Planner) caseFor(req Request, key, facts string) domain.Case {
 
 // economics returns the annual duty effect of the origin change and the
 // annual added cost of the move, from the user's inputs. priced says the
-// duty side could be worked out: an annual import value and a rate for both
-// origins. When it is false the 0 duty effect means "unknown", not "no
-// saving". Missing group costs stay the supported no-cost mode (added cost 0)
-// and do not change priced.
+// money could be worked out: an annual import value, a rate for both origins
+// and, when any group costs were entered, a cost at both plants of every
+// moved group (knownAddedCost, as the comparison requires). With no group
+// costs at all it is the supported no-cost mode and duty alone prices it. The
+// figures themselves are computed as before (blank costs read as 0 here, so
+// ranking is unchanged); priced only says whether they can be vouched for.
 func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEffect, addedCost float64, priced bool) {
 	e := req.Economics
 	if r1, ok1 := e.DutyRate(fromOrigin); ok1 {
 		if r2, ok2 := e.DutyRate(toOrigin); ok2 {
 			dutyEffect = e.AnnualImportValueUSD * (r1 - r2)
 			priced = e.AnnualImportValueUSD > 0
+			if priced && len(e.GroupCosts) > 0 {
+				_, priced = knownAddedCost(e, req.Product, m)
+			}
 		}
 	}
 	for _, gm := range m {

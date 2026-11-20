@@ -15,7 +15,7 @@ type onePlanPlanner struct{ priced bool }
 
 func (p onePlanPlanner) Plan(_ context.Context, r planner.Request) (planner.Result, error) {
 	return planner.Result{CaseID: r.CaseID, Target: r.Target, Rejected: []domain.Plan{}, Plans: []domain.Plan{{
-		Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Shown: true, NetPriced: p.priced,
+		Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Shown: true, NetPriced: &p.priced,
 		Verdict: &domain.Verdict{Confidence: 0.9}}}}, nil
 }
 

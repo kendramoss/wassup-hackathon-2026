@@ -280,16 +280,19 @@ func precedentCheckText(p domain.Plan, withRuling bool) string {
 	return s
 }
 
-// netText states a plan's yearly net only when the search that made the plan
-// could price it (Plan.NetPriced, recorded when the plan was computed). It
-// does not look at the case's current economics: money added after the search
-// does not reprice a stored plan, and plans stored before the flag existed are
-// not claimed as priced.
+// netText states a plan's yearly net by what the search that made the plan
+// recorded (Plan.NetPriced), never by the case's current economics. Priced:
+// the figure, including a real zero. Searched but not priced: never a figure.
+// Stored before the flag existed: a nonzero recorded figure is kept, labelled
+// as historical and unverified; an all-zero one can't be told from "unknown".
 func netText(p domain.Plan) string {
-	if !p.NetPriced {
-		return "net not priced"
+	switch {
+	case p.NetPriced != nil && *p.NetPriced:
+		return fmt.Sprintf("net $%.0f/yr", p.NetYear)
+	case p.NetPriced == nil && (p.NetYear != 0 || p.DutyEffectYear != 0 || p.AddedCostYear != 0):
+		return fmt.Sprintf("net $%.0f/yr (recorded by an earlier search; not verified as fully priced)", p.NetYear)
 	}
-	return fmt.Sprintf("net $%.0f/yr", p.NetYear)
+	return "net not priced"
 }
 
 // maxAskMemo caps the remembered answers per instance.

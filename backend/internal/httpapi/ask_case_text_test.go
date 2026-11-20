@@ -47,8 +47,8 @@ func TestAgentCaseTextUnpricedPlanAndMissingVerdict(t *testing.T) {
 
 func TestAgentCaseTextKeepsTruthfulZeroesAndNumbers(t *testing.T) {
 	v := &domain.Verdict{Confidence: 0, SupportingRuling: ""}
-	shown := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, NetPriced: true}
-	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, RejectionKind: "below_bar", NetPriced: true}
+	shown := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, NetPriced: boolp(true)}
+	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, RejectionKind: "below_bar", NetPriced: boolp(true)}
 	// Priced by the search: a computed net of exactly 0 is real, whatever the case holds now.
 	c := planCase(nil, shown, rejected)
 	s := caseTextLine(t, c, "SHOWN")
@@ -64,10 +64,48 @@ func TestAgentCaseTextKeepsTruthfulZeroesAndNumbers(t *testing.T) {
 	if s := caseTextLine(t, c, "SHOWN"); !strings.Contains(s, "net $380000/yr") || !strings.Contains(s, "precedent check 0.93, supporting N350001") {
 		t.Errorf("priced plan: %s", s)
 	}
-	// A legacy plan (stored before the flag) with money on it but no flag is not claimed as priced.
-	legacy := shown
-	legacy.NetPriced = false
-	if s := caseTextLine(t, planCase(nil, legacy, rejected), "SHOWN"); strings.Contains(s, "$380000") || !strings.Contains(s, "net not priced") {
-		t.Errorf("legacy plan: %s", s)
+}
+
+func boolp(b bool) *bool { return &b }
+
+func TestAgentCaseTextLegacyAndUnverifiedFigures(t *testing.T) {
+	v := &domain.Verdict{Confidence: 0.93, SupportingRuling: "N350001"}
+	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}}
+	line := func(p domain.Plan) string { return caseTextLine(t, planCase(nil, p, rejected), "SHOWN") }
+	base := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v}
+
+	// Stored before the flag existed, with recorded money: the figure is kept,
+	// but labelled as historical and unverified, never as fully priced.
+	legacy := base
+	legacy.NetYear, legacy.DutyEffectYear, legacy.AddedCostYear = 380000, 500000, 120000
+	if s := line(legacy); !strings.Contains(s, "net $380000/yr") || !strings.Contains(s, "earlier search") || !strings.Contains(s, "not verified") {
+		t.Errorf("legacy recorded figure: %s", s)
+	}
+	// Legacy with nothing recorded is genuinely ambiguous.
+	if s := line(base); !strings.Contains(s, "net not priced") || strings.Contains(s, "$0/yr") {
+		t.Errorf("legacy all-zero: %s", s)
+	}
+	// A search that ran and could not price the plan never shows its numbers as real,
+	// even if blanks produced a nonzero figure.
+	modern := base
+	modern.NetPriced = boolp(false)
+	modern.NetYear, modern.AddedCostYear = 950000, -450000
+	if s := line(modern); strings.Contains(s, "950000") || !strings.Contains(s, "net not priced") {
+		t.Errorf("modern unpriced plan with a nonzero artefact: %s", s)
+	}
+	modern.NetYear, modern.AddedCostYear = 0, 0
+	if s := line(modern); strings.Contains(s, "$0/yr") || !strings.Contains(s, "net not priced") {
+		t.Errorf("modern unpriced all-zero: %s", s)
+	}
+	// Priced by the search: numbers, including a real zero.
+	pr := base
+	pr.NetPriced = boolp(true)
+	pr.NetYear = 380000
+	if s := line(pr); !strings.Contains(s, "net $380000/yr") || strings.Contains(s, "not verified") {
+		t.Errorf("priced: %s", s)
+	}
+	pr.NetYear = 0
+	if s := line(pr); !strings.Contains(s, "net $0/yr") || strings.Contains(s, "not verified") {
+		t.Errorf("priced zero: %s", s)
 	}
 }
