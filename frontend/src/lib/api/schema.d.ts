@@ -1191,6 +1191,16 @@ export interface paths {
                         "application/json": {
                             case_id?: string;
                             economics?: components["schemas"]["Economics"];
+                            /**
+                             * @description Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                             * @enum {boolean}
+                             */
+                            plan_economics_stale?: true;
+                            /**
+                             * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                             * @enum {boolean}
+                             */
+                            targets_economics_stale?: true;
                             /** @description The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero. */
                             scenarios?: {
                                 label?: string;
@@ -2764,6 +2774,16 @@ export interface components {
             }[];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
+            /**
+             * @description Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale
+             * @enum {boolean}
+             */
+            plan_economics_stale?: true;
+            /**
+             * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale
+             * @enum {boolean}
+             */
+            targets_economics_stale?: true;
             /** @description economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only. */
             economics_priced?: components["schemas"]["Economics"];
             /** @description Audit trail, oldest first (last 200) */
@@ -2905,6 +2925,132 @@ export interface components {
                     [key: string]: number;
                 };
             };
+            operations?: components["schemas"]["EconomicsOperations"];
+        };
+        /** @description Optional operational inputs (#281), all user-entered; an explicit 0 is a known zero and an absent or null field is not entered. An empty block, a note-only block and entries with only a ref or sources are inactive and are not stored. Unknown JSON fields are rejected. */
+        EconomicsOperations: {
+            /** @description Positive; required whenever a one-time cost applies. One-time costs are amortized straight-line over it (no discounting, residual value or tax). */
+            horizon_years?: number;
+            /** @description Your lead-time limit; lead times of moved groups are assumed to run in parallel */
+            max_lead_time_days?: number;
+            /** @description Free text; changes no result and no hash */
+            note?: string;
+            groups?: {
+                [key: string]: components["schemas"]["EconomicsOpsGroup"];
+            };
+        };
+        EconomicsOpsGroup: {
+            /**
+             * @description Whether labour and logistics are already inside the group cost (included) or are added to it (additional); required where labour or logistics is entered, to prevent double counting
+             * @enum {string}
+             */
+            cost_basis?: "included" | "additional";
+            /** @description Unit label for demand and MOQ; case-sensitive */
+            unit?: string;
+            annual_demand_units?: number;
+            orders_per_year?: number;
+            plants?: {
+                [key: string]: components["schemas"]["EconomicsOpsPlant"];
+            };
+        };
+        EconomicsOpsPlant: {
+            /** @description The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale) */
+            ref?: {
+                name: string;
+                country: string;
+            };
+            labour_usd_per_year?: number;
+            logistics_usd_per_year?: number;
+            capex_usd?: number;
+            retooling_usd?: number;
+            lead_time_days?: number;
+            moq_units?: number;
+            moq_unit?: string;
+            /** @description Provenance notes by factor; metadata only, never echoed in results */
+            sources?: {
+                [key: string]: string;
+            };
+        };
+        /** @description The operational view of one move, from one shared calculation (plan search, compare, scenarios and target comparison give the same object for the same inputs and move). A priced net covers the modelled terms only. */
+        PlanOperations: {
+            /** @description Each term is a number, or null when unknown or not modelled; never a zero */
+            components: {
+                duty_effect_per_year: number | null;
+                group_cost_delta_per_year: number | null;
+                labour_delta_per_year: number | null;
+                logistics_delta_per_year: number | null;
+                operating_delta_per_year: number | null;
+                one_time_total_usd: number | null;
+                amortized_one_time_per_year: number | null;
+            };
+            /** @description Equals the plan's net_per_year exactly when priced and net_priced are true */
+            net_modelled_per_year: number | null;
+            /** @description No financial input was unknown */
+            priced: boolean;
+            horizon_years?: number;
+            feasibility_assessed: boolean;
+            /**
+             * @description Omitted when feasibility_assessed is false
+             * @enum {string}
+             */
+            feasibility?: "feasible" | "infeasible" | "unknown";
+            /**
+             * @description Omitted when the move was not demoted by cost
+             * @enum {string}
+             */
+            decision?: "operationally_infeasible" | "net_costlier";
+            unknown: {
+                /** @enum {string} */
+                category: "financial" | "feasibility";
+                factor: string;
+                group?: string;
+                reason: string;
+            }[];
+            /** @description Factors in neither side of the comparison; show beside any priced figure, even when priced is true */
+            not_modelled: string[];
+            sunk_ignored: {
+                group: string;
+                plant: string;
+                factor: string;
+            }[];
+            stale_refs: {
+                group: string;
+                plant: string;
+                factor: string;
+            }[];
+            checks: {
+                /** @enum {string} */
+                kind: "lead_time" | "moq";
+                group?: string;
+                /** @enum {string} */
+                status: "feasible" | "infeasible" | "unknown";
+                value?: number;
+                limit?: number;
+                unit?: string;
+                reason?: string;
+            }[];
+            assumptions: string[];
+            /** @description Absolute yearly figures for the current setup; null unless computable (totals null unless priced) */
+            baseline: {
+                duty_usd: number | null;
+                operating_usd: number | null;
+                total_usd: number | null;
+            };
+            proposed: {
+                duty_usd: number | null;
+                operating_usd: number | null;
+                /** @description Omitted when not applicable */
+                amortized_one_time_usd?: number | null;
+                total_usd: number | null;
+            };
+        };
+        /** @description Present only in operations mode: what 'best' means here */
+        PlanObjective: {
+            /** @example operations_v1 */
+            mode: string;
+            /** @example searched_moves_only */
+            scope: string;
+            statement: string;
         };
         PlanRequest: {
             /** @example Thailand */
@@ -2963,14 +3109,15 @@ export interface components {
              *     can't be proven either way.
              */
             net_priced?: boolean;
+            operations?: components["schemas"]["PlanOperations"];
             shown?: boolean;
             rejection_reason?: string;
             /**
-             * @description Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
+             * @description Why a plan is not shown. `operationally_infeasible` and `net_costlier` (operations mode only) demote a plan the legal and precedent gate had shown; the reason names the modelled terms only. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
              *     render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
              * @enum {string}
              */
-            rejection_kind?: "current_setup" | "below_confidence_bar" | "no_supporting_precedent" | "engine_other_origin" | "check_failed";
+            rejection_kind?: "current_setup" | "below_confidence_bar" | "no_supporting_precedent" | "engine_other_origin" | "check_failed" | "operationally_infeasible" | "net_costlier";
             /**
              * @description Only with NEAR_MISS_ADVICE=on (D81), on at most two `below_confidence_bar` moves per search whose check is at least 0.85:
              *     what differs between this move and its supporting ruling on the point CBP relied on, and what change to the setup
@@ -3037,6 +3184,9 @@ export interface components {
             stats?: Record<string, never>;
             economics_illustrative?: boolean;
             duty_rates_note?: string;
+            objective?: components["schemas"]["PlanObjective"];
+            /** @description Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not. */
+            economics_basis?: string;
         };
         PlanResponse: components["schemas"]["Meta"] & {
             case_id?: string;
@@ -3081,6 +3231,14 @@ export interface components {
                 to_plant?: string;
             }[];
             illustrative?: boolean;
+            /** @description Operations mode: one-time costs amortized per year; null when unknown or not modelled */
+            amortized_one_time_usd?: number | null;
+            /**
+             * @description Operations mode; mirrors operations.feasibility; omitted when not assessed
+             * @enum {string}
+             */
+            feasibility?: "feasible" | "infeasible" | "unknown";
+            operations?: components["schemas"]["PlanOperations"];
             /** @description predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate */
             origin_differs_from_current?: boolean;
         };

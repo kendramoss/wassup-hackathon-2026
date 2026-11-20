@@ -35,6 +35,8 @@ info:
 
     Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
 
+    Operational cost inputs (#281): `economics.operations` is optional everywhere economics are accepted (PUT /v1/cases/{id}/economics, plan, plan SSE, compare-targets, scenarios and predict). Without an active `operations` block every request and response is exactly as before. With it, the planner prices a move as modelled yearly duty saved minus the modelled yearly operating cost difference minus one-time costs amortized over `horizon_years`, for the moves searched and the inputs entered; it is not a global optimum. A plan, scenario or target comparison carries an `operations` object. Read `net_priced` before `net_per_year`: when it is false the legacy figure is a ranking aid and the authoritative nullable figures are inside `operations`. `null` means unknown or not modelled and is never a zero; `not_modelled` is present and non-empty even when `priced` is true and must be shown beside any priced figure. A known infeasible move or a fully priced net-costlier move is demoted to `rejected` with `rejection_kind` `operationally_infeasible` or `net_costlier` and a reason; an unknown never demotes and is never labelled feasible. Cost only demotes a plan the legal and precedent gate already showed. A malformed `operations` block is 400 `invalid_input` with a message beginning `economics: operations.<slug>: <path>: <why>` (slugs include `too_large` for a block over 64 KiB, `unknown_field` and `invalid_json`); there is no new HTTP error code. A plan or compare-targets run priced from the case's stored economics is discarded with the existing 409 `conflict` if those economics are edited while it runs. `economics_basis` on a plan result is a hash of the raw money inputs; `plan_economics_stale` and `targets_economics_stale` on the case view and on the PUT economics response are present, and true, only when the stored plan or target results were priced from inputs that have since changed: do not present their old money as current, and treat a missing flag as not stale. Editing only `note` or `sources` changes neither the hash nor any result.
+
     Request reference and log text (#285): the server never echoes a caller-supplied `X-Request-ID`. A supplied value, whatever its length or shape, is replaced in the response by `h_` followed by the first 16 hex characters of its SHA-256; with no value the server generates 16 lowercase hex characters. The response value is the same one used in the server logs and in the audit trail for that request, so quote it to support. It is an unkeyed hash for log hygiene, not anonymisation. No response body shape, error code or status changes. Text only: `GET /health?deep=1` `checks.<name>.error` (on a failed check) is now a fixed phrase (for example `model provider unavailable`, `case store write failed (PermissionDenied)`) and no longer carries the provider body or the store message; new `history[].summary` text for `asked` is `question (<N> characters), <K> what-ifs, cited <ruling numbers>` and for `renamed` is `renamed` (earlier events keep their text and the actor is unchanged); a new `check_failed` rejection from the precedent check has a fixed `rejection_reason` by failure class (earlier reasons are not rewritten).
 
     Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the seven operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
@@ -702,6 +704,8 @@ paths:
                 properties:
                   case_id: { type: string }
                   economics: { $ref: "#/components/schemas/Economics" }
+                  plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)" }
+                  targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)" }
                   scenarios:
                     type: array
                     description: The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero.
@@ -1656,6 +1660,8 @@ components:
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
+            targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale" }
             economics_priced: { description: "economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only.", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             history:
               type: array
@@ -1764,6 +1770,121 @@ components:
             type: array
             items: { type: object, properties: { name: { type: string }, heading: { type: string }, rate: { type: number } } }
         group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
+        operations: { $ref: "#/components/schemas/EconomicsOperations" }
+    EconomicsOperations:
+      type: object
+      description: "Optional operational inputs (#281), all user-entered; an explicit 0 is a known zero and an absent or null field is not entered. An empty block, a note-only block and entries with only a ref or sources are inactive and are not stored. Unknown JSON fields are rejected."
+      properties:
+        horizon_years: { type: number, description: "Positive; required whenever a one-time cost applies. One-time costs are amortized straight-line over it (no discounting, residual value or tax)." }
+        max_lead_time_days: { type: integer, description: "Your lead-time limit; lead times of moved groups are assumed to run in parallel" }
+        note: { type: string, description: "Free text; changes no result and no hash" }
+        groups:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/EconomicsOpsGroup" }
+    EconomicsOpsGroup:
+      type: object
+      properties:
+        cost_basis: { type: string, enum: [included, additional], description: "Whether labour and logistics are already inside the group cost (included) or are added to it (additional); required where labour or logistics is entered, to prevent double counting" }
+        unit: { type: string, description: "Unit label for demand and MOQ; case-sensitive" }
+        annual_demand_units: { type: number }
+        orders_per_year: { type: number }
+        plants:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/EconomicsOpsPlant" }
+    EconomicsOpsPlant:
+      type: object
+      properties:
+        ref:
+          type: object
+          required: [name, country]
+          description: "The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale)"
+          properties: { name: { type: string }, country: { type: string } }
+        labour_usd_per_year: { type: number }
+        logistics_usd_per_year: { type: number }
+        capex_usd: { type: number }
+        retooling_usd: { type: number }
+        lead_time_days: { type: integer }
+        moq_units: { type: number }
+        moq_unit: { type: string }
+        sources: { type: object, additionalProperties: { type: string }, description: "Provenance notes by factor; metadata only, never echoed in results" }
+    PlanOperations:
+      type: object
+      description: "The operational view of one move, from one shared calculation (plan search, compare, scenarios and target comparison give the same object for the same inputs and move). A priced net covers the modelled terms only."
+      required: [components, net_modelled_per_year, priced, unknown, not_modelled, sunk_ignored, stale_refs, checks, feasibility_assessed, assumptions, baseline, proposed]
+      properties:
+        components:
+          type: object
+          description: "Each term is a number, or null when unknown or not modelled; never a zero"
+          required: [duty_effect_per_year, group_cost_delta_per_year, labour_delta_per_year, logistics_delta_per_year, operating_delta_per_year, one_time_total_usd, amortized_one_time_per_year]
+          properties:
+            duty_effect_per_year: { type: [number, "null"] }
+            group_cost_delta_per_year: { type: [number, "null"] }
+            labour_delta_per_year: { type: [number, "null"] }
+            logistics_delta_per_year: { type: [number, "null"] }
+            operating_delta_per_year: { type: [number, "null"] }
+            one_time_total_usd: { type: [number, "null"] }
+            amortized_one_time_per_year: { type: [number, "null"] }
+        net_modelled_per_year: { type: [number, "null"], description: "Equals the plan's net_per_year exactly when priced and net_priced are true" }
+        priced: { type: boolean, description: "No financial input was unknown" }
+        horizon_years: { type: number }
+        feasibility_assessed: { type: boolean }
+        feasibility: { type: string, enum: [feasible, infeasible, unknown], description: "Omitted when feasibility_assessed is false" }
+        decision: { type: string, enum: [operationally_infeasible, net_costlier], description: "Omitted when the move was not demoted by cost" }
+        unknown:
+          type: array
+          items:
+            type: object
+            required: [category, factor, reason]
+            properties:
+              category: { type: string, enum: [financial, feasibility] }
+              factor: { type: string }
+              group: { type: string }
+              reason: { type: string }
+        not_modelled: { type: array, items: { type: string }, description: "Factors in neither side of the comparison; show beside any priced figure, even when priced is true" }
+        sunk_ignored:
+          type: array
+          items: { type: object, required: [group, plant, factor], properties: { group: { type: string }, plant: { type: string }, factor: { type: string } } }
+        stale_refs:
+          type: array
+          items: { type: object, required: [group, plant, factor], properties: { group: { type: string }, plant: { type: string }, factor: { type: string } } }
+        checks:
+          type: array
+          items:
+            type: object
+            required: [kind, status]
+            properties:
+              kind: { type: string, enum: [lead_time, moq] }
+              group: { type: string }
+              status: { type: string, enum: [feasible, infeasible, unknown] }
+              value: { type: number }
+              limit: { type: number }
+              unit: { type: string }
+              reason: { type: string }
+        assumptions: { type: array, items: { type: string } }
+        baseline:
+          type: object
+          required: [duty_usd, operating_usd, total_usd]
+          description: "Absolute yearly figures for the current setup; null unless computable (totals null unless priced)"
+          properties:
+            duty_usd: { type: [number, "null"] }
+            operating_usd: { type: [number, "null"] }
+            total_usd: { type: [number, "null"] }
+        proposed:
+          type: object
+          required: [duty_usd, operating_usd, total_usd]
+          properties:
+            duty_usd: { type: [number, "null"] }
+            operating_usd: { type: [number, "null"] }
+            amortized_one_time_usd: { type: [number, "null"], description: "Omitted when not applicable" }
+            total_usd: { type: [number, "null"] }
+    PlanObjective:
+      type: object
+      description: "Present only in operations mode: what 'best' means here"
+      required: [mode, scope, statement]
+      properties:
+        mode: { type: string, example: operations_v1 }
+        scope: { type: string, example: searched_moves_only }
+        statement: { type: string }
     PlanRequest:
       type: object
       required: [target]
@@ -1822,13 +1943,14 @@ components:
             no-cost mode prices the duty side alone). False: the search ran and could not, so a 0 is unknown and any
             nonzero figure rests on blanks read as 0. Absent: the plan was stored before this field, so its pricing
             can't be proven either way.
+        operations: { $ref: "#/components/schemas/PlanOperations" }
         shown: { type: boolean }
         rejection_reason: { type: string }
         rejection_kind:
           type: string
-          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed]
+          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed, operationally_infeasible, net_costlier]
           description: |
-            Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
+            Why a plan is not shown. `operationally_infeasible` and `net_costlier` (operations mode only) demote a plan the legal and precedent gate had shown; the reason names the modelled terms only. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
             render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
         near_miss:
           type: object
@@ -1883,6 +2005,8 @@ components:
         stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
         economics_illustrative: { type: boolean }
         duty_rates_note: { type: string }
+        objective: { $ref: "#/components/schemas/PlanObjective" }
+        economics_basis: { type: string, description: "Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not." }
     PlanResponse:
       allOf:
         - $ref: "#/components/schemas/Meta"
@@ -1922,6 +2046,9 @@ components:
         net_usd: { type: [number, "null"], description: savings minus added cost }
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
+        amortized_one_time_usd: { type: [number, "null"], description: "Operations mode: one-time costs amortized per year; null when unknown or not modelled" }
+        feasibility: { type: string, enum: [feasible, infeasible, unknown], description: "Operations mode; mirrors operations.feasibility; omitted when not assessed" }
+        operations: { $ref: "#/components/schemas/PlanOperations" }
         origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
     DraftRow:
       type: object
