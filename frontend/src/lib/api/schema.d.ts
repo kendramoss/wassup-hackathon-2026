@@ -3219,8 +3219,9 @@ export interface components {
         Comparison: {
             /** @description rate for the scenario's predicted origin */
             duty_rate?: number | null;
+            /** @description In operations mode null (never 0) when the annual import value is not above 0, because an unknown dollar figure is not a zero; a known rate with a positive annual value is a real figure, including 0 */
             annual_duty_usd?: number | null;
-            /** @description current setup's duty minus this scenario's */
+            /** @description current setup's duty minus this scenario's. In operations mode null when the annual import value is not above 0 or the duty effect is unknown (see operations.components.duty_effect_per_year); the feasibility and the known rates are still returned */
             duty_savings_usd?: number | null;
             /** @description yearly cost of the operation groups moved (product scenarios with group costs only) */
             added_cost_usd?: number | null;

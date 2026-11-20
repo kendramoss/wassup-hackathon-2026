@@ -2040,8 +2040,8 @@ components:
       description: Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced.
       properties:
         duty_rate: { type: [number, "null"], description: rate for the scenario's predicted origin }
-        annual_duty_usd: { type: [number, "null"] }
-        duty_savings_usd: { type: [number, "null"], description: current setup's duty minus this scenario's }
+        annual_duty_usd: { type: [number, "null"], description: "In operations mode null (never 0) when the annual import value is not above 0, because an unknown dollar figure is not a zero; a known rate with a positive annual value is a real figure, including 0" }
+        duty_savings_usd: { type: [number, "null"], description: "current setup's duty minus this scenario's. In operations mode null when the annual import value is not above 0 or the duty effect is unknown (see operations.components.duty_effect_per_year); the feasibility and the known rates are still returned" }
         added_cost_usd: { type: [number, "null"], description: "yearly cost of the operation groups moved (product scenarios with group costs only)" }
         net_usd: { type: [number, "null"], description: savings minus added cost }
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
