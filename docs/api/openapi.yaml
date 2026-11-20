@@ -27,9 +27,13 @@ info:
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
 
-    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin. The admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
+    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace. The workspace's initial creator is its first admin; the current role of each member (viewer, editor or admin, see Workspace roles below) is the authority for what they may do, and any admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
 
     Workspace roles (#283, with Teams on): each member of a workspace has a role stored with the workspace and read by the server for every request from a verified signed-in user: `viewer`, `editor` or `admin`. A role is never taken from a header, a body field or a token claim. A member with no stored role is an `editor`; the creator with no stored role is an `admin`; an explicitly stored role overrides both fallbacks. A joiner is an `editor`. On cases that carry the caller's workspace id, a viewer may read cases and lists, call `POST /v1/cases/{id}/plan/estimate` (no write, no model call) and export with `preview: true` (parsed as the JSON boolean true only); every other write, including a recording export, is 403 `forbidden` for a viewer. Only an admin invites, changes roles and removes members. A case a caller cannot see stays 404. The admin token and API keys carry no workspace role and never inherit one. A user removed from a workspace loses access to every case that carries its id, including cases they created; their personal and anonymous-browser cases stay theirs.
+
+    Error codes for 401 and 403 (#283): `unauthenticated` (401) is returned for a missing or invalid `X-User-Token`, and, with `STRICT_AUTH=on`, for a private case operation without a verified identity (identical for missing, hidden and unknown cases). A rejected API key is 401 `unauthorized`, including under strict mode. `forbidden` (403) means the caller can see the case but their workspace role does not allow the action (viewer writes, recording export, non-admin member management), or the admin token is required. Every `/v1/cases*` operation except the admin-only pin lists 401; mutating operations list 403 for the role check (the read-only operations, including `plan/estimate`, do not). Under strict mode a storage failure while loading a case can surface as 500 rather than 401; a case that is not found is always 401 there.
+
+    Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
@@ -74,6 +78,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PredictRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "201":
           description: Case created with its prediction
           content:
@@ -108,6 +114,8 @@ paths:
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: One row per product, in order, and counts
           content:
@@ -152,6 +160,7 @@ paths:
       description: |
         Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: Case summaries
           content:
@@ -168,6 +177,7 @@ paths:
       summary: Fetch a case with its prediction and latest plan
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The case
           content:
@@ -184,6 +194,7 @@ paths:
           application/json:
             schema: { type: object, required: [display_name], properties: { display_name: { type: string, minLength: 1, maxLength: 200 } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The updated case row
           content:
@@ -197,6 +208,7 @@ paths:
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "204": { description: Deleted }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
@@ -241,6 +253,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PlanRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Plan search result
           content:
@@ -268,6 +282,7 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PlanRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: Estimate
           content:
@@ -317,6 +332,8 @@ paths:
                   default: markdown
                   description: "markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66)."
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Draft
           content:
@@ -344,6 +361,8 @@ paths:
                   minItems: 1
                   items: { type: object, required: [question, answer], properties: { question: { type: string }, answer: { type: string } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The re-analysed case
           content:
@@ -640,6 +659,8 @@ paths:
                 targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
                 economics: { $ref: "#/components/schemas/Economics" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Ranked countries
           content:
@@ -665,6 +686,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/Economics" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Stored
           content:
@@ -717,6 +740,8 @@ paths:
                       question: { type: string, minLength: 1, maxLength: 2000 }
                       answer: { type: string, minLength: 1, maxLength: 4000 }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The reply and the conversation
           content:
@@ -769,6 +794,8 @@ paths:
                   description: Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used.
                   allOf: [{ $ref: "#/components/schemas/Economics" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The case with scenarios filled
           content:
@@ -805,6 +832,7 @@ paths:
                 csv: { type: string }
                 apply: { type: boolean, default: false }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The changes and the comparison of origins
           content:
@@ -856,6 +884,8 @@ paths:
         The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs. 409 `conflict` when the case's inputs (a new BOM or answers) changed during the re-check: the result is discarded, not saved (D97). In the scheduler run such a case is listed in `failed`.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The case with watch filled
           content:
