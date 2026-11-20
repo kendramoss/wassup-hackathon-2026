@@ -547,3 +547,18 @@ test("clearing the annual value with active operations shows a notice that savin
   const out = await save(off);
   assert.equal("operations" in out, false, "mode off: no operations, nothing else invented");
 });
+
+test("ref name is the trimmed plant name, else the id (empty or whitespace names); unmapped error paths stay in the general list", () => {
+  const th = { id: "th", name: "  Chonburi works ", country: "Thailand" };
+  for (const [name, want] of [["  Chonburi works ", "Chonburi works"], ["", "th"], ["   ", "th"], [undefined, "th"]]) {
+    assert.equal(O.plantRef({ ...th, name }).name, want);
+  }
+  assert.equal(O.refMismatch({ ref: { name: "th", country: "Thailand" } }, { ...th, name: "  " }), false);
+  const e = O.setPlant({}, "g", { ...th, name: " " }, "labour_usd_per_year", 1);
+  assert.equal(e.operations.groups.g.plants.th.ref.name, "th");
+  const m = "economics: operations.unknown_source_key: groups.g.plants.th.sources.freight: unknown source key";
+  const r = O.issuesByField(m);
+  assert.equal(Object.keys(r.byKey).length, 0);
+  assert.equal(r.general.length, 1);
+  assert.match(r.general[0].text, /unknown_source_key/);
+});

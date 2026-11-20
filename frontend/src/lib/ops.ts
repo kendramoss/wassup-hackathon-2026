@@ -37,9 +37,9 @@ export const formatAmount = (n: number | undefined): string => (n === undefined 
 
 const folded = (s: string | undefined) => (s ?? "").trim().replace(/\s+/g, " ").toLowerCase();
 
-// The name the entry is bound to: the plant's name, else its id (the server
+// The name the entry is bound to: the plant's trimmed name, else its id (the server
 // requires a 1 to 120 character name on every entry).
-export const plantRef = (p: Plant): { name: string; country: string } => ({ name: p.name || p.id, country: p.country });
+export const plantRef = (p: Plant): { name: string; country: string } => ({ name: p.name?.trim() || p.id, country: p.country });
 
 // True when an existing entry was entered for a different plant name or
 // country than the product's plant now has. The server decides (it also
@@ -176,6 +176,10 @@ export function parseOpsIssues(message: string | undefined): OpsIssue[] {
 }
 
 const TOP = new Set(["horizon_years", "max_lead_time_days", "note"]);
+// Fields the editor renders; a path naming anything else (a sources key, say)
+// stays in the general list so the message is never lost.
+const GROUP_FIELDS = new Set(["cost_basis", "unit", "annual_demand_units", "orders_per_year"]);
+const PLANT_FIELDS = new Set([...PLANT_NUMBERS, "moq_unit"]);
 
 // The field a path names, as the key the editor's inputs look up:
 // "horizon_years", "max_lead_time_days", "g|<group>|<field>" and
@@ -189,8 +193,12 @@ export function issueKey(path: string): string {
   if (gi < 0 || !t[gi + 1]) return "";
   const g = t[gi + 1];
   const pi = t.indexOf("plants");
-  if (pi >= 0 && t[pi + 1]) return t.length > pi + 2 ? `p|${g}|${t[pi + 1]}|${field}` : `p|${g}|${t[pi + 1]}|`;
-  return t.length > gi + 2 ? `g|${g}|${field}` : `g|${g}|`;
+  if (pi >= 0 && t[pi + 1]) {
+    if (t.length === pi + 2) return `p|${g}|${t[pi + 1]}|`;
+    return t.length === pi + 3 && PLANT_FIELDS.has(field) ? `p|${g}|${t[pi + 1]}|${field}` : "";
+  }
+  if (t.length === gi + 2) return `g|${g}|`;
+  return t.length === gi + 3 && GROUP_FIELDS.has(field) ? `g|${g}|${field}` : "";
 }
 
 export const pKey = (g: string, p: string, f: string) => `p|${g}|${p}|${f}`;
