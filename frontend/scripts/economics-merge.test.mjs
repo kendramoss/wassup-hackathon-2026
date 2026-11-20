@@ -205,3 +205,50 @@ test("a re-read for the wrong case is not applied", () => {
   assert.equal(out.id, "c1");
   assert.equal(out.economics.annual_import_value_usd, 3);
 });
+
+// #347: the response carries the scenarios repriced with the saved money. When
+// the authoritative re-read fails, the fallback merge must show those, never
+// the old stored comparison; a case without scenarios keeps its own.
+test("failed re-read: the repriced scenarios from the PUT replace the stale comparison", () => {
+  const out = flow(`
+    const stale = { ...fullCase, scenarios: [{ label: "Moved", comparison: { net_usd: 380000 } }] };
+    state = stale;
+    globalThis.fetch = async (url, init) => init.method === "PUT"
+      ? new Response(JSON.stringify({ case_id: "c1", economics: { annual_import_value_usd: 4000000 }, scenarios: [{ label: "Moved", comparison: { net_usd: 880000 } }] }))
+      : new Response(JSON.stringify({ code: "internal", message: "down" }), { status: 500 });
+    await saveEconomics("c1", { annual_import_value_usd: 4000000 }, io);
+    console.log(JSON.stringify(state));
+  `);
+  assert.equal(out.scenarios[0].comparison.net_usd, 880000);
+  assert.equal(out.scenarios[0].label, "Moved");
+  assert.equal(out.economics.annual_import_value_usd, 4000000);
+  assert.equal("economics_priced" in out, false);
+});
+
+test("a PUT response without scenarios keeps the case's own (a case with none stays empty)", () => {
+  const out = run(`
+    const kept = mergeEconomics(fullCase, { case_id: "c1", economics: { annual_import_value_usd: 5 } });
+    const none = mergeEconomics({ ...fullCase, scenarios: undefined }, { case_id: "c1", economics: { annual_import_value_usd: 5 } });
+    console.log(JSON.stringify({ kept: kept.scenarios, none: none.scenarios ?? null }));
+  `);
+  assert.equal(out.kept.length, 1);
+  assert.equal(out.none, null);
+});
+
+test("when every re-read is overtaken by another write, the repriced scenarios from the PUT are shown (#347)", () => {
+  const out = flow(`
+    let gets = 0;
+    const repriced = [{ label: "As today", comparison: { net_usd: 880000 } }];
+    globalThis.fetch = async (url, init) => {
+      if (init.method === "PUT") return new Response(JSON.stringify({ case_id: "c1", economics: serverCase().economics, scenarios: repriced }));
+      gets++;
+      state = { ...state }; // another write lands during every re-read, so none is applied
+      return new Response(JSON.stringify(serverCase()));
+    };
+    state = { ...fullCase, scenarios: [{ label: "As today", comparison: { net_usd: 380000 } }] };
+    await saveEconomics("c1", serverCase().economics, io);
+    console.log(JSON.stringify({ gets, net: state.scenarios[0].comparison.net_usd }));
+  `);
+  assert.equal(out.gets, 3);
+  assert.equal(out.net, 880000);
+});

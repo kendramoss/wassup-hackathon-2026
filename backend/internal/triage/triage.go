@@ -142,9 +142,9 @@ func Fallback(p domain.Prediction, fastPath float64, inScope bool, scopeReason s
 		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "out of scope: " + scopeReason}
 	}
 	if fastPath > 0 && p.Confidence >= fastPath {
-		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("answered by the fallback model (%s); confidence %.2f ≥ %.2f", p.Trace.ModelID, p.Confidence, fastPath)}
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("answered by the fallback model (%s); confidence %.2f ≥ %.2f", p.Trace.Identity(), p.Confidence, fastPath)}
 	}
-	return domain.Triage{Route: domain.RouteNeedsReview, Reason: FallbackReason(p.Trace.ModelID)}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: FallbackReason(p.Trace.Identity())}
 }
 
 // FallbackReason is the review reason when the fallback model answered and
@@ -153,10 +153,40 @@ func FallbackReason(modelID string) string {
 	return fmt.Sprintf("answered by the fallback model (%s) because the primary engine was unavailable", modelID)
 }
 
-// AnsweredByFallback reports whether trace.model_id is a model other than
-// the primary engine. An empty trace is not a fallback answer.
-func AnsweredByFallback(modelID, primary string) bool {
-	return modelID != "" && modelID != primary
+// AnsweredByFallback reports whether the trace's configured model is other
+// than the primary engine. It compares the requested identity, never the
+// provider's resolved version, so the primary alias answered as
+// "<alias>-001" is still the primary (#344). A trace recorded before
+// requested_model existed falls back to model_id. An empty trace is not a
+// fallback answer.
+func AnsweredByFallback(t domain.Trace, primary string) bool {
+	id := t.Identity()
+	return id != "" && id != primary
+}
+
+// AllGates composes independent mandatory-review gates (#300). The case is
+// auto only when every gate is auto; no gate overrides another. The reason
+// joins, in order, the reasons of the gates that sent it to review (all
+// gates' reasons when every gate passed), so simultaneous reasons stay
+// visible. With no gates it reviews. A single gate is returned unchanged.
+func AllGates(gates ...domain.Triage) domain.Triage {
+	switch len(gates) {
+	case 0:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "no triage gate applied"}
+	case 1:
+		return gates[0]
+	}
+	var review, all []string
+	for _, g := range gates {
+		all = append(all, g.Reason)
+		if g.Route != domain.RouteAuto {
+			review = append(review, g.Reason)
+		}
+	}
+	if len(review) == 0 {
+		return domain.Triage{Route: domain.RouteAuto, Reason: strings.Join(all, "; ")}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: strings.Join(review, "; ")}
 }
 
 // WithClarify refines a needs_review decision with the clarify review: when

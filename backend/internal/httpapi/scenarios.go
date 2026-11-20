@@ -65,6 +65,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("case %s has no valid date: %w", sc.ID, err))
 		return
 	}
+	fp, basis0 := inputFingerprint(sc), scenarioBasis(sc) // what the comparisons are worked out against (D97)
 	out := make([]store.Scenario, len(in.Scenarios))
 	cases := make([]domain.Case, len(in.Scenarios))
 	for i, s := range in.Scenarios {
@@ -105,21 +106,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
 		sc.Economics = in.Economics
 	}
-	if sc.Economics != nil {
-		origins := caseOrigins(sc)
-		for _, s := range out {
-			origins = append(append(origins, domain.CountryParts(s.Prediction.Origin)...), productCountries(s.Product)...)
-		}
-		e := a.priced(r.Context(), *sc.Economics, sc.Product, origins, true) // table and live rates are not stored on the case
-		current := sc.Prediction.Origin
-		if sc.CurrentOrigin != nil && sc.CurrentOrigin.Country != "" {
-			current = sc.CurrentOrigin.Country
-		}
-		for i := range out {
-			cmp := planner.Compare(e, sc.Product, out[i].Product, current, out[i].Prediction.Origin)
-			out[i].Comparison = &cmp
-		}
-	}
+	a.compareScenarios(r.Context(), sc, out, true)
 	var parts []string
 	var u usage
 	for i, s := range out {
@@ -136,6 +123,14 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
+		// A new BOM, answers or origin replaced the baseline while this ran:
+		// the comparisons belong to the old one, so the save is discarded.
+		if err := stillCurrent(latest, fp); err != nil {
+			return err
+		}
+		if scenarioBasis(*latest) != basis0 {
+			return errSuperseded
+		}
 		if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
 			latest.Economics = in.Economics
 		}

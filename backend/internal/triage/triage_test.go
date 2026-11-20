@@ -168,3 +168,54 @@ func TestEmbeddedFamilyBars(t *testing.T) {
 		t.Errorf("unknown family = %v %v", bar, fitted)
 	}
 }
+
+// #344: fallback detection compares the configured identity, not the
+// provider's resolved version, and never matches by prefix.
+func TestAnsweredByFallbackUsesRequestedIdentity(t *testing.T) {
+	const primary = "gemini-4-argon"
+	tests := []struct {
+		name string
+		t    domain.Trace
+		want bool
+	}{
+		{"empty trace", domain.Trace{}, false},
+		{"exact name", domain.Trace{ModelID: primary, RequestedModel: primary}, false},
+		{"alias resolved to version", domain.Trace{ModelID: primary + "-001", RequestedModel: primary}, false},
+		{"genuine fallback", domain.Trace{ModelID: "gemini-3.8-flash-002", RequestedModel: "gemini-3.8-flash"}, true},
+		{"fallback whose version looks like the primary", domain.Trace{ModelID: primary + "-001", RequestedModel: "gemini-3.8-flash"}, true},
+		{"unrelated model sharing the primary prefix", domain.Trace{ModelID: primary + "x", RequestedModel: primary + "x"}, true},
+		{"old trace, exact name", domain.Trace{ModelID: primary}, false},
+		{"old trace, other model", domain.Trace{ModelID: "tuned-flash"}, true},
+	}
+	for _, tt := range tests {
+		if got := AnsweredByFallback(tt.t, primary); got != tt.want {
+			t.Errorf("%s: got %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+func TestAllGates(t *testing.T) {
+	auto := func(r string) domain.Triage { return domain.Triage{Route: domain.RouteAuto, Reason: r} }
+	rev := func(r string) domain.Triage { return domain.Triage{Route: domain.RouteNeedsReview, Reason: r} }
+	tests := []struct {
+		name  string
+		gates []domain.Triage
+		route domain.Route
+		want  string
+	}{
+		{"none reviews", nil, domain.RouteNeedsReview, "no triage gate applied"},
+		{"single passes through", []domain.Triage{rev("a")}, domain.RouteNeedsReview, "a"},
+		{"all pass", []domain.Triage{auto("a"), auto("b")}, domain.RouteAuto, "a; b"},
+		{"first reviews", []domain.Triage{rev("a"), auto("b")}, domain.RouteNeedsReview, "a"},
+		{"second reviews", []domain.Triage{auto("a"), rev("b")}, domain.RouteNeedsReview, "b"},
+		{"both review keeps both reasons", []domain.Triage{rev("a"), rev("b")}, domain.RouteNeedsReview, "a; b"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AllGates(tt.gates...)
+			if got.Route != tt.route || got.Reason != tt.want {
+				t.Errorf("AllGates = %+v, want %s %q", got, tt.route, tt.want)
+			}
+		})
+	}
+}

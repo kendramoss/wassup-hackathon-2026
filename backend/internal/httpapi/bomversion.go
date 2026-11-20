@@ -237,9 +237,12 @@ func bomUpload(w http.ResponseWriter, r *http.Request) (io.ReadCloser, bool, err
 
 // clearDerived drops what was worked out from the previous facts: the plan
 // search, the target comparison, the watch and the export mark. History and
-// the user's own scenarios stay.
+// the user's own scenario definitions (label, facts, product, prediction)
+// stay; their comparisons were worked out against the previous baseline, so
+// those are dropped with the rest and recomputed on read (scenario_basis.go).
 func clearDerived(latest *store.Case) {
 	latest.Plan, latest.Targets, latest.Watch, latest.ExportedAt = nil, nil, nil, nil
+	dropScenarioComparisons(latest)
 }
 
 // errSuperseded means the case's inputs changed (a new BOM, new answers)

@@ -18,6 +18,8 @@ import (
 type specialistFake struct {
 	version string
 	origin  string
+	model   string  // requested model identity; "" is the primary engine
+	conf    float64 // 0 means 0.97
 	err     error
 	calls   atomic.Int32
 }
@@ -27,8 +29,15 @@ func (s *specialistFake) Predict(context.Context, domain.Case) (engine.Result, e
 	if s.err != nil {
 		return engine.Result{}, s.err
 	}
-	return engine.Result{Prediction: domain.Prediction{Origin: s.origin, Confidence: 0.97, Precedents: []string{"N350001"},
-		Trace: domain.Trace{ModelID: "gemini-4-argon", PromptVersion: s.version}}}, nil
+	conf, model := s.conf, s.model
+	if conf == 0 {
+		conf = 0.97
+	}
+	if model == "" {
+		model = "gemini-4-argon"
+	}
+	return engine.Result{Prediction: domain.Prediction{Origin: s.origin, Confidence: conf, Precedents: []string{"N350001"},
+		Trace: domain.Trace{ModelID: model + "-001", RequestedModel: model, PromptVersion: s.version}}}, nil
 }
 
 const dispatchBody = `{"date":"2026-03-01","facts":"Knit polyester neck gaiters, knit in Vietnam from Chinese yarn."}`
