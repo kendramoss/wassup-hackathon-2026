@@ -71,7 +71,7 @@ A request that carries a positive annual import value uses its own economics, wh
 
 ## Staleness and history
 
-A plan result records a hash of the raw money inputs it was priced from. If the user later changes a cost, a rate, a constraint or the annual value, the API marks the stored plan stale: a client must not present its old money as current, and the plan has to be run again. Its legal result and the draft letter, which has no money, stay valid. Editing only notes or sources never changes the hash and never stales anything. A stored plan is not rewritten when it goes stale, and earlier cases are not migrated.
+Only a plan result computed in the operating-cost mode records a hash of the raw money inputs it was priced from; plans run without `operations` do not carry one and are not marked stale by this mechanism. If the user later changes a cost, a rate, a constraint or the annual value, the API marks the stored plan stale: a client must not present its old money as current, and the plan has to be run again. Its legal result and the draft letter, which has no money, stay valid. Editing only notes or sources never changes the hash and never stales anything. A stored plan is not rewritten when it goes stale, and earlier cases are not migrated.
 
 ## What this does not claim
 
