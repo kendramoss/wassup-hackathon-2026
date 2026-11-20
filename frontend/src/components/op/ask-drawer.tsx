@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
-import { askRequest, clearOwned, markOwned } from "@/lib/ask-history";
+import { askRequest, clearOwned } from "@/lib/ask-history";
+import { clearRich, commitPinnedAnswer, pinnedTurn, readRich } from "@/lib/ask-rich";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
@@ -13,7 +14,7 @@ import { Button, Country, Drawer, Flag, RulingLink, Ruler, cx } from "./ui";
 import { planTarget } from "./plan-target";
 
 type Step = { tool?: string; arg?: string };
-type Extra = { whatIfs?: WhatIf[]; steps?: Step[]; calls?: number };
+type Extra = { whatIfs?: WhatIf[]; steps?: Step[]; calls?: number; lost?: boolean };
 type Turn = ChatTurn & Extra;
 
 // The conversation lives on the case (#110), including each turn's what-ifs
@@ -30,6 +31,10 @@ const subscribe = (l: () => void) => {
 };
 const extras = new Map<string, Extra>();
 const details = new Map<string, PrecedentRef>();
+const restored = (id: string, t: ChatTurn): Extra | undefined => {
+  const r = readRich(id, t);
+  return r ? { whatIfs: r.whatIfs, steps: r.steps, lost: r.lost } : undefined;
+};
 const turnKey = (caseId: string, t: ChatTurn) => `${caseId}|${t.at ?? ""}|${t.question ?? ""}`;
 
 // "Ask about this case" (DESIGN.md, #46): a right-hand drawer on the case
@@ -38,7 +43,9 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
   const id = c.id!;
   const chat = c.chat ?? [];
   const turns: Turn[] = chat.map((t) => {
-    const extra = extras.get(turnKey(id, t));
+    // After a full reload the module-level map is empty; a pinned demo's own
+    // turns then get their cards back from this tab's stored copy (#112).
+    const extra = extras.get(turnKey(id, t)) ?? (c.pinned ? restored(id, t) : undefined);
     return { ...t, ...extra, whatIfs: extra?.whatIfs ?? t.what_ifs, steps: extra?.steps ?? t.steps };
   });
   for (const r of [...(c.precedents_detail ?? []), ...(c.cited_detail ?? [])]) if (r.id && !details.has(r.id)) details.set(r.id, r);
@@ -90,9 +97,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
       const reply = r.reply ?? {};
       for (const x of r.cited_detail ?? []) if (x.id) details.set(x.id, x);
       // A demo answers without saving, so its chat lacks this turn: add it here.
-      const next = c.pinned
-        ? [...chat, { question: q, answer: reply.answer ?? "", cited_rulings: reply.cited_rulings ?? [], at: new Date().toISOString() }]
-        : (r.chat ?? []);
+      const at = new Date().toISOString();
+      const next = c.pinned ? [...chat, pinnedTurn(q, reply, at)] : (r.chat ?? []);
       const last = next.at(-1);
       if (last) extras.set(turnKey(id, last), { whatIfs: reply.what_ifs, steps: reply.steps, calls: reply.model_calls });
       setOpen(null);
@@ -100,8 +106,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
       inflight.delete(id);
       emit();
       if (live.current === id) {
-        if (c.pinned && last) markOwned(id, last);
-        onChat(next);
+        // Marks the turn the visitor's and keeps its cards for a reload, in this tab only.
+        onChat(c.pinned ? commitPinnedAnswer(id, chat, q, reply, at) : next);
       }
     } catch (e) {
       inflight.delete(id);
@@ -116,6 +122,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
     try {
       await api.resetChat(id);
       clearOwned(id);
+      clearRich(id);
       onChat([]);
     } catch (e) {
       setError(e);
@@ -345,6 +352,11 @@ export function TurnView({ t, caseId }: { t: Turn; caseId: string }) {
           </div>
         );
       })}
+      {t.lost && (
+        <p role="note" className="mt-3 border border-ask-line bg-ask-wash px-2.5 py-2 text-[12.5px] text-ask">
+          What-if cards for this answer weren&rsquo;t kept after the page reloaded. Ask again to see them.
+        </p>
+      )}
       <Answer text={t.answer ?? ""} cited={cited} />
       {cited.length > 0 && (
         <div className="mt-2.5 text-xs">
