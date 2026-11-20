@@ -21,7 +21,7 @@ function run(body) {
       id: "c1", display_name: "Heat gun", facts: "Made in China", pinned: false,
       product: { name: "Heat gun", components: [{ name: "housing", group: "housing", plant: "p1", made_in: "CN" }], plants: [{ id: "p1", country: "CN" }, { id: "p2", country: "VN" }] },
       prediction: { origin_country: "CN", confidence: 0.8 },
-      scenarios: [{ label: "As today" }],
+      scenarios: [{ label: "As today", comparison: { net_usd: 380000 } }],
       economics: { annual_import_value_usd: 100, duty_rates: { CN: 0.25 } },
       economics_priced: { annual_import_value_usd: 100, duty_rates: { CN: 0.25 }, duty_rates_note: "stale" },
     };
@@ -48,6 +48,8 @@ test("putEconomics response is the partial {case_id, economics}, merged without 
   assert.equal(m.product.plants.length, 2);
   assert.equal(m.prediction.origin_country, "CN");
   assert.equal(m.scenarios.length, 1);
+  assert.equal(m.scenarios[0].label, "As today");
+  assert.equal("comparison" in m.scenarios[0], false, "stale scenario price was kept");
   assert.equal(m.economics.annual_import_value_usd, 500);
   assert.equal(m.economics.duty_rates.VN, 0.05);
 });

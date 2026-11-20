@@ -21,6 +21,9 @@ func TestFallbackOn429(t *testing.T) {
 	if resp.ModelID != "tuned-flash" {
 		t.Errorf("model id = %q", resp.ModelID)
 	}
+	if !resp.Fallback || resp.RequestedModel != "gemini-4-argon" {
+		t.Errorf("identity = %+v", resp)
+	}
 	if len(primary.Calls()) != 1 || len(fallback.Calls()) != 1 || fallback.Calls()[0].Model != "tuned-flash" {
 		t.Errorf("calls primary %d fallback %#v", len(primary.Calls()), fallback.Calls())
 	}

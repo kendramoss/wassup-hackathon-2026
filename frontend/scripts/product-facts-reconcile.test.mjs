@@ -127,6 +127,37 @@ test("empty family + unchanged product keeps original facts and current origin",
   assert.deepEqual(b.current_origin, { country: "VN", ruling: "N123" });
 });
 
+// #345: fresh manual/imported origin-only tables have no baseline and no
+// narrative; the server also has no family template, so the browser must send
+// facts derived from the current tables.
+test("fresh origin-only tables carry derived facts and reach prediction", () => {
+  const b = predictBody({ ...base(extracted()), family: "", extra: {} });
+  assert.equal(b.family, undefined);
+  assert.ok(b.facts && b.facts.trim().length > 20);
+  assert.match(b.facts, /Product: Heat gun/);
+  assert.match(b.facts, /Motor: made in CN/);
+  assert.match(b.facts, /Housing: made in VN/);
+  assert.match(b.facts, /Final assembly at Plant 1, VN/);
+  assert.equal(b.current_origin, undefined);
+});
+
+test("an imported origin-only product with no narrative also gets current facts", () => {
+  const imported = { ...extracted(), name: "Imported heater" };
+  const b = predictBody({
+    ...base(imported),
+    name: "Imported heater",
+    family: "",
+    extra: { exclude_rulings: ["N1"] },
+  });
+  assert.match(b.facts, /Product: Imported heater/);
+  assert.deepEqual(b.exclude_rulings, ["N1"]);
+});
+
+test("a valid carried narrative still wins over derived facts", () => {
+  const b = predictBody({ ...base(extracted()), family: "" });
+  assert.equal(b.facts, pasted);
+});
+
 test("product-step wires baselines and the helper (source contract only, not a render)", async () => {
   const { readFile } = await import("node:fs/promises");
   const src = await readFile(new URL("../src/components/op/screens/product-step.tsx", import.meta.url), "utf8");

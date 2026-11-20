@@ -153,10 +153,17 @@ func FallbackReason(modelID string) string {
 	return fmt.Sprintf("answered by the fallback model (%s) because the primary engine was unavailable", modelID)
 }
 
-// AnsweredByFallback reports whether trace.model_id is a model other than
-// the primary engine. An empty trace is not a fallback answer.
-func AnsweredByFallback(modelID, primary string) bool {
-	return modelID != "" && modelID != primary
+// AnsweredByFallback reports whether this trace came from the fallback
+// wrapper. A primary answer can report a version-suffixed model id, so string
+// comparison is only a legacy fallback for traces written before (#344).
+func AnsweredByFallback(t domain.Trace, primary string) bool {
+	if t.Fallback {
+		return true
+	}
+	if t.RequestedModel != "" {
+		return false
+	}
+	return t.ModelID != "" && t.ModelID != primary
 }
 
 // WithClarify refines a needs_review decision with the clarify review: when

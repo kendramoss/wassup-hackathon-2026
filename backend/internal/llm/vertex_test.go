@@ -94,6 +94,11 @@ func TestVertexRequestAndResponse(t *testing.T) {
 	if resp.Text != `{"ok":true}` || resp.ModelID != "gemini-4-argon-001" || resp.FinishReason != "STOP" {
 		t.Errorf("response = %+v", resp)
 	}
+	// #344: the resolved version is diagnostics only; the requested alias is
+	// what identifies this as a primary answer.
+	if resp.RequestedModel != "gemini-4-argon" || resp.Fallback {
+		t.Errorf("identity = %+v", resp)
+	}
 	if resp.Usage != (Usage{InputTokens: 200, OutputTokens: 50, TotalTokens: 250}) {
 		t.Errorf("usage = %+v", resp.Usage)
 	}

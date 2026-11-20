@@ -70,14 +70,23 @@ export class ApiError extends Error {
   }
 }
 
-// Folds a money save into a case. The response carries no product,
-// prediction or scenarios, so those stay. economics_priced was worked out
-// from the old inputs and is dropped, so this is only the fallback when the
-// authoritative case can't be re-read (see saveEconomics). A response for a
-// different case is an error, never a silent success.
+// Folds a money save into a case. The response carries no product or
+// prediction, so those stay. economics_priced and stored scenario comparisons
+// were worked out from the old inputs and are dropped (#347), so this is only
+// the fallback when the authoritative case can't be re-read (see
+// saveEconomics). A response for a different case is an error, never a silent
+// success.
 export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
   if (r.case_id !== c.id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
-  const next: CaseResponse = { ...c, economics: r.economics };
+  const next: CaseResponse = {
+    ...c,
+    economics: r.economics,
+    scenarios: c.scenarios?.map((s) => {
+      const fresh = { ...s };
+      delete fresh.comparison;
+      return fresh;
+    }),
+  };
   delete next.economics_priced;
   return next;
 }

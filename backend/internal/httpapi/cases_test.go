@@ -702,6 +702,33 @@ func TestScenariosPricedWithEconomics(t *testing.T) {
 	}
 }
 
+// #347: a money edit invalidates stored scenario prices. Keeping them would
+// show a net computed from the previous annual imports even after GET/reload.
+func TestPuttingEconomicsInvalidatesScenarioComparisons(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	_, out := hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"economics":{"illustrative":true,"annual_import_value_usd":2000000,"duty_rates":{"China":0.417,"Thailand":0.167}},
+		"scenarios":[{"label":"As today","facts":"Heat gun with the motor in China."},{"label":"Move motor","facts":"Heat gun with the motor in Thailand."}]}`)
+	for i, s := range out["scenarios"].([]any) {
+		if s.(map[string]any)["comparison"] == nil {
+			t.Fatalf("scenario %d had no comparison to invalidate", i)
+		}
+	}
+	if code, out := hs.do(t, "PUT", "/v1/cases/"+id+"/economics", `{"illustrative":true,"annual_import_value_usd":4000000,"duty_rates":{"China":0.417,"Thailand":0.167}}`); code != 200 {
+		t.Fatalf("put economics %d %v", code, out)
+	}
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	if got["economics"].(map[string]any)["annual_import_value_usd"] != 4000000.0 {
+		t.Fatalf("new economics not saved: %v", got["economics"])
+	}
+	for i, s := range got["scenarios"].([]any) {
+		if cmp := s.(map[string]any)["comparison"]; cmp != nil {
+			t.Errorf("scenario %d kept stale comparison %v", i, cmp)
+		}
+	}
+}
+
 func TestImportProductFromBOM(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
 	csv := "Part,Made in,Factory,Operation group,Plant capabilities\n" +

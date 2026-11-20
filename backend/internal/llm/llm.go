@@ -86,8 +86,14 @@ type Response struct {
 	ToolCalls []ToolCall
 	Usage     Usage
 	// ModelID is the model that answered, as reported by the provider when
-	// available, else the requested model.
-	ModelID      string
+	// available, else the requested model. It may be a versioned id ("alias-001").
+	ModelID string
+	// RequestedModel is the model the caller asked for. Kept separately so a
+	// provider's version suffix is not mistaken for a fallback model.
+	RequestedModel string
+	// Fallback is true when the fallback wrapper answered after the primary
+	// failed. Provider versions alone cannot tell that apart (#344).
+	Fallback     bool
 	Provider     string
 	Latency      time.Duration
 	FinishReason string

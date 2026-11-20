@@ -8,12 +8,18 @@ const Disclaimer = "Not a ruling. Confirm with a licensed customs broker or a CB
 // Trace records which model and prompt produced an output, for every API
 // response and eval row.
 type Trace struct {
-	Provider      string `json:"llm_provider"`
-	ModelID       string `json:"model_id"`
-	PromptVersion string `json:"prompt_version"`
-	InputTokens   int    `json:"input_tokens"`
-	OutputTokens  int    `json:"output_tokens"`
-	LatencyMS     int64  `json:"latency_ms"`
+	Provider string `json:"llm_provider"`
+	// ModelID is the provider's resolved model version. RequestedModel is the
+	// configured alias the engine asked for; Fallback says the fallback wrapper
+	// answered. Together they identify the model without mistaking a version
+	// suffix for a fallback (#344).
+	ModelID        string `json:"model_id"`
+	RequestedModel string `json:"requested_model,omitempty"`
+	Fallback       bool   `json:"fallback,omitempty"`
+	PromptVersion  string `json:"prompt_version"`
+	InputTokens    int    `json:"input_tokens"`
+	OutputTokens   int    `json:"output_tokens"`
+	LatencyMS      int64  `json:"latency_ms"`
 	// Cached is true when the prediction was replayed from the engine cache
 	// (D54): no model call, no tokens.
 	Cached bool `json:"cached,omitempty"`

@@ -64,12 +64,21 @@ func (c *Cache) Predict(ctx context.Context, k domain.Case) (Result, error) {
 	if err != nil {
 		return res, err
 	}
-	answered := res.Prediction.Trace.ModelID
-	if answered == "" {
-		answered = c.inner.opts.Model
+	// A primary answer belongs to the configured alias's namespace even when
+	// Vertex reports a version suffix. A fallback answer keeps its own
+	// namespace, so it can never satisfy a later primary lookup (#344).
+	namespace := res.Prediction.Trace.RequestedModel
+	if namespace == "" {
+		namespace = c.inner.opts.Model
+	}
+	if res.Prediction.Trace.Fallback {
+		namespace = res.Prediction.Trace.ModelID
+		if namespace == "" {
+			namespace = c.inner.opts.Model + "-fallback"
+		}
 	}
 	if b, err := json.Marshal(cached{Prediction: res.Prediction, Flip: res.Flip, Votes: res.Votes, VoteCounts: res.VoteCounts}); err == nil {
-		_ = c.blobs.Put(ctx, c.key(answered, k), b) // best effort; fallback model id ≠ primary key
+		_ = c.blobs.Put(ctx, c.key(namespace, k), b) // best effort
 	}
 	return res, nil
 }
@@ -79,10 +88,10 @@ func cacheable(k domain.Case) bool {
 }
 
 // Peek returns the stored prediction for k without calling the model; ok is
-// false when none is stored or k is not cached. It reads the primary
-// model's key: a fallback answer is stored under the model that answered,
-// so it does not satisfy this lookup and a later primary success is not
-// blocked (D56). The plan-search estimate uses it read-only (D87).
+// false when none is stored or k is not cached. It reads the configured
+// primary alias's key: a fallback answer is stored in its own namespace, so
+// it does not satisfy this lookup and a later primary success is not blocked
+// (D56, #344). The plan-search estimate uses it read-only (D87).
 func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
 	if !cacheable(k) {
 		return Result{}, false, nil

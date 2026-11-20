@@ -149,7 +149,7 @@ func isFunctionResponses(c *genai.Content) bool {
 }
 
 func fromGenaiResponse(out *genai.GenerateContentResponse, requested string, latency time.Duration) (Response, error) {
-	resp := Response{Provider: "vertex", ModelID: out.ModelVersion, Latency: latency}
+	resp := Response{Provider: "vertex", ModelID: out.ModelVersion, RequestedModel: requested, Latency: latency}
 	if resp.ModelID == "" {
 		resp.ModelID = requested
 	}

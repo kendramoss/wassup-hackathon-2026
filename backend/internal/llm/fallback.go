@@ -37,10 +37,11 @@ func (f *fallingBack) Generate(ctx context.Context, req Request) (Response, erro
 	if err != nil {
 		return Response{}, err
 	}
-	// The caller records this id in trace.model_id, so a fallback answer is
-	// distinguishable from a primary answer even when the provider's version
-	// string differs.
-	resp.ModelID = f.model
+	// Keep the provider's version in ModelID for diagnostics, and mark the
+	// requested primary and the fallback explicitly. Comparing the two model
+	// strings is unsafe: a primary can answer with alias-001 (#344).
+	resp.RequestedModel = req.Model
+	resp.Fallback = true
 	return resp, nil
 }
 

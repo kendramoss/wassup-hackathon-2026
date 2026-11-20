@@ -59,6 +59,12 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.Economics, latest.UpdatedAt = &e, now
+		// A stored scenario comparison was priced against the previous money
+		// inputs. It is no longer current; the screen asks for a rerun instead
+		// of presenting an old net as if it used the new figures (#347).
+		for i := range latest.Scenarios {
+			latest.Scenarios[i].Comparison = nil
+		}
 		record(r.Context(), latest, store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
 			e.AnnualImportValueUSD, len(e.DutyRates), len(e.GroupCosts))})
 		return nil

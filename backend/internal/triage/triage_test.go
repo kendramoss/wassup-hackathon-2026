@@ -97,6 +97,20 @@ func TestFallbackAlwaysReviewsUnlessFastPathSet(t *testing.T) {
 	}
 }
 
+// #344: a provider's version suffix is not evidence of fallback.
+func TestAnsweredByFallbackUsesExplicitIdentity(t *testing.T) {
+	if AnsweredByFallback(domain.Trace{ModelID: "gemini-4-argon-001", RequestedModel: "gemini-4-argon"}, "gemini-4-argon") {
+		t.Error("version-suffixed primary reported as fallback")
+	}
+	if !AnsweredByFallback(domain.Trace{ModelID: "tuned-flash-001", RequestedModel: "gemini-4-argon", Fallback: true}, "gemini-4-argon") {
+		t.Error("fallback not reported")
+	}
+	// Traces written before requested_model existed still use the old check.
+	if !AnsweredByFallback(domain.Trace{ModelID: "tuned-flash"}, "gemini-4-argon") {
+		t.Error("legacy fallback not reported")
+	}
+}
+
 func TestWithClarify(t *testing.T) {
 	review := domain.Triage{Route: domain.RouteNeedsReview, Reason: "confidence 0.80 below 0.95"}
 	if got := WithClarify(review, true, 2); got.Route != domain.RouteNeedsInfo || got.Validate() != nil {

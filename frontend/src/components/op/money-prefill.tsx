@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ApiError, api, type Economics, type Product } from "@/lib/api/client";
+import { cellKey, estimateProductKey, mergeCostEstimates, type EstimatedCells } from "@/lib/economics-estimate";
+import { requestOwner } from "@/lib/request-ownership";
 import { cx } from "./ui";
+export { cellKey, type EstimatedCells };
 
 // Money inputs filled for the user (#235): figures from the uploaded BOM,
 // then duty rates from the product's HTS number (or a suggested one) via
@@ -122,10 +125,9 @@ export function PrefillNote({ f, onEdit, className }: { f: Filled; onEdit?: () =
   );
 }
 
-// AI estimates for the blank group costs (#235 step 4): one call; only blank
-// cells are filled, the user's own figures are anchors and never change.
-export type EstimatedCells = Record<string, { low: number; high: number; reason: string }>;
-export const cellKey = (group: string, plant: string) => `${group}|${plant}`;
+// AI estimates for the blank group costs (#235 step 4): one call; only cells
+// still blank when the answer arrives are filled. The merge and the request
+// ownership live in pure lib modules so the concurrency rules are testable.
 
 export function EstimateCosts({
   product,
@@ -140,32 +142,37 @@ export function EstimateCosts({
 }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "ask"; text: string } | null>(null);
+  const owner = useRef(requestOwner()).current;
+  // Kept in sync after each render so the answer merges into the latest form
+  // state, and cleared on unmount so a dismissed form cannot write back (#349).
+  const latest = useRef({ product, economics, onFill, mounted: true });
+  useEffect(() => {
+    latest.current = { product, economics, onFill, mounted: true };
+  }, [product, economics, onFill]);
+  useEffect(() => () => { latest.current.mounted = false; }, []);
   if (!product?.plants?.length) return null;
   const run = async () => {
+    const id = owner.next();
+    const startedProduct = estimateProductKey(product);
     setBusy(true);
     setMsg(null);
     try {
       const r = await api.costEstimate({ product, economics });
-      const costs = { ...(economics.group_costs ?? {}) };
-      const cells: EstimatedCells = {};
-      for (const x of r.estimates ?? []) {
-        const row = { ...(costs[x.group] ?? {}) };
-        if (row[x.plant] !== undefined) continue; // the user's figure stays
-        row[x.plant] = Math.round(x.usd);
-        costs[x.group] = row;
-        cells[cellKey(x.group, x.plant)] = { low: x.low, high: x.high, reason: x.reason };
-      }
-      const n = Object.keys(cells).length;
-      onFill({ ...economics, illustrative: true, group_costs: costs }, cells);
+      const now = latest.current;
+      if (!now.mounted || !owner.isCurrent(id) || estimateProductKey(now.product) !== startedProduct) return;
+      const merged = mergeCostEstimates(now.economics as Economics, r.estimates ?? []);
+      const n = Object.keys(merged.cells).length;
+      now.onFill(merged.economics, merged.cells);
       setMsg(
         n
           ? { tone: "ok", text: `Filled ${n} blank cost${n === 1 ? "" : "s"} with AI estimates (dashed; hover for the range and why). Illustrative: check them.` }
           : { tone: "ok", text: r.note || "Every cell already has a cost." },
       );
     } catch (e) {
+      if (!owner.isCurrent(id) || !latest.current.mounted) return;
       setMsg({ tone: "ask", text: e instanceof ApiError && e.status === 400 ? e.message.replace(/^.*?:\s*/, "") : "Couldn't estimate just now. Try again, or enter the costs by hand." });
     } finally {
-      setBusy(false);
+      if (owner.isCurrent(id) && latest.current.mounted) setBusy(false);
     }
   };
   return (

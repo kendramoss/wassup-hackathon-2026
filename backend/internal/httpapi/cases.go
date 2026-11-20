@@ -105,8 +105,9 @@ type Deps struct {
 	Summary      func() (evalsummary.Summary, error)
 	Demos        []demos.Demo
 	FastPathConf float64
-	// FallbackFastPath is the auto-accept bar for a prediction whose
-	// trace.model_id is not EngineModel. 0 always reviews (D56).
+	// FallbackFastPath is the auto-accept bar for a prediction answered by the
+	// fallback wrapper (trace.fallback, or the legacy model-id check). 0 always
+	// reviews (D56, #344).
 	FallbackFastPath float64
 	// PlanConfidence is the verifier bar for shown plans (named in below-bar drafts).
 	PlanConfidence float64
@@ -437,7 +438,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
 	// needs_review into needs_info, and it calls the primary model, which
 	// just failed.
-	if triage.AnsweredByFallback(pred.Trace.ModelID, a.d.EngineModel) {
+	if triage.AnsweredByFallback(pred.Trace, a.d.EngineModel) {
 		return nil
 	}
 	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {

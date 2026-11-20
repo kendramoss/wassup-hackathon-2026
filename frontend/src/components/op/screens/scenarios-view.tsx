@@ -8,6 +8,7 @@ import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
+import { draftsFromScenarios, hasRecordedSetup, type Draft } from "@/lib/scenario-drafts";
 import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
@@ -17,7 +18,7 @@ export function ScenariosView() {
   return <CaseShell tab="scenarios">{(ctx) => <Scenarios {...ctx} />}</CaseShell>;
 }
 
-type Draft = { label: string; mode: "move" | "facts"; groups: string[]; plant: string; facts: string };
+type ScreenError = { error: unknown; retry: () => void };
 
 // Moves the chosen operation groups to a plant: their parts take that plant
 // and its country, their operations that plant.
@@ -50,8 +51,8 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
   // "Add as a scenario" from Ask: the what-if becomes a facts draft, kept
   // beside the first two so the case stays at three scenarios at most.
   const add = useSearchParams().get("add")?.trim();
-  const [drafts, setDrafts] = useState<Draft[]>(() => {
-    const base: Draft[] = product?.plants?.length
+  const examples = (): Draft[] =>
+    product?.plants?.length
       ? [
           { label: "As today", mode: "move" as const, groups: [], plant: other, facts: "" },
           ...(movable.length >= 1 ? [{ label: `${groupName(movable[0])} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
@@ -60,7 +61,9 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
             : []),
         ]
       : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];
-    if (!add) return base;
+  const [drafts, setDrafts] = useState<Draft[]>(() => {
+    const saved = hasRecordedSetup(c) ? draftsFromScenarios(c) ?? [] : [];
+    if (!add) return saved.length ? saved : examples();
     const label = add.length > 60 ? add.slice(0, 59) + "…" : add;
     // From Ask: the revised facts the what-if ran on, when the drawer left
     // them; otherwise the original facts with the change appended (#115).
@@ -68,11 +71,12 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     try {
       revised = sessionStorage.getItem(`op-whatif:${c.id}:${add}`);
     } catch {}
-    return [...base.slice(0, 2), { label, mode: "facts", groups: [], plant: "", facts: revised ?? `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() }];
+    const whatIf: Draft = { label, mode: "facts", groups: [], plant: "", facts: revised ?? `${(c.facts ?? "").trim()}\n\nChange: ${add}`.trim() };
+    return [...(saved.length ? saved.slice(0, 2) : examples().slice(0, 2)), whatIf];
   });
-  const [editing, setEditing] = useState(Boolean(add) || !(c.scenarios?.length));
+  const [editing, setEditing] = useState(Boolean(add) || !hasRecordedSetup(c));
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState<ScreenError | null>(null);
   const [moneyOpen, setMoneyOpen] = useState(false);
   // The newest case this screen holds, so a slow money save or re-read never
   // writes back the case from when it started.
@@ -98,7 +102,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
     try {
       await saveEconomics(id, e, { latest: () => latest.current, apply: commit });
     } catch (err) {
-      setError(err);
+      setError({ error: err, retry: () => void saveMoney(e) });
     } finally {
       release();
       setSaving(false);
@@ -117,7 +121,7 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
       commit(await api.scenarios(id, { scenarios: body, economics: c.economics }));
       setEditing(false);
     } catch (e) {
-      setError(e);
+      setError({ error: e, retry: () => void run() });
     } finally {
       release();
       setBusy(false);
@@ -147,12 +151,17 @@ function Scenarios({ id, c, setCase }: CaseCtx) {
         <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
-        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {error ? <ErrorBox error={error.error} onRetry={error.retry} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
             <Button onClick={run} disabled={busy || saving || drafts.length === 0}>
               {sc.length ? "Run again" : "Predict the scenarios"}
             </Button>
+            {sc.length > 0 && (
+              <Button variant="ghost" onClick={() => setDrafts(examples())} disabled={busy || saving}>
+                Reset to examples
+              </Button>
+            )}
             {busy && <Spinner label="Predicting each scenario…" />}
             {saving && <Spinner label="Saving money inputs…" />}
           </div>
@@ -358,7 +367,9 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
                   </p>
                 </>
               ) : (
-                <p className="mt-1 text-xs text-dim">— add duty rates or costs</p>
+                <p className="mt-1 text-xs text-dim">
+                  {c.economics ? "— money inputs changed; run scenarios again to price them" : "— add duty rates or costs"}
+                </p>
               )}
             </div>
           </Panel>

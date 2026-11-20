@@ -250,7 +250,7 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 		switch d.Selected {
 		case router.RegimeTextile:
 			tr = triage.Textile(p, a.d.TextileFastPath)
-			if triage.AnsweredByFallback(p.Trace.ModelID, a.d.EngineModel) {
+			if triage.AnsweredByFallback(p.Trace, a.d.EngineModel) {
 				tr = triage.Fallback(p, a.d.FallbackFastPath, true, "")
 			}
 		case router.RegimeUSMCA:
@@ -281,7 +281,7 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 	// The fallback-model guard runs before the family bars (#300): a family bar
 	// must not accept what the fallback model answered unless FALLBACK_FAST_PATH
 	// allows it.
-	if triage.AnsweredByFallback(p.Trace.ModelID, a.d.EngineModel) {
+	if triage.AnsweredByFallback(p.Trace, a.d.EngineModel) {
 		return triage.Fallback(p, a.d.FallbackFastPath, inScope, scopeReason), inScope
 	}
 	if a.d.FamilyBars != nil {

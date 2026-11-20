@@ -220,6 +220,10 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		ids[i] = p.ID
 	}
 	sort.Strings(ids) // order-independent, so votes over rotations report the same set
+	requested := resp.RequestedModel
+	if requested == "" {
+		requested = e.opts.Model
+	}
 	pred := domain.Prediction{
 		KeyFactors:   []string{},
 		Origin:       domain.NormalizeCountry(a.Origin),
@@ -228,12 +232,14 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		Precedents:   ids,
 		CitedRulings: citedIn(a.Reasoning+" "+a.DecisiveStep+" "+a.EssentialCharacter, precedentIDs(precedents)),
 		Trace: domain.Trace{
-			Provider:      resp.Provider,
-			ModelID:       resp.ModelID,
-			PromptVersion: e.promptVersion(),
-			InputTokens:   resp.Usage.InputTokens,
-			OutputTokens:  resp.Usage.OutputTokens,
-			LatencyMS:     resp.Latency.Milliseconds(),
+			Provider:       resp.Provider,
+			ModelID:        resp.ModelID,
+			RequestedModel: requested,
+			Fallback:       resp.Fallback,
+			PromptVersion:  e.promptVersion(),
+			InputTokens:    resp.Usage.InputTokens,
+			OutputTokens:   resp.Usage.OutputTokens,
+			LatencyMS:      resp.Latency.Milliseconds(),
 		},
 	}
 	if a.EssentialCharacter != "" {

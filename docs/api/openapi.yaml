@@ -1312,13 +1312,26 @@ components:
         reasoning: { type: string }
         cited_rulings: { type: array, items: { type: string }, description: Earlier rulings the model named (only rulings it was shown) }
         precedents: { type: array, items: { type: string }, description: All earlier rulings shown to the model }
+        trace:
+          type: object
+          description: Model identity and usage for the prediction. model_id is the provider's resolved version; requested_model is the configured alias. fallback is true when the fallback wrapper answered (#344).
+          properties:
+            llm_provider: { type: string }
+            model_id: { type: string }
+            requested_model: { type: string }
+            fallback: { type: boolean }
+            prompt_version: { type: string }
+            input_tokens: { type: integer }
+            output_tokens: { type: integer }
+            latency_ms: { type: integer }
+            cached: { type: boolean }
     Triage:
       type: object
       properties:
         route: { type: string, enum: [auto, needs_review, needs_info], description: "needs_info: no earlier ruling on point; answer clarify.questions via /answers" }
         reason:
           type: string
-          description: 'Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). With FAST_PATH_BY_FAMILY=on (off by default, D63) the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)". When prediction.trace.model_id is the fallback engine rather than the primary, the reason is "answered by the fallback model (<id>) because the primary engine was unavailable" and the route is needs_review unless FALLBACK_FAST_PATH is set (D56).'
+          description: 'Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). With FAST_PATH_BY_FAMILY=on (off by default, D63) the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)". When prediction.trace.fallback is true, the reason is "answered by the fallback model (<id>) because the primary engine was unavailable" and the route is needs_review unless FALLBACK_FAST_PATH is set (D56, #344). prediction.trace.model_id is the provider''s resolved version and may carry a suffix even for a primary answer; the fallback flag, not the id, distinguishes the two.'
     RouterLabel:
       type: object
       properties:

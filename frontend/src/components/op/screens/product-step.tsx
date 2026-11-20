@@ -19,6 +19,7 @@ import { clonedFamily } from "@/lib/clone-family";
 import { copy } from "@/lib/copy";
 import { rememberDemo } from "@/lib/demo-store";
 import { predictBody, productSignature, type Carried } from "@/lib/product-facts-reconcile";
+import { requestOwner } from "@/lib/request-ownership";
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
@@ -285,6 +286,8 @@ export function ProductStep() {
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
+  // A newer explicit family choice supersedes any in-flight check (#351).
+  const famOwner = useRef(requestOwner()).current;
   // Only a family the user picked goes with an upload; otherwise the file
   // or the AI check chooses it (18 Oct).
   const [familyTouched, setFamilyTouched] = useState(false);
@@ -348,6 +351,7 @@ export function ProductStep() {
   // text (nothing saved); they open on the Parts and plants tab to check.
   // A listed family is picked as is; anything else is checked by the AI.
   const pickFamily = async (v: string) => {
+    const id = famOwner.next();
     setFamilyTouched(true);
     if (v === "" || families.some((f) => f.id === v)) {
       setFamily(v);
@@ -363,6 +367,7 @@ export function ProductStep() {
     setFamCheck({ state: "busy", typed: v });
     try {
       const { result: r } = await api.familyCheck({ text: v, product: product.components.length ? { ...product, name: name.trim() } : undefined });
+      if (!famOwner.isCurrent(id)) return;
       if (r.typed_unclear) {
         // Never credit a match to text that names nothing; the parts' family
         // is offered, not applied.
@@ -376,6 +381,7 @@ export function ProductStep() {
         setFamCheck({ state: "match", typed: v, family: r.family, confidence: r.confidence, reason: r.reason, applied: sure });
       }
     } catch {
+      if (!famOwner.isCurrent(id)) return;
       setFamCheck({ state: "error", typed: v, message: "Couldn't check that just now. Pick the closest family from the list, or choose None." });
     }
   };
@@ -504,6 +510,7 @@ export function ProductStep() {
                     <FamilyNote
                       check={famCheck}
                       onUse={(f) => {
+                        famOwner.next();
                         setFamily(f);
                         setFamilyTouched(true);
                         setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
@@ -613,6 +620,7 @@ export function ProductStep() {
                     setNameIsAuto(Boolean(guess));
                   }
                   if (autoFamily.current && !familyTouched) {
+                    famOwner.next();
                     setFamily("motorised_tools_small_appliances");
                     setFamCheck(null);
                   }
@@ -630,7 +638,10 @@ export function ProductStep() {
                 onImported={(r) => {
                   setImported(r);
                   setProduct(r.product);
-                  if (r.family) setFamily(r.family);
+                  if (r.family) {
+                    famOwner.next();
+                    setFamily(r.family);
+                  }
                   // Name and family the file (or the AI) filled in (18 Oct).
                   const how = (src?: string) => (src === "ai" ? "suggested by AI from the parts" : "from your file");
                   const said: string[] = [];
@@ -1236,8 +1247,12 @@ function BomImport({
   const [pdfText, setPdfText] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const inputId = useId();
+  // If a second file is picked while the first is still running, only the
+  // second may finish: its product, filename, busy state and errors win (#346).
+  const owner = useRef(requestOwner()).current;
 
   const upload = async (f: File) => {
+    const id = owner.next();
     // The typed name, else the file or the AI names it; the file's name is
     // only the last resort (18 Oct).
     const productName = name.trim();
@@ -1252,13 +1267,15 @@ function BomImport({
     if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
       try {
         const { csv } = await pdfToBomCsv(f);
-        onImported(await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined }));
+        const r = await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined });
+        if (owner.isCurrent(id)) onImported(r);
       } catch (e) {
+        if (!owner.isCurrent(id)) return;
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
         onFailed?.();
       } finally {
-        setBusy(false);
+        if (owner.isCurrent(id)) setBusy(false);
       }
       return;
     }
@@ -1269,12 +1286,14 @@ function BomImport({
     if (hint) form.append("name_hint", hint);
     if (family) form.append("family", family);
     try {
-      onImported(await api.importBom(form));
+      const r = await api.importBom(form);
+      if (owner.isCurrent(id)) onImported(r);
     } catch (e) {
+      if (!owner.isCurrent(id)) return;
       setError(e);
       onFailed?.();
     } finally {
-      setBusy(false);
+      if (owner.isCurrent(id)) setBusy(false);
     }
   };
 
