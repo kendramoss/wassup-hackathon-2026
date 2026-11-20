@@ -95,11 +95,21 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	q := strings.TrimSpace(in.Question)
+	if q == "" && !in.Reset {
+		a.fail(w, r, fmt.Errorf("%w: question is required", domain.ErrInvalid))
+		return
+	}
+	if len([]rune(q)) > 2000 {
+		a.fail(w, r, fmt.Errorf("%w: question is longer than 2,000 characters", domain.ErrInvalid))
+		return
+	}
+	// Validated: only now is the intent recorded (an ask appends a chat turn, or
+	// resets the chat, unless the case is a pinned demo).
+	if err := a.auditCase(r, c, "ask"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if q == "" {
-		if !in.Reset {
-			a.fail(w, r, fmt.Errorf("%w: question is required", domain.ErrInvalid))
-			return
-		}
 		saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Chat = nil
 			return nil
@@ -109,10 +119,6 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		a.respond(w, http.StatusOK, map[string]any{"case_id": saved.ID, "chat": chatField(saved.Chat)})
-		return
-	}
-	if len([]rune(q)) > 2000 {
-		a.fail(w, r, fmt.Errorf("%w: question is longer than 2,000 characters", domain.ErrInvalid))
 		return
 	}
 	// The model sees the conversation as it was when the question was
@@ -167,7 +173,11 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	// model call, so it charges nothing again; it keeps the answer's
 	// provenance and says where it came from.
 	var u usage
-	summary := fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
+	// The summary carries the question's LENGTH, not its text: the text stays
+	// in the case chat, which a reset can clear, while history keeps at most
+	// 200 events and survives a reset (#285). Cited ids are public CBP ruling
+	// numbers the agent saw in a tool result.
+	summary := fmt.Sprintf("question (%d characters), %d what-ifs, cited %s", utf8.RuneCountInString(q), len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
 	if hit {
 		summary += ", answered from memory"
 	} else {
@@ -236,13 +246,14 @@ func agentCaseText(c store.Case) string {
 		fmt.Fprintf(&b, "Follow-up questions suggested: %s\n", strings.Join(c.Clarify.Questions, " | "))
 	}
 	if c.Plan != nil {
+		stale := planMoneyStale(c)
 		fmt.Fprintf(&b, "\nPLAN SEARCH (target %s):\n", c.Plan.Target)
 		for _, pl := range c.Plan.Plans {
 			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; %s; %s\n", pl.Description, pl.Prediction.Origin,
-				precedentCheckText(pl, true), netText(pl))
+				precedentCheckText(pl, true), planNetText(pl, stale))
 		}
 		for _, pl := range c.Plan.Rejected {
-			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false))
+			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s%s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false), costRejectionText(pl, stale))
 		}
 	}
 	for _, s := range c.Scenarios {
@@ -285,6 +296,26 @@ func precedentCheckText(p domain.Plan, withRuling bool) string {
 // the figure, including a real zero. Searched but not priced: never a figure.
 // Stored before the flag existed: a nonzero recorded figure is kept, labelled
 // as historical and unverified; an all-zero one can't be told from "unknown".
+func planNetText(p domain.Plan, stale bool) string {
+	if p.Operations != nil {
+		return opsNetText(p, stale)
+	}
+	return netText(p)
+}
+
+// costRejectionText adds why a cost demotion happened, so the agent does not
+// call a move the legal gate supported "not allowed". The reason carries money,
+// so it is left out when the money has changed since.
+func costRejectionText(p domain.Plan, stale bool) string {
+	if p.Operations == nil || stale {
+		return ""
+	}
+	if p.RejectionKind != domain.RejectNetCostlier && p.RejectionKind != domain.RejectOperationallyInfeasible {
+		return ""
+	}
+	return "; supported by precedent but demoted on the inputs entered: " + p.RejectionReason
+}
+
 func netText(p domain.Plan) string {
 	switch {
 	case p.NetPriced != nil && *p.NetPriced:

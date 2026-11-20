@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner/opcost"
 )
 
 // Comparison is the yearly money view of one production setup against the
@@ -29,6 +30,14 @@ type Comparison struct {
 	// the current setup's origin. For a setup that moves nothing this is the
 	// engine disagreeing with the current origin, not a duty change.
 	OriginDiffersFromCurrent bool `json:"origin_differs_from_current"`
+	// The fields below are present only when the economics carry an operations
+	// block (#281). AddedCostUSD is then the operating cost difference
+	// (nullable: unknown or not modelled), NetUSD the modelled net (non-null
+	// only when every financial input is known), and Operations the full
+	// result with the absolute baseline and proposed sides.
+	AmortizedOneTimeUSD *float64       `json:"amortized_one_time_usd,omitempty"`
+	Feasibility         string         `json:"feasibility,omitempty"`
+	Operations          *opcost.Result `json:"operations,omitempty"`
 }
 
 // Compare prices a setup whose predicted origin is origin against the current
@@ -58,6 +67,10 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 	}
 	if current != nil && variant != nil {
 		c.Moved = movesBetween(*current, *variant)
+		if e.Operations.Active() { // one calculator for plan, scenario and target comparison
+			c.priceOps(e, *current, variant, currentOrigin, origin)
+			return c
+		}
 		if len(e.GroupCosts) > 0 {
 			if added, known := knownAddedCost(e, *current, c.Moved); known {
 				c.AddedCostUSD = ptr(added)
@@ -68,6 +81,25 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 		c.NetUSD = ptr(round2(*c.DutySavingsUSD - *c.AddedCostUSD))
 	}
 	return c
+}
+
+// priceOps fills the money of a comparison from opcost.Evaluate, the same
+// arithmetic the plan search uses for the same move.
+func (c *Comparison) priceOps(e Economics, current domain.Product, variant *domain.Product, currentOrigin, origin string) {
+	res := opsEvaluate(e, current, variant, c.Moved, currentOrigin, origin)
+	c.Operations = &res
+	// Dollar duty is unknown, not 0, when there is no annual import value or the
+	// duty effect could not be worked out. A known rate stays.
+	if e.AnnualImportValueUSD <= 0 {
+		c.AnnualDutyUSD = nil
+	}
+	if e.AnnualImportValueUSD <= 0 || res.Components.DutyEffectPerYear == nil {
+		c.DutySavingsUSD = nil
+	}
+	c.AddedCostUSD = res.Components.OperatingDelta
+	c.AmortizedOneTimeUSD = res.Components.AmortizedOneTimePerYear
+	c.NetUSD = res.NetModelledPerYear
+	c.Feasibility = res.Feasibility
 }
 
 // knownAddedCost is the yearly cost of the moves, only when every moved group

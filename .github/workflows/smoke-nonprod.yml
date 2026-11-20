@@ -1,0 +1,102 @@
+# Manual non-production smoke (#276), OFFLINE only. It is dispatch-only and
+# runs no model: the readiness-eval selfcheck and fake-model dry run, plus the
+# family-check HTTP tests against an isolated loopback server (fake model,
+# synthetic data). It needs no secrets, variables or environments, and it
+# deploys, shifts traffic and touches no Cloud resource.
+#
+# It does NOT prove native Vertex behaviour and does not close #276's staging
+# criterion. A paid or real-model path is deliberately absent; see
+# docs/smoke-workflow.md for the prerequisites that block it.
+name: Smoke (non-production, offline)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Offline selfcheck only. No input can enable a model call.
+        type: choice
+        options:
+          - selfcheck
+        default: selfcheck
+
+concurrency:
+  group: smoke-nonprod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      MODE: ${{ inputs.mode }}
+      SMOKE_TARGET: none
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Refuse non-local targets and unexpected modes
+        run: |
+          set -eu
+          case "$MODE" in selfcheck) ;; *) echo "refused: mode $MODE is not an offline mode"; exit 1 ;; esac
+          case "$SMOKE_TARGET" in none|local-harness) ;; *) echo "refused: target is not none or local-harness"; exit 1 ;; esac
+          if printf '%s' "$SMOKE_TARGET" | grep -Eiq 'run\.app|undelabs\.dev|origin-proof|88903435351|wassup-hackathon-2026'; then
+            echo "refused: production target"; exit 1
+          fi
+          echo "target=$SMOKE_TARGET mode=$MODE"
+      - name: Build the reviewed tool
+        run: GOFLAGS=-mod=readonly go build -o "$RUNNER_TEMP/readiness-eval" ./cmd/readiness-eval
+      - name: Tool selfcheck (network lock-down, no connection)
+        run: |
+          set -eu
+          "$RUNNER_TEMP/readiness-eval" selfcheck | tee "$RUNNER_TEMP/selfcheck.out"
+          grep -qx 'default http transport denied' "$RUNNER_TEMP/selfcheck.out"
+      - name: Tool dry-run smoke (fake model, temporary ledger)
+        run: |
+          set -eu
+          "$RUNNER_TEMP/readiness-eval" smoke --dry-run | tee "$RUNNER_TEMP/dryrun.out"
+          grep -q '^dry-run smoke ok: ' "$RUNNER_TEMP/dryrun.out"
+      - name: Bare real smoke stays refused
+        run: |
+          set -u
+          if "$RUNNER_TEMP/readiness-eval" smoke >/dev/null 2>"$RUNNER_TEMP/refused.err"; then
+            echo "unexpected: bare smoke succeeded"; exit 1
+          fi
+          grep -q 'real smoke refused' "$RUNNER_TEMP/refused.err"
+      - name: Offline family-check HTTP tests and workflow checks (fake model)
+        run: GOFLAGS=-mod=readonly go test -race -count=1 ./internal/readiness/smokecheck/ ./internal/readiness/workflowcheck/ ./cmd/readiness-eval/
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Offline smoke (no model calls)"
+            echo "- source sha: ${GITHUB_SHA}"
+            echo "- mode: ${MODE}"
+            echo "- target: ${SMOKE_TARGET}"
+            echo "- $(go version)"
+            echo "- job status: ${{ job.status }}"
+            echo "- Not native Vertex. Does not close the #276 staging criterion (UNVERIFIED)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Blocked: never runs. There is no input, secret or environment that enables
+  # it. See docs/smoke-workflow.md for what must exist first.
+  paid-generation:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Blocked
+        run: |
+          echo "BLOCKED: real-model smoke is not available; see docs/smoke-workflow.md"
+          exit 1

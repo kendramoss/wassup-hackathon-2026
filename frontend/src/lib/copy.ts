@@ -94,7 +94,7 @@ export const copy = {
     },
     auto: {
       match: /Auto-accepted/,
-      text: "Confident enough (0.92 or more) to skip expert review. On 377 held-out rulings these were right 96% of the time.",
+      text: "Confident enough (0.92 or more) to pass Unde's configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
     },
     hts: { match: /HTS/, text: "The US tariff code. It sets the duty rate." },
     needsInfo: {
@@ -197,8 +197,9 @@ export const copy = {
         {
           h: "Where your data goes",
           p: [
-            "Cases are stored in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. Under Google Cloud's terms, that data isn't used to train Google's models.",
-            "The server logs each request's method, path, status and timing, not its contents.",
+            "Unde's deployment is intended to store cases in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. How Google handles that data is set by Google Cloud's terms for the service, which Unde does not control.",
+            "In the current release, our server logs record the kind of request (the route pattern, such as GET /v1/cases/{id}), its status and how long it took, a request reference, and counts such as model tokens. They are designed not to record your product description, bill of materials, supplier or plant names, costs, questions, answers, case names, email addresses, tokens or API keys. When something fails, the log keeps the kind of failure (for example \"model unavailable\") and a status number, not the text of the error. Model prompts and answers are not written to the logs at any level.",
+            "The request reference shown in the X-Request-ID header is generated or derived by the server. If you send your own, it is replaced by a one-way hash, so something you put in that header does not appear in our logs. The hash is not anonymisation.",
             "Unde doesn't sell your data or share it with anyone else.",
           ],
         },
@@ -207,6 +208,7 @@ export const copy = {
           p: [
             "Cases are kept until you delete them, from the Cases page, or until Unde shuts down. Clearing your cookies hides an anonymous visitor's cases from that browser for good.",
             "To have your data removed, or to ask what Unde holds about you, email the address below.",
+            "Your case, its history and what you export are stored and shown to you and your workspace as you entered them, with the same accuracy as before. The history keeps the email of the member who made each change and shows it to the people who can see that case, until the case is deleted. History lines written from now on no longer repeat the text of a question or an old case name; lines written earlier are not rewritten. Case history is deleted with its case. Resetting a case clears its chat but not the earlier lines of its history. Cached predictions and precedent-check results are stored separately and are not removed by deleting the case. We do not control copies kept elsewhere, such as any backups or provider-side records.",
           ],
         },
       ],
@@ -295,6 +297,134 @@ export const copy = {
     failed: "Sign-in didn't work. Try again.",
     account: (email: string) => `Account: ${email}`,
     signedInAs: "Signed in as",
+    // 401 unauthenticated for a visitor with no sign-in (#283, strict mode).
+    // A visitor id is not a sign-in, so this says to sign in, not to retry.
+    required: "Sign in to open your cases. The demos stay open without signing in.",
+    requiredLead: "Sign-in required",
+    demosLink: "Open a demo case →",
+  },
+  access: {
+    viewerRefused: "Your role in this workspace is viewer, so you can read this case but not change it. Ask a workspace admin for editor access.",
+    recheck: "Check my access again",
+    readOnlyNote: "You can read this case but not change it: your role in this workspace is viewer. You can still preview a letter. Editor access is needed to change it.",
+  },
+
+  // Broker-review framing (#278): one short note beside the result on the
+  // origin, plan, compare, scenarios and draft screens (components/op/
+  // review-note.tsx). Local and once per place; no banner, no nav disclaimer.
+  // The best-of lines are bounded to the moves searched and the inputs the
+  // model uses; they read the same for any plan result and use no API field.
+  review: {
+    label: "Review and scope",
+    origin: "Even a high-confidence result is a prediction from earlier CBP rulings, not a ruling. Have a licensed customs broker review it before you rely on it.",
+    plan: "These plans are suggestions, not rulings or CBP approvals. Have a licensed customs broker review a move before you act on it.",
+    bestBounded: "Best of the moves searched, using the duty and cost assumptions shown, which may be prefilled or illustrative. In the legacy plan ranking a blank cost may count as zero, which is not a verified expense. Factors the model does not include are not counted.",
+    compare: "This ranking is a suggestion for a licensed customs broker to review, not a ruling or a CBP approval.",
+    compareBounded: "Ranked among the countries you chose, from the moves searched and the duty and cost inputs shown, which may be prefilled or illustrative. A missing required input leaves that figure unpriced, and factors the model does not include are not assessed.",
+    scenarios: "Scenarios are what-ifs, not rulings. Have a licensed customs broker review a result before you act on it.",
+    scenariosBounded: "Compared among the scenarios you entered, using the duty and cost inputs shown, which may be prefilled or illustrative. A missing required input leaves that figure unpriced, and factors the model does not include are not assessed.",
+  },
+
+  // What the tool is for and not for (#282). Reviewed wording from
+  // docs/scope-and-jurisdiction.md; it says what the tool is for and makes no
+  // claim that unsupported questions are detected or blocked (they are not).
+  jurisdiction: {
+    originScope: "U.S. origin only. Not for trade-agreement claims, certificates of origin or non-U.S. rules.",
+    outOfScope: "This looks like a case this tool does not decide. A licensed customs broker should review it.",
+    part102: "Marking origin under the Part 102 rules. This is not USMCA qualification or regional value content.",
+    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only motorised tools and small appliances, LiDAR modules and LED lights are planned.",
+    draftNote: "A draft ruling request for a broker to complete and file. It asks CBP a question; it is not a determination.",
+    part177Label: "Ruling request letter (19 CFR Part 177)",
+    part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
+    compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
+    // Accuracy page, "What we don't claim" (listed unsupported in docs/scope-and-jurisdiction.md section 6).
+    notCovered: "Not covered: EU Binding Origin Information; USMCA regional value content and preferential-origin claims; certificates of origin; duty drawback; antidumping and countervailing duty questions. Section 232 duties are not included in cost figures.",
+    noDetector: "Unde is for U.S. origin questions. It has no automatic check that detects or blocks a question about another country's rules, so do not use it for one.",
+  },
+
+  // Operating costs (#281). New keys only; the review and privacy blocks are untouched.
+  ops: {
+    section: "Operating costs",
+    optional: "optional",
+    switchLabel: "Include operating costs when ranking moves",
+    off: "Off: moves are ranked on duty saved and the group costs above, as before. Nothing about operating costs is sent.",
+    removes: "Turning this off removes the operating-cost inputs from this save.",
+    scope: "Illustrative and editable. Only the terms you enter are modelled; everything else is left out of both sides of the comparison, not counted as zero.",
+    horizon: "Horizon (years)",
+    horizonHelp: "Above 0. Needed when you enter a one-time cost (CapEx or retooling). One-time costs are spread evenly over it: no discounting, residual value or tax.",
+    maxLead: "Your lead-time limit (days)",
+    maxLeadHelp: "Whole days. A move relocates several groups at once; their lead times are assumed to run in parallel, so the move takes the longest of them. This is an assumption, not a schedule.",
+    note: "Note",
+    noteHelp: "Free text. It changes no result.",
+    basis: "Labour and logistics are",
+    basisNone: "Not set",
+    basisIncluded: "Already inside the group cost",
+    basisAdditional: "On top of the group cost",
+    basisHelp:
+      "Set this once you enter labour or logistics, so nothing is counted twice. Already inside: the group cost above already contains them, so they only break it down and are not added again. On top: they are extra and are added to the group cost.",
+    unit: "Unit",
+    unitHelp: "Case-sensitive, and no conversion is done: pcs and PCS are different units. Demand and the minimum order must use the same unit.",
+    demand: "Annual demand (units)",
+    orders: "Orders a year",
+    labour: "Labour (USD a year)",
+    logistics: "Logistics (USD a year)",
+    capex: "CapEx (USD, one time)",
+    retooling: "Retooling (USD, one time)",
+    lead: "Lead time (days)",
+    moq: "Minimum order (units)",
+    moqUnit: "Minimum-order unit",
+    blankNote: "Leave a field blank if you do not know it. A blank is not entered; 0 means a known zero.",
+    oneTimeHere: "One-time cost to set up this plant. Only counted if a move goes here.",
+    sunkHere: "This is the plant today. Capital already spent is sunk: it is ignored and never refunded.",
+    staleRef: (was: string, now: string) =>
+      `Entered for ${was}; this plant is now ${now}. The country label or name changed; the server checks this on save and run, and lists the entry as stale only if it is a different plant.`,
+    clearStale: "Remove this entry",
+    removeGroup: "Remove this group's inputs",
+    removedTitle: "Saved inputs for removed items",
+    removedHelp: "These operating-cost inputs name a group or plant the product no longer has. They are kept until you remove them; a save is refused while they remain.",
+    confirmOff: "Turn off operating costs and discard the inputs you entered? This cannot be undone before you save.",
+    discard: "Discard inputs",
+    keep: "Keep them",
+    needHorizon: "A horizon above 0 is needed because a one-time cost is entered.",
+    needBasis: "Choose whether labour and logistics are inside or on top of the group cost.",
+    needUnit: "Add the unit these quantities use.",
+    needMoqUnit: "Add the unit of the minimum order.",
+    noAnnual: "No annual import value is set, so money figures will be unpriced and only the feasibility limits can be checked. What you save here replaces the stored import value, duty rates and group costs with what this form shows.",
+    serverIssues: "Operating-cost inputs to fix",
+    unplaced: "Not tied to one field",
+  },
+  // Operating-cost results and staleness (#281).
+  opsResult: {
+    scopeLine: "Modelled terms only, for the moves searched and the inputs you entered. It does not say any setup is the best possible one.",
+    notModelledLead: "Not modelled",
+    unknownLead: "Unknown",
+    detail: "How this figure is built",
+    baseline: "Today",
+    proposed: "With this move",
+    duty: "Duty a year",
+    operating: "Operating cost a year",
+    amortized: "One-time costs a year (amortized)",
+    total: "Total a year",
+    net: "Net a year (modelled terms)",
+    horizon: (y: number) => `Horizon ${y} ${y === 1 ? "year" : "years"}.`,
+    assumptions: "Assumptions",
+    unknownTitle: "Unknown inputs",
+    sunk: "Ignored as sunk capital (current plant, never refunded)",
+    stale: "Entered for a plant that has since changed, so treated as not entered",
+    feasibility: "Feasibility",
+    noMoney: "No modelled saving",
+    rejectedOps: "Left out on the operating inputs you entered",
+    rejectedOpsStale: "Left out on operating inputs that have since changed. Run the plan again to see why.",
+    noneBand: "No move is both precedent-supported and worth it on the operating inputs you entered.",
+  },
+  stale: {
+    title: "Inputs changed, run the plan again",
+    plan: "The money inputs changed after this plan was run, so its amounts are hidden rather than shown as current. The origin result, precedent checks and the draft letter do not use them and stay as they were.",
+    targets: "The money inputs changed after this comparison was run, so its amounts are hidden rather than shown as current. Which countries have a supported move, and the draft letter, stay as they were.",
+    run: "Run the plan again",
+    noneBand: "Inputs changed. Run the plan again to see which moves clear your operating inputs.",
+    compare: "Compare again",
+    hidden: "Hidden: inputs changed",
   },
 
   money: "Money · illustrative — editable",

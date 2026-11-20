@@ -41,6 +41,10 @@ func (f *flakyStore) Add(ctx context.Context, day string, usd float64) (float64,
 // engineEnv builds the four real engines (origin, textile, USMCA, pharma)
 // through buildModels and newDeps, exactly as run does, over the repository's
 // corpus, with a local fake provider (no network, no key) and a file cache.
+// engineEnvLogger, when set, replaces the discarded logger engineEnv gives the
+// production wiring (see logging_test.go). Tests are not parallel.
+var engineEnvLogger func(config.Config) *slog.Logger
+
 func engineEnv(t *testing.T, fallbackModel string, base llm.Model, meter *spend.Meter) httpapi.Deps {
 	t.Helper()
 	data, _ := filepath.Abs("../../data")
@@ -68,6 +72,9 @@ func engineEnv(t *testing.T, fallbackModel string, base llm.Model, meter *spend.
 		t.Fatal(err)
 	}
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	if engineEnvLogger != nil {
+		logger = engineEnvLogger(cfg)
+	}
 	model, engineModel, err := buildModels(context.Background(), cfg, base, meter, logger, false)
 	if err != nil {
 		t.Fatal(err)

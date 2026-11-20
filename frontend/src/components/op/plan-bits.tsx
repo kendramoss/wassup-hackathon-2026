@@ -84,6 +84,9 @@ export const rejectionLabels: Record<string, string> = {
   no_supporting_precedent: "No precedent",
   engine_other_origin: "Other origin",
   check_failed: "Check failed",
+  // Operations mode (#281): the move cleared the legal gate, then was demoted on your cost inputs.
+  operationally_infeasible: "Not feasible",
+  net_costlier: "Net costlier",
 };
 
 // fig.2: one column per plant, operation groups from the product, moved

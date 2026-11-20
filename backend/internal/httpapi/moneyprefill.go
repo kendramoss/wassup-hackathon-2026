@@ -8,6 +8,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
@@ -51,7 +52,7 @@ func (a *api) moneyPrefill(w http.ResponseWriter, r *http.Request) {
 	} else if a.d.HTS != nil && strings.TrimSpace(p.Name) != "" {
 		res, err := a.d.HTS.SuggestNamed(r.Context(), hts.ProductText(p), p.Name)
 		if err != nil && !res.ReasonsUnavailable {
-			a.d.Logger.WarnContext(r.Context(), "money prefill: hts suggestion failed; no duty filled", "request_id", RequestID(r.Context()), "err", err)
+			a.d.Logger.WarnContext(r.Context(), "money prefill: hts suggestion failed; no duty filled", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		}
 		if len(res.Candidates) > 0 {
 			p.HTS, htsSource = res.Candidates[0].HTS, "suggested"

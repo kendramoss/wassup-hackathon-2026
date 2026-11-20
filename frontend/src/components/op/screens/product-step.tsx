@@ -22,12 +22,15 @@ import { predictBody, productSignature, type Carried } from "@/lib/product-facts
 import { ActionSlotProvider } from "../action-bar";
 import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
+import { opsErrorText } from "../operational-fields";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
 import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
+import { VIEWER_REASON, canCreate } from "@/lib/roles";
+import { useWorkspaceRole } from "@/lib/use-role";
 
 type Tab = "parts" | "paste" | "bom";
 // Import BOM first: most users have one (18 Oct).
@@ -258,6 +261,8 @@ function unlocks(tab: Tab, facts: string, product: Product, economics: Economics
 }
 
 export function ProductStep() {
+  // A workspace viewer cannot create cases (the server answers 403); say so.
+  const noCreate = !canCreate(useWorkspaceRole());
   const router = useRouter();
   const params = useSearchParams();
   const demoId = params.get("demo");
@@ -439,6 +444,7 @@ export function ProductStep() {
   };
 
   const submit = async () => {
+    if (noCreate) return;
     setBusy(true);
     setBusySince(Date.now());
     setError(null);
@@ -844,7 +850,7 @@ export function ProductStep() {
                 </span>
               ) : null}
               {/* Busy keeps the dark button (a grey one reads as broken) and ignores clicks. */}
-              <Button onClick={busy ? undefined : ready ? submit : showMissing} aria-busy={busy || undefined} aria-disabled={!busy && !ready} aria-describedby={busy ? "go-status" : missing ? "go-why" : undefined}>
+              <Button disabled={noCreate} title={noCreate ? VIEWER_REASON : undefined} onClick={busy ? undefined : ready ? submit : showMissing} aria-busy={busy || undefined} aria-disabled={!busy && !ready} aria-describedby={busy ? "go-status" : missing ? "go-why" : undefined}>
                 {busy ? (
                   <>
                     <span className="size-2 rotate-45 bg-paper motion-safe:animate-pulse" aria-hidden="true" />
@@ -864,13 +870,14 @@ export function ProductStep() {
           progress panel at the bottom once it starts. */}
       <Footer>
         <Button
+          disabled={noCreate}
           onClick={() => {
             if (!busy) (ready ? submit : showMissing)();
             requestAnimationFrame(() => document.getElementById(busy || ready ? "go-status" : "go-why")?.scrollIntoView({ behavior: "smooth", block: "center" }));
           }}
           aria-busy={busy || undefined}
           aria-disabled={!busy && !ready}
-          title={!busy && missing ? missing : undefined}
+          title={noCreate ? VIEWER_REASON : !busy && missing ? missing : undefined}
         >
           {busy ? (
             <>
@@ -887,6 +894,7 @@ export function ProductStep() {
           value={economics}
           product={product}
           countries={countries}
+          serverError={opsErrorText(error)}
           onClose={() => setMoneyOpen(false)}
           onSave={(e) => {
             autoEcon.current = false;

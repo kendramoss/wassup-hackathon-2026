@@ -97,23 +97,23 @@ func TestMemory(t *testing.T) {
 	}
 
 	// An invitation is not a membership.
-	got, err := m.Invite(ctx, "ws_a", "amy@example.com")
+	got, err := m.Invite(ctx, "ws_a", "alice@example.com", "amy@example.com")
 	if err != nil || len(got.Members) != 1 || !got.HasInvite("amy@example.com") || got.HasMember("amy@example.com") {
 		t.Fatalf("Invite = %+v %v", got, err)
 	}
 	if _, err := m.Of(ctx, "amy@example.com"); !errors.Is(err, ErrNotFound) {
 		t.Errorf("Of(amy) before joining = %v, want ErrNotFound", err)
 	}
-	if again, err := m.Invite(ctx, "ws_a", "amy@example.com"); err != nil || len(again.Invited) != 1 {
+	if again, err := m.Invite(ctx, "ws_a", "alice@example.com", "amy@example.com"); err != nil || len(again.Invited) != 1 {
 		t.Errorf("inviting amy twice = %+v %v, want a no-op", again, err)
 	}
 	if inv, err := m.Invites(ctx, "amy@example.com"); err != nil || len(inv) != 1 || inv[0].ID != "ws_a" {
 		t.Errorf("Invites(amy) = %+v %v", inv, err)
 	}
-	if _, err := m.Invite(ctx, "ws_a", "alice@example.com"); !errors.Is(err, ErrMember) {
+	if _, err := m.Invite(ctx, "ws_a", "alice@example.com", "alice@example.com"); !errors.Is(err, ErrMember) {
 		t.Errorf("inviting a member = %v, want ErrMember", err)
 	}
-	if _, err := m.Invite(ctx, "ws_x", "zed@example.com"); !errors.Is(err, ErrNotFound) {
+	if _, err := m.Invite(ctx, "ws_x", "alice@example.com", "zed@example.com"); !errors.Is(err, ErrNotFound) {
 		t.Errorf("invite to an unknown workspace = %v", err)
 	}
 	if _, err := m.Join(ctx, "ws_a", "zed@example.com"); !errors.Is(err, ErrNotFound) {
@@ -143,7 +143,7 @@ func TestMemory(t *testing.T) {
 	if err := m.Create(ctx, Workspace{ID: "ws_b", Name: "Bob Co", Members: []string{"bob@example.com"}, CreatedBy: "bob@example.com"}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := m.Invite(ctx, "ws_b", "amy@example.com"); err != nil {
+	if _, err := m.Invite(ctx, "ws_b", "bob@example.com", "amy@example.com"); err != nil {
 		t.Errorf("inviting a member of another workspace = %v", err)
 	}
 	if _, err := m.Join(ctx, "ws_b", "amy@example.com"); !errors.Is(err, ErrMember) {
@@ -155,11 +155,11 @@ func TestMemory(t *testing.T) {
 
 	// Members plus invitations are capped.
 	for i := 2; i < MaxMembers; i++ {
-		if _, err := m.Invite(ctx, "ws_a", fmt.Sprintf("u%d@example.com", i)); err != nil {
+		if _, err := m.Invite(ctx, "ws_a", "alice@example.com", fmt.Sprintf("u%d@example.com", i)); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if _, err := m.Invite(ctx, "ws_a", "late@example.com"); !errors.Is(err, ErrFull) {
+	if _, err := m.Invite(ctx, "ws_a", "alice@example.com", "late@example.com"); !errors.Is(err, ErrFull) {
 		t.Errorf("invitation %d = %v, want ErrFull", MaxMembers+1, err)
 	}
 	if !w.IsAdmin("alice@example.com") || w.IsAdmin("amy@example.com") || (Workspace{}).IsAdmin("") {
@@ -176,7 +176,7 @@ func TestMemoryInvitesCapped(t *testing.T) {
 		if err := m.Create(ctx, Workspace{ID: id, Members: []string{admin}, CreatedBy: admin}); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := m.Invite(ctx, id, "victim@example.com"); err != nil {
+		if _, err := m.Invite(ctx, id, admin, "victim@example.com"); err != nil {
 			t.Fatal(err)
 		}
 	}

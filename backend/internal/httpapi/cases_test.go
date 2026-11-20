@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -215,9 +214,17 @@ func newHarnessWith(t *testing.T, regime string, adjust func(*Deps)) harness {
 	if adjust != nil {
 		adjust(&d)
 	}
-	hs.h = NewHandler(slog.New(slog.NewJSONHandler(io.Discard, nil)), Info{Provider: "fake"}, d)
+	lg := harnessLogger
+	if lg == nil {
+		lg = slog.New(suiteHandler) // the production allowlist, output discarded; TestMain checks its counters
+	}
+	hs.h = NewHandler(lg, Info{Provider: "fake"}, d)
 	return hs
 }
+
+// harnessLogger, when set by a test (see useLogger), replaces the discarded
+// logger of every harness built while it is set. Tests are not parallel.
+var harnessLogger *slog.Logger
 
 func (hs harness) do(t *testing.T, method, path, body string) (int, map[string]any) {
 	t.Helper()

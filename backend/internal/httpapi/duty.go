@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 // dutyRates answers GET /v1/duty-rates[?hts=8419.89.95]: the sourced rates
@@ -84,7 +85,7 @@ func (a *api) liveMFN(w http.ResponseWriter, r *http.Request, hts string) (m dut
 	}
 	if err != nil {
 		if !errors.Is(err, duty.ErrNoRate) {
-			a.d.Logger.WarnContext(r.Context(), "live MFN lookup failed", "request_id", RequestID(r.Context()), "hts", hts, "err", err)
+			a.d.Logger.WarnContext(r.Context(), "live MFN lookup failed", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		}
 		return duty.MFN{}, false, false
 	}

@@ -5,11 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -108,14 +112,15 @@ func TestBatchUsesTheBulkLimit(t *testing.T) {
 
 func TestDeepHealth(t *testing.T) {
 	cs := store.NewMemory()
-	broken := errors.New("rpc error: code = PermissionDenied desc = Missing or insufficient permissions.")
+	// The store's message is never returned (#285); its gRPC code name is.
+	broken := status.Error(codes.PermissionDenied, "Missing or insufficient permissions. projects/zzyzx-285")
 	for _, tt := range []struct {
 		name   string
 		checks []HealthCheck
 		code   int
 	}{
 		{"all ok", []HealthCheck{StoreCheck(cs), {Name: "model", Run: func(context.Context) error { return nil }}}, http.StatusOK},
-		{"store denied", []HealthCheck{{Name: "case_store", Run: func(context.Context) error { return broken }}}, http.StatusServiceUnavailable},
+		{"store denied", []HealthCheck{StoreCheck(&flakyStore{Cases: cs, putErr: broken})}, http.StatusServiceUnavailable},
 	} {
 		hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.Checks, d.Cases = tt.checks, cs })
 		code, out := hs.do(t, "GET", "/health?deep=1", "")
@@ -125,7 +130,7 @@ func TestDeepHealth(t *testing.T) {
 		checks, _ := out["checks"].(map[string]any)
 		if tt.code != http.StatusOK {
 			c := checks["case_store"].(map[string]any)
-			if c["ok"] != false || !strings.Contains(c["error"].(string), "PermissionDenied") || out["status"] != "degraded" {
+			if c["ok"] != false || c["error"] != "case store write failed (PermissionDenied)" || strings.Contains(fmt.Sprint(out), "zzyzx") || out["status"] != "degraded" {
 				t.Errorf("%s: %v", tt.name, out)
 			}
 		} else if checks["case_store"].(map[string]any)["ok"] != true {

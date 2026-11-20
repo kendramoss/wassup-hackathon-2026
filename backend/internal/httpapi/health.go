@@ -11,7 +11,11 @@ import (
 	"sync"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -76,17 +80,17 @@ func StoreCheck(cs store.Cases) HealthCheck {
 		now := time.Now().UTC()
 		if err := cs.Put(ctx, store.Case{ID: id, Date: now.Format(time.DateOnly), Facts: "health check", CreatedAt: now, UpdatedAt: now}); err != nil {
 			cleanup() // the write may have landed even though the caller saw an error
-			return err
+			return storeStepError{"write", err}
 		}
 		if _, err := cs.Get(ctx, id); err != nil {
 			cleanup()
-			return err
+			return storeStepError{"read", err}
 		}
 		if err := cs.Delete(ctx, id); err != nil {
 			if ctx.Err() != nil {
 				cleanup() // the check's own deadline/cancel, not a store refusal
 			}
-			return err
+			return storeStepError{"delete", err}
 		}
 		return nil
 	}}
@@ -109,35 +113,44 @@ type checkResult struct {
 	Error     string `json:"error,omitempty"`
 }
 
-// checkMessage is safe to return: provider bodies and store errors carry no
-// credentials, but transport errors can carry a proxy URL, so those are
-// reduced to their kind.
+// storeStepError says which step of the store probe failed. Its text is FIXED:
+// the store's own error (a project path, a permission string, a document id)
+// is kept for errors.Is/As, never printed (#285).
+type storeStepError struct {
+	step string // write, read or delete
+	err  error
+}
+
+func (e storeStepError) Error() string {
+	// A gRPC status code is a closed name (PermissionDenied, Unavailable, ...)
+	// that tells an operator what to fix; the status MESSAGE is never used.
+	if c := status.Code(e.err); c != codes.OK && c != codes.Unknown {
+		return "case store " + e.step + " failed (" + c.String() + ")"
+	}
+	return "case store " + e.step + " failed"
+}
+func (e storeStepError) Unwrap() error { return e.err }
+
+// checkMessage is the text returned for a failed check. It is built from the
+// KIND of failure and numbers only: a provider body or a store error can echo
+// a request, a project path or a credential hint, so neither is ever included.
 func checkMessage(err error) string {
 	var apiErr *llm.APIError
+	var step storeStepError
 	switch {
 	case errors.As(err, &apiErr):
-		body := apiErr.Body
-		if len(body) > 300 {
-			body = body[:300] + "…"
-		}
-		return fmt.Sprintf("model provider returned HTTP %d: %s", apiErr.StatusCode, body)
+		return fmt.Sprintf("model provider returned HTTP %d", apiErr.StatusCode)
 	case errors.Is(err, llm.ErrUnavailable):
 		return "model provider unavailable"
 	case errors.Is(err, llm.ErrBadResponse):
 		return "model returned an unusable response"
 	case errors.Is(err, context.DeadlineExceeded):
 		return "timed out after 20 s"
-	}
-	var se storeErr
-	if errors.As(err, &se) {
-		return se.msg
+	case errors.As(err, &step):
+		return step.Error()
 	}
 	return "check failed"
 }
-
-type storeErr struct{ msg string }
-
-func (e storeErr) Error() string { return e.msg }
 
 // health answers GET /health. With deep=1 it also runs the dependency
 // checks (rate-limited like a light request, since one calls the model) and
@@ -163,11 +176,8 @@ func (a *api) health(info Info) http.HandlerFunc {
 					err := c.Run(ctx)
 					res := checkResult{OK: err == nil, LatencyMS: time.Since(start).Milliseconds()}
 					if err != nil {
-						if c.Name == "case_store" && !errors.Is(err, context.DeadlineExceeded) {
-							err = storeErr{msg: truncate(err.Error(), 300)}
-						}
 						res.Error = checkMessage(err)
-						a.d.Logger.ErrorContext(r.Context(), "health check failed", "request_id", RequestID(r.Context()), "check", c.Name, "err", err)
+						a.d.Logger.ErrorContext(r.Context(), "health check failed", "request_id", requestRef(r.Context()), "check", c.Name, "err", logsafe.Err(err))
 					}
 					mu.Lock()
 					results[c.Name] = res
@@ -185,11 +195,4 @@ func (a *api) health(info Info) http.HandlerFunc {
 			writeJSON(w, status, body)
 		})(w, r)
 	}
-}
-
-func truncate(s string, n int) string {
-	if len(s) > n {
-		return s[:n] + "…"
-	}
-	return s
 }

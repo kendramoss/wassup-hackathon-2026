@@ -5,6 +5,8 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ApiError, type CaseResponse } from "@/lib/api/client";
 import { formatDate, stepIndex } from "@/lib/format";
+import { copy } from "@/lib/copy";
+import { caseReadOnly } from "@/lib/roles";
 import { caseTitle, useCase } from "@/lib/use-case";
 import { ActionSlotProvider } from "./action-bar";
 import { AskDrawer } from "./ask-drawer";
@@ -70,7 +72,14 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
           <Spinner label="Loading the case…" />
         </Main>
       ) : (
-        children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })
+        <>
+          {caseReadOnly(data) && (
+            <p role="status" className="duo mx-auto w-full max-w-[1240px] px-5 pt-3 text-[13px] text-dim">
+              {copy.access.readOnlyNote}
+            </p>
+          )}
+          {children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}
+        </>
       )}
       {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onChat={(chat) => setData((d) => (d ? ({ ...d, chat } as CaseResponse) : d))} />}
     </ActionSlotProvider>

@@ -27,7 +27,21 @@ info:
 
     Case ownership (D58, `CASE_OWNERSHIP=on`): the frontend proxy sends `X-Visitor-ID` (from an httpOnly cookie). A visitor then sees the pinned demos and their own cases; another visitor's case returns 404 on every endpoint. `GET /v1/cases` returns every pinned case plus the 200 newest others.
 
-    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin. The admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
+    Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace. The workspace's initial creator is its first admin; the current role of each member (viewer, editor or admin, see Workspace roles below) is the authority for what they may do, and any admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
+
+    Workspace roles (#283, with Teams on): each member of a workspace has a role stored with the workspace and read by the server for every request from a verified signed-in user: `viewer`, `editor` or `admin`. A role is never taken from a header, a body field or a token claim. A member with no stored role is an `editor`; the creator with no stored role is an `admin`; an explicitly stored role overrides both fallbacks. A joiner is an `editor`. On cases that carry the caller's workspace id, a viewer may read cases and lists, call `POST /v1/cases/{id}/plan/estimate` (no write, no model call) and export with `preview: true` (parsed as the JSON boolean true only); every other write, including a recording export, is 403 `forbidden` for a viewer. Only an admin invites, changes roles and removes members. A case a caller cannot see stays 404. The admin token and API keys carry no workspace role and never inherit one. A user removed from a workspace loses access to every case that carries its id, including cases they created; their personal and anonymous-browser cases stay theirs.
+
+    Error codes for 401 and 403 (#283): `unauthenticated` (401) is returned for a missing or invalid `X-User-Token`, and, with `STRICT_AUTH=on`, for a private case operation without a verified identity (identical for missing, hidden and unknown cases). A rejected API key is 401 `unauthorized`, including under strict mode. `forbidden` (403) means the caller can see the case but their workspace role does not allow the action (viewer writes, recording export, non-admin member management), or the admin token is required. Every `/v1/cases*` operation except the admin-only pin lists 401; mutating operations list 403 for the role check (the read-only operations, including `plan/estimate`, do not). Under strict mode a storage failure while loading a case can surface as 500 rather than 401; a case that is not found is always 401 there.
+
+    Admin token and user token together (#283): the admin token keeps its all-access behaviour and never takes a workspace role. If the same request also carries a valid user token, a case it creates is stamped with that user's owner and workspace, as before.
+
+    Operational cost inputs (#281): `economics.operations` is optional everywhere economics are accepted (PUT /v1/cases/{id}/economics, plan, plan SSE, compare-targets, scenarios and predict). Without an active `operations` block every request and response behaves exactly as before. Whose money a plan, compare-targets or scenario request prices is decided by one rule: a request with `annual_import_value_usd` above 0 owns its economics, whole; in operations mode only, an explicitly active `operations` block also owns the request's economics, whole, even at an annual value of 0 (the financial side is then unknown and unpriced, while lead-time and MOQ feasibility are still assessed and can still demote a move, and the body replaces the stored economics instead of merging with them); otherwise the stored economics are used, or empty ones, as before. A client that wants to keep stored money omits `operations` or sends it inactive. Plan, plan stream, compare-targets and scenario saves all follow this rule, so a feasibility-only run is stored whole and returned unpriced. With it, the planner prices a move as modelled yearly duty saved minus the modelled yearly operating cost difference minus one-time costs amortized over `horizon_years`, for the moves searched and the inputs entered; it is not a global optimum. A plan, scenario or target comparison carries an `operations` object. Read `net_priced` before `net_per_year`: when it is false the legacy figure is a ranking aid and the authoritative nullable figures are inside `operations`. `null` means unknown or not modelled and is never a zero; `not_modelled` is present and non-empty even when `priced` is true and must be shown beside any priced figure. A known infeasible move or a fully priced net-costlier move is demoted to `rejected` with `rejection_kind` `operationally_infeasible` or `net_costlier` and a reason; an unknown never demotes and is never labelled feasible. Cost only demotes a plan the legal and precedent gate already showed. A malformed `operations` block is 400 `invalid_input` with a message beginning `economics: operations.<slug>: <path>: <why>` (slugs include `too_large` for a block over 64 KiB, `unknown_field` and `invalid_json`; when the request body also fails the ordinary strict decode the message is `invalid input: economics: operations.<slug>: ...; request body: <decode error>`, and a valid `operations` block never hides an unrelated body error); a body is still read as its first JSON value only, as on every route; there is no new HTTP error code. In operations mode only, a plan or compare-targets run priced from the case's stored economics (the request carried no annual value) is discarded with the existing 409 `conflict` if those economics are edited while it runs; requests without an active `operations` block are not guarded, exactly as before, and a request that carries its own money cannot conflict with itself. `economics_basis` on a plan result is a hash of the raw money inputs; `plan_economics_stale` and `targets_economics_stale` are on every full-case response (get, create, scenarios save, answers, BOM apply, pin) and on the PUT economics response, present and true only when the stored plan or target results were priced from inputs that have since changed: do not present their old money as current, and treat a missing flag as not stale. A client that merges a response over cached case state must clear a cached true when the key is absent. Only the money is stale: the legal result (prediction, verdict, precedent) and the draft letter, which has no money, stay valid and exportable. Editing only `note` or `sources` changes neither the hash nor any result.
+
+    Request reference and log text (#285): the server never echoes a caller-supplied `X-Request-ID`. A supplied value, whatever its length or shape, is replaced in the response by `h_` followed by the first 16 hex characters of its SHA-256; with no value the server generates 16 lowercase hex characters. The response value is the same one used in the server logs and in the audit trail for that request, so quote it to support. It is an unkeyed hash for log hygiene, not anonymisation. No response body shape, error code or status changes. Text only: `GET /health?deep=1` `checks.<name>.error` (on a failed check) is now a fixed phrase (for example `model provider unavailable`, `case store write failed (PermissionDenied)`) and no longer carries the provider body or the store message; new `history[].summary` text for `asked` is `question (<N> characters), <K> what-ifs, cited <ruling numbers>` and for `renamed` is `renamed` (earlier events keep their text and the actor is unchanged); a new `check_failed` rejection from the precedent check has a fixed `rejection_reason` by failure class (earlier reasons are not rewritten).
+
+    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the seven operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
+
+    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
 security:
@@ -70,6 +84,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PredictRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "201":
           description: Case created with its prediction
           content:
@@ -104,6 +120,8 @@ paths:
           multipart/form-data:
             schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: One row per product, in order, and counts
           content:
@@ -148,6 +166,7 @@ paths:
       description: |
         Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: Case summaries
           content:
@@ -164,6 +183,7 @@ paths:
       summary: Fetch a case with its prediction and latest plan
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The case
           content:
@@ -180,6 +200,7 @@ paths:
           application/json:
             schema: { type: object, required: [display_name], properties: { display_name: { type: string, minLength: 1, maxLength: 200 } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The updated case row
           content:
@@ -193,7 +214,9 @@ paths:
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
-        "204": { description: Deleted }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "204": { description: Deleted, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/pin:
@@ -237,6 +260,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PlanRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Plan search result
           content:
@@ -264,6 +289,7 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/PlanRequest" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: Estimate
           content:
@@ -306,13 +332,15 @@ paths:
                   description: "Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index."
                 preview:
                   type: boolean
-                  description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print."
+                  description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden."
                 format:
                   type: string
                   enum: [markdown, cfr177]
                   default: markdown
                   description: "markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66)."
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Draft
           content:
@@ -340,6 +368,8 @@ paths:
                   minItems: 1
                   items: { type: object, required: [question, answer], properties: { question: { type: string }, answer: { type: string } } }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The re-analysed case
           content:
@@ -636,6 +666,8 @@ paths:
                 targets: { type: array, minItems: 2, maxItems: 4, items: { type: string }, example: [Thailand, Vietnam, Malaysia] }
                 economics: { $ref: "#/components/schemas/Economics" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Ranked countries
           content:
@@ -661,6 +693,8 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/Economics" }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: Stored
           content:
@@ -670,6 +704,8 @@ paths:
                 properties:
                   case_id: { type: string }
                   economics: { $ref: "#/components/schemas/Economics" }
+                  plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)" }
+                  targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)" }
                   scenarios:
                     type: array
                     description: The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero.
@@ -713,6 +749,8 @@ paths:
                       question: { type: string, minLength: 1, maxLength: 2000 }
                       answer: { type: string, minLength: 1, maxLength: 4000 }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The reply and the conversation
           content:
@@ -765,6 +803,8 @@ paths:
                   description: Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used.
                   allOf: [{ $ref: "#/components/schemas/Economics" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The case with scenarios filled
           content:
@@ -801,6 +841,7 @@ paths:
                 csv: { type: string }
                 apply: { type: boolean, default: false }
       responses:
+        "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The changes and the comparison of origins
           content:
@@ -852,6 +893,8 @@ paths:
         The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs. 409 `conflict` when the case's inputs (a new BOM or answers) changed during the re-check: the result is discarded, not saved (D97). In the scheduler run such a case is listed in `failed`.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "200":
           description: The case with watch filled
           content:
@@ -1043,7 +1086,7 @@ paths:
   /v1/workspaces/{id}/members:
     post:
       summary: Invite a member by email (the workspace's admin only; TEAMS=on)
-      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`, #283); the invitee joins as an `editor`; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -1053,12 +1096,70 @@ paths:
           application/json:
             schema: { type: object, required: [email], properties: { email: { type: string, format: email, description: Lower-cased } } }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The updated workspace
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Workspace" }
         "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members/{email}/role:
+    put:
+      summary: Set a member's role (workspace admin only; TEAMS=on)
+      description: "Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic)."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [role], additionalProperties: false, properties: { role: { $ref: "#/components/schemas/WorkspaceRole" } } }
+      responses:
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The workspace as the caller sees it
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members/{email}:
+    delete:
+      summary: Remove a member, or leave (TEAMS=on)
+      description: "An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
+      responses:
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          description: The removed email and the caller's updated workspace view
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [removed, workspace]
+                properties:
+                  removed: { type: string, format: email }
+                  workspace:
+                    description: The caller's updated workspace, or null when the caller left
+                    oneOf: [{ $ref: "#/components/schemas/Workspace" }, { type: "null" }]
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
@@ -1071,7 +1172,10 @@ paths:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "200":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The workspace joined
           content:
             application/json:
@@ -1079,6 +1183,56 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
+  /v1/audit:
+    get:
+      summary: List a tenant's audit events (workspace admin or admin token; audit enabled only)
+      description: "Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint."
+      security: [{ AdminToken: [] }, {}]
+      parameters:
+        - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other.", schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: cursor, in: query, description: Opaque; at most 512 bytes, schema: { type: string, maxLength: 512 } }
+        - { name: order, in: query, schema: { type: string, enum: [desc, asc], default: desc } }
+        - { name: action, in: query, schema: { $ref: "#/components/schemas/AuditAction" } }
+        - { name: outcome, in: query, schema: { $ref: "#/components/schemas/AuditOutcome" } }
+        - { name: phase, in: query, schema: { $ref: "#/components/schemas/AuditPhase" } }
+        - { name: actor, in: query, description: An actor pseudonym from an event, never an email, schema: { type: string } }
+        - { name: object, in: query, description: An opaque object reference from an event, schema: { type: string } }
+        - { name: from, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: to, in: query, description: RFC 3339, on `time`, schema: { type: string, format: date-time } }
+        - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
+      responses:
+        "200":
+          description: One page of events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+  /v1/audit/verify:
+    get:
+      summary: Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
+      description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
+      security: [{ AdminToken: [] }, {}]
+      parameters:
+        - { name: X-User-Token, in: header, required: false, description: "The signed-in user's Google ID token (D68); the workspace admin's way in.", schema: { type: string } }
+        - { name: cursor, in: query, description: Resume token from a previous incomplete call, schema: { type: string, maxLength: 512 } }
+        - { name: tenant, in: query, description: Admin token only (required for it); 400 for any other caller, schema: { type: string } }
+      responses:
+        "409": { $ref: "#/components/responses/Error" }
+        "200":
+          description: The verification result so far
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditVerifyResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
@@ -1104,7 +1258,10 @@ paths:
                 name: { type: string, maxLength: 100, description: Who the key is for }
                 daily_quota: { type: integer, minimum: 1, maximum: 1000000, description: Requests a UTC day }
       responses:
+        "503": { $ref: "#/components/responses/Error" }
         "201":
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
           description: The key, shown once, and its record
           content:
             application/json:
@@ -1138,7 +1295,8 @@ paths:
       parameters:
         - { name: id, in: path, required: true, schema: { type: string, pattern: "^[0-9a-f]{16}$" } }
       responses:
-        "204": { description: Disabled }
+        "503": { $ref: "#/components/responses/Error" }
+        "204": { description: Disabled, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
 components:
@@ -1166,6 +1324,10 @@ components:
       required: true
       description: The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint.
       schema: { type: string }
+  headers:
+    AuditIncomplete:
+      description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
+      schema: { type: string, enum: [completion-not-recorded] }
   responses:
     Error:
       description: Error
@@ -1213,27 +1375,119 @@ components:
         watch_route: { type: [string, "null"], enum: [auto, needs_review, needs_info, null], description: "Route of the watch result's triage (Watch.triage.route); null as watch_basis" }
         scenario_count: { type: integer }
         pinned: { type: boolean, description: A seeded demo case; listed first }
+        can_write: { type: boolean, description: "Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
     Error:
       type: object
       required: [code, message]
       properties:
         code:
           type: string
-          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded]
+          enum: [invalid_input, not_found, model_unavailable, model_bad_response, out_of_scope, internal, rate_limited, forbidden, budget_reached, unauthenticated, conflict, unauthorized, quota_exceeded, audit_unavailable]
         message: { type: string }
         details: {}
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
-      required: [id, name, members, invited, created_by, created_at, admin]
+      required: [id, name, members, invited, created_by, created_at, admin, role]
       properties:
         id: { type: string, example: ws_3f9a2c1b7d4e }
         name: { type: string }
         members: { type: array, items: { type: string, format: email }, description: Users who created or joined it }
         invited: { type: array, items: { type: string, format: email }, description: Pending invitations, not yet members }
-        created_by: { type: string, format: email, description: The workspace's admin }
+        created_by: { type: string, format: email, description: The workspace's creator }
         created_at: { type: string, format: date-time }
-        admin: { type: boolean, description: The caller is the admin }
+        admin: { type: boolean, description: The caller's role is admin }
+        role: { $ref: "#/components/schemas/WorkspaceRole" }
+        member_roles:
+          type: object
+          description: Role of each joined member by email. Present only when the caller is an admin; invited-only emails never appear.
+          additionalProperties: { $ref: "#/components/schemas/WorkspaceRole" }
+    WorkspaceRole:
+      type: string
+      enum: [viewer, editor, admin]
+      description: The caller's role in the workspace, derived by the server from stored membership.
+    AuditAction:
+      type: string
+      enum: [case.create, case.update, case.export, case.delete, case.pin, case.read, workspace.create, workspace.invite, workspace.join, workspace.role_change, workspace.member_remove, workspace.leave, apikey.issue, apikey.list, apikey.disable, admin.watch_run, audit.read, audit.verify, auth.denied]
+      description: "`case.read` appears only as a denial; allowed ordinary reads are not audited."
+    AuditPhase:
+      type: string
+      enum: [intent, completion, single]
+    AuditOutcome:
+      type: string
+      enum: [allowed, denied, failed]
+    AuditEvent:
+      type: object
+      description: "One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. Fields with no value are omitted from the JSON."
+      required: [tenant, seq, time, actor_kind, action, phase, outcome, prev_hash, hash]
+      properties:
+        tenant: { type: string, description: "`ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform`" }
+        seq: { type: integer, description: Per-tenant sequence, total and deterministic }
+        time: { type: string, format: date-time, description: Server clock in microseconds; non-decreasing within a tenant }
+        actor_kind: { type: string, enum: [user, apikey, admin, anonymous, system] }
+        actor: { type: string, description: "A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; omitted for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess." }
+        target: { type: string, description: The affected member's pseudonym for invite, join, role change and removal; otherwise omitted }
+        action: { $ref: "#/components/schemas/AuditAction" }
+        phase: { $ref: "#/components/schemas/AuditPhase" }
+        outcome: { $ref: "#/components/schemas/AuditOutcome" }
+        reason:
+          type: string
+          enum: [forbidden, hidden, unauthenticated, invalid_credential, invalid_input, conflict, not_found, upstream, unavailable, internal, superseded, audit_unavailable, rate_limited]
+          description: Omitted when allowed
+        detail: { type: string, description: "A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or omitted" }
+        object: { type: string, description: "A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; omitted when none. Never a name." }
+        route: { type: string, description: The route pattern, with path parameters unexpanded }
+        request_id: { type: string, description: "The request reference: 16 server-minted hex characters, or `h_` plus the first 16 hex of the SHA-256 of a client-supplied X-Request-ID. A client value is never stored raw." }
+        ref: { type: integer, description: "On a completion or failure, the seq of its intent; omitted when the event has none, including when the intent could not be written" }
+        suppressed: { type: integer, description: "Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide." }
+        prev_hash: { type: string, description: "The previous event's hash; 64 zeros for seq 1" }
+        hash: { type: string, description: "SHA-256 over a fixed encoding of the other fields" }
+    AuditPage:
+      type: object
+      required: [tenant, retention_days, order, events]
+      properties:
+        tenant: { type: string }
+        retention_days: { type: integer }
+        order: { type: string, enum: [desc, asc] }
+        events: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } }
+        next_cursor: { type: string, description: Omitted at the end. Opaque; bound to tenant, order and filters. }
+    AuditVerifyResult:
+      type: object
+      description: "Verification covers only the events checked in this call. `ok` is true only for what was checked; read `complete` and `unresolved_intents` as described."
+      required: [tenant, ok, checked, verified_through_seq, complete, findings]
+      properties:
+        tenant: { type: string }
+        ok: { type: boolean }
+        checked: { type: integer }
+        verified_through_seq: { type: integer, description: "The head frozen by the first call: the highest seq this verification covers. Later appends are outside it." }
+        first_seq: { type: integer }
+        last_seq: { type: integer }
+        checkpoint:
+          type: object
+          description: The retention checkpoint a legitimate purge left
+          properties:
+            through_seq: { type: integer }
+            purged_at: { type: string, format: date-time }
+        complete: { type: boolean, description: "False while more remains; then call again with `next_cursor`" }
+        next_cursor: { type: string, description: Present while `complete` is false }
+        findings:
+          type: array
+          maxItems: 100
+          description: At most 100 per call
+          items:
+            type: object
+            required: [seq, kind]
+            properties:
+              seq: { type: integer }
+              kind: { type: string, enum: [hash_mismatch, prev_mismatch, seq_gap, seq_reorder, time_regression, head_mismatch, checkpoint_mismatch, prefix_unanchored, tenant_mismatch, invalid_event] }
+        unresolved_intents:
+          type: object
+          description: "Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq`; a later completion is not read. `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact."
+          required: [count, seqs, complete]
+          properties:
+            count: { type: integer, description: "Not exact when `complete` is false" }
+            seqs: { type: array, items: { type: integer }, description: At most 50 }
+            complete: { type: boolean, description: "False when more than 64 intents were open at a page boundary; `count` is then not exact" }
     APIKey:
       type: object
       description: A stored API key; the secret and its hash are never returned (D69).
@@ -1379,6 +1633,7 @@ components:
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
             pinned: { type: boolean }
+            can_write: { type: boolean, description: "Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
             display_name: { type: string }
             precedents_detail:
               type: array
@@ -1405,6 +1660,8 @@ components:
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
+            plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
+            targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale" }
             economics_priced: { description: "economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only.", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             history:
               type: array
@@ -1513,6 +1770,121 @@ components:
             type: array
             items: { type: object, properties: { name: { type: string }, heading: { type: string }, rate: { type: number } } }
         group_costs: { type: object, additionalProperties: { type: object, additionalProperties: { type: number } }, description: "group -> plant id -> yearly USD" }
+        operations: { $ref: "#/components/schemas/EconomicsOperations" }
+    EconomicsOperations:
+      type: object
+      description: "Optional operational inputs (#281), all user-entered; an explicit 0 is a known zero and an absent or null field is not entered. An empty block, a note-only block and entries with only a ref or sources are inactive and are not stored. Unknown JSON fields are rejected."
+      properties:
+        horizon_years: { type: number, description: "Positive; required whenever a one-time cost applies. One-time costs are amortized straight-line over it (no discounting, residual value or tax)." }
+        max_lead_time_days: { type: integer, description: "Your lead-time limit; lead times of moved groups are assumed to run in parallel" }
+        note: { type: string, description: "Free text; changes no result and no hash" }
+        groups:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/EconomicsOpsGroup" }
+    EconomicsOpsGroup:
+      type: object
+      properties:
+        cost_basis: { type: string, enum: [included, additional], description: "Whether labour and logistics are already inside the group cost (included) or are added to it (additional); required where labour or logistics is entered, to prevent double counting" }
+        unit: { type: string, description: "Unit label for demand and MOQ; case-sensitive" }
+        annual_demand_units: { type: number }
+        orders_per_year: { type: number }
+        plants:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/EconomicsOpsPlant" }
+    EconomicsOpsPlant:
+      type: object
+      properties:
+        ref:
+          type: object
+          required: [name, country]
+          description: "The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale). The expected name is the plant's name with surrounding spaces trimmed, or the plant's id when it has no name (an unnamed plant is identified by its id). Names compare after space and case folding and countries after normalisation. Two plants with the same name and country at different times are the same plant for this check; it is not a unique-identity guarantee."
+          properties: { name: { type: string, minLength: 1, description: "The plant's trimmed name, or its id when the plant has no name" }, country: { type: string } }
+        labour_usd_per_year: { type: number }
+        logistics_usd_per_year: { type: number }
+        capex_usd: { type: number }
+        retooling_usd: { type: number }
+        lead_time_days: { type: integer }
+        moq_units: { type: number }
+        moq_unit: { type: string }
+        sources: { type: object, additionalProperties: { type: string }, description: "Provenance notes by factor; metadata only, never echoed in results" }
+    PlanOperations:
+      type: object
+      description: "The operational view of one move, from one shared calculation (plan search, compare, scenarios and target comparison give the same object for the same inputs and move). A priced net covers the modelled terms only."
+      required: [components, net_modelled_per_year, priced, unknown, not_modelled, sunk_ignored, stale_refs, checks, feasibility_assessed, assumptions, baseline, proposed]
+      properties:
+        components:
+          type: object
+          description: "Each term is a number, or null when unknown or not modelled; never a zero"
+          required: [duty_effect_per_year, group_cost_delta_per_year, labour_delta_per_year, logistics_delta_per_year, operating_delta_per_year, one_time_total_usd, amortized_one_time_per_year]
+          properties:
+            duty_effect_per_year: { type: [number, "null"] }
+            group_cost_delta_per_year: { type: [number, "null"] }
+            labour_delta_per_year: { type: [number, "null"] }
+            logistics_delta_per_year: { type: [number, "null"] }
+            operating_delta_per_year: { type: [number, "null"] }
+            one_time_total_usd: { type: [number, "null"] }
+            amortized_one_time_per_year: { type: [number, "null"] }
+        net_modelled_per_year: { type: [number, "null"], description: "Equals the plan's net_per_year exactly when priced and net_priced are true" }
+        priced: { type: boolean, description: "No financial input was unknown" }
+        horizon_years: { type: number }
+        feasibility_assessed: { type: boolean }
+        feasibility: { type: string, enum: [feasible, infeasible, unknown], description: "Omitted when feasibility_assessed is false" }
+        decision: { type: string, enum: [operationally_infeasible, net_costlier], description: "Omitted when the move was not demoted by cost" }
+        unknown:
+          type: array
+          items:
+            type: object
+            required: [category, factor, reason]
+            properties:
+              category: { type: string, enum: [financial, feasibility] }
+              factor: { type: string }
+              group: { type: string }
+              reason: { type: string }
+        not_modelled: { type: array, items: { type: string }, description: "Factors in neither side of the comparison; show beside any priced figure, even when priced is true" }
+        sunk_ignored:
+          type: array
+          items: { type: object, required: [group, plant, factor], properties: { group: { type: string }, plant: { type: string }, factor: { type: string } } }
+        stale_refs:
+          type: array
+          items: { type: object, required: [group, plant, factor], properties: { group: { type: string }, plant: { type: string }, factor: { type: string } } }
+        checks:
+          type: array
+          items:
+            type: object
+            required: [kind, status]
+            properties:
+              kind: { type: string, enum: [lead_time, moq] }
+              group: { type: string }
+              status: { type: string, enum: [feasible, infeasible, unknown] }
+              value: { type: number }
+              limit: { type: number }
+              unit: { type: string }
+              reason: { type: string }
+        assumptions: { type: array, items: { type: string } }
+        baseline:
+          type: object
+          required: [duty_usd, operating_usd, total_usd]
+          description: "Absolute yearly figures for the current setup; null unless computable (totals null unless priced)"
+          properties:
+            duty_usd: { type: [number, "null"] }
+            operating_usd: { type: [number, "null"] }
+            total_usd: { type: [number, "null"] }
+        proposed:
+          type: object
+          required: [duty_usd, operating_usd, total_usd]
+          properties:
+            duty_usd: { type: [number, "null"] }
+            operating_usd: { type: [number, "null"] }
+            amortized_one_time_usd: { type: number, description: "Omitted when not applicable or unknown (the server never sends null)" }
+            total_usd: { type: [number, "null"] }
+    PlanObjective:
+      type: object
+      description: "Present only in operations mode: what 'best' means here"
+      required: [mode, scope, statement]
+      properties:
+        mode: { type: string, example: operations_v1 }
+        scope: { type: string, example: searched_moves_only }
+        statement: { type: string }
     PlanRequest:
       type: object
       required: [target]
@@ -1571,13 +1943,14 @@ components:
             no-cost mode prices the duty side alone). False: the search ran and could not, so a 0 is unknown and any
             nonzero figure rests on blanks read as 0. Absent: the plan was stored before this field, so its pricing
             can't be proven either way.
+        operations: { $ref: "#/components/schemas/PlanOperations" }
         shown: { type: boolean }
         rejection_reason: { type: string }
         rejection_kind:
           type: string
-          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed]
+          enum: [current_setup, below_confidence_bar, no_supporting_precedent, engine_other_origin, check_failed, operationally_infeasible, net_costlier]
           description: |
-            Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
+            Why a plan is not shown. `operationally_infeasible` and `net_costlier` (operations mode only) demote a plan the legal and precedent gate had shown; the reason names the modelled terms only. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
             render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
         near_miss:
           type: object
@@ -1632,6 +2005,8 @@ components:
         stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
         economics_illustrative: { type: boolean }
         duty_rates_note: { type: string }
+        objective: { $ref: "#/components/schemas/PlanObjective" }
+        economics_basis: { type: string, description: "Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not." }
     PlanResponse:
       allOf:
         - $ref: "#/components/schemas/Meta"
@@ -1665,12 +2040,15 @@ components:
       description: Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced.
       properties:
         duty_rate: { type: [number, "null"], description: rate for the scenario's predicted origin }
-        annual_duty_usd: { type: [number, "null"] }
-        duty_savings_usd: { type: [number, "null"], description: current setup's duty minus this scenario's }
+        annual_duty_usd: { type: [number, "null"], description: "In operations mode null (never 0) when the annual import value is not above 0, because an unknown dollar figure is not a zero; a known rate with a positive annual value is a real figure, including 0" }
+        duty_savings_usd: { type: [number, "null"], description: "current setup's duty minus this scenario's. In operations mode null when the annual import value is not above 0 or the duty effect is unknown (see operations.components.duty_effect_per_year); the feasibility and the known rates are still returned" }
         added_cost_usd: { type: [number, "null"], description: "yearly cost of the operation groups moved (product scenarios with group costs only)" }
         net_usd: { type: [number, "null"], description: savings minus added cost }
         moved: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } } }
         illustrative: { type: boolean }
+        amortized_one_time_usd: { type: number, description: "Operations mode: one-time costs amortized per year. The server omits the key (it never sends null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value" }
+        feasibility: { type: string, enum: [feasible, infeasible, unknown], description: "Operations mode; mirrors operations.feasibility; omitted when not assessed" }
+        operations: { $ref: "#/components/schemas/PlanOperations" }
         origin_differs_from_current: { type: boolean, description: "predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate" }
     DraftRow:
       type: object
@@ -1678,7 +2056,7 @@ components:
         name: { type: string }
         made_in: { type: string }
         plant: { type: string }
-        group: { type: string, description: "template group id, or empty" }
+        group: { type: string, description: "template group id, or omitted" }
         source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none" }
         group_guessed: { type: boolean, description: "no valid group from the text; pick one" }
     TargetSummary:

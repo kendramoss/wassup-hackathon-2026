@@ -30,6 +30,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -57,6 +58,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
@@ -73,10 +75,26 @@ func main() {
 	smoke := flag.Bool("smoke", false, "make one live engine-model call and exit")
 	flag.Parse()
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	if err := run(logger, *smoke); err != nil {
-		logger.Error("fatal", "err", err)
-		if hint := credentialHint(err); hint != "" {
+	// The config is loaded first because the log policy is built from it (the
+	// configured model ids, the startup values) and must be complete before the
+	// one handler is made. A config error is logged through the same safe
+	// logger, with a zero config (every model id masked).
+	cfg, cfgErr := config.Load()
+	logger, errorLog, err := newLogger(os.Stdout, cfg)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "fatal: the log handler could not be built; refusing to log unprotected")
+		os.Exit(1)
+	}
+	slog.SetDefault(logger) // so a stray slog.Default() or log.Print is also behind the allowlist
+	if cfgErr == nil {
+		cfgErr = run(logger, errorLog, cfg, *smoke)
+	}
+	if cfgErr != nil {
+		// Only the error CLASS is logged: the text of a startup error can name
+		// a path or echo a provider or store message. See the residual-risk list
+		// in the #285 wiring report.
+		logger.Error("fatal", "err", logsafe.Err(cfgErr))
+		if hint := credentialHint(cfgErr); hint != "" {
 			fmt.Fprintln(os.Stderr, hint)
 		}
 		os.Exit(1)
@@ -94,11 +112,7 @@ func credentialHint(err error) string {
 	return "\nVertex AI needs application-default credentials: run `gcloud auth application-default login`.\nFor offline UI work with no model calls, set LLM_PROVIDER=fake."
 }
 
-func run(logger *slog.Logger, smoke bool) error {
-	cfg, err := config.Load()
-	if err != nil {
-		return err
-	}
+func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke bool) error {
 	logger.Info("config", "summary", cfg.String())
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -130,10 +144,18 @@ func run(logger *slog.Logger, smoke bool) error {
 	if err != nil {
 		return err
 	}
+	if deps.Audit, err = newAudit(ctx, cfg, cases, logger); err != nil {
+		return err
+	}
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps),
 		ReadHeaderTimeout: 10 * time.Second,
+		// net/http's own error lines (a handler panic with its value and stack,
+		// TLS and connection errors) become one constant record of class
+		// stdlog. The bridge never recovers: http.ErrAbortHandler and a
+		// committed stream behave exactly as net/http defines.
+		ErrorLog: errorLog,
 	}
 	go func() {
 		<-ctx.Done()
@@ -376,7 +398,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, fmt.Errorf("engine cache dir: %w", err)
 		}
 		engineBlobs = blob.Dir{Dir: dir}
-		logger.Info("verifier verdicts and engine predictions cached", "dirs", []string{cfg.VerifierCacheDir, dir})
+		logger.Info("verifier verdicts and engine predictions cached", "store", config.CasesFile)
 	}
 	// Engine predictions are cached in the same store as verdicts (D54).
 	var predictor httpapi.Predictor = eng
@@ -429,7 +451,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, err
 		}
 		familyBars = &b
-		logger.Info("auto-accept bars by subfamily", "bars", b.Bars, "global", cfg.FastPathConfidence)
+		logger.Info("auto-accept bars by subfamily", "subfamilies", len(b.Bars), "global", cfg.FastPathConfidence)
 	}
 	var htsSuggester httpapi.HTSSuggester
 	if cfg.HTSSuggest {
@@ -463,20 +485,25 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			return httpapi.Deps{}, err
 		}
 		workspaces = teams.NewMemory()
+		kind := config.CasesMemory
 		if fs, ok := cases.(*store.Firestore); ok {
-			workspaces = fs.Workspaces()
+			workspaces, kind = fs.Workspaces(), config.CasesFirestore
 		}
-		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", fmt.Sprintf("%T", workspaces))
+		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", kind)
+	}
+	if cfg.StrictAuth && !cfg.Teams && !cfg.APIKeys {
+		logger.Warn("STRICT_AUTH is on but neither TEAMS nor API_KEYS is: only the admin token can reach private case routes")
 	}
 	// API keys for brokers (D69), in Firestore when cases are there.
 	var keys *apikey.Keys
 	if cfg.APIKeys {
 		var ks apikey.Store = apikey.NewMemory()
+		kind := config.CasesMemory
 		if fs, ok := cases.(*store.Firestore); ok {
-			ks = fs.APIKeys()
+			ks, kind = fs.APIKeys(), config.CasesFirestore
 		}
 		keys = apikey.New(ks)
-		logger.Info("API keys on", "store", fmt.Sprintf("%T", ks))
+		logger.Info("API keys on", "store", kind)
 	}
 	// Rate limits shared by all instances (D70); local keeps each
 	// instance's own buckets.
@@ -520,6 +547,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		RateStore:             rateStore,
 		CasesListLimit:        cfg.CasesListLimit,
 		CaseOwnership:         cfg.CaseOwnership,
+		StrictAuth:            cfg.StrictAuth,
 		BOMVersions:           cfg.BOMVersions == "on",
 		Teams:                 cfg.Teams,
 		Users:                 users,
@@ -591,7 +619,7 @@ func newCases(ctx context.Context, cfg config.Config, logger *slog.Logger) (stor
 		if err != nil {
 			return nil, err
 		}
-		logger.Info("cases persisted", "dir", cfg.CasesDir)
+		logger.Info("cases persisted", "store", config.CasesFile)
 		return fc, nil
 	}
 	return store.NewMemory(), nil

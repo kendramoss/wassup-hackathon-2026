@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -13,10 +14,15 @@ import (
 )
 
 // fakeUsers verifies tokens of the form "tok-<name>" as <name>@example.com.
-type fakeUsers struct{ calls int }
+type fakeUsers struct {
+	mu    sync.Mutex // concurrent requests in the role tests
+	calls int
+}
 
 func (f *fakeUsers) Verify(_ context.Context, tok string) (teams.User, error) {
+	f.mu.Lock()
 	f.calls++
+	f.mu.Unlock()
 	name, ok := strings.CutPrefix(tok, "tok-")
 	if !ok {
 		return teams.User{}, fmt.Errorf("%w: bad signature", teams.ErrUnauthenticated)

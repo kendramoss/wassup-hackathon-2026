@@ -1,12 +1,14 @@
 package httpapi
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -17,6 +19,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -27,6 +30,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -174,6 +178,10 @@ type Deps struct {
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// StrictAuth (STRICT_AUTH, off by default) makes private case operations
+	// need a verified principal: a signed-in user, an API key or the admin
+	// token. A bare X-Visitor-ID is not enough (#283).
+	StrictAuth bool
 	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
 	// D64); nil leaves the route unregistered (404).
 	HTS HTSSuggester
@@ -203,6 +211,10 @@ type Deps struct {
 	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
+	// Audit, when set, records the audit trail (#284) and serves GET
+	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
+	// are not registered and no write is gated on the trail.
+	Audit *audit.Service
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -251,26 +263,39 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusBadRequest, "invalid_input", err.Error()
 	case errors.Is(err, apikey.ErrBadRequest):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, errNeedsVerified):
+		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
+	case errors.Is(err, errForbidden):
+		return http.StatusForbidden, "forbidden", forbiddenMessage
+	case errors.Is(err, errAuditUnavailable):
+		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
 	case errors.Is(err, errSuperseded):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
-		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusBadGateway, "model_bad_response", "the model returned an unusable answer; try again"
 	case errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr), errors.Is(err, context.DeadlineExceeded):
-		a.d.Logger.ErrorContext(r.Context(), "model unavailable", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "model unavailable", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusBadGateway, "model_unavailable", "the model provider is unavailable; try again"
 	default:
-		a.d.Logger.ErrorContext(r.Context(), "internal error", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "internal error", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusInternalServerError, "internal", "internal error"
 	}
 }
 
 func decode(w http.ResponseWriter, r *http.Request, v any) error {
-	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBody))
+	// The decoder reads the first JSON value only, as it always did: trailing
+	// bytes are never read, so they are not limited either. A tee keeps exactly
+	// the bytes the decoder consumed, for explaining a bad operations block.
+	var seen bytes.Buffer
+	dec := json.NewDecoder(io.TeeReader(http.MaxBytesReader(w, r.Body, maxBody), &seen))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(v); err != nil {
+		if perr := operationsDecodeError(seen.Bytes()); perr != nil { // a bad operations block says which rule it broke
+			return fmt.Errorf("%w; request body: %v", perr, err) // and the outer decode error is kept, never replaced
+		}
 		return fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
 	return nil
@@ -291,6 +316,9 @@ type predictRequest struct {
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
+	if !a.mayCreate(w, r) {
+		return
+	}
 	start := time.Now()
 	var in predictRequest
 	if err := decode(w, r, &in); err != nil {
@@ -301,12 +329,20 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.predictStream(w, r, in, start)
 		return
 	}
-	sc, err := a.createCase(r, in, start)
+	sc, c, err := a.newCase(r, in)
+	if err == nil {
+		err = a.auditBegin(r, auditStep{Tenant: tenantOfCase(sc), Object: objectRef("case", sc.ID)})
+	}
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusCreated, a.caseFields(sc))
+	sc, err = a.analyseAndSave(r, sc, c, start, nil)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusCreated, a.caseFields(r, sc))
 }
 
 // predictStream runs predict as server-sent events (D71): stage {name:
@@ -318,6 +354,9 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 // responses before the stream opens.
 func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRequest, start time.Time) {
 	sc, c, err := a.newCase(r, in)
+	if err == nil {
+		err = a.auditBegin(r, auditStep{Tenant: tenantOfCase(sc), Object: objectRef("case", sc.ID)})
+	}
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -328,13 +367,14 @@ func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRe
 		s.send("stage", map[string]any{"name": name, "status": status, "ms": ms})
 	})
 	sc, err = a.analyseAndSave(r, sc, c, start, st)
+	a.auditStreamEnd(r, err) // before the final event: the stream's headers are already out
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
 		s.send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
 		return
 	}
 	out := a.meta()
-	for k, v := range a.caseFields(sc) {
+	for k, v := range a.caseFields(r, sc) {
 		out[k] = v
 	}
 	s.send("done", out)
@@ -392,9 +432,11 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 		return store.Case{}, domain.Case{}, err
 	}
 	if in.Economics != nil {
-		if err := validateEconomics(*in.Economics); err != nil {
+		if err := validateEconomicsFor(*in.Economics, in.Product, true); err != nil {
 			return store.Case{}, domain.Case{}, err
 		}
+		ec := cleanEconomics(*in.Economics) // an inactive operations block is not stored
+		in.Economics = &ec
 	}
 	displayName := strings.Join(strings.Fields(in.DisplayName), " ")
 	if utf8.RuneCountInString(displayName) > MaxDisplayName {
@@ -403,10 +445,8 @@ func (a *api) newCase(r *http.Request, in predictRequest) (store.Case, domain.Ca
 	now := time.Now().UTC()
 	sc := store.Case{ID: c.ID, Date: in.Date.Format(time.DateOnly), Facts: facts, Family: in.Family, Product: in.Product,
 		Exclude: in.Exclude, CurrentOrigin: in.CurrentOrigin, CreatedAt: now, UpdatedAt: now, Economics: in.Economics, DisplayName: displayName,
-		Owner: ownerOf(r)}
-	if u := identityOf(r.Context()); u.email != "" { // signed in (D68)
-		sc.Owner, sc.Workspace = u.owner, u.workspace
 	}
+	sc.Owner, sc.Workspace = a.principalOf(r).newCaseScope() // a signed-in user's (D68), else the credential owner
 	return sc, c, nil
 }
 
@@ -454,7 +494,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, pred, ps)
 		st.end("clarify") // a failed review is done too: the case stays needs_review
 		if err != nil {
-			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
+			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		} else {
 			sc.Clarify = &cr
 			sc.Triage = triage.WithClarify(sc.Triage, !cr.OnPoint, len(cr.Questions))
@@ -508,6 +548,10 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: no answer adds a fact (all unknown); nothing to re-analyse", domain.ErrInvalid))
 		return
 	}
+	if err := a.auditCase(r, sc, "answers"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if sc.OriginalFacts == "" {
 		sc.OriginalFacts = sc.Facts
 	}
@@ -545,7 +589,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(saved))
+	a.respond(w, http.StatusOK, a.caseFields(r, saved))
 }
 
 // precedentRef is one earlier ruling the engine was shown, with CBP's held
@@ -579,7 +623,13 @@ func nonEmpty(s string) *string {
 	return &s
 }
 
-func (a *api) caseFields(c store.Case) map[string]any {
+func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
+	f := a.caseFieldsBase(r, c)
+	moneyStaleFields(f, c)
+	return f
+}
+
+func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	return map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
@@ -588,6 +638,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
 		"scenarios":    a.scenarioFields(a.currentScenarios(c)), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(c.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
+		"can_write": a.canWrite(r, c),
 	}
 }
 
@@ -710,6 +761,9 @@ type caseSummary struct {
 	WatchRoute  *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
 	Scenarios   int      `json:"scenario_count"`
 	Pinned      bool     `json:"pinned"`
+	// CanWrite is server-computed for this caller (access.go); nil only in a
+	// row built without a request, so absent means unknown and false means read-only.
+	CanWrite *bool `json:"can_write,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -718,6 +772,10 @@ type caseSummary struct {
 // foreign cases and orphaned health probes can never occupy the slots of the
 // caller's own cases. Health probes are excluded before the cap too.
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
+	if a.d.StrictAuth && !a.principalOf(r).Verified() {
+		a.fail(w, r, errNeedsVerified) // STRICT_AUTH: the pinned demos are at /v1/demos
+		return
+	}
 	limit := a.d.CasesListLimit
 	if limit <= 0 {
 		limit = 200
@@ -738,8 +796,9 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	shown = store.CapRecent(shown, limit) // visible() is re-checked above; the cap comes last
 	rows := make([]caseSummary, 0, len(shown))
+	p := a.principalOf(r)
 	for _, c := range shown {
-		rows = append(rows, summaryRow(c))
+		rows = append(rows, a.summaryFor(p, c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
 }
@@ -765,22 +824,18 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 //     owner gets the pinned demos only.
 func (a *api) candidateCases(r *http.Request, limit int) ([]store.Case, error) {
 	ctx := r.Context()
-	if a.isAdmin(r) {
+	p := a.principalOf(r)
+	if p.Admin {
 		return a.recentWithoutProbes(ctx, limit)
 	}
-	id := identityOf(ctx)
-	_, withKey := keyFrom(ctx)
-	if id.email == "" && !withKey && !a.d.CaseOwnership {
+	if !p.ownerScoped(a.d.CaseOwnership) {
 		return a.d.Cases.List(ctx)
 	}
 	cs, err := store.ListRecent(ctx, a.d.Cases, 0) // the pinned demos
 	if err != nil {
 		return nil, err
 	}
-	owners := []string{ownerOf(r)}
-	if id.email != "" {
-		owners = []string{id.owner, ownerOf(r)}
-	}
+	owners := p.listOwners()
 	have := make(map[string]bool, len(cs))
 	for _, c := range cs {
 		have[c.ID] = true
@@ -880,7 +935,7 @@ func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(c))
+	a.respond(w, http.StatusOK, a.caseFields(r, c))
 }
 
 type planRequest struct {
@@ -904,13 +959,17 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	req, err := a.planRequestFor(r, c, in, true)
+	req, st, err := a.planRequestFor(r, c, in, true)
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.auditCase(r, c, "plan"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if wantsStream(r) {
-		a.planStream(w, r, c, req, in.Economics)
+		a.planStream(w, r, c, req, in.Economics, st)
 		return
 	}
 	fp := inputFingerprint(c)
@@ -919,11 +978,15 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	stampBasis(&res, st.basis)
 	if !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, st, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
@@ -940,22 +1003,25 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 
 // planRequestFor builds the planner request for a case and a plan body.
 // fetch false prices duty rates from the table and cached live rates only.
-func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (planner.Request, error) {
+// raw is the hash of the money the request is priced from, taken before the
+// tariff table or live lookup fills any rate (see rawBasis).
+func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (req planner.Request, st moneyStamp, err error) {
 	if c.Product == nil || c.Family == "" {
-		return planner.Request{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
+		return planner.Request{}, moneyStamp{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ, err := effectiveEconomics(in.Economics, c.Economics) // omitted: the case's latest
+	econ, usedStored, err := effectiveEconomics(in.Economics, c.Economics, c.Product) // omitted: the case's latest
 	if err != nil {
-		return planner.Request{}, err
+		return planner.Request{}, moneyStamp{}, err
 	}
+	st = moneyStamp{basis: rawBasis(econ), stored: usedStored}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
-	req := planner.Request{
+	req = planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
 		ActualChange: in.ActualChange,
 	}
-	return req, req.Validate()
+	return req, st, req.Validate()
 }
 
 // planEstimate is POST /v1/cases/{id}/plan/estimate: the moves a plan
@@ -980,7 +1046,7 @@ func (a *api) planEstimate(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	req, err := a.planRequestFor(r, c, in, false)
+	req, _, err := a.planRequestFor(r, c, in, false)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -1049,7 +1115,7 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 	}
 	if err != nil {
 		if !errors.Is(err, duty.ErrNoRate) {
-			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", RequestID(ctx), "hts", hts, "err", err)
+			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", requestRef(ctx), "err", logsafe.Err(err))
 		}
 		return e
 	}
@@ -1127,7 +1193,8 @@ func productCountries(p *domain.Product) []string {
 // economicsFrom keeps the latest economics the user gave (an empty request
 // value leaves the stored one).
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
-	if e.AnnualImportValueUSD > 0 {
+	if ownsMoney(e) {
+		e = cleanEconomics(e) // an inactive operations block is not stored
 		return &e
 	}
 	return old
@@ -1139,7 +1206,7 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 // retryable}. Comments (": keep-alive") are sent every keepAlive. req carries
 // the priced economics the search runs on; raw is what the user sent, and the
 // only economics the case stores (as on the JSON path, D56).
-func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics) {
+func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics, st moneyStamp) {
 	s := openStream(w)
 	defer s.close()
 	send := s.send
@@ -1156,11 +1223,17 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			send("move_done", map[string]any{"key": e.Move, "plan": e.Plan, "done": e.Done, "total": e.Total})
 		}
 	})
+	if err == nil {
+		stampBasis(&res, st.basis)
+	}
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
 		_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, st, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
@@ -1169,6 +1242,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			return nil
 		})
 	}
+	a.auditStreamEnd(r, err) // before the final event: the stream's headers are already out
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
 		send("error", map[string]any{"code": code, "message": msg, "retryable": retryable(status, err)})
@@ -1214,6 +1288,12 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, err)
 			return
 		}
+	}
+	// Only preview:true (a JSON bool, parsed above) is a read. Anything else
+	// is the recording branch, which a viewer may not reach (#283).
+	if !in.Preview && !a.principalOf(r).allows(c, permEdit) {
+		a.fail(w, r, errForbidden)
+		return
 	}
 	format := strings.ToLower(strings.TrimSpace(in.Format))
 	switch {
@@ -1310,7 +1390,17 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
+		// A preview of a private case still hands its content to the caller, so
+		// the access is recorded (one event, no history and no ExportedAt).
+		// A pinned public demo is not private.
+		if !a.demoReadOnly(r, c) {
+			a.auditSingle(r, auditStep{Tenant: tenantOfCase(c), Object: objectRef("case", c.ID), Detail: format})
+		}
 		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
+		return
+	}
+	if err := a.auditCase(r, c, format); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	now := time.Now().UTC()

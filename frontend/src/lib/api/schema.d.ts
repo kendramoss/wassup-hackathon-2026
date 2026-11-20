@@ -95,6 +95,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
             };
@@ -182,6 +184,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 429: components["responses"]["Error"];
             };
         };
@@ -222,6 +226,7 @@ export interface paths {
                         };
                     };
                 };
+                401: components["responses"]["Error"];
             };
         };
         put?: never;
@@ -260,6 +265,7 @@ export interface paths {
                         "application/json": components["schemas"]["CaseResponse"];
                     };
                 };
+                401: components["responses"]["Error"];
                 404: components["responses"]["Error"];
             };
         };
@@ -283,12 +289,15 @@ export interface paths {
                 /** @description Deleted */
                 204: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
+                401: components["responses"]["Error"];
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         options?: never;
@@ -324,6 +333,7 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
             };
@@ -428,6 +438,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
@@ -486,6 +498,7 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 429: components["responses"]["Error"];
             };
@@ -527,7 +540,7 @@ export interface paths {
                         target?: string;
                         /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
                         move_key?: string;
-                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. */
+                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden. */
                         preview?: boolean;
                         /**
                          * @description markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66).
@@ -549,6 +562,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
             };
@@ -602,6 +617,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
@@ -1124,6 +1141,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
@@ -1172,6 +1191,16 @@ export interface paths {
                         "application/json": {
                             case_id?: string;
                             economics?: components["schemas"]["Economics"];
+                            /**
+                             * @description Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                             * @enum {boolean}
+                             */
+                            plan_economics_stale?: true;
+                            /**
+                             * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                             * @enum {boolean}
+                             */
+                            targets_economics_stale?: true;
                             /** @description The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero. */
                             scenarios?: {
                                 label?: string;
@@ -1186,6 +1215,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
             };
         };
@@ -1258,6 +1289,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
@@ -1317,6 +1350,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 429: components["responses"]["Error"];
                 502: components["responses"]["Error"];
@@ -1427,6 +1462,7 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 429: components["responses"]["Error"];
@@ -1473,6 +1509,8 @@ export interface paths {
                     };
                 };
                 400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
                 429: components["responses"]["Error"];
@@ -1854,7 +1892,7 @@ export interface paths {
         put?: never;
         /**
          * Invite a member by email (the workspace's admin only; TEAMS=on)
-         * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+         * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`,
          */
         post: {
             parameters: {
@@ -1883,6 +1921,7 @@ export interface paths {
                 /** @description The updated workspace */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -1894,9 +1933,126 @@ export interface paths {
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/members/{email}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set a member's role (workspace admin only; TEAMS=on)
+         * @description Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic).
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                    /** @description URL-encoded and lower-cased */
+                    email: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        role: components["schemas"]["WorkspaceRole"];
+                    };
+                };
+            };
+            responses: {
+                /** @description The workspace as the caller sees it */
+                200: {
+                    headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Workspace"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/members/{email}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member, or leave (TEAMS=on)
+         * @description An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                    /** @description URL-encoded and lower-cased */
+                    email: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The removed email and the caller's updated workspace view */
+                200: {
+                    headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: email */
+                            removed: string;
+                            /** @description The caller's updated workspace, or null when the caller left */
+                            workspace: components["schemas"]["Workspace"] | null;
+                        };
+                    };
+                };
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1932,6 +2088,7 @@ export interface paths {
                 /** @description The workspace joined */
                 200: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -1941,8 +2098,127 @@ export interface paths {
                 401: components["responses"]["Error"];
                 404: components["responses"]["Error"];
                 409: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a tenant's audit events (workspace admin or admin token; audit enabled only)
+         * @description Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    /** @description Opaque; at most 512 bytes */
+                    cursor?: string;
+                    order?: "desc" | "asc";
+                    action?: components["schemas"]["AuditAction"];
+                    outcome?: components["schemas"]["AuditOutcome"];
+                    phase?: components["schemas"]["AuditPhase"];
+                    /** @description An actor pseudonym from an event */
+                    actor?: string;
+                    /** @description An opaque object reference from an event */
+                    object?: string;
+                    /** @description RFC 3339 */
+                    from?: string;
+                    /** @description RFC 3339 */
+                    to?: string;
+                    /** @description Admin token only (required for it); 400 for any other caller */
+                    tenant?: string;
+                };
+                header?: {
+                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other. */
+                    "X-User-Token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description One page of events */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuditPage"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/audit/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
+         * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Resume token from a previous incomplete call */
+                    cursor?: string;
+                    /** @description Admin token only (required for it); 400 for any other caller */
+                    tenant?: string;
+                };
+                header?: {
+                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
+                    "X-User-Token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The verification result so far */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuditVerifyResult"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2042,6 +2318,7 @@ export interface paths {
                 /** @description The key, shown once, and its record */
                 201: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content: {
@@ -2054,6 +2331,7 @@ export interface paths {
                 };
                 400: components["responses"]["Error"];
                 403: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         delete?: never;
@@ -2090,12 +2368,14 @@ export interface paths {
                 /** @description Disabled */
                 204: {
                     headers: {
+                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
                 403: components["responses"]["Error"];
                 404: components["responses"]["Error"];
+                503: components["responses"]["Error"];
             };
         };
         options?: never;
@@ -2163,10 +2443,12 @@ export interface components {
             scenario_count: number;
             /** @description A seeded demo case; listed first */
             pinned: boolean;
+            /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
+            can_write?: boolean;
         };
         Error: {
             /** @enum {string} */
-            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded";
+            code: "invalid_input" | "not_found" | "model_unavailable" | "model_bad_response" | "out_of_scope" | "internal" | "rate_limited" | "forbidden" | "budget_reached" | "unauthenticated" | "conflict" | "unauthorized" | "quota_exceeded" | "audit_unavailable";
             message: string;
             details?: unknown;
         };
@@ -2181,13 +2463,118 @@ export interface components {
             invited: string[];
             /**
              * Format: email
-             * @description The workspace's admin
+             * @description The workspace's creator
              */
             created_by: string;
             /** Format: date-time */
             created_at: string;
-            /** @description The caller is the admin */
+            /** @description The caller's role is admin */
             admin: boolean;
+            role: components["schemas"]["WorkspaceRole"];
+            /** @description Role of each joined member by email. Present only when the caller is an admin; invited-only emails never appear. */
+            member_roles?: {
+                [key: string]: components["schemas"]["WorkspaceRole"];
+            };
+        };
+        /**
+         * @description The caller's role in the workspace, derived by the server from stored membership.
+         * @enum {string}
+         */
+        WorkspaceRole: "viewer" | "editor" | "admin";
+        /**
+         * @description `case.read` appears only as a denial; allowed ordinary reads are not audited.
+         * @enum {string}
+         */
+        AuditAction: "case.create" | "case.update" | "case.export" | "case.delete" | "case.pin" | "case.read" | "workspace.create" | "workspace.invite" | "workspace.join" | "workspace.role_change" | "workspace.member_remove" | "workspace.leave" | "apikey.issue" | "apikey.list" | "apikey.disable" | "admin.watch_run" | "audit.read" | "audit.verify" | "auth.denied";
+        /** @enum {string} */
+        AuditPhase: "intent" | "completion" | "single";
+        /** @enum {string} */
+        AuditOutcome: "allowed" | "denied" | "failed";
+        /** @description One audit event, as stored. Every string is a closed value or a strict pattern: no credential, request body, email, name or legal fact is recorded. Fields with no value are omitted from the JSON. */
+        AuditEvent: {
+            /** @description `ws:<workspace id>`, `own:<owner hash>` (a personal tenant, readable by the admin token only) or `platform` */
+            tenant: string;
+            /** @description Per-tenant sequence */
+            seq: number;
+            /**
+             * Format: date-time
+             * @description Server clock in microseconds; non-decreasing within a tenant
+             */
+            time: string;
+            /** @enum {string} */
+            actor_kind: "user" | "apikey" | "admin" | "anonymous" | "system";
+            /** @description A keyed pseudonym `a<keyid>_<32 hex>` of a verified user or API key; omitted for admin, anonymous and system. Never an email. A pseudonym is not anonymisation: whoever holds the key can confirm a guess. */
+            actor?: string;
+            /** @description The affected member's pseudonym for invite */
+            target?: string;
+            action: components["schemas"]["AuditAction"];
+            phase: components["schemas"]["AuditPhase"];
+            outcome: components["schemas"]["AuditOutcome"];
+            /**
+             * @description Omitted when allowed
+             * @enum {string}
+             */
+            reason?: "forbidden" | "hidden" | "unauthenticated" | "invalid_credential" | "invalid_input" | "conflict" | "not_found" | "upstream" | "unavailable" | "internal" | "superseded" | "audit_unavailable" | "rate_limited";
+            /** @description A closed value per action (the case.update kind, the export format, the new role, pin or unpin) or omitted */
+            detail?: string;
+            /** @description A server-minted id (`case:case_<12 hex>`, `workspace:ws_<12 hex>`, `apikey:<16 hex>`, `apikey:new`, `batch`) or, for an id the requester supplied and the server did not resolve, a keyed opaque hash `<kind>:h_<16 hex>`; omitted when none. Never a name. */
+            object?: string;
+            /** @description The route pattern */
+            route?: string;
+            /** @description The request reference: 16 server-minted hex characters, or `h_` plus the first 16 hex of the SHA-256 of a client-supplied X-Request-ID. A client value is never stored raw. */
+            request_id?: string;
+            /** @description On a completion or failure, the seq of its intent; omitted when the event has none, including when the intent could not be written */
+            ref?: number;
+            /** @description Present only when above 0: denial events dropped by the per-process flood limiter since the previous event for this tenant. The count is per process, not fleet wide. */
+            suppressed?: number;
+            /** @description The previous event's hash; 64 zeros for seq 1 */
+            prev_hash: string;
+            /** @description SHA-256 over a fixed encoding of the other fields */
+            hash: string;
+        };
+        AuditPage: {
+            tenant: string;
+            retention_days: number;
+            /** @enum {string} */
+            order: "desc" | "asc";
+            events: components["schemas"]["AuditEvent"][];
+            /** @description Omitted at the end. Opaque; bound to tenant */
+            next_cursor?: string;
+        };
+        /** @description Verification covers only the events checked in this call. `ok` is true only for what was checked; read `complete` and `unresolved_intents` as described. */
+        AuditVerifyResult: {
+            tenant: string;
+            ok: boolean;
+            checked: number;
+            /** @description The head frozen by the first call: the highest seq this verification covers. Later appends are outside it. */
+            verified_through_seq: number;
+            first_seq?: number;
+            last_seq?: number;
+            /** @description The retention checkpoint a legitimate purge left */
+            checkpoint?: {
+                through_seq?: number;
+                /** Format: date-time */
+                purged_at?: string;
+            };
+            /** @description False while more remains; then call again with `next_cursor` */
+            complete: boolean;
+            /** @description Present while `complete` is false */
+            next_cursor?: string;
+            /** @description At most 100 per call */
+            findings: {
+                seq: number;
+                /** @enum {string} */
+                kind: "hash_mismatch" | "prev_mismatch" | "seq_gap" | "seq_reorder" | "time_regression" | "head_mismatch" | "checkpoint_mismatch" | "prefix_unanchored" | "tenant_mismatch" | "invalid_event";
+            }[];
+            /** @description Present ONLY on the final call (`complete` true), never on an incomplete page, so absence does not mean none were found. Intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq`; a later completion is not read. `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. */
+            unresolved_intents?: {
+                /** @description Not exact when `complete` is false */
+                count: number;
+                /** @description At most 50 */
+                seqs: number[];
+                /** @description False when more than 64 intents were open at a page boundary; `count` is then not exact */
+                complete: boolean;
+            };
         };
         /** @description A stored API key; the secret and its hash are never returned (D69). */
         APIKey: {
@@ -2367,6 +2754,8 @@ export interface components {
             /** @enum {string} */
             step?: "product" | "origin" | "plan" | "export";
             pinned?: boolean;
+            /** @description Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
+            can_write?: boolean;
             display_name?: string;
             /** @description The earlier rulings in prediction.precedents, in the same order, with CBP's held origin */
             precedents_detail?: components["schemas"]["PrecedentRef"][];
@@ -2385,6 +2774,16 @@ export interface components {
             }[];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
+            /**
+             * @description Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale
+             * @enum {boolean}
+             */
+            plan_economics_stale?: true;
+            /**
+             * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale
+             * @enum {boolean}
+             */
+            targets_economics_stale?: true;
             /** @description economics with the sourced duty rates a plan search would use filled in (D52, D56), plus live MFN rates already fetched (D65; viewing a case never waits on the HTS); null without economics. Display only. */
             economics_priced?: components["schemas"]["Economics"];
             /** @description Audit trail, oldest first (last 200) */
@@ -2526,6 +2925,133 @@ export interface components {
                     [key: string]: number;
                 };
             };
+            operations?: components["schemas"]["EconomicsOperations"];
+        };
+        /** @description Optional operational inputs (#281), all user-entered; an explicit 0 is a known zero and an absent or null field is not entered. An empty block, a note-only block and entries with only a ref or sources are inactive and are not stored. Unknown JSON fields are rejected. */
+        EconomicsOperations: {
+            /** @description Positive; required whenever a one-time cost applies. One-time costs are amortized straight-line over it (no discounting, residual value or tax). */
+            horizon_years?: number;
+            /** @description Your lead-time limit; lead times of moved groups are assumed to run in parallel */
+            max_lead_time_days?: number;
+            /** @description Free text; changes no result and no hash */
+            note?: string;
+            groups?: {
+                [key: string]: components["schemas"]["EconomicsOpsGroup"];
+            };
+        };
+        EconomicsOpsGroup: {
+            /**
+             * @description Whether labour and logistics are already inside the group cost (included) or are added to it (additional); required where labour or logistics is entered, to prevent double counting
+             * @enum {string}
+             */
+            cost_basis?: "included" | "additional";
+            /** @description Unit label for demand and MOQ; case-sensitive */
+            unit?: string;
+            annual_demand_units?: number;
+            orders_per_year?: number;
+            plants?: {
+                [key: string]: components["schemas"]["EconomicsOpsPlant"];
+            };
+        };
+        EconomicsOpsPlant: {
+            /** @description The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale). The expected name is the plant's name with surrounding spaces trimmed, or the plant's id when it has no name (an unnamed plant is identified by its id). Names compare after space and case folding and countries after normalisation. Two plants with the same name and country at different times are the same plant for this check; it is not a unique-identity guarantee. */
+            ref?: {
+                /** @description The plant's trimmed name, or its id when the plant has no name */
+                name: string;
+                country: string;
+            };
+            labour_usd_per_year?: number;
+            logistics_usd_per_year?: number;
+            capex_usd?: number;
+            retooling_usd?: number;
+            lead_time_days?: number;
+            moq_units?: number;
+            moq_unit?: string;
+            /** @description Provenance notes by factor; metadata only, never echoed in results */
+            sources?: {
+                [key: string]: string;
+            };
+        };
+        /** @description The operational view of one move, from one shared calculation (plan search, compare, scenarios and target comparison give the same object for the same inputs and move). A priced net covers the modelled terms only. */
+        PlanOperations: {
+            /** @description Each term is a number, or null when unknown or not modelled; never a zero */
+            components: {
+                duty_effect_per_year: number | null;
+                group_cost_delta_per_year: number | null;
+                labour_delta_per_year: number | null;
+                logistics_delta_per_year: number | null;
+                operating_delta_per_year: number | null;
+                one_time_total_usd: number | null;
+                amortized_one_time_per_year: number | null;
+            };
+            /** @description Equals the plan's net_per_year exactly when priced and net_priced are true */
+            net_modelled_per_year: number | null;
+            /** @description No financial input was unknown */
+            priced: boolean;
+            horizon_years?: number;
+            feasibility_assessed: boolean;
+            /**
+             * @description Omitted when feasibility_assessed is false
+             * @enum {string}
+             */
+            feasibility?: "feasible" | "infeasible" | "unknown";
+            /**
+             * @description Omitted when the move was not demoted by cost
+             * @enum {string}
+             */
+            decision?: "operationally_infeasible" | "net_costlier";
+            unknown: {
+                /** @enum {string} */
+                category: "financial" | "feasibility";
+                factor: string;
+                group?: string;
+                reason: string;
+            }[];
+            /** @description Factors in neither side of the comparison; show beside any priced figure, even when priced is true */
+            not_modelled: string[];
+            sunk_ignored: {
+                group: string;
+                plant: string;
+                factor: string;
+            }[];
+            stale_refs: {
+                group: string;
+                plant: string;
+                factor: string;
+            }[];
+            checks: {
+                /** @enum {string} */
+                kind: "lead_time" | "moq";
+                group?: string;
+                /** @enum {string} */
+                status: "feasible" | "infeasible" | "unknown";
+                value?: number;
+                limit?: number;
+                unit?: string;
+                reason?: string;
+            }[];
+            assumptions: string[];
+            /** @description Absolute yearly figures for the current setup; null unless computable (totals null unless priced) */
+            baseline: {
+                duty_usd: number | null;
+                operating_usd: number | null;
+                total_usd: number | null;
+            };
+            proposed: {
+                duty_usd: number | null;
+                operating_usd: number | null;
+                /** @description Omitted when not applicable or unknown (the server never sends null) */
+                amortized_one_time_usd?: number;
+                total_usd: number | null;
+            };
+        };
+        /** @description Present only in operations mode: what 'best' means here */
+        PlanObjective: {
+            /** @example operations_v1 */
+            mode: string;
+            /** @example searched_moves_only */
+            scope: string;
+            statement: string;
         };
         PlanRequest: {
             /** @example Thailand */
@@ -2584,14 +3110,15 @@ export interface components {
              *     can't be proven either way.
              */
             net_priced?: boolean;
+            operations?: components["schemas"]["PlanOperations"];
             shown?: boolean;
             rejection_reason?: string;
             /**
-             * @description Why a plan is not shown. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
+             * @description Why a plan is not shown. `operationally_infeasible` and `net_costlier` (operations mode only) demote a plan the legal and precedent gate had shown; the reason names the modelled terms only. `below_confidence_bar` = precedent-supported, verifier confidence below the plan bar (0.92):
              *     render as a greyed "Precedent-supported — below confidence bar" row with its supporting ruling.
              * @enum {string}
              */
-            rejection_kind?: "current_setup" | "below_confidence_bar" | "no_supporting_precedent" | "engine_other_origin" | "check_failed";
+            rejection_kind?: "current_setup" | "below_confidence_bar" | "no_supporting_precedent" | "engine_other_origin" | "check_failed" | "operationally_infeasible" | "net_costlier";
             /**
              * @description Only with NEAR_MISS_ADVICE=on (D81), on at most two `below_confidence_bar` moves per search whose check is at least 0.85:
              *     what differs between this move and its supporting ruling on the point CBP relied on, and what change to the setup
@@ -2658,6 +3185,9 @@ export interface components {
             stats?: Record<string, never>;
             economics_illustrative?: boolean;
             duty_rates_note?: string;
+            objective?: components["schemas"]["PlanObjective"];
+            /** @description Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not. */
+            economics_basis?: string;
         };
         PlanResponse: components["schemas"]["Meta"] & {
             case_id?: string;
@@ -2690,8 +3220,9 @@ export interface components {
         Comparison: {
             /** @description rate for the scenario's predicted origin */
             duty_rate?: number | null;
+            /** @description In operations mode null (never 0) when the annual import value is not above 0, because an unknown dollar figure is not a zero; a known rate with a positive annual value is a real figure, including 0 */
             annual_duty_usd?: number | null;
-            /** @description current setup's duty minus this scenario's */
+            /** @description current setup's duty minus this scenario's. In operations mode null when the annual import value is not above 0 or the duty effect is unknown (see operations.components.duty_effect_per_year); the feasibility and the known rates are still returned */
             duty_savings_usd?: number | null;
             /** @description yearly cost of the operation groups moved (product scenarios with group costs only) */
             added_cost_usd?: number | null;
@@ -2702,6 +3233,14 @@ export interface components {
                 to_plant?: string;
             }[];
             illustrative?: boolean;
+            /** @description Operations mode: one-time costs amortized per year. The server omits the key (it never sends null) when the figure is unknown or not modelled; read operations.components.amortized_one_time_per_year for the nullable value */
+            amortized_one_time_usd?: number;
+            /**
+             * @description Operations mode; mirrors operations.feasibility; omitted when not assessed
+             * @enum {string}
+             */
+            feasibility?: "feasible" | "infeasible" | "unknown";
+            operations?: components["schemas"]["PlanOperations"];
             /** @description predicted origin differs from the current origin; for a product scenario that moves nothing, savings stay 0 and duty stays at the current origin's rate */
             origin_differs_from_current?: boolean;
         };
@@ -2709,7 +3248,7 @@ export interface components {
             name?: string;
             made_in?: string;
             plant?: string;
-            /** @description template group id, or empty */
+            /** @description template group id, or omitted */
             group?: string;
             /** @description 1-based paragraph of the facts; 0 if the model cited none */
             source_paragraph?: number;
@@ -2856,7 +3395,10 @@ export interface components {
         UserToken: string;
     };
     requestBodies: never;
-    headers: never;
+    headers: {
+        /** @description Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off. */
+        AuditIncomplete: "completion-not-recorded";
+    };
     pathItems: never;
 }
 export type $defs = Record<string, never>;

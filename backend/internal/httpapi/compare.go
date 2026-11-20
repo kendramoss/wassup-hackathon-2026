@@ -59,13 +59,18 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: give 2 to %d different target countries", domain.ErrInvalid, MaxTargets))
 		return
 	}
+	if err := a.auditCase(r, c, "compare"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
 	fp := inputFingerprint(c)
-	econ, err := effectiveEconomics(in.Economics, c.Economics)
+	econ, usedStored, err := effectiveEconomics(in.Economics, c.Economics, c.Product)
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	st := moneyStamp{basis: rawBasis(econ), stored: usedStored}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), targets...), true)
 	results := make([]planner.Result, len(targets))
 	errs := make([]error, len(targets))
@@ -89,6 +94,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	cmp := &store.TargetComparison{CheckedAt: time.Now().UTC(), Results: map[string]planner.Result{}}
 	for i, t := range targets {
+		stampBasis(&results[i], st.basis)
 		cmp.Results[t] = results[i]
 		cmp.Ranked = append(cmp.Ranked, summarise(t, results[i]))
 	}
@@ -106,6 +112,9 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		now := time.Now().UTC()
 		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
+				return err
+			}
+			if err := stillPriced(latest, st, st.basis); err != nil {
 				return err
 			}
 			latest.Targets, latest.UpdatedAt = cmp, now
@@ -164,9 +173,16 @@ func rankTargets(ts []store.TargetSummary) {
 				return ca > cb
 			}
 		}
+		if a.Best.Operations != nil || b.Best.Operations != nil { // operations mode: known before unknown, as within a target
+			if pa, pb := bestPriced(a), bestPriced(b); pa != pb {
+				return pa
+			}
+		}
 		return a.Best.NetYear > b.Best.NetYear
 	})
 	for i := range ts {
 		ts[i].Rank = i + 1
 	}
 }
+
+func bestPriced(t store.TargetSummary) bool { return t.Best.NetPriced != nil && *t.Best.NetPriced }

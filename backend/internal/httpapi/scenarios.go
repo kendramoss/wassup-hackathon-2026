@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -45,13 +46,13 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if in.Economics != nil {
-		if err := validateEconomics(*in.Economics); err != nil {
+		if err := validateEconomicsFor(*in.Economics, sc.Product, false); err != nil {
 			a.fail(w, r, err)
 			return
 		}
 	}
-	if sc.Economics != nil && (in.Economics == nil || in.Economics.AnnualImportValueUSD <= 0) {
-		if err := validateEconomics(*sc.Economics); err != nil { // reused stored economics
+	if sc.Economics != nil && (in.Economics == nil || !ownsMoney(*in.Economics)) {
+		if err := validateEconomicsFor(*sc.Economics, sc.Product, false); err != nil { // reused stored economics
 			a.fail(w, r, err)
 			return
 		}
@@ -85,6 +86,10 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if err := a.auditCase(r, sc, "scenarios"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	errs := make([]error, len(cases))
 	labels := make([]*router.Label, len(cases))
 	var wg sync.WaitGroup
@@ -103,7 +108,9 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+	if in.Economics != nil && ownsMoney(*in.Economics) {
+		ec := cleanEconomics(*in.Economics) // an inactive operations block is not stored
+		in.Economics = &ec
 		sc.Economics = in.Economics
 	}
 	a.compareScenarios(r.Context(), sc, out, true)
@@ -119,7 +126,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	if a.demoReadOnly(r, sc) {
 		sc.Scenarios, sc.UpdatedAt = out, now
 		record(r.Context(), &sc, ev)
-		a.respond(w, http.StatusOK, a.caseFields(sc))
+		a.respond(w, http.StatusOK, a.caseFields(r, sc))
 		return
 	}
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
@@ -131,7 +138,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		if scenarioBasis(*latest) != basis0 {
 			return errSuperseded
 		}
-		if in.Economics != nil && in.Economics.AnnualImportValueUSD > 0 {
+		if in.Economics != nil && ownsMoney(*in.Economics) {
 			latest.Economics = in.Economics
 		}
 		latest.Scenarios, latest.UpdatedAt = out, now
@@ -142,7 +149,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(saved))
+	a.respond(w, http.StatusOK, a.caseFields(r, saved))
 }
 
 // scenarioFacts is a scenario's facts text: given directly, or rendered from
@@ -190,11 +197,15 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: case %s has not been analysed", domain.ErrInvalid, sc.ID))
 		return
 	}
+	if err := a.auditCase(r, sc, "watch"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.recheck(r.Context(), &sc, !a.demoReadOnly(r, sc)); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(sc))
+	a.respond(w, http.StatusOK, a.caseFields(r, sc))
 }
 
 // WatchOriginalRegimeUnknownReason is the watch triage reason when the case's
@@ -222,6 +233,10 @@ func watchBasis(sc store.Case, d Dispatch, orig string) string {
 // watchAll re-checks every analysed case (for a scheduler) and lists the
 // cases whose origin changed.
 func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
+	if err := a.auditBegin(r, auditStep{Tenant: "platform"}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	cs, err := a.d.Cases.List(r.Context())
 	if err != nil {
 		a.fail(w, r, err)
@@ -245,7 +260,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
-				a.d.Logger.WarnContext(r.Context(), "watch failed", "case", c.ID, "err", err)
+				a.d.Logger.WarnContext(r.Context(), "watch failed", caseAttr(c.ID), "err", logsafe.Err(err))
 				failed = append(failed, c.ID)
 				return
 			}

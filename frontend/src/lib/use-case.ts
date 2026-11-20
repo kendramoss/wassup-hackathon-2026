@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, type CaseResponse } from "./api/client";
+import { ACCESS_STALE, api, type CaseResponse } from "./api/client";
 
 // Pinned demos are read-only for visitors (backend D57): plan, scenarios,
 // compare, watch and ask answer but don't save. This tab keeps the latest
@@ -37,6 +37,22 @@ export function useCase(id: string) {
   );
   useEffect(() => {
     fetchCase();
+  }, [fetchCase]);
+  // A write was refused (403): the case or the caller's role may have changed,
+  // so show what the server says now. One read at a time; a GET never raises
+  // this, so it cannot loop.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let reading = false;
+    const stale = () => {
+      if (reading) return;
+      reading = true;
+      fetchCase().finally(() => {
+        reading = false;
+      });
+    };
+    window.addEventListener(ACCESS_STALE, stale);
+    return () => window.removeEventListener(ACCESS_STALE, stale);
   }, [fetchCase]);
   const reload = useCallback(() => {
     setError(null);

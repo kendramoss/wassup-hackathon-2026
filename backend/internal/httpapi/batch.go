@@ -12,6 +12,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bom"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
 // MaxBatch caps a portfolio triage request; BatchWorkers is how many cases
@@ -46,6 +47,9 @@ type BatchRow struct {
 // or multipart/form-data with a "file" (CSV or .xlsx: name, facts or
 // description, optional date).
 func (a *api) batch(w http.ResponseWriter, r *http.Request) {
+	if !a.mayCreate(w, r) {
+		return
+	}
 	start := time.Now()
 	items, err := a.batchItems(w, r)
 	if err != nil {
@@ -54,6 +58,11 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(items) == 0 || len(items) > MaxBatch {
 		a.fail(w, r, fmt.Errorf("%w: give 1 to %d products (got %d)", domain.ErrInvalid, MaxBatch, len(items)))
+		return
+	}
+	owner, workspace := a.principalOf(r).newCaseScope()
+	if err := a.auditBegin(r, auditStep{Tenant: tenantOfCase(store.Case{Owner: owner, Workspace: workspace}), Object: "batch"}); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	today := time.Now().UTC().Format(time.DateOnly)

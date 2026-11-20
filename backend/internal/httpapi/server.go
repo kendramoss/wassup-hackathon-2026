@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 // Info is static metadata returned by /health.
@@ -80,6 +82,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("GET /v1/workspaces/mine", a.myWorkspace)
 			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.addMember)
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.joinWorkspace)
+			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.setMemberRole)
+			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.removeMember)
+		}
+		if d.Audit != nil {
+			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))
+			mux.HandleFunc("GET /v1/audit/verify", a.rateOnly(light, a.auditVerify))
 		}
 		if d.APIKeys != nil {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
@@ -98,7 +106,10 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, http.StatusNotFound, "not_found", "no such endpoint", nil)
 	})
-	var h http.Handler = mux
+	var h http.Handler = captureRoute(mux)
+	if a != nil && a.d.Audit != nil {
+		h = a.withAudit(mux, h)
+	}
 	if a != nil && a.d.Teams {
 		h = a.withUser(h)
 	}
@@ -108,29 +119,68 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	return withRequestLog(logger, h)
 }
 
-type ctxKey struct{}
+type ctxKey struct{}   // the request's logsafe.Ref
+type routeKey struct{} // *routeHolder
 
-// RequestID returns the request ID set by the middleware, or "".
-func RequestID(ctx context.Context) string {
-	id, _ := ctx.Value(ctxKey{}).(string)
-	return id
+// requestRef is the request's ONE normalised id: the value of the
+// X-Request-ID response header, of the request_id log field and of the audit
+// event's request id. It is zero outside the middleware.
+func requestRef(ctx context.Context) logsafe.Ref {
+	ref, _ := ctx.Value(ctxKey{}).(logsafe.Ref)
+	return ref
 }
 
-// withRequestLog assigns each request an ID (honouring X-Request-ID from a
-// caller), echoes it in the response and logs method, path, status and
-// latency. Request bodies are never logged.
+// RequestID returns the normalised request ID set by the middleware, or "".
+// It is never the client's raw X-Request-ID.
+func RequestID(ctx context.Context) string { return requestRef(ctx).String() }
+
+// routeHolder carries the mux pattern that matched, from the mux wrapper back
+// out to the request log (the mux sets r.Pattern on the request it serves,
+// which the outer middleware, holding its own copy, cannot see).
+type routeHolder struct{ pattern string }
+
+// captureRoute wraps the mux itself so the matched pattern, never the raw
+// path or query (case ids, member emails, tokens), is what gets logged.
+func captureRoute(mux *http.ServeMux) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if h, _ := r.Context().Value(routeKey{}).(*routeHolder); h != nil {
+			defer func() { h.pattern = r.Pattern }() // set by the mux on this request
+		}
+		mux.ServeHTTP(w, r)
+	})
+}
+
+// RoutePatterns lists every pattern the API can register (the audit coverage
+// table is checked against the real route table by a test), plus the
+// catch-all. The log policy registers exactly these as the closed set the
+// route field may carry.
+func RoutePatterns() []string {
+	out := make([]string, 0, len(auditTable)+1)
+	for p := range auditTable {
+		out = append(out, p)
+	}
+	return append(out, "/")
+}
+
+// withRequestLog normalises the request ID ONCE (every X-Request-ID a caller
+// sends is hashed, whatever its shape; with none the server mints one),
+// echoes that value in the response, carries the same Ref in the context for
+// the logs and the audit trail, and logs method, matched route pattern,
+// status and latency. Request bodies, paths and queries are never logged.
 func withRequestLog(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := r.Header.Get("X-Request-ID")
-		if id == "" || len(id) > 64 {
-			id = newID()
-		}
-		w.Header().Set("X-Request-ID", id)
+		ref := logsafe.RequestRef(r.Header.Get("X-Request-ID"), newID)
+		w.Header().Set("X-Request-ID", ref.String())
 		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		holder := &routeHolder{}
+		ctx := context.WithValue(context.WithValue(r.Context(), ctxKey{}, ref), routeKey{}, holder)
 		start := time.Now()
-		next.ServeHTTP(rec, r.WithContext(context.WithValue(r.Context(), ctxKey{}, id)))
-		logger.InfoContext(r.Context(), "request", "request_id", id, "method", r.Method, "path", r.URL.Path,
-			"status", rec.status, "latency_ms", time.Since(start).Milliseconds())
+		next.ServeHTTP(rec, r.WithContext(ctx))
+		attrs := []any{"request_id", ref, "method", r.Method}
+		if holder.pattern != "" {
+			attrs = append(attrs, "route", holder.pattern)
+		}
+		logger.InfoContext(r.Context(), "request", append(attrs, "status", rec.status, "latency_ms", time.Since(start).Milliseconds())...)
 	})
 }
 

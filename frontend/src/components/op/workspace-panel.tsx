@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { ApiError, api, type WorkspacesMine } from "@/lib/api/client";
+import { ACCESS_STALE, ApiError, api, type WorkspaceRole, type WorkspacesMine } from "@/lib/api/client";
+import { ROLES, memberMessage, memberRows, roleLabel, roleNoun, roleSummary, type MemberAction } from "@/lib/roles";
 import { Button, Chip, Panel, PanelHead, Spinner, cx } from "./ui";
 
 const field = "h-10 min-w-0 flex-1 rounded-[2px] border border-edge bg-white px-3 text-[13.5px] focus:border-ok";
 
-// The signed-in user's team workspace (D68): create one, accept an
-// invitation, or (the admin) invite by email. Shown only when signed in and
-// the server has TEAMS on (otherwise /v1/workspaces/mine is a 404).
+// The signed-in user's team workspace (D68, roles #283): create one, accept
+// an invitation, see your role, leave, and (the admin) invite, set roles and
+// remove members. Shown only when signed in and the server has TEAMS on
+// (otherwise /v1/workspaces/mine is a 404). The role and member roles are what
+// the server returns; every change is followed by a re-read, and a refused
+// call (403, 404) re-reads too because the role may have changed.
 export function WorkspacePanel() {
   const ids = useId();
   const [mine, setMine] = useState<WorkspacesMine | null>(null);
@@ -17,8 +21,14 @@ export function WorkspacePanel() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  // A removal or leave waits for a second click: it ends access to cases.
+  const [confirm, setConfirm] = useState<{ kind: "leave" | "remove"; email: string } | null>(null);
 
-  const load = () => api.workspacesMine().then(setMine, () => setMine(null));
+  // Server truth. A 404 means Teams is off; any other failure keeps what is shown.
+  const load = () =>
+    api.workspacesMine().then(setMine, (e) => {
+      if (e instanceof ApiError && e.status === 404) setMine(null);
+    });
   useEffect(() => {
     let live = true;
     // Ask only when signed in: an anonymous request would be a 401.
@@ -27,29 +37,40 @@ export function WorkspacePanel() {
       .then((s) => {
         if (live && s.email) api.workspacesMine().then((m) => live && setMine(m), () => {});
       }, () => {});
+    // A write elsewhere was refused: the role may have changed, so re-read it.
+    const stale = () => {
+      if (live) api.workspacesMine().then((m) => live && setMine(m), () => {});
+    };
+    window.addEventListener(ACCESS_STALE, stale);
     return () => {
       live = false;
+      window.removeEventListener(ACCESS_STALE, stale);
     };
   }, []);
 
   if (!mine) return null;
 
-  const act = async (f: () => Promise<unknown>, done?: string) => {
+  const act = async (f: () => Promise<unknown>, action: MemberAction, done?: string) => {
     setBusy(true);
     setError(null);
     setNote(null);
+    setConfirm(null);
     try {
       await f();
       await load();
       if (done) setNote(done);
     } catch (e) {
-      setError(message(e));
+      setError(memberMessage(e, action));
+      // The server may know something the screen does not (a changed role).
+      await load();
     } finally {
       setBusy(false);
     }
   };
 
   const ws = mine.workspace;
+  const rows = ws ? memberRows(ws, mine.email) : [];
+  const leave = (w: NonNullable<typeof ws>) => act(() => api.removeMember(w.id, mine.email), "leave", `You left ${w.name}.`);
   return (
     <section className="mt-12" aria-labelledby={`${ids}-h`}>
       <h2 id={`${ids}-h`} className="eyebrow mb-3">
@@ -58,13 +79,45 @@ export function WorkspacePanel() {
       <Panel>
         {ws ? (
           <>
-            <PanelHead right={ws.admin ? "you're the admin" : undefined}>{ws.name}</PanelHead>
-            <p className="duo text-[13px] text-dim">Members see each other&apos;s cases created after they joined, and the demos.</p>
+            <PanelHead right={`you're ${roleNoun(ws.role)}`}>{ws.name}</PanelHead>
+            <p className="duo text-[13px]" data-testid="role-summary">
+              <b className="font-medium">{roleLabel(ws.role)}.</b> {roleSummary(ws.role)}
+            </p>
+            <p className="duo mt-1 text-[13px] text-dim">Members see each other&apos;s cases created after they joined, and the demos.</p>
             <ul className="mt-3 flex flex-col gap-1.5 text-[13px]">
-              {ws.members.map((m) => (
-                <li key={m} className="flex flex-wrap items-center gap-2">
-                  {m}
-                  {m === ws.created_by && <Chip>admin</Chip>}
+              {rows.map((m) => (
+                <li key={m.email} className="flex flex-wrap items-center gap-2">
+                  <span>
+                    {m.email}
+                    {m.you && <span className="text-dim"> (you)</span>}
+                  </span>
+                  {ws.admin && m.role ? (
+                    <label className="flex items-center gap-1.5 text-[12.5px]">
+                      <span className="sr-only">Role for {m.email}</span>
+                      <select
+                        className="h-8 rounded-[2px] border border-edge bg-white px-2 text-[12.5px]"
+                        value={m.role}
+                        disabled={busy}
+                        onChange={(e) => {
+                          const role = e.target.value as WorkspaceRole;
+                          if (role !== m.role) act(() => api.setMemberRole(ws.id, m.email, role), "role", `${m.email} is now ${roleNoun(role)}.`);
+                        }}
+                      >
+                        {ROLES.map((r) => (
+                          <option key={r} value={r}>
+                            {roleLabel(r)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    m.role && <Chip>{roleLabel(m.role).toLowerCase()}</Chip>
+                  )}
+                  {ws.admin && !m.you && (
+                    <Button variant="ghost" disabled={busy} onClick={() => setConfirm({ kind: "remove", email: m.email })}>
+                      Remove
+                    </Button>
+                  )}
                 </li>
               ))}
               {ws.invited.map((m) => (
@@ -74,12 +127,40 @@ export function WorkspacePanel() {
                 </li>
               ))}
             </ul>
+            {confirm && (
+              <div role="alertdialog" aria-label="Confirm" className="mt-3 border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+                <p className="duo">
+                  {confirm.kind === "leave"
+                    ? `Leave ${ws.name}? You lose access to every case in the workspace, including ones you created. Your personal cases stay yours.`
+                    : `Remove ${confirm.email}? They lose access to every case in the workspace, including ones they created.`}
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <Button
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() => (confirm.kind === "leave" ? leave(ws) : act(() => api.removeMember(ws.id, confirm.email), "remove", `Removed ${confirm.email}.`))}
+                  >
+                    {confirm.kind === "leave" ? "Leave workspace" : "Remove member"}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setConfirm(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!confirm && (
+              <div className="mt-3">
+                <Button variant="ghost" disabled={busy} onClick={() => setConfirm({ kind: "leave", email: mine.email })}>
+                  Leave workspace
+                </Button>
+              </div>
+            )}
             {ws.admin && (
               <form
                 className="mt-4 flex flex-wrap items-end gap-2.5"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (email.trim()) act(() => api.inviteMember(ws.id, email.trim()), `Invited ${email.trim()}. They join when they next sign in and accept; nothing is shared before that.`).then(() => setEmail(""));
+                  if (email.trim()) act(() => api.inviteMember(ws.id, email.trim()), "invite", `Invited ${email.trim()}. They join when they next sign in and accept; nothing is shared before that.`).then(() => setEmail(""));
                 }}
               >
                 <label className="flex min-w-[240px] flex-1 flex-col gap-1.5 text-[12.5px]">
@@ -102,7 +183,7 @@ export function WorkspacePanel() {
                     <span>
                       {inv.invited_by} invited you to <b className="font-medium">{inv.name}</b>.
                     </span>
-                    <Button variant="ghost" disabled={busy} onClick={() => act(() => api.joinWorkspace(inv.workspace_id), `You joined ${inv.name}.`)}>
+                    <Button variant="ghost" disabled={busy} onClick={() => act(() => api.joinWorkspace(inv.workspace_id), "join", `You joined ${inv.name}.`)}>
                       Join
                     </Button>
                   </li>
@@ -114,7 +195,7 @@ export function WorkspacePanel() {
               className="flex flex-wrap items-end gap-2.5"
               onSubmit={(e) => {
                 e.preventDefault();
-                if (name.trim()) act(() => api.createWorkspace(name.trim())).then(() => setName(""));
+                if (name.trim()) act(() => api.createWorkspace(name.trim()), "create").then(() => setName(""));
               }}
             >
               <label className="flex min-w-[240px] flex-1 flex-col gap-1.5 text-[12.5px]">
@@ -141,12 +222,4 @@ export function WorkspacePanel() {
       </Panel>
     </section>
   );
-}
-
-function message(e: unknown): string {
-  if (!(e instanceof ApiError)) return "Something went wrong. Try again.";
-  if (e.status === 403) return "Only the admin can invite members.";
-  if (e.status === 409) return e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : "Already a member, or the workspace is full.";
-  if (e.status === 404) return "That invitation is no longer open.";
-  return e.message || "Something went wrong. Try again.";
 }

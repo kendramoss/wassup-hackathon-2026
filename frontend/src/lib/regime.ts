@@ -8,7 +8,7 @@ export type Regime = { key: "textile" | "usmca" | "pharma"; label: string };
 
 const byPrompt: Record<string, Regime> = {
   textile: { key: "textile", label: "Textile rules (19 CFR 102.21)" },
-  usmca: { key: "usmca", label: "USMCA rules (19 CFR 102)" },
+  usmca: { key: "usmca", label: "Part 102 marking origin" },
   pharma: { key: "pharma", label: "Pharmaceutical rules" },
 };
 

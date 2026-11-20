@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 )
 
 // DefaultFastPath is the auto-accept confidence bar: the lowest confidence at
@@ -153,6 +156,25 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// StrictAuth (STRICT_AUTH on|off, default off) makes private case
+	// operations need a verified principal (signed-in user, API key or admin
+	// token): a bare X-Visitor-ID is refused with 401. Pinned demos and the
+	// public endpoints stay open. It is not a claim that visitor IDs
+	// authenticate anyone (#283).
+	StrictAuth bool
+	// Audit (#284). AuditMode is AUDIT: on, off, or auto (the default). Audit is
+	// the resolved switch: on, or auto with AUDIT_ACTOR_KEY set. auto never
+	// enables the trail without the secret and never generates one; on without
+	// it is a startup error. AuditActorKey is a secret (excluded from String).
+	AuditMode          string
+	Audit              bool
+	AuditActorKey      string
+	AuditActorKeyID    string
+	AuditRetentionDays int
+	// AuditStore is firestore, file or memory (default: follows CASES_STORE);
+	// AuditDir is the file store directory (AUDIT_DIR=off: memory).
+	AuditStore string
+	AuditDir   string
 	// BOMVersions is on or off (default): on serves POST
 	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
 	// product and re-predicted (D67).
@@ -310,6 +332,10 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		BOMVersions:        strings.ToLower(e.str("BOM_VERSIONS", "off")),
 		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
 		AdminToken:         e.str("ADMIN_TOKEN", ""),
+		AuditActorKey:      e.str("AUDIT_ACTOR_KEY", ""),
+		AuditActorKeyID:    e.str("AUDIT_ACTOR_KEY_ID", "1"),
+		AuditRetentionDays: e.integer("AUDIT_RETENTION_DAYS", 90),
+		AuditDir:           e.dir("AUDIT_DIR", "../data/audit"),
 		TeamsAudience:      e.str("TEAMS_AUDIENCE", ""),
 		TextileRulings:     e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
 		TextileFastPath:    e.float("TEXTILE_FAST_PATH", 0),
@@ -334,6 +360,24 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
 	}
+	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
+	case "on", "true", "1":
+		c.StrictAuth = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("STRICT_AUTH must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("AUDIT", "auto")); v {
+	case "on", "true", "1":
+		c.AuditMode = "on"
+	case "off", "false", "0":
+		c.AuditMode = "off"
+	case "auto":
+		c.AuditMode = "auto"
+	default:
+		e.errs = append(e.errs, fmt.Errorf("AUDIT must be on, off or auto, got %q", v))
+	}
+	c.Audit = c.AuditMode == "on" || (c.AuditMode == "auto" && c.AuditActorKey != "")
 	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
 	case "on", "true", "1":
 		c.Teams = true
@@ -418,6 +462,11 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		defCache = VerdictsFirestore
 	}
 	c.VerifierCacheStore = strings.ToLower(e.str("VERIFIER_CACHE_STORE", defCache))
+	defAudit := c.CasesStore
+	if defAudit == CasesFile && c.AuditDir == "" {
+		defAudit = CasesMemory // AUDIT_DIR=off
+	}
+	c.AuditStore = strings.ToLower(e.str("AUDIT_STORE", defAudit))
 	// Two attempts, then the fallback: 4 attempts × 30 s plus backoff can
 	// take about two minutes before any other model is asked (D56).
 	if c.FallbackEngineModel != "" && c.EngineAttempts == 0 {
@@ -592,6 +641,32 @@ func (c Config) validate() error {
 	default:
 		bad("VERIFIER_CACHE_STORE must be firestore, file or off, got %q", c.VerifierCacheStore)
 	}
+	// Audit (#284). Messages never include the key.
+	if c.AuditActorKey != "" && len(c.AuditActorKey) < audit.MinKeyBytes {
+		bad("AUDIT_ACTOR_KEY must be at least %d bytes (it is a secret: use a random value from the secret manager)", audit.MinKeyBytes)
+	}
+	if c.AuditMode == "on" && c.AuditActorKey == "" {
+		bad("AUDIT=on needs AUDIT_ACTOR_KEY (at least %d bytes); use AUDIT=auto to stay off until the secret is set", audit.MinKeyBytes)
+	}
+	if !regexp.MustCompile(`^[a-z0-9]{1,8}$`).MatchString(c.AuditActorKeyID) {
+		bad("AUDIT_ACTOR_KEY_ID must be 1 to 8 lower-case letters or digits, got %q", c.AuditActorKeyID)
+	}
+	if c.AuditRetentionDays < 1 || c.AuditRetentionDays > 3650 {
+		bad("AUDIT_RETENTION_DAYS must be between 1 and 3650, got %d", c.AuditRetentionDays)
+	}
+	switch c.AuditStore {
+	case CasesFirestore:
+		if c.GCPProject == "" {
+			bad("GOOGLE_CLOUD_PROJECT is required when AUDIT_STORE=firestore")
+		}
+	case CasesFile:
+		if c.AuditDir == "" {
+			bad("AUDIT_STORE=file needs AUDIT_DIR")
+		}
+	case CasesMemory:
+	default:
+		bad("AUDIT_STORE must be firestore, file or memory, got %q", c.AuditStore)
+	}
 	switch c.CasesStore {
 	case CasesFirestore:
 		if c.GCPProject == "" {
@@ -648,7 +723,7 @@ func (c Config) String() string {
 	}
 	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s call_gap=%s max_in_flight=%d cloud_run=%t verifier_search=%s facts=%s cases=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, fallback, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore) + fmt.Sprintf(" audit=%t", c.Audit)
 }
 
 // env parses typed values and collects parse errors.

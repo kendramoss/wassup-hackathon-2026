@@ -94,7 +94,7 @@ func (s *FirestoreWorkspaces) Of(ctx context.Context, email string) (teams.Works
 // Invite implements teams.Store. The invitation is a field on the workspace
 // document only: no workspace_members document is written until the invitee
 // joins, so Of does not see it.
-func (s *FirestoreWorkspaces) Invite(ctx context.Context, id, email string) (teams.Workspace, error) {
+func (s *FirestoreWorkspaces) Invite(ctx context.Context, id, actor, email string) (teams.Workspace, error) {
 	if !caseIDPattern.MatchString(id) {
 		return teams.Workspace{}, teams.ErrNotFound
 	}
@@ -104,6 +104,8 @@ func (s *FirestoreWorkspaces) Invite(ctx context.Context, id, email string) (tea
 		switch {
 		case err != nil:
 			return err
+		case !w.IsAdmin(actor): // judged on the document read in this transaction
+			return teams.ErrForbidden
 		case w.HasMember(email):
 			return teams.ErrMember
 		case w.HasInvite(email):
@@ -165,6 +167,10 @@ func (s *FirestoreWorkspaces) Join(ctx context.Context, id, email string) (teams
 		}
 		w.Invited = slices.DeleteFunc(w.Invited, func(e string) bool { return e == email })
 		w.Members = append(w.Members, email)
+		if w.Roles == nil {
+			w.Roles = map[string]string{}
+		}
+		w.Roles[email] = string(teams.RoleEditor) // explicit, so a creator who left cannot return as admin
 		if err := tx.Set(s.ws.Doc(id), w); err != nil {
 			return err
 		}
@@ -177,10 +183,68 @@ func (s *FirestoreWorkspaces) Join(ctx context.Context, id, email string) (teams
 	return out, nil
 }
 
+// SetRole implements teams.Store: the admin and last-admin checks run on the
+// document read inside the transaction, and Firestore retries the transaction
+// if that document changed before commit, so two concurrent demotions cannot
+// both pass the check. (Not exercised without the emulator: see the emulator
+// test.)
+func (s *FirestoreWorkspaces) SetRole(ctx context.Context, id, actor, target string, role teams.Role) (teams.Workspace, error) {
+	if !caseIDPattern.MatchString(id) {
+		return teams.Workspace{}, teams.ErrNotFound
+	}
+	var out teams.Workspace
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
+		if err != nil {
+			return err
+		}
+		next, err := w.WithRole(actor, target, role)
+		if err != nil {
+			return err
+		}
+		out = next
+		return tx.Set(s.ws.Doc(id), next)
+	})
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("set role in", err)
+	}
+	return out, nil
+}
+
+// Remove implements teams.Store: the workspace document and the member's
+// workspace_members document change in one transaction.
+func (s *FirestoreWorkspaces) Remove(ctx context.Context, id, actor, target string) (teams.Workspace, error) {
+	if !caseIDPattern.MatchString(id) {
+		return teams.Workspace{}, teams.ErrNotFound
+	}
+	var out teams.Workspace
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		w, err := decodeWorkspace(tx.Get(s.ws.Doc(id)))
+		if err != nil {
+			return err
+		}
+		next, err := w.Without(actor, target)
+		if err != nil {
+			return err
+		}
+		out = next
+		if err := tx.Set(s.ws.Doc(id), next); err != nil {
+			return err
+		}
+		return tx.Delete(s.members.Doc(target))
+	})
+	if err != nil {
+		return teams.Workspace{}, workspaceErr("remove member from", err)
+	}
+	return out, nil
+}
+
 // workspaceErr passes the teams errors through and wraps the rest.
 func workspaceErr(op string, err error) error {
-	if errors.Is(err, teams.ErrNotFound) || errors.Is(err, teams.ErrMember) || errors.Is(err, teams.ErrFull) {
-		return err
+	for _, known := range []error{teams.ErrNotFound, teams.ErrMember, teams.ErrFull, teams.ErrForbidden, teams.ErrNotMember, teams.ErrLastAdmin, teams.ErrInvalidRole} {
+		if errors.Is(err, known) {
+			return err
+		}
 	}
 	return fmt.Errorf("store: %s workspace: %w", op, err)
 }

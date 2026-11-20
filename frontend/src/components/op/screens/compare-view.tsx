@@ -2,12 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
+import { api, withStaleFlags, type CaseResponse, type TargetSummary } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
+import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
+import { netText } from "../ops-view";
 import { moveKey } from "../plan-bits";
+import { ReviewNote } from "../review-note";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
 export function CompareView() {
@@ -28,7 +32,7 @@ function storedRanking(c: CaseResponse): TargetSummary[] | null {
   return t?.ranked ?? null;
 }
 
-function Compare({ id, c }: CaseCtx) {
+function Compare({ id, c, setCase }: CaseCtx) {
   const router = useRouter();
   const origin = c.prediction?.origin_country;
   const options = useMemo(() => [...new Set((c.product?.plants ?? []).map((p) => p.country).filter(Boolean))], [c.product]);
@@ -41,6 +45,10 @@ function Compare({ id, c }: CaseCtx) {
     return (others.length >= 2 ? others : options).slice(0, 4);
   });
   const [ranked, setRanked] = useState<TargetSummary[] | null>(() => storedRanking(c));
+  // The stored ranking was priced from money that has since changed (#281):
+  // its amounts are hidden until a new comparison runs. Which countries have a
+  // supported move is not money and stays.
+  const stale = Boolean(c.targets_economics_stale);
   const [since, setSince] = useState<number | null>(null);
   const [error, setError] = useState<unknown>(null);
   const abort = useRef<AbortController | null>(null);
@@ -53,6 +61,8 @@ function Compare({ id, c }: CaseCtx) {
     try {
       const r = await api.compareTargets(id, picked, abort.current.signal);
       setRanked(r.targets ?? []);
+      // A comparison just run is fresh by construction.
+      setCase((d) => (d ? withStaleFlags(d, { plan_economics_stale: d.plan_economics_stale }) : d));
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) setError(e);
     } finally {
@@ -113,17 +123,7 @@ function Compare({ id, c }: CaseCtx) {
                 </div>
               </div>
               <div>
-                <p className="eyebrow">Net per year · illustrative</p>
-                <p className={cx("mt-1 text-[44px] leading-none tracking-[-0.05em]", !anyPlan && "text-dim")}>{money(top.best.net_per_year)}</p>
-                <p className="mt-2 text-xs text-dim">
-                  {!anyPlan && (
-                    <>
-                      if a broker confirms it
-                      <br />
-                    </>
-                  )}
-                  {money(top.best.duty_effect_per_year)} duty saved − {money(top.best.added_cost_per_year)} added cost
-                </p>
+                <BandNet plan={top.best} below={!anyPlan} stale={stale} />
               </div>
               <div>
                 <p className="eyebrow">Precedent check</p>
@@ -176,13 +176,14 @@ function Compare({ id, c }: CaseCtx) {
         ) : (
           !since && (
             <div>
-              <Button onClick={run} disabled={picked.length < 2}>
+              <Button onClick={run} disabled={picked.length < 2 || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
                 {ranked ? "Compare again" : "Compare these countries"}
               </Button>
             </div>
           )
         )}
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {stale && ranked && !since && <StaleMoneyBanner kind="targets" onRun={c.pinned ? undefined : run} readOnly={caseReadOnly(c)} busy={picked.length < 2} />}
 
         {(ranked || since) && (
           <div className="relative overflow-x-auto">
@@ -237,11 +238,17 @@ function Compare({ id, c }: CaseCtx) {
                           )}
                         </td>
                         <td className="whitespace-nowrap px-3.5 py-3.5 text-[17px] tracking-[-0.04em] text-dim">
-                          {t.best ? money(t.best.net_per_year) : "—"}
-                          {t.best && (
+                          {t.best ? (stale ? <span className="text-[13px]">{copy.stale.hidden}</span> : netText(t.best)) : "—"}
+                          {t.best && !stale && !t.best.operations && (
                             <span className="block text-[11px] tracking-normal">
                               {money(t.best.duty_effect_per_year)} saved − {money(t.best.added_cost_per_year)}
                             </span>
+                          )}
+                          {t.best?.operations && !stale && (
+                            <>
+                              <OpsScope ops={t.best.operations} className="mt-1 max-w-[30ch] whitespace-normal text-[11px] tracking-normal" />
+                              <OpsDetail ops={t.best.operations} className="mt-1 tracking-normal" />
+                            </>
                           )}
                         </td>
                         <td className="px-3.5 py-3.5">
@@ -257,6 +264,7 @@ function Compare({ id, c }: CaseCtx) {
             </table>
           </div>
         )}
+        {ranked && !since && <ReviewNote place="compare" />}
         <div>
           <Fold title="How the ranking works">
             <p className="duo max-w-[90ch] text-[13px] text-dim">

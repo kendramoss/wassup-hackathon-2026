@@ -36,8 +36,11 @@ func TestRequestIDFromCaller(t *testing.T) {
 	req.Header.Set("X-Request-ID", "abc123")
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
-	if got := rec.Header().Get("X-Request-ID"); got != "abc123" {
-		t.Fatalf("X-Request-ID = %q", got)
+	// Every client value is hashed once, whatever its shape (#285): the response
+	// header carries the replacement, never the raw value.
+	want := "h_6ca13d52ca70c883" // first 16 hex of SHA-256("abc123")
+	if got := rec.Header().Get("X-Request-ID"); got != want {
+		t.Fatalf("X-Request-ID = %q, want %q", got, want)
 	}
 }
 

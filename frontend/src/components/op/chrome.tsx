@@ -7,7 +7,8 @@ import { copy } from "@/lib/copy";
 import { stepIndex } from "@/lib/format";
 import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "./action-bar";
 import { LogoMark } from "./logo";
-import { SignIn } from "./sign-in";
+import { isDemoRefusal, isForbidden, isSigninRequired } from "@/lib/roles";
+import { SignIn, SignInRequired } from "./sign-in";
 import { Button, ButtonLink, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
@@ -418,8 +419,21 @@ export function DemoNote({ title, message }: { title?: string | null; message?: 
 
 export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetry?: () => void; demoTitle?: string | null }) {
   const e = error instanceof ApiError ? error : null;
-  // 403 "forbidden" (D57): an edit to a pinned demo.
-  if (e?.status === 403 && (e.code as string) === "forbidden") return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
+  // 403 "forbidden": an edit to a pinned demo (D57), or a workspace viewer's
+  // write (#283). The server's wording tells them apart; a role refusal is not
+  // a demo, so it gets the role message and a re-check (the role may change).
+  if (e && isForbidden(e) && !demoTitle && !isDemoRefusal(e))
+    return (
+      <div role="status" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
+        <p className="duo">{copy.access.viewerRefused}</p>
+        {onRetry && (
+          <Button variant="ghost" className="mt-2" onClick={onRetry}>
+            {copy.access.recheck}
+          </Button>
+        )}
+      </div>
+    );
+  if (e && isForbidden(e)) return <DemoNote title={demoTitle} message={e.message ? e.message[0].toUpperCase() + e.message.slice(1) + "." : undefined} />;
   if (e?.code === "rate_limited") return <RateLimitNote key={String(e.retryAfter)} seconds={Math.ceil(e.retryAfter ?? 30)} onRetry={onRetry} />;
   // 503 "budget_reached" (D59): a calm note, not an error; the demo cases still work.
   if (e?.code === "budget_reached")
@@ -431,19 +445,10 @@ export function ErrorBox({ error, onRetry, demoTitle }: { error: unknown; onRetr
         </Link>
       </div>
     );
-  // 401 "unauthenticated" (D68): the Google sign-in expired; the proxy
-  // cleared it, so trying again works signed out, or after signing in.
-  if (e?.status === 401 && (e.code as string) === "unauthenticated")
-    return (
-      <div role="status" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
-        <p className="duo">{copy.signIn.expired}</p>
-        {onRetry && (
-          <Button variant="ghost" className="mt-2" onClick={onRetry}>
-            {copy.retry}
-          </Button>
-        )}
-      </div>
-    );
+  // 401 "unauthenticated": signed out and the server requires sign-in
+  // (STRICT_AUTH, #283), or the Google sign-in expired (D68; the proxy cleared
+  // it). SignInRequired tells which and never retries on its own.
+  if (isSigninRequired(e)) return <SignInRequired onRetry={onRetry} />;
   const outOfScope = e?.code === "out_of_scope";
   const message = e?.message ?? (error instanceof Error ? error.message : "Something went wrong.");
   return (

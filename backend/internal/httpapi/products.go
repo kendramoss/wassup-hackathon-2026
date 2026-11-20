@@ -13,6 +13,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/duty"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/familycheck"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
@@ -217,7 +218,7 @@ func (a *api) importInfo(r *http.Request, rows [][]string, name, desc, family, h
 	}
 	res, err := a.d.Family.Check(r.Context(), text)
 	if err != nil {
-		a.d.Logger.WarnContext(r.Context(), "import: family check failed; family left as given", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.WarnContext(r.Context(), "import: family check failed; family left as given", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return m
 	}
 	if m.family == "" && res.Family != familycheck.None && res.Confidence >= 0.6 {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
+import { copy } from "@/lib/copy";
 import { ErrorBox, Main } from "../chrome";
 import { Chip, ScrollX, Spinner, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
@@ -243,8 +244,8 @@ export function AccuracyPage() {
                   </Card>
                 )}
                 {usAcc && (
-                  <Card title="USMCA rules (19 CFR 102)" big={pct(usAcc.value)}>
-                    on {usAcc.n} held-out 2026 USMCA rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
+                  <Card title="Part 102 marking origin" big={pct(usAcc.value)}>
+                    on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
                   </Card>
                 )}
                 {routeOut && (
@@ -279,6 +280,8 @@ export function AccuracyPage() {
                   but part of the check&apos;s prompt was written after the research team saw those pairs, so it isn&apos;t a clean held-out test.
                 </li>
               )}
+              <li>{copy.jurisdiction.notCovered}</li>
+              <li>{copy.jurisdiction.noDetector}</li>
               <li>Not a ruling. A licensed broker confirms before anything is filed.</li>
             </ul>
           </section>

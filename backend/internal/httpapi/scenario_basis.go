@@ -8,13 +8,14 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner/opcost"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
 // scenarioBasis stamps what a scenario comparison is worked out against: the
 // case's product, facts, answers, current origin (the known ruling's, else the
 // predicted one), family, date and excluded rulings, plus the money it is
-// priced with (pricedMoney). It builds on inputFingerprint, so there is one
+// priced with (moneyBasis). It builds on inputFingerprint, so there is one
 // definition of "the inputs", and it is the one helper that decides whether
 // any saved comparison is still current.
 func scenarioBasis(c store.Case) string {
@@ -26,43 +27,34 @@ func scenarioBasis(c store.Case) string {
 		Inputs  string
 		Answers []store.Answer
 		Origin  string
-		Money   *pricedMoney
+		Money   *opcost.Canon
 	}{inputFingerprint(c), answers, baselineOrigin(c), moneyBasis(c.Economics)})
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:])
 }
 
-// pricedMoney is the part of the case's economics planner.Compare reads: the
-// annual import value, the duty rate per origin, the group costs, and the
-// illustrative flag the comparison carries. Derived notes and provenance lists
-// (what filled a rate) are not inputs, so they are left out. Rates the tariff
-// table or the live lookup fill in at pricing time are a function of the
-// product's HTS, which the inputs already cover.
-type pricedMoney struct {
-	Illustrative bool
-	Value        float64
-	Rates        map[string]float64
-	Groups       map[string]map[string]float64
+// moneyOf is the raw money of an economics value: what the user entered,
+// before the tariff table or the live lookup fills any rate.
+func moneyOf(e *planner.Economics) opcost.MoneyBasis {
+	return opcost.MoneyBasis{Illustrative: e.Illustrative, AnnualImportValueUSD: e.AnnualImportValueUSD,
+		DutyRates: e.DutyRates, GroupCosts: e.GroupCosts, Operations: e.Operations}
 }
 
-func moneyBasis(e *planner.Economics) *pricedMoney {
+// moneyBasis is the part of the case's economics planner.Compare reads: the
+// annual import value, the duty rate per origin, the group costs, the
+// operations inputs that change a result (#281; not their note or sources),
+// and the illustrative flag the comparison carries. Derived notes and
+// provenance lists (what filled a rate) are not inputs, so they are left out.
+// Rates the tariff table or the live lookup fill in at pricing time are a
+// function of the product's HTS, which the inputs already cover. It is
+// opcost.CanonicalMoney, the one normalisation the plan stamp also hashes;
+// without operations it marshals to the bytes this struct always did.
+func moneyBasis(e *planner.Economics) *opcost.Canon {
 	if e == nil {
 		return nil
 	}
-	m := &pricedMoney{Illustrative: e.Illustrative, Value: e.AnnualImportValueUSD}
-	if len(e.DutyRates) > 0 {
-		m.Rates = e.DutyRates
-	}
-	for g, plants := range e.GroupCosts {
-		if len(plants) == 0 {
-			continue
-		}
-		if m.Groups == nil {
-			m.Groups = map[string]map[string]float64{}
-		}
-		m.Groups[g] = plants
-	}
-	return m
+	c := opcost.CanonicalMoney(moneyOf(e))
+	return &c
 }
 
 // baselineOrigin is the origin a scenario is compared with: CBP's known one,
@@ -84,7 +76,7 @@ func (a *api) compareScenarios(ctx context.Context, c store.Case, ss []store.Sce
 	for i := range ss {
 		ss[i].Comparison, ss[i].Basis = nil, basis
 	}
-	if c.Economics == nil || c.Economics.AnnualImportValueUSD <= 0 { // nothing to price: null, not $0
+	if c.Economics == nil || (c.Economics.AnnualImportValueUSD <= 0 && !c.Economics.Operations.Active()) { // nothing to price: null, not $0 (active operations still carry their feasibility)
 		return
 	}
 	origins := caseOrigins(c)

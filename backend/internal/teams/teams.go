@@ -28,6 +28,15 @@ var (
 	// at most one, so "their workspace" is always well defined.
 	ErrMember = errors.New("teams: already a member of a workspace")
 	ErrFull   = fmt.Errorf("teams: a workspace has at most %d members", MaxMembers)
+	// ErrForbidden means the acting member lacks the admin role the change needs.
+	ErrForbidden = errors.New("teams: the workspace admin role is required")
+	// ErrNotMember means the target email has not joined the workspace (an
+	// invitation alone has no role and cannot be removed here).
+	ErrNotMember = errors.New("teams: not a member of this workspace")
+	// ErrLastAdmin means the change would leave the workspace without an admin.
+	ErrLastAdmin = errors.New("teams: a workspace must keep at least one admin")
+	// ErrInvalidRole means the role is not viewer, editor or admin.
+	ErrInvalidRole = errors.New("teams: role must be viewer, editor or admin")
 )
 
 // MaxMembers caps a workspace's members.
@@ -99,11 +108,37 @@ func NormalEmail(s string) (string, bool) {
 	return s, len(s) <= 254 && emailPattern.MatchString(s)
 }
 
-// Workspace is a team: its members see each other's cases. The creator is
-// its admin and the only one who can invite. An invited email is not a
-// member until that user signs in and accepts the invitation (Store.Join):
-// nobody can be put in a workspace, and have their new cases shared with
-// it, without their consent.
+// Role is a member's authority inside one workspace (#283).
+type Role string
+
+// The roles, least to most authority.
+const (
+	RoleViewer Role = "viewer" // reads shared cases; export preview only
+	RoleEditor Role = "editor" // viewer, plus runs and edits workspace cases
+	RoleAdmin  Role = "admin"  // editor, plus invites, role changes, removals
+)
+
+// ParseRole checks a role name (exact, lower case).
+func ParseRole(s string) (Role, bool) {
+	switch r := Role(s); r {
+	case RoleViewer, RoleEditor, RoleAdmin:
+		return r, true
+	}
+	return "", false
+}
+
+// Workspace is a team: its members see each other's cases. Each member has a
+// role (viewer, editor or admin); the admins invite, change roles and remove
+// members. An invited email is not a member until that user signs in and
+// accepts the invitation (Store.Join): nobody can be put in a workspace, and
+// have their new cases shared with it, without their consent.
+//
+// Roles are stored explicitly (Roles, email -> role name). A document written
+// before roles existed has none: its creator is then admin and every other
+// member an editor (RoleOf derives it on read). A stored role always wins
+// over that derivation, so a demoted creator is not admin again, and Join and
+// Create write the role explicitly so a creator who left cannot return as
+// admin by the creator rule.
 type Workspace struct {
 	ID        string    `json:"id" firestore:"id"`
 	Name      string    `json:"name" firestore:"name"`
@@ -111,10 +146,106 @@ type Workspace struct {
 	Invited   []string  `json:"invited" firestore:"invited"` // pending invitations
 	CreatedBy string    `json:"created_by" firestore:"created_by"`
 	CreatedAt time.Time `json:"created_at" firestore:"created_at"`
+	// Roles maps a joined member's email to a role name. Missing: derived (see
+	// above). Invited emails never appear.
+	Roles map[string]string `json:"roles,omitempty" firestore:"roles,omitempty"`
 }
 
-// IsAdmin reports whether email administers w.
-func (w Workspace) IsAdmin(email string) bool { return email != "" && email == w.CreatedBy }
+// RoleOf returns email's role in w; ok is false unless email has joined w. An
+// unrecognised stored value fails closed to viewer.
+func (w Workspace) RoleOf(email string) (Role, bool) {
+	if email == "" || !w.HasMember(email) {
+		return "", false
+	}
+	if s, ok := w.Roles[email]; ok {
+		if r, valid := ParseRole(s); valid {
+			return r, true
+		}
+		return RoleViewer, true
+	}
+	if email == w.CreatedBy {
+		return RoleAdmin, true
+	}
+	return RoleEditor, true
+}
+
+// IsAdmin reports whether email is a member of w with the admin role.
+func (w Workspace) IsAdmin(email string) bool {
+	r, ok := w.RoleOf(email)
+	return ok && r == RoleAdmin
+}
+
+func (w Workspace) adminCount() int {
+	n := 0
+	for _, e := range w.Members {
+		if w.IsAdmin(e) {
+			n++
+		}
+	}
+	return n
+}
+
+func (w Workspace) cloneRolesOrNil() map[string]string {
+	if w.Roles == nil {
+		return nil
+	}
+	return w.cloneRoles()
+}
+
+func (w Workspace) cloneRoles() map[string]string {
+	out := make(map[string]string, len(w.Roles)+1)
+	for k, v := range w.Roles {
+		out[k] = v
+	}
+	return out
+}
+
+// WithRole returns w with target's role set by actor. It is the whole rule
+// (admin only, target joined, valid role, never the last admin); a Store runs
+// it inside its atomic read-modify-write so the check and the write cannot be
+// separated.
+func (w Workspace) WithRole(actor, target string, role Role) (Workspace, error) {
+	if _, ok := ParseRole(string(role)); !ok {
+		return Workspace{}, ErrInvalidRole
+	}
+	if !w.IsAdmin(actor) {
+		return Workspace{}, ErrForbidden
+	}
+	cur, ok := w.RoleOf(target)
+	if !ok {
+		return Workspace{}, ErrNotMember
+	}
+	if cur == RoleAdmin && role != RoleAdmin && w.adminCount() <= 1 {
+		return Workspace{}, ErrLastAdmin
+	}
+	w.Members, w.Invited = slices.Clone(w.Members), slices.Clone(w.Invited)
+	w.Roles = w.cloneRoles()
+	w.Roles[target] = string(role)
+	return w, nil
+}
+
+// Without returns w with target removed by actor: an admin may remove any
+// member, a member may remove themselves, and the last admin may not go.
+func (w Workspace) Without(actor, target string) (Workspace, error) {
+	if _, ok := w.RoleOf(actor); !ok {
+		return Workspace{}, ErrForbidden
+	}
+	if actor != target && !w.IsAdmin(actor) {
+		return Workspace{}, ErrForbidden
+	}
+	cur, ok := w.RoleOf(target)
+	if !ok {
+		return Workspace{}, ErrNotMember
+	}
+	if cur == RoleAdmin && w.adminCount() <= 1 {
+		return Workspace{}, ErrLastAdmin
+	}
+	w.Members = slices.DeleteFunc(slices.Clone(w.Members), func(e string) bool { return e == target })
+	w.Invited = slices.Clone(w.Invited)
+	w.Roles = w.cloneRoles()
+	delete(w.Roles, target)
+	return w, nil
+}
 
 // HasMember reports whether email has joined w.
 func (w Workspace) HasMember(email string) bool { return slices.Contains(w.Members, email) }
@@ -123,9 +254,12 @@ func (w Workspace) HasMember(email string) bool { return slices.Contains(w.Membe
 func (w Workspace) HasInvite(email string) bool { return slices.Contains(w.Invited, email) }
 
 // accept moves email from the invitations to the members.
+// The new member is an editor, stored explicitly.
 func (w *Workspace) accept(email string) {
 	w.Invited = slices.DeleteFunc(slices.Clone(w.Invited), func(e string) bool { return e == email })
 	w.Members = append(slices.Clone(w.Members), email)
+	w.Roles = w.cloneRoles()
+	w.Roles[email] = string(RoleEditor)
 }
 
 // MaxInvites caps the pending invitations returned for one email.
@@ -142,12 +276,23 @@ type Store interface {
 	// Of returns the workspace email has joined; ErrNotFound if none. A
 	// pending invitation is not a membership.
 	Of(ctx context.Context, email string) (Workspace, error)
-	// Invite records a pending invitation of email to workspace id; inviting
-	// again is a no-op. ErrNotFound, ErrMember (already a member of this
-	// workspace) or ErrFull (members plus invitations at MaxMembers).
-	// Membership of another workspace is not checked: the invitation would
-	// otherwise tell the admin which workspace someone is in.
-	Invite(ctx context.Context, id, email string) (Workspace, error)
+	// Invite records a pending invitation of email to workspace id, made by
+	// actor; inviting again is a no-op. ErrNotFound, ErrForbidden (actor is
+	// not an admin of the stored workspace, checked in the same atomic step as
+	// the write), ErrMember (already a member of this workspace) or ErrFull
+	// (members plus invitations at MaxMembers). Membership of another
+	// workspace is not checked: the invitation would otherwise tell the admin
+	// which workspace someone is in.
+	Invite(ctx context.Context, id, actor, email string) (Workspace, error)
+	// SetRole sets a joined member's role (Workspace.WithRole). The admin check
+	// and the last-admin check read the stored workspace in the same atomic
+	// step as the write. ErrNotFound, ErrForbidden, ErrNotMember,
+	// ErrInvalidRole, ErrLastAdmin.
+	SetRole(ctx context.Context, id, actor, target string, role Role) (Workspace, error)
+	// Remove takes target out of the workspace (Workspace.Without; atomic, and
+	// target may join again only by a new invitation). ErrNotFound,
+	// ErrForbidden, ErrNotMember, ErrLastAdmin.
+	Remove(ctx context.Context, id, actor, target string) (Workspace, error)
 	// Invites returns up to MaxInvites workspaces that have invited email.
 	Invites(ctx context.Context, email string) ([]Workspace, error)
 	// Join accepts email's invitation to workspace id: ErrNotFound (no such
@@ -178,7 +323,7 @@ func (m *Memory) Create(_ context.Context, w Workspace) error {
 			return ErrMember
 		}
 	}
-	w.Members, w.Invited = slices.Clone(w.Members), slices.Clone(w.Invited)
+	w.Members, w.Invited, w.Roles = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil()
 	m.byID[w.ID] = w
 	for _, e := range w.Members {
 		m.member[e] = w.ID
@@ -198,7 +343,7 @@ func (m *Memory) get(id string) (Workspace, error) {
 	if !ok {
 		return Workspace{}, ErrNotFound
 	}
-	w.Members, w.Invited = slices.Clone(w.Members), slices.Clone(w.Invited)
+	w.Members, w.Invited, w.Roles = slices.Clone(w.Members), slices.Clone(w.Invited), w.cloneRolesOrNil()
 	return w, nil
 }
 
@@ -214,13 +359,15 @@ func (m *Memory) Of(_ context.Context, email string) (Workspace, error) {
 }
 
 // Invite implements Store.
-func (m *Memory) Invite(_ context.Context, id, email string) (Workspace, error) {
+func (m *Memory) Invite(_ context.Context, id, actor, email string) (Workspace, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	w, ok := m.byID[id]
 	switch {
 	case !ok:
 		return Workspace{}, ErrNotFound
+	case !w.IsAdmin(actor):
+		return Workspace{}, ErrForbidden
 	case w.HasMember(email):
 		return Workspace{}, ErrMember
 	case w.HasInvite(email):
@@ -230,6 +377,39 @@ func (m *Memory) Invite(_ context.Context, id, email string) (Workspace, error) 
 	}
 	w.Invited = append(slices.Clone(w.Invited), email)
 	m.byID[id] = w
+	return m.get(id)
+}
+
+// SetRole implements Store.
+func (m *Memory) SetRole(_ context.Context, id, actor, target string, role Role) (Workspace, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	w, ok := m.byID[id]
+	if !ok {
+		return Workspace{}, ErrNotFound
+	}
+	out, err := w.WithRole(actor, target, role)
+	if err != nil {
+		return Workspace{}, err
+	}
+	m.byID[id] = out
+	return m.get(id)
+}
+
+// Remove implements Store.
+func (m *Memory) Remove(_ context.Context, id, actor, target string) (Workspace, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	w, ok := m.byID[id]
+	if !ok {
+		return Workspace{}, ErrNotFound
+	}
+	out, err := w.Without(actor, target)
+	if err != nil {
+		return Workspace{}, err
+	}
+	m.byID[id] = out
+	delete(m.member, target)
 	return m.get(id)
 }
 
