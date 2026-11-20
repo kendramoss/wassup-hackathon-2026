@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ApiError, api, type BomVersionResponse, type CaseResponse } from "@/lib/api/client";
 import { conf } from "@/lib/format";
 import { ErrorBox } from "./chrome";
@@ -24,7 +24,13 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
   const [on, setOn] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState<"compare" | "apply" | null>(null);
-  const [res, setRes] = useState<BomVersionResponse | null>(null);
+  // The comparison on screen and the file it was made from travel together:
+  // Apply sends that file, never whichever one is selected now.
+  const [preview, setPreview] = useState<{ file: File; res: BomVersionResponse } | null>(null);
+  const res = preview?.res ?? null;
+  // Counts requests and file changes; a result or error from an older one is
+  // ignored (the same guard as the import in product-step).
+  const gen = useRef(0);
   const [applied, setApplied] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
@@ -42,20 +48,22 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
   if (!on) return null;
 
   const run = async (apply: boolean) => {
-    if (!file) return;
+    const target = apply ? preview?.file : file;
+    if (!target) return;
+    const mine = ++gen.current;
     setBusy(apply ? "apply" : "compare");
     setError(null);
     try {
-      const r = await api.bomVersion(id, file, apply);
-      setRes(r);
-      if (apply) {
-        setApplied(true);
-        reload();
-      }
+      const r = await api.bomVersion(id, target, apply);
+      // The server applied it, so the case changed whatever is selected now.
+      if (apply) reload();
+      if (mine !== gen.current) return;
+      setPreview({ file: target, res: r });
+      if (apply) setApplied(true);
     } catch (e) {
-      setError(e);
+      if (mine === gen.current) setError(e);
     } finally {
-      setBusy(null);
+      if (mine === gen.current) setBusy(null);
     }
   };
 
@@ -77,8 +85,10 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
           accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="max-w-full text-[13px] file:mr-3 file:min-h-9 file:rounded-[2px] file:border file:border-edge file:bg-white file:px-3 file:text-[13px]"
           onChange={(e) => {
+            gen.current++;
             setFile(e.target.files?.[0] ?? null);
-            setRes(null);
+            setPreview(null);
+            setBusy(null);
             setApplied(false);
             setError(null);
           }}
