@@ -1065,3 +1065,41 @@ func TestOpsScenarioSaveFollowsMoneySource(t *testing.T) {
 		}
 	})
 }
+
+// Unnamed plants through the real handlers: PUT validation, GET, plan.
+func TestOpsUnnamedPlantsThroughHandlers(t *testing.T) {
+	for _, name := range []string{"", "  \t "} {
+		mem := store.NewMemory()
+		hs, id := newOpsCase(t, func(d *Deps) { d.Cases = mem })
+		if _, err := mem.Update(context.Background(), id, func(c *store.Case) error {
+			for i := range c.Product.Plants {
+				if c.Product.Plants[i].ID == "th" {
+					c.Product.Plants[i].Name = name
+				}
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+		ops := strings.Replace(opsHandlerOps(`900000`, ``), `"name":"Rayong plant"`, `"name":"th"`, 1)
+		if code, out := hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(ops)); code != http.StatusOK {
+			t.Fatalf("name %q: PUT refused a valid unnamed plant: %d %v", name, code, out)
+		}
+		_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+		if got["economics"].(map[string]any)["operations"] == nil {
+			t.Error("operations not returned")
+		}
+		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+		if code != http.StatusOK {
+			t.Fatalf("plan %d %v", code, out)
+		}
+		row := rowOf(t, out["plan"].(map[string]any)["plans"], "motor_fan_assembly@th")
+		if row == nil || row["net_priced"] != true || row["net_per_year"] != 160000.0 {
+			t.Errorf("name %q: unnamed plant not priced: %v", name, row)
+		}
+		// the named control still needs its real name; the old name is a mismatch
+		if code, out := hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(opsHandlerOps(`900000`, ``))); code != http.StatusBadRequest || !strings.Contains(fmt.Sprint(out["message"]), "plant_ref_mismatch") {
+			t.Errorf("a name the unnamed plant does not have = %d %v", code, out["message"])
+		}
+	}
+}

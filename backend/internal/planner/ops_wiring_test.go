@@ -706,3 +706,56 @@ func TestOpsCompareUnknownDutyIsNilNotZero(t *testing.T) {
 		t.Errorf("explicit zero rate: annual %v savings %v", c.AnnualDutyUSD, c.DutySavingsUSD)
 	}
 }
+
+// Unnamed plants: the ref name is the plant ID (names that are only
+// whitespace count as unnamed); a named plant is unchanged; a rename makes the
+// old entry stale.
+func TestOpsUnnamedPlantRefIsItsID(t *testing.T) {
+	for _, name := range []string{"", "   "} {
+		r, _ := fixture(t, "heatgun_2022.json")
+		for i := range r.Product.Plants {
+			if r.Product.Plants[i].ID == "th" {
+				r.Product.Plants[i].Name = name
+			}
+		}
+		if got := ProductPlants(r.Product)["th"]; got.Name != "th" || got.Country != "Thailand" {
+			t.Fatalf("name %q: ref = %+v", name, got)
+		}
+		e := r.Economics
+		e.Operations = decodeOps(t, strings.Replace(motorOps("4", `,"capex_usd":900000,"retooling_usd":100000`), `"name":"Rayong plant"`, `"name":"th"`, 1))
+		if errs := opcost.Validate(CanonicalOps(e.Operations), ValidateEnv(&r.Product, true, e)); len(errs) != 0 {
+			t.Fatalf("name %q: valid unnamed plant refused: %v", name, errs)
+		}
+		res := opsEvaluate(e, r.Product, nil, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}, "China", "Thailand")
+		if !res.Priced || f64(res.NetModelledPerYear) != 135000 || len(res.StaleRefs) != 0 {
+			t.Errorf("name %q: unnamed destination not priced: %+v", name, res.Unknown)
+		}
+		// as a scenario destination too (variant), and as the current plant
+		cur := r.Product
+		v := Apply(cur, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}})
+		if c := Compare(e, &cur, &v, "China", "Thailand"); f64(c.NetUSD) != 135000 {
+			t.Errorf("name %q: compare net %v", name, c.NetUSD)
+		}
+		// renamed later: the entry bound to the id is stale, not read
+		for i := range r.Product.Plants {
+			if r.Product.Plants[i].ID == "th" {
+				r.Product.Plants[i].Name = "Songkhla works"
+			}
+		}
+		if res := opsEvaluate(e, r.Product, nil, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}, "China", "Thailand"); res.Priced || len(res.StaleRefs) == 0 {
+			t.Errorf("name %q: renamed plant read a stale entry", name)
+		}
+	}
+	// unnamed current plant (the source side)
+	r, _ := fixture(t, "heatgun_2022.json")
+	for i := range r.Product.Plants {
+		if r.Product.Plants[i].ID == "cn" {
+			r.Product.Plants[i].Name = ""
+		}
+	}
+	e := r.Economics
+	e.Operations = decodeOps(t, strings.Replace(motorOps("4", ``), `"name":"China suppliers"`, `"name":"cn"`, 1))
+	if res := opsEvaluate(e, r.Product, nil, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}, "China", "Thailand"); !res.Priced {
+		t.Errorf("unnamed source plant not priced: %+v", res.Unknown)
+	}
+}

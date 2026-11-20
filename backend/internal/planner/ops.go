@@ -58,9 +58,24 @@ func CanonicalOps(o *opcost.Operations) *opcost.Operations {
 func ProductPlants(p domain.Product) map[string]opcost.Ref {
 	out := make(map[string]opcost.Ref, len(p.Plants))
 	for _, pl := range p.Plants {
-		out[pl.ID] = opcost.Ref{Name: pl.Name, Country: domain.NormalizeCountry(pl.Country)}
+		out[pl.ID] = PlantRef(pl)
 	}
 	return out
+}
+
+// PlantRef is the identity an operations entry binds to: the trimmed plant name,
+// else the plant ID when the product leaves the plant unnamed (the UI labels an
+// unnamed plant by its ID, and the calculator needs a non-empty name), with the
+// canonical country. It is the one helper behind validation and evaluation, for
+// source (current product) and destination (variant) alike. An unnamed plant is
+// identified by its ID and country only, so a replacement under the same ID and
+// country is the same plant here (the #372 limit; not a stable identity).
+func PlantRef(pl domain.Plant) opcost.Ref {
+	name := strings.TrimSpace(pl.Name)
+	if name == "" {
+		name = pl.ID
+	}
+	return opcost.Ref{Name: name, Country: domain.NormalizeCountry(pl.Country)}
 }
 
 // groupPlants is every plant a group is performed at, by its operations and
