@@ -241,6 +241,7 @@ function boundaries() {
   globalThis.__pdfToBomCsv = async (f) => ({ csv: `pdf:${f.name}` });
   return {
     ok: (key, tag) => held.get(key).resolve(reply(tag)),
+    okWith: (key, r) => held.get(key).resolve(r),
     fail: (key, message) => held.get(key).reject(new Error(message)),
     has: (key) => held.has(key),
     calls,
@@ -518,3 +519,114 @@ test("React strict mode (effects set up, cleaned up, set up again) leaves upload
     },
     { strict: true },
   ));
+
+// ---- #349: the duty lookup that follows an import ----------------------
+const withMoney = (tag, hts, imports) => {
+  const r = reply(tag);
+  return { ...r, product: { ...r.product, hts }, economics: { illustrative: true, annual_import_value_usd: imports }, economics_sources: { annual_import_value_usd: "file" } };
+};
+// Holds api.moneyPrefill per product name; answers with the rates given.
+function holdLookups() {
+  const calls = [];
+  api.moneyPrefill = (body) => {
+    const d = deferred();
+    calls.push({ body, ...d });
+    return d.promise;
+  };
+  const rates = (call, duty, hts, sources) =>
+    call.resolve({ economics: { ...call.body.economics, duty_rates: duty }, duty_sources: sources ?? Object.fromEntries(Object.keys(duty).map((c) => [c, "table"])), hts });
+  return { calls, rates };
+}
+// The lookup note's figures (PrefillNote is a component: read its props).
+const noteDuty = (app) => findAll(app.parent.tree, (e) => typeof e.type === "function" && e.type.name === "PrefillNote")[0]?.props.f;
+const openMoney = (app) => {
+  findAll(app.parent.tree, (e) => e.type === "button" && /money inputs/.test(textOf(e)))[0].props.onClick();
+  app.refresh();
+  return findAll(app.parent.tree, (e) => typeof e.type === "function" && e.type.name === "MoneyDrawer")[0];
+};
+const saveMoney = (app, e) => {
+  openMoney(app).props.onSave(e);
+  app.refresh();
+};
+
+test("duty lookup after an import: money, rates and costs typed while it is out survive; blank countries still fill", () =>
+  scenario(async (app, b) => {
+    const l = holdLookups();
+    app.select(csv("a.csv"));
+    await settle(app);
+    b.okWith("bom:a.csv", withMoney("A", "8516.31.00", 100000));
+    await settle(app);
+    assert.equal(l.calls.length, 1);
+    saveMoney(app, { illustrative: true, annual_import_value_usd: 200000, duty_rates: { CN: 0.3 }, group_costs: { g: { p1: 9000 } } });
+    l.rates(l.calls[0], { CN: 0.25, VN: 0.1 }, "8516.31.00");
+    await settle(app);
+    const body = await app.submit();
+    assert.equal(body.economics.annual_import_value_usd, 200000);
+    assert.equal(body.economics.duty_rates.CN, 0.3);
+    assert.equal(body.economics.duty_rates.VN, 0.1);
+    assert.equal(body.economics.group_costs.g.p1, 9000);
+  }));
+
+test("duty lookup with no edits still lands the rates (no regression)", () =>
+  scenario(async (app, b) => {
+    const l = holdLookups();
+    app.select(csv("a.csv"));
+    await settle(app);
+    b.okWith("bom:a.csv", withMoney("A", "8516.31.00", 100000));
+    await settle(app);
+    l.rates(l.calls[0], { CN: 0.25 }, "8516.31.00");
+    await settle(app);
+    const body = await app.submit();
+    assert.equal(body.economics.annual_import_value_usd, 100000);
+    assert.equal(body.economics.duty_rates.CN, 0.25);
+  }));
+
+test("upload A, import B, A's lookup lands late: B's money, HTS and note are not touched", () =>
+  scenario(async (app, b) => {
+    const l = holdLookups();
+    app.select(csv("a.csv"));
+    await settle(app);
+    b.okWith("bom:a.csv", withMoney("A", "8516.31.00", 100000));
+    await settle(app);
+    app.select(csv("b.csv"));
+    await settle(app);
+    b.okWith("bom:b.csv", withMoney("B", "8516.99.00", 555));
+    await settle(app);
+    assert.equal(l.calls.length, 2);
+    l.rates(l.calls[0], { CN: 0.25 }, "9999.99.99", { CN: "table" }); // A, late
+    await settle(app);
+    assert.equal(noteDuty(app), undefined, "A's late lookup sets no note");
+    l.rates(l.calls[1], { VN: 0.1 }, "8516.99.00"); // B
+    await settle(app);
+    assert.deepEqual(noteDuty(app).duty.map((d) => d.country), ["VN"]);
+    const body = await app.submit();
+    assert.equal(body.economics.annual_import_value_usd, 555);
+    assert.deepEqual(body.economics.duty_rates, { VN: 0.1 });
+    assert.doesNotMatch(JSON.stringify(body), /9999\.99|8516\.31/);
+  }));
+
+test("a lookup that fails or lands for a replaced file leaves the new file's note alone", () =>
+  scenario(async (app, b) => {
+    const l = holdLookups();
+    app.select(csv("a.csv"));
+    await settle(app);
+    b.okWith("bom:a.csv", withMoney("A", "8516.31.00", 100000));
+    await settle(app);
+    app.select(csv("b.csv"));
+    await settle(app);
+    l.calls[0].reject(new Error("lookup down")); // A fails after B was picked
+    await settle(app);
+    assert.equal(noteDuty(app), undefined, "A's failure sets no note on B");
+  }));
+
+test("an unmounted page ignores a late duty lookup", () =>
+  scenario(async (app, b) => {
+    const l = holdLookups();
+    app.select(csv("a.csv"));
+    await settle(app);
+    b.okWith("bom:a.csv", withMoney("A", "8516.31.00", 100000));
+    await settle(app);
+    app.unmount();
+    l.rates(l.calls[0], { CN: 0.25 }, "8516.31.00");
+    await settle(app); // nothing throws and nothing is set on the dead page
+  }));

@@ -230,8 +230,9 @@ export function EstimateCosts({
     now.current = { economics, product, onFill };
   });
   useEffect(() => {
+    const token = seq;
     return () => {
-      seq.current++;
+      token.current++;
     };
   }, []);
   useEffect(() => {

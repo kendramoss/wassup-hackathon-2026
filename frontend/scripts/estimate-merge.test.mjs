@@ -246,6 +246,24 @@ test("MoneyDrawer: a typed 0 is a figure and stays; a cell cleared while waiting
   }
 });
 
+test("MoneyDrawer: chosen behaviour: blank at start, typed, then cleared again is blank at completion and gets the (dashed) estimate", async () => {
+  const h = hold("costEstimate");
+  try {
+    const app = drawer({ annual_import_value_usd: 100000 });
+    app.toEach();
+    app.childButton().props.onClick();
+    app.refresh();
+    typeCell(app, "housing", "p1", "9000");
+    typeCell(app, "housing", "p1", "");
+    h.calls[0].resolve({ estimates: [est("housing", "p1", 500)] });
+    await flush();
+    assert.equal(app.save().group_costs.housing.p1, 500);
+    app.unmount();
+  } finally {
+    h.restore();
+  }
+});
+
 test("MoneyDrawer: untouched drawer still gets every estimate (no regression)", async () => {
   const h = hold("costEstimate");
   try {

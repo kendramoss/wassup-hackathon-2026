@@ -24,7 +24,7 @@ import { CaseTabs, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from "../money-drawer";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
-import { PrefillNote, prefillMoney, type Filled } from "../money-prefill";
+import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
@@ -282,6 +282,15 @@ export function ProductStep() {
   useEffect(() => {
     econRef.current = economics;
   }, [economics]);
+  // Names the latest import's duty lookup (#349): a new file, or leaving the
+  // page, moves it on, so an older lookup cannot touch money, HTS or the note.
+  const lookup = useRef(0);
+  useEffect(() => {
+    const token = lookup;
+    return () => {
+      token.current++;
+    };
+  }, []);
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
@@ -616,6 +625,7 @@ export function ProductStep() {
                     setFamily("motorised_tools_small_appliances");
                     setFamCheck(null);
                   }
+                  lookup.current++;
                   if (autoHts.current) setHts("");
                   if (autoEcon.current) setEconomics(undefined);
                   autoFamily.current = autoHts.current = autoEcon.current = false;
@@ -672,9 +682,12 @@ export function ProductStep() {
                     autoEcon.current = true;
                   }
                   setFilled(null);
+                  const mine = ++lookup.current;
                   void prefillMoney({ ...r.product, name: r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
+                    if (lookup.current !== mine) return; // a newer file, or the page is gone
                     if (e && e !== fromFile) {
-                      setEconomics(e);
+                      // Rates land on the money as it is now, blank countries only.
+                      setEconomics(mergeDutyPrefill(econRef.current ?? { illustrative: true }, fromFile, e));
                       autoEcon.current = true;
                     }
                     setFilled(f);
