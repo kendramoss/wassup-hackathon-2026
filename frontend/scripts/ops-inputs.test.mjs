@@ -182,6 +182,11 @@ test("numeric fields store nothing for an entry they cannot read, say how to fix
   await type(app, inputOf(app, "Horizon")[0], "2.5"); // years may be fractional
   assert.equal(inputOf(app, "Horizon")[0].props.value, "2.5");
   await type(app, inputOf(app, "Labour (USD")[0], "1,234.5");
+  // an entry that cannot be read BLOCKS the save (it is no longer dropped silently): empty each on purpose
+  await app.btn("Save money inputs").props.onClick();
+  await app.flush();
+  assert.equal(app.saved.length, 0, "nothing saved while an entry cannot be read");
+  for (const [label, idx] of [["Labour (USD", 1], ["Lead time (days)", 1], ["Your lead-time limit", 0]]) await type(app, inputOf(app, label)[idx], "");
   const out = await save(app);
   assert.deepEqual(out.operations.horizon_years, 2.5);
   assert.equal(out.operations.groups.motor_fan_assembly.plants.cn.labour_usd_per_year, 1234.5);

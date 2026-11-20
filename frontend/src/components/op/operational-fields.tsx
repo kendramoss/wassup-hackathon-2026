@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ApiError, type Economics, type Plant, type Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import {
@@ -43,6 +43,28 @@ export function opsErrorText(e: unknown): string | undefined {
   return e instanceof ApiError && e.status === 400 && /operations\.[a-z_]+:/.test(e.message) ? e.message : undefined;
 }
 
+// Whether any operating-cost entry on screen cannot be read. An entry that
+// cannot be read is neither a clear nor a missing value: the editor keeps the
+// previous value, keeps the raw text and its error on screen, and reports it
+// here so every submit (plan search, money save) can refuse until it is fixed,
+// emptied on purpose, or Mode Off is confirmed. Each editor reports under its
+// own key, so one editor being valid never hides another's invalid entry.
+export type OpsValidity = { invalid: boolean; get: () => boolean; report: (key: object, bad: boolean) => void };
+export const OPS_UNREADABLE = "An operating-cost entry can't be read, so nothing was saved or run. Fix it, empty the field on purpose, or turn Mode Off to discard the operating costs.";
+export function useOpsValidity(): OpsValidity {
+  const [keys] = useState(() => new Set<object>());
+  const [invalid, setInvalid] = useState(false);
+  const [api] = useState(() => ({
+    get: () => keys.size > 0,
+    report: (key: object, bad: boolean) => {
+      if (bad) keys.add(key);
+      else keys.delete(key);
+      setInvalid(keys.size > 0);
+    },
+  }));
+  return { invalid, get: api.get, report: api.report };
+}
+
 const field = "h-9 w-full min-w-0 rounded-[2px] border bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok disabled:bg-wash disabled:text-dim";
 
 function Errors({ id, list }: { id: string; list?: string[] }) {
@@ -63,6 +85,7 @@ function NumField({
   hint,
   readOnly,
   help,
+  onBad,
 }: {
   label: string;
   value: number | undefined;
@@ -72,17 +95,30 @@ function NumField({
   hint?: string;
   readOnly?: boolean;
   help?: string;
+  // Tells the editor this field holds text it cannot read (see useOpsValidity).
+  onBad?: (fieldKey: object, bad: boolean) => void;
 }) {
   const id = useId();
+  // Identity of this field for the editor's bad-field set (unique per instance).
+  const [fieldKey] = useState(() => ({}));
   const locale = userLocale();
   const [text, setText] = useState(formatAmount(value, locale));
-  // What is typed shows while it still means the stored value (a refused entry
-  // stores nothing, so it shows with its format guidance); an outside change
-  // (reset, restore) shows the stored value.
-  const p = parseAmount(text, locale, integer);
-  const consistent = p.ok ? p.value === value : value === undefined;
-  const shown = consistent ? text : formatAmount(value, locale);
-  const refused = consistent && !p.ok ? `Not a number this field can read. Use ${integer ? "whole digits" : "digits"} in ${locale} format, for example ${p.example}. Nothing is saved for this field until it is fixed.` : undefined;
+  // Text that cannot be read, with the value the field held when it was typed.
+  // The value is NOT changed by it: it is not a clear. An outside change of the
+  // value (reset, restore, discard) drops the draft.
+  const [draft, setDraft] = useState<{ text: string; at: number | undefined } | null>(null);
+  const bad = draft !== null && draft.at === value ? draft : null;
+  // What is typed shows while it still means the stored value; an outside
+  // change (reset, restore) shows the stored value.
+  const p = parseAmount(bad ? bad.text : text, locale, integer);
+  const consistent = bad !== null || (p.ok ? p.value === value : value === undefined);
+  const shown = bad ? bad.text : consistent ? text : formatAmount(value, locale);
+  const refused = bad && !p.ok ? `Not a number this field can read. Use ${integer ? "whole digits" : "digits"} in ${locale} format, for example ${p.example}. The saved value stays until you fix or empty this field.` : undefined;
+  const isBad = bad !== null;
+  useEffect(() => {
+    onBad?.(fieldKey, isBad);
+    return () => onBad?.(fieldKey, false);
+  }, [isBad, onBad, fieldKey]);
   errors = refused ? [...(errors ?? []), refused] : errors;
   return (
     <div className="flex flex-col gap-0.5">
@@ -99,11 +135,19 @@ function NumField({
         aria-describedby={errors?.length ? `${id}-e` : help ? `${id}-h` : undefined}
         onChange={(ev) => {
           const s = ev.target.value;
-          setText(s);
-          // An entry that is not a clean number in this locale stores nothing
-          // (never a stripped, different amount) and says so beside the field.
+          // An entry that is not a clean number in this locale is never stored
+          // as a different amount and never taken as a clear: the value stays,
+          // the text and an error stay on screen, and the editor reports it.
           const q = parseAmount(s, locale, integer);
-          onChange(q.ok ? q.value : undefined);
+          if (!q.ok) {
+            setDraft({ text: s, at: value });
+            onBad?.(fieldKey, true);
+            return;
+          }
+          setDraft(null);
+          onBad?.(fieldKey, false);
+          setText(s);
+          onChange(q.value);
         }}
       />
       <Errors id={`${id}-e`} list={errors} />
@@ -147,6 +191,7 @@ export function OperationalFields({
   readOnly,
   serverError,
   className,
+  validity,
 }: {
   value: Economics;
   onChange: (e: Economics) => void;
@@ -155,8 +200,26 @@ export function OperationalFields({
   // The server's 400 text for this save/run, shown beside the fields it names.
   serverError?: string;
   className?: string;
+  // Receives whether any entry here cannot be read (see useOpsValidity).
+  validity?: OpsValidity;
 }) {
   const id = useId();
+  // Fields that hold unreadable text; this editor reports one flag under its own id.
+  const [badFields] = useState(() => new Set<object>());
+  const [editorKey] = useState(() => ({}));
+  const [sync] = useState(() => (fieldKey: object | null, bad: boolean) => {
+    if (fieldKey === null) badFields.clear();
+    else if (bad) badFields.add(fieldKey);
+    else badFields.delete(fieldKey);
+    validity?.report(editorKey, badFields.size > 0);
+  });
+  const onBad = sync as (fieldKey: object, bad: boolean) => void;
+  useEffect(() => () => validity?.report(editorKey, false), [validity?.report, editorKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Mode Off was confirmed: the unreadable drafts go with the operating costs.
+  const discard = () => {
+    sync(null, false);
+    set(withoutOps(value));
+  };
   const [open, setOpen] = useState(false);
   const [confirmOff, setConfirmOff] = useState(false);
   const ops = value.operations;
@@ -207,7 +270,7 @@ export function OperationalFields({
             else if (opsActive(ops)) setConfirmOff(true);
             else {
               setOpen(false);
-              set(withoutOps(value));
+              discard();
             }
           }}
         />
@@ -221,7 +284,7 @@ export function OperationalFields({
             onClick={() => {
               setConfirmOff(false);
               setOpen(false);
-              set(withoutOps(value));
+              discard();
             }}
           >
             {copy.ops.discard}
@@ -280,6 +343,7 @@ export function OperationalFields({
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <NumField
+              onBad={onBad}
               label={copy.ops.horizon}
               value={ops?.horizon_years}
               readOnly={readOnly}
@@ -289,6 +353,7 @@ export function OperationalFields({
               hint={oneTime && ops?.horizon_years === undefined ? copy.ops.needHorizon : ops?.horizon_years !== undefined && ops.horizon_years <= 0 ? "Must be above 0." : undefined}
             />
             <NumField
+              onBad={onBad}
               label={copy.ops.maxLead}
               value={ops?.max_lead_time_days}
               integer
@@ -346,7 +411,7 @@ export function OperationalFields({
                         ["orders_per_year", copy.ops.orders],
                       ] as [GroupNumberField, string][]
                     ).map(([k, label]) => (
-                      <NumField key={k} label={label} value={og?.[k]} readOnly={readOnly} onChange={(v) => set(setGroup(value, g, k, v))} errors={byKey[gKey(g, k)]} />
+                      <NumField key={k} onBad={onBad} label={label} value={og?.[k]} readOnly={readOnly} onChange={(v) => set(setGroup(value, g, k, v))} errors={byKey[gKey(g, k)]} />
                     ))}
                   </div>
                 </div>
@@ -386,6 +451,7 @@ export function OperationalFields({
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                           {nums.map(([key, label, int]) => (
                             <NumField
+                              onBad={onBad}
                               key={key}
                               label={label}
                               value={entry?.[key]}

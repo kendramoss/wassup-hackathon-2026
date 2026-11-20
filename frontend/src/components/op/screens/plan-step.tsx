@@ -11,7 +11,7 @@ import { BAR, conf, isProxy, money } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
-import { OperationalFields, opsErrorText } from "../operational-fields";
+import { OPS_UNREADABLE, OperationalFields, opsErrorText, useOpsValidity } from "../operational-fields";
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
@@ -81,6 +81,9 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   }, [c]);
   // One discard-save at a time: a second press while it is in flight is ignored.
   const lock = useRef(opLock()).current;
+  // Both editors (inline and drawer) report here; an entry that cannot be read
+  // blocks every run, since a run whole-replaces the stored money.
+  const validity = useOpsValidity();
 
   // A demo case reuses the demo's plan request (target, illustrative
   // economics, backtest); otherwise economics start from the case's latest.
@@ -138,6 +141,12 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
 
   const go = async (fromDrawer: boolean) => {
     if (!req) return;
+    if (validity.get()) {
+      const e = new ApiError(OPS_UNREADABLE, 0, "invalid_input", false);
+      setError(e);
+      if (fromDrawer) setMoneyError(e);
+      return;
+    }
     const sent = economics;
     if (mustClearStored(sent)) {
       const release = lock.start();
@@ -344,7 +353,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
               <Fold title="Money inputs · illustrative, optional" meta={moneySummary(economics) || "none yet: plans show without a net per year"} open={!hasAnyMoney(economics)}>
                 <PrefillBar product={c.product} economics={economics} ready={req !== null} onFill={setEconomics} />
                 <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
-                <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} className="mt-4" />
+                <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} className="mt-4" validity={validity} />
               </Fold>
             </div>
           </div>
@@ -409,7 +418,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             }}
           >
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
-            <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} />
+            <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} validity={validity} />
             {moneyError ? <ErrorBox error={moneyError} demoTitle={c.display_name} /> : null}
             <Button variant="ghost" {...writeGate(caseReadOnly(c))} onClick={() => go(true)}>
               Search again with these inputs

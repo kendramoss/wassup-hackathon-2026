@@ -7,7 +7,7 @@ import type { Economics, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
 import { opsActive } from "@/lib/ops";
-import { OperationalFields } from "./operational-fields";
+import { OPS_UNREADABLE, OperationalFields, useOpsValidity } from "./operational-fields";
 import { groupName } from "./plan-bits";
 import { Button, Country, Drawer, Flag, cx } from "./ui";
 
@@ -116,7 +116,16 @@ export function MoneyDrawer({
   const rates = e.duty_rates ?? {};
   const field = "h-10 w-36 rounded-[2px] border border-edge bg-white px-3 text-right text-sm tabular-nums focus:border-ok";
 
+  // An operating-cost entry that cannot be read blocks the save: leaving it out
+  // would replace the saved operating costs with a block that lacks it.
+  const validity = useOpsValidity();
+  const [blocked, setBlocked] = useState(false);
   const save = () => {
+    if (validity.get()) {
+      setBlocked(true);
+      return;
+    }
+    setBlocked(false);
     const out: Economics = { ...e, group_costs: costs };
     if (!Object.keys(out.group_costs ?? {}).length) delete out.group_costs;
     onSave(out);
@@ -353,7 +362,12 @@ export function MoneyDrawer({
           )}
         </section>
 
-        <OperationalFields value={e} onChange={setE} product={product} readOnly={readOnly} serverError={serverError} />
+        <OperationalFields value={e} onChange={setE} product={product} readOnly={readOnly} serverError={serverError} validity={validity} />
+        {blocked && validity.invalid && (
+          <p role="alert" className="text-[12.5px] text-fail">
+            {OPS_UNREADABLE}
+          </p>
+        )}
       </div>
     </Drawer>
   );
