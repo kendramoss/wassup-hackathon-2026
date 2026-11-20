@@ -2575,6 +2575,12 @@ export interface components {
             duty_effect_per_year?: number;
             added_cost_per_year?: number;
             net_per_year?: number;
+            /**
+             * @description True when the search could work this plan's money out (an annual import value and a duty rate for both
+             *     the current and the plan's origin), so the three yearly figures are real even when they are 0. False or
+             *     absent (plans stored before this field) means they were not worked out and a 0 is unknown, not "no saving".
+             */
+            net_priced?: boolean;
             shown?: boolean;
             rejection_reason?: string;
             /**

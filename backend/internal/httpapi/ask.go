@@ -239,7 +239,7 @@ func agentCaseText(c store.Case) string {
 		fmt.Fprintf(&b, "\nPLAN SEARCH (target %s):\n", c.Plan.Target)
 		for _, pl := range c.Plan.Plans {
 			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; %s; %s\n", pl.Description, pl.Prediction.Origin,
-				precedentCheckText(pl, true), netText(c, pl))
+				precedentCheckText(pl, true), netText(pl))
 		}
 		for _, pl := range c.Plan.Rejected {
 			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false))
@@ -280,12 +280,13 @@ func precedentCheckText(p domain.Plan, withRuling bool) string {
 	return s
 }
 
-// netText states a plan's yearly net only when it could be priced: the case
-// has an annual import value, or the plan itself carries computed money. The
-// plan stores plain numbers, so without either a 0 means "not worked out".
-func netText(c store.Case, p domain.Plan) string {
-	priced := (c.Economics != nil && c.Economics.AnnualImportValueUSD > 0) || p.NetYear != 0 || p.DutyEffectYear != 0 || p.AddedCostYear != 0
-	if !priced {
+// netText states a plan's yearly net only when the search that made the plan
+// could price it (Plan.NetPriced, recorded when the plan was computed). It
+// does not look at the case's current economics: money added after the search
+// does not reprice a stored plan, and plans stored before the flag existed are
+// not claimed as priced.
+func netText(p domain.Plan) string {
+	if !p.NetPriced {
 		return "net not priced"
 	}
 	return fmt.Sprintf("net $%.0f/yr", p.NetYear)

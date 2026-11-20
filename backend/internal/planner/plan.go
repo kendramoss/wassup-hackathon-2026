@@ -275,7 +275,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 	complete := func(i int, pl domain.Plan) {
 		<-baseReady
 		if baseErr == nil && pl.Prediction.Origin != "" { // no origin when the prediction failed (D88)
-			pl.DutyEffectYear, pl.AddedCostYear = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
+			pl.DutyEffectYear, pl.AddedCostYear, pl.NetPriced = economics(req, moves[i], baseOrigin, pl.Prediction.Origin)
 			pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 		}
 		mu.Lock()
@@ -334,7 +334,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			pl, err := p.check(ctx, req, tm, m, Describe(req.Product, tm, m), baseFacts, target, knownA, knownRuling, addEngine, addVerifier)
 			if err == nil { // a failed followed move leaves the search as it was
 				pl.FromAdvice = true
-				pl.DutyEffectYear, pl.AddedCostYear = economics(req, m, baseOrigin, pl.Prediction.Origin)
+				pl.DutyEffectYear, pl.AddedCostYear, pl.NetPriced = economics(req, m, baseOrigin, pl.Prediction.Origin)
 				pl.NetYear = pl.DutyEffectYear - pl.AddedCostYear
 				if pl.Shown {
 					res.Plans = append(res.Plans, pl)
@@ -481,12 +481,17 @@ func (p *Planner) caseFor(req Request, key, facts string) domain.Case {
 }
 
 // economics returns the annual duty effect of the origin change and the
-// annual added cost of the move, from the user's inputs.
-func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEffect, addedCost float64) {
+// annual added cost of the move, from the user's inputs. priced says the
+// duty side could be worked out: an annual import value and a rate for both
+// origins. When it is false the 0 duty effect means "unknown", not "no
+// saving". Missing group costs stay the supported no-cost mode (added cost 0)
+// and do not change priced.
+func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEffect, addedCost float64, priced bool) {
 	e := req.Economics
 	if r1, ok1 := e.DutyRate(fromOrigin); ok1 {
 		if r2, ok2 := e.DutyRate(toOrigin); ok2 {
 			dutyEffect = e.AnnualImportValueUSD * (r1 - r2)
+			priced = e.AnnualImportValueUSD > 0
 		}
 	}
 	for _, gm := range m {
@@ -497,7 +502,7 @@ func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEff
 		}
 		addedCost += costs[gm.ToPlant] - costs[from.ID]
 	}
-	return math.Round(dutyEffect*100) / 100, math.Round(addedCost*100) / 100
+	return math.Round(dutyEffect*100) / 100, math.Round(addedCost*100) / 100, priced
 }
 
 func backtest(req Request, plans []domain.Plan) *Backtest {

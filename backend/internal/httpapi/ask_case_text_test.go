@@ -31,29 +31,26 @@ func planCase(econ *planner.Economics, shown, rejected domain.Plan) store.Case {
 func TestAgentCaseTextUnpricedPlanAndMissingVerdict(t *testing.T) {
 	shown := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}}
 	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}, RejectionKind: "no_precedent"}
-	c := planCase(nil, shown, rejected)
-
-	s := caseTextLine(t, c, "SHOWN")
-	if strings.Contains(s, "$0/yr") || strings.Contains(s, "0.00") || !strings.Contains(s, "net not priced") || !strings.Contains(s, "precedent check not run") {
-		t.Errorf("unpriced shown plan: %s", s)
-	}
-	r := caseTextLine(t, c, "not shown")
-	if strings.Contains(r, "0.00") || !strings.Contains(r, "precedent check not run") {
-		t.Errorf("rejected plan with no verdict: %s", r)
-	}
-	// Economics with no annual import value cannot price a net either.
-	c.Economics = &planner.Economics{Illustrative: true}
-	if s := caseTextLine(t, c, "SHOWN"); strings.Contains(s, "$0/yr") || !strings.Contains(s, "net not priced") {
-		t.Errorf("economics without an import value: %s", s)
+	// Even a case that now holds money does not price a plan that was searched without it.
+	for name, econ := range map[string]*planner.Economics{"no economics": nil, "economics added later": {AnnualImportValueUSD: 1000000, DutyRates: map[string]float64{"China": 0.3, "Thailand": 0.1}}} {
+		c := planCase(econ, shown, rejected)
+		s := caseTextLine(t, c, "SHOWN")
+		if strings.Contains(s, "$0/yr") || strings.Contains(s, "0.00") || !strings.Contains(s, "net not priced") || !strings.Contains(s, "precedent check not run") {
+			t.Errorf("%s: unpriced shown plan: %s", name, s)
+		}
+		r := caseTextLine(t, c, "not shown")
+		if strings.Contains(r, "0.00") || !strings.Contains(r, "precedent check not run") {
+			t.Errorf("%s: rejected plan with no verdict: %s", name, r)
+		}
 	}
 }
 
 func TestAgentCaseTextKeepsTruthfulZeroesAndNumbers(t *testing.T) {
 	v := &domain.Verdict{Confidence: 0, SupportingRuling: ""}
-	shown := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v}
-	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, RejectionKind: "below_bar"}
-	// Priced: an import value was given, so a computed net of exactly 0 is real.
-	c := planCase(&planner.Economics{AnnualImportValueUSD: 1000000}, shown, rejected)
+	shown := domain.Plan{Description: "Make PCBA in Thailand", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, NetPriced: true}
+	rejected := domain.Plan{Description: "Move the motor", Prediction: domain.Prediction{Origin: "Thailand"}, Verdict: v, RejectionKind: "below_bar", NetPriced: true}
+	// Priced by the search: a computed net of exactly 0 is real, whatever the case holds now.
+	c := planCase(nil, shown, rejected)
 	s := caseTextLine(t, c, "SHOWN")
 	if !strings.Contains(s, "net $0/yr") || !strings.Contains(s, "precedent check 0.00, supporting none") {
 		t.Errorf("priced zero / zero-confidence verdict lost: %s", s)
@@ -63,13 +60,14 @@ func TestAgentCaseTextKeepsTruthfulZeroesAndNumbers(t *testing.T) {
 	}
 	shown.Verdict = &domain.Verdict{Confidence: 0.93, SupportingRuling: "N350001"}
 	shown.NetYear = 380000
-	c = planCase(&planner.Economics{AnnualImportValueUSD: 1000000}, shown, rejected)
+	c = planCase(nil, shown, rejected)
 	if s := caseTextLine(t, c, "SHOWN"); !strings.Contains(s, "net $380000/yr") || !strings.Contains(s, "precedent check 0.93, supporting N350001") {
 		t.Errorf("priced plan: %s", s)
 	}
-	// A plan that carries money is priced even if the case's economics were later cleared.
-	c.Economics = nil
-	if s := caseTextLine(t, c, "SHOWN"); !strings.Contains(s, "net $380000/yr") {
-		t.Errorf("plan with a computed net: %s", s)
+	// A legacy plan (stored before the flag) with money on it but no flag is not claimed as priced.
+	legacy := shown
+	legacy.NetPriced = false
+	if s := caseTextLine(t, planCase(nil, legacy, rejected), "SHOWN"); strings.Contains(s, "$380000") || !strings.Contains(s, "net not priced") {
+		t.Errorf("legacy plan: %s", s)
 	}
 }

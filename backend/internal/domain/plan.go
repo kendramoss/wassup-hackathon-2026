@@ -123,7 +123,13 @@ type Plan struct {
 	DutyEffectYear float64    `json:"duty_effect_per_year"`
 	AddedCostYear  float64    `json:"added_cost_per_year"`
 	// NetYear is duty effect minus added cost, the ranking key.
-	NetYear         float64       `json:"net_per_year"`
+	NetYear float64 `json:"net_per_year"`
+	// NetPriced is true when the search could work the money out for this
+	// plan: an annual import value and a duty rate for both the current and
+	// the plan's origin. Then the three figures above are real, even when
+	// they are 0. False or absent (plans stored before this field) means the
+	// figures were not worked out, so a 0 is "unknown", not "no saving".
+	NetPriced       bool          `json:"net_priced,omitempty"`
 	Shown           bool          `json:"shown"`
 	RejectionReason string        `json:"rejection_reason,omitempty"`
 	RejectionKind   RejectionKind `json:"rejection_kind,omitempty"`
