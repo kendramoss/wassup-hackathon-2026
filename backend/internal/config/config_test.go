@@ -531,3 +531,85 @@ func TestStrictAuthConfig(t *testing.T) {
 		t.Errorf("STRICT_AUTH turned CASE_OWNERSHIP on: %v %v", both.CaseOwnership, err)
 	}
 }
+
+const auditKey = "0123456789abcdef0123456789abcdef-secret" // 39 bytes
+
+func TestAuditConfigDefaultsAndAutoPolicy(t *testing.T) {
+	// No key, no AUDIT: off (auto never enables itself without the secret).
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.Audit || c.AuditRetentionDays != 90 || c.AuditActorKeyID != "1" || c.AuditMode != "auto" {
+		t.Fatalf("defaults = audit %v days %d keyid %q mode %q err %v", c.Audit, c.AuditRetentionDays, c.AuditActorKeyID, c.AuditMode, err)
+	}
+	// Even on Cloud Run: no secret, no audit, no failure of an existing deployment.
+	run := merge(vertexEnv(), map[string]string{"K_SERVICE": "svc"})
+	if cr, err := FromEnv(getenv(run)); err != nil || cr.Audit {
+		t.Errorf("Cloud Run without a key: audit=%v err=%v, want off and no error", cr.Audit, err)
+	}
+	// auto + key: on.
+	if on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT_ACTOR_KEY": auditKey}))); err != nil || !on.Audit {
+		t.Errorf("auto with a key: audit=%v err=%v", on.Audit, err)
+	}
+	// off wins over a key.
+	if off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT": "off", "AUDIT_ACTOR_KEY": auditKey}))); err != nil || off.Audit {
+		t.Errorf("AUDIT=off with a key: audit=%v err=%v", off.Audit, err)
+	}
+	for _, v := range []string{"on", "true", "1"} {
+		if on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT": v, "AUDIT_ACTOR_KEY": auditKey}))); err != nil || !on.Audit {
+			t.Errorf("AUDIT=%s: %v %v", v, on.Audit, err)
+		}
+	}
+}
+
+func TestAuditConfigRefusesUnsafeSettings(t *testing.T) {
+	tests := []struct {
+		env  map[string]string
+		want string
+	}{
+		{map[string]string{"AUDIT": "on"}, "AUDIT_ACTOR_KEY"},                             // on without the secret fails startup
+		{map[string]string{"AUDIT": "on", "AUDIT_ACTOR_KEY": "short"}, "AUDIT_ACTOR_KEY"}, // weak key
+		{map[string]string{"AUDIT_ACTOR_KEY": "short"}, "AUDIT_ACTOR_KEY"},                // a key was given but is too short: no silent off
+		{map[string]string{"AUDIT": "maybe"}, "AUDIT must be"},
+		{map[string]string{"AUDIT_ACTOR_KEY": auditKey, "AUDIT_ACTOR_KEY_ID": "Key 1"}, "AUDIT_ACTOR_KEY_ID"},
+		{map[string]string{"AUDIT_RETENTION_DAYS": "0"}, "AUDIT_RETENTION_DAYS"},
+		{map[string]string{"AUDIT_RETENTION_DAYS": "-5"}, "AUDIT_RETENTION_DAYS"},
+		{map[string]string{"AUDIT_RETENTION_DAYS": "3651"}, "AUDIT_RETENTION_DAYS"},
+		{map[string]string{"AUDIT_RETENTION_DAYS": "ninety"}, "AUDIT_RETENTION_DAYS"},
+		{map[string]string{"AUDIT_STORE": "s3"}, "AUDIT_STORE"},
+	}
+	for _, tt := range tests {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), tt.env))); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: error %v, want %q", tt.env, err, tt.want)
+		}
+	}
+	// The error never prints the key.
+	_, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT": "on", "AUDIT_ACTOR_KEY": "short-secret-xyz"})))
+	if err == nil || strings.Contains(err.Error(), "short-secret-xyz") {
+		t.Errorf("config error leaks the key: %v", err)
+	}
+}
+
+func TestAuditConfigRetentionStoreAndSecretHandling(t *testing.T) {
+	c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT_ACTOR_KEY": auditKey, "AUDIT_RETENTION_DAYS": "30", "AUDIT_ACTOR_KEY_ID": "2"})))
+	if err != nil || c.AuditRetentionDays != 30 || c.AuditActorKeyID != "2" {
+		t.Fatalf("retention/keyid = %d %q %v", c.AuditRetentionDays, c.AuditActorKeyID, err)
+	}
+	if strings.Contains(c.String(), auditKey) {
+		t.Error("Config.String leaks AUDIT_ACTOR_KEY")
+	}
+	// The store follows CASES_STORE unless set.
+	for cases, want := range map[string]string{"memory": "memory", "file": "file"} {
+		got, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"CASES_STORE": cases})))
+		if err != nil || got.AuditStore != want {
+			t.Errorf("CASES_STORE=%s -> AUDIT_STORE %q %v, want %q", cases, got.AuditStore, err, want)
+		}
+	}
+	if fs, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"CASES_STORE": "firestore"}))); err != nil || fs.AuditStore != "firestore" {
+		t.Errorf("firestore cases -> %q %v", fs.AuditStore, err)
+	}
+	if d, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"CASES_STORE": "file", "AUDIT_DIR": "off"}))); err != nil || d.AuditStore != "memory" {
+		t.Errorf("AUDIT_DIR=off -> %q %v, want memory", d.AuditStore, err)
+	}
+	if f, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT_STORE": "file"}))); err != nil || f.AuditDir != "../data/audit" {
+		t.Errorf("file store dir = %q %v", f.AuditDir, err)
+	}
+}

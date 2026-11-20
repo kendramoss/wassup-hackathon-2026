@@ -94,6 +94,10 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.refuseDemoEdit(w, r, c)
 		return
 	}
+	if err := a.auditCase(r, c, "ask"); err != nil { // an ask appends a chat turn (or resets the chat) unless the case is a pinned demo
+		a.fail(w, r, err)
+		return
+	}
 	q := strings.TrimSpace(in.Question)
 	if q == "" {
 		if !in.Reset {

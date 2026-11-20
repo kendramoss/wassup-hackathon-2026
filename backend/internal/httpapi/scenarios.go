@@ -85,6 +85,10 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if err := a.auditCase(r, sc, "scenarios"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	errs := make([]error, len(cases))
 	labels := make([]*router.Label, len(cases))
 	var wg sync.WaitGroup
@@ -190,6 +194,10 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: case %s has not been analysed", domain.ErrInvalid, sc.ID))
 		return
 	}
+	if err := a.auditCase(r, sc, "watch"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.recheck(r.Context(), &sc, !a.demoReadOnly(r, sc)); err != nil {
 		a.fail(w, r, err)
 		return
@@ -222,6 +230,10 @@ func watchBasis(sc store.Case, d Dispatch, orig string) string {
 // watchAll re-checks every analysed case (for a scheduler) and lists the
 // cases whose origin changed.
 func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
+	if err := a.auditBegin(r, auditStep{Tenant: "platform"}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	cs, err := a.d.Cases.List(r.Context())
 	if err != nil {
 		a.fail(w, r, err)

@@ -83,6 +83,10 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.setMemberRole)
 			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.removeMember)
 		}
+		if d.Audit != nil {
+			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))
+			mux.HandleFunc("GET /v1/audit/verify", a.rateOnly(light, a.auditVerify))
+		}
 		if d.APIKeys != nil {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))
 			mux.HandleFunc("GET /v1/admin/api-keys", a.adminOnly(a.listAPIKeys))
@@ -101,6 +105,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		writeError(w, http.StatusNotFound, "not_found", "no such endpoint", nil)
 	})
 	var h http.Handler = mux
+	if a != nil && a.d.Audit != nil {
+		h = a.withAudit(mux, h)
+	}
 	if a != nil && a.d.Teams {
 		h = a.withUser(h)
 	}

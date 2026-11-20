@@ -55,8 +55,10 @@ func (a *api) loadCase(r *http.Request) (store.Case, error) {
 		return store.Case{}, errNeedsVerified
 	}
 	if !p.canSee(c, a.d.CaseOwnership) {
+		auditHidden(r) // the 404 hides a case that exists: a denial in the audit trail
 		return store.Case{}, store.ErrNotFound
 	}
+	auditConfirm(r, "case", c.ID)
 	if need := permOf(r); need == permEdit && !p.allows(c, need) {
 		return store.Case{}, errForbidden
 	}

@@ -76,6 +76,8 @@ var routeTable = map[string]routeClass{
 	"POST /v1/admin/api-keys":                      adminRoute,
 	"GET /v1/admin/api-keys":                       adminRoute,
 	"DELETE /v1/admin/api-keys/{id}":               adminRoute,
+	"GET /v1/audit":                                noCaseData, // reads the audit trail, no case
+	"GET /v1/audit/verify":                         noCaseData,
 	"GET /health":                                  noCaseData,
 }
 

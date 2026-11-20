@@ -17,6 +17,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/caseagent"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/clarify"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/cross"
@@ -207,6 +208,10 @@ type Deps struct {
 	StreamPredict bool
 	// Checks run on GET /health?deep=1 (store write, model call).
 	Checks []HealthCheck
+	// Audit, when set, records the audit trail (#284) and serves GET
+	// /v1/audit and /v1/audit/verify. Nil: no event is recorded, the routes
+	// are not registered and no write is gated on the trail.
+	Audit *audit.Service
 }
 
 // maxBody caps request bodies (a product with dozens of parts is ~10 KB).
@@ -259,6 +264,8 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
 	case errors.Is(err, errForbidden):
 		return http.StatusForbidden, "forbidden", forbiddenMessage
+	case errors.Is(err, errAuditUnavailable):
+		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
 	case errors.Is(err, errSuperseded):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
@@ -312,7 +319,15 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.predictStream(w, r, in, start)
 		return
 	}
-	sc, err := a.createCase(r, in, start)
+	sc, c, err := a.newCase(r, in)
+	if err == nil {
+		err = a.auditBegin(r, auditStep{Tenant: tenantOfCase(sc), Object: objectRef("case", sc.ID)})
+	}
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	sc, err = a.analyseAndSave(r, sc, c, start, nil)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -329,6 +344,9 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 // responses before the stream opens.
 func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRequest, start time.Time) {
 	sc, c, err := a.newCase(r, in)
+	if err == nil {
+		err = a.auditBegin(r, auditStep{Tenant: tenantOfCase(sc), Object: objectRef("case", sc.ID)})
+	}
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -339,6 +357,7 @@ func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRe
 		s.send("stage", map[string]any{"name": name, "status": status, "ms": ms})
 	})
 	sc, err = a.analyseAndSave(r, sc, c, start, st)
+	a.auditStreamEnd(r, err) // before the final event: the stream's headers are already out
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
 		s.send("error", map[string]any{"code": code, "message": msg, "retryable": status >= 500})
@@ -515,6 +534,10 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, ok := clarify.AppendAnswers("", toClarify(in.Answers)); !ok {
 		a.fail(w, r, fmt.Errorf("%w: no answer adds a fact (all unknown); nothing to re-analyse", domain.ErrInvalid))
+		return
+	}
+	if err := a.auditCase(r, sc, "answers"); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	if sc.OriginalFacts == "" {
@@ -923,6 +946,10 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.auditCase(r, c, "plan"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if wantsStream(r) {
 		a.planStream(w, r, c, req, in.Economics)
 		return
@@ -1183,6 +1210,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			return nil
 		})
 	}
+	a.auditStreamEnd(r, err) // before the final event: the stream's headers are already out
 	if err != nil {
 		status, code, msg := a.errorFor(r, err)
 		send("error", map[string]any{"code": code, "message": msg, "retryable": retryable(status, err)})
@@ -1330,7 +1358,17 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
+		// A preview of a private case still hands its content to the caller, so
+		// the access is recorded (one event, no history and no ExportedAt).
+		// A pinned public demo is not private.
+		if !a.demoReadOnly(r, c) {
+			a.auditSingle(r, auditStep{Tenant: tenantOfCase(c), Object: objectRef("case", c.ID), Detail: format})
+		}
 		a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
+		return
+	}
+	if err := a.auditCase(r, c, format); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	now := time.Now().UTC()

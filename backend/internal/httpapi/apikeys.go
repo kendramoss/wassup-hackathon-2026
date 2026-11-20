@@ -52,6 +52,7 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 		}
 		key, err := a.d.APIKeys.Authenticate(r.Context(), secret)
 		if errors.Is(err, apikey.ErrInvalid) {
+			a.auditAuthDenied(r)
 			writeError(w, http.StatusUnauthorized, "unauthorized", "the API key is invalid or disabled", nil)
 			return
 		}
@@ -88,10 +89,17 @@ func (a *api) issueAPIKey(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.auditBegin(r, auditStep{Tenant: "platform", Object: "apikey:new"}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	secret, k, err := a.d.APIKeys.Issue(r.Context(), in.Name, in.DailyQuota)
 	if err != nil {
 		a.fail(w, r, err)
 		return
+	}
+	if op := auditOpOf(r.Context()); op != nil && op.intent != nil {
+		op.object = objectRef("apikey", k.ID) // the completion names the key that was made
 	}
 	a.d.Logger.InfoContext(r.Context(), "api key issued", "request_id", RequestID(r.Context()), "key_id", k.ID, "name", k.Name, "daily_quota", k.DailyQuota)
 	writeJSON(w, http.StatusCreated, map[string]any{"key": secret, "api_key": k})
@@ -107,6 +115,7 @@ func (a *api) listAPIKeys(w http.ResponseWriter, r *http.Request) {
 	if ks == nil {
 		ks = []apikey.Key{}
 	}
+	a.auditSingle(r, auditStep{Tenant: "platform"})
 	writeJSON(w, http.StatusOK, map[string]any{"api_keys": ks})
 }
 
@@ -114,6 +123,10 @@ func (a *api) listAPIKeys(w http.ResponseWriter, r *http.Request) {
 // the list shows what was issued.
 func (a *api) disableAPIKey(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	if err := a.auditBegin(r, auditStep{Tenant: "platform", Object: objectRef("apikey", id)}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.d.APIKeys.Disable(r.Context(), id); err != nil {
 		a.fail(w, r, err)
 		return

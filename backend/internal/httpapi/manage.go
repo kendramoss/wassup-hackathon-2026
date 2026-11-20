@@ -22,6 +22,10 @@ func (a *api) deleteCase(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusForbidden, "forbidden", "this is a pinned demo case; deleting it needs the admin token", nil)
 		return
 	}
+	if err := a.auditCase(r, c, ""); err != nil { // sensitive: fails closed before the delete
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.d.Cases.Delete(r.Context(), c.ID); err != nil {
 		a.fail(w, r, err)
 		return
@@ -76,6 +80,10 @@ func (a *api) renameCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: display_name must be 1 to %d characters", domain.ErrInvalid, MaxDisplayName))
 		return
 	}
+	if err := a.auditCase(r, c, "rename"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		if name == latest.DisplayName {
 			return nil
@@ -118,6 +126,14 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 	// re-reads the case so the rewrite cannot clobber a newer save.
 	if !*in.Pinned && !c.Pinned {
 		a.respond(w, http.StatusOK, a.caseFields(r, c))
+		return
+	}
+	detail := "unpin"
+	if *in.Pinned {
+		detail = "pin"
+	}
+	if err := a.auditCase(r, c, detail); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {

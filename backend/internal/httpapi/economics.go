@@ -80,6 +80,10 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := a.auditCase(r, c, "economics"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	now := time.Now().UTC()
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.Economics, latest.UpdatedAt = &e, now

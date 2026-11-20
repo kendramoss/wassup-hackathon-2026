@@ -59,6 +59,10 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: give 2 to %d different target countries", domain.ErrInvalid, MaxTargets))
 		return
 	}
+	if err := a.auditCase(r, c, "compare"); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
 	fp := inputFingerprint(c)
 	econ, err := effectiveEconomics(in.Economics, c.Economics)

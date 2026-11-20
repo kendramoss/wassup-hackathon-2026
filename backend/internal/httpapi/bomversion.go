@@ -101,6 +101,12 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if apply { // only an applied version is saved
+		if err := a.auditCase(r, sc, "bom_version"); err != nil {
+			a.fail(w, r, err)
+			return
+		}
+	}
 	// The new BOM is predicted from rendered facts. When the case's own facts
 	// are something else (CBP's wording for a demo, a drafted description,
 	// clarify answers), the case's prediction is not a fair "before": the

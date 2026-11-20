@@ -130,6 +130,9 @@ func run(logger *slog.Logger, smoke bool) error {
 	if err != nil {
 		return err
 	}
+	if deps.Audit, err = newAudit(ctx, cfg, cases, logger); err != nil {
+		return err
+	}
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps),

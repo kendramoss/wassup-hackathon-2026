@@ -11,6 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
@@ -78,12 +79,14 @@ func (a *api) withUser(next http.Handler) http.Handler {
 			return
 		}
 		if len(tok) > maxUserToken {
+			a.auditAuthDenied(r)
 			unauthenticated(w)
 			return
 		}
 		u, err := a.d.Users.Verify(r.Context(), tok)
 		if err != nil {
 			a.d.Logger.InfoContext(r.Context(), "sign-in token refused", "request_id", RequestID(r.Context()), "err", err)
+			a.auditAuthDenied(r)
 			unauthenticated(w)
 			return
 		}
@@ -235,8 +238,16 @@ func (a *api) createWorkspace(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: name must be 1 to %d characters", domain.ErrInvalid, teams.MaxName))
 		return
 	}
+	if id.workspace != "" { // already in one (the store re-checks atomically)
+		a.workspaceError(w, r, teams.ErrMember, alreadyInOne)
+		return
+	}
 	ws := teams.Workspace{ID: "ws_" + newID()[:12], Name: name, Members: []string{id.email}, CreatedBy: id.email, CreatedAt: time.Now().UTC(),
 		Roles: map[string]string{id.email: string(teams.RoleAdmin)}}
+	if err := a.auditBegin(r, auditStep{Tenant: workspaceTenant(ws.ID), Object: objectRef("workspace", ws.ID)}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.d.Workspaces.Create(r.Context(), ws); err != nil {
 		a.workspaceError(w, r, err, alreadyInOne)
 		return
@@ -298,7 +309,17 @@ func (a *api) addMember(w http.ResponseWriter, r *http.Request) {
 	}
 	wsID := r.PathValue("id")
 	if wsID != id.workspace {
+		auditHidden(r)
 		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	auditConfirm(r, "workspace", wsID)
+	if id.role != teams.RoleAdmin { // the store re-checks this atomically; refusing here keeps a refusal out of the intent/completion pair
+		a.workspaceError(w, r, teams.ErrForbidden, "")
+		return
+	}
+	if err := a.auditBegin(r, auditStep{Tenant: workspaceTenant(wsID), Object: objectRef("workspace", wsID), TargetID: email}); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	// The admin check is made by the store on the stored workspace, in the
@@ -324,7 +345,26 @@ func (a *api) joinWorkspace(w http.ResponseWriter, r *http.Request) {
 		a.workspaceError(w, r, teams.ErrMember, alreadyInOne)
 		return
 	}
-	ws, err := a.d.Workspaces.Join(r.Context(), r.PathValue("id"), id.email)
+	wsID := r.PathValue("id")
+	pending, err := a.d.Workspaces.Invites(r.Context(), id.email)
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	invited := false
+	for _, p := range pending {
+		invited = invited || p.ID == wsID
+	}
+	if !invited { // no invitation: indistinguishable from an unknown workspace, and no event goes into that workspace's trail
+		auditHidden(r)
+		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	if err := a.auditBegin(r, auditStep{Tenant: workspaceTenant(wsID), Object: objectRef("workspace", wsID)}); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	ws, err := a.d.Workspaces.Join(r.Context(), wsID, id.email)
 	if err != nil {
 		a.workspaceError(w, r, err, alreadyInOne)
 		return
@@ -370,7 +410,17 @@ func (a *api) setMemberRole(w http.ResponseWriter, r *http.Request) {
 	}
 	wsID := r.PathValue("id")
 	if wsID != id.workspace {
+		auditHidden(r)
 		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	auditConfirm(r, "workspace", wsID)
+	if id.role != teams.RoleAdmin { // the store re-checks this atomically
+		a.workspaceError(w, r, teams.ErrForbidden, "")
+		return
+	}
+	if err := a.auditBegin(r, auditStep{Tenant: workspaceTenant(wsID), Object: objectRef("workspace", wsID), Detail: string(role), TargetID: target}); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	saved, err := a.d.Workspaces.SetRole(r.Context(), wsID, id.email, target, role)
@@ -396,7 +446,20 @@ func (a *api) removeMember(w http.ResponseWriter, r *http.Request) {
 	}
 	wsID := r.PathValue("id")
 	if wsID != id.workspace {
+		auditHidden(r)
 		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	auditConfirm(r, "workspace", wsID)
+	step := auditStep{Tenant: workspaceTenant(wsID), Object: objectRef("workspace", wsID), TargetID: target}
+	if target == id.email {
+		step.Action = audit.WorkspaceLeave
+	} else if id.role != teams.RoleAdmin { // an admin may remove anyone, a member only themselves; the store re-checks atomically
+		a.workspaceError(w, r, teams.ErrForbidden, "")
+		return
+	}
+	if err := a.auditBegin(r, step); err != nil {
+		a.fail(w, r, err)
 		return
 	}
 	saved, err := a.d.Workspaces.Remove(r.Context(), wsID, id.email, target)
