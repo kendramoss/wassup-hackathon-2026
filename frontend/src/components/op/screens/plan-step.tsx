@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Explained, Term } from "../term";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, ApiError, streamPlan, withStaleFlags, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
+import { api, ApiError, opLock, opsActive, saveEconomics, streamPlan, withStaleFlags, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
@@ -70,11 +70,26 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   const [lit, setLit] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [showMoney, setShowMoney] = useState(false);
+  // A failed discard-save, shown inside the open drawer (the page behind it is covered).
+  const [moneyError, setMoneyError] = useState<unknown>(null);
   const abort = useRef<AbortController | null>(null);
+  // The newest case this screen holds, so the save below never writes back the
+  // case from when it started (same pattern as the scenarios view).
+  const latest = useRef(c);
+  useEffect(() => {
+    latest.current = c;
+  }, [c]);
+  // One discard-save at a time: a second press while it is in flight is ignored.
+  const lock = useRef(opLock()).current;
 
   // A demo case reuses the demo's plan request (target, illustrative
   // economics, backtest); otherwise economics start from the case's latest.
+  // After a failed discard-save the user's inputs stay as they left them: a
+  // re-read of the SAME stored money (a 403 triggers one) must not reseed them.
+  const held = useRef<{ id: string; json: string } | null>(null);
   useEffect(() => {
+    if (held.current && held.current.id === id && held.current.json === JSON.stringify(c.economics ?? null)) return;
+    held.current = null;
     const demo = demoFor(id);
     const fallback = () => {
       setReq({ target });
@@ -107,8 +122,54 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     return () => ctl.abort();
   }, [id, req, target]);
 
-  const run = async () => {
+  // A plan POST with annual import value 0 and no operations means "use the
+  // saved money" (kept on purpose for legacy clients), so when the case STORES
+  // active operating inputs and the user has since switched them off, the
+  // search would quietly run in operations mode and keep them. Only then is the
+  // whole current money saved first with the existing PUT /economics (the
+  // server stores the body whole, so the operations go). Positive annual,
+  // unchanged operations, legacy cases, and read-only or pinned cases never
+  // take this path. Atomicity: the confirmed discard is saved before the
+  // search; if the search then fails, the cleared inputs stay saved.
+  const mustClearStored = (e: Economics) =>
+    !c.pinned && !demoFor(id) && !caseReadOnly(c) && opsActive(c.economics?.operations) && !opsActive(e.operations) && !((e.annual_import_value_usd ?? 0) > 0);
+
+  const run = (): Promise<void> => go(false);
+
+  const go = async (fromDrawer: boolean) => {
     if (!req) return;
+    const sent = economics;
+    if (mustClearStored(sent)) {
+      const release = lock.start();
+      if (!release) return;
+      const ctl = new AbortController();
+      abort.current?.abort();
+      abort.current = ctl;
+      setError(null);
+      setMoneyError(null);
+      try {
+        await saveEconomics(id, sent, {
+          latest: () => latest.current,
+          apply: (next) => {
+            latest.current = next;
+            setCase(next);
+          },
+        });
+      } catch (e) {
+        if (latest.current.id === id && !ctl.signal.aborted) {
+          held.current = { id, json: JSON.stringify(c.economics ?? null) };
+          setError(e);
+          if (fromDrawer) setMoneyError(e);
+          else setShowMoney(false);
+        }
+        return;
+      } finally {
+        release();
+      }
+      // The screen moved to another case, or was left, while the save ran.
+      if (latest.current.id !== id || ctl.signal.aborted) return;
+    }
+    if (fromDrawer) setShowMoney(false);
     abort.current?.abort();
     abort.current = new AbortController();
     setError(null);
@@ -122,7 +183,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     try {
       await streamPlan(
         id,
-        { ...req, target, economics },
+        { ...req, target, economics: sent },
         (e) => {
           switch (e.event) {
             case "start":
@@ -160,7 +221,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                 // A plan just run is fresh by construction: its stale flag goes. The
                 // stored comparisons may or may not still match the money saved with
                 // this run, which only the server knows, so its flags are re-read.
-                setCase((d) => (d ? { ...withStaleFlags(d, { targets_economics_stale: d.targets_economics_stale }), plan, step: d.step === "export" ? "export" : "plan", economics } : d));
+                setCase((d) => (d ? { ...withStaleFlags(d, { targets_economics_stale: d.targets_economics_stale }), plan, step: d.step === "export" ? "export" : "plan", economics: sent } : d));
                 if (!c.pinned)
                   api.getCase(id).then(
                     (fresh) => setCase((d) => (d && d.id === fresh.id ? withStaleFlags(d, fresh) : d)),
@@ -341,17 +402,16 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           </div>
         )}
         {showMoney && (
-          <MoneyDrawer onClose={() => setShowMoney(false)}>
+          <MoneyDrawer
+            onClose={() => {
+              setShowMoney(false);
+              setMoneyError(null);
+            }}
+          >
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
             <OperationalFields value={economics} onChange={setEconomics} product={c.product} readOnly={readOnly} serverError={opsError} />
-            <Button
-              variant="ghost"
-              {...writeGate(caseReadOnly(c))}
-              onClick={() => {
-                setShowMoney(false);
-                run();
-              }}
-            >
+            {moneyError ? <ErrorBox error={moneyError} demoTitle={c.display_name} /> : null}
+            <Button variant="ghost" {...writeGate(caseReadOnly(c))} onClick={() => go(true)}>
               Search again with these inputs
             </Button>
           </MoneyDrawer>
