@@ -2954,8 +2954,9 @@ export interface components {
             };
         };
         EconomicsOpsPlant: {
-            /** @description The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale) */
+            /** @description The plant this entry was entered for; an entry whose product plant now has another name or country is treated as not entered (stale). The expected name is the plant's name with surrounding spaces trimmed, or the plant's id when it has no name (an unnamed plant is identified by its id). Names compare after space and case folding and countries after normalisation. Two plants with the same name and country at different times are the same plant for this check; it is not a unique-identity guarantee. */
             ref?: {
+                /** @description The plant's trimmed name, or its id when the plant has no name */
                 name: string;
                 country: string;
             };
