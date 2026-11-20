@@ -1172,6 +1172,16 @@ export interface paths {
                         "application/json": {
                             case_id?: string;
                             economics?: components["schemas"]["Economics"];
+                            /** @description The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero. */
+                            scenarios?: {
+                                label?: string;
+                                facts?: string;
+                                product?: components["schemas"]["Product"];
+                                prediction?: components["schemas"]["Prediction"];
+                                triage?: components["schemas"]["Triage"];
+                                precedents_detail?: components["schemas"]["PrecedentRef"][];
+                                comparison?: components["schemas"]["Comparison"];
+                            }[];
                         };
                     };
                 };

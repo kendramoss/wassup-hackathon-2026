@@ -440,7 +440,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 	// A fallback answer stays on the fallback reason. Clarify would rewrite
 	// needs_review into needs_info, and it calls the primary model, which
 	// just failed.
-	if triage.AnsweredByFallback(pred.Trace.ModelID, a.d.EngineModel) {
+	if triage.AnsweredByFallback(pred.Trace, a.d.EngineModel) {
 		return nil
 	}
 	if sc.Triage.Route == domain.RouteNeedsReview && inScope && a.d.Clarifier != nil && a.d.Precedents != nil {
@@ -586,7 +586,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"triage": c.Triage, "router": c.Router, "plan": c.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
-		"scenarios":    a.scenarioFields(c.Scenarios), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
+		"scenarios":    a.scenarioFields(a.currentScenarios(c)), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(c.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 	}
 }

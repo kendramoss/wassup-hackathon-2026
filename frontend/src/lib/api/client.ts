@@ -17,8 +17,9 @@ export type PlanRequest = S["PlanRequest"];
 export type PlanResult = S["PlanResult"];
 export type Plan = S["Plan"];
 export type Economics = S["Economics"];
-// PUT /cases/{id}/economics returns only the stored economics, not the case.
-export type EconomicsResponse = { case_id: string; economics: Economics };
+// PUT /cases/{id}/economics returns the stored economics, not the case, plus
+// the case's scenarios repriced with them (omitted when it has none).
+export type EconomicsResponse = { case_id: string; economics: Economics; scenarios?: Scenario[] };
 export type TargetSummary = S["TargetSummary"];
 export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
@@ -70,14 +71,16 @@ export class ApiError extends Error {
   }
 }
 
-// Folds a money save into a case. The response carries no product,
-// prediction or scenarios, so those stay. economics_priced was worked out
+// Folds a money save into a case. The response carries no product or
+// prediction, so those stay; its scenarios (repriced with the saved money)
+// replace the case's when present, else the case's stay. economics_priced was worked out
 // from the old inputs and is dropped, so this is only the fallback when the
 // authoritative case can't be re-read (see saveEconomics). A response for a
 // different case is an error, never a silent success.
 export function mergeEconomics(c: CaseResponse, r: EconomicsResponse): CaseResponse {
   if (r.case_id !== c.id) throw new ApiError("The saved money inputs belong to a different case. Reload the page and try again.", 0, "internal", false);
   const next: CaseResponse = { ...c, economics: r.economics };
+  if (r.scenarios) next.scenarios = r.scenarios;
   delete next.economics_priced;
   return next;
 }

@@ -57,7 +57,8 @@ func TestCacheFallbackDoesNotBlockPrimary(t *testing.T) {
 		if calls > 1 {
 			origin, model = "China", req.Model
 		}
-		return llm.Response{ModelID: model, Text: `{"origin_country":"` + origin + `","essential_character":"motor","decisive_step":"step","flip":null,"confidence":0.8,"reasoning":"r"}`}, nil
+		// WithFallback reports the model it called as the requested role.
+		return llm.Response{ModelID: model, RequestedModel: model, Text: `{"origin_country":"` + origin + `","essential_character":"motor","decisive_step":"step","flip":null,"confidence":0.8,"reasoning":"r"}`}, nil
 	}}
 	dir := blob.Dir{Dir: t.TempDir()}
 	primary := NewCache(New(f, nil, Options{Model: "gemini-4-argon"}), dir)

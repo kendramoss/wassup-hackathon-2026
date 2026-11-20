@@ -83,6 +83,7 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 		latest.Economics, latest.UpdatedAt = &e, now
+		a.repriceScenarios(r.Context(), latest) // never leave old numbers under the new money
 		record(r.Context(), latest, store.Event{Kind: "economics", Summary: fmt.Sprintf("money inputs updated: $%.0f a year, %d duty rates, %d groups costed",
 			e.AnnualImportValueUSD, len(e.DutyRates), len(e.GroupCosts))})
 		return nil
@@ -91,5 +92,9 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"case_id": saved.ID, "economics": saved.Economics})
+	out := map[string]any{"case_id": saved.ID, "economics": saved.Economics}
+	if len(saved.Scenarios) > 0 {
+		out["scenarios"] = a.scenarioFields(saved.Scenarios) // priced with the money just saved
+	}
+	writeJSON(w, http.StatusOK, out)
 }

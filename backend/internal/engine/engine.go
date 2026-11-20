@@ -228,12 +228,13 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		Precedents:   ids,
 		CitedRulings: citedIn(a.Reasoning+" "+a.DecisiveStep+" "+a.EssentialCharacter, precedentIDs(precedents)),
 		Trace: domain.Trace{
-			Provider:      resp.Provider,
-			ModelID:       resp.ModelID,
-			PromptVersion: e.promptVersion(),
-			InputTokens:   resp.Usage.InputTokens,
-			OutputTokens:  resp.Usage.OutputTokens,
-			LatencyMS:     resp.Latency.Milliseconds(),
+			Provider:       resp.Provider,
+			ModelID:        resp.ModelID,
+			RequestedModel: requestedOf(resp, e.opts.Model),
+			PromptVersion:  e.promptVersion(),
+			InputTokens:    resp.Usage.InputTokens,
+			OutputTokens:   resp.Usage.OutputTokens,
+			LatencyMS:      resp.Latency.Milliseconds(),
 		},
 	}
 	if a.EssentialCharacter != "" {
@@ -251,6 +252,15 @@ func (e *Engine) ask(ctx context.Context, c domain.Case, precedents []domain.Rul
 		r.Flip = *a.Flip
 	}
 	return r, nil
+}
+
+// requestedOf is the configured model that answered: what the model layers
+// report, else the engine's own primary (it asked for that name).
+func requestedOf(resp llm.Response, primary string) string {
+	if resp.RequestedModel != "" {
+		return resp.RequestedModel
+	}
+	return primary
 }
 
 func precedentIDs(ps []domain.Ruling) []string {

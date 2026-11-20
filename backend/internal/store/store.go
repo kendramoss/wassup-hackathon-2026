@@ -185,8 +185,13 @@ type Scenario struct {
 	Prediction domain.Prediction `json:"prediction"`
 	Triage     domain.Triage     `json:"triage"`
 	// Comparison is the yearly duty and cost against the current setup;
-	// nil without economics.
+	// nil without economics. It is derived: it is worked out against the
+	// case's baseline, which Basis names (httpapi.scenarioBasis).
 	Comparison *planner.Comparison `json:"comparison,omitempty"`
+	// Basis stamps what Comparison was worked out against. A reader that
+	// finds a different basis recomputes the comparison; the definition
+	// (Label, Facts, Product, Prediction) is the user's and always stays.
+	Basis string `json:"basis,omitempty"`
 }
 
 // Watch statuses.

@@ -8,15 +8,29 @@ const Disclaimer = "Not a ruling. Confirm with a licensed customs broker or a CB
 // Trace records which model and prompt produced an output, for every API
 // response and eval row.
 type Trace struct {
-	Provider      string `json:"llm_provider"`
-	ModelID       string `json:"model_id"`
-	PromptVersion string `json:"prompt_version"`
-	InputTokens   int    `json:"input_tokens"`
-	OutputTokens  int    `json:"output_tokens"`
-	LatencyMS     int64  `json:"latency_ms"`
+	Provider string `json:"llm_provider"`
+	ModelID  string `json:"model_id"`
+	// RequestedModel is the configured model the call was made to (primary or
+	// fallback), while ModelID is the version the provider reported, which may
+	// differ (alias gemini-4-argon, version gemini-4-argon-001). Empty on
+	// traces recorded before this field existed (#344).
+	RequestedModel string `json:"requested_model,omitempty"`
+	PromptVersion  string `json:"prompt_version"`
+	InputTokens    int    `json:"input_tokens"`
+	OutputTokens   int    `json:"output_tokens"`
+	LatencyMS      int64  `json:"latency_ms"`
 	// Cached is true when the prediction was replayed from the engine cache
 	// (D54): no model call, no tokens.
 	Cached bool `json:"cached,omitempty"`
+}
+
+// Identity is the configured model that answered: RequestedModel, or ModelID
+// on a trace recorded before RequestedModel existed.
+func (t Trace) Identity() string {
+	if t.RequestedModel != "" {
+		return t.RequestedModel
+	}
+	return t.ModelID
 }
 
 // Prediction is the origin the engine expects CBP to assign.

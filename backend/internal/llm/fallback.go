@@ -29,6 +29,9 @@ func (f *fallingBack) Provider() string { return f.primary.Provider() }
 func (f *fallingBack) Generate(ctx context.Context, req Request) (Response, error) {
 	resp, err := f.primary.Generate(ctx, req)
 	if err == nil || !fallbackEligible(err) {
+		if err == nil && resp.RequestedModel == "" {
+			resp.RequestedModel = req.Model
+		}
 		return resp, err
 	}
 	alt := req
@@ -37,10 +40,12 @@ func (f *fallingBack) Generate(ctx context.Context, req Request) (Response, erro
 	if err != nil {
 		return Response{}, err
 	}
-	// The caller records this id in trace.model_id, so a fallback answer is
-	// distinguishable from a primary answer even when the provider's version
-	// string differs.
-	resp.ModelID = f.model
+	// RequestedModel names the fallback role, whatever version the provider
+	// reports; ModelID keeps that resolved version for diagnostics (#344).
+	resp.RequestedModel = f.model
+	if resp.ModelID == "" {
+		resp.ModelID = f.model
+	}
 	return resp, nil
 }
 

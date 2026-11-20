@@ -670,6 +670,19 @@ paths:
                 properties:
                   case_id: { type: string }
                   economics: { $ref: "#/components/schemas/Economics" }
+                  scenarios:
+                    type: array
+                    description: The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero.
+                    items:
+                      type: object
+                      properties:
+                        label: { type: string }
+                        facts: { type: string }
+                        product: { $ref: "#/components/schemas/Product" }
+                        prediction: { $ref: "#/components/schemas/Prediction" }
+                        triage: { $ref: "#/components/schemas/Triage" }
+                        precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+                        comparison: { $ref: "#/components/schemas/Comparison" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/ask:

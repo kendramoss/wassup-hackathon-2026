@@ -149,7 +149,7 @@ func isFunctionResponses(c *genai.Content) bool {
 }
 
 func fromGenaiResponse(out *genai.GenerateContentResponse, requested string, latency time.Duration) (Response, error) {
-	resp := Response{Provider: "vertex", ModelID: out.ModelVersion, Latency: latency}
+	resp := Response{Provider: "vertex", ModelID: out.ModelVersion, RequestedModel: requested, Latency: latency}
 	if resp.ModelID == "" {
 		resp.ModelID = requested
 	}
@@ -182,7 +182,7 @@ func fromGenaiResponse(out *genai.GenerateContentResponse, requested string, lat
 		case p.FunctionCall != nil:
 			args, err := json.Marshal(p.FunctionCall.Args)
 			if err != nil {
-				return Response{Provider: resp.Provider, ModelID: resp.ModelID, Usage: resp.Usage, FinishReason: resp.FinishReason, Latency: latency},
+				return Response{Provider: resp.Provider, ModelID: resp.ModelID, RequestedModel: requested, Usage: resp.Usage, FinishReason: resp.FinishReason, Latency: latency},
 					fmt.Errorf("vertex: %w: encode args of %s: %v", ErrBadResponse, p.FunctionCall.Name, err)
 			}
 			id := p.FunctionCall.ID
