@@ -317,7 +317,7 @@ func (a *api) predict(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusCreated, a.caseFields(sc))
+	a.respond(w, http.StatusCreated, a.caseFields(r, sc))
 }
 
 // predictStream runs predict as server-sent events (D71): stage {name:
@@ -345,7 +345,7 @@ func (a *api) predictStream(w http.ResponseWriter, r *http.Request, in predictRe
 		return
 	}
 	out := a.meta()
-	for k, v := range a.caseFields(sc) {
+	for k, v := range a.caseFields(r, sc) {
 		out[k] = v
 	}
 	s.send("done", out)
@@ -554,7 +554,7 @@ func (a *api) answers(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(saved))
+	a.respond(w, http.StatusOK, a.caseFields(r, saved))
 }
 
 // precedentRef is one earlier ruling the engine was shown, with CBP's held
@@ -588,7 +588,7 @@ func nonEmpty(s string) *string {
 	return &s
 }
 
-func (a *api) caseFields(c store.Case) map[string]any {
+func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
 	return map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": c.Prediction,
@@ -597,6 +597,7 @@ func (a *api) caseFields(c store.Case) map[string]any {
 		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
 		"scenarios":    a.scenarioFields(a.currentScenarios(c)), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(c.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
+		"can_write": a.canWrite(r, c),
 	}
 }
 
@@ -719,6 +720,9 @@ type caseSummary struct {
 	WatchRoute  *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
 	Scenarios   int      `json:"scenario_count"`
 	Pinned      bool     `json:"pinned"`
+	// CanWrite is server-computed for this caller (access.go); nil only in a
+	// row built without a request, so absent means unknown and false means read-only.
+	CanWrite *bool `json:"can_write,omitempty"`
 }
 
 // listCases lists the cases the caller may see: pinned demos first, then the
@@ -751,8 +755,9 @@ func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
 	}
 	shown = store.CapRecent(shown, limit) // visible() is re-checked above; the cap comes last
 	rows := make([]caseSummary, 0, len(shown))
+	p := a.principalOf(r)
 	for _, c := range shown {
-		rows = append(rows, summaryRow(c))
+		rows = append(rows, a.summaryFor(p, c))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"cases": rows})
 }
@@ -889,7 +894,7 @@ func (a *api) getCase(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(c))
+	a.respond(w, http.StatusOK, a.caseFields(r, c))
 }
 
 type planRequest struct {

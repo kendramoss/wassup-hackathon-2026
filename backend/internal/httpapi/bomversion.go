@@ -197,7 +197,7 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	out["applied"], out["case"] = true, a.caseFields(saved)
+	out["applied"], out["case"] = true, a.caseFields(r, saved)
 	a.respond(w, http.StatusOK, out)
 }
 

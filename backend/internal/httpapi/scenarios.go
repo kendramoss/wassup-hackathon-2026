@@ -119,7 +119,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	if a.demoReadOnly(r, sc) {
 		sc.Scenarios, sc.UpdatedAt = out, now
 		record(r.Context(), &sc, ev)
-		a.respond(w, http.StatusOK, a.caseFields(sc))
+		a.respond(w, http.StatusOK, a.caseFields(r, sc))
 		return
 	}
 	saved, err := a.d.Cases.Update(r.Context(), sc.ID, func(latest *store.Case) error {
@@ -142,7 +142,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(saved))
+	a.respond(w, http.StatusOK, a.caseFields(r, saved))
 }
 
 // scenarioFacts is a scenario's facts text: given directly, or rendered from
@@ -194,7 +194,7 @@ func (a *api) watch(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.respond(w, http.StatusOK, a.caseFields(sc))
+	a.respond(w, http.StatusOK, a.caseFields(r, sc))
 }
 
 // WatchOriginalRegimeUnknownReason is the watch triage reason when the case's
