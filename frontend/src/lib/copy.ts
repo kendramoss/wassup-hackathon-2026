@@ -383,6 +383,7 @@ export const copy = {
     needBasis: "Choose whether labour and logistics are inside or on top of the group cost.",
     needUnit: "Add the unit these quantities use.",
     needMoqUnit: "Add the unit of the minimum order.",
+    noAnnual: "No annual import value is set, so money figures will be unpriced and only the feasibility limits can be checked. What you save here replaces the stored import value, duty rates and group costs with what this form shows.",
     serverIssues: "Operating-cost inputs to fix",
     unplaced: "Not tied to one field",
   },

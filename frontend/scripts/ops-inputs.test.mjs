@@ -504,3 +504,46 @@ test("no console output and no handwritten API types in the #281 UI files", () =
     assert.doesNotMatch(src(f), /:\s*any\b|as any\b/, f);
   }
 });
+
+// ---- v4.2: active operations travel WITH the whole form economics ------------------------------
+
+test("an existing $2M case with typed operations: plan, PUT and scenarios all carry value, rates, group costs, illustrative AND operations", async () => {
+  const base = legacy();
+  const serve = (u, m) => (m === "POST" && u.endsWith("/plan") ? json({ case_id: "c1", plan: F.planResult() }) : m === "PUT" ? json({ case_id: "c1", economics: base }) : m === "POST" && u.endsWith("/scenarios") ? json(F.caseJson()) : null);
+  const c = F.caseJson({ plan: undefined, economics: base });
+  const app = await mount(PlanStep, c, serve);
+  app.find((e) => e.type === "input" && e.props.role === "switch")[0].props.onChange({ target: { checked: true } });
+  await app.flush();
+  await type(app, inputOf(app, "Labour (USD")[1], "0");
+  await app.btn("Search moves to").props.onClick();
+  await app.flush();
+  const plan = JSON.parse(app.calls.find((x) => x.m === "POST" && x.u.endsWith("/plan")).raw).economics;
+  for (const k of ["annual_import_value_usd", "duty_rates", "group_costs", "illustrative"]) assert.deepEqual(plan[k], base[k], `plan keeps ${k}`);
+  assert.equal(plan.operations.groups.motor_fan_assembly.plants.th.labour_usd_per_year, 0);
+
+  // the money drawer: typing operations after a quick total / late AI fill still saves the whole economics
+  const d = await drawer(base);
+  await turnOn(d);
+  await type(d, inputOf(d, "Horizon")[0], "3");
+  const out = await save(d);
+  for (const k of ["annual_import_value_usd", "duty_rates", "group_costs", "illustrative"]) assert.deepEqual(out[k], base[k], `drawer keeps ${k}`);
+  assert.equal(out.operations.horizon_years, 3);
+
+  const sc = await mount(ScenariosView, F.caseJson({ step: "origin", economics: { ...base, operations: { horizon_years: 3 } }, scenarios: [{ label: "A", product, prediction: { origin_country: "Thailand" } }] }), serve);
+  await sc.btn("Edit scenarios").props.onClick();
+  await sc.flush();
+  await sc.btn("Run again").props.onClick();
+  await sc.flush();
+  const body = JSON.parse(sc.calls.find((x) => x.u.endsWith("/scenarios")).raw).economics;
+  for (const k of ["annual_import_value_usd", "duty_rates", "group_costs"]) assert.deepEqual(body[k], base[k], `scenarios keep ${k}`);
+  assert.equal(body.operations.horizon_years, 3);
+});
+
+test("clearing the annual value with active operations shows a notice that saving replaces the stored money; with operations off there is none", async () => {
+  const d = await drawer({ ...legacy(), annual_import_value_usd: undefined, operations: { max_lead_time_days: 90 } });
+  assert.match(text(d), /No annual import value is set, so money figures will be unpriced/);
+  const off = await drawer({ ...legacy(), annual_import_value_usd: undefined });
+  assert.doesNotMatch(text(off), /No annual import value is set/);
+  const out = await save(off);
+  assert.equal("operations" in out, false, "mode off: no operations, nothing else invented");
+});

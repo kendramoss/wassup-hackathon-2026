@@ -5,6 +5,7 @@ import { ApiError, type Economics, type Plant, type Product } from "@/lib/api/cl
 import { copy } from "@/lib/copy";
 import {
   clearPlantEntry,
+  opsActive,
   currentPlant,
   formatAmount,
   gKey,
@@ -184,6 +185,11 @@ export function OperationalFields({
         <div className="mt-3 flex flex-col gap-5">
           <p className="duo text-xs text-dim">{copy.ops.scope}</p>
           <p className="duo text-xs text-dim">{copy.ops.blankNote}</p>
+          {opsActive(ops) && !value.annual_import_value_usd && (
+            <p role="status" className="duo text-xs text-ask">
+              {copy.ops.noAnnual}
+            </p>
+          )}
           {general.length > 0 && (
             <div role="alert" className="border border-fail px-3 py-2 text-[12.5px]">
               <p className="font-medium">{copy.ops.serverIssues}</p>
