@@ -121,7 +121,7 @@ func TestFirestoreEmulator(t *testing.T) {
 	if err := ws.Create(ctx, teams.Workspace{ID: wsID + "x", Members: []string{owner}}); !errors.Is(err, teams.ErrMember) {
 		t.Errorf("second workspace for the owner = %v", err)
 	}
-	if w, err := ws.Invite(ctx, wsID, member); err != nil || len(w.Members) != 1 || !w.HasInvite(member) {
+	if w, err := ws.Invite(ctx, wsID, owner, member); err != nil || len(w.Members) != 1 || !w.HasInvite(member) {
 		t.Errorf("Invite = %+v %v", w, err)
 	}
 	if _, err := ws2.Of(ctx, member); !errors.Is(err, teams.ErrNotFound) {
@@ -136,7 +136,7 @@ func TestFirestoreEmulator(t *testing.T) {
 	if w, err := ws.Join(ctx, wsID, member); err != nil || len(w.Members) != 2 || w.HasInvite(member) {
 		t.Errorf("Join = %+v %v", w, err)
 	}
-	if _, err := ws.Invite(ctx, wsID, member); !errors.Is(err, teams.ErrMember) {
+	if _, err := ws.Invite(ctx, wsID, owner, member); !errors.Is(err, teams.ErrMember) {
 		t.Errorf("Invite a member = %v", err)
 	}
 	if w, err := ws2.Of(ctx, member); err != nil || w.ID != wsID || w.Name != "Acme" {
@@ -144,5 +144,51 @@ func TestFirestoreEmulator(t *testing.T) {
 	}
 	if _, err := ws2.Of(ctx, "nobody@example.com"); !errors.Is(err, teams.ErrNotFound) {
 		t.Errorf("Of(nobody) = %v", err)
+	}
+	// Roles (#283). Needs the emulator: not run in the default test pass.
+	if w, _ := ws2.Get(ctx, wsID); w.Roles[member] != "editor" || !w.IsAdmin(owner) {
+		t.Errorf("roles after join = %+v", w.Roles)
+	}
+	if _, err := ws.Invite(ctx, wsID, member, "x"+member); !errors.Is(err, teams.ErrForbidden) {
+		t.Errorf("an editor invites = %v", err)
+	}
+	if _, err := ws.SetRole(ctx, wsID, owner, owner, teams.RoleViewer); !errors.Is(err, teams.ErrLastAdmin) {
+		t.Errorf("last admin demotes self = %v", err)
+	}
+	if w, err := ws.SetRole(ctx, wsID, owner, member, teams.RoleAdmin); err != nil || !w.IsAdmin(member) {
+		t.Errorf("promote = %+v %v", w, err)
+	}
+	if _, err := ws.SetRole(ctx, wsID, member, owner, teams.RoleViewer); err != nil {
+		t.Errorf("demote the creator with another admin = %v", err)
+	}
+	if _, err := ws.Remove(ctx, wsID, member, member); !errors.Is(err, teams.ErrLastAdmin) {
+		t.Errorf("last admin leaves = %v", err)
+	}
+	if _, err := ws.Remove(ctx, wsID, owner, member); !errors.Is(err, teams.ErrForbidden) {
+		t.Errorf("a viewer removes the admin = %v", err)
+	}
+	if _, err := ws.Remove(ctx, wsID, owner, owner); err != nil {
+		t.Errorf("a viewer leaves = %v", err)
+	}
+	if _, err := ws2.Of(ctx, owner); !errors.Is(err, teams.ErrNotFound) {
+		t.Errorf("Of after leaving = %v", err)
+	}
+	// A document written before roles existed (no roles field) loads: creator admin, others editor.
+	legacy := wsID + "L"
+	lo, lm := "lo"+owner, "lm"+owner
+	if _, err := f.client.Collection(WorkspaceCollection).Doc(legacy).Set(ctx, map[string]any{
+		"id": legacy, "name": "Legacy", "members": []string{lo, lm}, "invited": []string{}, "created_by": lo, "created_at": time.Now().UTC(),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.client.Collection(MemberCollection).Doc(lm).Set(ctx, map[string]any{"workspace_id": legacy}); err != nil {
+		t.Fatal(err)
+	}
+	if w, err := ws2.Of(ctx, lm); err != nil || w.Roles != nil {
+		t.Errorf("legacy decode = %+v %v", w, err)
+	} else if r, _ := w.RoleOf(lm); r != teams.RoleEditor {
+		t.Errorf("legacy member role = %q", r)
+	} else if r, _ := w.RoleOf(lo); r != teams.RoleAdmin {
+		t.Errorf("legacy creator role = %q", r)
 	}
 }

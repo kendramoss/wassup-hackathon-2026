@@ -468,6 +468,9 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		}
 		logger.Info("teams on: Google sign-in and workspaces", "audience", cfg.TeamsAudience, "workspaces", fmt.Sprintf("%T", workspaces))
 	}
+	if cfg.StrictAuth && !cfg.Teams && !cfg.APIKeys {
+		logger.Warn("STRICT_AUTH is on but neither TEAMS nor API_KEYS is: only the admin token can reach private case routes")
+	}
 	// API keys for brokers (D69), in Firestore when cases are there.
 	var keys *apikey.Keys
 	if cfg.APIKeys {
@@ -520,6 +523,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		RateStore:             rateStore,
 		CasesListLimit:        cfg.CasesListLimit,
 		CaseOwnership:         cfg.CaseOwnership,
+		StrictAuth:            cfg.StrictAuth,
 		BOMVersions:           cfg.BOMVersions == "on",
 		Teams:                 cfg.Teams,
 		Users:                 users,

@@ -46,6 +46,9 @@ type BatchRow struct {
 // or multipart/form-data with a "file" (CSV or .xlsx: name, facts or
 // description, optional date).
 func (a *api) batch(w http.ResponseWriter, r *http.Request) {
+	if !a.mayCreate(w, r) {
+		return
+	}
 	start := time.Now()
 	items, err := a.batchItems(w, r)
 	if err != nil {

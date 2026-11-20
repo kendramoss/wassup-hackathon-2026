@@ -9,6 +9,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // principalReq builds a request carrying the given headers and, standing in
@@ -47,6 +48,7 @@ func TestPrincipalOf(t *testing.T) {
 		{"visitor id with a bad character is none", principalReq(map[string]string{"X-Visitor-ID": "alice-visitor-id-000!"}, nil, nil), kindNone, "", false},
 		{"api key beats a visitor id", principalReq(vis, &key, nil), kindAPIKey, keyOwner(key), true},
 		{"signed-in user keeps the browser's visitor owner", principalReq(vis, nil, &alice), kindUser, visitorOwner(aliceVis), true},
+		{"signed-in user with an API key is a user (the key's owner stays the credential owner)", principalReq(vis, &key, &alice), kindUser, keyOwner(key), true},
 		{"admin", principalReq(map[string]string{"X-Admin-Token": testAdmin}, nil, nil), kindAdmin, "", true},
 		{"admin with a visitor id", principalReq(with(vis, map[string]string{"X-Admin-Token": testAdmin}), nil, nil), kindAdmin, visitorOwner(aliceVis), true},
 		{"wrong admin token is not admin", principalReq(map[string]string{"X-Admin-Token": "nope"}, nil, nil), kindNone, "", false},
@@ -61,6 +63,23 @@ func TestPrincipalOf(t *testing.T) {
 				t.Errorf("principal owner %q differs from ownerOf %q", p.Owner, ownerOf(tc.req))
 			}
 		})
+	}
+
+	// Role comes from the verified identity only: an API key, an admin token, a visitor or
+	// forged headers never carry one.
+	withRole := identity{email: "vera@example.com", owner: userOwner("vera@example.com"), workspace: "ws_1", role: teams.RoleViewer}
+	if got := a.principalOf(principalReq(vis, nil, &withRole)).Role; got != teams.RoleViewer {
+		t.Errorf("user role = %q", got)
+	}
+	for name, r := range map[string]*http.Request{
+		"api key":         principalReq(map[string]string{"X-Role": "admin"}, &key, nil),
+		"visitor":         principalReq(with(vis, map[string]string{"X-Role": "admin", "X-Workspace": "ws_1"}), nil, nil),
+		"admin token":     principalReq(map[string]string{"X-Admin-Token": testAdmin, "X-Role": "editor"}, nil, nil),
+		"user with a key": principalReq(map[string]string{"X-Role": "admin"}, &key, &identity{email: "x@example.com", owner: "u_x"}),
+	} {
+		if got := a.principalOf(r).Role; got != "" {
+			t.Errorf("%s has role %q", name, got)
+		}
 	}
 
 	p := a.principalOf(principalReq(vis, nil, &alice))
@@ -216,7 +235,14 @@ func TestPrincipalVisibilityMatchesTheLegacyRule(t *testing.T) {
 		for _, r := range reqs {
 			for _, c := range cases {
 				n++
-				if got, want := a.visible(r, c), legacyVisible(a, r, c); got != want {
+				want := legacyVisible(a, r, c)
+				// The one deliberate divergence (#283): a signed-in user's own case
+				// that is stamped with a workspace they are NOT in (they were removed
+				// or left) belongs to that workspace, so it is no longer theirs.
+				if id := identityOf(r.Context()); id.email != "" && !a.isAdmin(r) && !c.Pinned && c.Owner == id.owner && c.Workspace != "" && c.Workspace != id.workspace {
+					want = false
+				}
+				if got := a.visible(r, c); got != want {
 					t.Fatalf("ownership %v, kind %q, case %+v: visible = %v, legacy rule = %v", own, a.principalOf(r).Kind, c, got, want)
 				}
 			}

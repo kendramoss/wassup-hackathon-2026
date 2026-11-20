@@ -80,6 +80,8 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			mux.HandleFunc("GET /v1/workspaces/mine", a.myWorkspace)
 			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.addMember)
 			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.joinWorkspace)
+			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.setMemberRole)
+			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.removeMember)
 		}
 		if d.APIKeys != nil {
 			mux.HandleFunc("POST /v1/admin/api-keys", a.adminOnly(a.issueAPIKey))

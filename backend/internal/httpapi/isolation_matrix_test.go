@@ -16,7 +16,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // Case isolation matrix (#273). Every route registered in server.go is
@@ -36,43 +38,45 @@ const (
 
 // routeTable is keyed by the mux pattern, exactly as registered in server.go.
 var routeTable = map[string]routeClass{
-	"POST /v1/cases/predict":              caseCreate,
-	"POST /v1/cases/batch":                caseCreate,
-	"GET /v1/cases":                       caseCreate,
-	"POST /v1/products/import":            noCaseData,
-	"POST /v1/products/extract":           noCaseData,
-	"POST /v1/products/money-prefill":     noCaseData,
-	"POST /v1/products/hts-suggest":       noCaseData,
-	"POST /v1/products/cost-estimate":     noCaseData,
-	"POST /v1/products/family-check":      noCaseData,
-	"POST /v1/cases/{id}/bom-version":     caseScoped,
-	"POST /v1/cases/{id}/scenarios":       caseScoped,
-	"POST /v1/cases/{id}/compare-targets": caseScoped,
-	"POST /v1/cases/{id}/ask":             caseScoped,
-	"PUT /v1/cases/{id}/economics":        caseScoped,
-	"PUT /v1/cases/{id}/pin":              adminRoute,
-	"POST /v1/cases/{id}/watch":           caseScoped,
-	"POST /v1/watch/run":                  adminRoute,
-	"GET /v1/cases/{id}":                  caseScoped,
-	"DELETE /v1/cases/{id}":               caseScoped,
-	"PATCH /v1/cases/{id}":                caseScoped,
-	"POST /v1/cases/{id}/plan":            caseScoped,
-	"POST /v1/cases/{id}/plan/estimate":   caseScoped,
-	"POST /v1/cases/{id}/export":          caseScoped,
-	"POST /v1/cases/{id}/answers":         caseScoped,
-	"GET /v1/rulings/{id}":                noCaseData,
-	"GET /v1/eval/summary":                noCaseData,
-	"GET /v1/duty-rates":                  noCaseData,
-	"GET /v1/demos":                       noCaseData,
-	"GET /v1/demos/{id}":                  noCaseData,
-	"POST /v1/workspaces":                 noCaseData,
-	"GET /v1/workspaces/mine":             noCaseData,
-	"POST /v1/workspaces/{id}/members":    noCaseData,
-	"POST /v1/workspaces/{id}/join":       noCaseData,
-	"POST /v1/admin/api-keys":             adminRoute,
-	"GET /v1/admin/api-keys":              adminRoute,
-	"DELETE /v1/admin/api-keys/{id}":      adminRoute,
-	"GET /health":                         noCaseData,
+	"POST /v1/cases/predict":                       caseCreate,
+	"POST /v1/cases/batch":                         caseCreate,
+	"GET /v1/cases":                                caseCreate,
+	"POST /v1/products/import":                     noCaseData,
+	"POST /v1/products/extract":                    noCaseData,
+	"POST /v1/products/money-prefill":              noCaseData,
+	"POST /v1/products/hts-suggest":                noCaseData,
+	"POST /v1/products/cost-estimate":              noCaseData,
+	"POST /v1/products/family-check":               noCaseData,
+	"POST /v1/cases/{id}/bom-version":              caseScoped,
+	"POST /v1/cases/{id}/scenarios":                caseScoped,
+	"POST /v1/cases/{id}/compare-targets":          caseScoped,
+	"POST /v1/cases/{id}/ask":                      caseScoped,
+	"PUT /v1/cases/{id}/economics":                 caseScoped,
+	"PUT /v1/cases/{id}/pin":                       adminRoute,
+	"POST /v1/cases/{id}/watch":                    caseScoped,
+	"POST /v1/watch/run":                           adminRoute,
+	"GET /v1/cases/{id}":                           caseScoped,
+	"DELETE /v1/cases/{id}":                        caseScoped,
+	"PATCH /v1/cases/{id}":                         caseScoped,
+	"POST /v1/cases/{id}/plan":                     caseScoped,
+	"POST /v1/cases/{id}/plan/estimate":            caseScoped,
+	"POST /v1/cases/{id}/export":                   caseScoped,
+	"POST /v1/cases/{id}/answers":                  caseScoped,
+	"GET /v1/rulings/{id}":                         noCaseData,
+	"GET /v1/eval/summary":                         noCaseData,
+	"GET /v1/duty-rates":                           noCaseData,
+	"GET /v1/demos":                                noCaseData,
+	"GET /v1/demos/{id}":                           noCaseData,
+	"POST /v1/workspaces":                          noCaseData,
+	"GET /v1/workspaces/mine":                      noCaseData,
+	"POST /v1/workspaces/{id}/members":             noCaseData,
+	"POST /v1/workspaces/{id}/join":                noCaseData,
+	"PUT /v1/workspaces/{id}/members/{email}/role": noCaseData,
+	"DELETE /v1/workspaces/{id}/members/{email}":   noCaseData,
+	"POST /v1/admin/api-keys":                      adminRoute,
+	"GET /v1/admin/api-keys":                       adminRoute,
+	"DELETE /v1/admin/api-keys/{id}":               adminRoute,
+	"GET /health":                                  noCaseData,
 }
 
 // registeredRoutes parses server.go for every mux.HandleFunc pattern.
@@ -198,14 +202,24 @@ const (
 // newIsoEnv: teams, API keys and BOM versions on; ownership as given. The
 // cases are made through the real create path by their owners. "noid" is made
 // with no identity, "badid" with a malformed X-Visitor-ID.
-func newIsoEnv(t *testing.T, ownership bool) *isoEnv {
+func newIsoEnv(t *testing.T, ownership bool) *isoEnv { return newIsoEnvStrict(t, ownership, false) }
+
+// newIsoEnvStrict is newIsoEnv with STRICT_AUTH as given. The fixtures are made
+// through a handler with strict off (strict mode refuses to create cases for
+// a bare visitor ID), then the strict handler is built over the same stores.
+func newIsoEnvStrict(t *testing.T, ownership, strict bool) *isoEnv {
 	t.Helper()
 	e := &isoEnv{t: t, cs: store.NewMemory(), own: ownership, ids: map[string]string{}, headrs: map[string]map[string]string{}}
-	hs, _, _ := teamsHarness(t, func(d *Deps) {
-		d.Cases, d.CaseOwnership, d.BOMVersions = e.cs, ownership, true
-		d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}} // also serves plan/estimate
-		withKeys(d)
-	})
+	wsStore, keys := teams.NewMemory(), apikey.New(apikey.NewMemory())
+	build := func(strict bool) harness {
+		hs, _, _ := teamsHarness(t, func(d *Deps) {
+			d.Cases, d.CaseOwnership, d.BOMVersions, d.StrictAuth = e.cs, ownership, true, strict
+			d.Planner = &estimatingPlanner{fakePlanner: &fakePlanner{}} // also serves plan/estimate
+			d.Workspaces, d.APIKeys = wsStore, keys
+		})
+		return hs
+	}
+	hs := build(false)
 	e.hs = hs
 	acme, _ := issueKey(t, hs, "Acme", 1000000)
 	beta, _ := issueKey(t, hs, "Beta", 1000000)
@@ -232,6 +246,9 @@ func newIsoEnv(t *testing.T, ownership bool) *isoEnv {
 	e.ids["demo"] = hs.newCase(t, admin)
 	if code, out := hs.doAs(t, "PUT", "/v1/cases/"+e.ids["demo"]+"/pin", `{"pinned":true}`, admin); code != http.StatusOK {
 		t.Fatalf("pin demo = %d %v", code, out)
+	}
+	if strict {
+		e.hs = build(true)
 	}
 	return e
 }
@@ -282,7 +299,7 @@ func TestIsolationMatrix(t *testing.T) {
 			missing := "case_000000000000"
 			for _, rt := range isoRoutes() {
 				if strings.HasSuffix(rt.pattern, "/pin") {
-					continue // admin-only; see TestAdminRoutesRefuseNonAdmins
+					continue // admin-only; see TestIsolationBadCredentialsAndAdminRoutes
 				}
 				for p, h := range e.headrs {
 					if p == "admin" {

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
 
 // The request principal (#273).
@@ -41,9 +42,8 @@ import (
 // signed-in user (their browser's anonymous cases). Changing a salt or prefix
 // orphans stored data, so they stay as they are.
 //
-// Extension point for roles (#283): add the role (derived from verified
-// membership data only) as a field here and as a method next to canSee. Call
-// sites use principalOf and the methods below, so they need not change.
+// Roles (#283): Role is set from the verified user's stored workspace record
+// only (roles.go says what it governs). Kind and Verified are unchanged.
 
 type principalKind string
 
@@ -72,6 +72,11 @@ type principal struct {
 	Email     string
 	UserOwner string
 	Workspace string
+	// Role is the signed-in user's role in Workspace (#283), as stored in the
+	// workspace record on this request; "" without a workspace, and for an
+	// API key, a visitor or the admin token. It is never read from the
+	// request.
+	Role teams.Role
 }
 
 var visitorIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{16,128}$`)
@@ -95,7 +100,7 @@ func (a *api) principalOf(r *http.Request) principal {
 		p.HasKey, p.KeyID = true, k.ID
 	}
 	if id := identityOf(r.Context()); id.email != "" {
-		p.Email, p.UserOwner, p.Workspace = id.email, id.owner, id.workspace
+		p.Email, p.UserOwner, p.Workspace, p.Role = id.email, id.owner, id.workspace, id.role
 	}
 	switch {
 	case p.Admin:
@@ -171,7 +176,9 @@ func (p principal) teamCanSee(c store.Case) bool {
 	switch {
 	case c.Workspace != "" && c.Workspace == p.Workspace:
 		return true
-	case c.Owner == p.UserOwner:
+	case c.Owner == p.UserOwner && (c.Workspace == "" || c.Workspace == p.Workspace):
+		// Their own, unless it belongs to a workspace they are no longer in
+		// (removed or left): a workspace case is the workspace's (#283).
 		return true
 	case teamCase(c):
 		return false

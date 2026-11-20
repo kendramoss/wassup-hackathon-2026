@@ -174,6 +174,10 @@ type Deps struct {
 	// CaseOwnership limits each visitor to the pinned demos and their own
 	// cases (X-Visitor-ID from the frontend proxy; D58). Off by default.
 	CaseOwnership bool
+	// StrictAuth (STRICT_AUTH, off by default) makes private case operations
+	// need a verified principal: a signed-in user, an API key or the admin
+	// token. A bare X-Visitor-ID is not enough (#283).
+	StrictAuth bool
 	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
 	// D64); nil leaves the route unregistered (404).
 	HTS HTSSuggester
@@ -251,6 +255,10 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusBadRequest, "invalid_input", err.Error()
 	case errors.Is(err, apikey.ErrBadRequest):
 		return http.StatusBadRequest, "invalid_input", err.Error()
+	case errors.Is(err, errNeedsVerified):
+		return http.StatusUnauthorized, "unauthenticated", needsVerifiedError
+	case errors.Is(err, errForbidden):
+		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errSuperseded):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
@@ -291,6 +299,9 @@ type predictRequest struct {
 }
 
 func (a *api) predict(w http.ResponseWriter, r *http.Request) {
+	if !a.mayCreate(w, r) {
+		return
+	}
 	start := time.Now()
 	var in predictRequest
 	if err := decode(w, r, &in); err != nil {
@@ -716,6 +727,10 @@ type caseSummary struct {
 // foreign cases and orphaned health probes can never occupy the slots of the
 // caller's own cases. Health probes are excluded before the cap too.
 func (a *api) listCases(w http.ResponseWriter, r *http.Request) {
+	if a.d.StrictAuth && !a.principalOf(r).Verified() {
+		a.fail(w, r, errNeedsVerified) // STRICT_AUTH: the pinned demos are at /v1/demos
+		return
+	}
 	limit := a.d.CasesListLimit
 	if limit <= 0 {
 		limit = 200
@@ -1208,6 +1223,12 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, err)
 			return
 		}
+	}
+	// Only preview:true (a JSON bool, parsed above) is a read. Anything else
+	// is the recording branch, which a viewer may not reach (#283).
+	if !in.Preview && !a.principalOf(r).allows(c, permEdit) {
+		a.fail(w, r, errForbidden)
+		return
 	}
 	format := strings.ToLower(strings.TrimSpace(in.Format))
 	switch {

@@ -153,6 +153,12 @@ type Config struct {
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
 	// and their own cases; turn on once the frontend sends X-Visitor-ID (D58).
 	CaseOwnership bool
+	// StrictAuth (STRICT_AUTH on|off, default off) makes private case
+	// operations need a verified principal (signed-in user, API key or admin
+	// token): a bare X-Visitor-ID is refused with 401. Pinned demos and the
+	// public endpoints stay open. It is not a claim that visitor IDs
+	// authenticate anyone (#283).
+	StrictAuth bool
 	// BOMVersions is on or off (default): on serves POST
 	// /v1/cases/{id}/bom-version, a newer BOM diffed against the case's
 	// product and re-predicted (D67).
@@ -333,6 +339,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("CASE_OWNERSHIP must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("STRICT_AUTH", "off")); v {
+	case "on", "true", "1":
+		c.StrictAuth = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("STRICT_AUTH must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
 	case "on", "true", "1":

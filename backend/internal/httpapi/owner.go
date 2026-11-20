@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -31,14 +32,33 @@ func (a *api) visible(r *http.Request, c store.Case) bool {
 }
 
 // loadCase gets the case named in the path, as store.ErrNotFound when the
-// request may not see it.
+// request may not see it. It is also where the two #283 rules for a case-scoped
+// route are applied, because every such route reads through here:
+//
+//   - STRICT_AUTH: a request without a verified principal gets errNeedsVerified
+//     for any case that is not a pinned demo, the same answer whether the case
+//     is the caller's, someone else's or does not exist.
+//   - roles: a case the principal may see but their workspace role does not
+//     allow this route to touch is errForbidden (403). A hidden case is still
+//     ErrNotFound (404). Export decides its recording branch itself (permExport).
 func (a *api) loadCase(r *http.Request) (store.Case, error) {
+	p := a.principalOf(r)
+	strict := a.d.StrictAuth && !p.Verified()
 	c, err := a.d.Cases.Get(r.Context(), r.PathValue("id"))
 	if err != nil {
+		if strict && errors.Is(err, store.ErrNotFound) {
+			return store.Case{}, errNeedsVerified
+		}
 		return store.Case{}, err
 	}
-	if !a.visible(r, c) {
+	if strict && !c.Pinned {
+		return store.Case{}, errNeedsVerified
+	}
+	if !p.canSee(c, a.d.CaseOwnership) {
 		return store.Case{}, store.ErrNotFound
+	}
+	if need := permOf(r); need == permEdit && !p.allows(c, need) {
+		return store.Case{}, errForbidden
 	}
 	return c, nil
 }

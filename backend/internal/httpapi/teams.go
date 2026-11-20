@@ -38,8 +38,9 @@ const userOwnerPrefix = "u_"
 // identity is the signed-in user behind a request.
 type identity struct {
 	email     string
-	owner     string // userOwner(email)
-	workspace string // workspace ID, or "" for a user without one
+	owner     string     // userOwner(email)
+	workspace string     // workspace ID, or "" for a user without one
+	role      teams.Role // the user's role in it, from the stored workspace on this request
 }
 
 type userKey struct{}
@@ -90,6 +91,7 @@ func (a *api) withUser(next http.Handler) http.Handler {
 		switch ws, err := a.d.Workspaces.Of(r.Context(), u.Email); {
 		case err == nil:
 			id.workspace = ws.ID
+			id.role, _ = ws.RoleOf(u.Email) // joined: Of found them by membership
 		case !errors.Is(err, teams.ErrNotFound):
 			a.fail(w, r, err)
 			return
@@ -151,7 +153,11 @@ type workspaceDTO struct {
 	Invited   []string  `json:"invited"` // pending invitations
 	CreatedBy string    `json:"created_by"`
 	CreatedAt time.Time `json:"created_at"`
-	Admin     bool      `json:"admin"` // the caller administers it
+	Admin     bool      `json:"admin"` // the caller's role is admin
+	Role      string    `json:"role"`  // the caller's role: viewer, editor or admin
+	// MemberRoles maps each joined member's email to their role; sent to
+	// admins only (the member emails are already visible to every member).
+	MemberRoles map[string]string `json:"member_roles,omitempty"`
 }
 
 func workspaceOut(w teams.Workspace, email string) workspaceDTO {
@@ -162,7 +168,16 @@ func workspaceOut(w teams.Workspace, email string) workspaceDTO {
 	if invited == nil {
 		invited = []string{}
 	}
-	return workspaceDTO{ID: w.ID, Name: w.Name, Members: members, Invited: invited, CreatedBy: w.CreatedBy, CreatedAt: w.CreatedAt, Admin: w.IsAdmin(email)}
+	role, _ := w.RoleOf(email)
+	out := workspaceDTO{ID: w.ID, Name: w.Name, Members: members, Invited: invited, CreatedBy: w.CreatedBy, CreatedAt: w.CreatedAt, Admin: role == teams.RoleAdmin, Role: string(role)}
+	if out.Admin {
+		out.MemberRoles = make(map[string]string, len(w.Members))
+		for _, m := range w.Members {
+			r, _ := w.RoleOf(m)
+			out.MemberRoles[m] = string(r)
+		}
+	}
+	return out
 }
 
 // inviteDTO is a pending invitation as the invitee sees it: who invited
@@ -184,6 +199,14 @@ func (a *api) workspaceError(w http.ResponseWriter, r *http.Request, err error, 
 		writeError(w, http.StatusConflict, "conflict", member, nil)
 	case errors.Is(err, teams.ErrFull):
 		writeError(w, http.StatusConflict, "conflict", err.Error(), nil)
+	case errors.Is(err, teams.ErrForbidden):
+		writeError(w, http.StatusForbidden, "forbidden", "only a workspace admin can do that", nil)
+	case errors.Is(err, teams.ErrNotMember):
+		writeError(w, http.StatusNotFound, "not_found", "no such member", nil)
+	case errors.Is(err, teams.ErrLastAdmin):
+		writeError(w, http.StatusConflict, "conflict", "a workspace needs at least one admin: make another member an admin first", nil)
+	case errors.Is(err, teams.ErrInvalidRole):
+		writeError(w, http.StatusBadRequest, "invalid_input", err.Error(), nil)
 	default:
 		a.fail(w, r, err)
 	}
@@ -212,7 +235,8 @@ func (a *api) createWorkspace(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: name must be 1 to %d characters", domain.ErrInvalid, teams.MaxName))
 		return
 	}
-	ws := teams.Workspace{ID: "ws_" + newID()[:12], Name: name, Members: []string{id.email}, CreatedBy: id.email, CreatedAt: time.Now().UTC()}
+	ws := teams.Workspace{ID: "ws_" + newID()[:12], Name: name, Members: []string{id.email}, CreatedBy: id.email, CreatedAt: time.Now().UTC(),
+		Roles: map[string]string{id.email: string(teams.RoleAdmin)}}
 	if err := a.d.Workspaces.Create(r.Context(), ws); err != nil {
 		a.workspaceError(w, r, err, alreadyInOne)
 		return
@@ -253,7 +277,7 @@ type addMemberRequest struct {
 	Email string `json:"email"`
 }
 
-// addMember invites a user to the workspace; only its admin (creator) may.
+// addMember invites a user to the workspace; only an admin may.
 // The invitee is not a member, and their cases are not shared, until they
 // sign in and accept (joinWorkspace). A workspace the caller is not in is a
 // 404, so its existence does not leak.
@@ -277,16 +301,9 @@ func (a *api) addMember(w http.ResponseWriter, r *http.Request) {
 		a.workspaceError(w, r, teams.ErrNotFound, "")
 		return
 	}
-	ws, err := a.d.Workspaces.Get(r.Context(), wsID)
-	if err != nil {
-		a.workspaceError(w, r, err, "")
-		return
-	}
-	if !ws.IsAdmin(id.email) {
-		writeError(w, http.StatusForbidden, "forbidden", "only the workspace's admin can invite members", nil)
-		return
-	}
-	saved, err := a.d.Workspaces.Invite(r.Context(), wsID, email)
+	// The admin check is made by the store on the stored workspace, in the
+	// same atomic step as the write: a role changed a moment ago still counts.
+	saved, err := a.d.Workspaces.Invite(r.Context(), wsID, id.email, email)
 	if err != nil {
 		a.workspaceError(w, r, err, "that user is already a member of this workspace")
 		return
@@ -313,4 +330,83 @@ func (a *api) joinWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, workspaceOut(ws, id.email))
+}
+
+type setRoleRequest struct {
+	Role string `json:"role"`
+}
+
+// memberEmail reads and checks the {email} path value.
+func (a *api) memberEmail(w http.ResponseWriter, r *http.Request) (string, bool) {
+	email, ok := teams.NormalEmail(r.PathValue("email"))
+	if !ok {
+		a.fail(w, r, fmt.Errorf("%w: email is not a valid address", domain.ErrInvalid))
+	}
+	return email, ok
+}
+
+// setMemberRole changes a joined member's role (PUT
+// /v1/workspaces/{id}/members/{email}/role). The workspace must be the
+// caller's own (else 404, as for an unknown one); the store checks that the
+// caller is an admin and that an admin remains, in one atomic step.
+func (a *api) setMemberRole(w http.ResponseWriter, r *http.Request) {
+	id, ok := requireUser(w, r)
+	if !ok {
+		return
+	}
+	target, ok := a.memberEmail(w, r)
+	if !ok {
+		return
+	}
+	var in setRoleRequest
+	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	role, valid := teams.ParseRole(in.Role)
+	if !valid {
+		a.fail(w, r, fmt.Errorf("%w: role must be viewer, editor or admin", domain.ErrInvalid))
+		return
+	}
+	wsID := r.PathValue("id")
+	if wsID != id.workspace {
+		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	saved, err := a.d.Workspaces.SetRole(r.Context(), wsID, id.email, target, role)
+	if err != nil {
+		a.workspaceError(w, r, err, "")
+		return
+	}
+	writeJSON(w, http.StatusOK, workspaceOut(saved, id.email))
+}
+
+// removeMember removes a member (DELETE /v1/workspaces/{id}/members/{email}):
+// an admin may remove anyone, a member may remove themselves (leave). The
+// removed user keeps their personal cases but loses the workspace's, including
+// ones they made: those belong to the workspace.
+func (a *api) removeMember(w http.ResponseWriter, r *http.Request) {
+	id, ok := requireUser(w, r)
+	if !ok {
+		return
+	}
+	target, ok := a.memberEmail(w, r)
+	if !ok {
+		return
+	}
+	wsID := r.PathValue("id")
+	if wsID != id.workspace {
+		a.workspaceError(w, r, teams.ErrNotFound, "")
+		return
+	}
+	saved, err := a.d.Workspaces.Remove(r.Context(), wsID, id.email, target)
+	if err != nil {
+		a.workspaceError(w, r, err, "")
+		return
+	}
+	var view any // the caller's updated view; null once they have left
+	if saved.HasMember(id.email) {
+		view = workspaceOut(saved, id.email)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"removed": target, "workspace": view})
 }

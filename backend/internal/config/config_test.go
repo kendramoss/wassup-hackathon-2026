@@ -504,3 +504,30 @@ func TestEvalSliceConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestStrictAuthConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || c.StrictAuth {
+		t.Fatalf("STRICT_AUTH default = %v %v, want off", c.StrictAuth, err)
+	}
+	for _, v := range []string{"on", "ON", "true", "1"} {
+		if on, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"STRICT_AUTH": v}))); err != nil || !on.StrictAuth {
+			t.Errorf("STRICT_AUTH=%s = %v %v", v, on.StrictAuth, err)
+		}
+	}
+	for _, v := range []string{"off", "false", "0", ""} {
+		if off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"STRICT_AUTH": v}))); err != nil || off.StrictAuth {
+			t.Errorf("STRICT_AUTH=%q = %v %v", v, off.StrictAuth, err)
+		}
+	}
+	for _, v := range []string{"maybe", "yes", "2"} {
+		if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"STRICT_AUTH": v}))); err == nil || !strings.Contains(err.Error(), "STRICT_AUTH") {
+			t.Errorf("STRICT_AUTH=%q accepted: %v", v, err)
+		}
+	}
+	// It is independent of CASE_OWNERSHIP: neither turns the other on.
+	both, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"STRICT_AUTH": "on"})))
+	if err != nil || both.CaseOwnership {
+		t.Errorf("STRICT_AUTH turned CASE_OWNERSHIP on: %v %v", both.CaseOwnership, err)
+	}
+}
