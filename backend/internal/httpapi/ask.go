@@ -238,11 +238,11 @@ func agentCaseText(c store.Case) string {
 	if c.Plan != nil {
 		fmt.Fprintf(&b, "\nPLAN SEARCH (target %s):\n", c.Plan.Target)
 		for _, pl := range c.Plan.Plans {
-			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; precedent check %.2f, supporting %s; net $%.0f/yr\n", pl.Description, pl.Prediction.Origin,
-				verdictConf(pl), verdictRuling(pl), pl.NetYear)
+			fmt.Fprintf(&b, "- SHOWN: %s; predicted %s; %s; %s\n", pl.Description, pl.Prediction.Origin,
+				precedentCheckText(pl, true), netText(c, pl))
 		}
 		for _, pl := range c.Plan.Rejected {
-			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; precedent check %.2f\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, verdictConf(pl))
+			fmt.Fprintf(&b, "- not shown (%s): %s; predicted %s; %s\n", pl.RejectionKind, pl.Description, pl.Prediction.Origin, precedentCheckText(pl, false))
 		}
 	}
 	for _, s := range c.Scenarios {
@@ -263,11 +263,32 @@ func verdictConf(p domain.Plan) float64 {
 	return p.Verdict.Confidence
 }
 
-func verdictRuling(p domain.Plan) string {
-	if p.Verdict == nil || p.Verdict.SupportingRuling == "" {
-		return "none"
+// precedentCheckText states the precedent check as it stands: a plan with no
+// verdict never had one run, which is not the same as a confidence of 0.00.
+func precedentCheckText(p domain.Plan, withRuling bool) string {
+	if p.Verdict == nil {
+		return "precedent check not run"
 	}
-	return p.Verdict.SupportingRuling
+	s := fmt.Sprintf("precedent check %.2f", p.Verdict.Confidence)
+	if withRuling {
+		ruling := p.Verdict.SupportingRuling
+		if ruling == "" {
+			ruling = "none"
+		}
+		s += ", supporting " + ruling
+	}
+	return s
+}
+
+// netText states a plan's yearly net only when it could be priced: the case
+// has an annual import value, or the plan itself carries computed money. The
+// plan stores plain numbers, so without either a 0 means "not worked out".
+func netText(c store.Case, p domain.Plan) string {
+	priced := (c.Economics != nil && c.Economics.AnnualImportValueUSD > 0) || p.NetYear != 0 || p.DutyEffectYear != 0 || p.AddedCostYear != 0
+	if !priced {
+		return "net not priced"
+	}
+	return fmt.Sprintf("net $%.0f/yr", p.NetYear)
 }
 
 // maxAskMemo caps the remembered answers per instance.
