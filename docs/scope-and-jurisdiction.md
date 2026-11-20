@@ -108,7 +108,7 @@ The two audits are kept unchanged as historical records (#286). Their scope sent
 | "substantial transformation test (name, character, and use)" | **Not verified here.** 134.1(b) as fetched says "substantial transformation" only; the name, character and use formulation comes from case law that was not retrieved. | eCFR 134.1. |
 | Engine described only as substantial transformation | **Incomplete.** The code also has flag-gated textile (102.21), Part 102 (102.11, 102.20) and pharmaceutical engines. | Section 2. |
 
-Two items in this repo's own wording that this review could not settle and should not be read as confirmed:
+Three items in this repo's own wording that this review could not settle and should not be read as confirmed:
 
 - The Part 102 engine prompt says the rules apply to "the marking of goods processed in Canada or Mexico (USMCA) and other non-textile goods" (`usmca.go:12`). Under 134.1(b) and 102.0 the Part 102 rules govern the marking origin of a good of a NAFTA or USMCA country; the router label is narrower (`router.go:41` sends non-USMCA marking and Section 301 questions to `substantial_transformation`). The prompt sentence is looser than the regulation. Not edited here.
 - The router label description for `usmca_part102` includes cases where "the request asks whether the good qualifies for USMCA or NAFTA preference" (`router.go:41`). The engine behind that label answers a marking question (above). A preference question that reaches that label therefore gets a marking-origin answer, always reviewed while the bar is 0, and must not be read as a preference answer.
@@ -143,11 +143,11 @@ Before any coverage claim for either scope, all of the following must exist as s
 | Review by a qualified professional | Review of rules, data use and output wording by a qualified EU customs or trade-law professional. Not done. | Review by a qualified U.S./USMCA customs or trade-law professional. Not done. |
 | Product and copy changes | Jurisdiction selection, results wording that cannot be read as U.S. output, and removal of the unsupported-use-case copy for this scope only after the above. | Preference/certificate wording, separation from marking origin on every result and export, and removal of the unsupported copy only after the above. |
 
-The two scopes are independent: finishing one gives no claim for the other. Until both are met for a scope, the product copy in section 6 stays. The proposed wording is in the unit report (`ledger/reports/282-proposed-copy.md`) for the product-copy owner; this document does not change the product.
+The two scopes are independent: finishing one gives no claim for the other. Until both are met for a scope, the product copy in section 6 stays. The product wording for what the tool is for is in the `jurisdiction.*` keys of `frontend/src/lib/copy.ts`; this document does not change the product.
 
 ## 8. What was not verified
 
-- Deployed values. `.github/workflows/deploy.yml:72` (last changed in `d7e253b`) sets `TEXTILE_ENGINE=on`, `TEXTILE_FAST_PATH=0.95`, `TEXTILE_PROMPT=v2`, `PHARMA_ENGINE=on`, `PHARMA_FAST_PATH=0.85`, `USMCA_ENGINE=on`, `USMCA_FAST_PATH=0.95`, `EXPORT_CFR177=on` on deploy. That file is intended configuration, not proof of the live service, and the live service was not inspected: **LIVE UNVERIFIED**. The code defaults in section 2 differ from that intent (all engines off, fast paths 0). This review did not check that each deployed bar is backed by a recorded held-out run; `eval/RESULTS.md` records the held-out run for `textile-v2` as not run.
+- Deployed values. As of 20 November 2026, `.github/workflows/deploy.yml:72` sets `TEXTILE_ENGINE=on`, `TEXTILE_FAST_PATH=0.95`, `TEXTILE_PROMPT=v2`, `PHARMA_ENGINE=on`, `PHARMA_FAST_PATH=0.85`, `USMCA_ENGINE=on`, `USMCA_FAST_PATH=0.95`, `EXPORT_CFR177=on` on deploy. That file is intended configuration, not proof of the live service, and the live service was not inspected: **LIVE UNVERIFIED**. The code defaults in section 2 differ from that intent (all engines off, fast paths 0). This review did not check that each deployed bar is backed by a recorded held-out run; `eval/RESULTS.md` records the held-out run for `textile-v2` as not run.
 - Which office accepts an origin ruling request, and the RVC "sliding-scale" wording (section 5).
 - Anything in CBP rulings retrieval (access was denied earlier and not retried).
 - Behaviour on non-U.S. text: no test submits non-U.S. facts to the router or engines.
@@ -155,4 +155,4 @@ The two scopes are independent: finishing one gives no claim for the other. Unti
 
 ## 9. Research record
 
-Official eCFR section text for 19 CFR 102.0, 102.11, 102.21, 134.1, 177.1, 177.2 (six pages, `https://www.ecfr.gov/api/versioner/v1/full/2026-11-18/title-19.xml?part=<part>&section=<section>`) was read on 20 November 2026. No web search was made. Nothing was fetched from CBP. Pages are kept in `readiness-11/ledger/research282/pages/` with `pages.sha256`. The eCFR text is as published on that date, not a legal opinion on it.
+Official eCFR section text for 19 CFR 102.0, 102.11, 102.21, 134.1, 177.1, 177.2 (six pages, `https://www.ecfr.gov/api/versioner/v1/full/2026-11-18/title-19.xml?part=<part>&section=<section>`) was read on 20 November 2026. No web search was made. Nothing was fetched from CBP. The saved pages are not committed to this repository; the URL pattern above reproduces them, and the eCFR may have changed since. The eCFR text is as published on that date, not a legal opinion on it.

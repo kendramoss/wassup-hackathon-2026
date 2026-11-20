@@ -13,7 +13,7 @@ Streaming predict (D71) already has its frontend part (the product step's stage 
 - `prediction.trace.prompt_version` is `usmca-v1` or `pharma-v1`.
 
 **Frontend:**
-- On the Result screen, show which rules decided the case, the way textile does: a small chip such as "Pharmaceutical rules" or "USMCA rules (19 CFR 102)".
+- On the Result screen, show which rules decided the case, the way textile does: a small chip such as "Pharmaceutical rules" or "Part 102 marking origin".
 - Hide the plan search for these regimes. Moves are not modelled for them, the same as for textile.
 - **Accuracy page:** add two cards to "Beyond substantial transformation", from `GET /v1/eval/summary` items once they're added (pharma held-out 89.3%, 100% at ≥ 0.95; USMCA held-out 78.1%, 100% at ≥ 0.95). If the items aren't in the summary yet, add them in `cmd/eval summary` the same way the textile items are (D60).
 

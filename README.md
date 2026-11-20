@@ -82,6 +82,7 @@ Across 182 precedent checks that cleared the bar, none was wrong. The bar is str
 
 - **The planner is the least tested part.** A clean test needs CBP rulings published after 25 Sep 2026, and none with an origin holding existed yet on 18 Oct.
 - **Benchmark claims are reconciled, with limits.** Every headline number is recomputed from committed files by `cd backend && go run ./cmd/claimscheck`; the 60.5% baseline cannot be reproduced from this repository. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
+- **U.S. origin only.** The tool answers U.S. CBP country-of-origin questions under four regimes (substantial transformation, textile 19 CFR 102.21, Part 102 marking origin, pharmaceutical active ingredient). EU Binding Origin Information, USMCA regional value content and preferential-origin claims are not supported, and nothing detects or blocks a question about another country's rules. See [docs/scope-and-jurisdiction.md](docs/scope-and-jurisdiction.md).
 - **Plans count duty and the costs you enter only**, not feasibility, tooling, capacity or transition costs.
 - **Three product families** have plan templates (motorised tools and small appliances, LiDAR modules, LED lights). Adding one is a template file.
 - **Results vary a little run to run.** A fixed seed and a verdict cache keep repeat searches stable.
