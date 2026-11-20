@@ -5,6 +5,7 @@ import (
 	"maps"
 	"math"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -23,13 +24,14 @@ const (
 type Rule func(slog.Value) (slog.Value, bool)
 
 var (
-	enumRE  = regexp.MustCompile(`^[A-Za-z0-9._:/+-]{1,80}$`)
-	modelRE = regexp.MustCompile(`^(gemini|gemma|text-embedding|textembedding|embedding|claude|gpt|fake)[A-Za-z0-9._:/+-]{0,60}$`)
-	toolRE  = regexp.MustCompile(`^[a-z][a-z0-9_]{1,40}$`)
-	idRE    = regexp.MustCompile(`^((case|ws|key)_[0-9a-f]{8,32}|[0-9a-f]{16}|h_[0-9a-f]{16})$`)
+	enumRE    = regexp.MustCompile(`^[A-Za-z0-9._:/+-]{1,80}$`)
+	modelRE   = regexp.MustCompile(`^(gemini|gemma|text-embedding|textembedding|embedding|claude|gpt|fake)[A-Za-z0-9._:/+-]{0,60}$`)
+	versionRE = regexp.MustCompile(`^[0-9]{1,8}$`)
+	toolRE    = regexp.MustCompile(`^[a-z][a-z0-9_]{1,40}$`)
+	idRE      = regexp.MustCompile(`^((case|ws|key)_[0-9a-f]{8,32}|[0-9a-f]{16}|h_[0-9a-f]{16})$`)
 )
 
-// Enum accepts a short string of letters, digits and ._:/+- only (no '@', no
+// Enum accepts a short string (a SHAPE helper, NOT used by any default key) of letters, digits and ._:/+- only (no '@', no
 // spaces). It is a shape limit, not a privacy proof: it narrows what an
 // allowed key can carry. Prefer OneOf for small closed sets.
 func Enum() Rule {
@@ -38,12 +40,34 @@ func Enum() Rule {
 	}
 }
 
-// ModelID accepts a model identifier that starts with a known model family
+// ModelID accepts a model identifier (a SHAPE helper, not a default allow) that starts with a known model family
 // (gemini, gemma, text-embedding, claude, gpt, fake) followed by the usual
 // version characters. Extend with Allow for other families.
 func ModelID() Rule {
 	return func(v slog.Value) (slog.Value, bool) {
 		return v, v.Kind() == slog.KindString && modelRE.MatchString(v.String())
+	}
+}
+
+// ModelSet accepts exactly the registered model ids, or a registered id plus
+// "-" and 1..8 digits (a provider-reported version suffix). Nothing else.
+func ModelSet(ids ...string) Rule {
+	set := map[string]bool{}
+	for _, s := range ids {
+		set[s] = true
+	}
+	return func(v slog.Value) (slog.Value, bool) {
+		if v.Kind() != slog.KindString {
+			return v, false
+		}
+		s := v.String()
+		if set[s] {
+			return v, true
+		}
+		if i := strings.LastIndexByte(s, '-'); i > 0 && set[s[:i]] && versionRE.MatchString(s[i+1:]) {
+			return v, true
+		}
+		return v, false
 	}
 }
 
@@ -63,7 +87,7 @@ func OneOf(vals ...string) Rule {
 	return func(v slog.Value) (slog.Value, bool) { return v, v.Kind() == slog.KindString && set[v.String()] }
 }
 
-// ID accepts a server-minted identifier form: case_/ws_/key_ plus hex, a
+// ID is a SHAPE helper (NOT used by any default key: raw ids use the opaque Ref): case_/ws_/key_ plus hex, a
 // 16-hex request id, or the h_<16 hex> form of RequestID.
 func ID() Rule {
 	return func(v slog.Value) (slog.Value, bool) {
@@ -171,16 +195,18 @@ func DefaultPolicy() *Policy {
 		"daily_quota", "system_chars", "messages", "text_chars", "http_status", keyMaskedAttrs} {
 		p.keys[k] = Number()
 	}
-	for _, k := range []string{"finish_reason", "check", "regime"} {
-		p.keys[k] = Enum()
-	}
-	p.keys["model"], p.keys["model_id"] = ModelID(), ModelID()
+	// Closed value sets only. model, model_id and tool_calls have no default
+	// (register them at wiring with AllowModels / AllowTools); check has no
+	// call site and no default; ids accept only the opaque Ref.
+	p.keys["finish_reason"] = OneOf("STOP", "MAX_TOKENS", "SAFETY", "RECITATION", "LANGUAGE", "OTHER", "BLOCKLIST",
+		"PROHIBITED_CONTENT", "SPII", "MALFORMED_FUNCTION_CALL", "IMAGE_SAFETY", "UNEXPECTED_TOOL_CALL",
+		"FINISH_REASON_UNSPECIFIED", "stop", "length", "tool_calls", "content_filter", "function_call")
+	p.keys["regime"] = OneOf("substantial_transformation", "textile_102_21", "usmca_part102", "pharma_api", "unknown")
 	p.keys["provider"] = OneOf("vertex", "fake", "litellm-eval")
 	p.keys["method"] = OneOf("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
 	for _, k := range []string{"request_id", "case", "key_id"} {
-		p.keys[k] = ID()
+		p.keys[k] = refRule
 	}
-	p.keys["tool_calls"] = StringList(ToolName())
 	classes := make([]string, len(allClasses))
 	for i, c := range allClasses {
 		classes[i] = string(c)
@@ -194,6 +220,20 @@ func DefaultPolicy() *Policy {
 
 // Allow registers (or replaces) the rule for key.
 func (p *Policy) Allow(key string, r Rule) *Policy { p.keys[key] = r; return p }
+
+// AllowModels registers the closed set of configured model ids for the model
+// and model_id keys (see ModelSet). Call once at wiring with the configured
+// models; until then both keys are masked.
+func (p *Policy) AllowModels(ids ...string) *Policy {
+	p.keys["model"], p.keys["model_id"] = ModelSet(ids...), ModelSet(ids...)
+	return p
+}
+
+// AllowTools registers the closed set of tool names for the tool_calls key.
+func (p *Policy) AllowTools(names ...string) *Policy {
+	p.keys["tool_calls"] = StringList(OneOf(names...))
+	return p
+}
 
 // AllowGroup registers a group name.
 func (p *Policy) AllowGroup(name string) *Policy { p.groups[name] = true; return p }

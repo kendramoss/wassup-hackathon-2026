@@ -2,6 +2,7 @@ package logsafe
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -37,5 +38,29 @@ func TestRequestIDHashMatchesAuditContractForm(t *testing.T) {
 func TestRequestIDMintedIsNotRevalidated(t *testing.T) {
 	if got := RequestID("", func() string { return "feedfacefeedface" }); got != "feedfacefeedface" {
 		t.Fatal(got)
+	}
+}
+
+func TestPlantedClientIDsNeverLoggedByteForByte(t *testing.T) {
+	l, buf, _ := newTest(t, DefaultPolicy())
+	for _, in := range []string{"0123456789abcdef", "h_0123456789abcdef", sentTokenRID, "deadbeefdeadbeefdeadbeef"} {
+		buf.Reset()
+		ref := RequestRef(in, func() string { return "ffffffffffffffff" })
+		l.InfoContext(bg, "request", "request_id", ref)
+		if strings.Contains(buf.String(), `"`+in+`"`) || ref.String() == in || !hashedID.MatchString(ref.String()) {
+			t.Fatalf("client id %q logged raw: %s", in, buf.String())
+		}
+	}
+}
+
+func TestRequestRefMintGuards(t *testing.T) {
+	for _, mint := range []func() string{nil, func() string { return "" }, func() string { return sentEmail }, func() string { return "ABCDEF12" }} {
+		got := RequestRef("", mint).String()
+		if len(got) != 16 || strings.Contains(got, "@") {
+			t.Fatalf("bad fallback id %q", got)
+		}
+	}
+	if RequestRef("", func() string { return "0123abcd" }).String() != "0123abcd" {
+		t.Fatal("valid server id changed")
 	}
 }

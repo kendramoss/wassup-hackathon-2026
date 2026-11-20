@@ -64,11 +64,11 @@ func TestAnyStructMapStringerMasked(t *testing.T) {
 	l, buf, _ := newTest(t, DefaultPolicy())
 	var s bool
 	l.InfoContext(bg, "request",
-		"model", secretStruct{sentSupplier, sentBOM},
-		"model_id", map[string]string{"k": sentBOM},
+		"regime", secretStruct{sentSupplier, sentBOM},
+		"method", map[string]string{"k": sentBOM},
 		"provider", tripStringer{&s},
 		"finish_reason", []string{sentSupplier},
-		"tool_calls", []any{sentBOM},
+		"class", []any{sentBOM},
 		"status", "not-a-number "+sentToken)
 	assertClean(t, buf.String())
 	if s {
@@ -78,7 +78,7 @@ func TestAnyStructMapStringerMasked(t *testing.T) {
 	if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 		t.Fatal(err)
 	}
-	for _, k := range []string{"model", "model_id", "provider", "finish_reason", "tool_calls", "status"} {
+	for _, k := range []string{"regime", "method", "provider", "finish_reason", "class", "status"} {
 		if m[k] != "[masked]" {
 			t.Fatalf("%s = %v, want [masked]", k, m[k])
 		}
@@ -87,52 +87,107 @@ func TestAnyStructMapStringerMasked(t *testing.T) {
 
 func TestMaskedValueIsConstantNoLengthOrPrefix(t *testing.T) {
 	l, buf, _ := newTest(t, DefaultPolicy())
-	l.InfoContext(bg, "request", "model_id", sentToken)
+	l.InfoContext(bg, "request", "regime", sentToken)
 	a := buf.String()
 	buf.Reset()
-	l.InfoContext(bg, "request", "model_id", sentToken+strings.Repeat("x", 500))
+	l.InfoContext(bg, "request", "regime", sentToken+strings.Repeat("x", 500))
 	b := buf.String()
 	strip := func(s string) string {
 		var m map[string]any
 		_ = json.Unmarshal([]byte(s), &m)
-		return fmt.Sprint(m["model_id"])
+		return fmt.Sprint(m["regime"])
 	}
 	if strip(a) != "[masked]" || strip(a) != strip(b) {
 		t.Fatalf("masked values differ or leak shape: %q %q", strip(a), strip(b))
 	}
 }
 
-func TestValuePatterns(t *testing.T) {
+// Valid-SHAPE attempts: look like ids, tokens, tool names, model ids, enums.
+var shapeAttempts = []string{sentToken, sentTokenRID, "0123456789abcdef", "h_0123456789abcdef", "case_0123456789ab",
+	"pn_285_synth_0001", "gemini-4-argon-SYNTH285", "SAFETY_ZZ285", "stop-285-synth", sentSupplier, sentEmail}
+
+// Every default key that is not a number must refuse every attempt, as a
+// string and as a one-element list. Iterating the live policy means a key
+// added later is covered automatically.
+func TestEveryDefaultKeyRefusesValidShapedSentinels(t *testing.T) {
+	p := DefaultPolicy()
+	for key := range p.keys {
+		for _, attempt := range shapeAttempts {
+			l, buf, _ := newTest(t, p)
+			l.InfoContext(bg, "request", key, attempt)
+			l.InfoContext(bg, "request", key, []string{attempt})
+			l.InfoContext(bg, "request", key, slog.StringValue(attempt))
+			out := buf.String()
+			if strings.Contains(out, attempt) {
+				t.Errorf("key %q emitted attempt %q: %s", key, attempt, out)
+			}
+		}
+	}
+}
+
+func TestIDKeysAcceptOnlyOpaqueRef(t *testing.T) {
 	l, buf, _ := newTest(t, DefaultPolicy())
-	l.InfoContext(bg, "llm call", "model", "gemini-9-pro", "model_id", sentEmail, "request_id", sentTokenRID, "case", "case_0123456789ab", "key_id", sentBOM)
+	rr := RequestRef(sentTokenRID, nil)
+	mc, ok := MintedRef("case_0123456789ab")
+	if !ok {
+		t.Fatal("minted ref rejected")
+	}
+	l.InfoContext(bg, "request", "request_id", rr, "case", mc, "key_id", mc)
+	l.InfoContext(bg, "request", "request_id", "0123456789abcdef", "case", "case_0123456789ab", "key_id", "deadbeefdeadbeef")
+	l.InfoContext(bg, "request", "request_id", Ref{})
 	out := buf.String()
 	assertClean(t, out)
-	for _, want := range []string{`"model":"gemini-9-pro"`, `"case":"case_0123456789ab"`, `"model_id":"[masked]"`, `"request_id":"[masked]"`, `"key_id":"[masked]"`} {
-		if !strings.Contains(out, want) {
-			t.Fatalf("missing %s in %s", want, out)
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	if !strings.Contains(lines[0], rr.String()) || !strings.Contains(lines[0], `"case":"case_0123456789ab"`) {
+		t.Fatalf("refs lost: %s", lines[0])
+	}
+	if strings.Contains(lines[1], "0123456789abcdef") || strings.Contains(lines[1], "deadbeef") || strings.Count(lines[1], "[masked]") != 3 {
+		t.Fatalf("raw ids must be masked: %s", lines[1])
+	}
+	if !strings.Contains(lines[2], `"request_id":"[masked]"`) {
+		t.Fatalf("zero ref must be masked: %s", lines[2])
+	}
+}
+
+func TestMintedRefRejectsOtherShapes(t *testing.T) {
+	for _, s := range []string{"", sentTokenRID, sentEmail, "h_0123456789abcdef", "case_xyz", "0123456789ABCDEF"} {
+		if _, ok := MintedRef(s); ok {
+			t.Errorf("MintedRef(%q) accepted", s)
 		}
+	}
+}
+
+func TestRegisteredModelsAndTools(t *testing.T) {
+	p := DefaultPolicy().AllowModels("gemini-4-argon").AllowTools("what_if", "search_rulings")
+	l, buf, _ := newTest(t, p)
+	l.InfoContext(bg, "llm call", "model", "gemini-4-argon", "model_id", "gemini-4-argon-001", "tool_calls", []string{"what_if"})
+	good := buf.String()
+	if strings.Contains(good, "[masked]") || !strings.Contains(good, `"model_id":"gemini-4-argon-001"`) {
+		t.Fatalf("registered values lost: %s", good)
+	}
+	buf.Reset()
+	l.InfoContext(bg, "llm call", "model", "gemini-4-argon-SYNTH285", "model_id", "gemini-4-argonX", "tool_calls", []string{"pn_285_synth_0001"})
+	l.InfoContext(bg, "llm call", "model", "gemini-4-argon-"+sentToken, "model_id", "gemini-4-argon-123456789")
+	out := buf.String()
+	if strings.Contains(out, "SYNTH") || strings.Contains(out, "argonX") || strings.Contains(out, "123456789") || strings.Contains(out, "pn_285") {
+		t.Fatalf("unregistered shapes leaked: %s", out)
+	}
+	// Without registration both keys are masked.
+	l, buf, _ = newTest(t, DefaultPolicy())
+	l.InfoContext(bg, "llm call", "model", "gemini-4-argon", "tool_calls", []string{"what_if"})
+	if strings.Contains(buf.String(), "gemini") || strings.Contains(buf.String(), "what_if") {
+		t.Fatalf("default must mask model and tool_calls: %s", buf.String())
 	}
 }
 
 func TestClosedValueSets(t *testing.T) {
 	l, buf, _ := newTest(t, DefaultPolicy())
-	l.InfoContext(bg, "request", "method", "GET", "provider", "vertex")
-	l.InfoContext(bg, "request", "method", sentSupplier, "provider", sentBOM)
+	l.InfoContext(bg, "request", "method", "GET", "provider", "vertex", "finish_reason", "STOP", "regime", "pharma_api")
+	l.InfoContext(bg, "request", "method", sentSupplier, "provider", sentBOM, "finish_reason", sentToken, "regime", sentTokenRID)
 	out := buf.String()
 	assertClean(t, out)
-	if strings.Count(out, `[masked]`) != 2 || !strings.Contains(out, `"method":"GET"`) {
+	if strings.Count(out, `[masked]`) != 4 || !strings.Contains(out, `"method":"GET"`) || !strings.Contains(out, `"regime":"pharma_api"`) {
 		t.Fatalf("closed sets wrong: %s", out)
-	}
-}
-
-func TestToolCallsStringListOnly(t *testing.T) {
-	l, buf, _ := newTest(t, DefaultPolicy())
-	l.InfoContext(bg, "llm call", "tool_calls", []string{"search_rulings", "what_if"})
-	l.InfoContext(bg, "llm call", "tool_calls", []string{"search_rulings", sentSupplier})
-	out := buf.String()
-	assertClean(t, out)
-	if !strings.Contains(out, `["search_rulings","what_if"]`) {
-		t.Fatalf("good list lost: %s", out)
 	}
 }
 
@@ -177,9 +232,11 @@ func TestDebugContentMessageNotKnown(t *testing.T) {
 }
 
 func TestOperationalFieldsKept(t *testing.T) {
-	l, buf, _ := newTest(t, DefaultPolicy())
-	l.InfoContext(bg, "llm call", "provider", "vertex", "model", "gemini-9-pro", "latency_ms", int64(12), "model_id", "gemini-9-pro-001",
-		"input_tokens", 10, "output_tokens", 5, "tool_calls", []string{"what_if"}, "finish_reason", "stop", "request_id", "0123456789abcdef",
+	p := DefaultPolicy().AllowModels("gemini-4-argon").AllowTools("what_if")
+	l, buf, _ := newTest(t, p)
+	rid := RequestRef("", func() string { return "0123456789abcdef" })
+	l.InfoContext(bg, "llm call", "provider", "vertex", "model", "gemini-4-argon", "latency_ms", int64(12), "model_id", "gemini-4-argon-001",
+		"input_tokens", 10, "output_tokens", 5, "tool_calls", []string{"what_if"}, "finish_reason", "STOP", "request_id", rid,
 		"spent_usd", 1.25, "cap_usd", 20.0, "status", 200)
 	var m map[string]any
 	if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
@@ -189,6 +246,9 @@ func TestOperationalFieldsKept(t *testing.T) {
 		if m[k] == nil || m[k] == "[masked]" {
 			t.Fatalf("operational key %s lost: %v", k, m[k])
 		}
+	}
+	if m["request_id"] != "0123456789abcdef" {
+		t.Fatalf("server-minted id must not be re-hashed: %v", m["request_id"])
 	}
 	if _, ok := m["masked_attrs"]; ok {
 		t.Fatal("nothing should have been masked")
@@ -236,7 +296,11 @@ func (c *countingHandler) WithGroup(string) slog.Handler        { return c }
 
 func TestInnerFailureNoRawRetry(t *testing.T) {
 	c := &countingHandler{fail: true}
-	l := slog.New(NewHandler(c, DefaultPolicy()))
+	nh, err := NewHandler(c, DefaultPolicy())
+	if err != nil {
+		t.Fatal(err)
+	}
+	l := slog.New(nh)
 	l.InfoContext(bg, "request", sentKeyName, sentBOM)
 	if c.writes != 1 {
 		t.Fatalf("inner written %d times, want exactly 1 (no raw retry)", c.writes)
@@ -245,7 +309,10 @@ func TestInnerFailureNoRawRetry(t *testing.T) {
 }
 
 func TestInnerPanicDoesNotPropagateOrRetry(t *testing.T) {
-	h := NewHandler(panicHandler{}, DefaultPolicy())
+	h, herr := NewHandler(panicHandler{}, DefaultPolicy())
+	if herr != nil {
+		t.Fatal(herr)
+	}
 	if err := h.Handle(bg, slog.NewRecord(timeZero(), slog.LevelInfo, "request", 0)); err != nil && strings.Contains(err.Error(), "Zzyzx") {
 		t.Fatal("downstream text propagated")
 	} else if err != nil {
@@ -260,10 +327,24 @@ func (panicHandler) Handle(context.Context, slog.Record) error { panic(sentSuppl
 func (p panicHandler) WithAttrs([]slog.Attr) slog.Handler      { return p }
 func (p panicHandler) WithGroup(string) slog.Handler           { return p }
 
-func TestNewHandlerIdempotent(t *testing.T) {
-	_, _, h := newTest(t, DefaultPolicy())
-	if NewHandler(h, DefaultPolicy()) != h {
-		t.Fatal("wrapping a *Handler must return it unchanged")
+func TestNewHandlerRewrapRules(t *testing.T) {
+	inner := slog.NewJSONHandler(&strings.Builder{}, nil)
+	p := DefaultPolicy()
+	h, err := NewHandler(inner, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again, err := NewHandler(h, p); err != nil || again != h {
+		t.Fatalf("same policy must return the same handler: %v", err)
+	}
+	if _, err := NewHandler(h, DefaultPolicy().AllowRoutes("GET /x")); !errors.Is(err, ErrAlreadyWrapped) {
+		t.Fatalf("a different policy must be rejected, got %v", err)
+	}
+	if _, err := NewHandler(nil, p); err == nil {
+		t.Fatal("nil inner accepted")
+	}
+	if _, err := NewHandler(inner, nil); err == nil {
+		t.Fatal("nil policy accepted")
 	}
 }
 

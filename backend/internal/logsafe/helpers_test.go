@@ -38,7 +38,10 @@ func newTest(t *testing.T, p *Policy) (*slog.Logger, *bytes.Buffer, *Handler) {
 	t.Helper()
 	var buf bytes.Buffer
 	inner := slog.NewJSONHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug})
-	h := NewHandler(inner, p)
+	h, err := NewHandler(inner, p)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return slog.New(h), &buf, h
 }
 

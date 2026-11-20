@@ -21,17 +21,32 @@ type counters struct{ attrs, msgs, dropped atomic.Int64 }
 type Handler struct {
 	inner slog.Handler
 	pol   *Policy
+	orig  *Policy // the policy NewHandler was given (identity check on re-wrap)
 	st    *counters
 	dead  bool // an unknown group name was opened: everything below it is dropped
 }
 
-// NewHandler wraps inner. It copies the policy. Wrapping a *Handler returns
-// it unchanged (idempotent).
-func NewHandler(inner slog.Handler, p *Policy) *Handler {
-	if h, ok := inner.(*Handler); ok {
-		return h
+// ErrAlreadyWrapped is returned when inner is already a *Handler and a
+// different policy is supplied.
+var ErrAlreadyWrapped = errors.New("logsafe: handler already wrapped with a different policy")
+
+// NewHandler wraps inner and takes a copy of the policy. Construct it ONCE.
+// Wrapping a *Handler returns it unchanged only when the very same *Policy is
+// passed again; a different policy is rejected with ErrAlreadyWrapped instead
+// of being silently ignored (a changed route or model set must be a visible,
+// intentional act). A nil inner or policy is an error. A *Handler hidden
+// inside another handler type is not detected.
+func NewHandler(inner slog.Handler, p *Policy) (*Handler, error) {
+	if inner == nil || p == nil {
+		return nil, errors.New("logsafe: nil handler or policy")
 	}
-	return &Handler{inner: inner, pol: p.clone(), st: &counters{}}
+	if h, ok := inner.(*Handler); ok {
+		if p == h.orig {
+			return h, nil
+		}
+		return nil, ErrAlreadyWrapped
+	}
+	return &Handler{inner: inner, pol: p.clone(), orig: p, st: &counters{}}, nil
 }
 
 // Stats returns the counters.
