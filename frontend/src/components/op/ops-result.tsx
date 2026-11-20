@@ -6,12 +6,12 @@ import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
 import { VIEWER_REASON } from "@/lib/roles";
 import { Button, cx } from "./ui";
-import { NOT_MODELLED, UNKNOWN, checkText, componentRows, feasibilityText, figureText, netText, notModelledLine, opsNet, unknownLine, type PlanOperations } from "./ops-view";
+import { opsMoney, NOT_MODELLED, UNKNOWN, checkText, componentRows, feasibilityText, figureText, netText, notModelledLine, opsNet, unknownLine, type PlanOperations } from "./ops-view";
 import { groupName } from "./plan-bits";
 
 type Objective = components["schemas"]["PlanObjective"];
 
-const fig = (v: number | null | undefined) => (v === null || v === undefined ? null : money(v));
+const fig = (v: number | null | undefined) => (v === null || v === undefined ? null : opsMoney(v));
 
 // Beside every operations-mode money figure, priced or not: what is left out.
 // Read from the result, never a fixed list, and shown whenever it is not empty.

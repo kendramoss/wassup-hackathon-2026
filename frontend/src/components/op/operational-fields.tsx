@@ -12,10 +12,13 @@ import {
   issuesByField,
   oneTimeEntered,
   opsGroups,
+  orphans,
   parseAmount,
   pKey,
   plantRef,
   refMismatch,
+  removeGroupEntry,
+  userLocale,
   setGroup,
   setPlant,
   setTop,
@@ -24,6 +27,7 @@ import {
   type PlantNumberField,
 } from "@/lib/ops";
 import { groupName } from "./plan-bits";
+import { Button } from "./ui";
 import { Flag, cx } from "./ui";
 
 // Optional operating-cost inputs (#281) for the money editors. Off (or nothing
@@ -70,11 +74,16 @@ function NumField({
   help?: string;
 }) {
   const id = useId();
-  const [text, setText] = useState(formatAmount(value));
-  // What is typed shows while it still means the stored value; an outside
-  // change (reset, restore) shows the stored value.
-  const p = parseAmount(text);
-  const shown = p.ok && p.value === value ? text : formatAmount(value);
+  const locale = userLocale();
+  const [text, setText] = useState(formatAmount(value, locale));
+  // What is typed shows while it still means the stored value (a refused entry
+  // stores nothing, so it shows with its format guidance); an outside change
+  // (reset, restore) shows the stored value.
+  const p = parseAmount(text, locale, integer);
+  const consistent = p.ok ? p.value === value : value === undefined;
+  const shown = consistent ? text : formatAmount(value, locale);
+  const refused = consistent && !p.ok ? `Not a number this field can read. Use ${integer ? "whole digits" : "digits"} in ${locale} format, for example ${p.example}. Nothing is saved for this field until it is fixed.` : undefined;
+  errors = refused ? [...(errors ?? []), refused] : errors;
   return (
     <div className="flex flex-col gap-0.5">
       <label htmlFor={id} className="text-[11.5px] text-dim">
@@ -90,12 +99,11 @@ function NumField({
         aria-describedby={errors?.length ? `${id}-e` : help ? `${id}-h` : undefined}
         onChange={(ev) => {
           const s = ev.target.value;
-          const q = parseAmount(s);
-          // A character that makes it no number is not taken; whole days and
-          // counts take no decimals.
-          if (!q.ok || (integer && /\./.test(s))) return;
           setText(s);
-          onChange(q.value);
+          // An entry that is not a clean number in this locale stores nothing
+          // (never a stripped, different amount) and says so beside the field.
+          const q = parseAmount(s, locale, integer);
+          onChange(q.ok ? q.value : undefined);
         }}
       />
       <Errors id={`${id}-e`} list={errors} />
@@ -150,11 +158,36 @@ export function OperationalFields({
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
+  const [confirmOff, setConfirmOff] = useState(false);
   const ops = value.operations;
   const on = open || ops !== undefined;
   const groups = opsGroups(product);
   const plants: Plant[] = product?.plants ?? [];
-  const { byKey, general } = issuesByField(serverError);
+  const parsed = issuesByField(serverError);
+  const byKey = parsed.byKey;
+  const general = [...parsed.general];
+  const lost = orphans(ops, product);
+  // A message whose field is not on screen goes to its saved-for-removed-item
+  // entry, else to the general list: never dropped.
+  const renderedGroups = new Set(groups);
+  const renderedPlants = new Set(plants.map((p) => p.id));
+  const orphanMsgs = (o: { group: string; plant?: string }) =>
+    Object.entries(byKey)
+      .filter(([k]) => {
+        const [t, g, pid] = k.split("|");
+        return o.plant !== undefined ? t === "p" && g === o.group && pid === o.plant : g === o.group;
+      })
+      .flatMap(([, v]) => v);
+  const shownKey = (k: string) => {
+    const [t, g, pid] = k.split("|");
+    return renderedGroups.has(g) && (t === "g" || renderedPlants.has(pid));
+  };
+  for (const [k, v] of Object.entries(byKey)) {
+    if (shownKey(k)) continue;
+    const [t, g, pid] = k.split("|");
+    if (lost.some((o) => o.group === g && (o.kind === "group" || (t === "p" && o.plant === pid)))) continue;
+    for (const why of v) general.push({ slug: "", path: k, why, text: why });
+  }
   const oneTime = oneTimeEntered(ops, product);
   const set = (e: Economics) => onChange(e);
 
@@ -171,6 +204,7 @@ export function OperationalFields({
           disabled={readOnly}
           onChange={(ev) => {
             if (ev.target.checked) setOpen(true);
+            else if (opsActive(ops)) setConfirmOff(true);
             else {
               setOpen(false);
               set(withoutOps(value));
@@ -179,6 +213,24 @@ export function OperationalFields({
         />
         {copy.ops.switchLabel}
       </label>
+      {confirmOff && (
+        <div role="alertdialog" aria-label="Discard operating-cost inputs" className="mt-2 flex flex-wrap items-center gap-3 border border-ask-line bg-ask-wash px-3 py-2 text-[12.5px]">
+          <span className="min-w-0 flex-1">{copy.ops.confirmOff}</span>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setConfirmOff(false);
+              setOpen(false);
+              set(withoutOps(value));
+            }}
+          >
+            {copy.ops.discard}
+          </Button>
+          <Button variant="ghost" onClick={() => setConfirmOff(false)}>
+            {copy.ops.keep}
+          </Button>
+        </div>
+      )}
       {!on && <p className="duo mt-1.5 text-xs text-dim">{copy.ops.off}</p>}
       {on && groups.length === 0 && <p className="duo mt-2 text-xs text-dim">Add parts with a group, and plants, to enter operating costs.</p>}
       {on && (
@@ -196,6 +248,32 @@ export function OperationalFields({
               <ul className="mt-1 list-disc pl-4">
                 {general.map((i, k) => (
                   <li key={k}>{i.text}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {lost.length > 0 && (
+            <div className="border border-ask-line px-3 py-2 text-[12.5px]">
+              <p className="font-medium">{copy.ops.removedTitle}</p>
+              <p className="text-dim">{copy.ops.removedHelp}</p>
+              <ul className="mt-1.5 flex flex-col gap-1.5">
+                {lost.map((o) => (
+                  <li key={`${o.group}|${o.plant ?? ""}`} className="flex flex-wrap items-start gap-2">
+                    <span className="min-w-0 flex-1">
+                      {groupName(o.group)}
+                      {o.plant ? ` · plant ${o.plant}` : " · whole group"}
+                      {orphanMsgs(o).length > 0 && (
+                        <span role="alert" className="block text-fail">
+                          {orphanMsgs(o).join("; ")}
+                        </span>
+                      )}
+                    </span>
+                    {!readOnly && (
+                      <button type="button" className="text-ok underline underline-offset-2" onClick={() => set(o.plant ? clearPlantEntry(value, o.group, o.plant) : removeGroupEntry(value, o.group))}>
+                        {o.plant ? copy.ops.clearStale : copy.ops.removeGroup}
+                      </button>
+                    )}
+                  </li>
                 ))}
               </ul>
             </div>

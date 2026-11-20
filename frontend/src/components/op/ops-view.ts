@@ -21,6 +21,13 @@ export const NO_SAVING = "No modelled saving";
 export const UNKNOWN = "Unknown";
 export const NOT_MODELLED = "Not modelled";
 
+// Operations-mode money only (the shared formatter is unchanged): a real,
+// non-zero amount under 50 cents is shown in cents, never as $0 or -$0.
+export function opsMoney(n: number | null | undefined): string {
+  if (typeof n === "number" && n !== 0 && Math.abs(n) < 0.5) return `${n < 0 ? "−" : ""}$${Math.abs(n).toFixed(2)}`;
+  return money(n);
+}
+
 const human = (s: string) => s.replace(/_/g, " ");
 const g = (id: string) => groupName(id);
 
@@ -109,7 +116,7 @@ export function netText(p: { operations?: PlanOperations; net_priced?: boolean; 
   const n = opsNet(p);
   if (n === null) return hasFinancialUnknown(p.operations) || p.net_priced === false ? UNKNOWN : NOT_MODELLED;
   if (n === 0) return NO_SAVING;
-  return money(n);
+  return opsMoney(n);
 }
 
 // Scenario comparisons: net_usd already is the operations net (null when a
@@ -119,12 +126,12 @@ export function comparisonNetText(c: Comparison | undefined): string {
   if (!c.operations) return money(c.net_usd);
   if (c.net_usd === null || c.net_usd === undefined) return hasFinancialUnknown(c.operations) ? UNKNOWN : NOT_MODELLED;
   if (c.net_usd === 0) return NO_SAVING;
-  return money(c.net_usd);
+  return opsMoney(c.net_usd);
 }
 
 // A figure that may be null: a number, "unknown" or "not modelled", never $0.
 export function figureText(v: number | null | undefined, ops: PlanOperations, factors: string[]): string {
-  if (v !== null && v !== undefined) return money(v);
+  if (v !== null && v !== undefined) return opsMoney(v);
   return ops.unknown.some((u) => u.category === "financial" && factors.includes(u.factor)) ? UNKNOWN : NOT_MODELLED;
 }
 

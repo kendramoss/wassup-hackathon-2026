@@ -331,3 +331,36 @@ test("netText / comparisonNetText: legacy untouched, null never $0, zero is no m
   assert.equal(V.reasonLabel("brand_new_reason"), "brand new reason");
   assert.equal(V.notModelledLabel("brand_new:group_a"), "brand new (Group a)");
 });
+
+test("stale plan with cost demotions: no 'N more cleared it but not your operating inputs', no none-band verdict from the old costs", async () => {
+  const fresh = await mount(PlanStep, caseJson({ plan: planResult({ rejected: [costlierRow()] }) }));
+  assert.match(flatText(fresh), /1 more cleared it but not your operating inputs/);
+  live.splice(0).forEach((a) => a.unmount());
+  const stale = await mount(PlanStep, caseJson({ plan: planResult({ rejected: [costlierRow()] }), plan_economics_stale: true }));
+  assert.doesNotMatch(flatText(stale), /cleared it but not your operating inputs/);
+  live.splice(0).forEach((a) => a.unmount());
+  const none = await mount(PlanStep, caseJson({ plan: planResult({ plans: [], rejected: [infeasibleRow(), costlierRow()] }), plan_economics_stale: true }));
+  const t = flatText(none);
+  assert.doesNotMatch(t, /worth it on the operating inputs you entered/);
+  assert.match(t, /Inputs changed\. Run the plan again to see which moves clear your operating inputs\./);
+  assert.match(t, /Inputs changed, run the plan again/);
+  live.splice(0).forEach((a) => a.unmount());
+  const legacyStale = await mount(PlanStep, caseJson({ plan: planResult({ plans: [], rejected: [belowBar()] }) }));
+  assert.doesNotMatch(flatText(legacyStale), /operating inputs/);
+});
+
+test("operations money never shows a real sub-50-cent amount as $0; a real zero stays no modelled saving; legacy formatter unchanged", async () => {
+  const V = await import("../src/components/op/ops-view.ts");
+  assert.equal(V.opsMoney(0.4), "$0.40");
+  assert.equal(V.opsMoney(-0.4), "−$0.40");
+  assert.equal(V.opsMoney(0), "$0");
+  assert.equal(V.opsMoney(1234), "$1k");
+  assert.equal(V.netText(move({ net_per_year: 0.4, operations: opsPriced({ net_modelled_per_year: 0.4 }) })), "$0.40");
+  assert.equal(V.netText(move({ operations: opsPriced({ net_modelled_per_year: -0.4 }) })), "−$0.40");
+  assert.equal(V.netText(move({ operations: opsPriced({ net_modelled_per_year: 0 }) })), "No modelled saving");
+  assert.equal(V.comparisonNetText({ net_usd: 0.4, operations: opsPriced() }), "$0.40");
+  assert.equal(V.netText({ net_per_year: 0.4 }), "$0", "the shared legacy formatter is untouched");
+  const app = await mount(PlanStep, caseJson({ plan: planResult({ plans: [move({ operations: opsPriced({ net_modelled_per_year: 0.4, components: { ...opsPriced().components, labour_delta_per_year: -0.4 } }) })] }) }));
+  assert.match(flatText(app), /\$0\.40/);
+  assert.match(flatText(app), /−\$0\.40/);
+});

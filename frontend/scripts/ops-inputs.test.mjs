@@ -169,19 +169,23 @@ test("entering costs: a typed 0 is kept as a known zero, a blank is absent, refs
   assert.equal("labour_usd_per_year" in out2.operations.groups.motor_fan_assembly.plants.th, false);
 });
 
-test("numeric fields refuse non-numbers and whole-day fields refuse decimals (the typed text is not taken)", async () => {
+test("numeric fields store nothing for an entry they cannot read, say how to fix it, and never store a different amount", async () => {
   const app = await drawer(legacy());
   await turnOn(app);
-  await type(app, inputOf(app, "Labour (USD")[1], "12a");
-  assert.equal(inputOf(app, "Labour (USD")[1].props.value, "");
-  await type(app, inputOf(app, "Lead time (days)")[1], "1.5");
-  assert.equal(inputOf(app, "Lead time (days)")[1].props.value, "");
-  await type(app, inputOf(app, "Your lead-time limit")[0], "90.5");
-  assert.equal(inputOf(app, "Your lead-time limit")[0].props.value, "");
+  for (const [label, idx, bad] of [["Labour (USD", 1, "12a"], ["Labour (USD", 1, "1,5"], ["Labour (USD", 1, "1.234,5"], ["Lead time (days)", 1, "1.5"], ["Your lead-time limit", 0, "90.5"]]) {
+    await type(app, inputOf(app, label)[idx], bad);
+    const f = F.fields(app, label)[idx];
+    assert.equal(f.input.props.value, bad, "the typed text stays visible");
+    assert.match(f.errors.join(" "), /Not a number this field can read\. Use .* for example/);
+  }
+  assert.match(F.fields(app, "Labour (USD")[1].errors.join(" "), /1,234\.5/);
   await type(app, inputOf(app, "Horizon")[0], "2.5"); // years may be fractional
   assert.equal(inputOf(app, "Horizon")[0].props.value, "2.5");
+  await type(app, inputOf(app, "Labour (USD")[0], "1,234.5");
   const out = await save(app);
-  assert.deepEqual(out.operations, { horizon_years: 2.5 });
+  assert.deepEqual(out.operations.horizon_years, 2.5);
+  assert.equal(out.operations.groups.motor_fan_assembly.plants.cn.labour_usd_per_year, 1234.5);
+  assert.equal(out.operations.groups.motor_fan_assembly.plants.th, undefined, "refused entries stored nothing");
 });
 
 test("Mode Off removes the operations key entirely and the saved economics are the legacy ones", async () => {
@@ -190,6 +194,14 @@ test("Mode Off removes the operations key entirely and the saved economics are t
   const sw = app.find((e) => e.type === "input" && e.props.role === "switch")[0];
   assert.equal(sw.props.checked, true);
   sw.props.onChange({ target: { checked: false } });
+  await app.flush();
+  assert.match(text(app), /discard the inputs you entered/);
+  await app.btn("Keep them").props.onClick();
+  await app.flush();
+  assert.equal("operations" in (await save(app)), true, "kept: nothing was lost");
+  app.find((e) => e.type === "input" && e.props.role === "switch")[0].props.onChange({ target: { checked: false } });
+  await app.flush();
+  await app.btn("Discard inputs").props.onClick();
   await app.flush();
   const out = await save(app);
   assert.equal("operations" in out, false);
@@ -561,4 +573,98 @@ test("ref name is the trimmed plant name, else the id (empty or whitespace names
   assert.equal(Object.keys(r.byKey).length, 0);
   assert.equal(r.general.length, 1);
   assert.match(r.general[0].text, /unknown_source_key/);
+});
+
+test("Mode Off with nothing entered asks nothing", async () => {
+  const app = await drawer(legacy());
+  await turnOn(app);
+  app.find((e) => e.type === "input" && e.props.role === "switch")[0].props.onChange({ target: { checked: false } });
+  await app.flush();
+  assert.doesNotMatch(text(app), /discard the inputs you entered/);
+});
+
+test("locale parsing: en-US, de-DE and fr-FR read their own group and decimal; ambiguous or malformed entries are refused, never stripped", () => {
+  const P = (s, l, int) => O.parseAmount(s, l, int);
+  const v = (s, l, int) => { const r = P(s, l, int); return r.ok ? r.value : "REFUSED"; };
+  assert.equal(v("1,234.5"), 1234.5);
+  assert.equal(v("1.5"), 1.5);
+  assert.equal(v("1,5"), "REFUSED");
+  assert.equal(v("1.234,5"), "REFUSED");
+  assert.equal(v("1,23,456"), "REFUSED");
+  assert.equal(v("1234567"), 1234567);
+  assert.equal(v("1,234,567"), 1234567);
+  assert.equal(v("0"), 0);
+  assert.equal(v(""), undefined);
+  assert.equal(v("1e3"), "REFUSED");
+  assert.equal(v("-5"), "REFUSED");
+  assert.equal(v("90.5", "en-US", true), "REFUSED");
+  assert.equal(v("1,234", "en-US", true), 1234);
+  assert.equal(v("1.234,5", "de-DE"), 1234.5);
+  assert.equal(v("1,5", "de-DE"), 1.5);
+  assert.equal(v("1,234.5", "de-DE"), "REFUSED");
+  assert.equal(v("1.5", "de-DE"), "REFUSED");
+  const fr = O.numberFormat("fr-FR");
+  assert.equal(v(`1${fr.group}234,5`, "fr-FR"), 1234.5);
+  assert.equal(v("1 234,5", "fr-FR"), 1234.5);
+  assert.equal(v("1\u00a0234,5", "fr-FR"), 1234.5);
+  assert.equal(v("1,234.5", "fr-FR"), "REFUSED");
+  assert.equal(O.formatAmount(1.5, "de-DE"), "1,5");
+});
+
+test("a field in a de-DE browser reads 1,5 as 1.5 and refuses 1.234.5", async () => {
+  Object.defineProperty(globalThis.navigator, "language", { value: "de-DE", configurable: true });
+  try {
+    const app = await drawer(legacy());
+    await turnOn(app);
+    await type(app, inputOf(app, "Labour (USD")[1], "1.234,5");
+    const out = await save(app);
+    assert.equal(out.operations.groups.motor_fan_assembly.plants.th.labour_usd_per_year, 1234.5);
+    await type(app, inputOf(app, "Logistics (USD")[1], "1,234.5");
+    assert.match(F.fields(app, "Logistics (USD")[1].errors.join(" "), /de-DE format, for example 1\.234,5/);
+  } finally {
+    delete globalThis.navigator.language;
+  }
+});
+
+test("saved inputs for a removed plant or group: shown, the 400 is visible on the entry, targeted Remove fixes the body and keeps everything else", async () => {
+  const ops = {
+    horizon_years: 4,
+    groups: {
+      motor_fan_assembly: { cost_basis: "additional", plants: { th: { labour_usd_per_year: 7, ref: { name: "Chonburi works", country: "Thailand" }, sources: { labour: "quote 9" } }, gone: { labour_usd_per_year: 3, ref: { name: "Old", country: "Vietnam" } } } },
+      removed_group: { plants: { th: { capex_usd: 5, ref: { name: "Chonburi works", country: "Thailand" } } } },
+    },
+  };
+  const msg = "economics: operations.unknown_plant: groups.motor_fan_assembly.plants.gone: no such plant; economics: operations.unknown_group: groups.removed_group: no such group";
+  const app = await drawer({ ...legacy(), operations: ops }, { serverError: msg });
+  const t = text(app);
+  assert.match(t, /Saved inputs for removed items/);
+  assert.match(t, /plant gone/);
+  assert.match(t, /whole group/);
+  const alerts = app.find((e) => e.type === "span" && e.props.role === "alert").map((e) => textOf(e.props.children));
+  assert.deepEqual(alerts.sort(), ["no such group", "no such plant"]);
+  const before = await save(app);
+  assert.ok(before.operations.groups.removed_group, "nothing dropped silently");
+  await app.btn("Remove this entry").props.onClick();
+  await app.flush();
+  await app.btn("Remove this group's inputs").props.onClick();
+  await app.flush();
+  const out = await save(app);
+  assert.equal(out.operations.groups.removed_group, undefined);
+  assert.equal(out.operations.groups.motor_fan_assembly.plants.gone, undefined);
+  assert.deepEqual(out.operations.groups.motor_fan_assembly.plants.th, ops.groups.motor_fan_assembly.plants.th, "other entries and sources untouched");
+  assert.equal(out.operations.horizon_years, 4);
+  assert.equal(JSON.stringify({ ...out, operations: undefined }), JSON.stringify({ ...legacy() }), "full money kept");
+  assert.doesNotMatch(text(app), /Saved inputs for removed items/);
+});
+
+test("a server message for a field that is not on screen is never lost: it goes to the general list", async () => {
+  const app = await drawer({ ...legacy(), operations: { horizon_years: 1 } }, { serverError: "economics: operations.unknown_plant: groups.ghost.plants.nowhere: no such plant" });
+  assert.match(text(app), /Operating-cost inputs to fix/);
+  assert.match(text(app), /no such plant/);
+});
+
+test("ref country alias: the app's own country list resolves equal names, so no false stale warning", async () => {
+  const th = { id: "th", name: "Chonburi works", country: "Thailand" };
+  assert.equal(O.refMismatch({ ref: { name: "Chonburi works", country: "thailand" } }, th), false);
+  assert.equal(O.refMismatch({ ref: { name: "Chonburi works", country: "Vietnam" } }, th), true);
 });

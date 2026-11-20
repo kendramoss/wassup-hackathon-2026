@@ -251,13 +251,13 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           below={!best}
           shown={result.plans?.length ?? 0}
           stale={stale}
-          demoted={demoted}
+          demoted={stale ? 0 : demoted}
           objective={result.objective}
           // The search's own count; the "No change" baseline isn't a move.
           total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
         />
       ) : result ? (
-        <NoneBand target={target} demoted={demoted > 0} />
+        <NoneBand target={target} demoted={demoted > 0} stale={stale} />
       ) : (
         <StartBand target={target} c={c} />
       )}
@@ -503,13 +503,13 @@ function PlanBand({
   );
 }
 
-function NoneBand({ target, demoted }: { target: string; demoted?: boolean }) {
+function NoneBand({ target, demoted, stale }: { target: string; demoted?: boolean; stale?: boolean }) {
   return (
     <Band>
       <div>
         <p className="eyebrow text-ask">Step 3 of 4 · No plan reached {target}</p>
         {demoted ? (
-          <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">{copy.opsResult.noneBand}</h1>
+          <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">{stale ? copy.stale.noneBand : copy.opsResult.noneBand}</h1>
         ) : (
           <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">No move found precedent support for {target} with these plants.</h1>
         )}

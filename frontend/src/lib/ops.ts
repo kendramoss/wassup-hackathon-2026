@@ -2,6 +2,7 @@
 // reading server errors. Types come from the generated schema; nothing here
 // sends a role, tenant or hash. Explicit 0 is a known zero; a blank field is
 // "not entered" and its key is absent.
+import { flagCodes } from "./countries";
 import { economicsOnWire, opsActive, withoutOps, type Economics, type Plant, type Product } from "./api/client";
 
 // The wire rules (an inactive block is left out) live next to the client that
@@ -19,19 +20,50 @@ const PLANT_NUMBERS: PlantNumberField[] = ["labour_usd_per_year", "logistics_usd
 
 // ---------- numbers ----------
 
-// Same convention as the existing money editor: "$", "," and spaces are
-// ignored, "." is the decimal point. A blank field is undefined (not entered);
-// "0" is 0. Anything else that is not a plain non-negative number is
-// rejected, so a typo never turns into a different figure.
-export function parseAmount(raw: string): { ok: true; value: number | undefined } | { ok: false } {
-  const s = raw.replace(/[$,\s]/g, "");
-  if (s === "" || s === ".") return { ok: true, value: undefined };
-  if (!/^\d*\.?\d*$/.test(s)) return { ok: false };
-  const n = Number(s);
-  return Number.isFinite(n) ? { ok: true, value: n } : { ok: false };
+// The number format of a locale: its group and decimal characters, from Intl.
+export type NumberFormatInfo = { locale: string; group: string; decimal: string };
+export function numberFormat(locale: string): NumberFormatInfo {
+  try {
+    const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
+    return { locale, group: parts.find((p) => p.type === "group")?.value ?? ",", decimal: parts.find((p) => p.type === "decimal")?.value ?? "." };
+  } catch {
+    return { locale: "en-US", group: ",", decimal: "." };
+  }
 }
 
-export const formatAmount = (n: number | undefined): string => (n === undefined ? "" : String(n));
+// The browser's declared language, else en-US.
+export function userLocale(): string {
+  const l = typeof navigator !== "undefined" ? navigator.language : "";
+  return l || "en-US";
+}
+
+const isSpace = (c: string) => /^[\s\u00a0\u202f]$/.test(c);
+
+export type Parsed = { ok: true; value: number | undefined } | { ok: false; example: string };
+
+// Locale-aware, strict parse for the new operating-cost fields. A blank is
+// "not entered"; "0" is 0. Only the locale's own group and decimal characters
+// are read, groups must be exactly three digits, and anything else (a comma
+// that is not this locale's group, "1.234,5" under en-US, letters, signs,
+// exponents) is REFUSED with an example, never stripped into a different
+// amount. A leading "$" is allowed. Tested for en-US, de-DE and fr-FR.
+export function parseAmount(raw: string, locale = "en-US", integer = false): Parsed {
+  const { group, decimal } = numberFormat(locale);
+  const example = integer ? `1${group}234` : `1${group}234${decimal}5`;
+  const s = raw.trim().replace(/^\$\s*/, "");
+  if (s === "" || s === decimal) return { ok: true, value: undefined };
+  const g = isSpace(group) ? "[\\s\\u00a0\\u202f]" : group.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const d = decimal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`^(\\d{1,3}(?:${g}\\d{3})+|\\d+)(?:${d}(\\d*))?$`);
+  const m = re.exec(s);
+  if (!m) return { ok: false, example };
+  if (integer && m[2]) return { ok: false, example };
+  const n = Number(m[1].replace(new RegExp(g, "g"), "") + (m[2] ? `.${m[2]}` : ""));
+  return Number.isFinite(n) ? { ok: true, value: n } : { ok: false, example };
+}
+
+// A stored number as the field shows it: the locale's decimal, no grouping.
+export const formatAmount = (n: number | undefined, locale = "en-US"): string => (n === undefined ? "" : String(n).replace(".", numberFormat(locale).decimal));
 
 // ---------- reading ----------
 
@@ -41,6 +73,14 @@ const folded = (s: string | undefined) => (s ?? "").trim().replace(/\s+/g, " ").
 // requires a 1 to 120 character name on every entry).
 export const plantRef = (p: Plant): { name: string; country: string } => ({ name: p.name?.trim() || p.id, country: p.country });
 
+// Same text, or two names the app's own country list resolves to the same
+// flag code. The server's canonical compare stays the authority.
+const sameCountry = (a: string, b: string) => {
+  if (folded(a) === folded(b)) return true;
+  const x = flagCodes(a)[0], y = flagCodes(b)[0];
+  return Boolean(x) && x === y;
+};
+
 // True when an existing entry was entered for a different plant name or
 // country than the product's plant now has. The server decides (it also
 // normalises country names); this only warns, and never rebinds.
@@ -48,7 +88,7 @@ export function refMismatch(entry: OpsPlant | undefined, p: Plant): boolean {
   const r = entry?.ref;
   if (!r) return false;
   const now = plantRef(p);
-  return folded(r.name) !== folded(now.name) || folded(r.country) !== folded(now.country);
+  return folded(r.name) !== folded(now.name) || !sameCountry(r.country, now.country);
 }
 
 // The plant a group is made at today, when it is one plant (else undefined:
@@ -218,4 +258,30 @@ export function issuesByField(message: string | undefined): { byKey: Record<stri
 // The product's operation groups, as the money editors list them.
 export function opsGroups(product: Product | undefined): string[] {
   return [...new Set([...(product?.components ?? []), ...(product?.operations ?? [])].map((x) => x.group).filter((g): g is string => Boolean(g)))].filter((g) => g !== "final_assembly");
+}
+
+// Drops a whole group's saved inputs (a group the product no longer has).
+export function removeGroupEntry(e: Economics, g: string): Economics {
+  const groups = { ...(e.operations?.groups ?? {}) };
+  if (!(g in groups)) return e;
+  delete groups[g];
+  return withOps(e, (o) => ({ ...o, groups }));
+}
+
+export type Orphan = { kind: "group" | "plant"; group: string; plant?: string };
+
+// Saved inputs that name a group or plant the product no longer has. They stay
+// in the economics (nothing is dropped silently) until the user removes them.
+export function orphans(ops: Operations | undefined, product: Product | undefined): Orphan[] {
+  const groups = new Set(opsGroups(product));
+  const plants = new Set((product?.plants ?? []).map((p) => p.id));
+  const out: Orphan[] = [];
+  for (const [gid, g] of Object.entries(ops?.groups ?? {})) {
+    if (!groups.has(gid)) {
+      out.push({ kind: "group", group: gid });
+      continue;
+    }
+    for (const pid of Object.keys(g.plants ?? {})) if (!plants.has(pid)) out.push({ kind: "plant", group: gid, plant: pid });
+  }
+  return out;
 }
