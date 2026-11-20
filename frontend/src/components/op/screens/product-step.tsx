@@ -291,6 +291,18 @@ export function ProductStep() {
       token.current++;
     };
   }, []);
+  // Names the latest explicit family choice (#351), separate from the import
+  // sequence (#346) and the duty lookup (#349). Every path that sets the family
+  // moves it on, so an older AI check or import suggestion cannot apply later.
+  const familyReq = useRef(0);
+  // The family token as it was when the current upload was picked.
+  const familyAtPick = useRef(0);
+  useEffect(() => {
+    const token = familyReq;
+    return () => {
+      token.current++;
+    };
+  }, []);
   const [moneyOpen, setMoneyOpen] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const [famCheck, setFamCheck] = useState<FamilyCheck | null>(null);
@@ -316,7 +328,11 @@ export function ProductStep() {
       if (!p) return;
       setDemoTitle(d.title ?? demoId);
       setDate(p.date);
-      if (p.family) setFamily(p.family);
+      if (p.family) {
+        familyReq.current++;
+        setFamily(p.family);
+        setFamCheck(null);
+      }
       setHts(p.product?.hts ?? "");
       if (p.product) {
         setProduct(p.product);
@@ -343,7 +359,9 @@ export function ProductStep() {
       // default is motorised tools, which silently drops LED/LiDAR moves (#298).
       const sourceFamily = clonedFamily(c);
       if (sourceFamily) {
+        familyReq.current++;
         setFamily(sourceFamily);
+        setFamCheck(null);
         setFamilyTouched(true); // don't let a later BOM import reset it
       }
       if (c.product?.components?.length) {
@@ -357,6 +375,8 @@ export function ProductStep() {
   // text (nothing saved); they open on the Parts and plants tab to check.
   // A listed family is picked as is; anything else is checked by the AI.
   const pickFamily = async (v: string) => {
+    // Any newer choice, listed, None or custom, makes an older check obsolete.
+    const req = ++familyReq.current;
     setFamilyTouched(true);
     if (v === "" || families.some((f) => f.id === v)) {
       setFamily(v);
@@ -372,6 +392,7 @@ export function ProductStep() {
     setFamCheck({ state: "busy", typed: v });
     try {
       const { result: r } = await api.familyCheck({ text: v, product: product.components.length ? { ...product, name: name.trim() } : undefined });
+      if (req !== familyReq.current) return;
       if (r.typed_unclear) {
         // Never credit a match to text that names nothing; the parts' family
         // is offered, not applied.
@@ -385,6 +406,7 @@ export function ProductStep() {
         setFamCheck({ state: "match", typed: v, family: r.family, confidence: r.confidence, reason: r.reason, applied: sure });
       }
     } catch {
+      if (req !== familyReq.current) return;
       setFamCheck({ state: "error", typed: v, message: "Couldn't check that just now. Pick the closest family from the list, or choose None." });
     }
   };
@@ -513,6 +535,7 @@ export function ProductStep() {
                     <FamilyNote
                       check={famCheck}
                       onUse={(f) => {
+                        familyReq.current++;
                         setFamily(f);
                         setFamilyTouched(true);
                         setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
@@ -622,10 +645,12 @@ export function ProductStep() {
                     setNameIsAuto(Boolean(guess));
                   }
                   if (autoFamily.current && !familyTouched) {
+                    familyReq.current++;
                     setFamily("motorised_tools_small_appliances");
                     setFamCheck(null);
                   }
                   lookup.current++;
+                  familyAtPick.current = familyReq.current;
                   if (autoHts.current) setHts("");
                   if (autoEcon.current) setEconomics(undefined);
                   autoFamily.current = autoHts.current = autoEcon.current = false;
@@ -641,11 +666,16 @@ export function ProductStep() {
                   setImported(r);
                   setProduct(r.product);
                   // Contract (#346): BomImport only calls this for the latest
-                  // upload, so an older file cannot set the family. This is still
-                  // an unconditional write: it does not look at a family the
-                  // user picked (or an AI check that finishes) after the upload
-                  // started. That ordering belongs to the family-selection token (#351).
-                  if (r.family) setFamily(r.family);
+                  // upload. The family it suggests applies only if no family
+                  // choice was made since the file was picked (#351); when it
+                  // does, it also ends any check still running.
+                  const familyFree = familyReq.current === familyAtPick.current;
+                  if (r.family && familyFree) {
+                    familyReq.current++;
+                    familyAtPick.current = familyReq.current;
+                    setFamily(r.family);
+                    setFamCheck(null);
+                  }
                   // Name and family the file (or the AI) filled in (18 Oct).
                   const how = (src?: string) => (src === "ai" ? "suggested by AI from the parts" : "from your file");
                   const said: string[] = [];
@@ -662,7 +692,7 @@ export function ProductStep() {
                     }
                     said.push(`Product name “${filledName}”, ${r.name_source === "file_name" ? "from the file's name" : how(r.name_source)}.`);
                   }
-                  if (r.family && (r.family_source === "file" || r.family_source === "ai")) {
+                  if (r.family && familyFree && (r.family_source === "file" || r.family_source === "ai")) {
                     autoFamily.current = true;
                     said.push(`Product family ${familyName(r.family)}, ${how(r.family_source)}${r.family_reason ? `: ${r.family_reason}` : "."}`);
                   }
