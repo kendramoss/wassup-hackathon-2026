@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, type CaseResponse, type TargetSummary } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
@@ -176,7 +177,7 @@ function Compare({ id, c }: CaseCtx) {
         ) : (
           !since && (
             <div>
-              <Button onClick={run} disabled={picked.length < 2}>
+              <Button onClick={run} disabled={picked.length < 2 || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
                 {ranked ? "Compare again" : "Compare these countries"}
               </Button>
             </div>

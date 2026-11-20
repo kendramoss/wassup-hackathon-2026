@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, ApiError, type ExportResponse } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
@@ -34,7 +35,8 @@ const formats: { key: Format; label: string }[] = [
 // (D66). Wrapped as inline code so the letter can highlight them.
 const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 
-function Draft({ id, setCase }: CaseCtx) {
+function Draft({ id, c, setCase }: CaseCtx) {
+  const readOnly = caseReadOnly(c);
   const params = useSearchParams();
   const move = params.get("move") ?? undefined;
   const target = params.get("target") ?? undefined;
@@ -93,6 +95,8 @@ function Draft({ id, setCase }: CaseCtx) {
   // failed recording, shows an error with the server's own message, drops the
   // stale draft and does not download or print it. See lib/record-export.ts.
   const record = async () => {
+    // Recording is a write; a read-only case previews only (preview: true).
+    if (readOnly) return false;
     const r = await recordExport(() => api.exportDraft(id, { ...pick, format }), draft?.content ?? "");
     if (r.ok) return true;
     setDrafts({});
@@ -222,14 +226,14 @@ function Draft({ id, setCase }: CaseCtx) {
         </div>
       </Main>
       <Footer>
-        <Next>Fill in the requester, then print or download the letter and send it to your customs broker.</Next>
+        <Next>{readOnly ? "You can preview this letter. Printing or downloading records the export, which needs editor access." : "Fill in the requester, then print or download the letter and send it to your customs broker."}</Next>
         <div className="ml-auto flex flex-wrap gap-2.5">
-          <Button variant="ghost" onClick={download} disabled={!draft}>
+          <Button variant="ghost" onClick={download} disabled={!draft || readOnly} title={readOnly ? VIEWER_REASON : undefined}>
             Download Markdown
           </Button>
           <Button onClick={async () => {
               if (await record()) window.print();
-            }} disabled={!draft}>
+            }} disabled={!draft || readOnly} title={readOnly ? VIEWER_REASON : undefined}>
             Print the letter
           </Button>
         </div>

@@ -4,6 +4,7 @@ import { watchView } from "@/lib/watch-state";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, money, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
@@ -337,10 +338,10 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
           <Link role="menuitem" href={caseHref(c)} className="block px-3 py-1.5 hover:bg-wash">
             Open
           </Link>
-          <button role="menuitem" type="button" className="block w-full px-3 py-1.5 text-left hover:bg-wash" onClick={() => (setOpen(false), onRename())}>
+          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left hover:bg-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onRename())}>
             Rename
           </button>
-          <button role="menuitem" type="button" className="block w-full px-3 py-1.5 text-left text-fail hover:bg-fail-wash" onClick={() => (setOpen(false), onDelete())}>
+          <button role="menuitem" type="button" disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined} className="block w-full px-3 py-1.5 text-left text-fail hover:bg-fail-wash disabled:text-dim disabled:hover:bg-transparent" onClick={() => (setOpen(false), onDelete())}>
             Delete case…
           </button>
         </div>

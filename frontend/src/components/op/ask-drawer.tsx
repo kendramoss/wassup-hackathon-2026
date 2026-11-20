@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import { api, type CaseResponse, type ChatTurn, type PrecedentRef, type WhatIf } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { askRequest, clearOwned } from "@/lib/ask-history";
 import { clearRich, commitPinnedAnswer, pinnedTurn, readRich } from "@/lib/ask-rich";
 import { copy } from "@/lib/copy";
@@ -68,6 +69,8 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
   const [announced, setAnnounced] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<HTMLDivElement>(null);
+  // Asking saves the turn: a viewer's case is read-only (the server's can_write).
+  const readOnly = caseReadOnly(c);
 
   useEffect(() => {
     input.current?.focus();
@@ -86,7 +89,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
   // it shows when the drawer opens again (#110).
   const ask = async (q: string) => {
     q = q.trim();
-    if (!q || inflight.has(id)) return;
+    if (!q || inflight.has(id) || readOnly) return;
     setError(null);
     setConfirming(false);
     setQuestion("");
@@ -142,7 +145,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         <>
           <b className="font-medium text-ink">◆ {copy.result.ask}</b>
           {/* Clearing is final, so it asks first, and waits for a pending answer (#116). */}
-          {turns.length > 0 && !pending && !c.pinned && (
+          {turns.length > 0 && !pending && !c.pinned && !readOnly && (
             <span className="ml-auto flex items-center gap-3 text-xs normal-case tracking-normal">
               {confirming ? (
                 <>
@@ -214,7 +217,7 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
         {suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2 px-5 pb-3">
             {suggestions.map((s) => (
-              <button key={s} type="button" onClick={() => ask(s)} className="border border-line bg-paper px-2 py-1 text-[11.5px] text-dim hover:border-edge hover:text-ink">
+              <button key={s} type="button" disabled={readOnly} onClick={() => ask(s)} className="border border-line bg-paper px-2 py-1 text-[11.5px] text-dim hover:border-edge hover:text-ink">
                 {s}
               </button>
             ))}
@@ -234,13 +237,19 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
             className="min-w-0 flex-1 rounded-[2px] border border-line bg-white px-3 py-2 text-[13px] placeholder:text-faint disabled:bg-paper"
             placeholder={pending ? "Wait for the answer…" : "Ask about this case, or “what if …”"}
             value={question}
-            disabled={Boolean(pending)}
+            disabled={Boolean(pending) || readOnly}
+            title={readOnly ? VIEWER_REASON : undefined}
             onChange={(e) => setQuestion(e.target.value)}
           />
-          <Button type="submit" disabled={Boolean(pending) || !question.trim()}>
+          <Button type="submit" disabled={Boolean(pending) || !question.trim() || readOnly} title={readOnly ? VIEWER_REASON : undefined}>
             Ask
           </Button>
         </form>
+        {readOnly && (
+          <p role="status" className="duo px-5 pb-3 text-[11.5px] text-dim">
+            {VIEWER_REASON}
+          </p>
+        )}
         {/* The agent gets the last 6 turns; the thread keeps up to 20 (#118). */}
         {pinnedContext.omitted && (
           <p className="duo -mt-1 px-5 pb-3 text-[11.5px] text-dim" data-testid="ask-context-note">

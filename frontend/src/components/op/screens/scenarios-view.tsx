@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Scenario } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { BAR, conf, money, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
@@ -106,19 +107,19 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
             </p>
           </div>
           {!editing && (
-            <Button variant="ghost" className="ml-auto" onClick={() => setEditing(true)}>
+            <Button variant="ghost" className="ml-auto" onClick={() => setEditing(true)} {...writeGate(caseReadOnly(c))}>
               Edit scenarios
             </Button>
           )}
         </div>
 
-        <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned ? undefined : () => setMoneyOpen(true)} />
+        <MoneyStrip c={c} locked={busy || saving} onEdit={c.pinned || caseReadOnly(c) ? undefined : () => setMoneyOpen(true)} />
 
         {editing && <Editor drafts={drafts} setDrafts={setDrafts} c={c} groups={groups} />}
         {error ? <ErrorBox error={error} onRetry={retrySave ? (retrySave.id === id ? () => void saveMoney(retrySave.economics) : undefined) : run} demoTitle={c.display_name} /> : null}
         {editing && (
           <div className="flex items-center gap-3">
-            <Button onClick={run} disabled={busy || saving || drafts.length === 0}>
+            <Button onClick={run} disabled={busy || saving || drafts.length === 0 || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
               {sc.length ? "Run again" : "Predict the scenarios"}
             </Button>
             {busy && <Spinner label="Predicting each scenario…" />}

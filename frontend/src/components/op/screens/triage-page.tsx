@@ -7,6 +7,8 @@ import { conf, seconds } from "@/lib/format";
 import { csvNumber, csvText, preview, type Preview } from "@/lib/triage-csv";
 import { Elapsed, ErrorBox, Main } from "../chrome";
 import { Button, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
+import { VIEWER_REASON, canCreate } from "@/lib/roles";
+import { useWorkspaceRole } from "@/lib/use-role";
 
 // Portfolio triage (DESIGN.md, backend D47, locked 16 Oct, option 1 of
 // c-batch.html; frames p-batch-upload, p-batch-running, p-batch).
@@ -28,6 +30,7 @@ function rank(r: Row): number {
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${n.toFixed(3)}`);
 
 export function TriagePage() {
+  const noCreate = !canCreate(useWorkspaceRole());
   const inputId = useId();
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<Preview | null>(null);
@@ -50,7 +53,7 @@ export function TriagePage() {
   };
 
   const run = async () => {
-    if (!file) return;
+    if (!file || noCreate) return;
     setError(null);
     setSince(Date.now());
     abort.current = new AbortController();
@@ -125,7 +128,7 @@ export function TriagePage() {
 
           {file && (
             <div className="mt-5 flex flex-wrap items-center gap-4">
-              <Button onClick={run} disabled={tooMany || rows?.length === 0}>
+              <Button onClick={run} disabled={tooMany || rows?.length === 0 || noCreate} title={noCreate ? VIEWER_REASON : undefined}>
                 Triage {rows ? `${rows.length} product${rows.length === 1 ? "" : "s"}` : "the file"}
               </Button>
               <span className="duo text-[13px] text-dim">

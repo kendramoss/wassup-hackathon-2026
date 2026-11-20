@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Explained, Term } from "../term";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, ApiError, streamPlan, type CaseResponse, type Economics, type MoveRef, type Plan, type PlanEstimate, type PlanRequest, type PlanResult, type Product } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money } from "@/lib/format";
@@ -247,7 +248,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           // nothing is filled in yet).
           <div className="flex flex-col gap-6">
             <div>
-              <Button onClick={run} disabled={!req}>
+              <Button onClick={run} disabled={!req || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
                 Search moves to <Flag country={target} size={12} /> {target}
               </Button>
               <p className="duo mt-2 max-w-[80ch] text-xs text-dim">
@@ -320,6 +321,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             <EconomicsEditor value={economics} onChange={setEconomics} product={c.product} countries={countries} priced={pricedEconomics(c)} />
             <Button
               variant="ghost"
+              {...writeGate(caseReadOnly(c))}
               onClick={() => {
                 setShowMoney(false);
                 run();
@@ -360,7 +362,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for the current setup →</ButtonLink>
           ) : !searching ? (
             // Same place as every other step's main action.
-            <Button onClick={run} disabled={!req}>
+            <Button onClick={run} disabled={!req || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
               Search moves to <Flag country={target} size={12} /> {target} →
             </Button>
           ) : null}

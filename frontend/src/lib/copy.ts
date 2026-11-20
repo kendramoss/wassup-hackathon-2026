@@ -304,6 +304,7 @@ export const copy = {
   access: {
     viewerRefused: "Your role in this workspace is viewer, so you can read this case but not change it. Ask a workspace admin for editor access.",
     recheck: "Check my access again",
+    readOnlyNote: "You can read this case but not change it: your role in this workspace is viewer. You can still preview a letter. Editor access is needed to change it.",
   },
 
   money: "Money · illustrative — editable",

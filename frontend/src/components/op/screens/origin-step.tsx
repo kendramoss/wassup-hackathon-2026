@@ -4,6 +4,7 @@ import { watchView } from "@/lib/watch-state";
 import Link from "next/link";
 import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
@@ -237,7 +238,7 @@ export function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseRe
             ))}
           </>
         )}{" "}
-        <button type="button" className="inline-flex min-h-6 items-center text-ok underline underline-offset-2 disabled:text-dim" onClick={run} disabled={busy}>
+        <button type="button" className="inline-flex min-h-6 items-center text-ok underline underline-offset-2 disabled:text-dim" onClick={run} disabled={busy || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
           {busy ? "Re-checking…" : w ? "Re-check again" : "Re-check now"}
         </button>
       </p>
@@ -430,7 +431,7 @@ function Questions({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse)
         </button>
       )}
       <div className="mt-4 flex flex-wrap items-center gap-3.5">
-        <Button variant="ghost" onClick={submit} disabled={!addsFact || busy}>
+        <Button variant="ghost" onClick={submit} disabled={!addsFact || busy} {...writeGate(caseReadOnly(c))}>
           {busy ? "Re-running…" : copy.result.rerun}
         </Button>
         {!addsFact && <span className="text-xs text-dim">{copy.result.rerunHint}</span>}

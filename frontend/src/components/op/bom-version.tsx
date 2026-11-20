@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ApiError, api, type BomVersionResponse, type CaseResponse } from "@/lib/api/client";
+import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { conf } from "@/lib/format";
 import { ErrorBox } from "./chrome";
 import { Button, Country, Panel, PanelHead, Spinner } from "./ui";
@@ -93,7 +94,7 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
             setError(null);
           }}
         />
-        <Button variant="ghost" onClick={() => run(false)} disabled={!file || busy !== null}>
+        <Button variant="ghost" onClick={() => run(false)} disabled={!file || busy !== null || caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>
           Compare with this case
         </Button>
       </div>
@@ -144,7 +145,7 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
               <p className="text-xs text-dim">This is a demo case, so it can&apos;t be changed. Start a new case to keep this version.</p>
             ) : (
               <div className="flex flex-wrap items-center gap-3">
-                <Button onClick={() => run(true)}>Apply to this case</Button>
+                <Button onClick={() => run(true)} disabled={caseReadOnly(c)} title={caseReadOnly(c) ? VIEWER_REASON : undefined}>Apply to this case</Button>
                 <span className="text-xs text-dim">Replaces the product and prediction. The plan, comparison, watch and draft are dropped; scenarios stay.</span>
               </div>
             ))}

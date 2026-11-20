@@ -83,3 +83,18 @@ export type MemberRow = { email: string; role: WorkspaceRole | null; you: boolea
 export function memberRows(ws: Workspace, myEmail: string | null): MemberRow[] {
   return ws.members.map((email) => ({ email, role: ws.member_roles?.[email] ?? null, you: email === myEmail }));
 }
+
+// Per-case write access, from the server's own answer for that case
+// (can_write on CaseResponse and CaseSummary). Only an explicit false on a
+// case that is not a pinned demo makes a screen read-only. Absent means the
+// answer is unknown: nothing is granted by it and nothing is hidden by it, and
+// the server's 403 still decides. A pinned demo keeps its existing read-only
+// journeys (Ask, plan, scenarios and compare answer without saving), so it is
+// never gated here, whatever can_write says. The role alone is never used for
+// an existing case: a viewer still owns their personal pre-workspace cases.
+export function caseReadOnly(c: { pinned?: boolean | null; can_write?: boolean } | null | undefined): boolean {
+  return Boolean(c) && !c!.pinned && c!.can_write === false;
+}
+
+// Props for a control that writes: disabled with the plain reason.
+export const writeGate = (readOnly: boolean): { disabled?: true; title?: string } => (readOnly ? { disabled: true, title: VIEWER_REASON } : {});

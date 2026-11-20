@@ -42,6 +42,7 @@ export function useCase(id: string) {
   // so show what the server says now. One read at a time; a GET never raises
   // this, so it cannot loop.
   useEffect(() => {
+    if (typeof window === "undefined") return;
     let reading = false;
     const stale = () => {
       if (reading) return;
