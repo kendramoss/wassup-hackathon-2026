@@ -527,7 +527,7 @@ export interface paths {
                         target?: string;
                         /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
                         move_key?: string;
-                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. */
+                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden. */
                         preview?: boolean;
                         /**
                          * @description markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66).
@@ -1854,7 +1854,7 @@ export interface paths {
         put?: never;
         /**
          * Invite a member by email (the workspace's admin only; TEAMS=on)
-         * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+         * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`,
          */
         post: {
             parameters: {
@@ -1897,6 +1897,118 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/members/{email}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set a member's role (workspace admin only; TEAMS=on)
+         * @description Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic).
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                    /** @description URL-encoded and lower-cased */
+                    email: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        role: components["schemas"]["WorkspaceRole"];
+                    };
+                };
+            };
+            responses: {
+                /** @description The workspace as the caller sees it */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Workspace"];
+                    };
+                };
+                400: components["responses"]["Error"];
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{id}/members/{email}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member, or leave (TEAMS=on)
+         * @description An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                    "X-User-Token": components["parameters"]["UserToken"];
+                };
+                path: {
+                    id: string;
+                    /** @description URL-encoded and lower-cased */
+                    email: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The removed email and the caller's updated workspace view */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: email */
+                            removed: string;
+                            /** @description The caller's updated workspace, or null when the caller left */
+                            workspace: components["schemas"]["Workspace"] | null;
+                        };
+                    };
+                };
+                401: components["responses"]["Error"];
+                403: components["responses"]["Error"];
+                404: components["responses"]["Error"];
+                409: components["responses"]["Error"];
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -2181,14 +2293,24 @@ export interface components {
             invited: string[];
             /**
              * Format: email
-             * @description The workspace's admin
+             * @description The workspace's creator
              */
             created_by: string;
             /** Format: date-time */
             created_at: string;
-            /** @description The caller is the admin */
+            /** @description The caller's role is admin */
             admin: boolean;
+            role: components["schemas"]["WorkspaceRole"];
+            /** @description Role of each joined member by email. Present only when the caller is an admin; invited-only emails never appear. */
+            member_roles?: {
+                [key: string]: components["schemas"]["WorkspaceRole"];
+            };
         };
+        /**
+         * @description The caller's role in the workspace, derived by the server from stored membership.
+         * @enum {string}
+         */
+        WorkspaceRole: "viewer" | "editor" | "admin";
         /** @description A stored API key; the secret and its hash are never returned (D69). */
         APIKey: {
             id: string;

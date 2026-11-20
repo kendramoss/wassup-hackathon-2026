@@ -29,6 +29,10 @@ info:
 
     Teams (D68, `TEAMS=on`, off by default; nothing below applies when off): the frontend proxy forwards a signed-in user's Google ID token as `X-User-Token` (an optional `Bearer ` prefix is accepted). The backend verifies it (signature, expiry, issuer, audience `TEAMS_AUDIENCE`, verified email); an invalid or expired token is 401 `unauthenticated` on every endpoint. Without the header the request is anonymous and the D58 rules above apply. A case created by a signed-in user belongs to them and to their workspace (if any). A signed-in user sees the pinned demos, their own cases, their workspace's cases, and the anonymous cases made with the same `X-Visitor-ID`; anyone else gets 404, anonymous visitors included. History events then carry `actor` (the user's email). A user is in at most one workspace; its creator is its admin. The admin invites by email; the invitee is not a member (and their cases are not shared) until they accept with `POST /v1/workspaces/{id}/join`.
 
+    Workspace roles (#283, with Teams on): each member of a workspace has a role stored with the workspace and read by the server for every request from a verified signed-in user: `viewer`, `editor` or `admin`. A role is never taken from a header, a body field or a token claim. A member with no stored role is an `editor`; the creator with no stored role is an `admin`; an explicitly stored role overrides both fallbacks. A joiner is an `editor`. On cases that carry the caller's workspace id, a viewer may read cases and lists, call `POST /v1/cases/{id}/plan/estimate` (no write, no model call) and export with `preview: true` (parsed as the JSON boolean true only); every other write, including a recording export, is 403 `forbidden` for a viewer. Only an admin invites, changes roles and removes members. A case a caller cannot see stays 404. The admin token and API keys carry no workspace role and never inherit one. A user removed from a workspace loses access to every case that carries its id, including cases they created; their personal and anonymous-browser cases stay theirs.
+
+    Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
+
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
 security:
   - {}
@@ -306,7 +310,7 @@ paths:
                   description: "Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index."
                 preview:
                   type: boolean
-                  description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print."
+                  description: "Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden."
                 format:
                   type: string
                   enum: [markdown, cfr177]
@@ -1043,7 +1047,7 @@ paths:
   /v1/workspaces/{id}/members:
     post:
       summary: Invite a member by email (the workspace's admin only; TEAMS=on)
-      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not the admin; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
+      description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`, #283); the invitee joins as an `editor`; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
       parameters:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -1059,6 +1063,55 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Workspace" }
         "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members/{email}/role:
+    put:
+      summary: Set a member's role (workspace admin only; TEAMS=on)
+      description: "Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic)."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [role], additionalProperties: false, properties: { role: { $ref: "#/components/schemas/WorkspaceRole" } } }
+      responses:
+        "200":
+          description: The workspace as the caller sees it
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+  /v1/workspaces/{id}/members/{email}:
+    delete:
+      summary: Remove a member, or leave (TEAMS=on)
+      description: "An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation."
+      parameters:
+        - { $ref: "#/components/parameters/UserToken" }
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
+      responses:
+        "200":
+          description: The removed email and the caller's updated workspace view
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [removed, workspace]
+                properties:
+                  removed: { type: string, format: email }
+                  workspace:
+                    description: The caller's updated workspace, or null when the caller left
+                    oneOf: [{ $ref: "#/components/schemas/Workspace" }, { type: "null" }]
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
@@ -1225,15 +1278,24 @@ components:
     Workspace:
       type: object
       description: A team workspace (D68); its members see each other's cases.
-      required: [id, name, members, invited, created_by, created_at, admin]
+      required: [id, name, members, invited, created_by, created_at, admin, role]
       properties:
         id: { type: string, example: ws_3f9a2c1b7d4e }
         name: { type: string }
         members: { type: array, items: { type: string, format: email }, description: Users who created or joined it }
         invited: { type: array, items: { type: string, format: email }, description: Pending invitations, not yet members }
-        created_by: { type: string, format: email, description: The workspace's admin }
+        created_by: { type: string, format: email, description: The workspace's creator }
         created_at: { type: string, format: date-time }
-        admin: { type: boolean, description: The caller is the admin }
+        admin: { type: boolean, description: The caller's role is admin }
+        role: { $ref: "#/components/schemas/WorkspaceRole" }
+        member_roles:
+          type: object
+          description: Role of each joined member by email. Present only when the caller is an admin; invited-only emails never appear.
+          additionalProperties: { $ref: "#/components/schemas/WorkspaceRole" }
+    WorkspaceRole:
+      type: string
+      enum: [viewer, editor, admin]
+      description: The caller's role in the workspace, derived by the server from stored membership.
     APIKey:
       type: object
       description: A stored API key; the secret and its hash are never returned (D69).
