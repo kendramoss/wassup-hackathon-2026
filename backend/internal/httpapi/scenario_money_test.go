@@ -204,3 +204,36 @@ func TestScenarioSaveWithChangedEconomicsDoesNotSelfConflict(t *testing.T) {
 		t.Errorf("GET net %v", n)
 	}
 }
+
+// No annual import value means nothing to price: the comparison is null (the
+// UI shows "add duty rates or costs"), never a real-looking $0 saving.
+func TestZeroImportValueIsNullNotZero(t *testing.T) {
+	mem := store.NewMemory()
+	hs := bomHarness(t, func(d *Deps) { d.Cases = mem })
+	id, _ := moneySeed(t, hs)
+	assertNull := func(where string, c map[string]any) {
+		t.Helper()
+		ss, _ := c["scenarios"].([]any)
+		if len(ss) != 1 {
+			t.Fatalf("%s: scenarios = %v", where, c["scenarios"])
+		}
+		sc := ss[0].(map[string]any)
+		if sc["comparison"] != nil || sc["product"] == nil || sc["label"] != "Motor in Thailand" {
+			t.Errorf("%s: comparison %v (want null), definition %v", where, sc["comparison"], sc["product"] != nil)
+		}
+	}
+	out := putEcon(t, hs, id, econBody(0, 0.25, 0, 100000, 220000))
+	assertNull("PUT response", out)
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	assertNull("GET", got)
+	if _, err := mem.Update(t.Context(), id, func(c *store.Case) error { c.Scenarios[0].Basis = ""; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	_, got = hs.do(t, "GET", "/v1/cases/"+id, "")
+	assertNull("legacy GET", got)
+	putEcon(t, hs, id, econBody(4000000, 0.25, 0, 100000, 220000))
+	_, got = hs.do(t, "GET", "/v1/cases/"+id, "")
+	if n := netOf(t, got); n != 880000 {
+		t.Errorf("net after restore = %v, want 880000", n)
+	}
+}

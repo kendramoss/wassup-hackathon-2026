@@ -76,7 +76,7 @@ func baselineOrigin(c store.Case) string {
 
 // compareScenarios prices each scenario against c's baseline and stamps the
 // result with scenarioBasis(c). Pure arithmetic on stored predictions: no
-// model call, no store write. Without economics there is nothing to price and
+// model call, no store write. Without economics, or without an annual import value, there is nothing to price and
 // the comparison stays nil (shown as not priced). fetch lets the live MFN
 // lookup run (a save); a read passes false and uses cached rates only.
 func (a *api) compareScenarios(ctx context.Context, c store.Case, ss []store.Scenario, fetch bool) {
@@ -84,7 +84,7 @@ func (a *api) compareScenarios(ctx context.Context, c store.Case, ss []store.Sce
 	for i := range ss {
 		ss[i].Comparison, ss[i].Basis = nil, basis
 	}
-	if c.Economics == nil {
+	if c.Economics == nil || c.Economics.AnnualImportValueUSD <= 0 { // nothing to price: null, not $0
 		return
 	}
 	origins := caseOrigins(c)
