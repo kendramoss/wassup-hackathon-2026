@@ -234,3 +234,21 @@ test("a PUT response without scenarios keeps the case's own (a case with none st
   assert.equal(out.kept.length, 1);
   assert.equal(out.none, null);
 });
+
+test("when every re-read is overtaken by another write, the repriced scenarios from the PUT are shown (#347)", () => {
+  const out = flow(`
+    let gets = 0;
+    const repriced = [{ label: "As today", comparison: { net_usd: 880000 } }];
+    globalThis.fetch = async (url, init) => {
+      if (init.method === "PUT") return new Response(JSON.stringify({ case_id: "c1", economics: serverCase().economics, scenarios: repriced }));
+      gets++;
+      state = { ...state }; // another write lands during every re-read, so none is applied
+      return new Response(JSON.stringify(serverCase()));
+    };
+    state = { ...fullCase, scenarios: [{ label: "As today", comparison: { net_usd: 380000 } }] };
+    await saveEconomics("c1", serverCase().economics, io);
+    console.log(JSON.stringify({ gets, net: state.scenarios[0].comparison.net_usd }));
+  `);
+  assert.equal(out.gets, 3);
+  assert.equal(out.net, 880000);
+});
