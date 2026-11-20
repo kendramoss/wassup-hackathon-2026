@@ -56,6 +56,31 @@ export async function prefillMoney(
   }
 }
 
+// mergeDutyPrefill lands a duty-rate lookup on the economics as they are now
+// (#349), not as they were when it started. Only countries that are still
+// blank are filled: a rate the user entered or changed while the lookup was out
+// stays, and so does one they cleared. Nothing else in `latest` is touched.
+export function mergeDutyPrefill(latest: Economics, started: Economics | undefined, result: Economics | undefined): Economics {
+  const now = latest.duty_rates ?? {};
+  const was = started?.duty_rates ?? {};
+  const got = result?.duty_rates ?? {};
+  const add = Object.keys(got).filter((c) => now[c] === undefined && was[c] === undefined);
+  if (!add.length) return latest;
+  const out: Economics = { ...latest, duty_rates: { ...now, ...Object.fromEntries(add.map((c) => [c, got[c]])) } };
+  const pick = <T,>(m: Record<string, T> | undefined) => (m ? Object.fromEntries(Object.entries(m).filter(([c]) => add.includes(c))) : undefined);
+  const extra = pick(result?.duty_additional);
+  if (extra && Object.keys(extra).length) out.duty_additional = { ...(latest.duty_additional ?? {}), ...extra };
+  for (const k of ["duty_rates_from_table", "duty_rates_live_mfn"] as const) {
+    const more = (result?.[k] ?? []).filter((c) => add.includes(c));
+    if (more.length) out[k] = [...new Set([...(latest[k] ?? []), ...more])];
+  }
+  // The note describes where the rates came from: keep it only when no rate the
+  // user owns disagrees with what the lookup was describing.
+  const clash = Object.keys(got).some((c) => now[c] !== undefined && now[c] !== got[c]);
+  if (result?.duty_rates_note && !clash && !latest.duty_rates_note) out.duty_rates_note = result.duty_rates_note;
+  return out;
+}
+
 // PrefillBar sits above a money form. Once ready, a product with an HTS
 // number and no duty rates yet is priced on its own (no model call); without
 // an HTS the button asks for a suggestion first (one model call).
@@ -63,14 +88,33 @@ export function PrefillBar({ product, economics, ready, onFill }: { product?: Pr
   const [busy, setBusy] = useState(false);
   const [filled, setFilled] = useState<Filled | null>(null);
   const ran = useRef(false);
+  // The inputs as they are now, and which product/form this is: the lookup
+  // lands on those, not on what they were when it started (#349).
+  const now = useRef({ economics, product, onFill });
+  const live = useRef(true);
+  useEffect(() => {
+    now.current = { economics, product, onFill };
+  });
+  useEffect(() => {
+    live.current = true;
+    return () => {
+      live.current = false;
+    };
+  }, []);
   const canPrice = Boolean(product?.plants?.length);
   const noRates = !Object.keys(economics.duty_rates ?? {}).length;
   const run = async () => {
     if (!product || busy) return;
     ran.current = true;
     setBusy(true);
-    const r = await prefillMoney(product, economics);
-    if (r.economics) onFill(r.economics);
+    const started = economics;
+    const r = await prefillMoney(product, started);
+    if (!live.current) return; // dismissed
+    if (now.current.product !== product) {
+      setBusy(false); // superseded: the result is for another product
+      return;
+    }
+    if (r.economics) now.current.onFill(mergeDutyPrefill(now.current.economics, started, r.economics));
     setFilled(r.filled);
     setBusy(false);
   };
@@ -138,6 +182,28 @@ export function PrefillNote({ f, onEdit, className }: { f: Filled; onEdit?: () =
 export type EstimatedCells = Record<string, { low: number; high: number; reason: string }>;
 export const cellKey = (group: string, plant: string) => `${group}|${plant}`;
 
+// mergeEstimates lands AI estimates on the economics as they are now (#349).
+// A cell is filled only when it is blank now and was blank when the request
+// started; a figure typed (zero included) stays, and so does a cell the user
+// cleared meanwhile. Nothing else in `latest` changes.
+export function mergeEstimates(
+  latest: Economics,
+  started: Economics,
+  estimates: { group: string; plant: string; usd: number; low: number; high: number; reason: string }[],
+): { economics: Economics; cells: EstimatedCells } {
+  const costs = { ...(latest.group_costs ?? {}) };
+  const cells: EstimatedCells = {};
+  for (const x of estimates) {
+    if (started.group_costs?.[x.group]?.[x.plant] !== undefined) continue;
+    const row = { ...(costs[x.group] ?? {}) };
+    if (row[x.plant] !== undefined) continue;
+    row[x.plant] = Math.round(x.usd);
+    costs[x.group] = row;
+    cells[cellKey(x.group, x.plant)] = { low: x.low, high: x.high, reason: x.reason };
+  }
+  return { economics: Object.keys(cells).length ? { ...latest, illustrative: true, group_costs: costs } : latest, cells };
+}
+
 export function EstimateCosts({
   product,
   economics,
@@ -149,34 +215,50 @@ export function EstimateCosts({
   onFill: (e: Economics, cells: EstimatedCells) => void;
   className?: string;
 }) {
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<{ tone: "ok" | "ask"; text: string } | null>(null);
+  // Busy and the message belong to the product they were for: on another
+  // product they read as idle and empty (#349).
+  const [busyOn, setBusyOn] = useState<Product | undefined>(undefined);
+  const [note, setNote] = useState<{ for: Product | undefined; tone: "ok" | "ask"; text: string } | null>(null);
+  const busy = busyOn !== undefined && busyOn === product;
+  const msg = note && note.for === product ? note : null;
+  // The inputs as they are now: a response merges into these, not into what the
+  // request was sent with. `seq` names the latest request; it moves on when the
+  // product changes or the form goes away, so older results are ignored.
+  const now = useRef({ economics, product, onFill });
+  const seq = useRef(0);
+  useEffect(() => {
+    now.current = { economics, product, onFill };
+  });
+  useEffect(() => {
+    return () => {
+      seq.current++;
+    };
+  }, []);
+  useEffect(() => {
+    seq.current++;
+  }, [product]);
   if (!product?.plants?.length) return null;
   const run = async () => {
-    setBusy(true);
-    setMsg(null);
+    const mine = ++seq.current;
+    const started = economics;
+    setBusyOn(product);
+    setNote(null);
     try {
       const r = await api.costEstimate({ product, economics });
-      const costs = { ...(economics.group_costs ?? {}) };
-      const cells: EstimatedCells = {};
-      for (const x of r.estimates ?? []) {
-        const row = { ...(costs[x.group] ?? {}) };
-        if (row[x.plant] !== undefined) continue; // the user's figure stays
-        row[x.plant] = Math.round(x.usd);
-        costs[x.group] = row;
-        cells[cellKey(x.group, x.plant)] = { low: x.low, high: x.high, reason: x.reason };
-      }
+      if (seq.current !== mine) return;
+      const { economics: next, cells } = mergeEstimates(now.current.economics, started, r.estimates ?? []);
       const n = Object.keys(cells).length;
-      onFill({ ...economics, illustrative: true, group_costs: costs }, cells);
-      setMsg(
+      if (n) now.current.onFill(next, cells);
+      setNote(
         n
-          ? { tone: "ok", text: `Filled ${n} blank cost${n === 1 ? "" : "s"} with AI estimates (dashed; hover for the range and why). Illustrative: check them.` }
-          : { tone: "ok", text: r.note || "Every cell already has a cost." },
+          ? { for: product, tone: "ok", text: `Filled ${n} blank cost${n === 1 ? "" : "s"} with AI estimates (dashed; hover for the range and why). Illustrative: check them.` }
+          : { for: product, tone: "ok", text: r.note || "Every cell already has a cost." },
       );
     } catch (e) {
-      setMsg({ tone: "ask", text: e instanceof ApiError && e.status === 400 ? e.message.replace(/^.*?:\s*/, "") : "Couldn't estimate just now. Try again, or enter the costs by hand." });
+      if (seq.current !== mine) return;
+      setNote({ for: product, tone: "ask", text: e instanceof ApiError && e.status === 400 ? e.message.replace(/^.*?:\s*/, "") : "Couldn't estimate just now. Try again, or enter the costs by hand." });
     } finally {
-      setBusy(false);
+      if (seq.current === mine) setBusyOn(undefined);
     }
   };
   return (
