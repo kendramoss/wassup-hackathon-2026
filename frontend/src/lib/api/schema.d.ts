@@ -2511,7 +2511,7 @@ export interface components {
             object?: string;
             /** @description The route pattern */
             route?: string;
-            /** @description The server-generated request id, or `h_` plus a hash of a client-supplied one */
+            /** @description The request reference: 16 server-minted hex characters, or `h_` plus the first 16 hex of the SHA-256 of a client-supplied X-Request-ID. A client value is never stored raw. */
             request_id?: string;
             /** @description On a completion or failure, the seq of its intent; omitted when the event has none, including when the intent could not be written */
             ref?: number;

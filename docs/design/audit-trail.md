@@ -6,7 +6,7 @@ Scope: the backend. A separate, append-only, tenant-scoped trail of who did what
 
 | Source | What it holds | Gap for audit |
 | --- | --- | --- |
-| Request log (`withRequestLog`) | method, path, status, latency, request id; no bodies | no actor, no tenant, short-lived log retention (Cloud Logging, outside this repo) |
+| Request log (`withRequestLog`) | method, route pattern, status, latency, request reference; no bodies | no actor, no tenant, short-lived log retention (Cloud Logging, outside this repo) |
 | Case `History` (`store.Case.History`, `record()`) | up to 200 analysis events per case with the signed-in user's email as actor | mutable, trimmed, per case, holds email, nothing for denials, workspaces, API keys or deletes |
 | `llm.WithLogging` | model call metadata (prompts at debug) | not an access record; redaction is #285 |
 

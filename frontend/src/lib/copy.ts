@@ -197,8 +197,9 @@ export const copy = {
         {
           h: "Where your data goes",
           p: [
-            "Cases are stored in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. Under Google Cloud's terms, that data isn't used to train Google's models.",
-            "The server logs each request's method, path, status and timing, not its contents.",
+            "Cases are stored in Google Cloud Firestore. To predict an origin or search for moves, Unde sends the case's product facts to Gemini on Google Cloud Vertex AI. How Google handles that data is set by Google Cloud's terms for the service, which Unde does not control.",
+            "Our server logs record the kind of request (the route pattern, such as GET /v1/cases/{id}), its status and how long it took, a request reference, and counts such as model tokens. They do not record your product description, bill of materials, supplier or plant names, costs, questions, answers, case names, email addresses, tokens or API keys. When something fails, the log keeps the kind of failure (for example \"model unavailable\") and a status number, not the text of the error. Model prompts and answers are not written to the logs at any level.",
+            "The request reference shown in the X-Request-ID header is generated or derived by the server. If you send your own, it is replaced by a one-way hash, so something you put in that header does not appear in our logs.",
             "Unde doesn't sell your data or share it with anyone else.",
           ],
         },
@@ -207,6 +208,7 @@ export const copy = {
           p: [
             "Cases are kept until you delete them, from the Cases page, or until Unde shuts down. Clearing your cookies hides an anonymous visitor's cases from that browser for good.",
             "To have your data removed, or to ask what Unde holds about you, email the address below.",
+            "Your case, its history and what you export are stored and shown to you and your workspace as you entered them, with the same accuracy as before. The history keeps the email of the member who made each change and shows it to the people who can see that case. History lines written from now on no longer repeat the text of a question or an old case name; lines written earlier are not rewritten. Deleting or resetting a case does not remove copies that exist in earlier history lines, caches or backups.",
           ],
         },
       ],
