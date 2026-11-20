@@ -27,9 +27,21 @@ var errBoom = errors.New("audit store down")
 // sealed event, so a test can fail only completions, only one action, etc.
 type faultStore struct {
 	audit.Store
-	mu     sync.Mutex
-	fail   func(audit.Event) bool
-	tamper func([]audit.Event) []audit.Event // edits what Range returns, as a rewritten datastore would
+	mu      sync.Mutex
+	fail    func(audit.Event) bool
+	onState func(tenant string)               // runs after each State read
+	tamper  func([]audit.Event) []audit.Event // edits what Range returns, as a rewritten datastore would
+}
+
+func (f *faultStore) State(ctx context.Context, tenant string) (audit.Head, *audit.Checkpoint, error) {
+	h, c, err := f.Store.State(ctx, tenant)
+	f.mu.Lock()
+	hook := f.onState
+	f.mu.Unlock()
+	if hook != nil {
+		hook(tenant)
+	}
+	return h, c, err
 }
 
 func (f *faultStore) Range(ctx context.Context, tenant string, r audit.Range) ([]audit.Event, error) {
@@ -522,6 +534,7 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 	fid := ws["id"].(string)
 	e.hs.addToWorkspace(t, fid, "fiona", "gus")
 	e.hs.addToWorkspace(t, fid, "fiona", "kim")
+	e.hs.addToWorkspace(t, fid, "fiona", "lou") // one member per action: the cases run in map order
 	e.hs.doAs(t, "POST", "/v1/workspaces/"+fid+"/members", `{"email":"hana@example.com"}`, user("fiona"))
 	var keyID string
 	{
@@ -555,9 +568,9 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 		},
 		audit.WorkspaceRoleChange: {
 			func() (int, map[string]any) {
-				return e.hs.doAs(t, "PUT", e.rolePath(fid, "gus"), `{"role":"viewer"}`, user("fiona"))
+				return e.hs.doAs(t, "PUT", e.rolePath(fid, "lou"), `{"role":"viewer"}`, user("fiona"))
 			},
-			func() bool { return roleOf("gus@example.com") == "editor" },
+			func() bool { return roleOf("lou@example.com") == "editor" },
 		},
 		audit.WorkspaceMemberRemove: {
 			func() (int, map[string]any) {
@@ -987,4 +1000,73 @@ func TestPlanStreamIsClosedExplicitly(t *testing.T) {
 		t.Fatalf("stream = %q %q", rec.Header().Get("Content-Type"), rec.Body.String())
 	}
 	pair(t, "plan stream", e.since(ten, before), audit.CaseUpdate, "plan")
+}
+
+func TestInvalidRequestsAreRefusedBeforeAnyIntentEvenWithTheTrailDown(t *testing.T) {
+	e := newAuditEnv(t)
+	_, out := e.hs.doAs(t, "POST", "/v1/admin/api-keys", `{"name":"k","daily_quota":5}`, admin)
+	known := out["api_key"].(map[string]any)["id"].(string)
+	id := e.wsCase()
+	before := len(e.events("platform"))
+	tb := len(e.events(e.tenant()))
+	for _, down := range []bool{false, true} {
+		e.fault.set(nil)
+		if down {
+			e.fault.set(func(audit.Event) bool { return true })
+		}
+		for what, tc := range map[string]struct {
+			method, path, body string
+			h                  map[string]string
+			want               int
+		}{
+			"issue empty name":     {"POST", "/v1/admin/api-keys", `{"name":"","daily_quota":0}`, admin, 400},
+			"issue bad quota":      {"POST", "/v1/admin/api-keys", `{"name":"x","daily_quota":-1}`, admin, 400},
+			"disable unknown key":  {"DELETE", "/v1/admin/api-keys/0123456789abcdef", "", admin, 404},
+			"disable malformed id": {"DELETE", "/v1/admin/api-keys/not-a-key", "", admin, 404},
+			"ask empty question":   {"POST", "/v1/cases/" + id + "/ask", `{"question":"   "}`, user("dave"), 400},
+			"ask too long":         {"POST", "/v1/cases/" + id + "/ask", `{"question":"` + strings.Repeat("x", 2001) + `"}`, user("dave"), 400},
+		} {
+			if code, body := e.hs.doAs(t, tc.method, tc.path, tc.body, tc.h); code != tc.want {
+				t.Errorf("%s (audit down=%v) = %d %v, want %d", what, down, code, body, tc.want)
+			}
+		}
+	}
+	e.fault.set(nil)
+	if got := len(e.events("platform")) - before; got != 0 {
+		t.Errorf("invalid API-key requests left %d events", got)
+	}
+	if got := len(e.events(e.tenant())) - tb; got != 0 {
+		t.Errorf("invalid ask requests left %d events", got)
+	}
+	_ = known
+	// A valid disable still records its pair.
+	if code, _ := e.hs.doAs(t, "DELETE", "/v1/admin/api-keys/"+known, "", admin); code != 204 {
+		t.Fatalf("valid disable = %d", code)
+	}
+	pair(t, "disable", lastN(e.events("platform"), before), audit.APIKeyDisable, "")
+}
+
+func TestVerifyRouteAnswers409WhenAPurgeKeepsMovingTheCheckpoint(t *testing.T) {
+	e := newAuditEnv(t)
+	for i := 0; i < 4; i++ {
+		e.wsCase()
+	}
+	e.clk.advance(200 * 24 * time.Hour) // everything is past retention
+	mem := e.fault.Store
+	e.fault.mu.Lock()
+	e.fault.onState = func(tenant string) { // a sweeper that removes one event after every read
+		_, _ = mem.Purge(context.Background(), tenant, e.clk.now().Add(-90*24*time.Hour), e.clk.now(), 1)
+	}
+	e.fault.mu.Unlock()
+	code, body := e.hs.doAs(t, "GET", "/v1/audit/verify", "", user("carol"))
+	e.fault.mu.Lock()
+	e.fault.onState = nil
+	e.fault.mu.Unlock()
+	if code != 409 || body["code"] != "conflict" {
+		t.Errorf("verify during purges = %d %v, want 409 conflict (not 200 with findings)", code, body)
+	}
+	code, body = e.hs.doAs(t, "GET", "/v1/audit/verify", "", user("carol"))
+	if code != 200 || body["ok"] != true || body["verified_through_seq"] == nil {
+		t.Errorf("verify after = %d %v", code, body)
+	}
 }

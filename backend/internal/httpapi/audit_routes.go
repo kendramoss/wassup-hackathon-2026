@@ -183,6 +183,9 @@ func (a *api) auditVerify(w http.ResponseWriter, r *http.Request) {
 	case errors.Is(err, audit.ErrBadQuery):
 		a.fail(w, r, fmt.Errorf("%w: the cursor is not valid for this verification", domain.ErrInvalid))
 		return
+	case errors.Is(err, audit.ErrVerifyRestart):
+		writeError(w, http.StatusConflict, "conflict", "a retention purge ran during this verification; start it again without a cursor", nil)
+		return
 	case err != nil:
 		a.fail(w, r, err)
 		return

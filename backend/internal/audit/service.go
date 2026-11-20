@@ -321,64 +321,133 @@ func (s *Service) List(ctx context.Context, tenant string, q ListQuery) (Page, e
 	return page, nil
 }
 
-// Verify checks tenant's retained chain, VerifyPage events per call. Pass the
-// previous call's NextCursor to continue.
+// ErrVerifyRestart means a retention purge ran while a verification was in
+// progress, so the range it still needed is gone. It is not a tamper finding:
+// start again without a cursor.
+var ErrVerifyRestart = errors.New("audit: a retention purge ran during verification; restart it without a cursor")
+
+// Verify checks tenant's retained chain, verifyPage events per call, against a
+// SNAPSHOT frozen by the first call: the head (seq and hash) as read before any
+// event, and the retention checkpoint. Events appended after that head are
+// outside the view and never read as part of the chain, so a live tenant does
+// not look tampered, and the audit.verify write the caller makes afterwards
+// cannot extend the run. The cursor carries the snapshot (MAC'd), so every
+// page is judged against the same head. A legitimate purge that removes what a
+// later page needs is ErrVerifyRestart, never a gap finding; a prefix removed
+// without the checkpoint moving is still a finding.
 func (s *Service) Verify(ctx context.Context, tenant, cursor string) (VerifyResult, error) {
 	if !ValidTenant(tenant) {
 		return VerifyResult{}, ErrBadQuery
 	}
-	head, cp, err := s.store.State(ctx, tenant)
-	if err != nil {
-		return VerifyResult{}, err
-	}
-	anchor, anchored := anchorFor(cp)
-	chk := &chainCheck{tenant: tenant, anchored: anchored, fromCP: cp != nil, expect: anchor}
+	var cur *Cursor
 	if cursor != "" {
 		c, err := s.ps.DecodeCursor(tenant, "verify", "", cursor)
 		if err != nil {
 			return VerifyResult{}, ErrBadQuery
 		}
-		chk.expect = Head{Seq: c.Seq, Hash: c.Hash, Time: time.UnixMicro(c.TimeUS).UTC()}
-		chk.fed, chk.anchored, chk.fromCP, chk.overflow = true, true, false, c.OpenOverflow
-		chk.open = map[uint64]bool{}
-		for _, q := range c.Open {
+		cur = &c
+	}
+	for attempt := 0; attempt < 2; attempt++ { // one bounded retry when a purge lands inside a first call
+		res, retry, err := s.verifyOnce(ctx, tenant, cur)
+		if err != nil || !retry {
+			return res, err
+		}
+	}
+	return VerifyResult{}, ErrVerifyRestart
+}
+
+func cpSeq(cp *Checkpoint) uint64 {
+	if cp == nil {
+		return 0
+	}
+	return cp.ThroughSeq
+}
+
+func (s *Service) verifyOnce(ctx context.Context, tenant string, cur *Cursor) (VerifyResult, bool, error) {
+	head, cp, err := s.store.State(ctx, tenant)
+	if err != nil {
+		return VerifyResult{}, false, err
+	}
+	var upper uint64
+	var upperHash string
+	var chk *chainCheck
+	asOf := s.opt.Now()
+	if cur == nil {
+		upper, upperHash = head.Seq, head.Hash
+		anchor, anchored := anchorFor(cp)
+		chk = &chainCheck{tenant: tenant, anchored: anchored, fromCP: cp != nil, expect: anchor}
+	} else {
+		upper, upperHash = cur.Upper, cur.UpperHash
+		asOf = time.UnixMicro(cur.AsOfUS).UTC() // the age cutoff does not move between pages
+		if cpSeq(cp) > cur.Seq {                // the sweeper removed events this verification still has to read
+			return VerifyResult{}, false, ErrVerifyRestart
+		}
+		chk = &chainCheck{tenant: tenant, anchored: true, fed: true, overflow: cur.OpenOverflow, open: map[uint64]bool{},
+			expect: Head{Seq: cur.Seq, Hash: cur.Hash, Time: time.UnixMicro(cur.TimeUS).UTC()}}
+		for _, q := range cur.Open {
 			chk.open[q] = true
 		}
 	}
+	if upper == 0 {
+		upperHash = Genesis
+	}
 	evs, err := s.store.Range(ctx, tenant, Range{Cursor: chk.expect.Seq, Limit: verifyPage})
 	if err != nil {
-		return VerifyResult{}, err
+		return VerifyResult{}, false, err
 	}
+	beyond := false
 	for _, e := range evs {
+		if e.Seq > upper { // appended after the snapshot: not part of this verification
+			beyond = true
+			break
+		}
 		chk.feed(e)
 	}
-	res := VerifyResult{Tenant: tenant, Checked: chk.checked, FirstSeq: chk.first, LastSeq: chk.expect.Seq, Complete: len(evs) < verifyPage}
-	if cp != nil {
-		res.Checkpoint = &CheckpointInfo{ThroughSeq: cp.ThroughSeq, PurgedAt: cp.PurgedAt}
+	head2, cp2, err := s.store.State(ctx, tenant)
+	if err != nil {
+		return VerifyResult{}, false, err
 	}
-	if res.Complete {
-		chk.finish(head, cp)
-		un, err := s.unresolved(ctx, tenant, chk)
+	if cpSeq(cp2) != cpSeq(cp) { // a purge ran inside this call
+		if cur == nil {
+			return VerifyResult{}, true, nil
+		}
+		if cpSeq(cp2) > cur.Seq {
+			return VerifyResult{}, false, ErrVerifyRestart
+		}
+	}
+	complete := beyond || len(evs) < verifyPage || chk.expect.Seq >= upper
+	res := VerifyResult{Tenant: tenant, Checked: chk.checked, FirstSeq: chk.first, LastSeq: chk.expect.Seq, Complete: complete, VerifiedThroughSeq: upper}
+	if cp2 != nil {
+		res.Checkpoint = &CheckpointInfo{ThroughSeq: cp2.ThroughSeq, PurgedAt: cp2.PurgedAt}
+	}
+	if complete {
+		chk.finish(Head{Seq: upper, Hash: upperHash}, cp2)
+		// The live head must not have gone backwards from the snapshot.
+		if head2.Seq < upper || (head2.Seq == upper && head2.Hash != upperHash) {
+			chk.add(head2.Seq, FindingHead)
+		}
+		un, err := s.unresolved(ctx, tenant, chk, asOf)
 		if err != nil {
-			return VerifyResult{}, err
+			return VerifyResult{}, false, err
 		}
 		res.UnresolvedIntents = un
 	} else {
 		last := chk.expect
-		cur := Cursor{Kind: "verify", Seq: last.Seq, Hash: last.Hash, TimeUS: last.Time.UnixMicro(), OpenOverflow: chk.overflow}
+		nc := Cursor{Kind: "verify", Seq: last.Seq, Hash: last.Hash, TimeUS: last.Time.UnixMicro(), OpenOverflow: chk.overflow,
+			Upper: upper, UpperHash: upperHash, AsOfUS: asOf.UnixMicro()}
 		if len(chk.open) > maxCarriedOpen {
-			cur.OpenOverflow = true // cannot carry them all: the final count becomes a lower bound
+			nc.OpenOverflow = true // cannot carry them all: the final count is no longer exact
 		} else {
-			cur.Open = sortedKeys(chk.open)
+			nc.Open = sortedKeys(chk.open)
 		}
-		res.NextCursor = s.ps.EncodeCursor(tenant, cur)
+		res.NextCursor = s.ps.EncodeCursor(tenant, nc)
 	}
 	res.Findings = chk.findings
 	if res.Findings == nil {
 		res.Findings = []Finding{}
 	}
 	res.OK = len(res.Findings) == 0
-	return res, nil
+	return res, false, nil
 }
 
 func sortedKeys(m map[uint64]bool) []uint64 {
@@ -390,24 +459,27 @@ func sortedKeys(m map[uint64]bool) []uint64 {
 	return out
 }
 
-// unresolved reports the open intents old enough to count, over the whole
-// retained range the verification walked. Each open intent's time is read back
-// (at most as many reads as intents).
-func (s *Service) unresolved(ctx context.Context, tenant string, chk *chainCheck) (*Unresolved, error) {
-	now := s.opt.Now()
-	var seqs []uint64
+// unresolved reports the intents that, AS OF the verified snapshot
+// (verified_through_seq, with the age cutoff frozen when the verification
+// started), are older than five minutes and have no completion in the verified
+// range. A completion appended after the snapshot is outside the view: it is
+// neither read nor trusted, so an intent listed here may already be closed
+// now. Complete is false when the open set could not be carried across pages,
+// so the count is not exact.
+func (s *Service) unresolved(ctx context.Context, tenant string, chk *chainCheck, asOf time.Time) (*Unresolved, error) {
+	var cands []uint64
 	for _, q := range sortedKeys(chk.open) {
 		evs, err := s.store.Range(ctx, tenant, Range{Cursor: q - 1, Limit: 1})
 		if err != nil {
 			return nil, err
 		}
-		if len(evs) == 1 && evs[0].Seq == q && now.Sub(evs[0].Time) >= unresolvedAge {
-			seqs = append(seqs, q)
+		if len(evs) == 1 && evs[0].Seq == q && asOf.Sub(evs[0].Time) >= unresolvedAge {
+			cands = append(cands, q)
 		}
 	}
-	u := &Unresolved{Count: len(seqs), Seqs: []uint64{}, Complete: !chk.overflow}
-	for i := 0; i < len(seqs) && i < maxUnresolved; i++ {
-		u.Seqs = append(u.Seqs, seqs[i])
+	u := &Unresolved{Count: len(cands), Seqs: []uint64{}, Complete: !chk.overflow}
+	for i := 0; i < len(cands) && i < maxUnresolved; i++ {
+		u.Seqs = append(u.Seqs, cands[i])
 	}
 	return u, nil
 }

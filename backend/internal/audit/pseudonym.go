@@ -77,6 +77,11 @@ type Cursor struct {
 	// OpenOverflow says there were too many to carry (see Unresolved).
 	Open         []uint64 `json:"o,omitempty"`
 	OpenOverflow bool     `json:"x,omitempty"`
+	// Upper and UpperHash freeze the head a verification started from.
+	Upper     uint64 `json:"u,omitempty"`
+	UpperHash string `json:"uh,omitempty"`
+	// AsOfUS freezes the clock used to age intents.
+	AsOfUS int64 `json:"a,omitempty"`
 }
 
 var errCursor = errors.New("audit: invalid cursor")

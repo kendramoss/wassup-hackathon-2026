@@ -94,16 +94,22 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 		a.refuseDemoEdit(w, r, c)
 		return
 	}
-	if err := a.auditCase(r, c, "ask"); err != nil { // an ask appends a chat turn (or resets the chat) unless the case is a pinned demo
+	q := strings.TrimSpace(in.Question)
+	if q == "" && !in.Reset {
+		a.fail(w, r, fmt.Errorf("%w: question is required", domain.ErrInvalid))
+		return
+	}
+	if len([]rune(q)) > 2000 {
+		a.fail(w, r, fmt.Errorf("%w: question is longer than 2,000 characters", domain.ErrInvalid))
+		return
+	}
+	// Validated: only now is the intent recorded (an ask appends a chat turn, or
+	// resets the chat, unless the case is a pinned demo).
+	if err := a.auditCase(r, c, "ask"); err != nil {
 		a.fail(w, r, err)
 		return
 	}
-	q := strings.TrimSpace(in.Question)
 	if q == "" {
-		if !in.Reset {
-			a.fail(w, r, fmt.Errorf("%w: question is required", domain.ErrInvalid))
-			return
-		}
 		saved, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
 			latest.Chat = nil
 			return nil
@@ -113,10 +119,6 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		a.respond(w, http.StatusOK, map[string]any{"case_id": saved.ID, "chat": chatField(saved.Chat)})
-		return
-	}
-	if len([]rune(q)) > 2000 {
-		a.fail(w, r, fmt.Errorf("%w: question is longer than 2,000 characters", domain.ErrInvalid))
 		return
 	}
 	// The model sees the conversation as it was when the question was

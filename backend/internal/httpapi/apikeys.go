@@ -89,6 +89,10 @@ func (a *api) issueAPIKey(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	if err := apikey.ValidateIssue(in.Name, in.DailyQuota); err != nil { // refuse a bad request before any intent
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.auditBegin(r, auditStep{Tenant: "platform", Object: "apikey:new"}); err != nil {
 		a.fail(w, r, err)
 		return
@@ -123,6 +127,10 @@ func (a *api) listAPIKeys(w http.ResponseWriter, r *http.Request) {
 // the list shows what was issued.
 func (a *api) disableAPIKey(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	if err := a.d.APIKeys.Exists(r.Context(), id); err != nil { // an unknown key is a 404 before any intent
+		a.fail(w, r, err)
+		return
+	}
 	if err := a.auditBegin(r, auditStep{Tenant: "platform", Object: objectRef("apikey", id)}); err != nil {
 		a.fail(w, r, err)
 		return

@@ -100,6 +100,9 @@ func (c *chainCheck) finish(head Head, cp *Checkpoint) {
 	if cp != nil && cp.ThroughSeq > head.Seq {
 		c.add(head.Seq, FindingCheckpoint)
 	}
+	if head.Hash == "" {
+		head.Hash = Genesis
+	}
 	if c.expect.Seq != head.Seq || c.expect.Hash != head.Hash {
 		c.add(head.Seq, FindingHead)
 	}
@@ -139,8 +142,8 @@ type CheckpointInfo struct {
 // anywhere in the verified retained range: operations in doubt (the write may
 // or may not have happened, or its completion was lost). Complete is false
 // when more than maxCarriedOpen intents were open at a page boundary of a
-// multi-page verification and the state could not be carried: Count is then
-// only a lower bound, never a claimed total.
+// multi-page verification, so the count is not exact. The report is AS OF
+// verified_through_seq: a completion appended later is outside the view.
 type Unresolved struct {
 	Count    int      `json:"count"`
 	Seqs     []uint64 `json:"seqs"`
@@ -157,9 +160,12 @@ type VerifyResult struct {
 	Checkpoint *CheckpointInfo `json:"checkpoint,omitempty"`
 	// Complete is false while more events remain: NextCursor continues, and
 	// the head check and UnresolvedIntents are only produced by the final call.
-	Complete   bool      `json:"complete"`
-	NextCursor string    `json:"next_cursor,omitempty"`
-	Findings   []Finding `json:"findings"`
+	Complete bool `json:"complete"`
+	// VerifiedThroughSeq is the head the verification was frozen at: events
+	// appended after it are outside this result.
+	VerifiedThroughSeq uint64    `json:"verified_through_seq"`
+	NextCursor         string    `json:"next_cursor,omitempty"`
+	Findings           []Finding `json:"findings"`
 	// UnresolvedIntents is nil until the final call, which reports over the
 	// WHOLE retained range (open intents are carried from page to page in the
 	// MAC'd cursor): an intent whose completion sits on a page not yet examined

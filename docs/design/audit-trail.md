@@ -82,9 +82,10 @@ Order of an audited write: authorize, validate, intent, mutate, completion.
 - Fail-closed (sensitive) actions: `case.delete`, `workspace.invite`, `workspace.join`, `workspace.role_change`, `workspace.member_remove`, `workspace.leave`, `apikey.issue`, `apikey.disable`. If the intent cannot be stored the request is answered `503 audit_unavailable` and nothing is changed.
 - Other writes: if the intent cannot be stored the write proceeds, is logged, and its completion has no `ref`.
 - If the completion cannot be stored after the change, the change stands and the response keeps its real status. The status line is written after the completion attempt, so the response carries `X-Audit-Incomplete: completion-not-recorded`. An event stream commits its status before the work runs; it closes the audit explicitly before its final event, and if that write fails only a log line (request id, action, intent seq, error class) is possible. Either way the trail holds an intent with no completion.
-- `verify` lists such intents (older than 5 minutes, no completion anywhere in the verified range) as unresolved. They mean: in doubt, the operation may or may not have happened.
+- `verify` lists such intents (older than 5 minutes at the verification's start, no completion in the verified range) as unresolved. They mean: in doubt, the operation may or may not have happened. The list is AS OF `verified_through_seq`: a completion written after that point is outside the view, so an intent listed may already be closed now; run `verify` again. `complete:false` means the count is not exact.
+- Completions are written at least once: a retried write whose first attempt actually landed can leave a duplicate completion for one intent. Read the unresolved list as 'no completion seen', not as 'exactly-once' accounting.
 - Not atomic: the trail and the case, workspace or key stores are separate. No cross-store transaction is claimed. The Firestore adapter appends atomically per event (head and event in one transaction), but nothing spans the audit collection and the case collection. Tests for the memory and file stores do not validate Firestore.
-- Denial and `single` writes are best effort; a failure is logged. A completion is tried at most twice; every other audit write once.
+- Denial and `single` writes are best effort; a failure is logged. A completion is tried at most twice (see at-least-once above); every other audit write once.
 - Flood control: denials are limited per process (120/min per tenant, 30/min for `platform`, 600/min global, 256 tracked tenants, one shared overflow bucket) and the count of dropped ones is stored in `suppressed`. The limiter is per instance, in memory, and not a fleet-wide guarantee.
 
 ## 6. Access
@@ -103,6 +104,8 @@ Order of an audited write: authorize, validate, intent, mutate, completion.
 The audit collections do not use a Firestore TTL policy and none must be enabled on them: it would delete without a checkpoint and the gap would look like tampering. Retention of Cloud Logging is separate and unchanged.
 
 ## 8. Integrity: what it does and does not give
+
+Verification works on a snapshot. The first call reads the head (seq and hash) and the retention checkpoint before any event, and the cursor carries them; events appended after that head are not part of the result (`verified_through_seq` says where it stops), so a live tenant does not look tampered and the `audit.verify` event written afterwards cannot extend the run. A retention purge that removes events a later page still needs makes the call answer `409 conflict` (start again without a cursor); it is never reported as a gap. A prefix removed without the checkpoint moving, a gap, a removed tail or a head that went backwards are still findings. At most 100 findings are returned per call.
 
 - Detects, with `verify`: a modified event, a reordered or inserted event, a deleted event in the middle, a removed tail (against the stored head), a missing prefix with no checkpoint, time going backwards, an event of another tenant.
 - Does NOT give: immutability. The events, the head and the checkpoint are written by this application into one datastore. Whoever can write that datastore, a cloud administrator included, can rewrite all of them consistently and the chain will verify. There is no WORM storage, no external anchor, no signature by a key the datastore administrator lacks. Do not describe the trail as immutable or tamper-proof.
@@ -124,3 +127,7 @@ A pseudonym is a keyed hash of a verified identity; it is not anonymisation, bec
 ## 11. How this supports a SOC 2 readiness program
 
 It produces evidence relevant to common criteria areas: logical access (who changed roles and members, who administered API keys), change and deletion of customer data, refused access attempts, and monitoring. It does not, by itself, establish any control as designed or operating effectively, does not cover reads, depends on the cloud controls in section 10 that are unverified here, and does not make the service SOC 2 certified or compliant. A SOC 2 report is an auditor's opinion over a period; this is one technical input.
+
+## 12. Known low risks (recorded, not fixed here)
+
+Firestore purge reads up to 400 oldest events per tenant per sweep and its cost is unmeasured; the file store uses mode 0644/0755 and follows symlinks (local development only); rotating `AUDIT_ACTOR_KEY` without bumping `AUDIT_ACTOR_KEY_ID` is not detected; a short `AUDIT_ACTOR_KEY` fails startup even with `AUDIT=off`.

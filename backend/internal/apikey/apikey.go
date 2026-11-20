@@ -93,13 +93,8 @@ func ValidID(id string) bool { return idPattern.MatchString(id) }
 // be shown again.
 func (k *Keys) Issue(ctx context.Context, name string, dailyQuota int) (string, Key, error) {
 	name = strings.Join(strings.Fields(name), " ")
-	switch {
-	case name == "":
-		return "", Key{}, fmt.Errorf("%w: name is required", ErrBadRequest)
-	case utf8.RuneCountInString(name) > MaxName:
-		return "", Key{}, fmt.Errorf("%w: name is longer than %d characters", ErrBadRequest, MaxName)
-	case dailyQuota < 1 || dailyQuota > MaxQuota:
-		return "", Key{}, fmt.Errorf("%w: daily_quota must be between 1 and %d", ErrBadRequest, MaxQuota)
+	if err := ValidateIssue(name, dailyQuota); err != nil {
+		return "", Key{}, err
 	}
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -145,6 +140,31 @@ func (k *Keys) List(ctx context.Context) ([]Key, error) {
 }
 
 // Disable turns a key off for good; requests with it get 401.
+// ValidateIssue checks an issue request (name already whitespace-normalized)
+// without issuing anything, so a caller can refuse a bad request before it
+// records an audit intent.
+func ValidateIssue(name string, dailyQuota int) error {
+	name = strings.Join(strings.Fields(name), " ")
+	switch {
+	case name == "":
+		return fmt.Errorf("%w: name is required", ErrBadRequest)
+	case utf8.RuneCountInString(name) > MaxName:
+		return fmt.Errorf("%w: name is longer than %d characters", ErrBadRequest, MaxName)
+	case dailyQuota < 1 || dailyQuota > MaxQuota:
+		return fmt.Errorf("%w: daily_quota must be between 1 and %d", ErrBadRequest, MaxQuota)
+	}
+	return nil
+}
+
+// Exists returns ErrNotFound unless a key with this id is stored.
+func (k *Keys) Exists(ctx context.Context, id string) error {
+	if !ValidID(id) {
+		return ErrNotFound
+	}
+	_, err := k.store.Get(ctx, id)
+	return err
+}
+
 func (k *Keys) Disable(ctx context.Context, id string) error {
 	if !ValidID(id) {
 		return ErrNotFound
