@@ -13,6 +13,7 @@ import { DemoNote, ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "
 import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
+import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
@@ -184,6 +185,7 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
               )}
             </dl>
           )}
+          <ReviewNote place="origin" c={c} />
         </div>
         <div className="flex flex-col items-start gap-1 pb-3.5">
           <span className="flex flex-wrap items-center gap-1.5">

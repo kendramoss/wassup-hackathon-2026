@@ -307,6 +307,36 @@ export const copy = {
     readOnlyNote: "You can read this case but not change it: your role in this workspace is viewer. You can still preview a letter. Editor access is needed to change it.",
   },
 
+  // Broker-review framing (#278): one short note beside the result on the
+  // origin, plan, compare, scenarios and draft screens (components/op/
+  // review-note.tsx). Local and once per place; no banner, no nav disclaimer.
+  // The best-of lines are bounded to the moves searched and the inputs the
+  // model uses; they read the same for any plan result and use no API field.
+  review: {
+    label: "Review and scope",
+    origin: "Even a high-confidence result is a prediction from earlier CBP rulings, not a ruling. Have a licensed customs broker review it before you rely on it.",
+    plan: "These plans are suggestions, not rulings or CBP approvals. Have a licensed customs broker review a move before you act on it.",
+    bestBounded: "Best of the moves searched, using the costs you entered. Factors the model does not include are not counted.",
+    compare: "This ranking is a suggestion for a licensed customs broker to review, not a ruling or a CBP approval.",
+    compareBounded: "Ranked among the countries you chose, from the moves searched and the costs you entered. Factors the model does not include are not counted.",
+    scenarios: "Scenarios are what-ifs, not rulings. Have a licensed customs broker review a result before you act on it.",
+    scenariosBounded: "Compared among the scenarios you entered, using the costs you entered. Factors the model does not include are not counted.",
+  },
+
+  // What the tool is for and not for (#282). Reviewed wording from
+  // docs/scope-and-jurisdiction.md; it says what the tool is for and makes no
+  // claim that unsupported questions are detected or blocked (they are not).
+  jurisdiction: {
+    originScope: "U.S. origin only. Not for trade-agreement claims, certificates of origin or non-U.S. rules.",
+    outOfScope: "This looks like a case this tool does not decide. A licensed customs broker should review it.",
+    part102: "Marking origin under the Part 102 rules. This is not USMCA qualification or regional value content.",
+    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only motorised tools and small appliances, LiDAR modules and LED lights are planned.",
+    draftNote: "A draft ruling request for a broker to complete and file. It asks CBP a question; it is not a determination.",
+    part177Label: "Ruling request letter (19 CFR Part 177)",
+    part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
+    compareScope: "Compared on U.S. origin only. Section 232 duties are not included.",
+  },
+
   money: "Money · illustrative — editable",
   proxy: "proxy run",
   retry: "Try again",

@@ -12,6 +12,7 @@ import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib
 import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
 import { groupName } from "../plan-bits";
+import { ReviewNote } from "../review-note";
 import { exampleDrafts, initialDrafts, scenarioBody, type Draft } from "@/lib/scenario-drafts";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
@@ -150,6 +151,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
         )}
 
         {!editing && sc.length > 0 && <Cards sc={sc} c={c} />}
+        {!editing && sc.length > 0 && <ReviewNote place="scenarios" />}
         {!editing && product && sc.some((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0) && (
           <div>
             <Fold title="Where each part is made" meta="today and in each scenario">

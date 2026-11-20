@@ -9,6 +9,7 @@ import { conf, money } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { moveKey } from "../plan-bits";
+import { ReviewNote } from "../review-note";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
 export function CompareView() {
@@ -258,6 +259,7 @@ function Compare({ id, c }: CaseCtx) {
             </table>
           </div>
         )}
+        {ranked && !since && <ReviewNote place="compare" />}
         <div>
           <Fold title="How the ranking works">
             <p className="duo max-w-[90ch] text-[13px] text-dim">

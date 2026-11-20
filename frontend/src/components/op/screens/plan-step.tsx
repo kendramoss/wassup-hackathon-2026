@@ -14,6 +14,7 @@ import { hasAnyMoney, moneySummary } from "../money-drawer";
 import { PrefillBar } from "../money-prefill";
 import { EconomicsEditor, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
+import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
 import { pricedEconomics } from "@/lib/live-mfn";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -242,6 +243,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
       )}
       <Main className="flex flex-col gap-8">
         {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {result && !searching && <ReviewNote place="plan" best={Boolean(best)} />}
         {!result && !searching && (
           // The action first, then the inputs it uses: money is optional and
           // illustrative, so it folds under a one-line summary (open when
