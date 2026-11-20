@@ -630,6 +630,11 @@ export function ProductStep() {
                 onImported={(r) => {
                   setImported(r);
                   setProduct(r.product);
+                  // Contract (#346): BomImport only calls this for the latest
+                  // upload, so an older file cannot set the family. This is still
+                  // an unconditional write: it does not look at a family the
+                  // user picked (or an AI check that finishes) after the upload
+                  // started. That ordering belongs to the family-selection token (#351).
                   if (r.family) setFamily(r.family);
                   // Name and family the file (or the AI) filled in (18 Oct).
                   const how = (src?: string) => (src === "ai" ? "suggested by AI from the parts" : "from your file");
@@ -1236,8 +1241,22 @@ function BomImport({
   const [pdfText, setPdfText] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
   const inputId = useId();
+  // Only the latest chosen file owns the import (#346). Every upload takes the
+  // next number; each await below checks it is still the newest before it
+  // touches the parent (onImported / onFailed) or this box (busy, error, PDF
+  // text). Leaving the Import tab, a new case or navigation unmounts the box,
+  // which also retires the pending upload.
+  const latest = useRef(0);
+  useEffect(
+    () => () => {
+      latest.current++;
+    },
+    [],
+  );
 
   const upload = async (f: File) => {
+    const mine = ++latest.current;
+    const isLatest = () => latest.current === mine;
     // The typed name, else the file or the AI names it; the file's name is
     // only the last resort (18 Oct).
     const productName = name.trim();
@@ -1252,13 +1271,17 @@ function BomImport({
     if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
       try {
         const { csv } = await pdfToBomCsv(f);
-        onImported(await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined }));
+        // A newer file was chosen while the table was read: do not send this one.
+        if (!isLatest()) return;
+        const r = await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined });
+        if (isLatest()) onImported(r);
       } catch (e) {
+        if (!isLatest()) return;
         if (e instanceof PdfTableError) setPdfText(e.text);
         setError(e);
         onFailed?.();
       } finally {
-        setBusy(false);
+        if (isLatest()) setBusy(false);
       }
       return;
     }
@@ -1269,12 +1292,14 @@ function BomImport({
     if (hint) form.append("name_hint", hint);
     if (family) form.append("family", family);
     try {
-      onImported(await api.importBom(form));
+      const r = await api.importBom(form);
+      if (isLatest()) onImported(r);
     } catch (e) {
+      if (!isLatest()) return;
       setError(e);
       onFailed?.();
     } finally {
-      setBusy(false);
+      if (isLatest()) setBusy(false);
     }
   };
 
