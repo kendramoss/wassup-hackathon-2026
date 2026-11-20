@@ -150,6 +150,13 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // The backend answers an expired or invalid token with 401
 // "unauthenticated"; then the cookie is cleared and the next request is
 // anonymous.
+// Per-user answers (a case's can_write, a workspace role) must never be reused
+// for another identity by a browser, CDN or other shared cache (#283). Every
+// non-streaming response from the proxy, errors included, is private and
+// uncacheable. SSE keeps its own streaming headers below.
+const PRIVATE = "private, no-store";
+const noStore = (init?: ResponseInit): ResponseInit => ({ ...init, headers: { ...(init?.headers as Record<string, string> | undefined), "Cache-Control": PRIVATE } });
+
 export async function proxyBackend(request: Request, path: string): Promise<Response> {
   const cookies = request.headers.get("cookie");
   const known = visitorFromCookieHeader(cookies);
@@ -167,13 +174,14 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
     }
     res = new Response(text, { status: 401, headers });
   }
+  if (!res.headers.get("content-type")?.startsWith("text/event-stream")) res.headers.set("Cache-Control", PRIVATE);
   return res;
 }
 
 async function forward(request: Request, path: string, visitorId: string, userToken?: string): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
   if (!backendUrl) {
-    return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, { status: 500 });
+    return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, noStore({ status: 500 }));
   }
   const headers: Record<string, string> = {};
   for (const h of ["content-type", "accept", "x-api-key"]) {
@@ -193,7 +201,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
   if (method !== "GET" && method !== "HEAD") {
     const b = await readCapped(request);
     if (b === null) {
-      return Response.json({ code: "invalid_input", message: `the upload is larger than ${MAX_BODY >> 20} MB` }, { status: 413 });
+      return Response.json({ code: "invalid_input", message: `the upload is larger than ${MAX_BODY >> 20} MB` }, noStore({ status: 413 }));
     }
     body = b;
   }
@@ -208,12 +216,12 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     // DELETE answers 204 with no body. Parsing it, or inventing a JSON
     // content type, turns a success into a client error.
     if (res.status === 204 || res.status === 205) {
-      const empty = new Headers();
+      const empty = new Headers({ "Cache-Control": PRIVATE });
       const retry = res.headers.get("retry-after");
       if (retry) empty.set("Retry-After", retry);
       return new Response(null, { status: res.status, headers: empty });
     }
-    const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json" });
+    const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json", "Cache-Control": PRIVATE });
     const retry = res.headers.get("retry-after");
     if (retry) out.set("Retry-After", retry);
     if (out.get("Content-Type")?.startsWith("text/event-stream")) {
@@ -229,7 +237,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
       // Not a model failure: the API itself didn't answer, so no "the model
       // didn't answer" prefix on the page.
       { code: "backend_unreachable", message: "Couldn't reach the Unde API. Nothing is lost; try again in a moment." },
-      { status: 502 },
+      noStore({ status: 502 }),
     );
   }
 }

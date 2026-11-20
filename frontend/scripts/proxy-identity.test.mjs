@@ -71,9 +71,40 @@ test("the client reads the case from the server on every call (no-store, no modu
   assert.ok(seen.every((s) => s.cache === "no-store"));
 });
 
-test("recorded fact: the proxy sets no Cache-Control on a JSON response (absence is not proof for a CDN)", async () => {
+test("every non-streaming proxy response is private and uncacheable, errors included; identity answers differ", async () => {
   backend();
-  const res = await proxyBackend(req(jwt("editor")), "cases/c1");
-  assert.equal(res.headers.get("cache-control"), null);
-  assert.deepEqual([...res.headers.keys()].filter((k) => k !== "set-cookie").sort(), ["content-type"]);
+  const a = await proxyBackend(req(jwt("editor")), "cases/c1");
+  const b = await proxyBackend(req(jwt("viewer")), "cases/c1");
+  for (const r of [a, b]) assert.equal(r.headers.get("cache-control"), "private, no-store");
+  assert.equal((await a.json()).can_write, true);
+  assert.equal((await b.json()).can_write, false, "same URL, different identity, different answer");
+  // backend error body
+  globalThis.fetch = async () => json({ code: "forbidden", message: "no" }, 403);
+  assert.equal((await proxyBackend(req(jwt("viewer")), "cases/c1")).headers.get("cache-control"), "private, no-store");
+  // 401 that clears the user cookie
+  globalThis.fetch = async () => json({ code: "unauthenticated", message: "x" }, 401);
+  const r401 = await proxyBackend(req(jwt("viewer")), "cases/c1");
+  assert.equal(r401.headers.get("cache-control"), "private, no-store");
+  // 204
+  globalThis.fetch = async () => new Response(null, { status: 204 });
+  assert.equal((await proxyBackend(new Request("http://front.test/api/v1/cases/c1", { method: "DELETE" }), "cases/c1")).headers.get("cache-control"), "private, no-store");
+  // backend unreachable
+  globalThis.fetch = async () => {
+    throw new TypeError("down");
+  };
+  const origErr = console.error;
+  console.error = () => {};
+  const r502 = await proxyBackend(req(jwt("viewer")), "cases/c1");
+  console.error = origErr;
+  assert.equal(r502.status, 502);
+  assert.equal(r502.headers.get("cache-control"), "private, no-store");
+});
+
+test("SSE responses keep their streaming headers, not private/no-store", async () => {
+  globalThis.fetch = async () => new Response("event: done\ndata: {}\n\n", { status: 200, headers: { "content-type": "text/event-stream" } });
+  const r = await proxyBackend(req(jwt("editor"), { accept: "text/event-stream" }), "cases/c1/plan");
+  assert.equal(r.headers.get("cache-control"), "no-cache, no-transform");
+  assert.equal(r.headers.get("x-accel-buffering"), "no");
+  assert.match(r.headers.get("content-type"), /^text\/event-stream/);
+  assert.match(await r.text(), /event: done/);
 });
