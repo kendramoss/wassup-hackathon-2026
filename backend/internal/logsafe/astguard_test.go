@@ -28,7 +28,8 @@ func guardFile(t *testing.T, fset *token.FileSet, f *ast.File, known func(string
 			return false
 		}
 		se, ok := c.Fun.(*ast.SelectorExpr)
-		return ok && se.Sel.Name == "Err"
+		id, isIdent := se.X.(*ast.Ident)
+		return ok && se.Sel.Name == "Err" && isIdent && id.Name == "logsafe" // not ctx.Err() or any other Err()
 	}
 	ast.Inspect(f, func(n ast.Node) bool {
 		call, ok := n.(*ast.CallExpr)
@@ -129,12 +130,13 @@ func f(l L, ctx C, err error, s string){
    slog.String("request_id", id), slog.String("err", err.Error()))
  l.Log(ctx, slog.LevelInfo, s)
  l.InfoContext(ctx, "request", "detail", err.Error())
+ l.WarnContext(ctx, "request", "err", ctx.Err())
 }`
 	got := guardSource(t, bad)
 	want := map[string]int{
 		"message is not a string literal":             3, // s, Sprintf, Log(s)
 		"is not in the known set":                     2, // custom text, llm call content
-		"err attribute is not wrapped in logsafe.Err": 1,
+		"err attribute is not wrapped in logsafe.Err": 2, // err and ctx.Err()
 		"err attribute constructor is not wrapped":    1,
 		"raw Error() inside a log call":               2, // slog.String("err", err.Error()) and "detail", err.Error()
 	}
@@ -151,33 +153,68 @@ func f(l L, ctx C, err error, s string){
 	}
 }
 
-// Informational: the guard runs over the real handler package so the wiring
-// unit knows what it must fix. It asserts nothing about the findings (the
-// call sites are not wired at this stage) but it must parse and run.
-func TestASTGuardRunsOnRealPackagesInformational(t *testing.T) {
-	total := 0
-	for _, dir := range []string{"../httpapi", "../llm", "../../cmd/server"} {
-		files, _ := filepath.Glob(filepath.Join(dir, "*.go"))
-		for _, f := range files {
-			if strings.HasSuffix(f, "_test.go") {
-				continue
+// realGuardDirs are the packages the running server executes: every internal
+// package except logsafe itself, plus cmd/server. (The offline CLIs under cmd/
+// eval, corpus, demo and apikey print to a terminal and are not the server.)
+func realGuardFiles(t *testing.T) []string {
+	t.Helper()
+	var files []string
+	err := filepath.WalkDir("..", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if d.Name() == "logsafe" || d.Name() == "testdata" {
+				return filepath.SkipDir
 			}
-			src, err := os.ReadFile(f)
-			if err != nil {
-				t.Fatal(err)
-			}
-			fset := token.NewFileSet()
-			af, err := parser.ParseFile(fset, f, src, 0)
-			if err != nil {
-				t.Fatal(err)
-			}
-			for _, g := range guardFile(t, fset, af, DefaultPolicy().KnownMessage) {
-				total++
-				if strings.Contains(g, "limit_shared.go") {
-					t.Logf("known wiring target: %s", g)
-				}
-			}
+			return nil
+		}
+		if strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd, _ := filepath.Glob("../../cmd/server/*.go")
+	for _, f := range cmd {
+		if !strings.HasSuffix(f, "_test.go") {
+			files = append(files, f)
 		}
 	}
-	t.Logf("guard findings over httpapi, llm, cmd/server at this stage: %d (to be fixed at wiring)", total)
+	return files
+}
+
+// TestASTGuardRealPackages is the source gate (additional proof; the runtime
+// allowlist is the real gate): over every non-test file the server runs, no
+// log call has a dynamic or unknown message, a raw err attribute or a raw
+// Error() in its arguments. It also fails if it scans nothing, or if the real
+// code stopped calling the logger through the shapes the guard understands.
+func TestASTGuardRealPackages(t *testing.T) {
+	files := realGuardFiles(t)
+	if len(files) < 100 {
+		t.Fatalf("scanned only %d files: the walk is broken", len(files))
+	}
+	var findings []string
+	calls := 0
+	for _, f := range files {
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fset := token.NewFileSet()
+		af, err := parser.ParseFile(fset, f, src, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		findings = append(findings, guardFile(t, fset, af, DefaultPolicy().KnownMessage)...)
+		calls += strings.Count(string(src), "Logger.") + strings.Count(string(src), "logger.")
+	}
+	if calls < 50 {
+		t.Fatalf("saw only %d logger call lines; the guard is not looking at the real call sites", calls)
+	}
+	for _, g := range findings {
+		t.Error(g)
+	}
 }

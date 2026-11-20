@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 )
 
@@ -174,7 +175,7 @@ func (a *api) allow(r *http.Request, c class) (bool, time.Duration) {
 		}
 		if a.shared.shouldLog(a.shared.now()) {
 			a.d.Logger.LogAttrs(r.Context(), slog.LevelWarn, "shared rate limiter unavailable; using this instance's limits",
-				slog.String("request_id", RequestID(r.Context())), slog.String("err", err.Error()))
+				slog.Any("request_id", requestRef(r.Context())), slog.Any("err", logsafe.Err(err)))
 		}
 	}
 	return a.limiter.allow(key, c)

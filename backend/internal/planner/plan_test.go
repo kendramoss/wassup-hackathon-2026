@@ -293,3 +293,56 @@ func TestPlanStillFailsOnBadRequestsAndBaselineOutage(t *testing.T) {
 		}
 	}
 }
+
+// failingVerifier errors on every check with the given error.
+type failingVerifier struct{ err error }
+
+func (f failingVerifier) Verify(context.Context, verifier.Task) (verifier.Result, error) {
+	return verifier.Result{}, f.err
+}
+
+// The persisted rejection reason carries a fixed phrase per failure class, not
+// the upstream error text (a provider body or store message can echo the case
+// or a supplier name). #285.
+func TestRejectionReasonNeverCarriesUpstreamText(t *testing.T) {
+	const sentBOM = "PN-285-SYNTH-0001 stator laminations 4200 pcs @ USD 1.234"
+	const sentEmail = "zz.user285+leak@example.invalid"
+	cases := map[string]struct {
+		err  error
+		want string
+	}{
+		"bad response": {fmt.Errorf("verifier: %w: %s", llm.ErrBadResponse, sentBOM), "precedent check failed: model returned an unusable response"},
+		"unavailable":  {fmt.Errorf("vertex: %w: %s", llm.ErrUnavailable, sentEmail), "precedent check failed: model provider unavailable"},
+		"api error":    {&llm.APIError{Provider: "vertex", StatusCode: 503, Body: sentBOM + sentEmail}, "precedent check failed: model provider unavailable"},
+		"deadline":     {fmt.Errorf("%s: %w", sentBOM, context.DeadlineExceeded), "precedent check failed: timed out"},
+		"other":        {fmt.Errorf("search index %s %s", sentBOM, sentEmail), "precedent check failed: the check could not be completed"},
+	}
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := fixture(t, "heatgun_2022.json")
+			tmpls, _ := LoadTemplates()
+			res, err := New(tmpls, &fakeEngine{}, failingVerifier{c.err}, Options{PlanConfidence: 0.95, Concurrency: 2}).Plan(context.Background(), r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			n := 0
+			for _, pl := range res.Rejected {
+				if pl.RejectionKind != domain.RejectCheckFailed {
+					continue
+				}
+				n++
+				if pl.RejectionReason != c.want {
+					t.Errorf("reason = %q, want %q", pl.RejectionReason, c.want)
+				}
+				for _, s := range []string{"PN-285", "zz.user285", "Zzyzx"} {
+					if strings.Contains(pl.RejectionReason, s) {
+						t.Errorf("reason carries %q", s)
+					}
+				}
+			}
+			if n == 0 {
+				t.Fatalf("no CheckFailed plan: %+v", res.Rejected)
+			}
+		})
+	}
+}

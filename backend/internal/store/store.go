@@ -6,7 +6,6 @@ package store
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"sort"
 	"sync"
 	"time"
@@ -18,7 +17,14 @@ import (
 )
 
 // ErrNotFound means no case has that ID.
-var ErrNotFound = errors.New("store: case not found")
+var ErrNotFound error = classedError{"store: case not found", "store_not_found"}
+
+// classedError names its own log class (a closed value read by the log
+// sanitiser, #285); it carries no case text.
+type classedError struct{ msg, class string }
+
+func (e classedError) Error() string    { return e.msg }
+func (e classedError) LogClass() string { return e.class }
 
 // Case is a stored case with everything computed for it.
 type Case struct {

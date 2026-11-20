@@ -3,7 +3,6 @@ package llm
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 )
@@ -127,11 +126,18 @@ func (r Response) DecodeJSON(v any) error {
 // Sentinel errors for callers and the HTTP layer.
 var (
 	// ErrBadResponse means the provider answered but the answer was unusable.
-	ErrBadResponse = errors.New("unusable model response")
+	ErrBadResponse error = classedError{"unusable model response", "model_bad_response"}
 	// ErrUnavailable means the provider could not be reached or kept failing
 	// with retryable errors (429, 5xx, timeouts).
-	ErrUnavailable = errors.New("model provider unavailable")
+	ErrUnavailable error = classedError{"model provider unavailable", "model_unavailable"}
 )
+
+// classedError is a sentinel that also names its own log class (see
+// APIError.LogClass). It is comparable, so errors.Is works as before.
+type classedError struct{ msg, class string }
+
+func (e classedError) Error() string    { return e.msg }
+func (e classedError) LogClass() string { return e.class }
 
 // APIError is a non-2xx answer from a provider. Body is truncated and never
 // contains request headers.
@@ -140,6 +146,24 @@ type APIError struct {
 	StatusCode int
 	Body       string
 }
+
+// LogClass and LogStatus describe the error to a log sanitiser WITHOUT its
+// text: Body is provider output and may echo the request, so it is never part
+// of either answer (#285).
+func (e *APIError) LogClass() string {
+	switch {
+	case e.StatusCode == 429:
+		return "provider_http_429"
+	case e.StatusCode >= 500:
+		return "provider_http_5xx"
+	case e.StatusCode >= 400:
+		return "provider_http_4xx"
+	}
+	return "model_unavailable"
+}
+
+// LogStatus returns the provider's HTTP status number.
+func (e *APIError) LogStatus() int { return e.StatusCode }
 
 func (e *APIError) Error() string {
 	return fmt.Sprintf("%s: HTTP %d: %s", e.Provider, e.StatusCode, e.Body)

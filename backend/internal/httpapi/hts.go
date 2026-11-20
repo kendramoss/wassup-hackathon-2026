@@ -9,6 +9,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 // HTSSuggester suggests HTS subheadings (hts.Suggester).
@@ -52,7 +53,7 @@ func (a *api) htsSuggest(w http.ResponseWriter, r *http.Request) {
 			a.fail(w, r, err)
 			return
 		}
-		a.d.Logger.WarnContext(r.Context(), "hts reasons failed; candidates without reasons", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.WarnContext(r.Context(), "hts reasons failed; candidates without reasons", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"candidates": res.Candidates, "note": res.Note,
 		"reasons_unavailable": res.ReasonsUnavailable, "trace": res.Trace, "source": res.Source, "llm_provider": a.d.Provider,

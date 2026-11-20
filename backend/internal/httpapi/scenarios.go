@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
@@ -257,7 +258,7 @@ func (a *api) watchAll(w http.ResponseWriter, r *http.Request) {
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
-				a.d.Logger.WarnContext(r.Context(), "watch failed", "case", c.ID, "err", err)
+				a.d.Logger.WarnContext(r.Context(), "watch failed", caseAttr(c.ID), "err", logsafe.Err(err))
 				failed = append(failed, c.ID)
 				return
 			}

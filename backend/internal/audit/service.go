@@ -9,6 +9,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 // Options configure a Service. Zero values take the documented defaults.
@@ -86,6 +88,11 @@ type Draft struct {
 	Event
 	ActorID  string // verified email (user) or API key id (apikey)
 	TargetID string // verified or normalized member email
+	// RequestRef is the request's ONE normalised id (logsafe.RequestRef,
+	// computed once at the top of the request pipeline). It is stored as is;
+	// it is never hashed a second time. When it is zero, a RequestID the
+	// caller put on the Event is treated as untrusted text and hashed (#285).
+	RequestRef logsafe.Ref
 }
 
 func (s *Service) fill(d Draft) (Event, error) {
@@ -102,7 +109,11 @@ func (s *Service) fill(d Draft) (Event, error) {
 	if d.TargetID != "" {
 		e.Target = s.ps.Actor(ActorUser, d.TargetID)
 	}
-	e.RequestID = NormalizeRequestID(e.RequestID)
+	if !d.RequestRef.IsZero() {
+		e.RequestID = d.RequestRef.String()
+	} else {
+		e.RequestID = NormalizeRequestID(e.RequestID)
+	}
 	return e, nil
 }
 

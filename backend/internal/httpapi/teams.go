@@ -13,6 +13,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 )
@@ -85,7 +86,7 @@ func (a *api) withUser(next http.Handler) http.Handler {
 		}
 		u, err := a.d.Users.Verify(r.Context(), tok)
 		if err != nil {
-			a.d.Logger.InfoContext(r.Context(), "sign-in token refused", "request_id", RequestID(r.Context()), "err", err)
+			a.d.Logger.InfoContext(r.Context(), "sign-in token refused", "request_id", requestRef(r.Context()), "class", string(logsafe.ClassAuthRefused))
 			a.auditAuthDenied(r)
 			unauthenticated(w)
 			return

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 // API keys for brokers (D69). With Deps.APIKeys set, a request may carry
@@ -62,11 +63,11 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 		}
 		ok, used, reset, err := a.d.APIKeys.Use(r.Context(), key)
 		if err != nil { // the counter is unavailable: serve, the rate limits still apply
-			a.d.Logger.WarnContext(r.Context(), "api key quota not counted", "request_id", RequestID(r.Context()), "key_id", key.ID, "err", err)
+			a.d.Logger.WarnContext(r.Context(), "api key quota not counted", "request_id", requestRef(r.Context()), keyAttr(key.ID), "err", logsafe.Err(err))
 		}
 		if !ok {
 			secs := max(1, int(math.Ceil(reset.Seconds())))
-			a.d.Logger.WarnContext(r.Context(), "api key quota exceeded", "request_id", RequestID(r.Context()), "key_id", key.ID, "used", used, "quota", key.DailyQuota)
+			a.d.Logger.WarnContext(r.Context(), "api key quota exceeded", "request_id", requestRef(r.Context()), keyAttr(key.ID), "used", used, "quota", key.DailyQuota)
 			w.Header().Set("Retry-After", fmt.Sprint(secs))
 			writeError(w, http.StatusTooManyRequests, "quota_exceeded",
 				fmt.Sprintf("this API key's daily quota of %d requests is used up; it resets at 00:00 UTC", key.DailyQuota),
@@ -105,7 +106,7 @@ func (a *api) issueAPIKey(w http.ResponseWriter, r *http.Request) {
 	if op := auditOpOf(r.Context()); op != nil && op.intent != nil {
 		op.object = objectRef("apikey", k.ID) // the completion names the key that was made
 	}
-	a.d.Logger.InfoContext(r.Context(), "api key issued", "request_id", RequestID(r.Context()), "key_id", k.ID, "name", k.Name, "daily_quota", k.DailyQuota)
+	a.d.Logger.InfoContext(r.Context(), "api key issued", "request_id", requestRef(r.Context()), keyAttr(k.ID), "daily_quota", k.DailyQuota)
 	writeJSON(w, http.StatusCreated, map[string]any{"key": secret, "api_key": k})
 }
 
@@ -139,6 +140,9 @@ func (a *api) disableAPIKey(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	a.d.Logger.InfoContext(r.Context(), "api key disabled", "request_id", RequestID(r.Context()), "key_id", id)
+	// id came from the path, but Exists found it in the key store above and
+	// Disable acted on it, so it is a stored key id (a name that is not one
+	// was a 404 before this line). keyAttr drops anything without that shape.
+	a.d.Logger.InfoContext(r.Context(), "api key disabled", "request_id", requestRef(r.Context()), keyAttr(id))
 	w.WriteHeader(http.StatusNoContent)
 }

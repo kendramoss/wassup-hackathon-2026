@@ -232,16 +232,16 @@ var ErrInvalid = errors.New("audit: invalid event")
 // ValidTenant reports whether s is a tenant string.
 func ValidTenant(s string) bool { return tenantPattern.MatchString(s) }
 
-// NormalizeRequestID returns the request ID to store: the server-generated
-// 16-hex form (or an already normalized "h_" form) unchanged, anything else (client supplied) as "h_" plus the
-// first 16 hex of its SHA-256, so a client cannot plant text in the trail. ""
+// NormalizeRequestID returns the request ID to store for an UNTRUSTED value:
+// "h_" plus the first 16 hex of its SHA-256, always, whatever its shape (a
+// 16-hex or "h_" value is just as easy for a client to plant as any other
+// text). A request that went through the server's pipeline carries a
+// logsafe.Ref instead (Draft.RequestRef), which is stored unchanged so that
+// the log line, the response header and the audit event show one id. ""
 // stays "".
 func NormalizeRequestID(id string) string {
 	if id == "" {
 		return ""
-	}
-	if requestPattern.MatchString(id) {
-		return id
 	}
 	sum := sha256.Sum256([]byte(id))
 	return "h_" + hex.EncodeToString(sum[:8])

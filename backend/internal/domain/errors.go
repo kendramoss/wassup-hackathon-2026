@@ -1,14 +1,20 @@
 package domain
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
 // ErrInvalid is wrapped by every validation error, so the HTTP layer can map
 // any of them to 400 with errors.Is.
-var ErrInvalid = errors.New("invalid input")
+var ErrInvalid error = classedError{"invalid input", "invalid_input"}
+
+// classedError names its own log class (a closed value read by the log
+// sanitiser, #285); it carries no request text.
+type classedError struct{ msg, class string }
+
+func (e classedError) Error() string    { return e.msg }
+func (e classedError) LogClass() string { return e.class }
 
 // ValidationError lists every problem found in one value.
 type ValidationError struct {

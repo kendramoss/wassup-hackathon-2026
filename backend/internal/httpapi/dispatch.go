@@ -8,6 +8,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 )
@@ -173,7 +174,7 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 			defer st.end("router") // a failed router is done too: scope unknown
 			l, err := a.d.Router.Classify(ctx, c.Facts)
 			if err != nil {
-				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", RequestID(ctx), "err", err)
+				a.d.Logger.WarnContext(ctx, "router failed; scope unknown", "request_id", requestRef(ctx), "err", logsafe.Err(err))
 				routerFailed = true // read after done
 				return
 			}
@@ -217,7 +218,7 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 			d.Result, d.Specialist = sres, SpecialistOK
 			return d, nil
 		}
-		a.d.Logger.WarnContext(ctx, "specialist engine failed; provisional general prediction needs review", "request_id", RequestID(ctx), "regime", d.Selected, "err", serr)
+		a.d.Logger.WarnContext(ctx, "specialist engine failed; provisional general prediction needs review", "request_id", requestRef(ctx), "regime", d.Selected, "err", logsafe.Err(serr))
 		d.Specialist = SpecialistFailed
 		if !have {
 			var err error

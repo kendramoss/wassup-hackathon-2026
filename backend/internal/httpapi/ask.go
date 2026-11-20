@@ -173,7 +173,11 @@ func (a *api) ask(w http.ResponseWriter, r *http.Request) {
 	// model call, so it charges nothing again; it keeps the answer's
 	// provenance and says where it came from.
 	var u usage
-	summary := fmt.Sprintf("%q (%d what-ifs, cited %s)", q, len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
+	// The summary carries the question's LENGTH, not its text: the text stays
+	// in the case chat, which a reset can clear, while history keeps at most
+	// 200 events and survives a reset (#285). Cited ids are public CBP ruling
+	// numbers the agent saw in a tool result.
+	summary := fmt.Sprintf("question (%d characters), %d what-ifs, cited %s", utf8.RuneCountInString(q), len(ans.WhatIfs), strings.Join(ans.Cited, ", "))
 	if hit {
 		summary += ", answered from memory"
 	} else {

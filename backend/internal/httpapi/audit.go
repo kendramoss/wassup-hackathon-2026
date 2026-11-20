@@ -219,7 +219,7 @@ func auditCtx(parent context.Context) (context.Context, context.CancelFunc) {
 // and an error CLASS only: never the error text, which may carry store or
 // document details.
 func (op *auditOp) logFail(what string, seq uint64, err error) {
-	op.a.d.Logger.ErrorContext(op.req.Context(), "audit write failed", "what", what, "request_id", RequestID(op.req.Context()),
+	op.a.d.Logger.ErrorContext(op.req.Context(), "audit write failed", "what", what, "request_id", requestRef(op.req.Context()),
 		"action", string(op.route.Action), "route", op.pattern, "intent_seq", seq, "class", auditErrClass(err))
 }
 
@@ -269,7 +269,7 @@ func (op *auditOp) deny(code int) {
 	p := a.principalOf(op.req)
 	kind, id := a.auditActor(p)
 	d := audit.Draft{Event: audit.Event{Tenant: a.requesterTenant(p), ActorKind: kind, Action: op.route.Action, Phase: audit.PhaseSingle,
-		Outcome: audit.Denied, Reason: reason, Object: op.denialObject(), Route: op.pattern, RequestID: RequestID(op.req.Context())}, ActorID: id}
+		Outcome: audit.Denied, Reason: reason, Object: op.denialObject(), Route: op.pattern}, ActorID: id, RequestRef: requestRef(op.req.Context())}
 	ctx, cancel := auditCtx(op.req.Context())
 	defer cancel()
 	if _, err := a.d.Audit.Deny(ctx, d); err != nil {
@@ -385,7 +385,7 @@ func (a *api) auditDraft(op *auditOp, st auditStep, phase audit.Phase) audit.Dra
 		tenant = "platform"
 	}
 	return audit.Draft{Event: audit.Event{Tenant: tenant, ActorKind: kind, Action: act, Phase: phase, Outcome: audit.Allowed, Detail: st.Detail,
-		Object: st.Object, Route: op.pattern, RequestID: RequestID(op.req.Context())}, ActorID: id, TargetID: st.TargetID}
+		Object: st.Object, Route: op.pattern}, ActorID: id, TargetID: st.TargetID, RequestRef: requestRef(op.req.Context())}
 }
 
 // auditBegin records the intent of a write the caller has authorized and
@@ -415,7 +415,7 @@ func (a *api) auditBegin(r *http.Request, st auditStep) error {
 		if kind == audit.ActorUser || kind == audit.ActorAPIKey {
 			lost.Actor = a.d.Audit.Pseudonyms().Actor(kind, id)
 		}
-		lost.RequestID = audit.NormalizeRequestID(lost.RequestID)
+		lost.RequestID = d.RequestRef.String() // the one normalised id, never re-read from the header
 		e = lost
 	}
 	op.intent = &e
@@ -510,10 +510,10 @@ func (a *api) auditAuthDenied(r *http.Request) {
 		return
 	}
 	d := audit.Draft{Event: audit.Event{Tenant: "platform", ActorKind: audit.ActorAnonymous, Action: audit.AuthDenied, Phase: audit.PhaseSingle,
-		Outcome: audit.Denied, Reason: audit.ReasonInvalidCredential, RequestID: RequestID(r.Context())}}
+		Outcome: audit.Denied, Reason: audit.ReasonInvalidCredential}, RequestRef: requestRef(r.Context())}
 	ctx, cancel := auditCtx(r.Context())
 	defer cancel()
 	if _, err := a.d.Audit.Deny(ctx, d); err != nil {
-		a.d.Logger.ErrorContext(r.Context(), "audit write failed", "what", "auth denial", "request_id", RequestID(r.Context()), "class", auditErrClass(err))
+		a.d.Logger.ErrorContext(r.Context(), "audit write failed", "what", "auth denial", "request_id", requestRef(r.Context()), "class", auditErrClass(err))
 	}
 }

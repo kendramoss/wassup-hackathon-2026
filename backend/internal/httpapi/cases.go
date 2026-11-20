@@ -28,6 +28,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -271,13 +272,13 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
 	case errors.Is(err, llm.ErrBadResponse):
-		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "model bad response", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusBadGateway, "model_bad_response", "the model returned an unusable answer; try again"
 	case errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr), errors.Is(err, context.DeadlineExceeded):
-		a.d.Logger.ErrorContext(r.Context(), "model unavailable", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "model unavailable", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusBadGateway, "model_unavailable", "the model provider is unavailable; try again"
 	default:
-		a.d.Logger.ErrorContext(r.Context(), "internal error", "request_id", RequestID(r.Context()), "err", err)
+		a.d.Logger.ErrorContext(r.Context(), "internal error", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		return http.StatusInternalServerError, "internal", "internal error"
 	}
 }
@@ -482,7 +483,7 @@ func (a *api) analyse(r *http.Request, sc *store.Case, c domain.Case, st *stages
 		cr, err := a.d.Clarifier.Review(r.Context(), c.Facts, pred, ps)
 		st.end("clarify") // a failed review is done too: the case stays needs_review
 		if err != nil {
-			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", RequestID(r.Context()), "err", err)
+			a.d.Logger.WarnContext(r.Context(), "clarify failed; staying needs_review", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 		} else {
 			sc.Clarify = &cr
 			sc.Triage = triage.WithClarify(sc.Triage, !cr.OnPoint, len(cr.Questions))
@@ -1090,7 +1091,7 @@ func (a *api) pricedLive(ctx context.Context, e planner.Economics, hts string, o
 	}
 	if err != nil {
 		if !errors.Is(err, duty.ErrNoRate) {
-			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", RequestID(ctx), "hts", hts, "err", err)
+			a.d.Logger.WarnContext(ctx, "live MFN lookup failed; no rate filled", "request_id", requestRef(ctx), "err", logsafe.Err(err))
 		}
 		return e
 	}

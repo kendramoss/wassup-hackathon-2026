@@ -88,9 +88,10 @@ func (a *api) renameCase(w http.ResponseWriter, r *http.Request) {
 		if name == latest.DisplayName {
 			return nil
 		}
-		old := summaryRow(*latest).DisplayName
 		latest.DisplayName = name
-		record(r.Context(), latest, store.Event{Kind: "renamed", Summary: fmt.Sprintf("renamed from %q to %q", old, name)})
+		// No old or new name in the history line: a display name is free text
+		// (#285). Events written before this change are left as they are.
+		record(r.Context(), latest, store.Event{Kind: "renamed", Summary: "renamed"})
 		return nil
 	})
 	if err != nil {

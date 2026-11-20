@@ -23,6 +23,61 @@ export function clientIP(request: Request): string | undefined {
   return parts.at(-1);
 }
 
+// Proxy failure logging (#285). The console line carries FIXED words and
+// numbers only: a kind, the route PATTERN (dynamic segments are replaced, so a
+// case id, a member email or a supplier name in the URL never reaches the
+// log), the status, one of the backend's closed error codes, the error CLASS
+// and the backend's own normalised request ref. It never carries the response
+// body, the error object or message, the query or a header, because any of
+// them can echo a user's BOM, an email or a token. A value outside its closed
+// set is replaced by a constant, never printed.
+const ROUTE_WORDS = new Set([
+  "v1", "api", "cases", "predict", "batch", "products", "import", "extract", "money-prefill", "hts-suggest", "cost-estimate",
+  "family-check", "bom-version", "scenarios", "compare-targets", "ask", "economics", "pin", "watch", "run", "plan", "estimate",
+  "export", "answers", "rulings", "eval", "summary", "duty-rates", "demos", "workspaces", "mine", "members", "join", "role",
+  "admin", "api-keys", "audit", "verify", "health",
+]);
+const ERROR_CODES = new Set([
+  "budget_reached", "conflict", "forbidden", "internal", "invalid_input", "not_found", "quota_exceeded", "rate_limited",
+  "unauthenticated", "unauthorized", "audit_unavailable", "model_bad_response", "model_unavailable", "backend_unreachable",
+]);
+const ERROR_CLASSES = new Set(["AbortError", "TimeoutError", "TypeError", "SyntaxError", "RangeError", "BackendError", "Error"]);
+
+// routeOf turns a URL path into its pattern: a known static word stays, any
+// other segment (an id, an email, a name) becomes "{}". The query is dropped.
+export function routeOf(path: string): string {
+  const bare = path.split(/[?#]/, 1)[0];
+  const segs = bare.split("/").filter(Boolean).map((seg) => (ROUTE_WORDS.has(seg) ? seg : "{}"));
+  return "/" + segs.join("/");
+}
+
+// errorClass names the kind of a thrown value from a closed set; the message
+// and any other property are never read.
+export function errorClass(err: unknown): string {
+  const name = err instanceof BackendError ? "BackendError" : err instanceof Error ? err.name : "";
+  return ERROR_CLASSES.has(name) ? name : "unclassified";
+}
+
+// logProxyFailure writes one fixed-shape console.error line.
+export function logProxyFailure(kind: "backend_status" | "unreachable" | "proxy_error", info: { path?: string; status?: number; body?: string; err?: unknown; requestId?: string | null }): void {
+  const parts = [`kind=${kind}`, `route=${info.path === undefined ? "-" : routeOf(info.path)}`];
+  const status = info.status;
+  if (typeof status === "number" && Number.isInteger(status) && status >= 100 && status <= 599) parts.push(`status=${status}`);
+  if (info.body !== undefined) {
+    let code = "";
+    try {
+      const c: unknown = JSON.parse(info.body)?.code;
+      if (typeof c === "string") code = c;
+    } catch {
+      /* not JSON */
+    }
+    parts.push(`code=${ERROR_CODES.has(code) ? code : "other"}`);
+  }
+  if (info.err !== undefined) parts.push(`class=${errorClass(info.err)}`);
+  if (info.requestId && /^(h_)?[0-9a-f]{16}$/.test(info.requestId)) parts.push(`request_id=${info.requestId}`);
+  console.error(`proxy failure ${parts.join(" ")}`);
+}
+
 // Backend statuses that describe the user's request; their message is shown
 // as-is. Anything else (auth failures, crashes) is our problem, not theirs.
 const userErrors = new Set([400, 403, 409, 413, 429]);
@@ -65,7 +120,7 @@ export async function callBackend(
     if (userErrors.has(res.status)) {
       throw new BackendError(text, res.status, res.headers.get("retry-after"));
     }
-    console.error(`backend ${path} returned ${res.status}: ${text.slice(0, 500)}`);
+    logProxyFailure("backend_status", { path, status: res.status, body: text, requestId: res.headers.get("x-request-id") });
     throw new BackendError("The agent is unavailable right now. Try again in a moment.", 502);
   }
   return res;
@@ -86,7 +141,7 @@ export function errorResponse(err: unknown): Response {
     }
     return Response.json({ error: err.message }, { status: err.status, headers });
   }
-  console.error("backend proxy:", err);
+  logProxyFailure("proxy_error", { err });
   return Response.json({ error: "Could not reach the Unde API. Try again in a moment." }, { status: 502 });
 }
 
@@ -232,7 +287,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return new Response(res.status === 204 ? null : res.body, { status: res.status, headers: out });
   } catch (err) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
-    console.error(`backend /v1/${path}:`, err);
+    logProxyFailure("unreachable", { path: `/v1/${path}`, err });
     return Response.json(
       // Not a model failure: the API itself didn't answer, so no "the model
       // didn't answer" prefix on the page.

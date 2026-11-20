@@ -201,7 +201,7 @@ func (a *api) adminOnly(h http.HandlerFunc) http.HandlerFunc {
 // UTC day: the demo's daily model budget is spent (D59).
 func (a *api) overBudget(w http.ResponseWriter, r *http.Request, total float64) {
 	secs := int(math.Ceil(a.d.Spend.UntilReset().Seconds()))
-	a.d.Logger.WarnContext(r.Context(), "daily model budget reached", "request_id", RequestID(r.Context()), "spent_usd", total, "cap_usd", a.d.Spend.Cap())
+	a.d.Logger.WarnContext(r.Context(), "daily model budget reached", "request_id", requestRef(r.Context()), "spent_usd", total, "cap_usd", a.d.Spend.Cap())
 	w.Header().Set("Retry-After", fmt.Sprint(secs))
 	writeError(w, http.StatusServiceUnavailable, "budget_reached",
 		"today's demo budget for model calls is used up; the demo cases still work, and new analyses open again tomorrow (UTC)",

@@ -46,8 +46,12 @@ func TestValidateAcceptsADraftAndRejectsFreeText(t *testing.T) {
 }
 
 func TestNormalizeRequestIDNeverStoresClientText(t *testing.T) {
-	if got := NormalizeRequestID("0123456789abcdef"); got != "0123456789abcdef" {
-		t.Errorf("server id changed: %q", got)
+	// Shape is not trust (#285): a client-planted 16-hex or h_ value is hashed
+	// like any other text, never passed through.
+	for _, planted := range []string{"0123456789abcdef", "h_0123456789abcdef", "tok_285_SYNTHETIC_DO_NOT_USE_0123456789"} {
+		if got := NormalizeRequestID(planted); got == planted || !strings.HasPrefix(got, "h_") || len(got) != 18 {
+			t.Errorf("planted id %q came out as %q", planted, got)
+		}
 	}
 	got := NormalizeRequestID("alice@example.com")
 	if !strings.HasPrefix(got, "h_") || len(got) != 18 || strings.Contains(got, "alice") {

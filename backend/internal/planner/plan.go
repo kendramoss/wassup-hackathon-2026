@@ -396,7 +396,7 @@ func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.
 		Exclude: req.Exclude, KnownOriginA: knownA, KnownRulingA: knownRuling})
 	addVerifier(vr)
 	if err != nil {
-		pl.RejectionReason = "precedent check failed: " + err.Error()
+		pl.RejectionReason = "precedent check failed: " + checkFailureText(err)
 		pl.RejectionKind = domain.RejectCheckFailed
 		return pl, nil
 	}
@@ -548,4 +548,21 @@ func groupsOf(m domain.Move) []string {
 		out[i] = gm.Group
 	}
 	return out
+}
+
+// checkFailureText is the phrase stored (and shown) when the precedent check
+// could not run. It is chosen by the KIND of failure and never contains the
+// upstream error text, which can echo the facts, a supplier name or a store
+// path (#285). Reasons stored before this change are not rewritten.
+func checkFailureText(err error) string {
+	var apiErr *llm.APIError
+	switch {
+	case errors.Is(err, context.DeadlineExceeded):
+		return "timed out"
+	case errors.Is(err, llm.ErrBadResponse):
+		return "model returned an unusable response"
+	case errors.Is(err, llm.ErrUnavailable), errors.As(err, &apiErr):
+		return "model provider unavailable"
+	}
+	return "the check could not be completed"
 }

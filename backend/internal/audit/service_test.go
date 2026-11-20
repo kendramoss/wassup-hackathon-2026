@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 )
 
 func TestRecordStoresPseudonymsNeverIdentities(t *testing.T) {
@@ -383,4 +385,26 @@ func TestFileStoreSurvivesRestartAndATornTail(t *testing.T) {
 	if r, err := s2.Verify(context.Background(), tenA, ""); err != nil || !r.OK || r.Checked != 4 {
 		t.Errorf("verify after restart: %+v %v", r, err)
 	}
+}
+
+// The request's one normalised id (logsafe.RequestRef) is stored as is: it is
+// not hashed a second time, and a raw value on the event is never kept.
+func TestRecordStoresTheRequestRefUnchangedAndHashesRawIDs(t *testing.T) {
+	eachStore(t, func(t *testing.T, _ storeKit, st Store, _ tamperer) {
+		s := newTestService(t, st, time.Now)
+		for _, header := range []string{"0123456789abcdef", "h_0123456789abcdef", "alice@example.com", ""} {
+			ref := logsafe.RequestRef(header, func() string { return "fedcba9876543210" })
+			d := userDraft(tenA, CaseUpdate)
+			d.RequestRef = ref
+			d.RequestID = header // must be ignored: the Ref is the id
+			if e := mustRecord(t, s, d); e.RequestID != ref.String() {
+				t.Errorf("header %q: stored %q, want the ref %q", header, e.RequestID, ref.String())
+			}
+		}
+		d := userDraft(tenA, CaseUpdate)
+		d.RequestID = "0123456789abcdef" // raw, no ref: untrusted
+		if e := mustRecord(t, s, d); e.RequestID == "0123456789abcdef" || !strings.HasPrefix(e.RequestID, "h_") {
+			t.Errorf("a raw 16-hex id was kept: %q", e.RequestID)
+		}
+	})
 }
