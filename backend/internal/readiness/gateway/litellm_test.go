@@ -170,8 +170,38 @@ func TestPermitCannotBeReplayed(t *testing.T) {
 	if !errors.Is(err, budget.ErrPermitUsed) || hits.Load() != 1 {
 		t.Fatalf("err=%v hits=%d", err, hits.Load())
 	}
-	// The first wire attempt was sent and answered; the replay was known unsent.
-	if st := l.Snapshot(); st.AttemptsRaw != 1 {
+	// One request reached the wire, so the reservation is charged in full
+	// whatever the replay error says (R1): charged > 0 and equals the reservation.
+	rqq := rq()
+	inUp, _ := budget.InputTokensUpper(rqq)
+	base := budget.CostNanos(inUp, 4_000_000_000) + budget.CostNanos(int64(rqq.MaxOutputTokens), 20_000_000_000)
+	margin := base / 50
+	if margin < 1_000_000 {
+		margin = 1_000_000
+	}
+	if st := l.Snapshot(); st.AttemptsRaw != 1 || st.SpentNanos != base+margin || st.SpentNanos <= 0 || st.FailuresRaw != 1 || st.OpenNanos != 0 {
+		t.Fatalf("replay after a wire call was not charged in full: %+v want %d", st, base+margin)
+	}
+}
+
+// nopermit calls the client without the guard's context: nothing can be sent.
+type nopermit struct{ c *Client }
+
+func (nopermit) Provider() string { return "x" }
+func (w nopermit) Generate(_ context.Context, r llm.Request) (llm.Response, error) {
+	return w.c.Generate(context.Background(), r)
+}
+
+func TestFreshLocalRefusalStillCostsNothing(t *testing.T) {
+	var hits atomic.Int64
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1) }))
+	defer srv.Close()
+	g, l := guarded(t, nopermit{client(t, srv.URL)})
+	_, err := g.Generate(ctxCase(), rq())
+	if !errors.Is(err, budget.ErrNotSent) || hits.Load() != 0 {
+		t.Fatalf("err=%v hits=%d", err, hits.Load())
+	}
+	if st := l.Snapshot(); st.SpentNanos != 0 || st.FailuresRaw != 0 || st.AttemptsRaw != 1 || st.OpenNanos != 0 {
 		t.Fatalf("%+v", st)
 	}
 }

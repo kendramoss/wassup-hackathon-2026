@@ -493,8 +493,12 @@ func TestCorruptLedgerStops(t *testing.T) {
 
 func TestSharedEditedDownward(t *testing.T) {
 	r := newRig(t, 20, true)
-	_, err := r.g.Generate(context.Background(), req(10))
-	must(t, err)
+	// Two settled calls: a downward edit larger than the one unsynced-tail
+	// settle a crash could explain (the lag window, see round2_test.go).
+	for i := 0; i < 2; i++ {
+		_, err := r.g.Generate(WithCase(context.Background(), string(rune('a'+i))), req(10))
+		must(t, err)
+	}
 	must(t, os.WriteFile(r.shr, []byte(sharedJSON(20, true)), 0o600))
 	if _, err := r.g.Generate(context.Background(), req(10)); !errors.Is(err, ErrTamper) {
 		t.Fatalf("mid-run: %v", err)

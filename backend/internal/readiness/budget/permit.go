@@ -43,6 +43,11 @@ func (p *Permit) Take() error {
 	return nil
 }
 
+// taken reports whether the permit was consumed, i.e. whether a wire request
+// may have left the process. Only the guard that minted it reads this; it is
+// the authoritative "was anything sent" signal, not any error tag.
+func (p *Permit) taken() bool { return p != nil && p.st != nil && p.st.used.Load() }
+
 // DenyTransport refuses every request. The tool installs it as
 // http.DefaultTransport and http.DefaultClient's transport as defense in
 // depth against accidental stdlib use. It is a mitigation, not a sandbox:

@@ -358,7 +358,7 @@ func smokeCmd(args []string, getenv func(string) string, out io.Writer) error {
 	if *att == "" || *shr == "" || *pricing == "" || *cfgPath == "" {
 		return errors.New("--attempts, --shared, --pricing and --config are required for a real call")
 	}
-	cfg, _, err := loadConfig(*cfgPath)
+	cfg, cfgSHA, err := loadConfig(*cfgPath)
 	if err != nil {
 		return err
 	}
@@ -389,6 +389,12 @@ func smokeCmd(args []string, getenv func(string) string, out io.Writer) error {
 		return err
 	}
 	defer l.Close()
+	// Public, non-secret bindings go into the chain so it shows what the run was frozen to.
+	ph := sha256.Sum256(pb)
+	if err := l.Bind(map[string]string{"pricing_proof_sha256": hex.EncodeToString(ph[:]), "config_sha256": cfgSHA,
+		"guard_commit": rev, "run_ends_by": cfg.RunEndsBy}); err != nil {
+		return err
+	}
 	g := budget.NewGuard(gw, l, tbl, budget.Opts{AllowModelCalls: true, RunID: "smoke", AllowedCases: map[string]bool{"smoke-synthetic": true}, RunEndsBy: runEnds})
 	m := llm.WithRetry(g, frozenMaxRetries, 2*time.Second)
 	resp, err := m.Generate(budget.WithCase(ctx, "smoke-synthetic"),

@@ -218,11 +218,16 @@ func (g *Guard) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 			panic(p)
 		}
 	}()
-	actx, cancel := context.WithTimeout(withPermit(ctx, mintPermit()), g.o.AttemptTimeout)
+	pm := mintPermit()
+	actx, cancel := context.WithTimeout(withPermit(ctx, pm), g.o.AttemptTimeout)
 	defer cancel()
 	resp, callErr := g.inner.Generate(actx, req)
 	settled = true
-	if callErr != nil && errors.Is(callErr, ErrNotSent) {
+	// Whether anything may have been sent is decided by the guard-owned
+	// permit state, never by an error tag: once the permit was taken, any
+	// outcome is charged in full unless usage proves a successful answer.
+	wired := pm.taken()
+	if callErr != nil && errors.Is(callErr, ErrNotSent) && !wired {
 		// Known unsent: no money moved. Not a success and not a failure for
 		// the streak. Everything else below is charged in full.
 		if serr := g.ledger.Settle(res, SettleReq{Outcome: OutcomeNotSent, ErrorClass: classify(callErr)}); serr != nil {
@@ -232,6 +237,9 @@ func (g *Guard) Generate(ctx context.Context, req llm.Request) (llm.Response, er
 	}
 	if callErr != nil {
 		sr := SettleReq{Outcome: OutcomeFailure, Charged: res.Nanos, ErrorClass: classify(callErr)}
+		if wired && errors.Is(callErr, ErrNotSent) {
+			sr.ErrorClass = "unsent_claim_after_wire"
+		}
 		var api *llm.APIError
 		if errors.As(callErr, &api) {
 			sr.HTTPStatus = api.StatusCode

@@ -58,13 +58,19 @@ type permitTransport struct {
 }
 
 func (t permitTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	if err := budget.PermitFrom(r.Context()).Take(); err != nil {
-		return nil, fmt.Errorf("%w: %w", budget.ErrNotSent, err)
-	}
+	// Validate the target first: a refusal here leaves the permit untouched,
+	// so the guard can see that nothing was sent.
 	u := r.URL
 	okScheme := u.Scheme == "https" || (u.Scheme == "http" && t.allowHTTPLoop && isLoopback(u.Hostname()))
 	if !okScheme || u.Host != t.host || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != t.path {
 		return nil, fmt.Errorf("%w: request target is not the allowlisted endpoint", budget.ErrNotSent)
+	}
+	p := budget.PermitFrom(r.Context())
+	if err := p.Take(); err != nil {
+		if errors.Is(err, budget.ErrNoPermit) {
+			return nil, fmt.Errorf("%w: %w", budget.ErrNotSent, err) // no permit was ever taken
+		}
+		return nil, err // ErrPermitUsed: an earlier request may have been sent; no unsent claim
 	}
 	return t.base.RoundTrip(r)
 }
@@ -232,11 +238,11 @@ func (c *Client) Generate(ctx context.Context, req llm.Request) (llm.Response, e
 	start := time.Now()
 	resp, err := c.hc.Do(hr)
 	if err != nil {
+		if errors.Is(err, budget.ErrPermitUsed) {
+			return llm.Response{}, fmt.Errorf("gateway: %w", budget.ErrPermitUsed)
+		}
 		// Refused inside RoundTrip before any byte left the process.
 		if errors.Is(err, budget.ErrNotSent) {
-			if errors.Is(err, budget.ErrPermitUsed) {
-				return llm.Response{}, fmt.Errorf("gateway: %w: %w", budget.ErrNotSent, budget.ErrPermitUsed)
-			}
 			if errors.Is(err, budget.ErrNoPermit) {
 				return llm.Response{}, fmt.Errorf("gateway: %w: %w", budget.ErrNotSent, budget.ErrNoPermit)
 			}
