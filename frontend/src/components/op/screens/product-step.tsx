@@ -142,8 +142,8 @@ type Tier = { key: "origin" | "plan" | "money"; label: string; state: "done" | "
 // The first thing the user may have forgotten, and the field to take them
 // to (18 Oct). The backend also rejects a plant without a country and a part
 // without a name, so these are caught here instead.
-type Gap = { field: string; message: string };
-function findGap(tab: Tab, name: string, date: string, facts: string, product: Product, imported: boolean, failed = false): Gap | null {
+export type Gap = { field: string; message: string };
+export function findGap(tab: Tab, name: string, date: string, facts: string, product: Product, imported: boolean, failed = false): Gap | null {
   if (name.trim() === "") return { field: "[data-field=name]", message: "Add a product name" };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { field: "[data-field=date]", message: "Add the case date" };
   if (tab === "paste") return facts.trim().length <= 20 ? { field: "#step1-panel textarea", message: "Paste a description (a sentence or more)" } : null;
@@ -160,6 +160,10 @@ function findGap(tab: Tab, name: string, date: string, facts: string, product: P
   for (const [i, c] of product.components.entries()) {
     if (!c.name.trim()) return { field: `#field-part-name-${i}`, message: c.made_in.trim() ? "Name this part" : "Fill in or remove this empty part" };
     if (!c.made_in.trim()) return { field: `#field-part-country-${i}`, message: `Add the country ${c.name} is made in` };
+  }
+  // The backend requires every processing step to be named.
+  for (const [i, o] of (product.operations ?? []).entries()) {
+    if (!o.name.trim()) return { field: `#field-op-name-${i}`, message: "Name this processing step or remove it" };
   }
   return null;
 }
@@ -1002,7 +1006,7 @@ function plantId(taken: string[]) {
   return `p${n}`;
 }
 
-function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Product) => void }) {
+export function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Product) => void }) {
   const plants = product.plants ?? [];
   const ops = product.operations ?? [];
   const setPlants = (p: Plant[]) => onChange({ ...product, plants: p });
@@ -1180,7 +1184,7 @@ function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Pr
         <ul className="mt-3 flex flex-col gap-2">
           {ops.map((o, i) => (
             <li key={i} className="grid gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-              <input aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cell} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+              <input id={`field-op-name-${i}`} aria-label="Processing step" placeholder="e.g. solder, test and pack" className={cell} value={o.name} onChange={(e) => setOps(ops.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
               <Combobox
                 ariaLabel="At plant"
                 placeholder="Search or add a plant"
