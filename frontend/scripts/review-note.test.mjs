@@ -67,7 +67,8 @@ test("bounded best-plan wording: searched moves, the entered costs, no unmodelle
   assert.doesNotMatch(everything, /optimal|cheapest|guarantee|certif(ied|ication) by|approved by CBP/i);
   assert.doesNotMatch(JSON.stringify(copy.review), /\bblock|reject|detect/i, "no claim that the engine blocks or detects non-U.S. queries");
   // The one line that says "detect"/"block" is the accuracy-page line saying there is NO such check.
-  const { noDetector, ...scope } = copy.jurisdiction;
+  const scope = { ...copy.jurisdiction };
+  delete scope.noDetector;
   assert.doesNotMatch(JSON.stringify(scope), /\bblock|reject|detect/i);
 });
 
