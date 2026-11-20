@@ -7,9 +7,9 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Number | Value | Source | Status |
 |---|---|---|---|
 | Held-out origin accuracy (377 rulings, Jan–Sep 2026) | **90.2% (86.8–92.8)**, Vertex AI, frozen engine-v1. Proxy re-run 89.9% (86.5–92.6); research run 89.1% (85.6–91.9) | `eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl` (D39). Proxy file kept for the comparison | Official. Proxy and research figures stay labelled as such |
-| Best simple baseline (most-mentioned country) | 60.5% (55.5–65.3) | research `RESULTS-v2.md` (no model involved) | Showable |
+| Best simple baseline (most-mentioned country) | 60.5% (55.5–65.3) | research `RESULTS-v2.md` (no model involved); not committed, so not reproducible here | Reported, unverified. Show only with that label. Never show a lift between this figure and the 96.0% fast-path row: the fast path is a 300-case subset, this baseline is all 377 |
 | Other baselines | final-assembly 40.6%, last-mentioned 39.8%, majority 12.2% | research `RESULTS-v2.md` | Showable |
-| Fast path (confidence ≥ 0.92 and in scope), held-out | 79.6% of cases (300/377) at 96.0% (93.1–97.7), Vertex AI, router-v2. Proxy was 78.5% at 96.6% (93.9–98.2). At the old 0.95 bar, proxy coverage was 70.3% at 97.7% | final Vertex rows + `eval/results/scope-final-router-v2-vertex.jsonl` | Official. The proxy figure stays labelled proxy |
+| Fast path (confidence ≥ 0.92 and in scope), held-out | 79.6% of cases (300/377) at 96.0% (93.1–97.7), Vertex AI, router-v2. Proxy was 78.5% at 96.6% (93.9–98.2). At the old 0.95 bar, proxy coverage was 70.3% at 97.7% | final Vertex rows + `eval/results/scope-final-router-v2-vertex.jsonl` | Official. The proxy figure stays labelled proxy. 288 of 300; the subset is selected by the model's own confidence and router scope |
 | Confidence ≥ 0.95 alone, held-out | 71.9% at 97.8% (95.3–99.0) | final rows | Proxy. Do **not** show the research "65% at 98.0%": it describes a different routed pipeline |
 | Change detection from scratch, held-out 2026 pairs | 68% (47–84), n=22; always-change baseline 63.6%; balanced accuracy 61.6% | research `RESULTS-v2.md` | Showable, always with both baselines; label "weak" |
 | Move verifier (verifier-v2), development set (54 pre-2026 pairs) | precision 32/32 (89–100), recall 69.6% (55.2–80.9, n=46), specificity 8/8; with CBP's current origin given: 97.3% of 37 (86.2–99.5), 78.3%, 7/8 | `eval/results/flips-dev-verifier-v2-{unknown,known}-a-litellm.jsonl` (served by `/v1/eval/summary`). The earlier 34/34 and 74% were verifier-v1 | Proxy; must say **"development set"** |
@@ -42,4 +42,4 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Price paid for US-origin advice | median KRW 5.0M ≈ US$3,600 (23 purchases, 2024–26) | KOTRA export-voucher marketplace purchase records | Showable; "subsidised vouchers; team-compiled" |
 | CBP turnaround, Asian-origin rulings | median 21 days (IQR 14–26), n=247 | own count, rulings.cbp.gov | Showable; "team count" |
 
-Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies".
+Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies". Do not describe a percentage-point gap between subsets as proof of calibration.

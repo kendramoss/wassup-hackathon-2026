@@ -44,16 +44,16 @@ Model choices are measured: Argon and Flash are equally accurate with precedents
 
 ## Results
 
-Data: 2,790 CBP rulings (2023-01 to 2026-09, rulings.cbp.gov, public domain). Labels are CBP's own stated holdings. Held-out test: 377 rulings dated Jan–Sep 2026 (355 regex-labelled, 22 hand-labelled), never used to develop prompts; precedents are restricted to rulings dated before each case (model pre-training exposure not excluded).
+Data: 2,790 labelled CBP rulings (2023-01-10 to 2026-09-25, rulings.cbp.gov, public domain; 2,553 with a single primary origin) plus 291 further Part 102 rulings in the 3,081-file facts pool. Labels are CBP's own stated holdings. Held-out test: 377 rulings dated Jan–Sep 2026 (355 regex-labelled, 22 hand-labelled), never used to develop prompts; precedents are restricted to rulings dated strictly before each case (earlier held-out rulings are retrievable: 414 of 1,885 retrieved precedent slots) (model pre-training exposure not excluded).
 
 | Method (held-out, n = 377) | Accuracy (95% CI) |
 |---|---|
 | Majority country (Vietnam) | 12.2% (9.3–15.9) |
 | Last country mentioned in facts | 39.8% (35.0–44.8) |
 | Final-assembly country | 40.6% (35.8–45.6) |
-| Most-mentioned country (best simple baseline) | 60.5% (55.5–65.3) |
+| Most-mentioned country (best simple baseline; reported, unverified: source not in this repository) | 60.5% (55.5–65.3) |
 | **Unde engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
-| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | 79.6% of cases at 96.0% (93.1–97.7) |
+| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | 79.6% of cases (300 of 377) at 96.0% (93.1–97.7), 288 of 300 |
 
 The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM25, K = 5, Gemini 4 Argon on Vertex AI, location `global`), scored once on the held-out split. On the development split through the proxy, the engine is 90.9% accurate overall; it auto-accepts 79% of cases (confidence ≥ 0.92, in scope) at 95.1% accuracy (held-out: 78.5% at 96.6%), and the rest go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](../eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
 
@@ -72,6 +72,7 @@ The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM2
 Across every precedent-check run we scored (dev and the 2026 pairs, 182 verdicts at or above the 0.92 bar), none was wrong (D86). The bar is strict: about 30% of real changes clear it in every run, and the rest go to a broker as "below the bar" with their supporting ruling.
 
 ## Limitations
+- Confidence is the model's self-report against a bar, not a calibrated probability. Held-out accuracy at confidence 0.90–0.95 is 78.1% (66.6–86.5) and at 0.80–0.90 is 58.1% (40.8–73.6); no calibration statistic is computed. See docs/claims-reconciliation.md.
 - The planner — the distinctive part — is the least validated. The precedent check (verifier-v2, D74) was scored once on the 2026 flip pairs: every precedent-supported verdict was a real origin change (12/12 and 11/11), but part of its prompt was written after the research team saw failures on those pairs, so they are not a clean held-out test; a clean test needs CBP rulings published after 25 Sep 2026. On 18 Oct, CROSS had none with an origin holding (its newest NY ruling was dated 14 Aug), so that test could not be built yet (D82). Demo fixtures were adjusted during development; they are demonstrations, not evaluations.
 - Inputs in the benchmark are CBP's restatements of each request, not raw manufacturer BOMs.
 - Labels come from one extraction pipeline plus a second extractor and a 30-item audit, not an expert panel.

@@ -61,13 +61,15 @@ It's built for the trade-compliance or industrialisation lead at a contract manu
 
 ## Does it work?
 
-Tested on **377 real CBP rulings** from January to September 2026 that were never used to build it:
+Tested on **377 real CBP rulings** from January to September 2026 that were never used to tune prompts or settings (earlier rulings, including earlier test rulings, can be retrieved as precedent for later ones, but never a case's own ruling or a later one):
 
 | Method | Accuracy |
 |---|---|
-| Best simple rule (most-mentioned country) | 60.5% |
-| **Unde** (Gemini 4 Argon on Vertex AI + past rulings) | **90.2%** |
-| Unde, confident cases only (about 80% of cases) | 96.0% |
+| Best simple rule (most-mentioned country) | 60.5% (reported; source not in this repository, unverified) |
+| **Unde** (Gemini 4 Argon on Vertex AI + past rulings), all 377 cases | **90.2%** (340 of 377) |
+| Unde, confident cases only: confidence at least 0.92 and in scope, 79.6% of cases | 96.0% (288 of 300) |
+
+The 96.0% covers a subset the model's own confidence selected, so it is not comparable with the all-case baseline, and a gap in percentage points is not evidence that the confidence scores are calibrated. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 
 On the two demo products, the plan Unde shows matches what really happened:
 
@@ -79,6 +81,7 @@ Across 182 precedent checks that cleared the bar, none was wrong. The bar is str
 ## Limitations
 
 - **The planner is the least tested part.** A clean test needs CBP rulings published after 25 Sep 2026, and none with an origin holding existed yet on 18 Oct.
+- **Benchmark claims are reconciled, with limits.** Every headline number is recomputed from committed files by `cd backend && go run ./cmd/claimscheck`; the 60.5% baseline cannot be reproduced from this repository. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 - **Plans count duty and the costs you enter only**, not feasibility, tooling, capacity or transition costs.
 - **Three product families** have plan templates (motorised tools and small appliances, LiDAR modules, LED lights). Adding one is a template file.
 - **Results vary a little run to run.** A fixed seed and a verdict cache keep repeat searches stable.
@@ -91,7 +94,7 @@ All limitations: [docs/DETAILS.md](docs/DETAILS.md#limitations).
 ```
 Next.js frontend (Cloud Run)  ──►  Go backend (Cloud Run)  ──►  Gemini on Vertex AI
                                      │                          (4 Argon, 3.8 Flash)
-                                     ├─ origin engine + 2,790 past CBP rulings
+                                     ├─ origin engine + 2,790 labelled CBP rulings (BM25)
                                      ├─ planner (moves steps between plants)
                                      ├─ verifier (ADK agent that searches CBP rulings)
                                      └─ cases in Firestore
