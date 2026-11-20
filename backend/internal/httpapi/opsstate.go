@@ -41,13 +41,22 @@ func stampBasis(res *planner.Result, basis string) {
 	}
 }
 
+// moneyStamp is what a request knows about its money: the RAW basis hash
+// (operations mode only, "" otherwise) and whether the stored economics were
+// its source.
+type moneyStamp struct {
+	basis  string
+	stored bool
+}
+
 // stillPriced is stillCurrent for money, run inside the store update: a result
-// priced from the case's stored economics (the request carried no annual value
-// of its own) is discarded when those economics changed while it ran. A request
-// that carries its own money saves that money with the result, so they agree by
-// construction. Legacy results (no stamp) are not checked: unchanged behaviour.
-func stillPriced(latest *store.Case, supplied *planner.Economics, basis string) error {
-	if basis == "" || (supplied != nil && supplied.AnnualImportValueUSD > 0) {
+// priced from the case's STORED economics is discarded when those economics
+// changed while it ran. A request that owns its money (ownsMoney, including an
+// explicit operations body at an annual value of 0) saves that same money with
+// the result, so they agree by construction and it is never guarded. Legacy
+// results (no stamp) are not checked: unchanged behaviour.
+func stillPriced(latest *store.Case, st moneyStamp, basis string) error {
+	if basis == "" || !st.stored {
 		return nil
 	}
 	if economicsHash(latest.Economics) != basis {

@@ -14,7 +14,9 @@ import (
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/audit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner/opcost"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -827,5 +829,180 @@ func TestOpsStampIsTakenBeforeRatesAreFilled(t *testing.T) {
 	c2, _ := mem.Get(context.Background(), id2)
 	if c2.Plan == nil || planMoneyStale(c2) {
 		t.Errorf("streamed plan stale or missing: %v", c2.Plan != nil)
+	}
+}
+
+// F1 (financial review): operations with no annual value and no stored
+// economics. The request owns its money: no spurious 409, the body is stored
+// whole, the result is unpriced but its feasibility is kept, and a fresh read
+// is not stale.
+func TestOpsOnlyBodyWithZeroAnnualValue(t *testing.T) {
+	ops := `{"max_lead_time_days":90,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":120}}}}}`
+	body := `{"target":"Thailand","economics":{"annual_import_value_usd":0,"operations":` + ops + `}}`
+	for _, stream := range []bool{false, true} {
+		t.Run(fmt.Sprintf("plan stream=%v", stream), func(t *testing.T) {
+			mem := store.NewMemory()
+			hs, id := newOpsCase(t, func(d *Deps) { d.Cases = mem })
+			hdr := map[string]string{}
+			if stream {
+				hdr["Accept"] = "text/event-stream"
+			}
+			code, out := doReq(hs, "POST", "/v1/cases/"+id+"/plan", body, hdr)
+			if code != http.StatusOK || strings.Contains(out, "event: error") || strings.Contains(out, `"conflict"`) {
+				t.Fatalf("spurious failure: %d %.300s", code, out)
+			}
+			c, _ := mem.Get(context.Background(), id)
+			if c.Plan == nil || c.Economics == nil || c.Economics.Operations == nil || c.Plan.EconomicsBasis != economicsHash(c.Economics) {
+				t.Fatalf("not stored whole or not stamped: plan=%v econ=%+v", c.Plan != nil, c.Economics)
+			}
+			_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+			if _, bad := got["plan_economics_stale"]; bad {
+				t.Error("fresh GET flags the plan stale")
+			}
+			row := rowOf(t, c2any(t, c.Plan.Rejected), "motor_fan_assembly@th")
+			if row == nil || row["rejection_kind"] != "operationally_infeasible" {
+				t.Errorf("feasibility of an unpriced operations body was dropped: %v", row)
+			}
+			if o := row["operations"].(map[string]any); o["priced"] != false {
+				t.Errorf("priced without an annual value: %v", o["priced"])
+			}
+		})
+	}
+	t.Run("compare-targets", func(t *testing.T) {
+		mem := store.NewMemory()
+		hs, id := newOpsCase(t, func(d *Deps) { d.Cases = mem })
+		code, out := hs.do(t, "POST", "/v1/cases/"+id+"/compare-targets", `{"targets":["Thailand","Malaysia"],"economics":{"annual_import_value_usd":0,"operations":`+ops+`}}`)
+		if code != http.StatusOK {
+			t.Fatalf("%d %v", code, out)
+		}
+		c, _ := mem.Get(context.Background(), id)
+		if c.Targets == nil || c.Economics == nil || c.Economics.Operations == nil || targetsMoneyStale(c) {
+			t.Errorf("targets=%v econ=%+v", c.Targets != nil, c.Economics)
+		}
+	})
+}
+
+func c2any(t *testing.T, v any) any {
+	t.Helper()
+	b, _ := json.Marshal(v)
+	var out any
+	_ = json.Unmarshal(b, &out)
+	return out
+}
+
+// Source-aware guard: stored money reused (value 0, no operations in the body)
+// conflicts; an explicit operations body owns its money even at value 0 and
+// never conflicts with itself, and replaces the stored economics whole.
+func TestOpsMoneySourceGuard(t *testing.T) {
+	ops := opsHandlerOps(`900000`, ``)
+	opsZero := `{"annual_import_value_usd":0,"operations":{"max_lead_time_days":200,"groups":{"motor_fan_assembly":{"plants":{"th":{"ref":{"name":"Rayong plant","country":"Thailand"},"lead_time_days":30}}}}}}`
+	t.Run("stored source conflicts", func(t *testing.T) {
+		cs := &hookCases{Cases: store.NewMemory()}
+		hs, id := newOpsCase(t, func(d *Deps) { d.Cases = cs })
+		hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(ops))
+		cs.before = func() {
+			hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(strings.Replace(ops, `"labour_usd_per_year":60000`, `"labour_usd_per_year":61000`, 1)))
+		}
+		code, out := doReq(hs, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","economics":{"annual_import_value_usd":0}}`, nil)
+		if code != http.StatusConflict {
+			t.Errorf("%d %.200s", code, out)
+		}
+	})
+	t.Run("own value-0 operations never self-conflict", func(t *testing.T) {
+		for _, stream := range []bool{false, true} {
+			cs := &hookCases{Cases: store.NewMemory()}
+			hs, id := newOpsCase(t, func(d *Deps) { d.Cases = cs })
+			hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(ops))
+			cs.before = func() {
+				hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(strings.Replace(ops, `"labour_usd_per_year":60000`, `"labour_usd_per_year":61000`, 1)))
+			}
+			hdr := map[string]string{}
+			if stream {
+				hdr["Accept"] = "text/event-stream"
+			}
+			code, out := doReq(hs, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","economics":`+opsZero+`}`, hdr)
+			if code != http.StatusOK || strings.Contains(out, "event: error") {
+				t.Fatalf("stream=%v: %d %.200s", stream, code, out)
+			}
+			c, _ := cs.Get(context.Background(), id)
+			if c.Economics.AnnualImportValueUSD != 0 || c.Economics.Operations == nil || *c.Economics.Operations.MaxLeadTimeDays != 200 || len(c.Economics.GroupCosts) != 0 {
+				t.Errorf("the request's operations did not replace the stored economics whole: %+v", c.Economics)
+			}
+			if planMoneyStale(c) {
+				t.Errorf("stream=%v: result is immediately stale", stream)
+			}
+		}
+	})
+	t.Run("legacy value-0 body still keeps stored economics", func(t *testing.T) {
+		mem := store.NewMemory()
+		hs, id := newOpsCase(t, func(d *Deps) { d.Cases = mem })
+		hs.do(t, "PUT", "/v1/cases/"+id+"/economics", opsEcon(ops))
+		hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","economics":{"annual_import_value_usd":0,"operations":{}}}`)
+		c, _ := mem.Get(context.Background(), id)
+		if c.Economics.AnnualImportValueUSD != 2000000 || c.Economics.Operations == nil {
+			t.Errorf("an inactive value-0 body replaced the stored economics: %+v", c.Economics)
+		}
+	})
+}
+
+// F3: operations-mode target ranking puts fully priced before unpriced.
+func TestRankTargetsOperationsKnownBeforeUnknown(t *testing.T) {
+	yes, no := true, false
+	mk := func(name string, net float64, priced *bool, ops bool) store.TargetSummary {
+		p := domain.Plan{NetYear: net, NetPriced: priced, Shown: true}
+		if ops {
+			p.Operations = &opcost.Result{}
+		}
+		return store.TargetSummary{Target: name, Status: TargetPlan, Best: &p}
+	}
+	rank := func(ts ...store.TargetSummary) []string {
+		rankTargets(ts)
+		var out []string
+		for _, x := range ts {
+			out = append(out, x.Target)
+		}
+		return out
+	}
+	if got := rank(mk("unknownHigh", 900000, &no, true), mk("knownLow", 10, &yes, true)); got[0] != "knownLow" {
+		t.Errorf("unpriced fallback outranked a priced target: %v", got)
+	}
+	if got := rank(mk("knownZero", 0, &yes, true), mk("unknownHigh", 5, &no, true), mk("knownNeg", -5, &yes, true)); got[0] != "knownZero" || got[1] != "knownNeg" {
+		t.Errorf("known zero/negative must precede unknown: %v", got)
+	}
+	// legacy ordering is unchanged: by net, priced or not
+	if got := rank(mk("unknownHigh", 900000, &no, false), mk("knownLow", 10, &yes, false)); got[0] != "unknownHigh" {
+		t.Errorf("legacy ordering changed: %v", got)
+	}
+}
+
+// The body decode still reads the first JSON value only. A valid first value
+// followed by more than the body limit of ignored trailing bytes is accepted,
+// as on the base; a bad operations block is explained from the bytes the
+// decoder actually read; the body limit still protects the first value.
+func TestDecodeKeepsFirstValueStreaming(t *testing.T) {
+	hs, id := newOpsCase(t, nil)
+	trail := strings.Repeat(" ", maxBody+4096) // literal 256 KiB + 4 KiB of ignored whitespace, in memory only
+	for _, body := range []string{
+		`{"target":"Thailand"}` + trail + `{"junk":1}`,
+		planBody(opsEcon(opsHandlerOps(`1`, ``))) + trail,
+	} {
+		if code, out := doReq(hs, "POST", "/v1/cases/"+id+"/plan", body, nil); code != http.StatusOK {
+			t.Errorf("valid first value + large ignored trail = %d %.200s, want 200", code, out)
+		}
+	}
+	// active operations with an invalid outer field: the outer error stands
+	code, out := doReq(hs, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","bogus":1,"economics":`+opsEcon(opsHandlerOps(`1`, ``))+`}`+trail, nil)
+	if code != http.StatusBadRequest || !strings.Contains(out, `unknown field \"bogus\"`) {
+		t.Errorf("outer error lost: %d %.200s", code, out)
+	}
+	// a bad nested block next to a large trail is still explained
+	code, out = doReq(hs, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand","economics":{"operations":{"cost_bais":1}}}`+trail, nil)
+	if code != http.StatusBadRequest || !strings.Contains(out, "operations.unknown_field") {
+		t.Errorf("nested error not explained: %d %.200s", code, out)
+	}
+	// the limit still bounds the first value itself
+	big := `{"target":"Thailand","economics":{"operations":{"note":"` + strings.Repeat("n", maxBody) + `"}}}`
+	if code, _ := doReq(hs, "POST", "/v1/cases/"+id+"/plan", big, nil); code != http.StatusBadRequest {
+		t.Errorf("an oversized first value = %d, want 400", code)
 	}
 }

@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -71,7 +72,7 @@ func validateEconomicsFor(e planner.Economics, product *domain.Product, strict b
 // top level (PUT economics) or under "economics" (every other route).
 func operationsDecodeError(body []byte) error {
 	var top map[string]json.RawMessage
-	if json.Unmarshal(body, &top) != nil {
+	if json.NewDecoder(bytes.NewReader(body)).Decode(&top) != nil { // the first value only; later bytes may be a prefix of anything
 		return nil
 	}
 	hold := top
@@ -100,25 +101,39 @@ func cleanEconomics(e planner.Economics) planner.Economics {
 	return e
 }
 
+// ownsMoney reports whether a supplied economics body is the money of the
+// request. The legacy rule is an annual import value above zero. In operations
+// mode (#281) an explicitly ACTIVE operations block also owns the request, even
+// at an annual value of 0 (the financial side is then unknown, the feasibility
+// side is still meaningful): the whole body is used and saved, never merged
+// with stored economics. A body with no active operations and no annual value
+// falls back to the stored economics, or to nothing. This single predicate
+// decides what is priced, stamped, guarded and persisted.
+func ownsMoney(e planner.Economics) bool {
+	return e.AnnualImportValueUSD > 0 || e.Operations.Active()
+}
+
 // effectiveEconomics is the economics a plan, estimate, scenarios or
-// compare-targets call will use: the supplied body when it carries an annual
-// value, else the case's stored economics (the one reuse rule, see
-// economicsFrom). The supplied body and the effective economics are both
-// validated, so invalid input is refused whether it is used or ignored, and
-// legacy invalid stored economics are refused when reused. Callers run it
-// before any pricing, engine call or write.
-func effectiveEconomics(supplied planner.Economics, stored *planner.Economics, product *domain.Product) (planner.Economics, error) {
+// compare-targets call will use: the supplied body when it owns the money
+// (ownsMoney), else the case's stored economics (the one reuse rule, see
+// economicsFrom). usedStored says the stored economics were the source, which
+// is the only case the stored-money concurrency guard applies to. The supplied
+// body and the effective economics are both validated, so invalid input is
+// refused whether it is used or ignored, and legacy invalid stored economics
+// are refused when reused. Callers run it before any pricing, engine call or
+// write.
+func effectiveEconomics(supplied planner.Economics, stored *planner.Economics, product *domain.Product) (econ planner.Economics, usedStored bool, err error) {
 	if err := validateEconomicsFor(supplied, product, false); err != nil {
-		return planner.Economics{}, err
+		return planner.Economics{}, false, err
 	}
-	econ := supplied
-	if econ.AnnualImportValueUSD == 0 && stored != nil {
-		econ = *stored
+	econ = supplied
+	if !ownsMoney(supplied) && stored != nil {
+		econ, usedStored = *stored, true
 	}
 	if err := validateEconomicsFor(econ, product, false); err != nil {
-		return planner.Economics{}, err
+		return planner.Economics{}, false, err
 	}
-	return cleanEconomics(econ), nil
+	return cleanEconomics(econ), usedStored, nil
 }
 
 // putEconomics replaces the case's money inputs without running anything;

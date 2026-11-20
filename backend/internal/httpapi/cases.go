@@ -286,18 +286,15 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 }
 
 func decode(w http.ResponseWriter, r *http.Request, v any) error {
-	body, rerr := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBody))
-	dec := json.NewDecoder(bytes.NewReader(body))
+	// The decoder reads the first JSON value only, as it always did: trailing
+	// bytes are never read, so they are not limited either. A tee keeps exactly
+	// the bytes the decoder consumed, for explaining a bad operations block.
+	var seen bytes.Buffer
+	dec := json.NewDecoder(io.TeeReader(http.MaxBytesReader(w, r.Body, maxBody), &seen))
 	dec.DisallowUnknownFields()
-	err := rerr
-	if err == nil {
-		err = dec.Decode(v)
-	}
-	if err != nil {
-		if rerr == nil {
-			if perr := operationsDecodeError(body); perr != nil { // a bad operations block says which rule it broke
-				return fmt.Errorf("%w; request body: %v", perr, err) // and the outer decode error is kept, never replaced
-			}
+	if err := dec.Decode(v); err != nil {
+		if perr := operationsDecodeError(seen.Bytes()); perr != nil { // a bad operations block says which rule it broke
+			return fmt.Errorf("%w; request body: %v", perr, err) // and the outer decode error is kept, never replaced
 		}
 		return fmt.Errorf("%w: request body: %v", domain.ErrInvalid, err)
 	}
@@ -962,7 +959,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	req, raw, err := a.planRequestFor(r, c, in, true)
+	req, st, err := a.planRequestFor(r, c, in, true)
 	if err != nil {
 		a.fail(w, r, err)
 		return
@@ -972,7 +969,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if wantsStream(r) {
-		a.planStream(w, r, c, req, in.Economics, raw)
+		a.planStream(w, r, c, req, in.Economics, st)
 		return
 	}
 	fp := inputFingerprint(c)
@@ -981,7 +978,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	stampBasis(&res, raw)
+	stampBasis(&res, st.basis)
 	if !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
@@ -989,7 +986,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
 			}
-			if err := stillPriced(latest, &in.Economics, res.EconomicsBasis); err != nil {
+			if err := stillPriced(latest, st, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
@@ -1008,23 +1005,23 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 // fetch false prices duty rates from the table and cached live rates only.
 // raw is the hash of the money the request is priced from, taken before the
 // tariff table or live lookup fills any rate (see rawBasis).
-func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (req planner.Request, raw string, err error) {
+func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetch bool) (req planner.Request, st moneyStamp, err error) {
 	if c.Product == nil || c.Family == "" {
-		return planner.Request{}, "", fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
+		return planner.Request{}, moneyStamp{}, fmt.Errorf("%w: plan search needs a case created from a structured product with a family", domain.ErrInvalid)
 	}
 	date, _ := time.Parse(time.DateOnly, c.Date)
-	econ, err := effectiveEconomics(in.Economics, c.Economics, c.Product) // omitted: the case's latest
+	econ, usedStored, err := effectiveEconomics(in.Economics, c.Economics, c.Product) // omitted: the case's latest
 	if err != nil {
-		return planner.Request{}, "", err
+		return planner.Request{}, moneyStamp{}, err
 	}
-	raw = rawBasis(econ)
+	st = moneyStamp{basis: rawBasis(econ), stored: usedStored}
 	econ = a.priced(r.Context(), econ, c.Product, append(caseOrigins(c), in.Target), fetch)
 	req = planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
 		ActualChange: in.ActualChange,
 	}
-	return req, raw, req.Validate()
+	return req, st, req.Validate()
 }
 
 // planEstimate is POST /v1/cases/{id}/plan/estimate: the moves a plan
@@ -1196,7 +1193,7 @@ func productCountries(p *domain.Product) []string {
 // economicsFrom keeps the latest economics the user gave (an empty request
 // value leaves the stored one).
 func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economics {
-	if e.AnnualImportValueUSD > 0 {
+	if ownsMoney(e) {
 		e = cleanEconomics(e) // an inactive operations block is not stored
 		return &e
 	}
@@ -1209,7 +1206,7 @@ func economicsFrom(e planner.Economics, old *planner.Economics) *planner.Economi
 // retryable}. Comments (": keep-alive") are sent every keepAlive. req carries
 // the priced economics the search runs on; raw is what the user sent, and the
 // only economics the case stores (as on the JSON path, D56).
-func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics, basis string) {
+func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, req planner.Request, raw planner.Economics, st moneyStamp) {
 	s := openStream(w)
 	defer s.close()
 	send := s.send
@@ -1227,7 +1224,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		}
 	})
 	if err == nil {
-		stampBasis(&res, basis)
+		stampBasis(&res, st.basis)
 	}
 	if err == nil && !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
@@ -1236,7 +1233,7 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
 			}
-			if err := stillPriced(latest, &raw, res.EconomicsBasis); err != nil {
+			if err := stillPriced(latest, st, res.EconomicsBasis); err != nil {
 				return err
 			}
 			latest.Plan, latest.UpdatedAt = &res, now

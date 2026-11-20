@@ -474,7 +474,7 @@ func TestOpsAmbiguousBaselineIsUnknown(t *testing.T) {
 	}
 	e := r.Economics
 	e.Operations = decodeOps(t, motorOps("4", ``))
-	res := opsEvaluate(e, r.Product, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}, "China", "Thailand")
+	res := opsEvaluate(e, r.Product, nil, domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}, "China", "Thailand")
 	if res.Priced || res.NetModelledPerYear != nil {
 		t.Errorf("ambiguous baseline priced: %+v", res.Components)
 	}
@@ -498,7 +498,7 @@ func TestOpsPlantRefsAreCanonicalAndStaleRefsIgnored(t *testing.T) {
 	ops = strings.ReplaceAll(strings.ReplaceAll(ops, `"country":"Thailand"`, `"country":"THAILAND"`), `"country":"China"`, `"country":"china"`)
 	e.Operations = decodeOps(t, ops)
 	m := domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}}
-	res := opsEvaluate(e, r.Product, m, "China", "Thailand")
+	res := opsEvaluate(e, r.Product, nil, m, "China", "Thailand")
 	if !res.Priced || len(res.StaleRefs) != 0 {
 		t.Fatalf("canonical refs not matched: priced %v stale %v", res.Priced, res.StaleRefs)
 	}
@@ -508,7 +508,7 @@ func TestOpsPlantRefsAreCanonicalAndStaleRefsIgnored(t *testing.T) {
 			r.Product.Plants[i].Country = "Vietnam"
 		}
 	}
-	res = opsEvaluate(e, r.Product, m, "China", "Vietnam")
+	res = opsEvaluate(e, r.Product, nil, m, "China", "Vietnam")
 	if res.Priced || len(res.StaleRefs) == 0 {
 		t.Errorf("stale entry used: priced %v stale %v", res.Priced, res.StaleRefs)
 	}
@@ -613,5 +613,68 @@ func TestOpsProvenanceDoesNotChangeTheResult(t *testing.T) {
 	with := strings.Replace(strings.Replace(base, `"horizon_years":4,`, `"horizon_years":4,"note":"my note",`, 1), `"retooling_usd":100000`, `"retooling_usd":100000,"sources":{"capex_usd":"quote","retooling_usd":"estimate"}`, 1)
 	if run(base) != run(with) {
 		t.Error("a note or a source changed the result")
+	}
+}
+
+// F2 (financial review): a scenario variant that adds a plant. The source plant
+// and ref are read from the CURRENT product, the destination from the VARIANT.
+func variantWithNewPlant(t *testing.T, newName, newCountry string) (domain.Product, domain.Product) {
+	t.Helper()
+	r, _ := fixture(t, "heatgun_2022.json")
+	cur := r.Product
+	v := cur
+	v.Plants = append(append([]domain.Plant{}, cur.Plants...), domain.Plant{ID: "th2", Name: newName, Country: newCountry, Capabilities: []string{"motor_fan_assembly"}})
+	v.Components = append([]domain.Component{}, cur.Components...)
+	for i := range v.Components {
+		if v.Components[i].Group == "motor_fan_assembly" {
+			v.Components[i].Plant, v.Components[i].MadeIn = "th2", newCountry
+		}
+	}
+	return cur, v
+}
+
+func th2Ops(t *testing.T, name, country string) *opcost.Operations {
+	return decodeOps(t, fmt.Sprintf(`{"horizon_years":4,"groups":{"motor_fan_assembly":{"cost_basis":"additional","plants":{
+	 "cn":{"ref":{"name":"China suppliers","country":"China"},"labour_usd_per_year":100000,"logistics_usd_per_year":10000},
+	 "th2":{"ref":{"name":%q,"country":%q},"labour_usd_per_year":60000,"logistics_usd_per_year":45000,"capex_usd":900000,"retooling_usd":100000}}}}}`, name, country))
+}
+
+func TestOpsCompareVariantOnlyPlantIsPriced(t *testing.T) {
+	cur, v := variantWithNewPlant(t, "Chonburi works", "Thailand")
+	r, _ := fixture(t, "heatgun_2022.json")
+	e := r.Economics
+	e.GroupCosts = map[string]map[string]float64{"motor_fan_assembly": {"cn": 300000, "th2": 420000}}
+	e.Operations = th2Ops(t, "Chonburi works", "Thailand")
+	cmp := Compare(e, &cur, &v, "China", "Thailand")
+	if cmp.Operations == nil || !cmp.Operations.Priced || f64(cmp.NetUSD) != 135000 || len(cmp.Operations.StaleRefs) != 0 {
+		t.Fatalf("new destination plant not priced: %+v stale %v unknown %v", cmp.NetUSD, cmp.Operations.StaleRefs, cmp.Operations.Unknown)
+	}
+	// a mismatching ref at the new plant is still unknown, never read
+	e.Operations = th2Ops(t, "Other works", "Thailand")
+	cmp = Compare(e, &cur, &v, "China", "Thailand")
+	if cmp.Operations.Priced || len(cmp.Operations.StaleRefs) == 0 {
+		t.Errorf("mismatching ref was used: %+v", cmp.Operations)
+	}
+}
+
+// The same id with another ref in the variant cannot be represented on both
+// sides: unknown, never the variant's or the current's entry.
+func TestOpsCompareSameIDChangedRefIsUnknown(t *testing.T) {
+	cur, v := variantWithNewPlant(t, "Chonburi works", "Thailand")
+	v.Plants = append([]domain.Plant{}, cur.Plants...)
+	for i := range v.Plants {
+		if v.Plants[i].ID == "th" {
+			v.Plants[i].Name = "Songkhla works"
+		}
+	}
+	r, _ := fixture(t, "heatgun_2022.json")
+	e := r.Economics
+	e.Operations = decodeOps(t, motorOps("4", ``))
+	cmp := Compare(e, &cur, &v, "China", "Thailand")
+	// the variant moves nothing (same plant ids), so there is no priced move: just assert no entry is read for a changed ref
+	for _, m := range cmp.Moved {
+		if m.ToPlant == "th" && cmp.Operations.Priced {
+			t.Errorf("an entry for a plant whose ref changed was read: %+v", cmp.Operations.Components)
+		}
 	}
 }

@@ -124,10 +124,36 @@ func ValidateEnv(p *domain.Product, strict bool, e Economics) opcost.ValidateEnv
 	return env
 }
 
+// plantUnion is the plants a comparison can refer to: the current product's
+// (the source of a move) plus those only the variant has (a destination the
+// user adds in a scenario). An id both products have with a different name or
+// country cannot be represented on both sides, so it is dropped: entries for it
+// read as unknown, never as the other plant's. No id is inherited across.
+func plantUnion(cur, variant map[string]opcost.Ref) map[string]opcost.Ref {
+	out := make(map[string]opcost.Ref, len(cur)+len(variant))
+	for id, r := range cur {
+		out[id] = r
+	}
+	for id, r := range variant {
+		if c, ok := cur[id]; ok {
+			if c != r {
+				delete(out, id)
+			}
+			continue
+		}
+		out[id] = r
+	}
+	return out
+}
+
 // opsEvaluate prices and checks the moves of one plan or comparison.
-func opsEvaluate(e Economics, p domain.Product, m domain.Move, fromOrigin, toOrigin string) opcost.Result {
+func opsEvaluate(e Economics, p domain.Product, variant *domain.Product, m domain.Move, fromOrigin, toOrigin string) opcost.Result {
+	plants := ProductPlants(p)
+	if variant != nil {
+		plants = plantUnion(plants, ProductPlants(*variant))
+	}
 	in := opcost.Input{AnnualImportValueUSD: e.AnnualImportValueUSD, GroupCosts: e.GroupCosts,
-		Plants: ProductPlants(p), Ops: CanonicalOps(e.Operations)}
+		Plants: plants, Ops: CanonicalOps(e.Operations)}
 	if r, ok := e.DutyRate(fromOrigin); ok {
 		in.FromRate = &r
 	}
@@ -147,7 +173,7 @@ func opsEvaluate(e Economics, p domain.Product, m domain.Move, fromOrigin, toOri
 // as shown that the final result rejects.
 func applyMoney(req Request, tm Template, pl *domain.Plan, m domain.Move, baseOrigin string) {
 	if req.Economics.Operations.Active() {
-		res := opsEvaluate(req.Economics, req.Product, m, baseOrigin, pl.Prediction.Origin)
+		res := opsEvaluate(req.Economics, req.Product, nil, m, baseOrigin, pl.Prediction.Origin)
 		pl.Operations = &res
 		pl.DutyEffectYear, pl.AddedCostYear, pl.NetYear = res.DutyEffectYear, res.AddedCostYear, res.NetYear
 		priced := res.Priced

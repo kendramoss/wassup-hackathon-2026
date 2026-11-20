@@ -68,7 +68,7 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 	if current != nil && variant != nil {
 		c.Moved = movesBetween(*current, *variant)
 		if e.Operations.Active() { // one calculator for plan, scenario and target comparison
-			c.priceOps(e, *current, currentOrigin, origin)
+			c.priceOps(e, *current, variant, currentOrigin, origin)
 			return c
 		}
 		if len(e.GroupCosts) > 0 {
@@ -85,8 +85,8 @@ func Compare(e Economics, current *domain.Product, variant *domain.Product, curr
 
 // priceOps fills the money of a comparison from opcost.Evaluate, the same
 // arithmetic the plan search uses for the same move.
-func (c *Comparison) priceOps(e Economics, current domain.Product, currentOrigin, origin string) {
-	res := opsEvaluate(e, current, c.Moved, currentOrigin, origin)
+func (c *Comparison) priceOps(e Economics, current domain.Product, variant *domain.Product, currentOrigin, origin string) {
+	res := opsEvaluate(e, current, variant, c.Moved, currentOrigin, origin)
 	c.Operations = &res
 	c.AddedCostUSD = res.Components.OperatingDelta
 	c.AmortizedOneTimeUSD = res.Components.AmortizedOneTimePerYear
