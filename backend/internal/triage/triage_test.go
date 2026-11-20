@@ -193,3 +193,29 @@ func TestAnsweredByFallbackUsesRequestedIdentity(t *testing.T) {
 		}
 	}
 }
+
+func TestAllGates(t *testing.T) {
+	auto := func(r string) domain.Triage { return domain.Triage{Route: domain.RouteAuto, Reason: r} }
+	rev := func(r string) domain.Triage { return domain.Triage{Route: domain.RouteNeedsReview, Reason: r} }
+	tests := []struct {
+		name  string
+		gates []domain.Triage
+		route domain.Route
+		want  string
+	}{
+		{"none reviews", nil, domain.RouteNeedsReview, "no triage gate applied"},
+		{"single passes through", []domain.Triage{rev("a")}, domain.RouteNeedsReview, "a"},
+		{"all pass", []domain.Triage{auto("a"), auto("b")}, domain.RouteAuto, "a; b"},
+		{"first reviews", []domain.Triage{rev("a"), auto("b")}, domain.RouteNeedsReview, "a"},
+		{"second reviews", []domain.Triage{auto("a"), rev("b")}, domain.RouteNeedsReview, "b"},
+		{"both review keeps both reasons", []domain.Triage{rev("a"), rev("b")}, domain.RouteNeedsReview, "a; b"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AllGates(tt.gates...)
+			if got.Route != tt.route || got.Reason != tt.want {
+				t.Errorf("AllGates = %+v, want %s %q", got, tt.route, tt.want)
+			}
+		})
+	}
+}

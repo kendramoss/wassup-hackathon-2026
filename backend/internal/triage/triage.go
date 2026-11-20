@@ -164,6 +164,31 @@ func AnsweredByFallback(t domain.Trace, primary string) bool {
 	return id != "" && id != primary
 }
 
+// AllGates composes independent mandatory-review gates (#300). The case is
+// auto only when every gate is auto; no gate overrides another. The reason
+// joins, in order, the reasons of the gates that sent it to review (all
+// gates' reasons when every gate passed), so simultaneous reasons stay
+// visible. With no gates it reviews. A single gate is returned unchanged.
+func AllGates(gates ...domain.Triage) domain.Triage {
+	switch len(gates) {
+	case 0:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "no triage gate applied"}
+	case 1:
+		return gates[0]
+	}
+	var review, all []string
+	for _, g := range gates {
+		all = append(all, g.Reason)
+		if g.Route != domain.RouteAuto {
+			review = append(review, g.Reason)
+		}
+	}
+	if len(review) == 0 {
+		return domain.Triage{Route: domain.RouteAuto, Reason: strings.Join(all, "; ")}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: strings.Join(review, "; ")}
+}
+
 // WithClarify refines a needs_review decision with the clarify review: when
 // no earlier ruling is on point and there are questions to ask, the case
 // goes back to the requester first (needs_info). Auto decisions and
