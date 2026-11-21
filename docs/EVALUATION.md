@@ -472,7 +472,7 @@ First held-out split (377 rulings, Jan-Sep 2026). Scope for the fast path comes 
 - Fast path over the three runs: coverage 77.7-79.6% (spread 1.9 points), accuracy 96.0-96.6%. 28 rulings move in or out of it, 6 between the two repeats alone. The official run is on Vertex AI and predates the seed, so it moves more against the repeats than they move against each other.
 - Calibrated ECE: 0.028-0.030.
 
-Second held-out split (83 rulings, Sep-Nov 2026). Each run makes its own router call, as D154 did; the fast-path figures are the same with the D154 run's router labels held fixed.
+Second held-out split (83 rulings, Sep-Nov 2026). Each run makes its own router call with router-v2, as D154 did (router-v4 became production afterwards, D233; the router sets scope, not the answer); the fast-path figures are the same with the D154 run's router labels held fixed.
 
 | Run | Right | Accuracy (95% CI) | Fast path coverage / accuracy | ECE, calibrated |
 |---|---|---|---|---|
