@@ -58,7 +58,7 @@ All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into
 | **final2 (Sep–Nov 2026)** | 83 | **92.8% (85.1–96.6)** | 75 = 90.4% | 97.3% (90.8–99.3) | gateway, router-v2 on 3.8 Flash |
 | both, pooled | 460 | 90.7% (87.6–93.0) | 375 = 81.5% | 96.3% (93.8–97.8) | mixed (above) |
 
-- Rows: `results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl` (git revision dfc712b, the commit that froze the split). $0.0098 per case (gateway-reported); p50 7.5 s, p95 12.3 s. Labels: regex 75/81, manual 2/2.
+- Rows: `results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl` (run log revision dfc712b, the commit that froze the split; 49a103b after the branch was rebased onto main). $0.0098 per case (gateway-reported); p50 7.5 s, p95 12.3 s. Labels: regex 75/81, manual 2/2.
 - The 6 errors: CBP held China and the engine named the assembling country in 4 (N365621, N365280, N365997, N366380), the reverse in 1 (N365606), and Costa Rica against the United States in 1 (N365362).
 - The split is easier for simple rules than the first: the most-mentioned country is right on 71.1% (60.6–79.7) of it against 60.7% (55.7–65.5) on the first (`results/baselines-final2.json`, `results/baselines-final.json`). It also has near-duplicate rulings: 83 rulings, 62 distinct subjects, the largest group 7 (wrapping paper). Counting each subject once, accuracy is 91.9%.
 
