@@ -142,6 +142,8 @@ A plan is shown only if the precedent check finds an earlier ruling where CBP tr
 | every v2 run pooled, at the 0.92 bar (D86) | 182 verdicts shown, 0 wrong (dev 159, 2026 pairs 23) | `eval/results/flips-*-verifier-v2*` |
 | pair level, dev | 13 of 46 real changes shown in every run (28%); 11 more in some runs; no no-change pair ever shown | D86 |
 
+**Re-examined on committed rows (D300, D301).** A rule written before any re-computation picked the bar on dev rows only: the lowest of 0.92 to 0.75 with at least 100 shown verdicts, a precision lower bound of 97% and no wrong pair. It picks 0.92. Counting a verdict right only when it names CBP's later origin (the D170 rule), the three wrong supported dev verdicts (2 pairs) sit at 0.85 and 0.90, just below the bar; at 0.85 the bar would show 19 of 46 real-change pairs in every run instead of 13. Three wrong verdicts are too few to place a lower bar, so production keeps 0.92. On held-out rows, reported after the choice, 0.85 adds three right moves on the post-cutoff pairs when the starting origin is not given, but also two 2026 controls and one post-cutoff plan move CBP's own ruling contradicts (`eval/results/plan-bar-analysis.json`).
+
 **The choice.** Precision over recall. About 30% of real origin changes clear the bar. The rest are not dropped: they go to a broker as "below the bar", with the closest supporting ruling. All of these are proxy runs on development pairs; the 2026 pairs are not a clean held-out test (section 5).
 
 ### 3.3 Model size against cost and latency

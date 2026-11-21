@@ -1,0 +1,1124 @@
+{
+ "what": "Plan-bar re-analysis (D300, D301). No model calls: computed offline from committed precedent-check rows and plan-search results. The bar was chosen on development rows only; held-out rows are reported at the chosen bar, at 0.92 and at 0.85, after the choice. The 0.92 held-out figures were published before this analysis (D170, D192), so this is a report, not a blind test.",
+ "rule": {
+  "candidates": [
+   0.92,
+   0.9,
+   0.88,
+   0.85,
+   0.8,
+   0.75
+  ],
+  "min_shown": 100,
+  "min_precision_lower_bound": 0.97,
+  "no_wrong_pair": true,
+  "evidence_gate_min_wrong_supported": 10,
+  "current_bar": 0.92,
+  "named_alternative": 0.85
+ },
+ "dev": {
+  "runs": [
+   "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-panel-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-panel-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-vote3-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-vote3-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-unknown-a-litellm.jsonl"
+  ],
+  "error_rows_left_out": 1,
+  "by_bar": [
+   {
+    "bar": 0.92,
+    "verdicts": 485,
+    "shown": 159,
+    "wrong_shown": 0,
+    "precision": {
+     "k": 159,
+     "n": 159,
+     "value": 1.0,
+     "ci95": [
+      0.9764,
+      1
+     ]
+    },
+    "recall": {
+     "k": 159,
+     "n": 413,
+     "value": 0.385,
+     "ci95": [
+      0.3393,
+      0.4328
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 13,
+    "pairs_shown_some_runs": 11,
+    "wrong_pairs": []
+   },
+   {
+    "bar": 0.9,
+    "verdicts": 485,
+    "shown": 193,
+    "wrong_shown": 2,
+    "precision": {
+     "k": 191,
+     "n": 193,
+     "value": 0.9896,
+     "ci95": [
+      0.963,
+      0.9972
+     ]
+    },
+    "recall": {
+     "k": 191,
+     "n": 413,
+     "value": 0.4625,
+     "ci95": [
+      0.415,
+      0.5107
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 14,
+    "pairs_shown_some_runs": 13,
+    "wrong_pairs": [
+     "MS-N344318",
+     "NEG-H323218"
+    ]
+   },
+   {
+    "bar": 0.88,
+    "verdicts": 485,
+    "shown": 198,
+    "wrong_shown": 2,
+    "precision": {
+     "k": 196,
+     "n": 198,
+     "value": 0.9899,
+     "ci95": [
+      0.9639,
+      0.9972
+     ]
+    },
+    "recall": {
+     "k": 196,
+     "n": 413,
+     "value": 0.4746,
+     "ci95": [
+      0.4269,
+      0.5227
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 14,
+    "pairs_shown_some_runs": 14,
+    "wrong_pairs": [
+     "MS-N344318",
+     "NEG-H323218"
+    ]
+   },
+   {
+    "bar": 0.85,
+    "verdicts": 485,
+    "shown": 256,
+    "wrong_shown": 3,
+    "precision": {
+     "k": 253,
+     "n": 256,
+     "value": 0.9883,
+     "ci95": [
+      0.9661,
+      0.996
+     ]
+    },
+    "recall": {
+     "k": 253,
+     "n": 413,
+     "value": 0.6126,
+     "ci95": [
+      0.5648,
+      0.6583
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 19,
+    "pairs_shown_some_runs": 13,
+    "wrong_pairs": [
+     "MS-N344318",
+     "NEG-H323218"
+    ]
+   },
+   {
+    "bar": 0.8,
+    "verdicts": 485,
+    "shown": 262,
+    "wrong_shown": 3,
+    "precision": {
+     "k": 259,
+     "n": 262,
+     "value": 0.9885,
+     "ci95": [
+      0.9669,
+      0.9961
+     ]
+    },
+    "recall": {
+     "k": 259,
+     "n": 413,
+     "value": 0.6271,
+     "ci95": [
+      0.5795,
+      0.6724
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 21,
+    "pairs_shown_some_runs": 11,
+    "wrong_pairs": [
+     "MS-N344318",
+     "NEG-H323218"
+    ]
+   },
+   {
+    "bar": 0.75,
+    "verdicts": 485,
+    "shown": 284,
+    "wrong_shown": 3,
+    "precision": {
+     "k": 281,
+     "n": 284,
+     "value": 0.9894,
+     "ci95": [
+      0.9694,
+      0.9964
+     ]
+    },
+    "recall": {
+     "k": 281,
+     "n": 413,
+     "value": 0.6804,
+     "ci95": [
+      0.6339,
+      0.7235
+     ]
+    },
+    "pairs": 54,
+    "real_change_pairs": 46,
+    "pairs_shown_every_run": 24,
+    "pairs_shown_some_runs": 11,
+    "wrong_pairs": [
+     "MS-N344318",
+     "NEG-H323218"
+    ]
+   }
+  ],
+  "supported_verdicts": 287,
+  "wrong_supported_verdicts": 3,
+  "wrong_supported": [
+   {
+    "id": "MS-N344318",
+    "mode": "unknown-a",
+    "confidence": 0.9,
+    "origin_changed": true,
+    "origin_b_ok": false
+   },
+   {
+    "id": "NEG-H323218",
+    "mode": "known-a",
+    "confidence": 0.85,
+    "origin_changed": false,
+    "origin_b_ok": false
+   },
+   {
+    "id": "NEG-H323218",
+    "mode": "known-a",
+    "confidence": 0.9,
+    "origin_changed": false,
+    "origin_b_ok": false
+   }
+  ],
+  "chosen_bar": 0.92,
+  "evidence_gate_passed": false
+ },
+ "reported_bars": [
+  0.92,
+  0.85
+ ],
+ "post_cutoff_pairs": {
+  "note": "D170 (15 pairs) + D192 (3 pairs), each mode scored once, gateway, local corpus search; frozen before scoring",
+  "modes": {
+   "known-a": {
+    "pairs": 18,
+    "real_changes": 12,
+    "controls": 6,
+    "errors": 0,
+    "by_bar": [
+     {
+      "bar": 0.92,
+      "shown": 9,
+      "precision": {
+       "k": 9,
+       "n": 9,
+       "value": 1.0,
+       "ci95": [
+        0.7009,
+        1
+       ]
+      },
+      "recall": {
+       "k": 9,
+       "n": 12,
+       "value": 0.75,
+       "ci95": [
+        0.4677,
+        0.9111
+       ]
+      },
+      "controls_shown": {
+       "k": 0,
+       "n": 6,
+       "value": 0.0,
+       "ci95": [
+        0.0,
+        0.3903
+       ]
+      },
+      "newly_shown_vs_0.92": []
+     },
+     {
+      "bar": 0.85,
+      "shown": 9,
+      "precision": {
+       "k": 9,
+       "n": 9,
+       "value": 1.0,
+       "ci95": [
+        0.7009,
+        1
+       ]
+      },
+      "recall": {
+       "k": 9,
+       "n": 12,
+       "value": 0.75,
+       "ci95": [
+        0.4677,
+        0.9111
+       ]
+      },
+      "controls_shown": {
+       "k": 0,
+       "n": 6,
+       "value": 0.0,
+       "ci95": [
+        0.0,
+        0.3903
+       ]
+      },
+      "newly_shown_vs_0.92": []
+     }
+    ]
+   },
+   "unknown-a": {
+    "pairs": 18,
+    "real_changes": 12,
+    "controls": 6,
+    "errors": 1,
+    "by_bar": [
+     {
+      "bar": 0.92,
+      "shown": 6,
+      "precision": {
+       "k": 5,
+       "n": 6,
+       "value": 0.8333,
+       "ci95": [
+        0.4365,
+        0.9699
+       ]
+      },
+      "recall": {
+       "k": 5,
+       "n": 12,
+       "value": 0.4167,
+       "ci95": [
+        0.1933,
+        0.6805
+       ]
+      },
+      "controls_shown": {
+       "k": 0,
+       "n": 6,
+       "value": 0.0,
+       "ci95": [
+        0.0,
+        0.3903
+       ]
+      },
+      "newly_shown_vs_0.92": []
+     },
+     {
+      "bar": 0.85,
+      "shown": 9,
+      "precision": {
+       "k": 8,
+       "n": 9,
+       "value": 0.8889,
+       "ci95": [
+        0.565,
+        0.9801
+       ]
+      },
+      "recall": {
+       "k": 8,
+       "n": 12,
+       "value": 0.6667,
+       "ci95": [
+        0.3906,
+        0.8619
+       ]
+      },
+      "controls_shown": {
+       "k": 0,
+       "n": 6,
+       "value": 0.0,
+       "ci95": [
+        0.0,
+        0.3903
+       ]
+      },
+      "newly_shown_vs_0.92": [
+       {
+        "id": "BA-N364414-N365093",
+        "set": "d170",
+        "tier": "core",
+        "confidence": 0.85,
+        "right": true,
+        "control": false,
+        "supporting": "N361370"
+       },
+       {
+        "id": "BA-N364386-N365094",
+        "set": "d170",
+        "tier": "core",
+        "confidence": 0.9,
+        "right": true,
+        "control": false,
+        "supporting": "H342414"
+       },
+       {
+        "id": "BA-N357855-N365344",
+        "set": "d170",
+        "tier": "core",
+        "confidence": 0.9,
+        "right": true,
+        "control": false,
+        "supporting": "N347421"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "pairs_2026": {
+  "note": "21 pairs, four verifier-v2 runs (D86). Not a clean held-out test: verifier-v1's burden-of-proof sentence kept in v2 was written after seeing failures on these pairs (D74)",
+  "runs": [
+   "eval/results/flips-final-verifier-v2-known-a-litellm.jsonl",
+   "eval/results/flips-final-verifier-v2-seed-known-a-litellm.jsonl",
+   "eval/results/flips-final-verifier-v2-seed-unknown-a-litellm.jsonl",
+   "eval/results/flips-final-verifier-v2-unknown-a-litellm.jsonl"
+  ],
+  "error_rows_left_out": 1,
+  "by_bar": [
+   {
+    "bar": 0.92,
+    "verdicts": 83,
+    "shown": 23,
+    "wrong_shown": 2,
+    "precision": {
+     "k": 21,
+     "n": 23,
+     "value": 0.913,
+     "ci95": [
+      0.732,
+      0.9758
+     ]
+    },
+    "recall": {
+     "k": 21,
+     "n": 51,
+     "value": 0.4118,
+     "ci95": [
+      0.2875,
+      0.5483
+     ]
+    },
+    "pairs": 21,
+    "real_change_pairs": 13,
+    "pairs_shown_every_run": 4,
+    "pairs_shown_some_runs": 3,
+    "wrong_pairs": [
+     "BA-N355466-N357919"
+    ]
+   },
+   {
+    "bar": 0.85,
+    "verdicts": 83,
+    "shown": 40,
+    "wrong_shown": 4,
+    "precision": {
+     "k": 36,
+     "n": 40,
+     "value": 0.9,
+     "ci95": [
+      0.7695,
+      0.9604
+     ]
+    },
+    "recall": {
+     "k": 36,
+     "n": 51,
+     "value": 0.7059,
+     "ci95": [
+      0.57,
+      0.8129
+     ]
+    },
+    "pairs": 21,
+    "real_change_pairs": 13,
+    "pairs_shown_every_run": 8,
+    "pairs_shown_some_runs": 2,
+    "wrong_pairs": [
+     "BA-N355466-N357919",
+     "NEG-N363700",
+     "NEG-N364156"
+    ]
+   }
+  ]
+ },
+ "plan_searches": {
+  "note": "Moves a bar would show among moves that already had a supporting precedent (shown at 0.92, or rejected only for the bar). One run each, gateway, illustrative economics; the newly shown moves have no correctness label beyond what D170 and D171 record",
+  "post_cutoff": {
+   "runs": [
+    {
+     "source": "eval/results/planner-post-plan-purifier-champ-2026-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Motor-fan assembly, PCBA (SMT) and Housing moulding in China",
+         "confidence": 0.85,
+         "supporting": "N359672",
+         "engine_origin": "China",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-post-plan-purifier-mighty-2026-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-post-plan-purifier-waffle-2026-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Motor-fan assembly and Housing moulding in China",
+         "confidence": 0.85,
+         "supporting": "N359672",
+         "engine_origin": "China",
+         "shown_at_0.92": false
+        },
+        {
+         "description": "Make Motor-fan assembly in China",
+         "confidence": 0.85,
+         "supporting": "N359672",
+         "engine_origin": "China",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-post-plan-stove-heater-2026-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 4,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 4,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-post-plan-strut-assembly-2025-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    }
+   ],
+   "totals": [
+    {
+     "bar": 0.92,
+     "runs_with_a_plan_shown": {
+      "k": 2,
+      "n": 5,
+      "value": 0.4,
+      "ci95": [
+       0.1176,
+       0.7693
+      ]
+     },
+     "moves_newly_shown_vs_0.92": 0
+    },
+    {
+     "bar": 0.85,
+     "runs_with_a_plan_shown": {
+      "k": 4,
+      "n": 5,
+      "value": 0.8,
+      "ci95": [
+       0.3755,
+       0.9638
+      ]
+     },
+     "moves_newly_shown_vs_0.92": 3
+    }
+   ]
+  },
+  "per_family": {
+   "runs": [
+    {
+     "source": "eval/results/planner-families-h304679-litellm.json",
+     "target": "Cambodia",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-h339955-litellm.json",
+     "target": "South Korea",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Carbon block filter media in South Korea",
+         "confidence": 0.9,
+         "supporting": "N333554",
+         "engine_origin": "South Korea",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-h345343-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Tabletop and panels in China",
+         "confidence": 0.85,
+         "supporting": "N345246",
+         "engine_origin": "China",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n333453-litellm.json",
+     "target": "Japan",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n335263-litellm.json",
+     "target": "Hong Kong",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Lens moulding and Base, harness and seals in Hong Kong",
+         "confidence": 0.9,
+         "supporting": "N332332",
+         "engine_origin": "Hong Kong",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n349871-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350058-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350152-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350310-litellm.json",
+     "target": "United States",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make PCBA (SMT) and Heating element in United States",
+         "confidence": 0.88,
+         "supporting": "N348913",
+         "engine_origin": "United States",
+         "shown_at_0.92": false
+        },
+        {
+         "description": "Make Heating element and Switch, cord and minor parts in United States",
+         "confidence": 0.88,
+         "supporting": "N348913",
+         "engine_origin": "United States",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350383-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350678-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350727-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350769-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Cable insulation and jacket in Thailand",
+         "confidence": 0.9,
+         "supporting": "N335078",
+         "engine_origin": "Thailand",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n350826-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n351922-litellm.json",
+     "target": "Thailand",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 2,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 4,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Switch, cord and minor parts in Thailand",
+         "confidence": 0.9,
+         "supporting": "N348913",
+         "engine_origin": "Thailand",
+         "shown_at_0.92": false
+        },
+        {
+         "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+         "confidence": 0.9,
+         "supporting": "N348913",
+         "engine_origin": "Thailand",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n352073-litellm.json",
+     "target": "Philippines",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n352223-litellm.json",
+     "target": "Japan",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n352230-litellm.json",
+     "target": "Malaysia",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make PCBA (SMT) in Malaysia",
+         "confidence": 0.9,
+         "supporting": "N350672",
+         "engine_origin": "Malaysia",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n352355-litellm.json",
+     "target": "Vietnam",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n352429-litellm.json",
+     "target": "Taiwan",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n354175-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n354220-litellm.json",
+     "target": "Vietnam",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 0,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": [
+        {
+         "description": "Make Machining, heat treatment and finishing in Vietnam",
+         "confidence": 0.85,
+         "supporting": "N334762",
+         "engine_origin": "Vietnam",
+         "shown_at_0.92": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "source": "eval/results/planner-families-n354448-litellm.json",
+     "target": "China",
+     "by_bar": [
+      {
+       "bar": 0.92,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      },
+      {
+       "bar": 0.85,
+       "moves_shown": 1,
+       "newly_shown_vs_0.92": []
+      }
+     ]
+    }
+   ],
+   "totals": [
+    {
+     "bar": 0.92,
+     "runs_with_a_plan_shown": {
+      "k": 15,
+      "n": 23,
+      "value": 0.6522,
+      "ci95": [
+       0.4489,
+       0.8119
+      ]
+     },
+     "moves_newly_shown_vs_0.92": 0
+    },
+    {
+     "bar": 0.85,
+     "runs_with_a_plan_shown": {
+      "k": 21,
+      "n": 23,
+      "value": 0.913,
+      "ci95": [
+       0.732,
+       0.9758
+      ]
+     },
+     "moves_newly_shown_vs_0.92": 10
+    }
+   ]
+  }
+ }
+}
