@@ -120,5 +120,10 @@ same matrix, and two routes reached with a link token only:
 on any case route, that no principal reaches a link without its token, and
 that the broker's packet names no case id; `httpapi/reviews_test.go` checks
 that a token's secret under another case's id opens nothing.
+MCP (D280): `TestIsolationMatrixOverMCP` sends every principal of the matrix
+on `POST /mcp` and drives `get_case` and `list_cases` against every case. The
+admin token is refused with 403, a user token is ignored and a visitor ID
+dropped (the caller is anonymous), and an API key is the key; each then sees
+exactly what that key or an anonymous caller may see.
 `httpapi/principal_test.go` fixes the principal, and compares the visibility
 rule with a frozen copy of the previous rule over every combination.

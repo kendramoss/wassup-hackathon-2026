@@ -66,7 +66,7 @@ var routeTable = map[string]routeClass{
 	"POST /v1/cases/{id}/answers":                  caseScoped,
 	"GET /v1/rulings/{id}":                         noCaseData,
 	"GET /v1/rulings":                              noCaseData,
-	"POST /mcp":                                    noCaseData, // its tools call the /v1 routes, each checked on its own row
+	"POST /mcp":                                    noCaseData, // its tools call the /v1 routes, each checked on its own row; the MCP principal: TestIsolationMatrixOverMCP
 	"GET /v1/eval/summary":                         noCaseData,
 	"GET /v1/duty-rates":                           noCaseData,
 	"GET /v1/demos":                                noCaseData,
