@@ -281,3 +281,33 @@ func TextileTariffs(tariffs string) bool {
 	}
 	return true
 }
+
+// CountryMentions counts the countries named in a facts section, with the
+// same matching as factsCountries ("United States" as the import destination
+// is skipped), and returns them in order of first mention. It feeds the
+// rule baselines in `eval baselines` (most-mentioned, first and last country).
+func CountryMentions(facts string) (counts map[string]int, order []string) {
+	counts = map[string]int{}
+	for _, m := range countryMention.FindAllStringSubmatchIndex(facts, -1) {
+		s, e := m[2], m[3]
+		if s > 0 {
+			if r, _ := utf8.DecodeLastRuneInString(facts[:s]); unicode.IsUpper(r) {
+				continue
+			}
+		}
+		if e < len(facts) {
+			if r, _ := utf8.DecodeRuneInString(facts[e:]); r >= 'a' && r <= 'z' {
+				continue
+			}
+		}
+		c := surfaceToCountry[facts[s:e]]
+		if c == "United States" && importContext.MatchString(strings.ToLower(lastRunes(facts[:s], 40))) {
+			continue
+		}
+		if counts[c] == 0 {
+			order = append(order, c)
+		}
+		counts[c]++
+	}
+	return counts, order
+}

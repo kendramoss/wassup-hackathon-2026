@@ -142,6 +142,8 @@ func main() {
 		err = sliceCmd(os.Args[2:])
 	case "familycov":
 		err = familyCovCmd(os.Args[2:])
+	case "baselines":
+		err = baselinesCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

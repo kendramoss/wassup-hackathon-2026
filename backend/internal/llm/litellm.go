@@ -192,6 +192,11 @@ func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
 		// sending the ID back unchanged preserves it.
 		resp.ToolCalls = append(resp.ToolCalls, ToolCall{ID: tc.ID, Name: tc.Function.Name, Args: args})
 	}
+	if strings.TrimSpace(resp.Text) == "" && len(resp.ToolCalls) == 0 {
+		// Name the finish reason (e.g. "length" when thinking used the whole
+		// output budget) so an eval row says why there was no answer.
+		return resp, fmt.Errorf("litellm: %w: empty answer (finish_reason %q, %d output tokens)", ErrBadResponse, resp.FinishReason, resp.Usage.OutputTokens)
+	}
 	return resp, nil
 }
 
