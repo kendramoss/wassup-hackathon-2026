@@ -75,6 +75,9 @@ export function AccuracyPage() {
   const calMean = get("final_calibration_mean_calibrated");
   const eceStated = get("final_calibration_ece_stated");
   const eceCal = get("final_calibration_ece_calibrated");
+  // D262 / #493: the two errors above use different bins, so the page shows
+  // the stated value rescored on the calibrated partition beside them.
+  const eceSameBins = get("final_calibration_ece_stated_same_bins");
   const change = get("change_detection_heldout");
   const changeBase = get("change_detection_always_change_baseline");
   const movePrec = get("verifier_unknown-a_precision");
@@ -399,13 +402,14 @@ export function AccuracyPage() {
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="What the model says" big={pct(calStated.value)}>
-                  average stated confidence, against {pct(acc?.value)} right. Stated confidence runs high{eceStated?.value !== undefined ? ` (calibration error ${eceStated.value.toFixed(3)})` : ""}.
+                  average stated confidence, against {pct(acc?.value)} right. Stated confidence runs high{eceStated?.value !== undefined ? ` (calibration error ${eceStated.value.toFixed(3)} on its own bins; ${eceSameBins?.value !== undefined ? `${eceSameBins.value.toFixed(4)} on the map's bins` : "different bins from the calibrated error"})` : ""}.
                 </Card>
                 <Card title="What the screens show" big={pct(calMean.value)}>
-                  average calibrated confidence, against the same {pct(acc?.value)}{eceCal?.value !== undefined ? ` (calibration error ${eceCal.value.toFixed(3)})` : ""}. Results show this value; the textile, Part 102 and pharmaceutical rules show
+                  average calibrated confidence, against the same {pct(acc?.value)}{eceCal?.value !== undefined ? ` (calibration error ${eceCal.value.toFixed(3)} on the map's bins)` : ""}. Results show this value; the textile, Part 102 and pharmaceutical rules show
                   the model&apos;s own.
                 </Card>
               </div>
+              <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">The two calibration errors do not use the same bins: the map pools confidence levels, so some of the drop is bin merging. The same-bin figure above scores the stated confidence on the calibrated bins; Brier does not depend on bins.</p>
               <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">{copy.calSteps}</p>
             </section>
           )}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T12:18:25Z",
+  "generated_at": "2026-11-21T14:16:28Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -218,7 +218,7 @@
     },
     {
       "key": "final_calibration_ece_stated",
-      "label": "Held-out (377 rulings), calibration: ECE of stated confidence (one bin per value)",
+      "label": "Held-out (377 rulings), calibration: ECE of stated confidence (one bin per stated value) (different bins: 11 stated levels, 6 calibrated levels on these rows)",
       "value": 0.058515,
       "n": 377,
       "split": "final",
@@ -227,8 +227,17 @@
     },
     {
       "key": "final_calibration_ece_calibrated",
-      "label": "Held-out (377 rulings), calibration: ECE of calibrated probability (one bin per value)",
+      "label": "Held-out (377 rulings), calibration: ECE of calibrated probability (one bin per calibrated value) (different bins: 11 stated levels, 6 calibrated levels on these rows)",
       "value": 0.028468,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"
+    },
+    {
+      "key": "final_calibration_ece_stated_same_bins",
+      "label": "Held-out (377 rulings), calibration: ECE of stated confidence on the same 6 calibrated bins",
+      "value": 0.052785,
       "n": 377,
       "split": "final",
       "development_only": false,

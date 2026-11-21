@@ -72,7 +72,15 @@ All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into
 
 ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). This is cal-v1, eval only. The product uses cal-v2 (next section).
 
-**Read the ECE drop with care (D262, #397).** The map is only weakly monotone: on the 377 it merges 11 stated levels into 6 (0.72–0.88 → 0.6136, 42 cases; 0.98–1.00 → 0.99, 180 cases), so the "before" and "after" ECE above use 11 and 6 bins. Scoring the stated confidences on the calibrated layer's 6 bins gives 0.0528 (`accuracy-v2-metrics.json`, `heldout_stated_on_calibrated_bins`), so about a fifth of 0.059 → 0.030 is bin merging, not better probabilities. Brier is bin-independent and unchanged by this caveat. There is no calibrated cut equivalent to a stated 0.99 or 1.00 bar; use stated confidence there.
+**Read the ECE drop with care (D262, #397, #493).** The map is only weakly monotone. On the 377 it merges 11 stated levels into 6 (0.72–0.88 → 0.6136, 42 cases; 0.98–1.00 → 0.99, 180 cases); on final2 9 become 6, and on the pooled rows 11 become 6. The "before" and "after" ECEs above therefore use different bins on every split. Scoring the stated confidences on the calibrated partition gives the common-bin figure below, so a known share of each drop is bin merging, not better probabilities:
+
+| Held-out set | Stated → calibrated levels | ECE, stated on own bins | ECE, stated on calibrated bins | ECE, calibrated on own bins | Share of drop from bins |
+|---|---:|---:|---:|---:|---:|
+| final, 377 | 11 → 6 | 0.0585 | 0.0528 | 0.0300 | 20% |
+| final2, 83 | 9 → 6 | 0.0667 | 0.0614 | 0.0375 | 18% |
+| pooled, 460 | 11 → 6 | 0.0547 | 0.0500 | 0.0273 | 17% |
+
+The fields are `heldout_stated_on_calibrated_bins`, `heldout.final2.calibration_layer.stated_on_calibrated_bins` and `heldout.pooled_final_final2.calibration_layer.stated_on_calibrated_bins` in `results/accuracy-v2-metrics.json`; level counts and per-level ties are beside each. Brier is bin-independent and unchanged by this caveat. There is no calibrated cut equivalent to a stated 0.99 or 1.00 bar; use stated confidence there.
 
 ### All regimes, held-out, both windows (D210)
 
@@ -156,13 +164,13 @@ No model calls. `python3 -I eval/charts/build_accuracy.py .` fits cal-v2 on the 
 
 Values under 0.65 take the lowest step; 0.99 is a cap.
 
-| Held-out set | Mean stated → calibrated (accuracy) | ECE stated → cal-v2 (95% CI) | Brier stated → cal-v2 (95% CI) |
-|---|---|---|---|
-| final, 377 (Vertex AI) | 94.7% → 90.2% (90.2%) | 0.059 → 0.028 (0.020–0.060) | 0.081 → 0.072 (0.056–0.092) |
-| final2, 83 (gateway) | 96.1% → 93.8% (92.8%) | 0.067 → 0.037 (0.030–0.099) | 0.060 → 0.051 (0.020–0.089) |
-| pooled, 460 | 95.0% → 90.9% (90.7%) | 0.055 → 0.026 (0.018–0.053) | 0.077 → 0.069 (0.053–0.085) |
+| Held-out set | Mean stated → calibrated (accuracy) | ECE stated → cal-v2 (95% CI) | ECE stated on the map's bins (levels) | Brier stated → cal-v2 (95% CI) |
+|---|---|---|---|---|
+| final, 377 (Vertex AI) | 94.7% → 90.2% (90.2%) | 0.059 → 0.028 (0.020–0.060) | 0.0528 (11 → 6) | 0.081 → 0.072 (0.056–0.092) |
+| final2, 83 (gateway) | 96.1% → 93.8% (92.8%) | 0.067 → 0.037 (0.030–0.099) | 0.0614 (9 → 6) | 0.060 → 0.051 (0.020–0.089) |
+| pooled, 460 | 95.0% → 90.9% (90.7%) | 0.055 → 0.026 (0.018–0.053) | 0.0500 (11 → 6) | 0.077 → 0.069 (0.053–0.085) |
 
-cal-v1 on the same rows: ECE 0.030, 0.038, 0.027. The two maps are level.
+cal-v2 pools confidence levels in the same way as cal-v1, so its ECE pairs also compare different bins: about 19%, 18% and 16% of the three drops come from bin merging. The shared-bin figures and level counts are in `results/accuracy-v2-metrics.json` (`calibration_v2.*.stated_on_calibrated_bins` and `.level_counts`) and are served on /accuracy beside the two errors. Brier is bin-independent. cal-v1 on the same rows: ECE 0.030, 0.038, 0.027. The two maps are level.
 
 **Auto-accept bar (rule in D160, fitted on dev).** Lowest map step with in-scope dev accuracy ≥ 96% on ≥ 100 cases: **0.90**. It accepts exactly the cases stated 0.92 accepted, so nothing moves:
 
