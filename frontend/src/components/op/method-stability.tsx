@@ -188,13 +188,14 @@ export function Stability() {
             <b className="font-medium text-ink">
               {splitShown?.value} of {splitShown?.n}
             </b>{" "}
-            runs. It was not ranked first: plans that move less cost less and rank above it, so the top plan moved fewer of the parts CBP&apos;s change moved.
+            runs. It was not ranked first: plans that move less cost less and rank above it. The top-ranked plan moved{" "}
+            {splitRuns.map((r) => r.top?.value).join(" and ")} of the {splitRuns[0].top?.n} parts CBP&apos;s change switched.
           </p>
           <div className="text-[12px] text-dim md:text-right">
             <ul className="tabular-nums">
               {splitRuns.map((r) => (
                 <li key={r.i}>
-                  run {r.i}: check <b className="font-medium text-ink">{r.check?.value?.toFixed(2)}</b>, rank {r.rank?.value} of {r.rank?.n}; top plan moves {r.top?.value} of {r.top?.n}
+                  run {r.i}: check <b className="font-medium text-ink">{r.check?.value?.toFixed(2)}</b>, rank {r.rank?.value} of {r.rank?.n}
                 </li>
               ))}
             </ul>
