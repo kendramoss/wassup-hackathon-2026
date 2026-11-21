@@ -77,3 +77,16 @@ func TestMediaCitationsAreChecked(t *testing.T) {
 		t.Errorf("product %q simulated %v", d.Product.Name, d.Simulated)
 	}
 }
+
+func TestUnreadableWarningWording(t *testing.T) {
+	for _, c := range []struct{ what, want string }{
+		{"row 7", "File 1: could not read row 7."},
+		{"row 7, the country is cut off.", "File 1: could not read row 7, the country is cut off."},
+		{"The descriptions are cut off at the right edge.", "File 1, hard to read: The descriptions are cut off at the right edge."},
+		{"HTS", "File 1: could not read HTS."},
+	} {
+		if got := unreadableWarning("File 1", c.what); got != c.want {
+			t.Errorf("unreadableWarning(%q) = %q, want %q", c.what, got, c.want)
+		}
+	}
+}
