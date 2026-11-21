@@ -20,6 +20,8 @@ Same frozen config as the proxy run below. Scoring adjustments from `eval/data/s
 
 ### Calibration (final, Vertex AI)
 
+ECE, Brier and a reliability diagram for these rows are in `docs/EVALUATION.md` §4.2 (built by `python3 -I eval/charts/build_evaluation.py .`).
+
 | Confidence | n | correct | accuracy (95% CI) |
 |---|---:|---:|---|
 | ≥ 0.95 | 271 | 265 | 97.8% (95.3–99.0) |
@@ -234,7 +236,9 @@ Two held-out misses sit at or above 0.95, both China predicted as Slovakia under
 | < 0.80 | 8 | 4 | 50.0% (21.5–78.5) |
 
 ## Fast path (triage) — router-v2 (gemini-3.8-flash), proxy
-Rule: auto-accept when engine confidence ≥ 0.95 **and** the router says the case is in scope (docs/DECISIONS.md D7). Router-v2 was tuned on dev only, then frozen and run once on final.
+Rule at the time: auto-accept when engine confidence ≥ 0.95 **and** the router says the case is in scope (docs/DECISIONS.md D7). Router-v2 was tuned on dev only, then frozen and run once on final.
+
+> **Historical bar.** This proxy table uses the old 0.95 bar. D32 lowered the bar to 0.92 the same day, and the product, `eval report` and the Vertex section above all use 0.92. The same proxy rows at 0.92 (unadjusted): dev 371 / 469 = 79.1% at 353 / 371 = 95.1% (92.5–96.9); final 296 / 377 = 78.5% at 286 / 296 = 96.6% (93.9–98.2). The official figures are the Vertex ones at the top of this file.
 
 | Split | Router out of scope (all cases are substantial transformation) | Fast path coverage | Fast path accuracy (95% CI) |
 |---|---|---:|---|
@@ -328,8 +332,9 @@ Research (Python, same 54 pairs): 32/32 precision, 70% recall, 8/8 specificity. 
 Engine on the heat-gun **current setup**: Thailand 0.78 from the structured product, China 0.78 from CBP's own 2022 facts text; CBP held China. A borderline case, below the 0.95 fast path either way (routed to review).
 
 ## Not yet measured
-- Official Vertex AI numbers (blocked on GCP access).
 - Held-out test of the verifier and planner (needs CBP rulings published after 25 Sep 2026).
+- Run-to-run variance of the official engine numbers (one scored run each). The official Vertex AI numbers, once listed here as blocked on GCP access, are measured: see the top of this file.
+- Calibration statistics were added on 21 Nov from the committed rows, with no model calls: see `docs/EVALUATION.md` §4.2 and `results/evaluation-metrics.json`.
 
 ## Textile prompt variants on dev (LiteLLM proxy, 16 Oct; D53)
 

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" width="760" height="500" role="img" aria-labelledby="t d" font-family="'Paper Mono', ui-monospace, SFMono-Regular, Menlo, monospace">
+<title id="t">Selective accuracy: held-out and development</title>
+<desc id="d">Accuracy of accepted cases against coverage as the confidence bar moves. At the 0.92 bar the held-out split accepts 81.2% of cases at 96.1%.</desc>
+<rect width="760" height="500" fill="#f9fbfe"/>
+<text x="64.0" y="26.0" font-size="15" fill="#13213a" text-anchor="start" font-weight="600">Accuracy of accepted cases as the confidence bar moves</text>
+<text x="64.0" y="46.0" font-size="11" fill="#47566f" text-anchor="start" font-weight="400">Accept a case when its stated confidence is at least t, for each t the model emitted.</text>
+<line x1="64" x2="90" y1="70" y2="70" stroke="#1d4fc4" stroke-width="2"/>
+<text x="98.0" y="74.0" font-size="11" fill="#13213a" text-anchor="start" font-weight="400">Held-out 2026, n = 377; shaded: 95% Wilson interval</text>
+<line x1="64" x2="90" y1="88" y2="88" stroke="#8fa7d6" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="98.0" y="92.0" font-size="11" fill="#13213a" text-anchor="start" font-weight="400">Development set Jul–Dec 2025, n = 463 after scoring adjustments; the bar was chosen here</text>
+<line x1="64" x2="736" y1="399.1" y2="399.1" stroke="#d3dff0" stroke-width="1"/>
+<text x="56.0" y="403.1" font-size="11" fill="#6e7c94" text-anchor="end" font-weight="400">60%</text>
+<line x1="64" x2="736" y1="325.3" y2="325.3" stroke="#d3dff0" stroke-width="1"/>
+<text x="56.0" y="329.3" font-size="11" fill="#6e7c94" text-anchor="end" font-weight="400">70%</text>
+<line x1="64" x2="736" y1="251.6" y2="251.6" stroke="#d3dff0" stroke-width="1"/>
+<text x="56.0" y="255.6" font-size="11" fill="#6e7c94" text-anchor="end" font-weight="400">80%</text>
+<line x1="64" x2="736" y1="177.8" y2="177.8" stroke="#d3dff0" stroke-width="1"/>
+<text x="56.0" y="181.8" font-size="11" fill="#6e7c94" text-anchor="end" font-weight="400">90%</text>
+<line x1="64" x2="736" y1="104.0" y2="104.0" stroke="#d3dff0" stroke-width="1"/>
+<text x="56.0" y="108.0" font-size="11" fill="#6e7c94" text-anchor="end" font-weight="400">100%</text>
+<text x="64.0" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">0%</text>
+<text x="198.4" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">20%</text>
+<text x="332.8" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">40%</text>
+<text x="467.2" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">60%</text>
+<text x="601.6" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">80%</text>
+<text x="736.0" y="454.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">100%</text>
+<line x1="64" x2="736" y1="436" y2="436" stroke="#c4d0e2" stroke-width="1"/>
+<text x="400.0" y="482.0" font-size="12" fill="#47566f" text-anchor="middle" font-weight="400">Share of cases accepted without review (coverage)</text>
+<text transform="rotate(-90 16 270.0)" x="16.0" y="270.0" font-size="12" fill="#47566f" text-anchor="middle" font-weight="400">Accuracy of accepted cases</text>
+<polygon points="78.1,104.0 235.4,105.5 384.5,108.4 420.8,107.7 547.2,111.4 609.7,121.0 661.4,132.8 664.8,132.8 716.5,152.0 730.6,157.9 736.0,157.1 736.0,201.4 730.6,202.1 716.5,195.5 664.8,170.4 661.4,170.4 609.7,153.4 547.2,138.7 420.8,135.7 384.5,139.4 235.4,146.1 78.1,343.0" fill="#e2e9f3" stroke="none"/>
+<line x1="64" x2="736" y1="395.4" y2="395.4" stroke="#6e7c94" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="736.0" y="387.4" font-size="11" fill="#47566f" text-anchor="end" font-weight="400">Most-mentioned-country rule on all 377: 60.5% (reported, unverified)</text>
+<polyline points="90.2,104.0 248.1,104.0 414.1,107.0 458.5,112.1 547.2,123.9 605.6,129.8 670.8,144.6 709.8,160.1 711.1,160.1 730.0,166.7 733.3,168.2 734.7,168.2 736.0,169.7" fill="none" stroke="#8fa7d6" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 4"/>
+<polyline points="78.1,104.0 235.4,111.4 384.5,116.5 420.8,115.1 547.2,120.2 609.7,132.8 661.4,148.3 664.8,147.5 716.5,170.4 730.6,177.0 736.0,176.3" fill="none" stroke="#1d4fc4" stroke-width="2" stroke-linejoin="round"/>
+<line x1="609.7" y1="138.8" x2="609.7" y2="237.6" stroke="#6e7c94" stroke-width="1"/>
+<text x="603.7" y="251.6" font-size="11" fill="#13213a" text-anchor="end" font-weight="600">0.92 bar (in use)</text>
+<text x="603.7" y="267.6" font-size="11" fill="#13213a" text-anchor="end" font-weight="400">held-out: 306 of 377 (81.2%) at 96.1%</text>
+<text x="603.7" y="283.6" font-size="11" fill="#47566f" text-anchor="end" font-weight="400">development: 80.6% at 96.5%</text>
+<line x1="547.2" y1="126.2" x2="547.2" y2="178.5" stroke="#6e7c94" stroke-width="1"/>
+<text x="541.2" y="192.5" font-size="11" fill="#13213a" text-anchor="end" font-weight="400">0.95: 271 of 377 (71.9%) at 97.8%</text>
+<text x="732.0" y="196.3" font-size="11" fill="#13213a" text-anchor="end" font-weight="400">all held-out: 90.2%</text>
+<text x="732.0" y="147.7" font-size="11" fill="#47566f" text-anchor="end" font-weight="400">all development: 91.1%</text>
+<circle cx="605.6" cy="129.8" r="4.5" fill="#8fa7d6" stroke="#f9fbfe" stroke-width="2"/>
+<circle cx="736.0" cy="169.7" r="4.5" fill="#8fa7d6" stroke="#f9fbfe" stroke-width="2"/>
+<circle cx="609.7" cy="132.8" r="4.5" fill="#1d4fc4" stroke="#f9fbfe" stroke-width="2"/>
+<circle cx="547.2" cy="120.2" r="4.5" fill="#1d4fc4" stroke="#f9fbfe" stroke-width="2"/>
+<circle cx="736.0" cy="176.3" r="4.5" fill="#1d4fc4" stroke="#f9fbfe" stroke-width="2"/>
+</svg>
