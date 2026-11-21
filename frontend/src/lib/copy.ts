@@ -700,7 +700,11 @@ export const copy = {
     reproTitle: "Reproduce these numbers",
     reproLead: "Headline evaluation counts are recomputed from committed result rows. No model calls, no account, a few minutes on a laptop. Other figures are labelled reported or illustrative.",
     reproNote: "Each check fails loudly if a number has drifted from its source file.",
+    // ScrollX regions need their own names: reusing the parent section's name
+    // creates duplicate landmarks and fails axe's landmark-unique rule (#508).
+    reproCommandsLabel: "Reproduction commands (scrollable)",
     failTitle: "Known failure cases",
+    failTableLabel: "Held-out misses table (scrollable)",
     failLead: (miss: number, auto: number, n: number) =>
       `All ${miss} held-out rulings it got wrong, out of ${n}, not a selection. The ${auto} it auto-accepted come first: nobody checks those, so they are the costly ones. Each links to CBP's ruling.`,
     byOriginTitle: "Accuracy by the origin CBP held",

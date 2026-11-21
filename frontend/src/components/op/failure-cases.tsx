@@ -36,7 +36,7 @@ export function Reproduce() {
         </a>
       </div>
       <p className="read mt-2 max-w-[80ch] text-[13.5px] text-body">{T.reproLead}</p>
-      <ScrollX label={T.reproTitle}>
+      <ScrollX label={T.reproCommandsLabel}>
         <pre className="mt-3 border border-line bg-white px-4 py-3 font-mono text-[12px] leading-relaxed">
           <code>{commands}</code>
         </pre>
@@ -120,7 +120,7 @@ export function KnownFailures() {
         </div>
       </div>
 
-      <ScrollX label={T.failTitle}>
+      <ScrollX label={T.failTableLabel}>
         <table className="mt-5 w-full min-w-[760px] border-collapse text-[12.5px]">
           <thead>
             <tr>
