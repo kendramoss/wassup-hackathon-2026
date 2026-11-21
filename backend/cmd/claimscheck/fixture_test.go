@@ -189,6 +189,19 @@ func newFixture(t *testing.T) *fixture {
 	write(t, root, "eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl", route("S1", "general", "general")+route("S2", "general", "usmca_part102")+
 		route("T2", "textile_102_21", "textile_102_21")+route("P2", "pharma_api", "pharma_api")+route("U4", "usmca_part102", "usmca_part102"))
 	write(t, root, "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v4.jsonl", fxEngine("S2", "2026-10-02", false, "Canada", .9))
+	// Held-out repeatability (D241): on the first split repeat 1 equals the
+	// official rows and repeat 2 gets F8 right (Vietnam is gold-less here, so
+	// only the correct flag moves); on the second split repeat 1 answers S2
+	// "Vietnam" and is right after a timeout a resume replaced, repeat 2
+	// equals the official rows.
+	write(t, root, "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl", final)
+	write(t, root, "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat2.jsonl",
+		strings.Replace(final, fxEngine("F8", "2026-04-02", false, "China", .70), fxEngine("F8", "2026-04-02", true, "Vietnam", .70), 1))
+	f2 := fxEngine("S1", "2026-10-01", true, "China", .9) + fxEngine("S2", "2026-10-02", false, "China", .9)
+	write(t, root, "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl",
+		fxEngine("S1", "2026-10-01", true, "China", .9)+`{"ruling":"S2","date":"2026-10-02","correct":false,"pred":"","confidence":0,"error":"timeout"}`+"\n"+
+			fxEngine("S2", "2026-10-02", true, "Vietnam", .9))
+	write(t, root, "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat2.jsonl", f2)
 	// eval/SHA256SUMS pins data files relative to eval/.
 	var sums strings.Builder
 	for _, rel := range []string{"data/labels.jsonl", "data/labels_usmca.jsonl", "splits/splits_final.json"} {

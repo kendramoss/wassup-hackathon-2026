@@ -116,6 +116,15 @@ export function AccuracyPage() {
   const reps = [1, 2, 3].map((i) => get(`repeat_dev_accuracy_run${i}`)).filter((x): x is Item => Boolean(x));
   const repMean = get("repeat_dev_accuracy_mean");
   const repFlips = get("repeat_dev_answer_flips");
+  // D241: two repeats of the frozen engine on each held-out split, beside the
+  // official single run. Shown as one line, not new headline numbers.
+  const heldRep = (["final", "final2"] as const).map((sp) => ({
+    off: get(`repeat_${sp}_accuracy_official`),
+    r1: get(`repeat_${sp}_accuracy_repeat1`),
+    r2: get(`repeat_${sp}_accuracy_repeat2`),
+    flips: get(`repeat_${sp}_answer_flips`),
+  }));
+  const heldRepOK = heldRep.every((h) => h.off && h.r1 && h.r2 && h.flips);
   const postShown = postPrec?.n ?? 0;
   const postRight = Math.round((postPrec?.value ?? 0) * postShown);
   const postReal = postRec?.n ?? 0;
@@ -159,6 +168,8 @@ export function AccuracyPage() {
     const kind = it.key?.startsWith("baseline") ? "baseline, no model" : it.key?.startsWith("change_detection") ? "weak" : "research run";
     if (it.source?.startsWith("hackathon-research/") || it.source?.startsWith("unavailable:")) return { label: `${kind} · reported, unverified` };
     if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
+    // D241: held-out repeat runs (the official run, then gateway repeats).
+    if (it.key?.startsWith("repeat_final")) return { label: "held-out · repeatability, gateway repeats" };
     if (it.key?.startsWith("final2_") || it.key?.includes("_final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
     if (it.key === "all_regimes_heldout_accuracy") return { label: "held-out · pooled, mixed paths" };
     if (it.key?.startsWith("router_final")) return { label: "held-out · gateway, scored once" };
@@ -348,7 +359,7 @@ export function AccuracyPage() {
                 <h2 id="acc-repeat" className="eyebrow">
                   Run it again
                 </h2>
-                <span className="ml-auto text-[11px] text-dim">development set, {repMean.n} rulings · three runs, no cache · gateway, not Vertex AI · not measured on held-out rulings</span>
+                <span className="ml-auto text-[11px] text-dim">development set, {repMean.n} rulings · three runs, no cache · gateway, not Vertex AI{heldRepOK ? "" : " · not measured on held-out rulings"}</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Three runs of the same engine" big={pct(repMean.value)}>
@@ -358,6 +369,13 @@ export function AccuracyPage() {
                   rulings got a different country in one run than in another ({repFlips?.n ? pct((repFlips.value ?? 0) / repFlips.n) : "—"}). Everything else gave the same answer three times.
                 </Card>
               </div>
+              {heldRepOK && (
+                <p className="read mt-4 max-w-[90ch] text-[13px] leading-snug text-dim">
+                  On held-out rulings, two more runs of the same engine: {heldRep[0].off?.n} rulings, official {pct(heldRep[0].off?.value)} against {pct(heldRep[0].r1?.value)} and{" "}
+                  {pct(heldRep[0].r2?.value)}; {heldRep[1].off?.n} later rulings, official {pct(heldRep[1].off?.value)} against {pct(heldRep[1].r1?.value)} and {pct(heldRep[1].r2?.value)}. The
+                  answer changed on {heldRep[0].flips?.value} and {heldRep[1].flips?.value} rulings. Repeats through the gateway; the official 377 run is Vertex AI.
+                </p>
+              )}
             </section>
           )}
 

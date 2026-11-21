@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T10:41:28Z",
+  "generated_at": "2026-11-21T10:49:46Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -378,6 +378,108 @@
       "split": "dev",
       "development_only": true,
       "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+    },
+    {
+      "key": "repeat_final_accuracy_official",
+      "label": "Repeatability: First held-out split accuracy, official run",
+      "value": 0.9018567639257294,
+      "ci_low": 0.868,
+      "ci_high": 0.9279999999999999,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final_accuracy_repeat1",
+      "label": "Repeatability: First held-out split accuracy, repeat 1",
+      "value": 0.8992042440318302,
+      "ci_low": 0.865,
+      "ci_high": 0.9259999999999999,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final_accuracy_repeat2",
+      "label": "Repeatability: First held-out split accuracy, repeat 2",
+      "value": 0.9018567639257294,
+      "ci_low": 0.868,
+      "ci_high": 0.9279999999999999,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final_accuracy_repeat_mean",
+      "label": "Repeatability: First held-out split, mean accuracy of the two repeats",
+      "value": 0.9005,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final_answer_flips",
+      "label": "Repeatability: First held-out split, rulings whose answer changed across the official run and the repeats (a count)",
+      "value": 7,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final2_accuracy_official",
+      "label": "Repeatability: Second held-out split accuracy, official run",
+      "value": 0.927710843373494,
+      "ci_low": 0.851,
+      "ci_high": 0.966,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final2_accuracy_repeat1",
+      "label": "Repeatability: Second held-out split accuracy, repeat 1",
+      "value": 0.927710843373494,
+      "ci_low": 0.851,
+      "ci_high": 0.966,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final2_accuracy_repeat2",
+      "label": "Repeatability: Second held-out split accuracy, repeat 2",
+      "value": 0.9518072289156626,
+      "ci_low": 0.883,
+      "ci_high": 0.981,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final2_accuracy_repeat_mean",
+      "label": "Repeatability: Second held-out split, mean accuracy of the two repeats",
+      "value": 0.9398000000000001,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "repeat_final2_answer_flips",
+      "label": "Repeatability: Second held-out split, rulings whose answer changed across the official run and the repeats (a count)",
+      "value": 2,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
     },
     {
       "key": "research_final_accuracy",

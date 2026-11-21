@@ -458,6 +458,29 @@ func TestRepeatabilityFigures(t *testing.T) {
 	}
 }
 
+// TestHeldoutRepeatFigures recomputes the D241 figures: official run plus two
+// repeats per held-out split, the last row of a resumed ruling counting.
+func TestHeldoutRepeatFigures(t *testing.T) {
+	f := newFixture(t)
+	kv, problems := Compute(f.root)
+	if len(problems) > 0 {
+		t.Fatal(problems)
+	}
+	for k, want := range map[string]string{
+		"repeat_heldout.final.n": "10", "repeat_heldout.final.official.correct": "8",
+		"repeat_heldout.final.repeat1.correct": "8", "repeat_heldout.final.repeat2.correct": "9",
+		"repeat_heldout.final.repeat_mean_pct": "85.00", "repeat_heldout.final.answer_flips": "1",
+		"repeat_heldout.final.correctness_flips": "1",
+		"repeat_heldout.final2.n":                "2", "repeat_heldout.final2.official.correct": "1",
+		"repeat_heldout.final2.repeat1.correct": "2", "repeat_heldout.final2.repeat2.accuracy_pct": "50.0",
+		"repeat_heldout.final2.repeat_mean_pct": "75.00", "repeat_heldout.final2.answer_flips": "1",
+	} {
+		if got := lookup(kv, k); got != want {
+			t.Errorf("%s = %q, want %q", k, got, want)
+		}
+	}
+}
+
 // D160: a calibration map whose bar would accept a different set of cases
 // than the stated 0.92 bar is a problem, not a silently new figure.
 func TestCalibratedBarMustMatchStatedBar(t *testing.T) {

@@ -48,6 +48,12 @@ const (
 	repRun1 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl"
 	repRun2 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl"
 	repRun3 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl"
+	// Held-out repeatability (D240, D241): two fresh gateway repeats of the
+	// frozen engine on each held-out split, beside the official run.
+	finalRep1  = "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl"
+	finalRep2  = "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat2.jsonl"
+	final2Rep1 = "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl"
+	final2Rep2 = "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat2.jsonl"
 
 	// The other regimes' held-out runs, both windows (D210). Window 1 is
 	// Jan-Sep 2026 ("final"); window 2 is the post-cutoff window ("final2"),
@@ -555,6 +561,8 @@ func Compute(root string) (kv []KV, problems []string) {
 
 	plannerPost(out, &problems, root)
 	repeatability(out, &problems, root, adj)
+	heldoutRepeat(out, &problems, root, adj, "repeat_heldout.final", finalRows, finalRep1, finalRep2)
+	heldoutRepeat(out, &problems, root, adj, "repeat_heldout.final2", final2Rows, final2Rep1, final2Rep2)
 	allRegimes(out, &problems, root)
 	routerChecks(out, &problems, root)
 
@@ -692,6 +700,7 @@ var requiredManifest = []string{
 	finalRows, finalScope, devRows, devScope,
 	runlogFile, calibFile, sliceFile, postRows, calMapFile,
 	repRun1, repRun2, repRun3,
+	finalRep1, finalRep2, final2Rep1, final2Rep2,
 	textileSplits, pharmaSplits,
 	textileRows, pharmaRows, usmcaRows, final2Rows, textile2Rows, pharma2Rows, usmca2Rows,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
@@ -1187,4 +1196,75 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 		out.add(p+".pct", pct(k, n))
 		out.add(p+".sent_elsewhere", sent)
 	}
+}
+
+// heldoutRepeat recomputes the D241 figures for one held-out split: the
+// official run and two fresh repeats of the same frozen engine, scored with
+// the D23 adjustments. A resumed run can hold a ruling twice; the last row
+// counts. Flips are counted across all three runs.
+func heldoutRepeat(out *kvs, probs *[]string, root string, adj adjustments, prefix string, files ...string) {
+	type state struct {
+		pred string
+		ok   bool
+	}
+	var runs []map[string]state
+	for _, rel := range files {
+		rows, err := readJSONL[engineRow](root, rel)
+		if err != nil {
+			*probs = append(*probs, err.Error())
+			return
+		}
+		m := map[string]state{}
+		for _, r := range rows {
+			if _, ex := adj.Exclude[r.Ruling]; ex {
+				continue
+			}
+			m[r.Ruling] = state{r.Pred, adj.rowOK(r)}
+		}
+		runs = append(runs, m)
+	}
+	n := len(runs[0])
+	names := []string{"official", "repeat1", "repeat2"}
+	sum := 0
+	for i, m := range runs {
+		if len(m) != n {
+			*probs = append(*probs, fmt.Sprintf("%s: %s has %d scored rulings, the official run %d", prefix, names[i], len(m), n))
+			return
+		}
+		c := 0
+		for _, s := range m {
+			if s.ok {
+				c++
+			}
+		}
+		if i > 0 {
+			sum += c
+		}
+		out.add(prefix+"."+names[i]+".correct", c)
+		out.add(prefix+"."+names[i]+".accuracy_pct", pct(c, n))
+	}
+	var answer, correct int
+	for id, s := range runs[0] {
+		a, c := false, false
+		for _, m := range runs[1:] {
+			t, ok := m[id]
+			if !ok {
+				*probs = append(*probs, prefix+": "+id+" missing from a repeat run")
+				return
+			}
+			a = a || t.pred != s.pred
+			c = c || t.ok != s.ok
+		}
+		if a {
+			answer++
+		}
+		if c {
+			correct++
+		}
+	}
+	out.add(prefix+".n", n)
+	// Mean of the two repeats, percent: (c1 + c2) / 2n.
+	out.add(prefix+".repeat_mean_pct", fmt.Sprintf("%.2f", math.Round(10000*float64(sum)/float64(2*n))/100))
+	out.add(prefix+".answer_flips", answer)
+	out.add(prefix+".correctness_flips", correct)
 }

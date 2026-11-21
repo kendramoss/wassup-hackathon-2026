@@ -234,3 +234,57 @@ func repeatabilityItems(resultsDir string) ([]evalsummary.Item, error) {
 		evalsummary.Item{Key: "repeat_dev_answer_flips", Label: "Repeatability: rulings whose answer changed between runs (a count)", Value: float64(s.Across.AnswerFlips), N: s.N, Split: "dev", DevelopmentOnly: true, Source: src},
 	), nil
 }
+
+// heldoutRepeatItems are the held-out repeat runs of the frozen engine (D240,
+// D241), from eval/charts/build_repeatability_heldout.py's summary: per split,
+// the official run, each repeat, the repeat mean and the rulings whose answer
+// changed across the three runs.
+func heldoutRepeatItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "repeatability-heldout-litellm.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	type run struct {
+		Correct int       `json:"correct"`
+		CI      []float64 `json:"ci95_pct"`
+	}
+	var s struct {
+		Splits map[string]struct {
+			N      int            `json:"n"`
+			PerRun map[string]run `json:"per_run"`
+			Rep    struct {
+				Accuracy struct {
+					Mean float64 `json:"mean"`
+				} `json:"accuracy_pct"`
+			} `json:"repeats"`
+			Three struct {
+				AnswerFlips int `json:"cases_answer_flips"`
+			} `json:"official_and_repeats"`
+		} `json:"splits"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	src := "eval/results/" + file + " (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+	var items []evalsummary.Item
+	for _, sp := range []struct{ key, label string }{{"final", "First held-out split"}, {"final2", "Second held-out split"}} {
+		x, ok := s.Splits[sp.key]
+		if !ok || x.N == 0 {
+			return nil, fmt.Errorf("%s: split %s missing", file, sp.key)
+		}
+		for _, r := range []struct{ key, label string }{{"official", "official run"}, {"repeat1", "repeat 1"}, {"repeat2", "repeat 2"}} {
+			v, ok := x.PerRun[r.key]
+			if !ok || len(v.CI) != 2 {
+				return nil, fmt.Errorf("%s: %s %s missing", file, sp.key, r.key)
+			}
+			items = append(items, evalsummary.Item{Key: fmt.Sprintf("repeat_%s_accuracy_%s", sp.key, r.key), Label: fmt.Sprintf("Repeatability: %s accuracy, %s", sp.label, r.label),
+				Value: float64(v.Correct) / float64(x.N), CILow: v.CI[0] / 100, CIHigh: v.CI[1] / 100, N: x.N, Split: sp.key, Source: src})
+		}
+		items = append(items,
+			evalsummary.Item{Key: fmt.Sprintf("repeat_%s_accuracy_repeat_mean", sp.key), Label: fmt.Sprintf("Repeatability: %s, mean accuracy of the two repeats", sp.label), Value: x.Rep.Accuracy.Mean / 100, N: x.N, Split: sp.key, Source: src},
+			evalsummary.Item{Key: fmt.Sprintf("repeat_%s_answer_flips", sp.key), Label: fmt.Sprintf("Repeatability: %s, rulings whose answer changed across the official run and the repeats (a count)", sp.label), Value: float64(x.Three.AnswerFlips), N: x.N, Split: sp.key, Source: src},
+		)
+	}
+	return items, nil
+}
