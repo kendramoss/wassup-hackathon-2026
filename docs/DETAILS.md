@@ -44,6 +44,8 @@ Model choices are measured: Argon and Flash are equally accurate with precedents
 
 ## Results
 
+How the splits are built, what the results trade off and how the benchmark is kept honest: [EVALUATION.md](EVALUATION.md).
+
 Data: 2,790 labelled CBP rulings (2023-01-10 to 2026-09-25, rulings.cbp.gov, public domain; 2,553 with a single primary origin) plus 291 further Part 102 rulings in the 3,081-file facts pool. Labels are CBP's own stated holdings. Held-out test: 377 rulings dated Jan–Sep 2026 (355 regex-labelled, 22 hand-labelled), never used to develop prompts; precedents are restricted to rulings dated strictly before each case (earlier held-out rulings are retrievable: 414 of 1,885 retrieved precedent slots) (model pre-training exposure not excluded).
 
 | Method (held-out, n = 377) | Accuracy (95% CI) |
@@ -72,7 +74,7 @@ The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM2
 Across every precedent-check run we scored (dev and the 2026 pairs, 182 verdicts at or above the 0.92 bar), none was wrong (D86). The bar is strict: about 30% of real changes clear it in every run, and the rest go to a broker as "below the bar" with their supporting ruling.
 
 ## Limitations
-- Confidence is the model's self-report against a bar, not a calibrated probability. Held-out accuracy at confidence 0.90–0.95 is 78.1% (66.6–86.5) and at 0.80–0.90 is 58.1% (40.8–73.6); no calibration statistic is computed. See docs/claims-reconciliation.md.
+- Confidence is the model's self-report against a bar, not a calibrated probability. Held-out accuracy at confidence 0.90–0.95 is 78.1% (66.6–86.5) and at 0.80–0.90 is 58.1% (40.8–73.6); on average the stated confidence is 94.7% against 90.2% observed (ECE 0.059, Brier 0.081; [EVALUATION.md](EVALUATION.md#42-calibration-computed-now)). See docs/claims-reconciliation.md.
 - The planner — the distinctive part — is the least validated. The precedent check (verifier-v2, D74) was scored once on the 2026 flip pairs: every precedent-supported verdict was a real origin change (12/12 and 11/11), but part of its prompt was written after the research team saw failures on those pairs, so they are not a clean held-out test; a clean test needs CBP rulings published after 25 Sep 2026. On 18 Oct, CROSS had none with an origin holding (its newest NY ruling was dated 14 Aug), so that test could not be built yet (D82). Demo fixtures were adjusted during development; they are demonstrations, not evaluations.
 - Inputs in the benchmark are CBP's restatements of each request, not raw manufacturer BOMs.
 - Labels come from one extraction pipeline plus a second extractor and a 30-item audit, not an expert panel.
