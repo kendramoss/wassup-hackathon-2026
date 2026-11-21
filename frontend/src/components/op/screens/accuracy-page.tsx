@@ -7,6 +7,7 @@ import { ErrorBox, Main } from "../chrome";
 import { Chip, ScrollX, Spinner, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
 import { KnownFailures, Reproduce } from "../failure-cases";
+import { sourceLabel } from "@/lib/source-label";
 
 // "How accurate is it?" (DESIGN.md, locked 16 Oct, frame p-accuracy.html):
 // every held-out ruling as a square beside the three headline cards, then
@@ -18,6 +19,14 @@ type Item = NonNullable<EvalSummary["items"]>[number];
 
 const LIST_PRICE = 0.0157; // docs/NUMBERS.md: list price per prediction
 const PROXY = { from: 0.899, to: 0.902, p: "1.0" }; // docs/NUMBERS.md: proxy → Vertex, McNemar
+// docs/NUMBERS.md, "Field accuracy reading BOM images (synthetic)": 20
+// synthetic images, 170 parts, names read 151, countries right on every one
+// of them (eval/results/media-*-gemini-4-argon-litellm.json, D167, D168).
+const MEDIA = { images: 20, parts: 170, read: 151, fullyRead: 15 };
+// D151: the same engine and model on the development set, Vertex against the
+// gateway, exact McNemar p = 0.58. Said wherever a gateway run is shown.
+const PARITY = "On the development set the gateway and Vertex AI agree (same engine and model, p = 0.58, D151).";
+
 
 const pct = (v?: number, d = 1) => (v === undefined ? "—" : `${(v * 100).toFixed(d)}%`);
 const ci0 = (it?: Item) => (it?.ci_low !== undefined && it?.ci_high !== undefined ? `${Math.round(it.ci_low * 100)}–${Math.round(it.ci_high * 100)}` : "");
@@ -91,6 +100,11 @@ export function AccuracyPage() {
   const postRight = Math.round((postPrec?.value ?? 0) * postShown);
   const postReal = postRec?.n ?? 0;
   const postFound = Math.round((postRec?.value ?? 0) * postReal);
+  // The precedent-check section's pair-level line (verifier-calibration.tsx).
+  const vcs = data?.verifier_calibration?.splits ?? [];
+  const vcPairs = vcs.reduce((n, x) => n + (x.pair_level.real_change_pairs ?? 0), 0);
+  const vcEvery = vcs.reduce((n, x) => n + (x.pair_level.shown_every_run ?? 0), 0);
+  const pairEvery = vcPairs ? `${Math.round((vcEvery / vcPairs) * 100)}%` : "—";
 
   // The squares, worked out from the rates (DESIGN.md: 288 / 12 / 52 / 25).
   const n = acc?.n ?? 377;
@@ -125,7 +139,8 @@ export function AccuracyPage() {
     const kind = it.key?.startsWith("baseline") ? "baseline, no model" : it.key?.startsWith("change_detection") ? "weak" : "research run";
     if (it.source?.startsWith("hackathon-research/") || it.source?.startsWith("unavailable:")) return { label: `${kind} · reported, unverified` };
     if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
-    if (it.key?.startsWith("final2_")) return { label: "held-out · gateway, scored once" };
+    if (it.key?.startsWith("final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
+    if (!it.development_only && it.source?.includes("litellm")) return { label: "held-out · LiteLLM proxy, not Vertex AI" };
     if (it.key?.startsWith("change_detection")) return { label: "weak" };
     return it.development_only ? { label: "development set" } : { label: "official", tone: "ok" };
   };
@@ -262,7 +277,7 @@ export function AccuracyPage() {
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Second held-out split" big={pct(f2Acc.value)}>
                   on {f2Acc.n} CBP rulings from 28 Sep to 13 Nov 2026 ({ci(f2Acc)}), the same engine scored once. It is small and easier for simple rules, so it shows the
-                  engine holds up after its cutoff, not that it improved.
+                  engine holds up after its cutoff, not that it improved. {PARITY}
                 </Card>
                 {f2FpAcc && (
                   <Card title="Auto-accepted there" big={pct(f2FpAcc.value)}>
@@ -281,8 +296,8 @@ export function AccuracyPage() {
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
-                  at the 0.92 plan bar ({ci0(postPrec)}). {postCtl ? `None of the ${postCtl.n} pairs where CBP kept the origin was shown.` : ""} With so few pairs the interval
-                  is wide.
+                  at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `None of the ${postCtl.n} pairs where CBP kept the origin was shown.` : ""} With so few pairs the interval
+                  is wide. {PARITY}
                 </Card>
                 <Card title="Real changes found" big={pct(postRec.value, 0)}>
                   {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
@@ -309,6 +324,25 @@ export function AccuracyPage() {
               </div>
             </section>
           )}
+
+          <section className="mt-6" aria-labelledby="acc-media">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 id="acc-media" className="eyebrow">
+                Import from a photo or scan
+              </h2>
+              <span className="ml-auto text-[11px] text-dim">synthetic images, illustrative · measured once · gateway, not Vertex AI · small</span>
+            </div>
+            <div className="mt-3 grid gap-5 md:grid-cols-2">
+              <Card title="Part names read" big={`${MEDIA.read} of ${MEDIA.parts}`}>
+                parts on {MEDIA.images} synthetic BOM images (tables, tilted photos and scans we rendered), {pct(MEDIA.read / MEDIA.parts)}. {MEDIA.fullyRead} of {MEDIA.images} images were read in full. The{" "}
+                {MEDIA.parts - MEDIA.read} misses are names that did not match exactly, mostly a part number added to the name.
+              </Card>
+              <Card title="Wrong countries" big="0">
+                Every part name it read came with the right country. It says nothing about real photos, scans or handwriting, which are not measured yet. Every imported row opens as a
+                draft for you to check. {PARITY}
+              </Card>
+            </div>
+          </section>
 
           {(texAcc || routeOut) && (
             <section className="mt-6">
@@ -363,9 +397,12 @@ export function AccuracyPage() {
               {movePrec && (
                 <li>
                   Move checks on the Plan step: {movePrec.n} of {movePrec.n} flagged moves were right ({ci0(movePrec)}) on a {get("verifier_unknown-a_cost_usd")?.n ?? 54}-pair
-                  development set, finding {pct(moveRec?.value, 0)} of real flips. On the 2026 pairs every precedent-supported check was a real change too (12 of 12),
-                  but part of the check&apos;s prompt was written after the research team saw those pairs, so it isn&apos;t a clean held-out test.
-                  {postRec ? ` The clean test on ${postReal + (postCtl?.n ?? 0)} later pairs is small; it is not a measure of plan quality.` : ""}
+                  development set, finding {pct(moveRec?.value, 0)} of real flips. On the 2026 pairs every precedent-supported check was a real change too (12 of 12 in the first
+                  scored run; 23 of 23 across all four runs in the precedent-check table), but part of the check&apos;s prompt was written after the research team saw those
+                  pairs, so it isn&apos;t a clean held-out test.
+                  {postRec ? ` The clean test on ${postReal + (postCtl?.n ?? 0)} later pairs is small; it is not a measure of plan quality.` : ""} The three recall figures on this
+                  page count different things: the {pct(moveRec?.value, 0)} here is one development run, each pair once; &ldquo;about {pairEvery}&rdquo; in the precedent-check section is
+                  real changes that cleared the bar in every run;{postRec ? ` the ${pct(postRec.value, 0)} is the later pairs, with CBP's starting origin given.` : ""}
                 </li>
               )}
               <li>{copy.jurisdiction.notCovered}</li>
@@ -403,7 +440,7 @@ export function AccuracyPage() {
                           <Chip tone={s.tone}>{s.label}</Chip>
                         </td>
                         <td className="max-w-[24ch] truncate py-2 text-[11px] text-dim" title={it.source}>
-                          {it.source?.split(/[/ ]/).filter((x) => x.includes(".")).pop() ?? it.source}
+                          {sourceLabel(it.source)}
                         </td>
                       </tr>
                     );

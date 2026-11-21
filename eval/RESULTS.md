@@ -31,7 +31,7 @@ ECE, Brier and a reliability diagram for these rows are in `docs/EVALUATION.md` 
 
 ## Second held-out split, model sweep and calibration layer (21 Nov 2026; D150–D157)
 
-All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into `results/accuracy-v2-metrics.json` from the committed rows; no model calls. New runs went through an OpenAI-compatible LiteLLM gateway to Gemini (the "gateway"; `LLM_PROVIDER=litellm`, eval only, D151), with temperature 0, seed 20261017 and a 120 s call timeout. Scoring adjustments (D23) as above.
+All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into `results/accuracy-v2-metrics.json` from the committed rows; no model calls. New runs went through an OpenAI-compatible LiteLLM gateway to Gemini (the "gateway"; `LLM_PROVIDER=litellm`, eval only, D151), with temperature 0, seed 20261017 and a 120 s call timeout. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. Scoring adjustments (D23) as above.
 
 ### Model sweep, development set (n = 463 after adjustments; D152, D153)
 

@@ -57,7 +57,7 @@ test("bounded best-plan wording: searched moves, the entered costs, no unmodelle
     assert.doesNotMatch(t, /costs you entered/i, place);
     // Blank-as-zero is a legacy plan ranking fact only; compare and scenarios
     // price a missing input as unpriced.
-    if (place === "plan") assert.match(t, /legacy plan ranking a blank cost may count as zero, which is not a verified expense/);
+    if (place === "plan") assert.match(t, /When you leave a cost blank, the ranking may count it as zero, which is not a verified expense/);
     else {
       assert.doesNotMatch(t, /zero/i, place);
       assert.match(t, /missing required input leaves that figure unpriced/, place);

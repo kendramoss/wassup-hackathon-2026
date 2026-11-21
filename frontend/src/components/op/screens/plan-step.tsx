@@ -7,7 +7,7 @@ import { api, ApiError, opLock, opsActive, saveEconomics, streamPlan, withStaleF
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
-import { BAR, conf, isProxy, money } from "@/lib/format";
+import { BAR, conf, isProxy, money, originShort } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
@@ -541,7 +541,7 @@ function PlanBand({
     <Band
       left={
         <>
-          {below ? 0 : shown} of {total} moves cleared the <Term explain={copy.terms.bar.text}>{BAR} bar</Term>
+          {below ? 0 : shown} of {total} moves cleared the <Term explain={copy.terms.bar.text}>{BAR} precedent-check bar</Term>
           {demoted ? ` (${demoted} more cleared it but not your operating inputs)` : null}
         </>
       }
@@ -555,7 +555,7 @@ function PlanBand({
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           <Chip>
-            Reaches <Country name={plan.prediction?.origin_country} /> · origin {conf(plan.prediction?.confidence)}
+            Reaches <Country name={plan.prediction?.origin_country} /> · origin {originShort(plan.prediction)}
           </Chip>
         </div>
       </div>

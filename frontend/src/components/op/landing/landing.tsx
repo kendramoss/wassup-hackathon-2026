@@ -266,7 +266,7 @@ export function Landing() {
                         <div className="real">
                           <p className="duo">Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand</p>
                           <p className="gap">
-                            <span className="chip">Plan · check 0.96, above the 0.92 bar</span>
+                            <span className="chip">Plan · check 0.96, above the 0.92 precedent-check bar</span>
                           </p>
                           <p className="small">
                             For <RulingLink id="N345938" /> · against: none found

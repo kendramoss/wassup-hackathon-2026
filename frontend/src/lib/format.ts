@@ -19,6 +19,13 @@ export function originConf(p: { confidence?: number | null; calibrated_confidenc
   return { value: p?.confidence, stated: p?.confidence, bar: BAR, calibrated: false };
 }
 
+// A plan or comparison row's origin confidence, short: "calibrated 0.99"
+// when the API returned a calibrated value, else the stated "0.95".
+export function originShort(p: { confidence?: number | null; calibrated_confidence?: number | null } | null | undefined): string {
+  const o = originConf(p);
+  return o.calibrated ? `calibrated ${conf(o.value)}` : conf(o.value);
+}
+
 // "calibrated 0.94 · model stated 0.97"; without a calibrated value, the
 // caption as before D160, "confidence 0.97" (the model's own value).
 export function originConfCaption(o: OriginConf): string {

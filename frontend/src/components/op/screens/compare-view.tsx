@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, withStaleFlags, type CaseResponse, type TargetSummary } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { conf, money } from "@/lib/format";
+import { conf, money, originShort } from "@/lib/format";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
@@ -107,7 +107,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
           ) : top?.best ? (
             <>
               <div>
-                <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : "No country cleared the 0.92 bar"}</p>
+                <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : "No country cleared the 0.92 precedent-check bar"}</p>
                 <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">
                   {anyPlan ? "" : "Closest: "}
                   {(top.best.description ?? "").replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "")} in{" "}
@@ -119,7 +119,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {anyPlan ? <Chip tone="ok">{copy.plan.supported}</Chip> : <Chip tone="ask">△ Below the bar · {conf(top.best.verdict?.confidence)}</Chip>}
                   <Chip>
-                    Reaches <Country name={top.best.prediction?.origin_country} /> · origin {conf(top.best.prediction?.confidence)}
+                    Reaches <Country name={top.best.prediction?.origin_country} /> · origin {originShort(top.best.prediction)}
                   </Chip>
                 </div>
               </div>
@@ -227,7 +227,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
                         <td className="duo max-w-[34ch] px-3.5 py-3.5 text-ink">
                           {t.best ? t.best.description : `No move to ${t.target} found precedent support`}
                           <span className="mt-1 block text-[11.5px] text-dim">
-                            {t.best ? `Reaches ${t.best.prediction?.origin_country} · origin ${conf(t.best.prediction?.confidence)} · ` : ""}
+                            {t.best ? `Reaches ${t.best.prediction?.origin_country} · origin ${originShort(t.best.prediction)} · ` : ""}
                             {t.moves_searched} moves searched
                           </span>
                         </td>
@@ -235,7 +235,7 @@ function Compare({ id, c, setCase }: CaseCtx) {
                           {t.best ? (
                             <>
                               <MiniRuler value={t.best.verdict?.confidence} />
-                              <span className="text-xs text-dim">check {conf(t.best.verdict?.confidence)} · bar 0.92</span>
+                              <span className="text-xs text-dim">check {conf(t.best.verdict?.confidence)} · precedent-check bar 0.92</span>
                             </>
                           ) : (
                             "—"

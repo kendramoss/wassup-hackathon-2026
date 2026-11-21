@@ -1341,6 +1341,14 @@ function StatusBadge({ required }: { required: boolean }) {
   );
 }
 
+// The heat-gun sample in every format the importer takes.
+const SAMPLES = [
+  { file: "heatgun-bom.csv", type: "text/csv", label: "CSV", note: "" },
+  { file: "heatgun-bom.xlsx", type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", label: "Excel", note: "" },
+  { file: "heatgun-bom.pdf", type: "application/pdf", label: "PDF", note: "" },
+  { file: "heatgun-bom-photo.png", type: "image/png", label: copy.product.bomSamplePhoto, note: copy.product.bomSamplePhotoNote },
+];
+
 function DownloadIcon() {
   return (
     <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
@@ -1500,6 +1508,18 @@ function BomImport({
     }
   };
 
+  // A sample loads straight into the importer, as if it were dropped here
+  // (judge panel, 21 Nov: no download-then-drop).
+  const loadSample = async (name: string, type: string) => {
+    try {
+      const r = await fetch(`/samples/${name}`);
+      if (!r.ok) throw new Error(`Couldn't load the sample (${r.status}).`);
+      await upload([new File([await r.blob()], name, { type })]);
+    } catch (e) {
+      setError(e);
+    }
+  };
+
   const pick = (list: FileList | null | undefined) => {
     const picked = Array.from(list ?? []);
     if (picked.length) void upload(picked);
@@ -1605,22 +1625,27 @@ function BomImport({
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs text-dim">
         <p>
           {copy.product.bomSamples}{" "}
-          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
-            CSV
-          </a>{" "}
-          ·{" "}
-          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.xlsx" download>
-            Excel
-          </a>{" "}
-          ·{" "}
-          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
-            PDF
-          </a>{" "}
-          ·{" "}
-          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom-photo.png" download title={copy.product.bomSamplePhotoNote}>
-            {copy.product.bomSamplePhoto}
-          </a>
-          <span className="sr-only"> ({copy.product.bomSamplePhotoNote})</span>
+          {SAMPLES.map((x, i) => (
+            <span key={x.file}>
+              {i > 0 ? " · " : null}
+              <button
+                type="button"
+                className="inline-flex min-h-6 items-center text-ok underline underline-offset-2 disabled:text-dim"
+                disabled={busy !== null}
+                title={x.note}
+                onClick={() => void loadSample(x.file, x.type)}
+              >
+                {x.label}
+              </button>
+              {x.note ? <span className="sr-only"> ({x.note})</span> : null}
+            </span>
+          ))}
+          <span className="block">
+            {copy.product.bomSamplesLoad}{" "}
+            <a className="text-dim underline underline-offset-2" href="/samples/heatgun-bom.csv" download>
+              {copy.product.bomSamplesDownload}
+            </a>
+          </span>
         </p>
         <a className="inline-flex items-center gap-1.5 text-ok underline underline-offset-2" href="/samples/bom-template.csv" download>
           <DownloadIcon />

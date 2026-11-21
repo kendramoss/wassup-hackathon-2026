@@ -178,6 +178,8 @@ function DemoCard({ c }: { c: CaseSummary }) {
   }, [c.id]);
   const cur = full ? currentOrigin(full) : undefined;
   const best = full?.plan?.plans?.[0];
+  const compared = (full as (CaseResponse & { targets?: { ranked?: unknown[] } }) | null)?.targets?.ranked?.length ?? 0;
+  const differs = Boolean(cur?.country && c.predicted_origin && cur.country.toLowerCase() !== c.predicted_origin.toLowerCase());
   return (
     <Link href={caseHref(c)} className="flex flex-col gap-2.5 rounded-[2px] border border-edge bg-sheet p-4 text-sm shadow-[4px_4px_0_var(--shadow)] hover:bg-white">
       <span className="flex items-start justify-between gap-2">
@@ -195,8 +197,10 @@ function DemoCard({ c }: { c: CaseSummary }) {
         <span className="text-xs text-dim">
           CBP held <Country name={cur.country} />
           {cur.ruling ? `, ${cur.ruling}` : ""}
+          {differs ? ". Unde's prediction differs; the plan starts from CBP's holding." : ""}
         </span>
       )}
+      {c.date && <span className="text-xs text-dim">{copy.cases.demoDate(formatDate(c.date))}</span>}
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
@@ -213,7 +217,9 @@ function DemoCard({ c }: { c: CaseSummary }) {
             {backtestMatch(full?.plan?.backtest).matches ? <> · matches CBP&apos;s real change{backtestMatch(full?.plan?.backtest).ruling ? ` (${backtestMatch(full?.plan?.backtest).ruling})` : ""}</> : null}
           </>
         ) : full?.plan ? (
-          <span className="text-ask">No plan cleared the {BAR} bar</span>
+          <span className="text-ask">No plan cleared the {BAR} precedent-check bar</span>
+        ) : compared > 0 ? (
+          <span className="text-ok">Country comparison recorded: {compared} countries</span>
         ) : (
           <span className="text-dim">No plan search yet</span>
         )}

@@ -67,8 +67,8 @@ export function backtestMatch(bt: unknown): { matches: boolean; ruling?: string 
 // confident pass (DESIGN.md, demo seed run 2).
 export function checkWords(v: number | null | undefined): string {
   if (v === null || v === undefined) return "not checked";
-  if (Math.abs(v - 0.92) < 0.0005) return "exactly at the 0.92 bar";
-  return v > 0.92 ? "above the 0.92 bar" : "below the 0.92 bar";
+  if (Math.abs(v - 0.92) < 0.0005) return "exactly at the 0.92 precedent-check bar";
+  return v > 0.92 ? "above the 0.92 precedent-check bar" : "below the 0.92 precedent-check bar";
 }
 
 // verdict.agreement ("2/3") is present only when the three-view panel ran,
