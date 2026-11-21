@@ -147,3 +147,62 @@ func TestMCPSuggestPartHTS(t *testing.T) {
 		t.Errorf("REST after the MCP call = %d, want 429", code)
 	}
 }
+
+// #577: the per-part cache is scoped to the caller and keyed on the
+// description, so one caller never gets reasons the model wrote from
+// another caller's product.
+func TestPartsHTSSuggestCacheIsPerCallerAndDescription(t *testing.T) {
+	m := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		desc := ""
+		for _, line := range strings.Split(req.Messages[0].Content, "\n") {
+			if d, ok := strings.CutPrefix(line, "DESCRIPTION: "); ok {
+				desc = d
+			}
+		}
+		return llm.Response{Text: fmt.Sprintf(`{"items":[{"key":"p0","candidates":[{"hts":"8538.90","reason":%q,"cited":[]}]}]}`, "Housing of "+desc)}, nil
+	}}
+	hs := partsHarness(t, m, nil)
+	body := func(desc string) string {
+		return fmt.Sprintf(`{"product":{"name":"Controller","hts":"8537.10","description":%q,"components":[{"name":"housing","made_in":"China"}]}}`, desc)
+	}
+	reason := func(out map[string]any) (string, bool) {
+		p := out["parts"].([]any)[0].(map[string]any)
+		return p["candidates"].([]any)[0].(map[string]any)["reason"].(string), p["cached"].(bool)
+	}
+	secret := "ALPHA-SECRET: lidar controller rev 9, customer Foo"
+	alice := map[string]string{"X-Visitor-ID": "alice-visitor-id-000001"}
+	bob := map[string]string{"X-Visitor-ID": "bob-visitor-id-00000002"}
+	if code, out := hs.doAs(t, "POST", "/v1/products/parts-hts-suggest", body(secret), alice); code != http.StatusOK {
+		t.Fatalf("alice = %d %v", code, out)
+	}
+	for _, tc := range []struct {
+		name    string
+		desc    string
+		headers map[string]string
+	}{
+		{"another visitor, same words", secret, bob},
+		{"another visitor, another description", "Garden irrigation controller", bob},
+		{"same visitor, another description", "Garden irrigation controller", alice},
+		{"anonymous caller, same words", secret, nil},
+	} {
+		code, out := hs.doAs(t, "POST", "/v1/products/parts-hts-suggest", body(tc.desc), tc.headers)
+		if code != http.StatusOK {
+			t.Fatalf("%s = %d %v", tc.name, code, out)
+		}
+		r, cached := reason(out)
+		if cached {
+			t.Errorf("%s: served from the cache", tc.name)
+		}
+		if tc.desc != secret && strings.Contains(r, "ALPHA-SECRET") {
+			t.Errorf("%s: reason %q carries another caller's description", tc.name, r)
+		}
+	}
+	if _, out := hs.doAs(t, "POST", "/v1/products/parts-hts-suggest", body(secret), alice); out != nil {
+		if r, cached := reason(out); !cached || !strings.Contains(r, "ALPHA-SECRET") {
+			t.Errorf("alice's repeat = %q cached=%v, want her own cached answer", r, cached)
+		}
+	}
+	if n := len(m.Calls()); n != 5 {
+		t.Errorf("model calls = %d, want 5 (one per request but alice's repeat)", n)
+	}
+}

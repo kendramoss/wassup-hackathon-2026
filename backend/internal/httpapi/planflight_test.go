@@ -244,3 +244,130 @@ func TestPlanRouteJoinsADuplicateSearch(t *testing.T) {
 		t.Errorf("bad key: %d", w.Code)
 	}
 }
+
+// exitPlanner is a blockingPlanner that also counts searches that returned.
+type exitPlanner struct {
+	*blockingPlanner
+	exits atomic.Int32
+}
+
+func (e *exitPlanner) Plan(ctx context.Context, r planner.Request) (planner.Result, error) {
+	defer e.exits.Add(1)
+	return e.blockingPlanner.Plan(ctx, r)
+}
+
+// planPoster posts plan requests for one client to a fresh case.
+func planPoster(t *testing.T, p Planner, maxInFlight int) func(ctx context.Context, target string) *httptest.ResponseRecorder {
+	h := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.Planner = p
+		d.Limits = Limits{BasicPerMin: 1000, LightPerMin: 1000, HeavyPerMin: 1000, GlobalPerMin: 10000, MaxInFlight: maxInFlight}
+	})
+	_, c := h.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	return func(ctx context.Context, target string) *httptest.ResponseRecorder {
+		req := httptest.NewRequestWithContext(ctx, "POST", "/v1/cases/"+id+"/plan", strings.NewReader(`{"target":"`+target+`"}`))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		h.h.ServeHTTP(w, req)
+		return w
+	}
+}
+
+func tooManyInFlight(w *httptest.ResponseRecorder) bool {
+	return w.Code == http.StatusTooManyRequests && strings.Contains(w.Body.String(), "too_many_in_flight")
+}
+
+// #581: a plan search that keeps running after its caller left keeps the
+// caller's in-flight slot until it ends, so one client cannot run more
+// searches at once than MaxInFlight by dropping requests.
+func TestDetachedPlanSearchKeepsItsInFlightSlot(t *testing.T) {
+	ep := &exitPlanner{blockingPlanner: &blockingPlanner{fakePlanner: &fakePlanner{}, release: make(chan struct{})}}
+	post := planPoster(t, ep, 1)
+	bg := context.Background()
+
+	// Start a search and drop the request while the search runs.
+	ctx, cancel := context.WithCancel(bg)
+	done := make(chan struct{})
+	go func() { defer close(done); post(ctx, "Thailand") }()
+	for ep.calls.Load() < 1 {
+		time.Sleep(time.Millisecond)
+	}
+	cancel()
+	<-done
+	if ep.exits.Load() != 0 {
+		t.Fatalf("the dropped search stopped; it should run on in its grace period")
+	}
+	// The same client asks for other searches: refused, no new search.
+	// (Each is bounded so that a regression fails instead of hanging.)
+	for _, target := range []string{"Vietnam", "Mexico", "India"} {
+		tctx, tcancel := context.WithTimeout(bg, 2*time.Second)
+		w := post(tctx, target)
+		tcancel()
+		if !tooManyInFlight(w) {
+			t.Errorf("%s while the first search runs detached = %d %s, want 429 too_many_in_flight", target, w.Code, w.Body.String())
+		}
+	}
+	if n := ep.calls.Load(); n != 1 {
+		t.Errorf("planner searches = %d, want 1", n)
+	}
+	// Once the detached search ends its slot comes back.
+	close(ep.release)
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		w := post(bg, "Vietnam")
+		if w.Code == http.StatusOK {
+			break
+		}
+		if !tooManyInFlight(w) || time.Now().After(deadline) {
+			t.Fatalf("after the first search ended = %d %s", w.Code, w.Body.String())
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	if n := ep.calls.Load(); n != 2 {
+		t.Errorf("planner searches = %d, want 2", n)
+	}
+	// The slots all came back: another search fits under MaxInFlight 1.
+	if w := post(bg, "Mexico"); w.Code != http.StatusOK {
+		t.Errorf("a later search = %d %s", w.Code, w.Body.String())
+	}
+}
+
+// A request that joins a running search holds its own slot only while it
+// waits; the search's slot is the starter's, counted once.
+func TestJoiningPlanRequestHoldsASlotOnlyWhileWaiting(t *testing.T) {
+	bp := &blockingPlanner{fakePlanner: &fakePlanner{}, release: make(chan struct{})}
+	post := planPoster(t, bp, 2)
+	bg := context.Background()
+	joins := planJoins.Load()
+	var wg sync.WaitGroup
+	for range 2 {
+		wg.Add(1)
+		go func() { defer wg.Done(); post(bg, "Thailand") }()
+	}
+	for bp.calls.Load() < 1 || planJoins.Load()-joins < 1 {
+		time.Sleep(time.Millisecond)
+	}
+	// The starter and the joiner fill the two slots.
+	tctx, tcancel := context.WithTimeout(bg, 2*time.Second)
+	if w := post(tctx, "Vietnam"); !tooManyInFlight(w) {
+		t.Errorf("third request with a starter and a joiner waiting = %d, want 429", w.Code)
+	}
+	tcancel()
+	close(bp.release)
+	wg.Wait()
+	// Both slots are back: two more searches fit side by side.
+	var ok atomic.Int32
+	for _, target := range []string{"Vietnam", "Mexico"} {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if w := post(bg, target); w.Code == http.StatusOK {
+				ok.Add(1)
+			}
+		}()
+	}
+	wg.Wait()
+	if ok.Load() != 2 {
+		t.Errorf("searches after the joined one = %d of 2", ok.Load())
+	}
+}

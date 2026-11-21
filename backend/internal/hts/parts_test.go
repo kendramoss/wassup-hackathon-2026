@@ -87,7 +87,7 @@ func TestPartsSuggestLabelsSources(t *testing.T) {
 		checked = append(checked, sub)
 		return true
 	})
-	res, err := p.Suggest(context.Background(), product(), PartsOptions{})
+	res, err := p.Suggest(context.Background(), product(), PartsOptions{Scope: "a"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,8 +118,8 @@ func TestPartsSuggestLabelsSources(t *testing.T) {
 		}
 	}
 
-	// Again: every part from the cache, no model call.
-	res2, err := p.Suggest(context.Background(), product(), PartsOptions{})
+	// Again for the same caller: every part from the cache, no model call.
+	res2, err := p.Suggest(context.Background(), product(), PartsOptions{Scope: "a"})
 	if err != nil || len(m.Calls()) != 1 || !res2.Parts[0].Cached || res2.Parts[0].Candidates[0].HTS != "8501.31" {
 		t.Errorf("cached = %+v %v calls=%d", res2.Parts, err, len(m.Calls()))
 	}
@@ -137,7 +137,7 @@ func TestPartsSuggestDropsCodesNotInTodaysHTS(t *testing.T) {
 func TestPartsSuggestModelDownShowsRulingCandidates(t *testing.T) {
 	m := &llm.Fake{Respond: func(llm.Request) (llm.Response, error) { return llm.Response{}, llm.ErrUnavailable }}
 	p := NewParts(m, "x", testIndex(), nil, nil)
-	res, err := p.Suggest(context.Background(), product(), PartsOptions{})
+	res, err := p.Suggest(context.Background(), product(), PartsOptions{Scope: "a"})
 	if err == nil || !res.ReasonsUnavailable {
 		t.Fatalf("err=%v res=%+v", err, res)
 	}
@@ -146,7 +146,7 @@ func TestPartsSuggestModelDownShowsRulingCandidates(t *testing.T) {
 	}
 	// A failed answer is not cached.
 	m.Respond = func(llm.Request) (llm.Response, error) { return llm.Response{Text: `{"items":[]}`}, nil }
-	if res, _ := p.Suggest(context.Background(), product(), PartsOptions{}); res.Parts[0].Cached {
+	if res, _ := p.Suggest(context.Background(), product(), PartsOptions{Scope: "a"}); res.Parts[0].Cached {
 		t.Errorf("a failed answer was cached")
 	}
 }
@@ -170,8 +170,8 @@ func TestPartsSuggestBeforeHidesLaterAndOwnRulings(t *testing.T) {
 		}
 	}
 	// With Before set nothing is cached.
-	res, _ := p.Suggest(context.Background(), product(), PartsOptions{Before: time.Now()})
-	res2, _ := p.Suggest(context.Background(), product(), PartsOptions{})
+	res, _ := p.Suggest(context.Background(), product(), PartsOptions{Before: time.Now(), Scope: "a"})
+	res2, _ := p.Suggest(context.Background(), product(), PartsOptions{Scope: "a"})
 	if res.Parts[0].Cached || res2.Parts[0].Cached {
 		t.Errorf("evaluation answers were cached")
 	}
@@ -181,20 +181,78 @@ func TestPartsSuggestDeduplicatesAndCachesPerProduct(t *testing.T) {
 	m := answerFake(t, map[string][]map[string]any{"p0": {{"hts": "8501.31", "reason": "Motor.", "cited": []string{"N100001"}}}})
 	p := NewParts(m, "x", testIndex(), nil, nil)
 	prod := domain.Product{Name: "Fan", Components: []domain.Component{{Name: "Motor"}, {Name: "motor."}}}
-	res, _ := p.Suggest(context.Background(), prod, PartsOptions{})
+	res, _ := p.Suggest(context.Background(), prod, PartsOptions{Scope: "a"})
 	if len(res.Parts) != 2 || res.Parts[1].Candidates[0].HTS != "8501.31" {
 		t.Fatalf("parts = %+v", res.Parts)
 	}
 	if !strings.Contains(m.Calls()[0].Messages[0].Content, "ITEM p0") || strings.Contains(m.Calls()[0].Messages[0].Content, "ITEM p1") {
 		t.Errorf("the same part was asked twice")
 	}
-	if CacheKey("Motor", "Fan") != CacheKey(" motor. ", "fan") || CacheKey("motor", "fan") == CacheKey("motor", "drill") {
-		t.Errorf("cache key does not normalise, or ignores the product")
+	fan := domain.Product{Name: "Fan", Description: "A desk fan."}
+	if CacheKey("a", "Motor", "China", fan) != CacheKey("a", " motor. ", "china", domain.Product{Name: "fan", Description: "a desk  fan"}) {
+		t.Errorf("cache key does not normalise")
+	}
+	for name, other := range map[string]string{
+		"scope":       CacheKey("b", "motor", "China", fan),
+		"product":     CacheKey("a", "motor", "China", domain.Product{Name: "Drill", Description: "A desk fan."}),
+		"description": CacheKey("a", "motor", "China", domain.Product{Name: "Fan", Description: "A ceiling fan."}),
+		"made in":     CacheKey("a", "motor", "Vietnam", fan),
+	} {
+		if other == CacheKey("a", "motor", "China", fan) {
+			t.Errorf("cache key ignores the %s", name)
+		}
 	}
 	// A different product asks again.
 	prod.Name = "Drill"
-	if res, _ := p.Suggest(context.Background(), prod, PartsOptions{}); res.Parts[0].Cached || len(m.Calls()) != 2 {
+	if res, _ := p.Suggest(context.Background(), prod, PartsOptions{Scope: "a"}); res.Parts[0].Cached || len(m.Calls()) != 2 {
 		t.Errorf("another product's part came from the cache")
+	}
+	// No scope: nothing is cached or served from the cache.
+	if res, _ := p.Suggest(context.Background(), prod, PartsOptions{}); res.Parts[0].Cached || len(m.Calls()) != 3 {
+		t.Errorf("an unscoped request used the cache")
+	}
+}
+
+// #577: a cached answer, and the reason the model wrote from one caller's
+// description, never reach another caller or another description.
+func TestPartsCacheNeverCrossesCallersOrDescriptions(t *testing.T) {
+	m := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		desc := ""
+		for _, line := range strings.Split(req.Messages[0].Content, "\n") {
+			if d, ok := strings.CutPrefix(line, "DESCRIPTION: "); ok {
+				desc = d
+			}
+		}
+		b, _ := json.Marshal(map[string]any{"items": []any{map[string]any{"key": "p0", "candidates": []any{
+			map[string]any{"hts": "8538.90", "reason": "Housing of " + desc, "cited": []string{}}}}}})
+		return llm.Response{Text: string(b)}, nil
+	}}
+	p := NewParts(m, "x", testIndex(), nil, nil)
+	prod := func(desc string) domain.Product {
+		return domain.Product{Name: "Controller", Description: desc, Components: []domain.Component{{Name: "housing", MadeIn: "China"}}}
+	}
+	secret := "ALPHA-SECRET: lidar controller rev 9, customer Foo"
+	a, _ := p.Suggest(context.Background(), prod(secret), PartsOptions{Scope: "alice"})
+	if !strings.Contains(a.Parts[0].Candidates[0].Reason, "ALPHA-SECRET") {
+		t.Fatalf("alice = %+v", a.Parts)
+	}
+	for _, tc := range []struct{ name, scope, desc string }{
+		{"another caller, same product words", "bob", secret},
+		{"another caller, another description", "bob", "Garden irrigation controller"},
+		{"same caller, another description", "alice", "Garden irrigation controller"},
+	} {
+		calls := len(m.Calls())
+		res, _ := p.Suggest(context.Background(), prod(tc.desc), PartsOptions{Scope: tc.scope})
+		if res.Parts[0].Cached || len(m.Calls()) != calls+1 {
+			t.Errorf("%s: served from the cache", tc.name)
+		}
+		if tc.desc != secret && strings.Contains(res.Parts[0].Candidates[0].Reason, "ALPHA-SECRET") {
+			t.Errorf("%s: reason carries another description: %q", tc.name, res.Parts[0].Candidates[0].Reason)
+		}
+	}
+	// The same caller asking the same thing again is served from the cache.
+	if res, _ := p.Suggest(context.Background(), prod(secret), PartsOptions{Scope: "alice"}); !res.Parts[0].Cached {
+		t.Errorf("the same caller's repeat was not cached")
 	}
 }
 
@@ -202,18 +260,19 @@ func TestPartsCacheIsBounded(t *testing.T) {
 	p := NewParts(llm.FakeText(`{}`), "x", testIndex(), nil, nil)
 	now := time.Date(2026, 11, 22, 0, 0, 0, 0, time.UTC)
 	p.now = func() time.Time { return now }
+	key := func(prod string) string { return CacheKey("a", "part", "", domain.Product{Name: prod}) }
 	for i := range cacheMax + 10 {
 		now = now.Add(time.Second)
-		p.store(CacheKey("part", string(rune('a'+i%26))+strings.Repeat("x", i)), nil)
+		p.store(key(string(rune('a'+i%26))+strings.Repeat("x", i)), nil)
 	}
 	if len(p.cache) > cacheMax {
 		t.Errorf("cache = %d entries", len(p.cache))
 	}
-	if _, ok := p.cached(CacheKey("part", "a")); ok {
+	if _, ok := p.cached(key("a")); ok {
 		t.Errorf("the oldest entry survived")
 	}
 	now = now.Add(cacheTTL + time.Minute)
-	if _, ok := p.cached(CacheKey("part", "k"+strings.Repeat("x", cacheMax+9))); ok {
+	if _, ok := p.cached(key("k" + strings.Repeat("x", cacheMax+9))); ok {
 		t.Errorf("an expired entry was served")
 	}
 }
