@@ -40,7 +40,7 @@ Below the confidence bar, a **clarify** review says whether an earlier ruling is
 
 **Duty rates** are live: the MFN rate from the HTS plus the Section 301 duties for every HTS line (the four China lists and the 2026 country-wide headings), parsed from HTS Chapter 99, and the case shows the breakdown (D90).
 
-Model choices are measured: Argon and Flash are equally accurate with precedents, Argon is faster (research p95 5 s vs 18 s). Every response and eval row records the provider, model IDs and prompt versions.
+Model choices are measured: on the adjusted development set Argon scored 91.1% and Flash 90.1%; the difference was not statistically significant (p = 0.473). Argon's p95 was 8.1 s versus 21.6 s for Flash on that run. Every response and eval row records the provider, model IDs and prompt versions.
 
 ## Results
 
