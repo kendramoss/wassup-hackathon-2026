@@ -87,6 +87,7 @@ export function MoneyDrawer({
 }) {
   const groupLabel = useGroupName();
   const id = useId();
+  const costModes = ["quick", "each"] as const;
   const plants = product?.plants ?? [];
   const groups = productGroups(product);
   // The plant most parts come from is the base; the others cost more.
@@ -218,16 +219,33 @@ export function MoneyDrawer({
                 }}
                 className="mb-4"
               />
+              {/* #557: one Tab stop and arrow keys move between tabs, as in the step-1 tabs (#99). */}
               <div role="tablist" aria-label="How to enter costs" className="mb-4 inline-flex border border-edge">
-                {(["quick", "each"] as const).map((m) => (
+                {costModes.map((m, i) => (
                   <button
                     key={m}
+                    id={`${id}-tab-${m}`}
                     role="tab"
                     type="button"
                     aria-selected={mode === m}
+                    aria-controls={`${id}-cost-panel`}
+                    tabIndex={mode === m ? 0 : -1}
                     onClick={() => {
                       if (m === "each" && mode === "quick") setE({ ...e, group_costs: quick(total, more) });
                       setMode(m);
+                    }}
+                    onKeyDown={(ev) => {
+                      const next =
+                        ev.key === "ArrowRight" ? costModes[(i + 1) % costModes.length]
+                        : ev.key === "ArrowLeft" ? costModes[(i + costModes.length - 1) % costModes.length]
+                        : ev.key === "Home" ? costModes[0]
+                        : ev.key === "End" ? costModes[costModes.length - 1]
+                        : null;
+                      if (!next) return;
+                      ev.preventDefault();
+                      if (next === "each" && mode === "quick") setE({ ...e, group_costs: quick(total, more) });
+                      setMode(next);
+                      document.getElementById(`${id}-tab-${next}`)?.focus();
                     }}
                     className={cx("px-3 py-1.5 text-[12.5px]", mode === m ? "bg-ink text-paper" : "bg-sheet text-body hover:bg-wash")}
                   >
@@ -235,6 +253,7 @@ export function MoneyDrawer({
                   </button>
                 ))}
               </div>
+              <div role="tabpanel" id={`${id}-cost-panel`} aria-labelledby={`${id}-tab-${mode}`}>
               {mode === "quick" ? (
                 <div className="flex flex-col gap-3">
                   <label className="flex items-center justify-between gap-4">
@@ -360,6 +379,7 @@ export function MoneyDrawer({
                   </table>
                 </div>
               )}
+              </div>
             </>
           )}
         </section>
