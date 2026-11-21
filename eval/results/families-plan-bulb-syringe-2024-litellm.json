@@ -1,0 +1,227 @@
+{
+  "case_id": "bulb-syringe-2024",
+  "target": "Vietnam",
+  "family": "medical_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Bulb irrigation syringes (Items 47394 and 00943). Bulb irrigation syringes (in 50 ml and 60 ml capacities) designed for the irrigation of wounds and surgical sites with liquids during medical and surgical procedures. Each syringe consists of a molded clear hard PVC barrel with raised volume graduations, a detachable soft TPE plastic bulb, and a thin molded PVC sealing ring between the barrel and the bulb. The Bulb irrigation syringes (Items 47394 and 00943) is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe Detachable soft plastic (TPE) bulb are produced in China. The Molded hard PVC plastic barrel body with raised graduations and Thin molded PVC plastic sealing ring are produced in Vietnam. \n\nFinal assembly in Vietnam: Place sealing ring at the top neck of the barrel; Press fit soft plastic bulb into the top neck of the barrel; Clean, inspect, and test assembled syringes for leaks, and package for shipment.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "Molded hard PVC plastic barrel body"
+      ],
+      "decisive_step": "Molding of the hard PVC syringe barrel in Vietnam",
+      "confidence": 0.95,
+      "reasoning": "The simple press-fit assembly of the bulb, sealing ring, and barrel in Vietnam does not constitute a substantial transformation (see N340345). Therefore, origin is determined by the component that imparts the essential character of the syringe. Analogous to valve bodies in N340654 and N338713, the molded hard PVC barrel with volume graduations holds and directs the irrigation liquid, imparting the essential character. Because the barrel (and sealing ring) are manufactured in Vietnam, the country of origin is Vietnam.",
+      "cited_rulings": [
+        "N340345",
+        "N340654",
+        "N338713"
+      ],
+      "precedents": [
+        "N338713",
+        "N339513",
+        "N340345",
+        "N340654",
+        "N341969"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2746,
+        "output_tokens": 214,
+        "latency_ms": 7855
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N342838"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "molded_barrels_chambers",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Moulded barrels, chambers and tubing in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Bulb irrigation syringes (Items 47394 and 00943). Bulb irrigation syringes (in 50 ml and 60 ml capacities) designed for the irrigation of wounds and surgical sites with liquids during medical and surgical procedures. Each syringe consists of a molded clear hard PVC barrel with raised volume graduations, a detachable soft TPE plastic bulb, and a thin molded PVC sealing ring between the barrel and the bulb. The Bulb irrigation syringes (Items 47394 and 00943) is assembled in Vietnam using components sourced from Vietnam.\n\nThe Detachable soft plastic (TPE) bulb, Molded hard PVC plastic barrel body with raised graduations and Thin molded PVC plastic sealing ring are produced in Vietnam. \n\nIn Vietnam, the Detachable soft plastic (TPE) bulb, Molded hard PVC plastic barrel body with raised graduations and Thin molded PVC plastic sealing ring will be produced in-house: Injection mold soft plastic (TPE) bulbs; Injection mold clear hard PVC barrels with raised graduations from PVC resin; Injection mold thin PVC sealing rings from PVC resin.\n\nFinal assembly in Vietnam: Place sealing ring at the top neck of the barrel; Press fit soft plastic bulb into the top neck of the barrel; Clean, inspect, and test assembled syringes for leaks, and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Injection-molded PVC syringe barrel and TPE bulb"
+        ],
+        "decisive_step": "Injection molding of all syringe components and final assembly in Vietnam",
+        "confidence": 1,
+        "reasoning": "All components of the bulb irrigation syringe—the hard PVC barrel, the soft TPE bulb, and the PVC sealing ring—are injection-molded from raw resins in Vietnam, and final assembly, testing, and packaging also occur in Vietnam. Consistent with N341969, where injection molding and assembly of syringe components conferred origin, the manufacturing of the constituent components from resin and their complete assembly in Vietnam wholly establishes Vietnam as the country of origin.",
+        "cited_rulings": [
+          "N341969"
+        ],
+        "precedents": [
+          "N338713",
+          "N339513",
+          "N340345",
+          "N340654",
+          "N341969"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2814,
+          "output_tokens": 200,
+          "latency_ms": 6800
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N341969",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, the bulb irrigation syringe is assembled in Vietnam from a Chinese-origin soft TPE bulb and a Vietnamese-origin PVC barrel and sealing ring; CBP held the origin to be China because the simple press-fit assembly did not substantially transform the Chinese bulb. In Variant B, all three components (the TPE bulb, PVC barrel, and sealing ring) are injection molded in Vietnam and assembled in Vietnam. Consistent with N341969 (where injection molding all syringe components and assembling them in the Dominican Republic conferred Dominican Republic origin to the syringe), producing all syringe components in Vietnam changes the origin to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"bulb irrigation syringe\" OR \"irrigation syringe\" OR \"syringe\" origin Vietnam China",
+            "rulings": [
+              "N333989",
+              "N341969",
+              "N340345",
+              "N332276",
+              "N338502",
+              "N340562",
+              "N329837",
+              "N332591"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"irrigation\" \"bulb\" \"barrel\" origin",
+            "rulings": [
+              "N333514",
+              "N333989",
+              "N338502",
+              "N338985",
+              "N340562",
+              "N335906",
+              "N332276",
+              "N340345"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N341969",
+            "rulings": [
+              "N341969"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340345",
+            "rulings": [
+              "N340345"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338502",
+            "rulings": [
+              "N338502"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9336,
+          "output_tokens": 337,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 15000,
+      "net_per_year": 285000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Bulb irrigation syringes (Items 47394 and 00943). Bulb irrigation syringes (in 50 ml and 60 ml capacities) designed for the irrigation of wounds and surgical sites with liquids during medical and surgical procedures. Each syringe consists of a molded clear hard PVC barrel with raised volume graduations, a detachable soft TPE plastic bulb, and a thin molded PVC sealing ring between the barrel and the bulb. The Bulb irrigation syringes (Items 47394 and 00943) is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe Detachable soft plastic (TPE) bulb are produced in China. The Molded hard PVC plastic barrel body with raised graduations and Thin molded PVC plastic sealing ring are produced in Vietnam. \n\nFinal assembly in Vietnam: Place sealing ring at the top neck of the barrel; Press fit soft plastic bulb into the top neck of the barrel; Clean, inspect, and test assembled syringes for leaks, and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Molded hard PVC plastic barrel body"
+        ],
+        "decisive_step": "Molding of the hard PVC syringe barrel in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "The simple press-fit assembly of the bulb, sealing ring, and barrel in Vietnam does not constitute a substantial transformation (see N340345). Therefore, origin is determined by the component that imparts the essential character of the syringe. Analogous to valve bodies in N340654 and N338713, the molded hard PVC barrel with volume graduations holds and directs the irrigation liquid, imparting the essential character. Because the barrel (and sealing ring) are manufactured in Vietnam, the country of origin is Vietnam.",
+        "cited_rulings": [
+          "N340345",
+          "N340654",
+          "N338713"
+        ],
+        "precedents": [
+          "N338713",
+          "N339513",
+          "N340345",
+          "N340654",
+          "N341969"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2746,
+          "output_tokens": 214,
+          "latency_ms": 7855
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N342838); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 5,
+    "input_tokens": 14896,
+    "output_tokens": 751,
+    "engine_input_tokens": 5560,
+    "engine_output_tokens": 414,
+    "verifier_input_tokens": 9336,
+    "verifier_output_tokens": 337,
+    "wall_seconds": 23.658795166
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "medical_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.037302,
+  "cost_usd_list": 0.074604,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:04:31+08:00"
+}

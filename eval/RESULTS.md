@@ -406,3 +406,39 @@ Scored once each with the frozen prompt (same `gemini-4-argon` as Vertex).
 | Pharmaceutical (`pharma-v1`, 56 rulings, 2026) | 50/56 = 89.3% (78.5–95.0) | 49 (88%), 100% (92.7–100) | $0.0066 |
 | USMCA / Part 102 (`usmca-v1`, 32 rulings, 2026) | 25/32 = 78.1% (61.2–89.0) | 15 (47%), 100% (79.6–100) | $0.0096 |
 
+
+## Planner product scope: family coverage (LiteLLM gateway, 21 Nov; D138)
+
+What share of substantial-transformation rulings the product's family check (`familycheck`, gemini-3.8-flash, match at confidence ≥ 0.6) maps to a family that has a plan template: the three templates before D138 ("legacy") and all 13 after. Input per ruling: its subject and the first 1,500 characters of its facts. This measures scope, not accuracy. The ten new families were chosen and written from the 845 pool rulings outside the dev, held-out and pilot splits (`results/families-selection.json`). The held-out split was scored once per set, after the templates (`856e215`) and the 1,024-token output cap (`6cd3516`) were committed. Every run is in `RUNLOG.jsonl`; the revision there reads `856e215-dirty` because the runs used a local build with the gateway provider and the 1,024 cap.
+
+| Split | Templates | Matched / all (failed checks = not covered) | Matched / answered (95% CI) | Failed checks | Cost (promo) | Rows |
+|---|---|---|---|---:|---:|---|
+| dev (469) | 3 (legacy) | 23 / 469 = 4.9% | 23 / 466 = 4.9% (3.3–7.3) | 3 | $0.73 | `results/families-coverage-dev-legacy-litellm.jsonl` |
+| dev (469) | 13 | 258 / 469 = 55.0% | 258 / 452 = 57.1% (52.5–61.6) | 17 | $1.09 | `results/families-coverage-dev-all-litellm.jsonl` |
+| held-out (377) | 3 (legacy) | 16 / 377 = 4.2% | 16 / 377 = 4.2% (2.6–6.8) | 0 | $0.56 | `results/families-coverage-final-legacy-litellm.jsonl` |
+| held-out (377) | 13 | 215 / 377 = 57.0% | 215 / 368 = 58.4% (53.3–63.3) | 9 | $0.82 | `results/families-coverage-final-all-litellm.jsonl` |
+
+Held-out matches by family (13 templates): vehicle parts 56, cables and harnesses 41, hand tools 37, PCBA-based devices 36, motorised tools 15, medical devices 7, power supplies 7, display and cameras 4, furniture 3, gas grills 3, LED lights 3, water filters 2, LiDAR 1.
+
+Disclosed runs that are not in the table: the first dev legacy run with the old 400-token cap (17 / 438 matched, 31 failed checks cut off before the JSON; `results/families-coverage-dev-legacy-maxout400-litellm.jsonl`), which led to the 1,024 cap; and a dev run with all templates stopped after a few seconds to change the cap (455 cancelled; `results/families-coverage-dev-all-maxout400-interrupted-litellm.jsonl`). A spot check of 15 dev matches found one stretch (a pet bed matched to furniture).
+
+Command: `go run ./cmd/eval familycov -split dev|final -set legacy|all [-confirm-final]`.
+
+### Live plan checks on the new families (development, not an evaluation)
+
+One fixture per new family (`backend/testdata/families/`, built from pool rulings), each run once with `eval plan` (engine and verifier gemini-4-argon, verifier-v2, local corpus search, plan bar 0.92). Summary: `results/families-live-checks.json`; full results `results/families-plan-*-litellm.json`.
+
+| Family | Fixture (ruling) | CBP held (current) | Engine on current setup | Result | Promo cost |
+|---|---|---|---|---|---:|
+| PCBA-based devices | USB-C hub (N341280 → N342837) | China | China | PCBA (SMT) in Taiwan, supported by N339405 at 0.96; matches CBP's later ruling | $0.046 |
+| Vehicle parts | Speed sensor (N343953 → N344809) | China | Thailand | Hall IC in Thailand, N343950 at 0.98; matches CBP's later ruling | $0.039 |
+| Hand tools | Ratchet wrench (illustrative all-China start; N347615) | none given | China | forging in Vietnam, N335671 at 0.96 (and three larger moves); matches N347615 | $0.181 |
+| Power supplies | Smartwatch charger (N347058) | China | China | PCBA and charging module in Vietnam, N333268 at 0.96 | $0.119 |
+| Gas grills | Gas grill (N335085, scenario 1 → 2) | China | China | lids and fireboxes, burners and frames in Indonesia, N333420 at 0.96; CBP's scenario 2 moved only the lids and fireboxes | $0.218 |
+| Medical devices | Bulb syringe (N342838) | China | Vietnam | moulded group (the bulb) in Vietnam, N341969 at 0.96 | $0.037 |
+| Display and cameras | Metering camera (N348165) | China | South Korea | camera PCBA in South Korea, N344595 at 0.95 | $0.061 |
+| Water filters | Electric dispenser (N348298) | China | South Korea | no plan above 0.92 (best 0.90): send to a broker | $0.135 |
+| Furniture | Speaker stand (N335711) | China | Malaysia | no plan above 0.92 (0.90): send to a broker | $0.049 |
+| Cables and harnesses | Server cable (N331047, scenario 1 → 3) | none given | Malaysia | no move supported (only rulings before Mar 2023 are evidence): send to a broker | $0.090 |
+
+Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed with CBP in 5 of the 8 fixtures where CBP named the origin; it named the assembly or target country where CBP held China, the same direction as the known held-out weakness (D138, MODEL-CARD).

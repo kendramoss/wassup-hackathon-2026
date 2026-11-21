@@ -1,0 +1,768 @@
+{
+  "case_id": "ratchet-wrench-2025",
+  "target": "Vietnam",
+  "family": "hand_tools",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from China.\n\nThe forged steel wrench body and springs, clips, pins and small bushings of the ratcheting mechanism are produced in China. \n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Forged steel wrench body"
+      ],
+      "decisive_step": "Forging of the steel wrench body and manufacture of components in China",
+      "confidence": 1,
+      "reasoning": "All components, including the forged steel wrench body and the internal ratcheting mechanism parts, are manufactured in China, and final assembly also occurs in China. Consistent with NY N335671, the forging of the steel wrench body imparts the essential character of a ratcheting wrench. Because the forging, component manufacturing, and assembly all take place in China, the country of origin is unequivocally China.",
+      "cited_rulings": [
+        "N335671"
+      ],
+      "precedents": [
+        "N334228",
+        "N334540",
+        "N335671",
+        "N342334",
+        "N343501"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2631,
+        "output_tokens": 191,
+        "latency_ms": 7022
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "primary_metal_forming",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Forged or stamped working part in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from Vietnam and China.\n\nThe forged steel wrench body are produced in Vietnam. The springs, clips, pins and small bushings of the ratcheting mechanism are produced in China. \n\nIn Vietnam, the forged steel wrench body will be produced in-house: cut raw steel rods to length and forge them into the final size, shape and form of the wrench, except the two end holes.\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging the steel rod into the shape and form of the wrench body in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Under CBP precedent for hand tools (e.g., N335671, N342334), the essential character of a wrench is imparted by the forged steel body, which establishes the tool's predetermined shape, size, and use. The forging of raw steel rods into the wrench blank in Vietnam constitutes a substantial transformation. Subsequent machining of the end holes and assembly with the ratcheting mechanism components in China are considered finishing and simple assembly operations that do not substantially transform the Vietnamese wrench body.",
+        "cited_rulings": [
+          "N335671",
+          "N342334"
+        ],
+        "precedents": [
+          "N335671",
+          "N342334",
+          "N343501",
+          "N344661",
+          "N347176"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2722,
+          "output_tokens": 214,
+          "latency_ms": 7101
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335671",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all production occurs in China, so origin is China. In Variant B, the steel wrench body is forged into its final size, shape, and form in Vietnam, and subsequently sent to China where Chinese-origin ratcheting components are assembled into the end holes. Directly on point, in NY N335671 (involving ratcheting combination wrenches), CBP held that forging the steel wrench body into its general shape and size imparts the essential character of the tool, and subsequent machining and assembly with Chinese-origin ratcheting components in China did not cause a substantial transformation. Thus, moving the forging to Vietnam shifts origin to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ratcheting wrench forged steel body Vietnam China",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N331759",
+              "N346315",
+              "N342334",
+              "N332747",
+              "N332258",
+              "N347009"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wrench forging machining assembly origin",
+            "rulings": [
+              "N334228",
+              "N346375",
+              "N346378",
+              "N332747",
+              "N332258",
+              "N335671",
+              "N342334",
+              "N346315"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "ratchet wrench forging assembly origin",
+            "rulings": [
+              "N335671",
+              "N343501",
+              "N346986",
+              "N332747",
+              "N332258",
+              "N342334",
+              "N346315",
+              "N331759"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332747",
+            "rulings": [
+              "N332747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335671",
+            "rulings": [
+              "N335671"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346315",
+            "rulings": [
+              "N346315"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 13026,
+          "output_tokens": 414,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 22500,
+      "net_per_year": 277500,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "primary_metal_forming",
+          "to_plant": "vn"
+        },
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Forged or stamped working part and Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from Vietnam.\n\nThe forged steel wrench body and springs, clips, pins and small bushings of the ratcheting mechanism are produced in Vietnam. \n\nIn Vietnam, the forged steel wrench body will be produced in-house: cut raw steel rods to length and forge them into the final size, shape and form of the wrench, except the two end holes.\n\nIn Vietnam, the springs, clips, pins and small bushings of the ratcheting mechanism will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging raw steel rods into the final size, shape, and form of the wrench body in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent for hand tools (e.g., N335671), the essential character of a ratcheting wrench is imparted by the forged steel wrench body. In Vietnam, raw steel rods are forged into the final size, shape, and form of the wrench, dedicates its predetermined use, and produces the ratcheting components. Subsequent operations in China (machining end holes, assembling the ratcheting mechanism, and packing) constitute minor finishing and simple assembly that do not result in a substantial transformation.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N331651",
+          "N333956",
+          "N335671",
+          "N341088",
+          "N346278"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2673,
+          "output_tokens": 227,
+          "latency_ms": 7416
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335671",
+        "counter_ruling": "N339039",
+        "confidence": 0.96,
+        "reasoning": "In N335671 (and N333798), CBP held that the country of origin of a ratcheting wrench is the country where the steel wrench body is forged into its general shape and size, because forging imparts the essential characteristics of the tool, and subsequent machining and assembly with the ratcheting mechanism in China does not effect a substantial transformation. In Variant B, both the forging of the steel wrench body and the production of the ratcheting mechanism components move to Vietnam, with only final assembly occurring in China. Unlike N339039 (where a vital jaw was cast in China), origin shifts to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ratcheting wrench forged steel body assembly China Vietnam Taiwan",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N331759",
+              "N346315",
+              "N342334",
+              "N332747",
+              "N332258",
+              "N347009"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "reversible ratcheting wrench origin forging assembly",
+            "rulings": [
+              "N335671",
+              "N332747",
+              "N332258",
+              "N343501",
+              "N333798",
+              "N342334",
+              "N346315",
+              "N331759"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "box-end wrench ratcheting mechanism end holes forge",
+            "rulings": [
+              "N335671",
+              "N346315",
+              "N342334",
+              "N339039",
+              "N334228",
+              "N331759",
+              "N343501",
+              "N332747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335671",
+            "rulings": [
+              "N335671"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333798",
+            "rulings": [
+              "N333798"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339039",
+            "rulings": [
+              "N339039"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 12831,
+          "output_tokens": 405,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 270000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "primary_metal_forming",
+          "to_plant": "vn"
+        },
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Forged or stamped working part and Machining, heat treatment and finishing in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from Vietnam and China.\n\nThe forged steel wrench body are produced in Vietnam. The springs, clips, pins and small bushings of the ratcheting mechanism are produced in China. \n\nIn Vietnam, the forged steel wrench body will be produced in-house: cut raw steel rods to length and forge them into the final size, shape and form of the wrench, except the two end holes.\n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: machine the two end holes, heat-treat and polish.\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Forged and machined steel wrench body"
+        ],
+        "decisive_step": "Forging, machining, and heat-treating the steel wrench body in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Following CBP precedent in N335671, the essential character of a ratcheting wrench is imparted by the forged steel wrench body, which establishes the tool's predetermined shape, size, and form. Here, the wrench body is forged, machined, heat-treated, and polished entirely in Vietnam. The subsequent assembly in China—inserting the Chinese-origin ratcheting mechanism components into the end holes and packaging—is a minor assembly operation that does not substantially transform the Vietnamese wrench body.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N335671",
+          "N342334",
+          "N343501",
+          "N344661",
+          "N347176"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2752,
+          "output_tokens": 213,
+          "latency_ms": 7856
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335671",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all production occurs in China, so origin is China. In Variant B, the steel wrench body is forged, machined, heat-treated, and polished in Vietnam, then assembled in China with Chinese ratcheting mechanism components. In N335671, CBP ruled on a ratcheting combination wrench whose body was forged in South Korea and subsequently machined, polished, heat-treated, and assembled with Chinese ratcheting components in China. CBP held that forging the steel wrench body into its general shape and size imparts the essential character of the tool. Moving the forging and machining of the wrench body to Vietnam therefore shifts origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ratcheting wrench forged body assembly China Vietnam Taiwan",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N331759",
+              "N346315",
+              "N332747",
+              "N342334",
+              "N332258",
+              "N343501"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wrench forged body ratcheting mechanism origin",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N331759",
+              "N346315",
+              "N339039",
+              "N332747",
+              "N332258",
+              "N342334"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346315",
+            "rulings": [
+              "N346315"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332747",
+            "rulings": [
+              "N332747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335671",
+            "rulings": [
+              "N335671"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"ratcheting wrench\" OR \"ratchet wrench\" origin",
+            "rulings": [
+              "N335671",
+              "N333798",
+              "N343501",
+              "N346315",
+              "N331759",
+              "N332747",
+              "N332258",
+              "N342334"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 12946,
+          "output_tokens": 396,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 37500,
+      "net_per_year": 262500,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "primary_metal_forming",
+          "to_plant": "vn"
+        },
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        },
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Forged or stamped working part, Machining, heat treatment and finishing and Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from Vietnam.\n\nThe forged steel wrench body and springs, clips, pins and small bushings of the ratcheting mechanism are produced in Vietnam. \n\nIn Vietnam, the forged steel wrench body will be produced in-house: cut raw steel rods to length and forge them into the final size, shape and form of the wrench, except the two end holes.\n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: machine the two end holes, heat-treat and polish.\n\nIn Vietnam, the springs, clips, pins and small bushings of the ratcheting mechanism will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging, machining, and heat-treating the steel wrench body in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Consistent with NY N335671, the essential character of a ratcheting wrench is imparted by the forged steel wrench body, which establishes the tool's predetermined shape, form, and use. In Vietnam, raw steel rods are forged into the wrench body, machined, heat-treated, and polished, and the ratcheting components are also manufactured there. The subsequent assembly of the ratcheting mechanism into the wrench body and packaging in China are simple finishing operations that do not result in a substantial transformation.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N331651",
+          "N333956",
+          "N335671",
+          "N339011",
+          "N346278"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2671,
+          "output_tokens": 197,
+          "latency_ms": 7960
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335671",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all production and assembly occur in China, making China the country of origin. In Variant B, the steel wrench body is forged, machined, heat-treated, and polished in Vietnam, and the ratcheting mechanism components are also produced in Vietnam, with only final assembly of the ratcheting mechanism into the end holes and packing occurring in China. Under N335671 (ratcheting combination wrench), N333798, and National Hand Tool Corp., forging the steel wrench body into its final shape imparts the essential character of the tool. Simple assembly of the ratcheting mechanism in China does not substantially transform the Vietnamese components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ratcheting wrench forged steel body assembly China Vietnam Taiwan",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N331759",
+              "N346315",
+              "N342334",
+              "N332747",
+              "N332258",
+              "N347009"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "reversible ratcheting wrench origin forging machining assembly",
+            "rulings": [
+              "N335671",
+              "N334228",
+              "N346375",
+              "N346378",
+              "N332747",
+              "N332258",
+              "N343501",
+              "N333798"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "box-end wrench ratcheting mechanism forge end holes",
+            "rulings": [
+              "N335671",
+              "N346315",
+              "N342334",
+              "N339039",
+              "N334228",
+              "N331759",
+              "N343501",
+              "N332747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332747",
+            "rulings": [
+              "N332747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335671",
+            "rulings": [
+              "N335671"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333798",
+            "rulings": [
+              "N333798"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 13777,
+          "output_tokens": 433,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 45000,
+      "net_per_year": 255000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from China.\n\nThe forged steel wrench body and springs, clips, pins and small bushings of the ratcheting mechanism are produced in China. \n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging of the steel wrench body and manufacture of components in China",
+        "confidence": 1,
+        "reasoning": "All components, including the forged steel wrench body and the internal ratcheting mechanism parts, are manufactured in China, and final assembly also occurs in China. Consistent with NY N335671, the forging of the steel wrench body imparts the essential character of a ratcheting wrench. Because the forging, component manufacturing, and assembly all take place in China, the country of origin is unequivocally China.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N334228",
+          "N334540",
+          "N335671",
+          "N342334",
+          "N343501"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2631,
+          "output_tokens": 191,
+          "latency_ms": 7022
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: engine predicts origin China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Machining, heat treatment and finishing in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from China.\n\nThe forged steel wrench body and springs, clips, pins and small bushings of the ratcheting mechanism are produced in China. \n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: machine the two end holes, heat-treat and polish.\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging the steel wrench body into its predetermined shape in China (followed by final assembly with Chinese ratcheting components in China)",
+        "confidence": 0.98,
+        "reasoning": "Consistent with NY N335671 and NY N342334, the forged steel wrench body imparts the essential character of the hand tool, establishing its predetermined shape, size, and use. Because the wrench body and the ratcheting mechanism components are all produced in China, and final assembly occurs in China, the origin is China. Machining the end holes, heat-treating, and polishing the forged blank in Vietnam are finishing operations that do not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N335671",
+          "N342334"
+        ],
+        "precedents": [
+          "N335671",
+          "N342334",
+          "N343396",
+          "N343501",
+          "N346637"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2689,
+          "output_tokens": 218,
+          "latency_ms": 8761
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 15000,
+      "net_per_year": -15000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from China and Vietnam.\n\nThe forged steel wrench body are produced in China. The springs, clips, pins and small bushings of the ratcheting mechanism are sourced from Vietnam. \n\nIn Vietnam, the springs, clips, pins and small bushings of the ratcheting mechanism will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging the steel wrench body into its shape and form in China",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent for hand tools (e.g., N335671), the country of origin of a ratcheting wrench is determined by where the steel wrench body is forged, as the forged body imparts the tool's essential character and predetermined shape. Here, the steel wrench body is forged in China and final assembly occurs in China. The Vietnamese-origin ratcheting components (springs, clips, pins, bushings) are minor parts that do not confer origin or undergo a reverse substantial transformation.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N331651",
+          "N333956",
+          "N335671",
+          "N339011",
+          "N346278"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2605,
+          "output_tokens": 201,
+          "latency_ms": 8117
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 7500,
+      "net_per_year": -7500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        },
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Machining, heat treatment and finishing and Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Reversible ratcheting wrench. A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts. The Reversible ratcheting wrench is assembled in China using components sourced from China and Vietnam.\n\nThe forged steel wrench body are produced in China. The springs, clips, pins and small bushings of the ratcheting mechanism are sourced from Vietnam. \n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: machine the two end holes, heat-treat and polish.\n\nIn Vietnam, the springs, clips, pins and small bushings of the ratcheting mechanism will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the ratcheting mechanism into the end holes and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Forged steel wrench body"
+        ],
+        "decisive_step": "Forging the steel wrench body into its general shape and form in China",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent for hand tools (e.g., N335671), the forged steel wrench body imparts the essential character and predetermined form and use of a ratcheting wrench. Forging the wrench body in China establishes its identity. Subsequent machining of end holes, heat treatment, polishing, and manufacturing of minor ratcheting components in Vietnam, as well as final assembly in China, are finishing and assembly operations that do not substantially transform the Chinese-forged wrench blank.",
+        "cited_rulings": [
+          "N335671"
+        ],
+        "precedents": [
+          "N331651",
+          "N333956",
+          "N335671",
+          "N339011",
+          "N346278"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2635,
+          "output_tokens": 202,
+          "latency_ms": 9785
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 22500,
+      "net_per_year": -22500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N347615 (5 May 2025): CBP held Vietnam",
+    "plan": "Make Forged or stamped working part in Vietnam",
+    "actual_moved": [
+      "forged steel wrench body"
+    ],
+    "moved_by_plan": [
+      "forged steel wrench body"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 4,
+    "verifier_cached": 0,
+    "verifier_model_calls": 16,
+    "verifier_tool_calls": 24,
+    "input_tokens": 73958,
+    "output_tokens": 3311,
+    "engine_input_tokens": 21378,
+    "engine_output_tokens": 1663,
+    "verifier_input_tokens": 52580,
+    "verifier_output_tokens": 1648,
+    "wall_seconds": 30.212695875
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "hand_tools": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.181026,
+  "cost_usd_list": 0.362052,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:02:33+08:00"
+}

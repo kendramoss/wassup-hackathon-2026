@@ -1,0 +1,254 @@
+{
+  "case_id": "speed-sensor-2024",
+  "target": "Thailand",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Speed sensors (part numbers 20010031 and 20010104). Speed sensors installed within the transmission system of a vehicle to provide speed information for wheels and turbines to the Transmission Control Unit. They consist of a Hall Effect sensor integrated circuit attached to a printed circuit board, enclosed within a plastic frame and shell with a connection point at one end. The Speed sensors (part numbers 20010031 and 20010104) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Hall Effect sensor integrated circuit (IC) are produced in China. The Printed Circuit Board (PCB), Plastic frame and Plastic shell are produced in Thailand. \n\nFinal assembly in Thailand: Bending and soldering the leads of the Hall Effect IC to the PCB; Inserting the IC and PCB subassembly into the plastic frame and enclosing with the plastic shell; Inspecting, testing, and packaging the finished device.\n",
+    "prediction": {
+      "origin_country": "Thailand",
+      "key_factors": [
+        "The PCB and Hall Effect IC subassembly and complete sensor assembly"
+      ],
+      "decisive_step": "Soldering the Hall Effect IC to the Thai-origin PCB and assembling it with the Thai-origin plastic frame and shell in Thailand",
+      "confidence": 0.92,
+      "reasoning": "Consistent with CBP precedents N343952, N343954, and N335213, the Chinese-origin Hall Effect IC undergoes a substantial transformation in Thailand when its leads are bent and soldered onto the Thai-origin PCB to form the core sensing subassembly, and subsequently enclosed within the Thai-origin plastic frame and shell. The majority of components (including the PCB and housing) and the critical electronic and mechanical assembly operations occur in Thailand, creating a new article of commerce with a distinct name, character, and use.",
+      "cited_rulings": [
+        "N343952",
+        "N343954",
+        "N335213"
+      ],
+      "precedents": [
+        "N330296",
+        "N335213",
+        "N340058",
+        "N343952",
+        "N343954"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2817,
+        "output_tokens": 253,
+        "latency_ms": 7276
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N343953"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "electromechanical_core",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Electromechanical core (motor, coil, sensor) in Thailand",
+      "variant_facts": "The merchandise under consideration is a Speed sensors (part numbers 20010031 and 20010104). Speed sensors installed within the transmission system of a vehicle to provide speed information for wheels and turbines to the Transmission Control Unit. They consist of a Hall Effect sensor integrated circuit attached to a printed circuit board, enclosed within a plastic frame and shell with a connection point at one end. The Speed sensors (part numbers 20010031 and 20010104) is assembled in Thailand using components sourced from Thailand.\n\nThe Hall Effect sensor integrated circuit (IC), Printed Circuit Board (PCB), Plastic frame and Plastic shell are produced in Thailand. \n\nIn Thailand, the Hall Effect sensor integrated circuit (IC) will be produced in-house: make the Hall effect sensor integrated circuit.\n\nFinal assembly in Thailand: Bending and soldering the leads of the Hall Effect IC to the PCB; Inserting the IC and PCB subassembly into the plastic frame and enclosing with the plastic shell; Inspecting, testing, and packaging the finished device.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Hall Effect sensor integrated circuit and PCB subassembly"
+        ],
+        "decisive_step": "Production of the Hall Effect IC, PCB, and plastic components, along with soldering and final assembly in Thailand",
+        "confidence": 1,
+        "reasoning": "All components (Hall Effect IC, PCB, plastic frame, and plastic shell) are produced in Thailand, and the entire manufacturing and soldering assembly process occurs in Thailand. Because the product is wholly produced and assembled in Thailand, the country of origin is Thailand, consistent with CBP rulings N343952 and N343954.",
+        "cited_rulings": [
+          "N343952",
+          "N343954"
+        ],
+        "precedents": [
+          "N330296",
+          "N335213",
+          "N340058",
+          "N343952",
+          "N343954"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2837,
+          "output_tokens": 182,
+          "latency_ms": 6099
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N343950",
+        "counter_ruling": "N335213",
+        "confidence": 0.98,
+        "reasoning": "In companion rulings N343950 and N343952 (issued the same day to the same requester for automotive Hall Effect sensors), CBP held that the Hall Effect integrated circuit (IC) imparts the essential character of the sensor, and that bending and soldering the IC leads to a Thai PCB and enclosing it in a plastic housing in Thailand is simple assembly that does not substantially transform the IC. In Variant A, the Chinese Hall Effect IC confers China origin. In Variant B, the Hall Effect IC and all other components are produced in Thailand, changing origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"Hall Effect\" sensor origin \"integrated circuit\"",
+            "rulings": [
+              "N343950",
+              "N343952",
+              "N335213",
+              "N335974",
+              "H341544",
+              "N335170",
+              "N343451",
+              "N333934"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "speed sensor origin \"integrated circuit\" PCB assembly",
+            "rulings": [
+              "N343950",
+              "N343952",
+              "N335213",
+              "N338985",
+              "N330296",
+              "N331047",
+              "N342247",
+              "N339258"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "sensor \"integrated circuit\" essential character origin",
+            "rulings": [
+              "N335170",
+              "N339907",
+              "H327732",
+              "H338116",
+              "N335213",
+              "N340440",
+              "N343683",
+              "N343950"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343950",
+            "rulings": [
+              "N343950"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335213",
+            "rulings": [
+              "N335213"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343952",
+            "rulings": [
+              "N343952"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9647,
+          "output_tokens": 356,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 270000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Speed sensors (part numbers 20010031 and 20010104). Speed sensors installed within the transmission system of a vehicle to provide speed information for wheels and turbines to the Transmission Control Unit. They consist of a Hall Effect sensor integrated circuit attached to a printed circuit board, enclosed within a plastic frame and shell with a connection point at one end. The Speed sensors (part numbers 20010031 and 20010104) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Hall Effect sensor integrated circuit (IC) are produced in China. The Printed Circuit Board (PCB), Plastic frame and Plastic shell are produced in Thailand. \n\nFinal assembly in Thailand: Bending and soldering the leads of the Hall Effect IC to the PCB; Inserting the IC and PCB subassembly into the plastic frame and enclosing with the plastic shell; Inspecting, testing, and packaging the finished device.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The PCB and Hall Effect IC subassembly and complete sensor assembly"
+        ],
+        "decisive_step": "Soldering the Hall Effect IC to the Thai-origin PCB and assembling it with the Thai-origin plastic frame and shell in Thailand",
+        "confidence": 0.92,
+        "reasoning": "Consistent with CBP precedents N343952, N343954, and N335213, the Chinese-origin Hall Effect IC undergoes a substantial transformation in Thailand when its leads are bent and soldered onto the Thai-origin PCB to form the core sensing subassembly, and subsequently enclosed within the Thai-origin plastic frame and shell. The majority of components (including the PCB and housing) and the critical electronic and mechanical assembly operations occur in Thailand, creating a new article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N343952",
+          "N343954",
+          "N335213"
+        ],
+        "precedents": [
+          "N330296",
+          "N335213",
+          "N340058",
+          "N343952",
+          "N343954"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2817,
+          "output_tokens": 253,
+          "latency_ms": 7276
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N343953); engine predicts Thailand",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N344809 (10 Jan 2025): CBP held Thailand",
+    "plan": "Make Electromechanical core (motor, coil, sensor) in Thailand",
+    "actual_moved": [
+      "Hall Effect sensor integrated circuit (IC)"
+    ],
+    "moved_by_plan": [
+      "Hall Effect sensor integrated circuit (IC)"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 15301,
+    "output_tokens": 791,
+    "engine_input_tokens": 5654,
+    "engine_output_tokens": 435,
+    "verifier_input_tokens": 9647,
+    "verifier_output_tokens": 356,
+    "wall_seconds": 22.082610375
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.038512,
+  "cost_usd_list": 0.077024,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:02:02+08:00"
+}

@@ -1,0 +1,249 @@
+{
+ "what": "Live predict + plan checks, one fixture per new family (D138), through an OpenAI-compatible LiteLLM gateway to Gemini; engine and verifier gemini-4-argon, verifier-v2, local corpus search, plan bar 0.92. Development checks on fixtures built from selection-pool rulings, not an evaluation.",
+ "total_cost_usd_promo": 0.9741,
+ "total_cost_usd_list": 1.9483,
+ "runs": [
+  {
+   "case_id": "bulb-syringe-2024",
+   "family": "medical_devices",
+   "target": "Vietnam",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "Vietnam",
+   "engine_current_confidence": 0.95,
+   "moves_searched": 1,
+   "shown_plans": 1,
+   "best_plan": "Make Moulded barrels, chambers and tubing in Vietnam",
+   "best_supporting_ruling": "N341969",
+   "best_verifier_confidence": 0.96,
+   "outcome": "precedent-supported plan",
+   "backtest": null,
+   "cost_usd_promo": 0.0373,
+   "cost_usd_list": 0.0746,
+   "wall_seconds": 23.7,
+   "result_file": "eval/results/families-plan-bulb-syringe-2024-litellm.json"
+  },
+  {
+   "case_id": "gas-grill-2023",
+   "family": "gas_grills_cooking",
+   "target": "Indonesia",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "China",
+   "engine_current_confidence": 0.95,
+   "moves_searched": 7,
+   "shown_plans": 1,
+   "best_plan": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+   "best_supporting_ruling": "N333420",
+   "best_verifier_confidence": 0.96,
+   "outcome": "precedent-supported plan",
+   "backtest": {
+    "source": "CBP ruling N335085, scenario 2: CBP held Indonesia",
+    "plan": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+    "actual_moved": [
+     "Deep draw main lids",
+     "Formed and punched fireboxes"
+    ],
+    "moved_by_plan": [
+     "Deep draw main lids",
+     "Formed and punched fireboxes"
+    ],
+    "in_actual_change_not_in_plan": null
+   },
+   "cost_usd_promo": 0.2178,
+   "cost_usd_list": 0.4355,
+   "wall_seconds": 63.6,
+   "result_file": "eval/results/families-plan-gas-grill-2023-litellm.json"
+  },
+  {
+   "case_id": "metering-camera-2025",
+   "family": "display_camera_modules",
+   "target": "South Korea",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "South Korea",
+   "engine_current_confidence": 0.92,
+   "moves_searched": 1,
+   "shown_plans": 1,
+   "best_plan": "Make Camera PCBA (SMT) in South Korea",
+   "best_supporting_ruling": "N344595",
+   "best_verifier_confidence": 0.95,
+   "outcome": "precedent-supported plan",
+   "backtest": null,
+   "cost_usd_promo": 0.0611,
+   "cost_usd_list": 0.1221,
+   "wall_seconds": 32.1,
+   "result_file": "eval/results/families-plan-metering-camera-2025-litellm.json"
+  },
+  {
+   "case_id": "ratchet-wrench-2025",
+   "family": "hand_tools",
+   "target": "Vietnam",
+   "cbp_current_origin": null,
+   "engine_current_origin": "China",
+   "engine_current_confidence": 1,
+   "moves_searched": 7,
+   "shown_plans": 4,
+   "best_plan": "Make Forged or stamped working part in Vietnam",
+   "best_supporting_ruling": "N335671",
+   "best_verifier_confidence": 0.96,
+   "outcome": "precedent-supported plan",
+   "backtest": {
+    "source": "CBP ruling N347615 (5 May 2025): CBP held Vietnam",
+    "plan": "Make Forged or stamped working part in Vietnam",
+    "actual_moved": [
+     "forged steel wrench body"
+    ],
+    "moved_by_plan": [
+     "forged steel wrench body"
+    ],
+    "in_actual_change_not_in_plan": null
+   },
+   "cost_usd_promo": 0.181,
+   "cost_usd_list": 0.3621,
+   "wall_seconds": 30.2,
+   "result_file": "eval/results/families-plan-ratchet-wrench-2025-litellm.json"
+  },
+  {
+   "case_id": "server-cable-2023",
+   "family": "cables_harnesses",
+   "target": "Malaysia",
+   "cbp_current_origin": null,
+   "engine_current_origin": "Malaysia",
+   "engine_current_confidence": 0.85,
+   "moves_searched": 3,
+   "shown_plans": 0,
+   "best_plan": null,
+   "best_supporting_ruling": null,
+   "best_verifier_confidence": null,
+   "outcome": "no plan above the 0.92 bar: send to a broker",
+   "backtest": {
+    "source": "CBP ruling N331047, scenario three: CBP held Malaysia",
+    "plan": "no precedent-supported plan",
+    "actual_moved": [
+     "Copper wire"
+    ],
+    "moved_by_plan": null,
+    "in_actual_change_not_in_plan": [
+     "Copper wire"
+    ]
+   },
+   "cost_usd_promo": 0.0895,
+   "cost_usd_list": 0.179,
+   "wall_seconds": 32.6,
+   "result_file": "eval/results/families-plan-server-cable-2023-litellm.json"
+  },
+  {
+   "case_id": "smartwatch-charger-2025",
+   "family": "power_supplies_chargers",
+   "target": "Vietnam",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "China",
+   "engine_current_confidence": 0.98,
+   "moves_searched": 3,
+   "shown_plans": 1,
+   "best_plan": "Make PCBA (SMT) and Power conversion or charging module in Vietnam",
+   "best_supporting_ruling": "N333268",
+   "best_verifier_confidence": 0.96,
+   "outcome": "precedent-supported plan",
+   "backtest": null,
+   "cost_usd_promo": 0.1187,
+   "cost_usd_list": 0.2374,
+   "wall_seconds": 28.1,
+   "result_file": "eval/results/families-plan-smartwatch-charger-2025-litellm.json"
+  },
+  {
+   "case_id": "speaker-stand-2023",
+   "family": "furniture",
+   "target": "Malaysia",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "Malaysia",
+   "engine_current_confidence": 0.78,
+   "moves_searched": 1,
+   "shown_plans": 0,
+   "best_plan": null,
+   "best_supporting_ruling": null,
+   "best_verifier_confidence": null,
+   "outcome": "no plan above the 0.92 bar: send to a broker",
+   "backtest": null,
+   "cost_usd_promo": 0.0487,
+   "cost_usd_list": 0.0973,
+   "wall_seconds": 32.0,
+   "result_file": "eval/results/families-plan-speaker-stand-2023-litellm.json"
+  },
+  {
+   "case_id": "speed-sensor-2024",
+   "family": "vehicle_parts",
+   "target": "Thailand",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "Thailand",
+   "engine_current_confidence": 0.92,
+   "moves_searched": 1,
+   "shown_plans": 1,
+   "best_plan": "Make Electromechanical core (motor, coil, sensor) in Thailand",
+   "best_supporting_ruling": "N343950",
+   "best_verifier_confidence": 0.98,
+   "outcome": "precedent-supported plan",
+   "backtest": {
+    "source": "CBP ruling N344809 (10 Jan 2025): CBP held Thailand",
+    "plan": "Make Electromechanical core (motor, coil, sensor) in Thailand",
+    "actual_moved": [
+     "Hall Effect sensor integrated circuit (IC)"
+    ],
+    "moved_by_plan": [
+     "Hall Effect sensor integrated circuit (IC)"
+    ],
+    "in_actual_change_not_in_plan": null
+   },
+   "cost_usd_promo": 0.0385,
+   "cost_usd_list": 0.077,
+   "wall_seconds": 22.1,
+   "result_file": "eval/results/families-plan-speed-sensor-2024-litellm.json"
+  },
+  {
+   "case_id": "usb-hub-2024",
+   "family": "pcba_electronic_devices",
+   "target": "Taiwan",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "China",
+   "engine_current_confidence": 0.98,
+   "moves_searched": 1,
+   "shown_plans": 1,
+   "best_plan": "Make PCBA (SMT) in Taiwan",
+   "best_supporting_ruling": "N339405",
+   "best_verifier_confidence": 0.96,
+   "outcome": "precedent-supported plan",
+   "backtest": {
+    "source": "CBP ruling N342837 (3 Oct 2024): CBP held Taiwan",
+    "plan": "Make PCBA (SMT) in Taiwan",
+    "actual_moved": [
+     "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports"
+    ],
+    "moved_by_plan": [
+     "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports"
+    ],
+    "in_actual_change_not_in_plan": null
+   },
+   "cost_usd_promo": 0.0463,
+   "cost_usd_list": 0.0927,
+   "wall_seconds": 26.6,
+   "result_file": "eval/results/families-plan-usb-hub-2024-litellm.json"
+  },
+  {
+   "case_id": "water-dispenser-2025",
+   "family": "water_filters",
+   "target": "South Korea",
+   "cbp_current_origin": "China",
+   "engine_current_origin": "South Korea",
+   "engine_current_confidence": 0.85,
+   "moves_searched": 3,
+   "shown_plans": 0,
+   "best_plan": null,
+   "best_supporting_ruling": null,
+   "best_verifier_confidence": null,
+   "outcome": "no plan above the 0.92 bar: send to a broker",
+   "backtest": null,
+   "cost_usd_promo": 0.1353,
+   "cost_usd_list": 0.2705,
+   "wall_seconds": 62.5,
+   "result_file": "eval/results/families-plan-water-dispenser-2025-litellm.json"
+  }
+ ]
+}

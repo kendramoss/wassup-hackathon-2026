@@ -4,7 +4,7 @@
  "labelled": 840,
  "label_errors": 5,
  "label_cost_usd": 0.8721,
- "rule": "Pick assembled-goods categories with at least 10 assembled rulings in the pool that no template covers; leave out regimes with their own engines (textiles, pharmaceuticals), processed goods (food, chemicals, paper) and categories that mix unrelated products (machinery_industrial, metal_articles_fasteners, household_goods except gas grills, toys_sporting_goods, plastic_rubber_articles, other).",
+ "rule": "Pick assembled-goods categories with at least 10 assembled rulings in the pool that no template covers; leave out regimes with their own engines (textiles, pharmaceuticals), processed goods (food, chemicals, paper) and categories that mix unrelated products (machinery_industrial, metal_articles_fasteners, household_goods except gas grills, toys_sporting_goods, plastic_rubber_articles, other). electric_motors_pumps_compressors (10 assembled) was left out as a separate family: motors are a group of the motorised template, and pumps and compressors overlap vehicle parts and machinery; it is the next candidate.",
  "categories": [
   {
    "category": "vehicle_parts",

@@ -1,0 +1,503 @@
+{
+  "case_id": "server-cable-2023",
+  "target": "Malaysia",
+  "family": "cables_harnesses",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a YV3 paddle card to silver cable assembly (part number 2358571-3). A cable assembly used to connect and transmit data between a motherboard and network card within a network server. It comprises high-speed data cables, ribbon cables, and low-speed power cables bound together and terminated with specialized terminal connectors and connection printed circuit boards (PCBs). The YV3 paddle card to silver cable assembly (part number 2358571-3) is assembled in China using components sourced from China and Malaysia.\n\nThe Copper wire, Connection Printed Circuit Board (PCB) and Molded pieces for end connectors are produced in China. The High-speed data cable (insulated wire with mylar tape shield, two copper drain wires, and outer tape) and Low-speed power cables (three insulated copper wires) are sourced from Malaysia. \n\nFinal assembly in China: Cut individual cables to length and cut ends; Solder cable ends onto connection Printed Circuit Board (PCB); Assemble molded pieces for connectors on each end; Tape cables together and package finished cable assemblies for export.\n",
+    "prediction": {
+      "origin_country": "Malaysia",
+      "key_factors": [
+        "High-speed data cables and low-speed power cables"
+      ],
+      "decisive_step": "Manufacturing of the insulated and shielded data and power cables in Malaysia",
+      "confidence": 0.85,
+      "reasoning": "In cable assembly rulings, CBP consistently holds that cutting bulk cable to length, stripping ends, and terminating them with connectors and paddle card PCBs via soldering and molding do not constitute a substantial transformation. The essential character of a data/power cable assembly is imparted by the insulated and shielded cables themselves, which provide the core conductive and data-transmission functionality. Because the high-speed data cables and low-speed power cables are manufactured in Malaysia, the country of origin is Malaysia.",
+      "cited_rulings": [],
+      "precedents": [
+        "N329847",
+        "N330057",
+        "N330201",
+        "N330296",
+        "N330771"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2817,
+        "output_tokens": 195,
+        "latency_ms": 7958
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [
+        {
+          "group": "conductor_core_making",
+          "to_plant": "my"
+        }
+      ],
+      "description": "Make Wire conductor making in Malaysia",
+      "variant_facts": "The merchandise under consideration is a YV3 paddle card to silver cable assembly (part number 2358571-3). A cable assembly used to connect and transmit data between a motherboard and network card within a network server. It comprises high-speed data cables, ribbon cables, and low-speed power cables bound together and terminated with specialized terminal connectors and connection printed circuit boards (PCBs). The YV3 paddle card to silver cable assembly (part number 2358571-3) is assembled in China using components sourced from Malaysia and China.\n\nThe Copper wire, High-speed data cable (insulated wire with mylar tape shield, two copper drain wires, and outer tape) and Low-speed power cables (three insulated copper wires) are produced in Malaysia. The Connection Printed Circuit Board (PCB) and Molded pieces for end connectors are produced in China. \n\nIn Malaysia, the Copper wire will be produced in-house: Produce copper wire.\n\nFinal assembly in China: Cut individual cables to length and cut ends; Solder cable ends onto connection Printed Circuit Board (PCB); Assemble molded pieces for connectors on each end; Tape cables together and package finished cable assemblies for export.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "The high-speed data and low-speed power cables produced in Malaysia"
+        ],
+        "decisive_step": "Manufacturing of the copper wire and specialized data and power cables in Malaysia",
+        "confidence": 0.9,
+        "reasoning": "The essential character of the cable assembly is imparted by the data and power cables, which provide the core functionality of transmitting data and power. These cables are completely manufactured from copper wire in Malaysia. The subsequent operations in China—cutting the cables to length, soldering ends onto connection PCBs, attaching molded connector pieces, and taping—constitute simple assembly and finishing operations that do not substantially transform the Malaysian-origin cables into a new and different article of commerce.",
+        "cited_rulings": [],
+        "precedents": [
+          "N329847",
+          "N330057",
+          "N330201",
+          "N330296",
+          "N330771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2835,
+          "output_tokens": 201,
+          "latency_ms": 10753
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "confidence": 0.55,
+        "reasoning": "No directly comparable cable assembly rulings were returned by the search index. Under general CBP substantial transformation doctrine for cable assemblies, the essential character of a data/power cable assembly is imparted by the extruded, insulated, and shielded cables (high-speed data cables and low-speed power cables) rather than simple final assembly operations (cutting to length, soldering ends onto connection PCBs, attaching connector housings, and taping). Because the high-speed data cables and low-speed power cables are produced in Malaysia in both variants, moving the raw copper wire production from China to Malaysia does not alter the country of origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "paddle card cable assembly copper wire Malaysia China",
+            "rulings": [
+              "N330771",
+              "N330057",
+              "N330296",
+              "N330201",
+              "N329837",
+              "N329847",
+              "N330623",
+              "N330880"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly copper wire extruded insulated wire origin",
+            "rulings": [
+              "N330201",
+              "N330771",
+              "N329837",
+              "N329847",
+              "N330623",
+              "N330880",
+              "N330075",
+              "N329943"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "high-speed data cable assembly connector PCB solder China",
+            "rulings": [
+              "N330296",
+              "N330771",
+              "N330057",
+              "H323941",
+              "N329847",
+              "N329943",
+              "N329837",
+              "N330505"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"country of origin of\" \"cable\" OR \"cables\" OR \"harness\"",
+            "rulings": [
+              "N330296",
+              "N330771",
+              "N330321",
+              "N330391",
+              "N330098",
+              "N330369",
+              "H326590",
+              "N330420"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"copper wire\" \"cable\" origin",
+            "rulings": [
+              "N330771",
+              "N330201",
+              "N329837",
+              "N330623",
+              "N330880",
+              "N329847",
+              "N330391",
+              "N330321"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"cable assembly\" OR \"cable assemblies\" OR \"wire harness\"",
+            "rulings": [
+              "N330771",
+              "N330201",
+              "N329847",
+              "N330057",
+              "N330623",
+              "N330880",
+              "N330075",
+              "N330505"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 7426,
+          "output_tokens": 359,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 17500,
+      "net_per_year": -17500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "my"
+        }
+      ],
+      "description": "Make Connectors and housings in Malaysia",
+      "variant_facts": "The merchandise under consideration is a YV3 paddle card to silver cable assembly (part number 2358571-3). A cable assembly used to connect and transmit data between a motherboard and network card within a network server. It comprises high-speed data cables, ribbon cables, and low-speed power cables bound together and terminated with specialized terminal connectors and connection printed circuit boards (PCBs). The YV3 paddle card to silver cable assembly (part number 2358571-3) is assembled in China using components sourced from China and Malaysia.\n\nThe Copper wire are produced in China. The High-speed data cable (insulated wire with mylar tape shield, two copper drain wires, and outer tape), Low-speed power cables (three insulated copper wires), Connection Printed Circuit Board (PCB) and Molded pieces for end connectors are sourced from Malaysia. \n\nIn Malaysia, the Connection Printed Circuit Board (PCB) and Molded pieces for end connectors will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Cut individual cables to length and cut ends; Solder cable ends onto connection Printed Circuit Board (PCB); Assemble molded pieces for connectors on each end; Tape cables together and package finished cable assemblies for export.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "High-speed data cables, low-speed power cables, and connection PCBs"
+        ],
+        "decisive_step": "Manufacturing of the specialized cables, connection PCBs, and connector components in Malaysia",
+        "confidence": 0.85,
+        "reasoning": "Under CBP precedent for cable assemblies, cutting cables to length, soldering ends to PCBs, attaching connector housings, and taping in China constitute simple assembly that does not substantially transform the components. The essential character of the cable assembly is imparted by the high-speed data cables, power cables, and connection PCBs, all of which are produced in Malaysia. Because the components have a pre-determined end-use prior to export to China, the country of origin is Malaysia.",
+        "cited_rulings": [],
+        "precedents": [
+          "N329847",
+          "N330057",
+          "N330201",
+          "N330296",
+          "N330771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2892,
+          "output_tokens": 202,
+          "latency_ms": 7136
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "confidence": 0.65,
+        "reasoning": "No directly comparable ruling on cable assemblies was found in the database, so general substantial transformation doctrine applies. For cable assemblies, CBP consistently holds that the insulated cables/wires impart the essential character (their conductive/data-transmission function is predetermined), and that cutting cables to length, stripping ends, soldering onto connection PCBs, attaching molded connector shells, and taping in a second country constitute simple assembly that does not substantially transform the cables. Since the high-speed data cables and low-speed power cables originate in Malaysia in both variants, the country of origin remains Malaysia in both cases.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "paddle card cable assembly China Malaysia",
+            "rulings": [
+              "N330057",
+              "N330296",
+              "N330075",
+              "N329943",
+              "N329847",
+              "N330771",
+              "H326590",
+              "N329837"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly cut length solder connector China origin",
+            "rulings": [
+              "N330771",
+              "N330296",
+              "N330201",
+              "N330623",
+              "N329837",
+              "N330880",
+              "N326416",
+              "N330075"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly wire China Mexico Vietnam Malaysia origin",
+            "rulings": [
+              "N330201",
+              "N330771",
+              "N330057",
+              "N329947",
+              "N330058",
+              "N330744",
+              "N330505",
+              "H321332"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "high-speed data cable assembly connector PCB substantial transformation",
+            "rulings": [
+              "N330296",
+              "N330771",
+              "N330057",
+              "H323941",
+              "N329943",
+              "N329847",
+              "N329837",
+              "N330505"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"cable assembly\" OR \"cable assemblies\" OR \"wire harness\"",
+            "rulings": [
+              "N330771",
+              "N330201",
+              "N329847",
+              "N330057",
+              "N330623",
+              "N330880",
+              "N330075",
+              "N330505"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N330771",
+            "rulings": [
+              "N330771"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 8943,
+          "output_tokens": 342,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 7500,
+      "net_per_year": -7500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "conductor_core_making",
+          "to_plant": "my"
+        },
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "my"
+        }
+      ],
+      "description": "Make Wire conductor making and Connectors and housings in Malaysia",
+      "variant_facts": "The merchandise under consideration is a YV3 paddle card to silver cable assembly (part number 2358571-3). A cable assembly used to connect and transmit data between a motherboard and network card within a network server. It comprises high-speed data cables, ribbon cables, and low-speed power cables bound together and terminated with specialized terminal connectors and connection printed circuit boards (PCBs). The YV3 paddle card to silver cable assembly (part number 2358571-3) is assembled in China using components sourced from Malaysia.\n\nThe Copper wire, High-speed data cable (insulated wire with mylar tape shield, two copper drain wires, and outer tape), Low-speed power cables (three insulated copper wires), Connection Printed Circuit Board (PCB) and Molded pieces for end connectors are produced in Malaysia. \n\nIn Malaysia, the Copper wire will be produced in-house: Produce copper wire.\n\nIn Malaysia, the Connection Printed Circuit Board (PCB) and Molded pieces for end connectors will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Cut individual cables to length and cut ends; Solder cable ends onto connection Printed Circuit Board (PCB); Assemble molded pieces for connectors on each end; Tape cables together and package finished cable assemblies for export.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "The high-speed data cables, low-speed power cables, connection PCBs, and connector components manufactured in Malaysia"
+        ],
+        "decisive_step": "Manufacturing of the copper wire, cables, connection PCBs, and connector parts in Malaysia",
+        "confidence": 0.92,
+        "reasoning": "In Malaysia, raw materials are substantially transformed into the key functional components—copper wires, insulated cables, connection PCBs, and connector housings—which impart the essential character of the data/power transmission assembly. The processing in China is limited to cutting cables to length, stripping ends, soldering onto the pre-made PCBs, attaching connector housings, and taping. Under established CBP precedent for cable assemblies, cutting, stripping, soldering, and terminating pre-manufactured cables and connectors constitutes mere assembly and does not result in a substantial transformation.",
+        "cited_rulings": [],
+        "precedents": [
+          "N329847",
+          "N330057",
+          "N330201",
+          "N330296",
+          "N330771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2903,
+          "output_tokens": 220,
+          "latency_ms": 8335
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "confidence": 0.65,
+        "reasoning": "No directly comparable cable assembly ruling was returned in search. Under general CBP substantial transformation doctrine for cables and wire harnesses, cutting bulk wire/cable to length, soldering ends onto connection PCBs, and attaching molded connector shells is considered simple assembly that does not substantially transform the underlying cable and connector components. In Variant A, the copper wire, connection PCBs, and connector pieces are produced in China (along with final assembly), conferring Chinese origin. In Variant B, all constituent components (cables, copper wire, PCBs, and connector pieces) are manufactured in Malaysia, so origin shifts to Malaysia despite final assembly in China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "high-speed data cable assembly connectors soldered PCB origin",
+            "rulings": [
+              "N330771",
+              "N330296",
+              "N329847",
+              "N330057",
+              "H323941",
+              "N329943",
+              "N330505",
+              "N330513"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly paddle card motherboard network server PCB China Malaysia",
+            "rulings": [
+              "N330296",
+              "N330057",
+              "H323941",
+              "H327732",
+              "N330075",
+              "N329943",
+              "N329847",
+              "N330771"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly cut to length solder PCB connectors China",
+            "rulings": [
+              "N330296",
+              "N330771",
+              "N330057",
+              "N330201",
+              "N330623",
+              "N329847",
+              "N330880",
+              "N326416"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire harness OR power cord OR data cable origin",
+            "rulings": [
+              "N330771",
+              "H323941",
+              "N330296",
+              "N330201",
+              "N329943",
+              "N330505",
+              "N330623",
+              "N330513"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cable assembly country of origin",
+            "rulings": [
+              "N330075",
+              "N329943",
+              "H326590",
+              "N329837",
+              "N330771",
+              "N329847",
+              "N330296",
+              "N329854"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"cable assembly\" OR \"cable assemblies\" origin",
+            "rulings": [
+              "N330771",
+              "N330057",
+              "N330075",
+              "N330505",
+              "N329943",
+              "H326590",
+              "N329837",
+              "N329847"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2",
+          "input_tokens": 7592,
+          "output_tokens": 350,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N331047, scenario three: CBP held Malaysia",
+    "plan": "no precedent-supported plan",
+    "actual_moved": [
+      "Copper wire"
+    ],
+    "moved_by_plan": null,
+    "in_actual_change_not_in_plan": [
+      "Copper wire"
+    ]
+  },
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 9,
+    "verifier_tool_calls": 18,
+    "input_tokens": 35408,
+    "output_tokens": 1869,
+    "engine_input_tokens": 11447,
+    "engine_output_tokens": 818,
+    "verifier_input_tokens": 23961,
+    "verifier_output_tokens": 1051,
+    "wall_seconds": 32.64543175
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "cables_harnesses": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.089506,
+  "cost_usd_list": 0.179012,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:07:13+08:00"
+}

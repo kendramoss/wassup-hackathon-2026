@@ -1,0 +1,498 @@
+{
+  "case_id": "water-dispenser-2025",
+  "target": "South Korea",
+  "family": "water_filters",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Electric water filter dispenser. A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element. The Electric water filter dispenser is assembled in China using components sourced from South Korea and China.\n\nThe carbon block are produced in South Korea. The filter element housing parts, transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel are produced in China. \n\nFinal assembly in China: assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack.\n",
+    "prediction": {
+      "origin_country": "South Korea",
+      "key_factors": [
+        "Carbon block filter element"
+      ],
+      "decisive_step": "Manufacturing of the carbon block in South Korea",
+      "confidence": 0.85,
+      "reasoning": "Following CBP precedents N347698 and N348710, the essential character of a water filtration device is imparted by the carbon block, which performs the core purifying function via adsorption. Although the tank, lid, and electric pumping unit (with PCB and battery) are produced in China, combining them with the filter element in China is a simple assembly operation that does not substantially transform the South Korean carbon block.",
+      "cited_rulings": [
+        "N348710",
+        "N347698"
+      ],
+      "precedents": [
+        "N347101",
+        "N347698",
+        "N348086",
+        "N348710",
+        "N348711"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 3013,
+        "output_tokens": 185,
+        "latency_ms": 7144
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348298"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Electric water filter dispenser. A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element. The Electric water filter dispenser is assembled in China using components sourced from South Korea and China.\n\nThe carbon block are produced in South Korea. The filter element housing parts, transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel are produced in China. \n\nFinal assembly in China: assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Carbon block filter element"
+        ],
+        "decisive_step": "Manufacturing of the carbon block in South Korea",
+        "confidence": 0.85,
+        "reasoning": "Following CBP precedents N347698 and N348710, the essential character of a water filtration device is imparted by the carbon block, which performs the core purifying function via adsorption. Although the tank, lid, and electric pumping unit (with PCB and battery) are produced in China, combining them with the filter element in China is a simple assembly operation that does not substantially transform the South Korean carbon block.",
+        "cited_rulings": [
+          "N348710",
+          "N347698"
+        ],
+        "precedents": [
+          "N347101",
+          "N347698",
+          "N348086",
+          "N348710",
+          "N348711"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 3013,
+          "output_tokens": 185,
+          "latency_ms": 7144
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N348298); engine predicts South Korea",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "dispenser_electronics",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Make Tanks, pumps and electronics in South Korea",
+      "variant_facts": "The merchandise under consideration is a Electric water filter dispenser. A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element. The Electric water filter dispenser is assembled in China using components sourced from South Korea and China.\n\nThe carbon block, transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel are produced in South Korea. The filter element housing parts are produced in China. \n\nIn South Korea, the transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel will be produced in-house: manufacture upper and lower water chambers, transparent water tanks, lids, spigots, and stands; produce water pumping units with circuit boards, batteries, and touch screen panels; manufacture UV lamp assemblies, lamp PCBAs, quartz tubes, and RFID smart chip assemblies (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "South Korean carbon block and water pumping unit"
+        ],
+        "decisive_step": "Manufacturing of the carbon block, water pumping unit, and water tank in South Korea",
+        "confidence": 0.98,
+        "reasoning": "Following CBP precedent in N347698, N348710, and N347101, the carbon block imparts the essential character to water filtration systems. Furthermore, here the water pumping unit (including circuit board, battery, and touch panel) and the water tank are also manufactured in South Korea. The processing in China is limited to producing the plastic filter housing parts and performing simple final assembly and testing, which does not substantially transform the South Korean core components.",
+        "cited_rulings": [
+          "N347698",
+          "N348710",
+          "N347101"
+        ],
+        "precedents": [
+          "N336445",
+          "N347101",
+          "N347698",
+          "N348710",
+          "N348711"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2943,
+          "output_tokens": 200,
+          "latency_ms": 5362
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347698",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP held origin was China because, unlike passive water filter tanks (N347698) where the South Korean carbon block imparted the essential character, the electric dispenser's water pumping unit (with circuit board, battery, and touch panel) and tank were produced in China. In Variant B, production of the pumping unit, electronics, tank, and lid moves to South Korea, leaving only plastic filter element housing parts and simple final assembly/fitting in China. As seen in N347698 and N348086, simple filter element gluing/welding and tank fitting in China does not substantially transform the South Korean core components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "water filter dispenser carbon block South Korea China",
+            "rulings": [
+              "N347698",
+              "H339955",
+              "N348086",
+              "N348711",
+              "N348710",
+              "N347101",
+              "N333554",
+              "N348297"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter pitcher dispenser assembly China Korea",
+            "rulings": [
+              "H339955",
+              "N347698",
+              "N348711",
+              "N348086",
+              "N348710",
+              "N347101",
+              "N333554",
+              "N342996"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348086",
+            "rulings": [
+              "N348086"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348297",
+            "rulings": [
+              "N348297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347698",
+            "rulings": [
+              "N347698"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric water dispenser pump circuit board tank",
+            "rulings": [
+              "N345174",
+              "N344081",
+              "H337371",
+              "N347899",
+              "N344847",
+              "N347081",
+              "N345436",
+              "N343680"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14902,
+          "output_tokens": 396,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 270000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "cartridge_housings",
+          "to_plant": "kr"
+        },
+        {
+          "group": "dispenser_electronics",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Make Cartridge housings and seals and Tanks, pumps and electronics in South Korea",
+      "variant_facts": "The merchandise under consideration is a Electric water filter dispenser. A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element. The Electric water filter dispenser is assembled in China using components sourced from South Korea.\n\nThe carbon block, filter element housing parts, transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel are produced in South Korea. \n\nIn South Korea, the filter element housing parts will be produced in-house: mold plastic filter bodies, sumps, upper covers, middle covers, and bottom endcaps; produce O-rings, check valves, flow regulators, non-woven fabrics, pre-filters, and outer wraps (assumed from the product-family template; no operations were supplied for this group).\n\nIn South Korea, the transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel will be produced in-house: manufacture upper and lower water chambers, transparent water tanks, lids, spigots, and stands; produce water pumping units with circuit boards, batteries, and touch screen panels; manufacture UV lamp assemblies, lamp PCBAs, quartz tubes, and RFID smart chip assemblies (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Carbon block filter element and water pumping unit"
+        ],
+        "decisive_step": "Manufacturing of the carbon block, water pumping unit, and tank components in South Korea",
+        "confidence": 0.99,
+        "reasoning": "Following N347698 and N348710, the essential character of water filtration devices is imparted by the functional filtering media (the carbon block), as well as the active pumping unit here. In this case, all major components—including the carbon block, filter housing, water pumping unit with PCBA/battery, and tank—are manufactured in South Korea. The final assembly, testing, and packing in China are simple combining operations that do not substantially transform the South Korean components.",
+        "cited_rulings": [
+          "N347698",
+          "N348710"
+        ],
+        "precedents": [
+          "H339955",
+          "N347101",
+          "N347698",
+          "N348297",
+          "N348710"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 3019,
+          "output_tokens": 195,
+          "latency_ms": 6949
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347698",
+        "counter_ruling": "H339955",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, although the carbon block was made in South Korea, the filter housing, water tank, lid, and electric pumping unit (with circuit board, battery, and touch panel) were all produced and assembled in China, yielding Chinese origin. In Variant B, production of all major components—the carbon block, filter element housing, water tank, lid, and electric water pumping unit with circuit board and battery—shifts to South Korea, leaving only simple final assembly, testing, and packing in China. Consistent with N347698 and N333554, simple final assembly of water filtration devices in China does not substantially transform South Korean components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "water filter dispenser carbon block South Korea China",
+            "rulings": [
+              "N347698",
+              "H339955",
+              "N348086",
+              "N348711",
+              "N348710",
+              "N347101",
+              "N333554",
+              "N348297"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter assembly housing carbon block origin",
+            "rulings": [
+              "N347698",
+              "N333554",
+              "N348711",
+              "N348086",
+              "N348710",
+              "N348297",
+              "H339955",
+              "N347101"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water dispenser filter element pumping unit assembly China",
+            "rulings": [
+              "N347698",
+              "N348711",
+              "N348086",
+              "N348297",
+              "N348710",
+              "N347101",
+              "N346963",
+              "N333554"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333554",
+            "rulings": [
+              "N333554"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347698",
+            "rulings": [
+              "N347698"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346963",
+            "rulings": [
+              "N346963"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15572,
+          "output_tokens": 453,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 40000,
+      "net_per_year": 260000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "cartridge_housings",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Make Cartridge housings and seals in South Korea",
+      "variant_facts": "The merchandise under consideration is a Electric water filter dispenser. A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element. The Electric water filter dispenser is assembled in China using components sourced from South Korea and China.\n\nThe carbon block and filter element housing parts are produced in South Korea. The transparent water tank and tank lid and water pumping unit with circuit board, battery and touch panel are produced in China. \n\nIn South Korea, the filter element housing parts will be produced in-house: mold plastic filter bodies, sumps, upper covers, middle covers, and bottom endcaps; produce O-rings, check valves, flow regulators, non-woven fabrics, pre-filters, and outer wraps (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Carbon block filter element"
+        ],
+        "decisive_step": "Manufacturing of the carbon block and filter element components in South Korea",
+        "confidence": 0.9,
+        "reasoning": "Following CBP precedents for water filtration systems and dispensers (e.g., N347698, N348710, N347101), the essential character of a water filter dispenser is imparted by the filtration media—specifically the carbon block—which performs the primary purifying function. Here, both the carbon block and filter housing parts are manufactured in South Korea. The production of the tank and pumping unit, along with final assembly in China, does not substantially transform the South Korean filter components.",
+        "cited_rulings": [
+          "N348710",
+          "N347698",
+          "N347101"
+        ],
+        "precedents": [
+          "H339955",
+          "N347101",
+          "N347698",
+          "N348297",
+          "N348710"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2926,
+          "output_tokens": 207,
+          "latency_ms": 10120
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N347698",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP held origin is China (N348298) despite the South Korean carbon block, because the electric water pumping unit (circuit board, battery, touch panel), tank, lid, and assembly are in China. In Variant B, only the plastic filter housing parts and minor filter components (covers, O-rings, wraps) move to South Korea. As shown in N347698 and N348297, CBP considers filter housing shells and covers to be minor components compared to the functional core. Since the electric pumping unit, electronics, tank, and final assembly remain in China, moving the plastic filter housing parts does not change origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "water filter dispenser pumping unit tank circuit board",
+            "rulings": [
+              "N347698",
+              "N345174",
+              "N345644",
+              "N345850",
+              "N342996",
+              "N344910",
+              "N339653",
+              "H339955"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter carbon block housing assembly China South Korea",
+            "rulings": [
+              "N347698",
+              "H339955",
+              "N348086",
+              "N348711",
+              "N348710",
+              "N347101",
+              "N333554",
+              "N348297"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter dispenser carbon block South Korea China",
+            "rulings": [
+              "N347698",
+              "H339955",
+              "N348086",
+              "N348711",
+              "N348710",
+              "N347101",
+              "N333554",
+              "N348297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348297",
+            "rulings": [
+              "N348297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347698",
+            "rulings": [
+              "N347698"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345850",
+            "rulings": [
+              "N345850"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14813,
+          "output_tokens": 452,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 10000,
+      "net_per_year": 290000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 12,
+    "verifier_tool_calls": 18,
+    "input_tokens": 57188,
+    "output_tokens": 2088,
+    "engine_input_tokens": 11901,
+    "engine_output_tokens": 787,
+    "verifier_input_tokens": 45287,
+    "verifier_output_tokens": 1301,
+    "wall_seconds": 62.494168834
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "water_filters": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.135256,
+  "cost_usd_list": 0.270512,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:05:34+08:00"
+}
