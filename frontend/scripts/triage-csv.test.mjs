@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { csvNumber, csvText, preview } from "../src/lib/triage-csv.ts";
 
@@ -39,4 +40,13 @@ test("numeric columns stay numeric; nonfinite numbers are emitted as safe text",
     const cell = csvNumber(v);
     assert.equal(/^[=+\-@]/.test(cell), false, `${cell} must not be a formula`);
   }
+});
+
+// Issue #492 / D265: the CSV's first confidence column is the model's own
+// number. Its header must say so; an unlabelled "confidence" invited readers
+// to treat the stated value as the calibrated one shown on the Result screen.
+test("triage CSV labels the model's own confidence column", () => {
+  const src = readFileSync(new URL("../src/components/op/screens/triage-page.tsx", import.meta.url), "utf8");
+  assert.match(src, /\[\s*"confidence",\s*"stated_confidence"\s*\]/);
+  assert.doesNotMatch(src, /\[\s*"name",\s*"case_id",\s*"predicted_origin",\s*"confidence"/);
 });

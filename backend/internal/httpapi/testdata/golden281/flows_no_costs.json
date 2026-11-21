@@ -146,7 +146,7 @@
     "input_tokens": 4000,
     "kind": "scenarios",
     "output_tokens": 300,
-    "summary": "Motor in Thailand: Thailand 0.97"
+    "summary": "Motor in Thailand: Thailand, confidence 0.97 as stated by the model, not calibrated"
    },
    {
     "kind": "economics",
@@ -2874,7 +2874,7 @@
     "input_tokens": 4000,
     "kind": "scenarios",
     "output_tokens": 300,
-    "summary": "Motor in Thailand: Thailand 0.97"
+    "summary": "Motor in Thailand: Thailand, confidence 0.97 as stated by the model, not calibrated"
    }
   ],
   "id": "\u003cid\u003e",

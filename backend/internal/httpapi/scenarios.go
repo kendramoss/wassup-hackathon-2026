@@ -117,7 +117,7 @@ func (a *api) scenarios(w http.ResponseWriter, r *http.Request) {
 	var parts []string
 	var u usage
 	for i, s := range out {
-		parts = append(parts, fmt.Sprintf("%s: %s %.2f", s.Label, s.Prediction.Origin, s.Prediction.Confidence))
+		parts = append(parts, fmt.Sprintf("%s: %s, %s", s.Label, s.Prediction.Origin, confidencePhrase(s.Prediction)))
 		u.trace(s.Prediction.Trace)
 		u.label(labels[i])
 	}

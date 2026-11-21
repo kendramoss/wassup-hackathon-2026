@@ -257,7 +257,7 @@ func agentCaseText(c store.Case) string {
 		}
 	}
 	for _, s := range c.Scenarios {
-		fmt.Fprintf(&b, "SCENARIO %q: predicted %s at %.2f (%s)\n", s.Label, s.Prediction.Origin, s.Prediction.Confidence, s.Triage.Route)
+		fmt.Fprintf(&b, "SCENARIO %q: predicted %s, %s (%s)\n", s.Label, s.Prediction.Origin, confidencePhrase(s.Prediction), s.Triage.Route)
 	}
 	if c.Targets != nil {
 		for _, t := range c.Targets.Ranked {
