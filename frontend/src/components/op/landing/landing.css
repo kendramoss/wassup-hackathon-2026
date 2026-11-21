@@ -69,7 +69,7 @@
 .lp .f2 .head, .lp .f2 .foot { max-width: 1240px; width: 100%; margin: 0 auto; }
 .lp .f2 .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .lp .f2 .now { font-size: 13px; color: var(--body); min-height: 20px; }
-.lp .f2 .foot { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.lp .f2 .foot { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
 .lp .stage { position: relative; height: 380px; max-width: 1240px; width: 100%; margin: 0 auto; }
 .lp svg.path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .lp svg.path text { font-size: 11px; fill: var(--dim); }
@@ -100,6 +100,13 @@
 .lp .mini .small { margin-top: 8px; font-size: 11.5px; color: var(--dim); }
 .lp .mini .body { margin-top: 10px; color: var(--body); }
 .lp .mini .gap { margin-top: 10px; }
+/* #516: the Plan sheet carries the densest text. Keep the card's fixed
+   height and tighten only this sheet's note type so nothing spills out. */
+.lp .mini.plan .hd { padding-top: 6px; padding-bottom: 6px; }
+.lp .mini.plan .bd { padding: 6px 10px; }
+.lp .mini.plan .ft { padding-top: 4px; padding-bottom: 4px; }
+.lp .mini.plan .gap { margin-top: 6px; }
+.lp .mini.plan .small { margin-top: 5px; font-size: 10.5px; line-height: 1.35; }
 .lp .chip { display: inline-flex; gap: 4px; border: 1px solid var(--line); background: var(--sheet); padding: 1px 6px; font-size: 11px; white-space: nowrap; }
 .lp .chip.ok { border-color: var(--ok); color: var(--ok); background: var(--ok-wash); }
 .lp .letter { border: 1px solid var(--line); background: var(--sheet); padding: 10px; font-size: 11px; color: var(--body); line-height: 1.55; }

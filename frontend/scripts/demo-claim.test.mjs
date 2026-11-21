@@ -41,7 +41,7 @@ test("every landing 0.96 plan copy is labelled as a recorded 18 Oct run", () => 
   // in DEMO.md section 6 (its history: "7 moves searched, 1 shown"), so the
   // landing says the pinned case shows the same plan, no longer that it may not.
   assert.doesNotMatch(copy + landing, /may (?:instead )?show no plan above the bar/i);
-  assert.match(landing, /pinned case on this site shows the same plan at 0\.96/);
+  assert.match(landing, /pinned case shows 0\.96/);
   assert.match(demoDoc, /## 6\. Heat gun: the plan that clears the bar \(production, 18 Oct\)/);
   assert.match(demoDoc, /pinned case \(`case_878d76540b91`, updated 18 Oct\) shows the same plan at 0\.96/);
 });

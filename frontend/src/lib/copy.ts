@@ -337,6 +337,9 @@ export const copy = {
     // is also the caption in the server-rendered HTML, before motion runs.
     fig2NowStatic: "Product → origin → plan → draft, read in order.",
     fig2Foot: "The line is the heat gun's facts moving through the case",
+    // #516: the full "not blind" caveat lives on the figure's foot line; the
+    // fixed-height Plan sheet carries only a short summary of the backtest.
+    fig2BacktestNote: "Not blind: three-group moves were added after the team saw the change (D84).",
     wires: ["facts", "origin", "moves"],
     fig3: "fig.3 — how accurate is it",
     fig3Title: "Test sheet · 377 held-out CBP rulings",
