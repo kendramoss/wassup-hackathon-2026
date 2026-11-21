@@ -11,7 +11,9 @@
 // row and the request log line. The admin token and user token never reach
 // the API from here: this guard drops their headers, and the API's withUser
 // middleware also skips /mcp, so a verified identity cannot ride into a tool
-// call through the request context (issue #385).
+// call through the request context (issue #385). As defence in depth, every
+// tool request is built on a context that carries none of the outer
+// request's values (see call).
 //
 // Stateless: the server keeps no MCP session, so any instance can answer any
 // request (Cloud Run runs several).
@@ -93,7 +95,8 @@ Without an API key, predict_origin returns a case_access_key: pass it to every l
 // request. "Authorization: Bearer op_..." becomes X-API-Key (deployed, the
 // Authorization header otherwise holds the platform's identity token, which
 // is ignored). The admin token is refused outright, and the user token and
-// visitor ID are dropped: an MCP caller is an API key or anonymous. Without
+// visitor ID are dropped (and a broker review token): an MCP caller is an
+// API key or anonymous. Without
 // X-Client-IP (a direct local call) the connection address is used, so
 // anonymous callers get their own rate-limit bucket.
 func guard(next http.Handler) http.Handler {
@@ -111,7 +114,7 @@ func guard(next http.Handler) http.Handler {
 			key = tok
 		}
 		r = r.Clone(r.Context())
-		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "Cookie"} {
+		for _, h := range []string{"Authorization", "X-API-Key", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "Cookie"} {
 			r.Header.Del(h)
 		}
 		if key != "" {
@@ -164,6 +167,14 @@ func (r apiResult) ok() bool { return r.status >= 200 && r.status < 300 }
 
 // call dispatches c to the API handler with the caller's identity headers
 // only (from is the MCP request's header, already mapped by guard).
+//
+// The request is built on isolated(ctx): the tool call is cancelled with the
+// MCP request, but carries none of its context values. The API reads a
+// verified sign-in, an API key and the audit state from the context, and its
+// middleware has already run on POST /mcp, so a request built on that
+// context would act as whoever the outer request was (#385). The tool call's
+// principal comes only from the headers set here, which the API's middleware
+// checks again on the way in.
 func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult, error) {
 	if !strings.HasPrefix(c.path, "/v1/") {
 		return apiResult{}, fmt.Errorf("mcpserver: %q is not an API path", c.path)
@@ -182,7 +193,7 @@ func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult
 	if len(c.query) > 0 {
 		u += "?" + c.query.Encode()
 	}
-	req, err := http.NewRequestWithContext(ctx, c.method, u, body)
+	req, err := http.NewRequestWithContext(isolated(ctx), c.method, u, body)
 	if err != nil {
 		return apiResult{}, err
 	}
@@ -225,6 +236,14 @@ func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult
 	}
 	return out, nil
 }
+
+// valueless is a context's cancellation and deadline without its values.
+type valueless struct{ context.Context }
+
+func (valueless) Value(any) any { return nil }
+
+// isolated returns ctx without any of its values (see call).
+func isolated(ctx context.Context) context.Context { return valueless{ctx} }
 
 // recorder collects an in-process response.
 type recorder struct {

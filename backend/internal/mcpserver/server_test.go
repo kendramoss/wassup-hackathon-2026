@@ -124,7 +124,7 @@ func TestToolsListedAndSearchOptional(t *testing.T) {
 func TestPredictForwardsOnlyIdentityAndSummarises(t *testing.T) {
 	api := &stubAPI{body: map[string]string{"POST /v1/cases/predict": predicted}, code: map[string]int{"POST /v1/cases/predict": 201}}
 	cs := connect(t, api, false, map[string]string{
-		"Authorization": "Bearer op_abc", "X-User-Token": "user-jwt", "X-Visitor-ID": "visitor-0123456789abcdef", "Cookie": "op_visitor=x", "X-Client-IP": "198.51.100.1",
+		"Authorization": "Bearer op_abc", "X-User-Token": "user-jwt", "X-Visitor-ID": "visitor-0123456789abcdef", "Cookie": "op_visitor=x", "X-Review-Token": "ubr_link", "X-Client-IP": "198.51.100.1",
 	})
 	res, txt, out := call(t, cs, "predict_origin", map[string]any{"facts": "A heat gun assembled in Thailand from Chinese parts."})
 	if res.IsError {
@@ -134,7 +134,7 @@ func TestPredictForwardsOnlyIdentityAndSummarises(t *testing.T) {
 	if r.Header.Get("X-API-Key") != "op_abc" || r.Header.Get("X-Client-IP") != "198.51.100.1" {
 		t.Errorf("identity not forwarded: %v", r.Header)
 	}
-	for _, h := range []string{"Authorization", "X-User-Token", "X-Visitor-ID", "Cookie", "X-Admin-Token"} {
+	for _, h := range []string{"Authorization", "X-User-Token", "X-Visitor-ID", "X-Review-Token", "Cookie", "X-Admin-Token"} {
 		if r.Header.Get(h) != "" {
 			t.Errorf("%s forwarded to the API", h)
 		}
@@ -227,5 +227,52 @@ func TestConfPhraseNamesCalibration(t *testing.T) {
 	}
 	if got := confPhrase(map[string]any{"confidence": 0.97}); got != "confidence 97% as stated by the model, not calibrated" {
 		t.Errorf("stated only: %q", got)
+	}
+}
+
+type outerKey struct{}
+
+// A tool call's request carries none of the MCP request's context values
+// (#385): the API's middleware runs on POST /mcp first and stores a verified
+// identity there, which must not reach the tool call. Cancellation still
+// reaches it.
+func TestToolRequestsDoNotInheritContextValues(t *testing.T) {
+	type seen struct {
+		value any
+		done  bool
+	}
+	got := make(chan seen, 1)
+	api := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got <- seen{value: r.Context().Value(outerKey{}), done: r.Context().Done() != nil}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"cases":[]}`))
+	})
+	inner := New(Options{API: api, Families: []string{"motorised_tools_small_appliances"}})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		inner.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), outerKey{}, "signed-in user")))
+	}))
+	t.Cleanup(srv.Close)
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "t", Version: "0"}, nil).Connect(context.Background(),
+		&mcp.StreamableClientTransport{Endpoint: srv.URL, DisableStandaloneSSE: true}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = cs.Close() })
+	call(t, cs, "list_cases", nil)
+	s := <-got
+	if s.value != nil {
+		t.Errorf("the tool request inherited %v from the MCP request's context", s.value)
+	}
+	if !s.done {
+		t.Error("the tool request cannot be cancelled")
+	}
+	ctx, cancel := context.WithCancel(context.WithValue(context.Background(), outerKey{}, 1))
+	iso := isolated(ctx)
+	if v := iso.Value(outerKey{}); v != nil {
+		t.Errorf("isolated kept a value: %v", v)
+	}
+	cancel()
+	if iso.Err() == nil {
+		t.Error("isolated is not cancelled with its parent")
 	}
 }
