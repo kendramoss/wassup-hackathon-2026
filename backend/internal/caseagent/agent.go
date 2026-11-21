@@ -144,6 +144,16 @@ type WhatIf struct {
 	Provisional string       `json:"provisional,omitempty"`
 }
 
+// confidencePhrase names the calibrated probability when one applies and
+// labels the model's own value, so Ask cannot quote two different numbers for
+// one prediction without explaining them (issue #402, D161).
+func (w WhatIf) confidencePhrase() string {
+	if w.CalibratedConfidence != nil {
+		return fmt.Sprintf("calibrated %.2f; model stated %.2f", *w.CalibratedConfidence, w.Confidence)
+	}
+	return fmt.Sprintf("confidence %.2f as stated by the model, not calibrated", w.Confidence)
+}
+
 // Step is one tool call.
 type Step struct {
 	Tool string `json:"tool"`
@@ -410,8 +420,8 @@ func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change string) (Wh
 			w.Route, w.Reason = domain.RouteNeedsReview, "regime not confirmed ("+w.Provisional+"); seam said: "+w.Reason
 			k.Route, k.Reason = w.Route, w.Reason
 		}
-		text := fmt.Sprintf("origin %s, confidence %.2f, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: %s. Review route: %s (%s).",
-			p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Regime, k.Route, k.Reason)
+		text := fmt.Sprintf("origin %s, %s, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: %s. Review route: %s (%s).",
+			p.Origin, w.confidencePhrase(), p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Regime, k.Route, k.Reason)
 		if w.Provisional != "" {
 			text += " PROVISIONAL: " + w.Provisional + "; an expert reviews. Do not present this origin as settled."
 		}
@@ -425,10 +435,10 @@ func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change string) (Wh
 		return WhatIf{}, "", err
 	}
 	p := res.Prediction
-	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts, Regime: "unclassified",
+	w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, CalibratedConfidence: p.CalibratedConfidence, Decisive: p.DecisiveStep, Facts: c.Facts, Regime: "unclassified",
 		Provisional: "this run had no regime dispatch or review route"}
-	text := fmt.Sprintf("origin %s, confidence %.2f, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: unclassified. PROVISIONAL: %s; an expert reviews. Do not present this origin as settled or regime-correct.",
-		p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Provisional)
+	text := fmt.Sprintf("origin %s, %s, decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Regime that answered: unclassified. PROVISIONAL: %s; an expert reviews. Do not present this origin as settled or regime-correct.",
+		p.Origin, w.confidencePhrase(), p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), w.Provisional)
 	return w, text, nil
 }
 

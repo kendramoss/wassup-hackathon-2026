@@ -34,11 +34,16 @@ type BatchRow struct {
 	CaseID     string   `json:"case_id,omitempty"`
 	Origin     string   `json:"predicted_origin,omitempty"`
 	Confidence *float64 `json:"confidence,omitempty"`
-	Route      string   `json:"triage_route,omitempty"`
-	OutOfScope bool     `json:"out_of_scope"`
-	Reason     string   `json:"reason,omitempty"`
-	CostUSD    float64  `json:"cost_usd,omitempty"`
-	Error      *string  `json:"error"` // null when the case was analysed
+	// CalibratedConfidence and Calibration are the map's probability and
+	// version when one applied (D160, #402). They travel with the row so the
+	// triage screen and CSV can show the same number the reason quotes.
+	CalibratedConfidence *float64 `json:"calibrated_confidence,omitempty"`
+	Calibration          string   `json:"calibration,omitempty"`
+	Route                string   `json:"triage_route,omitempty"`
+	OutOfScope           bool     `json:"out_of_scope"`
+	Reason               string   `json:"reason,omitempty"`
+	CostUSD              float64  `json:"cost_usd,omitempty"`
+	Error                *string  `json:"error"` // null when the case was analysed
 }
 
 // batch triages a portfolio (D47): up to MaxBatch products, each by its
@@ -97,6 +102,7 @@ func (a *api) batch(w http.ResponseWriter, r *http.Request) {
 			}
 			conf := sc.Prediction.Confidence
 			rows[i].CaseID, rows[i].Origin, rows[i].Confidence = sc.ID, sc.Prediction.Origin, &conf
+			rows[i].CalibratedConfidence, rows[i].Calibration = sc.Prediction.CalibratedConfidence, sc.Prediction.Calibration
 			rows[i].Route, rows[i].Reason = string(sc.Triage.Route), sc.Triage.Reason
 			rows[i].OutOfScope = strings.HasPrefix(sc.Triage.Reason, "out of scope")
 			if n := len(sc.History); n > 0 {

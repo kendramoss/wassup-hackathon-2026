@@ -2268,7 +2268,12 @@ export interface operations {
                             name: string;
                             case_id?: string;
                             predicted_origin?: string;
+                            /** @description The model's stated confidence; read calibrated_confidence first when present (D160, #402) */
                             confidence?: number;
+                            /** @description Calibrated probability when a map applied to this prediction; the triage reason quotes this value */
+                            calibrated_confidence?: number;
+                            /** @description Calibration map version, e.g. cal-v2; absent when no map applied */
+                            calibration?: string;
                             /** @enum {string} */
                             triage_route?: "auto" | "needs_review" | "needs_info";
                             out_of_scope: boolean;
@@ -3421,7 +3426,10 @@ export interface operations {
                         product: components["schemas"]["Product"];
                         /** @description The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered */
                         old_origin: string;
+                        /** @description The model's stated confidence for the old BOM; read old_calibrated_confidence first when present (D160, #402) */
                         old_confidence?: number;
+                        /** @description Calibrated probability for the old BOM when a map applied */
+                        old_calibrated_confidence?: number;
                         /**
                          * @description case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new.
                          * @enum {string}
@@ -3431,7 +3439,12 @@ export interface operations {
                         case_origin: string;
                         /** @description Predicted origin for the new BOM (old_origin when nothing changed) */
                         new_origin: string;
+                        /** @description The model's stated confidence for the new BOM; read new_calibrated_confidence first when present (D160, #402) */
                         new_confidence: number;
+                        /** @description Calibrated probability for the new BOM when a map applied */
+                        new_calibrated_confidence?: number;
+                        /** @description Calibration map version for the calibrated values, e.g. cal-v2; absent when no map applied */
+                        calibration?: string;
                         /** @description new_origin differs from old_origin (both from the same kind of facts) */
                         origin_changed: boolean;
                         triage: components["schemas"]["Triage"];

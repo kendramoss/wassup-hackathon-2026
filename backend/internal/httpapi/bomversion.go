@@ -82,8 +82,11 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 	out := map[string]any{
 		"case_id": sc.ID, "changes": changes, "warnings": warnings, "product": p,
 		"old_origin": sc.Prediction.Origin, "old_confidence": sc.Prediction.Confidence,
-		"new_origin": sc.Prediction.Origin, "new_confidence": sc.Prediction.Confidence,
-		"origin_changed": false, "triage": sc.Triage, "repredicted": false, "applied": false,
+		"old_calibrated_confidence": sc.Prediction.CalibratedConfidence,
+		"new_origin":                sc.Prediction.Origin, "new_confidence": sc.Prediction.Confidence,
+		"new_calibrated_confidence": sc.Prediction.CalibratedConfidence,
+		"calibration":               sc.Prediction.Calibration,
+		"origin_changed":            false, "triage": sc.Triage, "repredicted": false, "applied": false,
 		"facts_basis": factsCase, "case_origin": sc.Prediction.Origin,
 	}
 	if len(changes) == 0 { // nothing that can change the origin: no model call, nothing to save
@@ -153,8 +156,10 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 	if base != nil {
 		oldOrigin = basePred.Origin
 		out["facts_basis"], out["old_origin"], out["old_confidence"] = factsRendered, basePred.Origin, basePred.Confidence
+		out["old_calibrated_confidence"], out["calibration"] = basePred.CalibratedConfidence, basePred.Calibration
 	}
 	out["new_origin"], out["new_confidence"], out["triage"], out["repredicted"] = next.Prediction.Origin, next.Prediction.Confidence, next.Triage, true
+	out["new_calibrated_confidence"], out["calibration"] = next.Prediction.CalibratedConfidence, next.Prediction.Calibration
 	out["origin_changed"] = domain.NormalizeCountry(next.Prediction.Origin) != domain.NormalizeCountry(oldOrigin)
 	out["prediction"] = next.Prediction
 	if !apply {
@@ -172,8 +177,8 @@ func (a *api) bomVersion(w http.ResponseWriter, r *http.Request) {
 		u.label(baseLabel)
 	}
 	pr := next.Prediction
-	summary := fmt.Sprintf("new BOM, %d change(s); origin %s, was %s; confidence %.2f, %s",
-		len(changes), pr.Origin, sc.Prediction.Origin, pr.Confidence, next.Triage.Route)
+	summary := fmt.Sprintf("new BOM, %d change(s); origin %s, was %s; %s, %s",
+		len(changes), pr.Origin, sc.Prediction.Origin, confidencePhrase(pr), next.Triage.Route)
 	if base != nil {
 		summary += fmt.Sprintf("; the old BOM, rendered, gives %s; the facts are now rendered from the BOM, not the case's own wording", basePred.Origin)
 	}
