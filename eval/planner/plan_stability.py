@@ -4,7 +4,9 @@ Reads the committed plan files for the flagship heat gun and the three
 pre-registered repeat runs, and writes eval/results/plan-stability-heatgun.json:
 per run, whether a plan was shown, each move's precedent check, and the best
 check; across the three D321 runs, how many showed a plan and the range of each
-move's check. Runs recorded only in docs/DEMO.md (no committed file) are listed
+move's check; and the two D331 runs after the cord, knobs and covers were split
+from the switch and wiring (D330): where CBP's own move and the four-group move
+landed, and what the top-ranked plan moves. Runs recorded only in docs/DEMO.md (no committed file) are listed
 with their values and marked so. No model calls.
 
     python3 -I -B eval/planner/plan_stability.py .          # write
@@ -36,6 +38,16 @@ REPEATS = [
     ("2026-11-21", "plan-heatgun-2022-relaxed-verifier-v2-stability-run%d-litellm.json" % i, "gateway", "D321 run %d: production configuration, no cache" % i)
     for i in (1, 2, 3)
 ]
+# The pre-registered runs after the power cord, knobs and covers were split
+# from the switch and wiring (D330, D331). Not repeats of the D321 runs: the
+# template differs, so the moves differ.
+SPLIT = [
+    ("2026-11-22", "plan-heatgun-2022-relaxed-verifier-v2-split-run%d-litellm.json" % i, "gateway", "D331 run %d: after the split (D330), production configuration, no cache" % i)
+    for i in (1, 2)
+]
+# CBP's real 2026 change (N357771) in the split template, and all four groups.
+CBP_MOVE = "cord_knobs_covers+motor_fan_assembly+pcba"
+FOUR = "cord_knobs_covers+motor_fan_assembly+pcba+switch_cord_minor_parts"
 # Runs with no committed plan file; values as recorded in docs/DEMO.md.
 DOC_ONLY = [
     {"date": "2026-10-16", "path": "docs/DEMO.md §4 (run 1)", "provider": "proxy", "config": "verifier-v1, pairs only",
@@ -81,6 +93,26 @@ def summarize(root, date, name, provider, config):
     return row
 
 
+def split_run(root, date, name, provider, config):
+    """A D331 run: the summary row plus where CBP's move and the four-group
+    move landed, and what the top-ranked plan (the backtest's) moves."""
+    row = summarize(root, date, name, provider, config)
+    d, p = read(root, name)
+    shown = [move_key(x) for x in p.get("plans") or []]  # ranked by net a year
+    nets = {move_key(x): x.get("net_per_year") for x in p.get("plans") or []}
+    followed = [move_key(x) for x in (p.get("plans") or []) + (p.get("rejected") or []) if x.get("from_advice")]
+    bt = p.get("backtest") or {}
+    row.update({
+        "cbp_move": dict(row["moves"].get(CBP_MOVE, {}), rank=(shown.index(CBP_MOVE) + 1) if CBP_MOVE in shown else None, net=nets.get(CBP_MOVE)),
+        "four_groups": dict(row["moves"].get(FOUR, {}), followed=FOUR in followed, rank=(shown.index(FOUR) + 1) if FOUR in shown else None, net=nets.get(FOUR)),
+        "shown_ranked": shown,
+        "top_plan": bt.get("plan"),
+        "top_plan_moves_changed_parts": len(bt.get("moved_by_plan") or []),
+        "changed_parts": len(bt.get("actual_moved") or []),
+    })
+    return row
+
+
 def main(root, check):
     runs = [summarize(root, *r) for r in FILES]
     reps = [summarize(root, *r) for r in REPEATS]
@@ -112,6 +144,20 @@ def main(root, check):
             "gateway_cost_usd": round(sum(r.get("gateway_cost_usd", 0) for r in reps), 4),
         },
     }
+    splits = [split_run(root, *r) for r in SPLIT]
+    out["d331"] = {
+        "note": "After the split (D330), pre-registered in D331. Made after seeing N357771: not a blind test.",
+        "runs": splits,
+        "with_a_plan_shown": sum(1 for r in splits if r["shown"]),
+        "cbp_move_shown_in": sum(1 for r in splits if r["cbp_move"].get("shown")),
+        "cbp_move_checks": [r["cbp_move"].get("check") for r in splits],
+        "cbp_move_ranks": [r["cbp_move"].get("rank") for r in splits],
+        "four_group_checks": [r["four_groups"].get("check") for r in splits],
+        "shown_moves_per_run": [len(r["shown"]) for r in splits],
+        "top_plan_per_run": [r["top_plan"] for r in splits],
+        "top_plan_moves_changed_parts": [r["top_plan_moves_changed_parts"] for r in splits],
+        "gateway_cost_usd": round(sum(r.get("gateway_cost_usd", 0) for r in splits), 4),
+    }
     text = json.dumps(out, indent=1, sort_keys=True) + "\n"
     dest = os.path.join(root, OUT)
     if check:
@@ -124,6 +170,7 @@ def main(root, check):
         fh.write(text)
     print(json.dumps(out["d321"], indent=1))
     print(json.dumps(out["recorded_before_d321"]))
+    print(json.dumps({k: v for k, v in out["d331"].items() if k != "runs"}, indent=1))
 
 
 if __name__ == "__main__":

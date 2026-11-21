@@ -1,0 +1,1908 @@
+{
+  "case_id": "heatgun-2022",
+  "target": "Thailand",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover and heating element are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+    "prediction": {
+      "origin_country": "Thailand",
+      "key_factors": [
+        "Heating element, main housing, and final assembly"
+      ],
+      "decisive_step": "Manufacturing the heating element and main housing, combined with final assembly in Thailand",
+      "confidence": 0.75,
+      "reasoning": "A heat gun's primary function is generating and directing intense heat. Although the motor, fan, and PCBA are sourced from China, the core functional component—the heating element—as well as the main housing and front cover are manufactured in Thailand. Combined with the final assembly in Thailand (connecting the heating element, motor, fan, and PCBA into the housing), the Thai processing and critical components impart the essential character and substantially transform the parts into a finished heat gun.",
+      "cited_rulings": [],
+      "precedents": [
+        "N335508",
+        "N340187",
+        "N342124",
+        "N348083",
+        "N351782"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2782,
+        "output_tokens": 208,
+        "latency_ms": 7617
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N328954"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan and motor support are produced in Thailand. The printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element and electric motor-fan assembly"
+        ],
+        "decisive_step": "Manufacturing of the heating element, electric motor, fan, and housing, combined with final assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "The core functional components that impart the essential character of a heat gun—the heating element, electric motor, fan, and main housing—are manufactured in Thailand, including complex motor fabrication (stamping laminations, winding the rotor, building the stator). The Chinese components (PCBA, switch, cord, fasteners) undergo a substantial transformation when integrated with the Thai-origin core components during final assembly in Thailand into a new article of commerce.",
+        "cited_rulings": [],
+        "precedents": [
+          "N335508",
+          "N340187",
+          "N342124",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2781,
+          "output_tokens": 193,
+          "latency_ms": 6959
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In rulings on fan-forced heating appliances (N347421, N345859), CBP holds that the heating element, electric motor, and fan together impart the essential identity and functionality (basic nature) of the device. In Variant A, while the housing and heating element are made in Thailand, the motor, fan, PCBA, and switch come from China, yielding Chinese origin. In Variant B, manufacturing the electric motor (stamping/stacking rotor laminations, winding rotor, building stator), fan, and motor support in Thailand means all primary functional components (heating element, motor, fan, housing) and final assembly originate in Thailand, shifting origin to Thailand.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "heating element motor fan PCBA assembly China Thailand Vietnam",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N346397",
+              "N346719",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N351503",
+              "N345859",
+              "N351596",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric motor rotor laminations stator heating element origin",
+            "rulings": [
+              "H342833",
+              "H354721",
+              "N333849",
+              "N344002",
+              "N345859",
+              "N351922",
+              "N351504",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351503",
+            "rulings": [
+              "N351503"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15360,
+          "output_tokens": 445,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 120000,
+      "net_per_year": 380000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly and the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support, power cord, knob and back cover are produced in Thailand. The printed circuit board assembly (PCBA), switch, wiring and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element and electric motor-fan assembly"
+        ],
+        "decisive_step": "Manufacturing of the motor, fan, and heating element, along with final assembly of the heat gun in Thailand",
+        "confidence": 0.95,
+        "reasoning": "The essential character of the heat gun is imparted by the functional components that generate and propel hot air—specifically the heating element, electric motor, and fan (similar to N351782 and N348083). Because the motor, fan, heating element, and main housing are all manufactured in Thailand, and are combined with minor Chinese components (PCBA, switch, wiring) during final assembly in Thailand, the article originates in Thailand where its core components are produced and substantially transformed.",
+        "cited_rulings": [
+          "N348083",
+          "N351782"
+        ],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N348083",
+          "N351782",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2876,
+          "output_tokens": 226,
+          "latency_ms": 8166
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In N347421 and N345859, CBP held that the country of origin of fan-forced heaters is imparted by the heating element, electric motor, fan, housing, and power cord, because final assembly of the heater is simple. In Variant A, only the housing and heating element were produced in Thailand while the motor, fan, PCBA, switch, and power cord came from China, yielding Chinese origin. In Variant B, full motor manufacturing (stamping laminations, winding rotor, building stator), fan, motor support, power cord, knob, and back cover move to Thailand alongside the heating element and housing, shifting origin to Thailand under N347421.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "hair dryer blower heating element motor PCBA assembly",
+            "rulings": [
+              "N345938",
+              "N346613",
+              "N347421",
+              "N350867",
+              "H323218",
+              "N345316",
+              "N351504",
+              "N345859"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Kobalt electric motor stator rotor laminations Thailand China",
+            "rulings": [
+              "H342833",
+              "N351922",
+              "H354721",
+              "N333849",
+              "N356398",
+              "N344002",
+              "N344081",
+              "N349662"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N351503",
+              "N345859",
+              "N351596",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351503",
+            "rulings": [
+              "N351503"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-skeptic+known-a",
+          "input_tokens": 10300,
+          "output_tokens": 914,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 135000,
+      "net_per_year": 365000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly and the switch, wiring and minor parts to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support, switch, wiring and support ring, heat insulator and fasteners are produced in Thailand. The printed circuit board assembly (PCBA), power cord, knob and back cover are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor, fan, and main housing"
+        ],
+        "decisive_step": "Manufacturing the motor, heating element, fan, and housing, plus final assembly in Thailand",
+        "confidence": 0.96,
+        "reasoning": "The essential character of the heat gun is imparted by the functional components that generate and propel hot air—namely the heating element, electric motor, and fan—along with the main housing. Unlike N348083 and N351922 where core functional parts were Chinese, here the motor (stamped, wound, assembled from raw steel), heating element, fan, switch, and housing are all manufactured in Thailand. Combining these Thai-origin core components with a Chinese PCBA and cord in Thailand confers Thai origin.",
+        "cited_rulings": [
+          "N351922",
+          "N348083"
+        ],
+        "precedents": [
+          "N335508",
+          "N340187",
+          "N342124",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2830,
+          "output_tokens": 225,
+          "latency_ms": 7138
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In fan-forced heating appliances (N347421, N345859), CBP holds that the heating element, electric motor, fan, switches, and housing impart the essential identity and functionality when final assembly is simple. In Variant A, although the housing and heating element were made in Thailand, the motor, fan, switch, PCBA, and wiring came from China, making China the country of origin. In Variant B, production of the electric motor (stamping laminations, winding rotor, building stator), fan, switch, wiring, and insulators moves to Thailand alongside the heating element and main housing, shifting the essential components and country of origin to Thailand.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "hair dryer motor fan heating element PCBA origin",
+            "rulings": [
+              "N347421",
+              "N345938",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N351597",
+              "N351503",
+              "N345316"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" heating element motor fan",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N351503",
+              "N351596",
+              "N351597",
+              "N345859",
+              "N346719",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heating element\" motor fan PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N345859",
+              "N351504",
+              "N351596",
+              "N351782",
+              "N351503",
+              "N335508"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric motor stator rotor laminations Thailand China PCBA",
+            "rulings": [
+              "H342833",
+              "N351922",
+              "H354721",
+              "N344081",
+              "N333849",
+              "N356398",
+              "N344002",
+              "N346961"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-skeptic+known-a",
+          "input_tokens": 15099,
+          "output_tokens": 888,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 140000,
+      "net_per_year": 360000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support and printed circuit board assembly (PCBA) are produced in Thailand. The switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor-fan assembly, and PCBA"
+        ],
+        "decisive_step": "Manufacturing of the motor, heating element, PCBA (via SMT), housing, and final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Consistent with N345938 and N342124, the country of origin is Thailand because the components imparting the essential character of the heat gun—the heating element, electric motor, fan, PCBA (via SMT), and main housing—are all manufactured in Thailand. The Chinese components (power cord, switch, wiring, knob, fasteners) are secondary and undergo a substantial transformation when integrated with the Thai-origin core functional subassemblies during final assembly in Thailand.",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N340187",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2815,
+          "output_tokens": 232,
+          "latency_ms": 7602
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.93,
+        "reasoning": "In fan-forced heating appliances (like space heaters and heat guns), CBP holds that the heating element, electric motor, fan, and control electronics (PCBA/thermostat) impart the essential character and functionality of the article (N347421, N345859). In Variant A, the motor, fan, and PCBA were sourced from China, making China the country of origin despite the Thai heating element and housing. In Variant B, manufacturing the electric motor (stamping/winding rotor, building stator), fan, and PCBA (SMT placement/reflow) in Thailand alongside the heating element and housing shifts the country of origin to Thailand, matching Scenarios 2 and 3 of N347421.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"heat gun\" origin China Thailand motor heating element PCBA",
+            "rulings": [
+              "N347421",
+              "N341204",
+              "N351597",
+              "N335508",
+              "N346397",
+              "N346719",
+              "N351504",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric motor PCBA SMT rotor stator origin China Thailand Vietnam",
+            "rulings": [
+              "H342833",
+              "N351922",
+              "H354721",
+              "N344081",
+              "N346961",
+              "N356398",
+              "N344002",
+              "N349107"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"hair dryer\" OR \"blower\" motor heating element PCBA origin",
+            "rulings": [
+              "N345938",
+              "N346613",
+              "N347421",
+              "N345316",
+              "N350867",
+              "H323218",
+              "N345859",
+              "N351504"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heating element\" motor fan PCBA origin assembly Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N351782",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-skeptic+known-a",
+          "input_tokens": 9851,
+          "output_tokens": 784,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 180000,
+      "net_per_year": 320000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly, the PCBA (SMT) and the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support, printed circuit board assembly (PCBA), power cord, knob and back cover are produced in Thailand. The switch, wiring and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor-fan assembly, and PCBA"
+        ],
+        "decisive_step": "Manufacturing of key components (motor, heating element, PCBA, housing) and final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Consistent with N345938 and N342124, Thailand is the country of origin because all components imparting the essential character of the heat gun—specifically the heating element, electric motor, fan, PCBA (via SMT), and plastic housings—are manufactured in Thailand. Only minor components (switch, wiring, insulator, fasteners) originate in China. The fabrication of the core functional subassemblies and the complete final assembly in Thailand substantially transform the constituent parts into a new and different article of commerce.",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2886,
+          "output_tokens": 228,
+          "latency_ms": 7551
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.94,
+        "reasoning": "In N347421 and N345859, CBP held that the country of origin of fan-forced electric heaters is determined by where the key functional components—specifically the heating element, electric motor, fan, controls (thermostat/PCBA), housing, and power cord—are manufactured, as final assembly alone is not a substantial transformation. In Variant A, only the housing and heating element are made in Thailand, while the motor, fan, PCBA, and cord come from China (origin China). In Variant B, manufacturing of the motor (from laminations/winding), fan, PCBA (via SMT), power cord, and remaining housing parts moves to Thailand, shifting origin to Thailand.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan PCBA",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N351503",
+              "N351596",
+              "N351597",
+              "N345859",
+              "N346719",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Kobalt Thailand China motor PCBA heating element",
+            "rulings": [
+              "N341204",
+              "N347421",
+              "N350867",
+              "N351597",
+              "N345859",
+              "N335508",
+              "N352564",
+              "N353724"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "rotor stator laminations PCBA SMT Thailand China",
+            "rulings": [
+              "H342833",
+              "N356398",
+              "H354721",
+              "N333849",
+              "N351922",
+              "N344081",
+              "N344002",
+              "N349107"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heating element motor fan assembly Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N351782",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-skeptic+known-a",
+          "input_tokens": 9971,
+          "output_tokens": 736,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 195000,
+      "net_per_year": 305000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, wiring and minor parts to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, wiring and support ring, heat insulator and fasteners are produced in Thailand. The power cord, knob and back cover are sourced from China. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor-fan assembly, and PCBA"
+        ],
+        "decisive_step": "Manufacturing of core electro-mechanical components (motor, heating element, PCBA via SMT) and final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Under the substantial transformation test, nearly all critical components imparting the heat gun's essential character—specifically the heating element, electric motor, fan, PCBA (fabricated via SMT), and main housing—are manufactured in Thailand. Only minor components (power cord, knob, back cover) come from China. Consistent with N345938 and N342124, producing the PCBA, motor, and housing, combined with final electro-mechanical assembly in Thailand, substantially transforms the constituent parts into a new article of commerce originating in Thailand.",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N340187",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2863,
+          "output_tokens": 247,
+          "latency_ms": 8189
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "counter_ruling": "N345859",
+        "confidence": 0.94,
+        "reasoning": "In N347421 and N345859 (fan-forced heaters with heating element, motor, fan, switches/controls, and housing), CBP held that the heating element, motor, fan, and controls/switches impart the essential identity and functionality, whereas simple final assembly does not substantially transform them. In Variant A, the motor, fan, PCBA, switch, and cord are Chinese, making China the origin. In Variant B, production of the motor (from laminations/winding), fan, PCBA (via SMT), and switch moves to Thailand—joining the Thai heating element and housing—leaving only the power cord, knob, and back cover from China. Origin shifts to Thailand.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "hair dryer OR blower heating element motor fan assembly origin",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N351596",
+              "N351597",
+              "N345859",
+              "N346613",
+              "N356280",
+              "H323218"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" OR \"hot air\" OR \"heating element\" motor fan PCBA origin",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N346719",
+              "N346721",
+              "N346720",
+              "N351596",
+              "N346718",
+              "N346394"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "power tool motor PCBA switch assembly Thailand China origin",
+            "rulings": [
+              "N351782",
+              "N345938",
+              "N353913",
+              "N347899",
+              "N342916",
+              "N350963",
+              "N343426",
+              "N348878"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" OR \"Kobalt\" OR \"paint\" \"heating element\"",
+            "rulings": [
+              "N351504",
+              "N350867",
+              "N347421",
+              "N351596",
+              "N351597",
+              "N341204",
+              "H319727",
+              "N352717"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-product+known-a",
+          "input_tokens": 14761,
+          "output_tokens": 805,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 200000,
+      "net_per_year": 300000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        },
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the motor-fan assembly, the PCBA (SMT), the switch, wiring and minor parts and the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand.\n\nThe main housing, front cover, heating element, electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are produced in Thailand. \n\nIn Thailand, the electric motor, fan and motor support will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, motor-fan assembly, and PCBA"
+        ],
+        "decisive_step": "Manufacturing of key components (motor, heating element, PCBA via SMT) and final assembly in Thailand",
+        "confidence": 1,
+        "reasoning": "All components—including the critical functional parts like the heating element, electric motor, fan, PCBA (via SMT), and plastic housings—are produced in Thailand, and final assembly also takes place in Thailand. Because the product is wholly manufactured and assembled in Thailand, it clearly originates there (consistent with principles in N342124 and N345938 regarding local component manufacturing and assembly).",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2928,
+          "output_tokens": 203,
+          "latency_ms": 7005
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, although the housing, front cover, and heating element are produced in Thailand and final assembly occurs there, the electric motor, fan, PCBA, switch, power cord, and other components are from China, resulting in Chinese origin. In Variant B, ALL components—including the motor (stamping, winding, stator building), fan, PCBA (SMT placement/reflow), switch, power cord, heating element, and housing—are produced and assembled in Thailand. Consistent with N347421 (where sourcing the heating element, motor, fan, controls, and cord in the assembly country conferred origin), manufacturing all essential components and assembling the heat gun in Thailand confers Thai origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electric motor fan PCBA Thailand China origin",
+            "rulings": [
+              "N351782",
+              "N347272",
+              "N347271",
+              "N347270",
+              "N357004",
+              "N350304",
+              "N351493",
+              "N351922"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun origin motor heating element",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N350867",
+              "N345859",
+              "N351596",
+              "N351597",
+              "N341204",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N351503",
+              "N345859",
+              "N351596",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351503",
+            "rulings": [
+              "N351503"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Kobalt Thailand China origin",
+            "rulings": [
+              "N335596",
+              "N330892",
+              "N330924",
+              "N355934",
+              "N330891",
+              "N330889",
+              "N330921",
+              "N330890"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9933,
+          "output_tokens": 368,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 215000,
+      "net_per_year": 285000,
+      "net_priced": true,
+      "shown": true,
+      "from_advice": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover and heating element are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, main housing, and final assembly"
+        ],
+        "decisive_step": "Manufacturing the heating element and main housing, combined with final assembly in Thailand",
+        "confidence": 0.75,
+        "reasoning": "A heat gun's primary function is generating and directing intense heat. Although the motor, fan, and PCBA are sourced from China, the core functional component—the heating element—as well as the main housing and front cover are manufactured in Thailand. Combined with the final assembly in Thailand (connecting the heating element, motor, fan, and PCBA into the housing), the Thai processing and critical components impart the essential character and substantially transform the parts into a finished heat gun.",
+        "cited_rulings": [],
+        "precedents": [
+          "N335508",
+          "N340187",
+          "N342124",
+          "N348083",
+          "N351782"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2782,
+          "output_tokens": 208,
+          "latency_ms": 7617
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N328954); engine predicts Thailand",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the PCBA (SMT) and the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, printed circuit board assembly (PCBA), power cord, knob and back cover are produced in Thailand. The electric motor, fan, motor support, switch, wiring and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, PCBA, and plastic housings produced in Thailand"
+        ],
+        "decisive_step": "Production of the heating element, PCBA (via SMT), and plastic housings, followed by final assembly in Thailand",
+        "confidence": 0.92,
+        "reasoning": "Consistent with N345938 and N342124, manufacturing the PCBA via SMT, producing the core functional component (heating element) and molded housings, and performing final assembly in Thailand substantially transforms the Chinese components (motor, fan, switch) into a new article with a distinct name, character, and use. The Thai-origin heating element and PCBA impart the essential character of the heat gun, making Thailand the country of origin.",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2817,
+          "output_tokens": 221,
+          "latency_ms": 6978
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N345859",
+        "confidence": 0.75,
+        "reasoning": "In Variant A (N328954), the main housing, front cover, and heating element were made in Thailand, while the motor, fan, PCBA, switch, power cord, knob, and back cover were sourced from China, resulting in China origin. In Variant B, the PCBA (via SMT and reflow), power cord, knob, and back cover also move to Thailand, leaving only the motor, fan, switch, and minor hardware from China. With the heating element, PCBA, housing, and cord all manufactured in Thailand alongside final assembly, the preponderance of key functional components and manufacturing operations shifts to Thailand, substantially transforming the remaining Chinese components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "power tool motor PCBA housing assembly China Thailand Vietnam",
+            "rulings": [
+              "H322161",
+              "N335064",
+              "N350727",
+              "N346397",
+              "N349107",
+              "N345938",
+              "N347421",
+              "N349285"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heating element motor fan PCBA plastic housing China Thailand Vietnam",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N346397",
+              "N346718",
+              "N346398",
+              "N351597",
+              "N350867",
+              "N345859"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N341204",
+              "N351597",
+              "N335508",
+              "N346397",
+              "N346719",
+              "N351504",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hair dryer heating element motor PCBA assembly origin",
+            "rulings": [
+              "N345938",
+              "N347421",
+              "N350867",
+              "N345316",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N350085"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun country of origin",
+            "rulings": [
+              "H319727",
+              "N347556",
+              "N345897",
+              "N356375",
+              "N330844",
+              "N343389",
+              "N356042",
+              "N346867"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8784,
+          "output_tokens": 423,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 75000,
+      "net_per_year": 425000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the PCBA (SMT) and the switch, wiring and minor parts to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, printed circuit board assembly (PCBA), switch, wiring and support ring, heat insulator and fasteners are produced in Thailand. The electric motor, fan, motor support, power cord, knob and back cover are sourced from China. \n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, PCBA, and housing produced in Thailand"
+        ],
+        "decisive_step": "Production of the heating element, PCBA (via SMT), and housing, combined with final assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with N345938, the heat gun undergoes a substantial transformation in Thailand. Although the motor and fan are sourced from China, the core functional components that impart the essential character of a heat gun—specifically the heating element, the variable-temperature control PCBA (produced via SMT), the switch, and the main housing—are all manufactured in Thailand and integrated with the Chinese components during final assembly there.",
+        "cited_rulings": [
+          "N345938"
+        ],
+        "precedents": [
+          "N340187",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2794,
+          "output_tokens": 213,
+          "latency_ms": 7263
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N351504",
+        "counter_ruling": "N345859",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, although the housing and heating element were made in Thailand, CBP held that origin remained China because the other critical electrical components (PCBA, motor, fan, switch, wiring) were Chinese and final assembly in Thailand was relatively simple. In Variant B, SMT production of the PCBA, as well as manufacturing of the switch, wiring, support ring, heat insulator, and fasteners, shifts to Thailand. Under CBP precedent for electric heating appliances (e.g., N351504), producing both the heating element and the controlling PCBA via SMT in the assembly country, alongside the housing and switch, constitutes a substantial transformation.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "space heater fan heating element motor PCBA origin",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N351503",
+              "N351504",
+              "N342861",
+              "N351596",
+              "N351597",
+              "N335163"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hair dryer heating element motor PCBA assembly origin",
+            "rulings": [
+              "N345938",
+              "N347421",
+              "N350867",
+              "N345316",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N350085"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N341204",
+              "N351597",
+              "N335508",
+              "N346397",
+              "N346719",
+              "N351504",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N341204",
+            "rulings": [
+              "N341204"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Kobalt Thailand China motor PCBA switch origin",
+            "rulings": [
+              "N353913",
+              "N347899",
+              "N351782",
+              "N350963",
+              "N345938",
+              "N342916",
+              "N334327",
+              "N334072"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" OR \"hair dryer\" OR \"blower\" motor heating element origin",
+            "rulings": [
+              "N347421",
+              "N345938",
+              "N346613",
+              "N341875",
+              "N345316",
+              "N354172",
+              "N351504",
+              "N354167"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 12808,
+          "output_tokens": 461,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 80000,
+      "net_per_year": 420000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar",
+      "near_miss": {
+        "difference": "In N351504, CBP relied on the manufacture of the heating element and all plastic housing components—including the rear cover and brackets—via injection molding in Vietnam, whereas in your proposed setup, the back cover, knob, and motor support are sourced from China, and no manufacturing operations are detailed for how the heating element and main housing are produced in Thailand.",
+        "would_match": "Manufacture the back cover, knob, and motor support in Thailand alongside the main housing via plastic injection molding, and perform the complete raw-material fabrication of the heating element in Thailand.",
+        "ruling": "N351504",
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "near-miss-v1",
+          "input_tokens": 1997,
+          "output_tokens": 146,
+          "latency_ms": 5758
+        }
+      }
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the PCBA (SMT) to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element and printed circuit board assembly (PCBA) are produced in Thailand. The electric motor, fan, motor support, switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the printed circuit board assembly (PCBA) will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, PCBA, and main housing"
+        ],
+        "decisive_step": "Production of the heating element, SMT fabrication of the PCBA, molding of the housing, and final assembly in Thailand",
+        "confidence": 0.92,
+        "reasoning": "The essential character of a heat gun is imparted by the components that generate and control heat—specifically the heating element and the PCBA—along with the main housing. Consistent with N345938 and N342124, producing the PCBA via SMT, manufacturing the heating element and main housing, and integrating them with Chinese components (like the motor and fan) in Thailand constitutes a substantial transformation. Under the totality of the circumstances, the country of origin is Thailand.",
+        "cited_rulings": [
+          "N342124",
+          "N345938"
+        ],
+        "precedents": [
+          "N340187",
+          "N342124",
+          "N345938",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2746,
+          "output_tokens": 223,
+          "latency_ms": 7299
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N347421",
+        "confidence": 0.75,
+        "reasoning": "In analogous rulings on fan-forced heaters (e.g., N347421), CBP holds that simple final assembly of heater components does not constitute a substantial transformation, and origin is determined by the collective origin of the core functional components—specifically the motor, fan, heating element, switches, and controls. In Variant A, the heating element and housing are made in Thailand, while the motor, fan, PCBA, switch, and cord are from China (origin China). In Variant B, only the PCBA moves to Thailand, while the electric motor, fan, switch, power cord, and remaining components are still sourced from China, which prevents a shift in origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "power tool motor PCBA housing Thailand China origin",
+            "rulings": [
+              "H322161",
+              "N350727",
+              "N348878",
+              "N349869",
+              "N353913",
+              "N350963",
+              "N335064",
+              "H337371"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N341204",
+              "N351597",
+              "N335508",
+              "N346397",
+              "N346719",
+              "N351504",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hair dryer heating element motor PCBA assembly origin",
+            "rulings": [
+              "N345938",
+              "N347421",
+              "N350867",
+              "N345316",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N350085"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "space heater fan heating element motor PCBA China",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N351503",
+              "N351504",
+              "N342861",
+              "N351597",
+              "N351596",
+              "N335163"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" OR \"solder\" OR \"kobalt\" Thailand China PCBA motor",
+            "rulings": [
+              "N345938",
+              "N355934",
+              "N355502",
+              "N350041",
+              "N354016",
+              "N350727",
+              "N349285",
+              "N348878"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8895,
+          "output_tokens": 381,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 60000,
+      "net_per_year": 440000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the switch, wiring and minor parts to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, switch, wiring and support ring, heat insulator and fasteners are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), power cord, knob and back cover are sourced from China. \n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, main housing, switch, and final assembly"
+        ],
+        "decisive_step": "Production of the heating element, housing, and switch, combined with final assembly in Thailand",
+        "confidence": 0.82,
+        "reasoning": "For a heat gun, the heating element is the critical component that generates heat, while the motor/fan (from China) blows the air. In Thailand, the heating element, main housing, switch, wiring, and heat insulator are produced, and the Chinese components (motor, fan, PCBA, power cord) are integrated via soldering, crimping, and mechanical assembly. Under the totality of circumstances, the manufacturing of key functional and structural parts (especially the heating element) plus final assembly in Thailand effects a substantial transformation.",
+        "cited_rulings": [],
+        "precedents": [
+          "N335508",
+          "N340187",
+          "N342124",
+          "N348083",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2761,
+          "output_tokens": 221,
+          "latency_ms": 7090
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N347421",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, CBP held that the heat gun's origin is China despite the main housing, front cover, and heating element being made in Thailand and final assembly occurring in Thailand, because key functional components—the electric motor, fan, PCBA, and power cord—were sourced from China and underwent simple assembly. In Variant B, only minor components (switch, wiring, support ring, heat insulator, and fasteners) move to Thailand, while the electric motor, fan, motor support, PCBA, and power cord remain Chinese and final assembly is unchanged. As in N347421 and N345859, moving minor switches/fasteners does not alter origin.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan assembly PCBA",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N351596",
+              "N351597",
+              "N351503",
+              "N345859",
+              "N346719",
+              "N346721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hair dryer blower heating element motor PCBA Thailand China",
+            "rulings": [
+              "N345938",
+              "N341204",
+              "N346613",
+              "N347421",
+              "N350085",
+              "N345316",
+              "N350867",
+              "N351597"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heat gun\" OR \"heating element\" motor switch PCBA Thailand Vietnam",
+            "rulings": [
+              "N347421",
+              "N334072",
+              "N334327",
+              "N345938",
+              "N351597",
+              "N346397",
+              "N351504",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351503",
+            "rulings": [
+              "N351503"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-product+known-a",
+          "input_tokens": 13566,
+          "output_tokens": 823,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 20000,
+      "net_per_year": 480000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, power cord, knob and back cover are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, wiring and support ring, heat insulator and fasteners are sourced from China. \n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, main housing, and final electromechanical assembly"
+        ],
+        "decisive_step": "Production of the heating element, housing, and power cord combined with final assembly in Thailand",
+        "confidence": 0.82,
+        "reasoning": "The core function of a heat gun is generating and directing intense heat. Although the motor, fan, and PCBA are sourced from China, the critical heating element, main housing, front/back covers, knob, and power cord are all produced in Thailand. Combining the Thai-origin heating element and housings with the Chinese components via soldering, wiring, and mechanical assembly in Thailand substantially transforms the parts into a new article of commerce, conferring Thailand origin.",
+        "cited_rulings": [],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N348083",
+          "N351782",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2807,
+          "output_tokens": 205,
+          "latency_ms": 8111
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N347421",
+        "confidence": 0.92,
+        "reasoning": "In Variant A (N328954), CBP held that the country of origin was China even though the main housing, front cover, and heating element were produced in Thailand and assembled there with the Chinese electric motor, fan, PCBA, and switch. Variant B shifts only minor components—the power cord, plastic knob, and plastic back cover—to Thailand, while the motor, fan, PCBA, switch, and internal hardware remain Chinese and final assembly in Thailand is unchanged. As seen in N347421 (Scenario 1), sourcing housing parts and the power cord in the assembly country does not alter origin when core functional components remain Chinese.",
+        "agreement": "3/3",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "Kobalt heat gun motor fan PCBA origin",
+            "rulings": [
+              "N351503",
+              "N347421",
+              "N344179",
+              "N351782",
+              "N346631",
+              "N351922",
+              "N350773",
+              "H323218"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun motor PCBA heating element China Thailand Vietnam",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N346397",
+              "N346719",
+              "N346721",
+              "N346720",
+              "N351504",
+              "N346394"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun hair dryer blower heating element motor PCBA origin",
+            "rulings": [
+              "N345938",
+              "N347421",
+              "N346613",
+              "N341875",
+              "N345316",
+              "N354172",
+              "N351504",
+              "N354167"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351503",
+            "rulings": [
+              "N351503"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"heating element\" motor PCBA Thailand China origin",
+            "rulings": [
+              "N341204",
+              "N347421",
+              "N350867",
+              "N351597",
+              "N345859",
+              "N335508",
+              "N352564",
+              "N353724"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2-skeptic+known-a",
+          "input_tokens": 15061,
+          "output_tokens": 912,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 15000,
+      "net_per_year": 485000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        },
+        {
+          "group": "cord_knobs_covers",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Move the switch, wiring and minor parts and the power cord, knobs and covers to Thailand",
+      "variant_facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element, switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are produced in Thailand. The electric motor, fan, motor support and printed circuit board assembly (PCBA) are sourced from China. \n\nIn Thailand, the switch, wiring and support ring, heat insulator and fasteners will be produced in-house: make the switch, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the power cord, knob and back cover will be produced in-house: make the power cord; mould the knobs and the back cover (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, housing, switch, and power components produced in Thailand"
+        ],
+        "decisive_step": "Manufacturing the heating element, housing, and electrical components, combined with final assembly in Thailand",
+        "confidence": 0.85,
+        "reasoning": "The heat gun's primary function is generating and directing intense heat. The critical heating element, main housing, heat insulator, switch, and power cord are all manufactured in Thailand, while the motor, fan, and PCBA come from China. Unlike N348083 (where heating elements and electricals came from China), here the core heating component and majority of parts are produced in Thailand and integrated via soldering, crimping, and final assembly in Thailand, conferring Thai origin.",
+        "cited_rulings": [
+          "N348083"
+        ],
+        "precedents": [
+          "N335508",
+          "N342124",
+          "N348083",
+          "N351782",
+          "N351922"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2857,
+          "output_tokens": 217,
+          "latency_ms": 8269
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N347421",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP held origin was China even though the housing and heating element were made in Thailand and final assembly occurred there, because the Chinese motor, fan, and PCBA (along with ancillary parts) were not substantially transformed by simple assembly. In Variant B, moving minor components (switch, power cord, wiring, knob, back cover, insulator, fasteners) to Thailand leaves the core Chinese functional components—the electric motor, fan, and PCBA—in China. Under analogous heater rulings (N347421, N345859, N346185), shifting cords, switches, and housing/plastic parts without moving the motor/fan/PCBA and without complex assembly does not alter origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "hair dryer heating element motor fan PCBA origin",
+            "rulings": [
+              "N347421",
+              "N345938",
+              "N351504",
+              "N345859",
+              "N351596",
+              "N351597",
+              "N351503",
+              "N345316"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heater fan motor heating element PCBA assembly origin",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N351504",
+              "N351596",
+              "N351597",
+              "N351503",
+              "N346185",
+              "N342861"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heat gun heating element motor fan PCBA Thailand China",
+            "rulings": [
+              "N347421",
+              "N351597",
+              "N351504",
+              "N351503",
+              "N345859",
+              "N351596",
+              "N346397",
+              "N346719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346185",
+            "rulings": [
+              "N346185"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14976,
+          "output_tokens": 477,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 500000,
+      "added_cost_per_year": 35000,
+      "net_per_year": 465000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N357771 (29 Jan 2026): CBP held Thailand",
+    "plan": "Move the motor-fan assembly to Thailand",
+    "actual_moved": [
+      "electric motor",
+      "fan",
+      "printed circuit board assembly (PCBA)",
+      "knob",
+      "power cord",
+      "back cover"
+    ],
+    "moved_by_plan": [
+      "electric motor",
+      "fan"
+    ],
+    "in_actual_change_not_in_plan": [
+      "printed circuit board assembly (PCBA)",
+      "knob",
+      "power cord",
+      "back cover"
+    ],
+    "already_in_target": [
+      "outer shells"
+    ]
+  },
+  "stats": {
+    "moves_searched": 13,
+    "engine_calls": 14,
+    "verifier_runs": 13,
+    "verifier_cached": 0,
+    "verifier_model_calls": 101,
+    "verifier_tool_calls": 174,
+    "input_tokens": 392690,
+    "output_tokens": 24917,
+    "engine_input_tokens": 39543,
+    "engine_output_tokens": 3062,
+    "verifier_input_tokens": 351150,
+    "verifier_output_tokens": 21709,
+    "near_miss_calls": 1,
+    "near_miss_input_tokens": 1997,
+    "near_miss_output_tokens": 146,
+    "advice_followed": 1,
+    "wall_seconds": 153.527176667
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "relaxed",
+  "cost_usd_promo": 1.03455,
+  "cost_usd_list": 2.0691,
+  "gateway_cost_usd": 0.9612061999999997,
+  "verifier_config": "prompt=v2 panel=on votes=1 near_miss=true follow=true bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "071043a3af60271fd46fcdd27528fa0bcdf4b435",
+  "time": "2026-11-22T00:06:15+08:00"
+}

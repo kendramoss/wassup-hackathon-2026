@@ -56,6 +56,8 @@ export const DECISIONS: Record<string, string> = {
   D240: "d240--repeatability-on-the-held-out-splits-pre-registration-21-nov-review-follow-up",
   D241: "d241--repeatability-on-the-held-out-splits-results-21-nov-review-follow-up",
   D322: "d322--the-heat-gun-plan-run-again-three-times-results-21-nov-judge-panel-round-5-item-5",
+  D330: "d330--the-heat-gun-template-splits-the-power-cord-knobs-and-covers-from-the-switch-and-wiring-22-nov-judge-panel-round-5-510-backlog",
+  D332: "d332--the-heat-gun-plan-after-the-split-results-22-nov",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;
