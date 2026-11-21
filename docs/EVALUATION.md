@@ -254,7 +254,11 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 
 **What the intervals do and do not include.** The Wilson intervals and the fixed-seed bootstrap resample the same 377 or 463 labelled rows. They describe sampling error conditional on one scored run and approximately independent rows. They do **not** include variance across prompt/model/gateway runs, label error, the fitted calibration map, or the temporal and near-duplicate structure of split construction (the second split has 62 distinct subjects in 83 rulings, and earlier held-out rulings occupy 414 of 1,885 precedent slots in the first). The three development runs of D190 measure run-to-run changes separately, but the official held-out figures remain one run.
 
-### 4.3 What we'd add next (planned)
+### 4.3 Search and multiplicity
+
+The production engine was pre-registered before the held-out runs, but the settings around it were chosen on development data. The 0.92 stated-confidence bar (and its calibrated 0.90 equivalent, D160) came from the dev curve (section 3.1); retrieval, prompt and threshold ablations were tried on dev (sections 3.4 and the decision log D63/D82); the adjudicator variant used in the verifier was selected after variants 1 and 2 (D82/D192). The 377-ruling and 83-ruling held-out splits were not used to search: they were frozen, scored once, and used to report the chosen configuration. Exact McNemar tests are pairwise and **unadjusted**; no family-wise error correction is applied across the ablations or the multiple comparison rows. Treat the p-values as descriptive evidence for each pair, not as a family-wide significance claim.
+
+### 4.4 What we'd add next (planned)
 
 - **Multi-run variance on Vertex AI.** Run-to-run spread is now measured through the gateway on dev (section 8) and on both held-out splits (section 8b). Repeats on the Vertex AI path itself are not run.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
