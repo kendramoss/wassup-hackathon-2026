@@ -280,7 +280,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		return httpapi.Deps{}, fmt.Errorf("corpus: no precedent facts in %s (run: go run ./cmd/corpus fetch && go run ./cmd/corpus build)", cfg.FactsDir)
 	}
 	logger.Info("corpus loaded", "precedents", pool.Len(), "facts_dir", cfg.FactsDir)
-	eng := engine.New(engineModel, evidenceBM25(pool.Rulings()),
+	generalIdx := evidenceBM25(pool.Rulings()) // also serves GET /v1/rulings?q= (search_rulings over MCP)
+	eng := engine.New(engineModel, generalIdx,
 		engine.Options{Model: cfg.EngineModel, K: cfg.PrecedentK, MaxOutputTokens: cfg.MaxOutputTokens})
 	crossClient := cross.NewHTTPClient(cross.UserAgent)
 	local, err := verifier.NewLocal(labels, cfg.FactsDir, cfg.RawDir)
@@ -535,6 +536,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		MediaExtractor:        extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:            precedents,
+		RulingSearch:          generalIdx,
 		Planner:               planner.New(tmpls, predictor, ver, planOpts),
 		Rulings:               crossClient,
 		Cases:                 cases,

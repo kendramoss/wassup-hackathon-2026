@@ -50,6 +50,18 @@ It's built for the trade-compliance or industrialisation lead at a contract manu
 - **Ruling watch:** re-check saved cases against rulings CBP issued later
 - **Ask the case:** an agent that explains the prediction and runs what-ifs
 - **API** for ERP and sourcing tools ([docs/api/openapi.yaml](docs/api/openapi.yaml))
+- **MCP server** so Claude can use Unde as tools (see below)
+
+## Use Unde from Claude
+
+Unde is also an MCP server: Claude can predict origin, search production moves, look up rulings and duty rates, and draft a ruling request as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
+
+```bash
+# Claude Code, with an API key (keys are issued by the Unde admin)
+claude mcp add --transport http unde https://undelabs.dev/mcp --header "Authorization: Bearer op_..."
+```
+
+In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign-in (anonymous tier). For a local stdio process, run `node mcp/stdio/index.js` with `UNDE_API_KEY` set. Results are predictions, not rulings: confirm with a licensed customs broker.
 
 ## How a business could use it
 

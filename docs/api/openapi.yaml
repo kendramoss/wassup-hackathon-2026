@@ -53,6 +53,7 @@ servers:
 paths:
   /health:
     get:
+      operationId: getHealth
       summary: Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
       description: With deep=1 it also writes, reads and deletes a probe case with its own random ID (D118) and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
       parameters:
@@ -71,6 +72,7 @@ paths:
               schema: { $ref: "#/components/schemas/Health" }
   /v1/cases/predict:
     post:
+      operationId: predictCase
       summary: Predict origin for a case (creates the case)
       description: |
         With `STREAM_PREDICT=on` on the server (off by default, D71), send `Accept: text/event-stream` to receive the analysis as server-sent events instead of one JSON response:
@@ -96,6 +98,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/batch:
     post:
+      operationId: triageBatch
       summary: Triage a portfolio (up to 20 products) in one call
       description: |
         Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
@@ -162,6 +165,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/cases:
     get:
+      operationId: listCases
       summary: List the cases the caller can see, pinned (seeded demos) first, then most recently updated
       description: |
         Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
@@ -180,6 +184,7 @@ paths:
                     items: { $ref: "#/components/schemas/CaseSummary" }
   /v1/cases/{id}:
     get:
+      operationId: getCase
       summary: Fetch a case with its prediction and latest plan
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
@@ -191,6 +196,7 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "404": { $ref: "#/components/responses/Error" }
     patch:
+      operationId: renameCase
       summary: Rename a case (its display name on Cases home)
       description: Sets display_name; product_name stays as entered. Whitespace is collapsed; 1–200 characters. Pinned cases need the admin token (403 otherwise). No model call; recorded in history as renamed; updated_at is unchanged (D48).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
@@ -210,6 +216,7 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
     delete:
+      operationId: deleteCase
       summary: Delete a case
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
@@ -221,6 +228,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/pin:
     put:
+      operationId: pinCase
       summary: Pin or unpin a case (admin token required)
       description: Pinned cases list first and cannot be deleted without the admin token. The demo seed pins the cases it creates. Recorded in history; updated_at is unchanged.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
@@ -240,6 +248,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/plan:
     post:
+      operationId: planCase
       summary: Search plans for a target origin (needs a structured product and a family)
       description: |
         Send `Accept: text/event-stream` to receive the search as server-sent events instead of one JSON response:
@@ -274,6 +283,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/plan/estimate:
     post:
+      operationId: estimatePlan
       summary: Estimate a plan search's cost and time before running it (no model call)
       description: |
         Takes the same body as `POST /v1/cases/{id}/plan` and makes no model call (D87). It counts the moves the
@@ -304,6 +314,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/export:
     post:
+      operationId: exportCase
       summary: Draft a CBP ruling request for the case (Markdown)
       description: >-
         Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a
@@ -351,6 +362,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/answers:
     post:
+      operationId: answerCase
       summary: Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26), while a sentence that states a fact together with something unknown is kept whole and verbatim, unknown part included, so the analysis reads the requester's own uncertainty (D115); conditional, hedged or ambiguous mixed sentences are left out whole; 400 if no answer adds a fact
       description: >-
         When the answers change the facts, the case's plan search, target comparison, watch result and exported mark are cleared (they were worked out from the old facts); history and scenarios stay. 409 `conflict` when the case's inputs (for example a new BOM) changed while the re-analysis ran; the answers are not saved, send them again. D97.
@@ -382,6 +394,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
+      operationId: importProduct
       summary: Turn a bill of materials (CSV or Excel) into a structured product
       description: |
         Does not create a case: send the returned product (with the family) to POST /v1/cases/predict.
@@ -442,6 +455,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
   /v1/products/money-prefill:
     post:
+      operationId: prefillMoney
       summary: Fill the duty rates of the money inputs from the product's HTS number, or a suggested one (#235)
       description: |
         Nothing is saved. HTS: the product's own, else (HTS_SUGGEST=on) the top suggestion from CBP rulings (one router-model call),
@@ -478,6 +492,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/products/family-check:
     post:
+      operationId: checkFamily
       summary: Match what the user typed as a product family to a supported template family, or "none" (18 Oct)
       description: |
         One router-model call with a constrained answer: the family must be a template that exists, or "none". "none" means origin
@@ -519,6 +534,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/products/cost-estimate:
     post:
+      operationId: estimateCost
       summary: AI estimates for the yearly group costs the user left blank (#235 step 4)
       description: |
         One router-model call. Only blank cells are estimated: each group the product has, at each plant that makes it or lists it
@@ -565,6 +581,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/products/extract:
     post:
+      operationId: extractProduct
       summary: Draft an editable structured product from pasted facts text (nothing is saved)
       description: |
         The engine model lists the parts, countries and assembly steps the text states, paragraph by paragraph (paragraphs split on blank lines, cited 1-based). Code then checks groups against the family template, names unnamed plants "<Country> plant" (name_guessed), and asks what else each plant could make (the plan search needs capabilities).
@@ -659,6 +676,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/hts-suggest:
     post:
+      operationId: suggestHts
       summary: Suggest up to 3 HTS subheadings from CBP rulings that state one (off unless HTS_SUGGEST=on, D64)
       description: |
         BM25 finds the 10 indexed rulings most like the product (815 rulings whose text states the subheading CBP applied, 449 distinct 8-digit subheadings; `backend/data/hts_index.json`), groups them by subheading and keeps the 3 best (summed scores). One router-model call (constrained JSON) gives each a short reason, citing only rulings retrieved for that subheading. If that call fails the candidates are still returned with `reasons_unavailable: true`.
@@ -707,6 +725,7 @@ paths:
         "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
+      operationId: compareTargets
       summary: Compare 2–4 target countries (one plan search each, in parallel) and rank them
       description: |
         Ranking: countries with a shown plan first (best net per year), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
@@ -742,6 +761,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/economics:
     put:
+      operationId: putEconomics
       summary: Replace the case's money inputs (no model calls)
       description: Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics. The same validation (rates 0 to 1, no negative annual value, group cost or target cost, no non-finite number) runs on the effective economics of plan, plan/estimate, scenarios and compare-targets, supplied or reused, before any pricing, planner or model call; an invalid value is 400 `invalid_input` and nothing is saved (D106).
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
@@ -781,6 +801,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/ask:
     post:
+      operationId: askCase
       summary: Ask the case agent a question about this case
       description: |
         An ADK agent with tools get_case (the first 6000 characters of the facts, with a notice when more exist), get_case_facts (the facts by character offset, at most 4000 per call), search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on the full revised facts, at most 12,000 characters, at most 2 per question; longer facts are refused with a message and nothing is predicted) (D116).
@@ -835,6 +856,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/scenarios:
     post:
+      operationId: runScenarios
       summary: Predict 1–3 alternative production setups side by side (replaces the case's previous scenarios)
       description: Each scenario gives facts text or a structured product (rendered with the case family's template). Scenarios run the engine, router and triage like predict, without the clarify review. The case's own prediction is unchanged.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
@@ -874,6 +896,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/bom-version:
     post:
+      operationId: applyBomVersion
       summary: Compare a newer bill of materials with the case's product (supplier change alert; off unless BOM_VERSIONS=on)
       description: |
         D67. Served only with `BOM_VERSIONS=on` (otherwise 404). The upload is read as for POST /v1/products/import (CSV or .xlsx, 5 MB, 500 rows; Excel limits from D57) and parsed with the case's family template; the product name, description and HTS stay the case's, and plants that are the same supplier (same normalized name, D105) keep the case's plant IDs.
@@ -946,6 +969,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/watch:
     post:
+      operationId: watchCase
       summary: Re-check the prediction with every precedent available today
       description: >-
         The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs. 409 `conflict` when the case's inputs (a new BOM or answers) changed during the re-check: the result is discarded, not saved (D97). In the scheduler run such a case is listed in `failed`.
@@ -965,6 +989,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/watch/run:
     post:
+      operationId: runWatch
       summary: Re-check every analysed case (for a scheduler; admin token required)
       responses:
         "403": { $ref: "#/components/responses/Error" }
@@ -980,8 +1005,44 @@ paths:
                   changed: { type: array, items: { type: string } }
                   changed_basis: { type: object, description: "Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change", additionalProperties: { type: string, enum: [precedent, regime, method, specialist_unavailable, unverified] } }
                   failed: { type: array, items: { type: string } }
+  /v1/rulings:
+    get:
+      operationId: searchRulings
+      summary: Search the precedent corpus of earlier CBP rulings by text (no model call)
+      description: |
+        Keyword (BM25) ranking over the facts sections of the rulings Unde predicts from; rulings that share no query word are not returned. Served when the server has the corpus index (always in the deployed server). No model call and no fetch from CBP: it takes from the per-client ruling-lookup limit only (429 when spent). The query is not echoed or logged. Read a ruling in full with `GET /v1/rulings/{id}`. Also the MCP tool `search_rulings` (docs/MCP.md).
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, maxLength: 300 }, description: "Search words; at least one word of 3 or more letters." }
+        - { name: limit, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 20, default: 10 } }
+        - { name: before, in: query, required: false, schema: { type: string, format: date }, description: "Only rulings dated strictly before this date." }
+      responses:
+        "200":
+          description: Matching rulings, best first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rulings, disclaimer]
+                properties:
+                  rulings:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, date, origin, url, snippet, score]
+                      properties:
+                        id: { type: string, example: N300001 }
+                        date: { type: string, format: date }
+                        subject: { type: string }
+                        origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
+                        url: { type: string }
+                        snippet: { type: string, description: "The first 300 characters of the ruling's facts section" }
+                        score: { type: number }
+                  disclaimer: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
   /v1/rulings/{id}:
     get:
+      operationId: getRuling
       summary: A CBP ruling's text (proxied from rulings.cbp.gov) with its public link
       parameters:
         - name: id
@@ -998,6 +1059,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/duty-rates:
     get:
+      operationId: getDutyRates
       summary: Sourced duty rates by HTS subheading, with every component and source (D52)
       description: >-
         The sourced table always wins. With DUTY_LIVE_MFN=on (default off), a subheading the table does not have is
@@ -1049,6 +1111,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/demos:
     get:
+      operationId: listDemos
       summary: Demo cases for the UI's "load demo" button
       responses:
         "200":
@@ -1070,6 +1133,7 @@ paths:
                         has_plan: { type: boolean }
   /v1/demos/{id}:
     get:
+      operationId: getDemo
       summary: One demo with ready request bodies for predict and plan
       parameters:
         - name: id
@@ -1096,6 +1160,7 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
   /v1/workspaces:
     post:
+      operationId: createWorkspace
       summary: Create a team workspace (TEAMS=on; sign-in required)
       description: The caller becomes its admin and only member. A user can be in one workspace (409 conflict if already in one). Served only with TEAMS=on (404 otherwise). D68.
       parameters: [{ $ref: "#/components/parameters/UserToken" }]
@@ -1115,6 +1180,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/workspaces/mine:
     get:
+      operationId: getMyWorkspace
       summary: The signed-in user, their workspace and pending invitations (TEAMS=on)
       parameters: [{ $ref: "#/components/parameters/UserToken" }]
       responses:
@@ -1143,6 +1209,7 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/members:
     post:
+      operationId: inviteMember
       summary: Invite a member by email (the workspace's admin only; TEAMS=on)
       description: Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`, #283); the invitee joins as an `editor`; 404 for a workspace the caller is not in; 409 if the email is already a member of this workspace or members plus invitations reach 50.
       parameters:
@@ -1169,6 +1236,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/members/{email}/role:
     put:
+      operationId: setMemberRole
       summary: Set a member's role (workspace admin only; TEAMS=on)
       description: "Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic)."
       parameters:
@@ -1196,6 +1264,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/members/{email}:
     delete:
+      operationId: removeMember
       summary: Remove a member, or leave (TEAMS=on)
       description: "An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation."
       parameters:
@@ -1224,6 +1293,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/workspaces/{id}/join:
     post:
+      operationId: joinWorkspace
       summary: Accept an invitation to a workspace (TEAMS=on)
       description: The caller must have been invited by email (`GET /v1/workspaces/mine` lists invitations). 404 without an invitation or for an unknown workspace; 409 if the caller is already in a workspace or it has 50 members. Only cases created after joining belong to the workspace. No request body.
       parameters:
@@ -1243,6 +1313,7 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
   /v1/audit:
     get:
+      operationId: listAudit
       summary: List a tenant's audit events (workspace admin or admin token; audit enabled only)
       description: "Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint."
       security: [{ AdminToken: [] }, {}]
@@ -1272,6 +1343,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/audit/verify:
     get:
+      operationId: verifyAudit
       summary: Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
       description: "Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above)."
       security: [{ AdminToken: [] }, {}]
@@ -1293,6 +1365,7 @@ paths:
         "429": { $ref: "#/components/responses/Error" }
   /v1/eval/summary:
     get:
+      operationId: getEvalSummary
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
       responses:
         "200":
@@ -1302,6 +1375,7 @@ paths:
               schema: { $ref: "#/components/schemas/EvalSummary" }
   /v1/admin/api-keys:
     post:
+      operationId: issueApiKey
       summary: Issue an API key (admin token required; API_KEYS=on only)
       description: Returns the key once, in `key`. Only its SHA-256 is stored, so it cannot be shown again; issue a new one if it is lost (D69).
       security: [{ AdminToken: [] }]
@@ -1332,6 +1406,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
     get:
+      operationId: listApiKeys
       summary: List API keys without secrets (admin token required)
       security: [{ AdminToken: [] }]
       responses:
@@ -1347,6 +1422,7 @@ paths:
         "403": { $ref: "#/components/responses/Error" }
   /v1/admin/api-keys/{id}:
     delete:
+      operationId: disableApiKey
       summary: Disable an API key for good (admin token required)
       description: The record stays in the list with `disabled` true; requests with the key then get 401.
       security: [{ AdminToken: [] }]
@@ -1357,6 +1433,24 @@ paths:
         "204": { description: Disabled, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
+  /mcp:
+    post:
+      operationId: mcp
+      summary: Model Context Protocol endpoint (Streamable HTTP, stateless JSON-RPC)
+      description: |
+        The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
+      security: [{}, { ApiKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, description: "A JSON-RPC 2.0 request (MCP)" }
+      responses:
+        "200":
+          description: The JSON-RPC response, as application/json or a text/event-stream
+        "400": { description: Malformed MCP request }
+        "403": { description: The admin token was sent }
+        "405": { description: Only POST is served }
 components:
   securitySchemes:
     ApiKey:

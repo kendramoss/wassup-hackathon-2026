@@ -208,6 +208,12 @@ type Deps struct {
 	// daily request quota, cases owned by the key) and serves the admin key
 	// endpoints (D69). Nil: the header is ignored and the endpoints are 404.
 	APIKeys *apikey.Keys
+	// RulingSearch, when set, serves GET /v1/rulings?q= (a text search over
+	// the precedent corpus) and the MCP search_rulings tool. Nil: 404.
+	RulingSearch RulingSearch
+	// MCPOff turns the MCP endpoint (POST /mcp, docs/MCP.md) off. It is on by
+	// default wherever the API is.
+	MCPOff bool
 	// StreamPredict lets POST /v1/cases/predict answer as server-sent events
 	// (stage events, then the case) when the client sends Accept:
 	// text/event-stream (D71). Off by default: JSON as before.

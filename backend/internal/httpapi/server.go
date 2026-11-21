@@ -26,6 +26,7 @@ type Info struct {
 func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	mux := http.NewServeMux()
 	var a *api
+	var root http.Handler // the finished handler, for the MCP tools (set below)
 	if len(deps) > 0 && deps[0].Engine != nil {
 		d := deps[0]
 		if d.Logger == nil {
@@ -76,6 +77,12 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
 		mux.HandleFunc("POST /v1/cases/{id}/answers", a.limit(light, a.answers))
 		mux.HandleFunc("GET /v1/rulings/{id}", a.ruling)
+		if d.RulingSearch != nil {
+			mux.HandleFunc("GET /v1/rulings", a.rateOnly(lookup, a.searchRulings))
+		}
+		if !d.MCPOff {
+			mux.HandleFunc("POST /mcp", a.mcp(&root, info.Version)) // docs/MCP.md; its tools call the routes above in-process
+		}
 		mux.HandleFunc("GET /v1/eval/summary", a.evalSummary)
 		mux.HandleFunc("GET /v1/duty-rates", a.dutyRates)
 		mux.HandleFunc("GET /v1/demos", a.listDemos)
@@ -119,7 +126,8 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	if a != nil && a.d.APIKeys != nil {
 		h = a.withAPIKeys(h)
 	}
-	return withRequestLog(logger, h)
+	root = withRequestLog(logger, h)
+	return root
 }
 
 type ctxKey struct{}   // the request's logsafe.Ref

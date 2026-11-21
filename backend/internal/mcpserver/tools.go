@@ -1,0 +1,657 @@
+package mcpserver
+
+import (
+	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/google/jsonschema-go/jsonschema"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+)
+
+// Disclaimer goes with every tool result (domain.Disclaimer, repeated so the
+// package stays free of the API's internals).
+const Disclaimer = "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling."
+
+type tools struct {
+	api      http.Handler
+	families []string
+}
+
+// handler is what each tool implements: build one API call from the input,
+// then summarise the answer. hdr is the MCP request's header (mapped by guard).
+type handler[In any] func(ctx context.Context, hdr http.Header, in In) (*mcp.CallToolResult, any, error)
+
+// add registers one tool. Adding a tool is one call here plus its handler,
+// e.g. extract_product_from_media once POST /v1/products/extract-media exists.
+func add[In any](s *mcp.Server, tool *mcp.Tool, h handler[In]) {
+	mcp.AddTool(s, tool, func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, any, error) {
+		var hdr http.Header
+		if req != nil && req.Extra != nil {
+			hdr = req.Extra.Header
+		}
+		return h(ctx, hdr, in)
+	})
+}
+
+// Annotations. Lookups are read-only; case tools write to the caller's own
+// case only (never delete); tools that may fetch from CBP or USITC are
+// open-world.
+func readOnly(title string, openWorld bool) *mcp.ToolAnnotations {
+	return &mcp.ToolAnnotations{Title: title, ReadOnlyHint: true, IdempotentHint: true, DestructiveHint: ptr(false), OpenWorldHint: ptr(openWorld)}
+}
+
+func writes(title string) *mcp.ToolAnnotations {
+	return &mcp.ToolAnnotations{Title: title, DestructiveHint: ptr(false), OpenWorldHint: ptr(false)}
+}
+
+// Tool names map to the OpenAPI operationIds (docs/api/openapi.yaml).
+func (t tools) register(s *mcp.Server, search bool) {
+	add(s, &mcp.Tool{
+		Name: "predict_origin",
+		Description: `Predict the country of origin U.S. Customs (CBP) would likely assign to a product (substantial-transformation test), citing earlier CBP rulings. Creates a case and returns its case_id.
+Use it when the user asks "what origin would CBP give this product" or before searching production moves.
+Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one); family helps plan search. 
+Returns: predicted origin, confidence (0-1), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
+Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predict (operationId predictCase).`,
+		InputSchema: &jsonschema.Schema{
+			Type: "object", AdditionalProperties: &jsonschema.Schema{Not: &jsonschema.Schema{}},
+			AnyOf: []*jsonschema.Schema{{Required: []string{"facts"}}, {Required: []string{"product"}}},
+			Properties: map[string]*jsonschema.Schema{
+				"facts":   str("The product facts in plain language: what it is, each part and the country it is made in, and where it is assembled or processed. Up to 12,000 characters.", 20, 12000),
+				"product": t.product(),
+				"family":  t.family(),
+				"date":    pattern("Case date (YYYY-MM-DD); only CBP rulings dated before it are used. Default: today (UTC).", datePattern, 10),
+				"current_origin": object("CBP's actual holding on the current setup, if the user has one.", []string{"country"}, map[string]*jsonschema.Schema{
+					"country": country("Country CBP held."),
+					"ruling":  pattern("The ruling number, e.g. N328954.", `^[NH][0-9]{6}$`, 7),
+				}),
+				"display_name":    str("Optional name for the case.", 1, 200),
+				"case_access_key": accessKey(),
+			},
+		},
+		Annotations: writes("Predict country of origin"),
+	}, t.predict)
+
+	add(s, &mcp.Tool{
+		Name: "extract_product",
+		Description: `Draft a structured product (parts, plants, assembly operations) from free text. Nothing is saved.
+Use it when the user pastes a supplier note, BOM text or description and you want structured input for predict_origin or plan search.
+Input: facts (up to 12,000 characters), optional family and name. Parts with no stated country are listed in warnings, never guessed.
+Returns: product, plants, warnings and follow-up questions. Takes about 15 s. REST: POST /v1/products/extract (operationId extractProduct).`,
+		InputSchema: object("", []string{"facts"}, map[string]*jsonschema.Schema{
+			"facts":  str("The text to read.", 20, 12000),
+			"family": t.family(),
+			"name":   str("Product name; defaults to the name in the text.", 1, 200),
+		}),
+		Annotations: readOnly("Extract a structured product", false),
+	}, t.extract)
+
+	add(s, &mcp.Tool{
+		Name: "plan_production_moves",
+		Description: `Search production moves (which operation groups to move to plants in a target country) that earlier CBP rulings support for changing the product's origin to that country. Heavy: about 30 s or more, and a stricter rate limit.
+Use it after predict_origin when the user asks how to get a different origin (for example to lower duties).
+Input: case_id and target_country. The case needs a structured product with a family, and plants in the target country with capabilities.
+Returns: precedent-supported plans (move, predicted origin, supporting ruling, check confidence, yearly figures when the case has economics), and rejected moves with reasons. Plans are precedent-supported at most, never approved.
+Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/plan (operationId planCase).`,
+		InputSchema: object("", []string{"case_id", "target_country"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"target_country":  country("Country of origin to aim for, e.g. Thailand."),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: writes("Plan production moves"),
+	}, t.plan)
+
+	add(s, &mcp.Tool{
+		Name: "compare_target_countries",
+		Description: `Run the plan search for 2 to 4 target countries in parallel and rank them (shown plan first, then below the confidence bar, then no supported plan, then no capable plant). Heavy: about as long as one plan search.
+Use it when the user asks which country to move production to.
+Input: case_id and targets. Returns the ranked countries with each one's best plan.
+Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/compare-targets (operationId compareTargets).`,
+		InputSchema: object("", []string{"case_id", "targets"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"targets":         uniq(array("Target countries.", country(""), 2, 4)),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: writes("Compare target countries"),
+	}, t.compare)
+
+	if search {
+		add(s, &mcp.Tool{
+			Name: "search_rulings",
+			Description: `Search Unde's corpus of earlier CBP country-of-origin rulings by text (keyword ranking over the facts sections).
+Use it to find precedents for a product or an operation, e.g. "printed circuit board assembly motor housing".
+Input: query, optional before date and limit. Returns ruling numbers, dates, subjects, CBP's held origin, a facts snippet and a link. Read one in full with get_ruling.
+REST: GET /v1/rulings (operationId searchRulings).`,
+			InputSchema: object("", []string{"query"}, map[string]*jsonschema.Schema{
+				"query":  str("Words to search for (at least one word of 3 or more letters).", 3, 300),
+				"before": pattern("Only rulings dated before this date (YYYY-MM-DD).", datePattern, 10),
+				"limit":  integer("How many results (default 10).", 1, 20),
+			}),
+			Annotations: readOnly("Search CBP rulings", false),
+		}, t.search)
+	}
+
+	add(s, &mcp.Tool{
+		Name: "get_ruling",
+		Description: `Read one CBP ruling's text with its date, subject, CBP's held origin and public link on rulings.cbp.gov.
+Use it to read a ruling that a prediction, plan or search cited. Input: ruling_id like N357771 or H301234.
+REST: GET /v1/rulings/{id} (operationId getRuling).`,
+		InputSchema: object("", []string{"ruling_id"}, map[string]*jsonschema.Schema{
+			"ruling_id": pattern("CBP ruling number: N or H and 6 digits.", `^[NH][0-9]{6}$`, 7),
+		}),
+		Annotations: readOnly("Get a CBP ruling", true),
+	}, t.ruling)
+
+	add(s, &mcp.Tool{
+		Name: "get_duty_rates",
+		Description: `Look up sourced U.S. duty rates for an HTS subheading by country of origin, with every component (MFN, Section 301 and others) and its source.
+Use it when the user asks what duty a product pays from a given country. Input: hts (8 or 10 digits, e.g. 8419.89.95) and optional country to narrow the answer.
+Returns: the line's description and, per origin, the total ad valorem rate (0.25 = 25%) and its components. Subheadings outside the sourced table may be answered with the live MFN rate only.
+REST: GET /v1/duty-rates (operationId getDutyRates).`,
+		InputSchema: object("", []string{"hts"}, map[string]*jsonschema.Schema{
+			"hts":     pattern("HTS subheading, 8 digits or 10 with a statistical suffix.", `^[0-9][0-9. -]{7,13}$`, 14),
+			"country": country("Only this origin's rate."),
+		}),
+		Annotations: readOnly("Get duty rates", true),
+	}, t.duty)
+
+	add(s, &mcp.Tool{
+		Name: "get_case",
+		Description: `Fetch one of the caller's cases (or a demo case) with its product, prediction, cited rulings and latest plan.
+Use it to resume work on a case. Only cases created with the same API key (or case_access_key) and the demo cases are visible; any other id answers not found.
+REST: GET /v1/cases/{id} (operationId getCase).`,
+		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: readOnly("Get a case", false),
+	}, t.getCase)
+
+	add(s, &mcp.Tool{
+		Name: "list_cases",
+		Description: `List the caller's cases and the demo cases (pinned first, then most recently updated): id, name, predicted origin, confidence, triage route and workflow step.
+Use it to find a case_id. Only the caller's own cases (same API key or case_access_key) and the demos are listed.
+REST: GET /v1/cases (operationId listCases).`,
+		InputSchema: object("", nil, map[string]*jsonschema.Schema{
+			"case_access_key": accessKey(),
+		}),
+		Annotations: readOnly("List cases", false),
+	}, t.listCases)
+
+	add(s, &mcp.Tool{
+		Name: "export_ruling_request_draft",
+		Description: `Draft a CBP binding-ruling request letter (Markdown) for a case, for a customs broker to review and complete. A preview: nothing is recorded on the case.
+Use it when the user wants to ask CBP for a binding ruling on the current setup or on a plan.
+Input: case_id; optional plan_index (a shown plan of the latest plan search), or target with move_key (a plan from compare_target_countries); format markdown (short) or cfr177 (19 C.F.R. 177.2 layout with [FILL IN] gaps, when the server enables it).
+Returns the letter text and reviewer notes. It is a draft: a licensed customs broker must review it. REST: POST /v1/cases/{id}/export (operationId exportCase).`,
+		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"format":          enum("markdown (default) or cfr177.", "markdown", "cfr177"),
+			"plan_index":      integer("Index into the latest plan search's shown plans; omit for the current setup.", 0, 100),
+			"target":          country("With move_key: the country of a compare_target_countries search."),
+			"move_key":        str("A plan's move key, e.g. motor_fan_assembly@th+pcba@th.", 1, 300),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: readOnly("Draft a ruling request", false),
+	}, t.export)
+}
+
+func uniq(s *jsonschema.Schema) *jsonschema.Schema { s.UniqueItems = true; return s }
+
+// ---- inputs ----
+
+type knownOrigin struct {
+	Country string `json:"country"`
+	Ruling  string `json:"ruling,omitempty"`
+}
+
+type predictIn struct {
+	Facts         string         `json:"facts,omitempty"`
+	Product       map[string]any `json:"product,omitempty"`
+	Family        string         `json:"family,omitempty"`
+	Date          string         `json:"date,omitempty"`
+	CurrentOrigin *knownOrigin   `json:"current_origin,omitempty"`
+	DisplayName   string         `json:"display_name,omitempty"`
+	AccessKey     string         `json:"case_access_key,omitempty"`
+}
+
+type extractIn struct {
+	Facts  string `json:"facts"`
+	Family string `json:"family,omitempty"`
+	Name   string `json:"name,omitempty"`
+}
+
+type planIn struct {
+	CaseID    string `json:"case_id"`
+	Target    string `json:"target_country"`
+	AccessKey string `json:"case_access_key,omitempty"`
+}
+
+type compareIn struct {
+	CaseID    string   `json:"case_id"`
+	Targets   []string `json:"targets"`
+	AccessKey string   `json:"case_access_key,omitempty"`
+}
+
+type searchIn struct {
+	Query  string `json:"query"`
+	Before string `json:"before,omitempty"`
+	Limit  int    `json:"limit,omitempty"`
+}
+
+type rulingIn struct {
+	RulingID string `json:"ruling_id"`
+}
+
+type dutyIn struct {
+	HTS     string `json:"hts"`
+	Country string `json:"country,omitempty"`
+}
+
+type caseIn struct {
+	CaseID    string `json:"case_id"`
+	AccessKey string `json:"case_access_key,omitempty"`
+}
+
+type listIn struct {
+	AccessKey string `json:"case_access_key,omitempty"`
+}
+
+type exportIn struct {
+	CaseID    string `json:"case_id"`
+	Format    string `json:"format,omitempty"`
+	PlanIndex *int   `json:"plan_index,omitempty"`
+	Target    string `json:"target,omitempty"`
+	MoveKey   string `json:"move_key,omitempty"`
+	AccessKey string `json:"case_access_key,omitempty"`
+}
+
+// ---- handlers ----
+
+func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp.CallToolResult, any, error) {
+	date := in.Date
+	if date == "" {
+		date = time.Now().UTC().Format(time.DateOnly)
+	}
+	body := map[string]any{"date": date}
+	if in.Facts != "" {
+		body["facts"] = in.Facts
+	}
+	if in.Product != nil {
+		body["product"] = in.Product
+	}
+	if in.Family != "" {
+		body["family"] = in.Family
+	}
+	if in.CurrentOrigin != nil {
+		body["current_origin"] = in.CurrentOrigin
+	}
+	if in.DisplayName != "" {
+		body["display_name"] = in.DisplayName
+	}
+	// An anonymous caller gets a case access key: without one, a case made
+	// with CASE_OWNERSHIP on could not be read back (nothing else ties two
+	// stateless MCP requests to the same caller).
+	access := in.AccessKey
+	minted := false
+	if !hasKey(hdr) && access == "" {
+		access, minted = newAccessKey(), true
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: "/v1/cases/predict", body: body, access: access})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	var b strings.Builder
+	p := obj(out["prediction"])
+	fmt.Fprintf(&b, "Likely origin: %s (confidence %s).", str0(p["origin_country"], "unknown"), pct(p["confidence"]))
+	if d := str0(p["decisive_step"], ""); d != "" {
+		fmt.Fprintf(&b, " Decisive step: %s.", d)
+	}
+	if tr := obj(out["triage"]); tr["route"] != nil {
+		fmt.Fprintf(&b, "\nTriage: %v. %s", tr["route"], str0(tr["reason"], ""))
+	}
+	if cited := list(p["cited_rulings"]); len(cited) > 0 {
+		fmt.Fprintf(&b, "\nCited CBP rulings: %s.", joinAny(cited))
+	}
+	if cl := obj(out["clarify"]); len(list(cl["questions"])) > 0 {
+		fmt.Fprintf(&b, "\nOpen questions: %d (see clarify.questions).", len(list(cl["questions"])))
+	}
+	fmt.Fprintf(&b, "\nCase id: %v.", out["id"])
+	if access != "" && !hasKey(hdr) {
+		out["case_access_key"] = access
+		if minted {
+			b.WriteString("\ncase_access_key returned: pass it with the case_id to later calls on this case. Keep it private; anyone holding it can read the case.")
+		}
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) extract(ctx context.Context, hdr http.Header, in extractIn) (*mcp.CallToolResult, any, error) {
+	body := map[string]any{"facts": in.Facts}
+	if in.Family != "" {
+		body["family"] = in.Family
+	}
+	if in.Name != "" {
+		body["name"] = in.Name
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: "/v1/products/extract", body: body})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	pr := obj(out["product"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "Draft product %q: %d parts, %d plants, %d operations.", str0(pr["name"], ""), len(list(pr["components"])), len(list(out["plants"])), len(list(pr["operations"])))
+	for _, w := range list(out["warnings"]) {
+		fmt.Fprintf(&b, "\nWarning: %v", w)
+	}
+	if q := list(out["questions"]); len(q) > 0 {
+		fmt.Fprintf(&b, "\n%d follow-up questions (see questions).", len(q))
+	}
+	b.WriteString("\nReview it, then pass it as product to predict_origin.")
+	return done(b.String(), out)
+}
+
+func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/plan"), body: map[string]any{"target": in.Target}, access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	pl := obj(out["plan"])
+	plans, rejected := list(pl["plans"]), list(pl["rejected"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "Target %s: %d precedent-supported plans, %d rejected moves.", str0(pl["target"], in.Target), len(plans), len(rejected))
+	for i, x := range plans {
+		if i == 5 {
+			fmt.Fprintf(&b, "\n... %d more in plan.plans.", len(plans)-5)
+			break
+		}
+		fmt.Fprintf(&b, "\n%d. %s", i+1, planLine(obj(x)))
+	}
+	if len(plans) == 0 && len(rejected) > 0 {
+		fmt.Fprintf(&b, "\nClosest rejected: %s", planLine(obj(rejected[0])))
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) compare(ctx context.Context, hdr http.Header, in compareIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/compare-targets"), body: map[string]any{"targets": in.Targets}, access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	var b strings.Builder
+	b.WriteString("Ranked targets:")
+	for _, x := range list(out["targets"]) {
+		ts := obj(x)
+		fmt.Fprintf(&b, "\n%v. %v: %v", ts["rank"], ts["target"], ts["status"])
+		if best := obj(ts["best"]); len(best) > 0 {
+			fmt.Fprintf(&b, ". Best: %s", planLine(best))
+		}
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) search(ctx context.Context, hdr http.Header, in searchIn) (*mcp.CallToolResult, any, error) {
+	q := url.Values{"q": {in.Query}}
+	if in.Before != "" {
+		q.Set("before", in.Before)
+	}
+	if in.Limit > 0 {
+		q.Set("limit", fmt.Sprint(in.Limit))
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: "/v1/rulings", query: q})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	hits := list(out["rulings"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "%d rulings found.", len(hits))
+	for _, x := range hits {
+		h := obj(x)
+		fmt.Fprintf(&b, "\n%v (%v): %s. Held origin: %s.", h["id"], h["date"], str0(h["subject"], "no subject"), str0(h["origin"], "none stated"))
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) ruling(ctx context.Context, hdr http.Header, in rulingIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: "/v1/rulings/" + url.PathEscape(in.RulingID)})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	text := str0(out["text"], "")
+	if r := []rune(text); len(r) > 6000 {
+		text = string(r[:6000]) + "\n[... truncated; the full text is in structuredContent.text and at the url]"
+	}
+	return done(fmt.Sprintf("%v (%v): %s\nHeld origin: %s\n%v\n\n%s", out["id"], out["date"], str0(out["subject"], ""), str0(out["origin"], "none stated"), out["url"], text), out)
+}
+
+func (t tools) duty(ctx context.Context, hdr http.Header, in dutyIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: "/v1/duty-rates", query: url.Values{"hts": {in.HTS}}})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	if in.Country != "" {
+		var keep []any
+		for _, x := range list(out["rates"]) {
+			if strings.EqualFold(str0(obj(x)["origin"], ""), in.Country) {
+				keep = append(keep, x)
+			}
+		}
+		out["rates"] = keep
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "HTS %v: %s.", out["hts"], str0(out["description"], ""))
+	for _, x := range list(out["rates"]) {
+		r := obj(x)
+		fmt.Fprintf(&b, "\nFrom %v: %s total ad valorem", r["origin"], pct(r["total"]))
+		if r["unverified"] == true {
+			b.WriteString(" (unverified)")
+		}
+		b.WriteString(".")
+	}
+	if m := obj(out["live_mfn"]); len(m) > 0 {
+		fmt.Fprintf(&b, "\nLive MFN (column 1 general) rate from the USITC HTS, without additional duties: %s.", str0(m["general"], "see live_mfn"))
+	}
+	if in.Country != "" && len(list(out["rates"])) == 0 && out["live_mfn"] == nil {
+		fmt.Fprintf(&b, "\nNo sourced rate for %s on this line.", in.Country)
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: casePath(in.CaseID, ""), access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	p := obj(out["prediction"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "Case %v %q (step %v).", out["id"], str0(out["display_name"], str0(obj(out["product"])["name"], "")), out["step"])
+	if len(p) > 0 {
+		fmt.Fprintf(&b, "\nPredicted origin: %s (confidence %s).", str0(p["origin_country"], "unknown"), pct(p["confidence"]))
+	}
+	if pl := obj(out["plan"]); len(pl) > 0 {
+		fmt.Fprintf(&b, "\nLatest plan search: target %v, %d shown plans.", pl["target"], len(list(pl["plans"])))
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) listCases(ctx context.Context, hdr http.Header, in listIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: "/v1/cases", access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	cs := list(out["cases"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "%d cases.", len(cs))
+	for i, x := range cs {
+		if i == 25 {
+			fmt.Fprintf(&b, "\n... %d more in cases.", len(cs)-25)
+			break
+		}
+		c := obj(x)
+		demo := ""
+		if c["pinned"] == true {
+			demo = " [demo]"
+		}
+		fmt.Fprintf(&b, "\n%v%s: %v. Origin %s, step %v.", c["id"], demo, c["display_name"], str0(c["predicted_origin"], "not analysed"), c["step"])
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) export(ctx context.Context, hdr http.Header, in exportIn) (*mcp.CallToolResult, any, error) {
+	body := map[string]any{"preview": true}
+	if in.Format != "" {
+		body["format"] = in.Format
+	}
+	if in.PlanIndex != nil {
+		body["plan_index"] = *in.PlanIndex
+	}
+	if in.Target != "" {
+		body["target"] = in.Target
+	}
+	if in.MoveKey != "" {
+		body["move_key"] = in.MoveKey
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/export"), body: body, access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	var b strings.Builder
+	b.WriteString(str0(out["content"], ""))
+	if notes := list(out["notes"]); len(notes) > 0 {
+		b.WriteString("\n\nReviewer notes (not part of the letter):")
+		for _, n := range notes {
+			fmt.Fprintf(&b, "\n- %v", n)
+		}
+	}
+	return done(b.String(), out)
+}
+
+// ---- results ----
+
+// done is a successful tool result: the summary text with the disclaimer,
+// and the API's answer (trimmed) as structured content.
+func done(text string, out map[string]any) (*mcp.CallToolResult, any, error) {
+	if _, ok := out["disclaimer"]; !ok {
+		out["disclaimer"] = Disclaimer
+	}
+	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text + "\n\n" + Disclaimer}}}, out, nil
+}
+
+// failed is a tool error: the API's status, code and message, so the model
+// can tell a rate limit (retry later) from bad input (fix it) or a missing
+// case (wrong id or key).
+func failed(res apiResult, err error) (*mcp.CallToolResult, any, error) {
+	if err != nil {
+		return nil, nil, err
+	}
+	code, msg := str0(res.body["code"], "error"), str0(res.body["message"], http.StatusText(res.status))
+	text := fmt.Sprintf("Unde API error %d %s: %s", res.status, code, msg)
+	switch {
+	case res.status == http.StatusNotFound && code == "not_found":
+		text += "\nThe id does not exist or is not visible to this caller: cases are private to the API key, or the case_access_key, that created them."
+	case res.status == http.StatusTooManyRequests || code == "budget_reached":
+		if ra := str0(res.body["retry_after"], ""); ra != "" {
+			text += fmt.Sprintf("\nRetry after %s seconds.", ra)
+		}
+	case res.status == http.StatusUnauthorized && code == "unauthorized":
+		text += "\nCheck the API key in the connection's Authorization header."
+	}
+	out := map[string]any{"status": res.status, "error": res.body}
+	return &mcp.CallToolResult{IsError: true, Content: []mcp.Content{&mcp.TextContent{Text: text}}}, out, nil
+}
+
+// trim drops bulky internals (search trails, model traces, cost stats,
+// history, chat) from the structured result; get_case over REST has them.
+func trim(m map[string]any) map[string]any {
+	for _, k := range []string{"trail", "trace", "stats", "history", "chat"} {
+		delete(m, k)
+	}
+	for k, v := range m {
+		m[k] = trimAny(v)
+	}
+	return m
+}
+
+func trimAny(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		return trim(x)
+	case []any:
+		for i := range x {
+			x[i] = trimAny(x[i])
+		}
+	}
+	return v
+}
+
+func planLine(p map[string]any) string {
+	var b strings.Builder
+	b.WriteString(str0(p["description"], "move"))
+	pred := obj(p["prediction"])
+	if o := str0(pred["origin_country"], ""); o != "" {
+		fmt.Fprintf(&b, "; predicted origin %s", o)
+	}
+	v := obj(p["verdict"])
+	if r := str0(v["supporting_ruling"], ""); r != "" {
+		fmt.Fprintf(&b, "; supported by %s (check confidence %s)", r, pct(v["confidence"]))
+	}
+	if p["net_priced"] == true {
+		fmt.Fprintf(&b, "; modelled net %v USD a year", p["net_per_year"])
+	}
+	if r := str0(p["rejection_reason"], ""); r != "" {
+		fmt.Fprintf(&b, "; not shown: %s", r)
+	}
+	return b.String()
+}
+
+func casePath(id, rest string) string { return "/v1/cases/" + url.PathEscape(id) + rest }
+
+func hasKey(h http.Header) bool { return h != nil && h.Get("X-API-Key") != "" }
+
+func newAccessKey() string {
+	b := make([]byte, 24)
+	_, _ = rand.Read(b)
+	return "mcp_" + hex.EncodeToString(b)
+}
+
+func obj(v any) map[string]any { m, _ := v.(map[string]any); return m }
+func list(v any) []any         { l, _ := v.([]any); return l }
+
+func str0(v any, def string) string {
+	if s, ok := v.(string); ok && s != "" {
+		return s
+	}
+	return def
+}
+
+func pct(v any) string {
+	f, ok := v.(float64)
+	if !ok {
+		return "unknown"
+	}
+	return fmt.Sprintf("%.0f%%", f*100)
+}
+
+func joinAny(xs []any) string {
+	s := make([]string, len(xs))
+	for i, x := range xs {
+		s[i] = fmt.Sprint(x)
+	}
+	return strings.Join(s, ", ")
+}
