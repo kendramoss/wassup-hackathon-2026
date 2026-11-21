@@ -451,8 +451,7 @@
      "printed circuit board assembly (PCBA)",
      "knob",
      "power cord",
-     "back cover",
-     "outer shells"
+     "back cover"
     ],
     "moved_by_plan": [
      "printed circuit board assembly (PCBA)"
@@ -462,7 +461,9 @@
      "fan",
      "knob",
      "power cord",
-     "back cover",
+     "back cover"
+    ],
+    "already_in_target": [
      "outer shells"
     ]
    },

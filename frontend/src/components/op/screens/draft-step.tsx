@@ -11,6 +11,7 @@ import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { moveKey, movePhrase } from "../plan-bits";
+import { tourHref, useStepLabel, useTour } from "../demo-tour";
 import { ReviewNotes, fillIn, letterComponents } from "../letter";
 import { ReviewNote } from "../review-note";
 import { BrokerReviews } from "../broker-reviews";
@@ -39,7 +40,9 @@ const formats: { key: Format; label: string }[] = [
 ];
 
 function Draft({ id, c, setCase }: CaseCtx) {
+  const stepNo = useStepLabel("draft", "Step 4 of 4");
   const readOnly = caseReadOnly(c);
+  const tour = useTour();
   const params = useSearchParams();
   // With a shown plan, the letter defaults to it: the plan is what people
   // came to draft (D180). ?setup=current asks for today's setup instead.
@@ -129,7 +132,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
       <Main className="grid gap-10 lg:grid-cols-[360px_minmax(0,1fr)]">
         <div className="no-print flex flex-col gap-5">
           <div>
-            <p className="eyebrow">Step 4 of 4 · Draft for broker</p>
+            <p className="eyebrow">{stepNo} · Draft for broker</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
             <p className="duo mt-1 text-sm text-dim">
               A draft binding-ruling request under 19 C.F.R. Part 177 {defaulted ? "for the shown plan" : move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
@@ -142,13 +145,13 @@ function Draft({ id, c, setCase }: CaseCtx) {
                   Move {movePhrase(shownPlan)}
                   {c.plan?.target ? ` to ${c.plan.target}` : ""}.
                 </span>
-                <Link href={`/cases/${encodeURIComponent(id)}/draft?setup=current`} className="text-ok underline underline-offset-2">
+                <Link href={tourHref(`/cases/${encodeURIComponent(id)}/draft?setup=current`, tour)} className="text-ok underline underline-offset-2">
                   Draft for today&apos;s setup instead →
                 </Link>
               </p>
             ) : current && shownPlan ? (
               <p className="duo mt-2 text-sm">
-                <Link href={`/cases/${encodeURIComponent(id)}/draft`} className="text-ok underline underline-offset-2">
+                <Link href={tourHref(`/cases/${encodeURIComponent(id)}/draft`, tour)} className="text-ok underline underline-offset-2">
                   Draft for the shown plan instead →
                 </Link>
                 <span className="block text-[13px] text-dim">
@@ -231,7 +234,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
           />
           <NextSteps
             inline
-            steps={[{ label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` }]}
+            steps={[{ label: "Back to the plan", href: tourHref(`/cases/${encodeURIComponent(id)}/plan`, tour) }]}
           />
         </div>
         {/* From lg up the letter scrolls in its own box beside the form (18 Oct). */}

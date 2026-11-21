@@ -103,8 +103,30 @@ func TestPlanShowsSupportedMoveAndRejectsTheRest(t *testing.T) {
 	}
 	bt := res.Backtest
 	if bt == nil || !strings.Contains(strings.Join(bt.MovedByPlan, ","), "electric motor") ||
-		!strings.Contains(strings.Join(bt.NotMovedByPlan, ","), "knob") || !strings.Contains(strings.Join(bt.NotMovedByPlan, ","), "outer shells") {
+		!strings.Contains(strings.Join(bt.NotMovedByPlan, ","), "knob") || strings.Contains(strings.Join(bt.NotMovedByPlan, ","), "outer shells") {
 		t.Errorf("backtest = %+v", bt)
+	}
+	// The outer shells were already Thai in 2022: not a part that changed (D310).
+	if len(bt.ActualMoved) != 6 || len(bt.AlreadyInTarget) != 1 || bt.AlreadyInTarget[0] != "outer shells" {
+		t.Errorf("backtest counts = %+v", bt)
+	}
+}
+
+// CBP's real change kept the switch, wires and fasteners in China; a plan that
+// moves the whole switch/cord group moves them anyway, and the backtest says so.
+func TestBacktestCountsChangedPartsAndOvershoot(t *testing.T) {
+	r, _ := fixture(t, "heatgun_2022.json")
+	move := domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}, {Group: "switch_cord_minor_parts", ToPlant: "th"}}
+	bt := backtest(r, []domain.Plan{{Description: "triple", Move: move}})
+	if len(bt.ActualMoved) != 6 || len(bt.MovedByPlan) != 6 || len(bt.NotMovedByPlan) != 0 {
+		t.Errorf("changed parts = %+v", bt)
+	}
+	if got := strings.Join(bt.AlsoMovesKept, ","); got != "switch,wires,fasteners" {
+		t.Errorf("also moves kept = %q", got)
+	}
+	none := backtest(r, nil)
+	if len(none.NotMovedByPlan) != 6 || len(none.AlsoMovesKept) != 0 {
+		t.Errorf("no plan = %+v", none)
 	}
 }
 

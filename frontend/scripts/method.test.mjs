@@ -81,7 +81,9 @@ test("the plan section's figures are in docs/NUMBERS.md", () => {
   assert.ok(numbers.includes(`right ${s2.k}/${s2.n} (${s2.lo}-${s2.hi.toFixed(1)})`));
   assert.ok(numbers.includes(`recall ${f2.k}/${f2.n} = 41.7% (${f2.lo}-${f2.hi})`));
   assert.ok(numbers.includes(`${PLAN_FAMILIES.k} of ${PLAN_FAMILIES.n} = 65.2% (${PLAN_FAMILIES.lo}–${PLAN_FAMILIES.hi})`));
-  assert.ok(numbers.includes("moves 6 of the 7 parts CBP's N357771 change moved"));
+  assert.ok(numbers.includes("moves all 6 parts whose origin CBP's N357771 change switched from China to Thailand"));
+  assert.ok(numbers.includes("Also moves 3 parts that change kept in China: the switch, wires and fasteners"));
+  assert.doesNotMatch(page, /6 of its 7 parts/);
   assert.match(page, /id: "plans", q: "How are plans searched and checked\?"/);
 });
 

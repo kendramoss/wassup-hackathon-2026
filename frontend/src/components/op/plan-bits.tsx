@@ -69,15 +69,69 @@ export function MoveIncludes({ product, plan, className }: { product: Product | 
   );
 }
 
-// Whether the backend's backtest says the top plan moves exactly the parts
-// the manufacturer really moved, and the ruling that recorded the change.
-export function backtestMatch(bt: unknown): { matches: boolean; ruling?: string } {
+// A backtest read for people (judge panel round 5, D310). The comparison is
+// between the parts whose origin CBP's real change switched (made in the old
+// country before, in the target after) and the parts the plan moves:
+// - changed: parts the real change moved, less any the later ruling lists in
+//   the target that were already made there (the heat gun's outer shells);
+// - moved / missed: which of those the plan moves, and which it doesn't;
+// - alsoKept: parts the real change kept in the old country that the plan
+//   moves anyway (a smaller move may have been enough).
+// Older stored backtests lack already_in_target and plan_also_moves_kept, so
+// both are also worked out from the demo's actual_change and the product.
+export type ActualChangeExtras = {
+  already_in_target?: string[];
+  still_from_china?: string[];
+  still_from_china_as?: Record<string, string>;
+};
+export type BacktestView = { changed: string[]; moved: string[]; missed: string[]; already: string[]; alsoKept: string[]; keptGroups: string[]; ruling?: string; matches: boolean };
+
+export function backtestView(
+  bt: unknown,
+  opts: { change?: ActualChangeExtras | null; product?: Product | null; move?: Plan["move"]; recount?: boolean } = {},
+): BacktestView | undefined {
   const b = (bt ?? {}) as Record<string, unknown>;
   const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
-  const actual = list("actual_moved"), moved = list("moved_by_plan");
+  const already = Array.isArray(b.already_in_target) ? list("already_in_target") : (opts.change?.already_in_target ?? []);
+  const changed = list("actual_moved").filter((a) => !already.includes(a));
+  if (changed.length === 0) return undefined;
+  const groups = new Set((opts.move ?? []).map((m) => m.group));
+  const comps = opts.product?.components ?? [];
+  const inMove = (name: string) => comps.some((c) => c.name === name && c.group !== undefined && groups.has(c.group));
+  // With no plan over the bar the backend compares CBP's change with nothing,
+  // so the closest move is compared from its groups instead.
+  const moved = opts.recount ? changed.filter(inMove) : list("moved_by_plan").filter((m) => changed.includes(m));
+  const missed = changed.filter((a) => !moved.includes(a));
+  const alsoKept =
+    !opts.recount && Array.isArray(b.plan_also_moves_kept)
+      ? list("plan_also_moves_kept")
+      : Object.entries(opts.change?.still_from_china_as ?? {})
+          .filter(([, part]) => inMove(part))
+          .map(([word]) => word);
+  // The template groups that hold those parts, for "they sit in one group".
+  const keptGroups = [
+    ...new Set(
+      alsoKept
+        .map((w) => comps.find((c) => c.name === opts.change?.still_from_china_as?.[w])?.group)
+        .filter((g): g is string => Boolean(g))
+        .map((g) => groupName(g, opts.product?.family)),
+    ),
+  ];
   const ruling = typeof b.source === "string" ? b.source.match(/\b[NH]\d{6}\b/)?.[0] : undefined;
-  const matches = actual.length > 0 && list("in_actual_change_not_in_plan").length === 0 && actual.every((a) => moved.includes(a));
-  return { matches, ruling };
+  return { changed, moved, missed, already, alsoKept, keptGroups, ruling, matches: missed.length === 0 && alsoKept.length === 0 };
+}
+
+// Whether the backend's backtest says the top plan moves exactly the parts
+// the manufacturer really moved, and nothing CBP's change kept where it was.
+export function backtestMatch(bt: unknown): { matches: boolean; ruling?: string } {
+  const v = backtestView(bt);
+  const ruling = typeof (bt as Record<string, unknown> | undefined)?.source === "string" ? String((bt as Record<string, unknown>).source).match(/\b[NH]\d{6}\b/)?.[0] : undefined;
+  return { matches: Boolean(v?.matches), ruling };
+}
+
+// A list said in words: "a, b and c".
+export function andList(xs: string[]): string {
+  return xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
 }
 
 // The precedent check said as a judgement: exactly at the bar is never a

@@ -44,6 +44,14 @@ type ActualChange struct {
 	MovedTo         string   `json:"moved_to,omitempty"`
 	MovedComponents []string `json:"moved_to_thailand,omitempty"`
 	StillImported   []string `json:"still_from_china,omitempty"`
+	// AlreadyInTarget lists parts the later ruling names as made in the target
+	// country that were already made there before the change, so they did not
+	// change origin and are not counted as moved (judge panel round 5, D310).
+	AlreadyInTarget []string `json:"already_in_target,omitempty"`
+	// StillImportedAs maps each still-imported part, in the ruling's words, to
+	// the product component that holds it, so a backtest can say which of them
+	// the plan moves anyway (D310).
+	StillImportedAs map[string]string `json:"still_from_china_as,omitempty"`
 }
 
 // Economics are user inputs. Defaults in fixtures are illustrative and must be

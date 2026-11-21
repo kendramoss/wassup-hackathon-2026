@@ -430,13 +430,17 @@ export function MethodPage() {
         </ol>
         <p>
           <b className="font-medium text-ink">Cost and time.</b> The recorded heat-gun search ran {PLAN_COST.engineCalls} engine calls and {PLAN_COST.verifierRuns} verifier runs
-          in {PLAN_COST.heatGunSeconds} s for {PLAN_COST.heatGunUsd} (promo price, a proxy run). The per-family checks averaged {PLAN_COST.perSearchUsd} a search. Before a search the
+          in {PLAN_COST.heatGunSeconds} s for {PLAN_COST.heatGunUsd} (promo price). That is an earlier proxy run of six moves, before three-group moves were
+          searched, and it showed a different plan. It is not the production run behind the 0.96 plan on the plan step. The per-family checks averaged {PLAN_COST.perSearchUsd} a search. Before a search the
           site shows its own estimate; a repeat search uses the stored checks and costs nothing.
         </p>
         <PlanChecks />
         <p>
           <b className="font-medium text-ink">Also measured.</b> The heat gun&apos;s shown plan was backtested against what the manufacturer really did: CBP&apos;s later ruling
-          N357771 records the change, and the plan moves 6 of its 7 parts, all but the outer shells (one production run; the plan step shows it). In the per-family checks, 23
+          N357771 records the change. The comparison is between the parts whose origin that change switched from China to Thailand and the parts the plan moves. The change
+          switched 6 parts, and the plan moves all 6 (one production run; the plan step shows it). The plan also moves the switch, wires and fasteners, which the real change
+          kept in China, so a smaller move may have been enough. The outer shells, which N357771 also lists as Thai, were already Thai in 2022 and are not counted. This is
+          not a blind test: three-group moves were added to the search after the team saw this change (<D id="D84" />). The date cutoff still holds. In the per-family checks, 23
           products across the families, {PLAN_FAMILIES.k} of {PLAN_FAMILIES.n} showed a supported plan ({PLAN_FAMILIES.lo}–{PLAN_FAMILIES.hi}); read by hand, the cited ruling
           supports the move in {PLAN_FAMILIES.supports} of those {PLAN_FAMILIES.k}, partly in {PLAN_FAMILIES.partial} and not in {PLAN_FAMILIES.not} (<D id="D171" />). The
           heat-gun pair itself is left out of every flip-pair run, so the check was never fitted to the demo.

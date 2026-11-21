@@ -186,6 +186,14 @@
       "wires",
       "fasteners"
     ],
+    "already_in_target": [
+      "outer shells"
+    ],
+    "still_from_china_as": {
+      "switch": "switch",
+      "wires": "wiring",
+      "fasteners": "support ring, heat insulator and fasteners"
+    },
     "moved_to": "Thailand"
   },
   "exclude_rulings": [
