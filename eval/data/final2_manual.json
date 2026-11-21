@@ -1,0 +1,16 @@
+{
+ "N364778": {
+  "primary_origin": "Vietnam",
+  "note": "Holding: 'the country of origin in this scenario would be Vietnam'. The ruling describes one scenario; the regex skips the sentence because of 'would be'.",
+  "evidence": [
+   "As the parts from China are assembled and afterwards emerge with a new name, character, and use that is different from what they possessed prior to processing, thus completing a substantial transformation, the country of origin in this scenario would be Vietnam."
+  ]
+ },
+ "N365630": {
+  "primary_origin": "United States",
+  "note": "Holding: 'The Country-of-Origin of the subject vehicle is the United States' (a U.S. vehicle returned under 9801.00.10); the regex holding patterns do not match the hyphenated form.",
+  "evidence": [
+   "The Country-of-Origin of the subject vehicle is the United States, and would be eligible for importation back to the United States under 9801.00.1065, Harmonized Tariff Schedule of the United States."
+  ]
+ }
+}

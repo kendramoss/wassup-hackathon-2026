@@ -32,5 +32,8 @@ type Row struct {
 	LatencyMS     int64    `json:"latency_ms"`
 	CostUSD       float64  `json:"cost_usd"`
 	CostUSDList   float64  `json:"cost_usd_list"`
-	Error         string   `json:"error,omitempty"`
+	// GatewayCostUSD is the cost the LiteLLM gateway reported for this case's
+	// calls (D151); zero on Vertex runs, which price tokens instead.
+	GatewayCostUSD float64 `json:"cost_usd_gateway,omitempty"`
+	Error          string  `json:"error,omitempty"`
 }

@@ -75,6 +75,7 @@ type Summary struct {
 	PromptVersions       []string
 	CostPerCase          float64
 	CostPerCaseList      float64
+	GatewayCostPerCase   float64 // gateway-reported cost (D151); 0 on Vertex runs
 	LatencyP50, P95      int64
 	MeanInTok, MeanOut   float64
 	ByMethod             map[string][2]int // label method -> {n, correct}
@@ -94,7 +95,7 @@ func Summarize(rows []Row) Summary {
 	}
 	providers, models, prompts := map[string]bool{}, map[string]bool{}, map[string]bool{}
 	var lat []int64
-	var cost, costList, in, out float64
+	var cost, costList, gw, in, out float64
 	for _, r := range rows {
 		s.N++
 		if r.Error != "" {
@@ -130,12 +131,14 @@ func Summarize(rows []Row) Summary {
 		lat = append(lat, r.LatencyMS)
 		cost += r.CostUSD
 		costList += r.CostUSDList
+		gw += r.GatewayCostUSD
 		in += float64(r.InputTokens)
 		out += float64(r.OutputTokens)
 	}
 	s.Acc, s.Lo, s.Hi = Wilson(s.Correct, s.N)
 	if ok := s.N - s.Errors; ok > 0 {
 		s.CostPerCase, s.CostPerCaseList = cost/float64(ok), costList/float64(ok)
+		s.GatewayCostPerCase = gw / float64(ok)
 		s.MeanInTok, s.MeanOut = in/float64(ok), out/float64(ok)
 	}
 	s.LatencyP50, s.P95 = Percentile(lat, 50), Percentile(lat, 95)

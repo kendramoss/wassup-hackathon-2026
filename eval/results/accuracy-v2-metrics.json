@@ -1,0 +1,1326 @@
+{
+ "_doc": "Built by eval/charts/build_accuracy.py from committed rows; no model calls. Development set = dev split with the D23 scoring adjustments. Cost per case is the gateway-reported cost where the row has one, else the token-priced promo cost.",
+ "bar": 0.92,
+ "dev": {
+  "argon_vertex": {
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "n": 463,
+   "correct": 422,
+   "errors": 0,
+   "accuracy_pct": 91.1,
+   "ci95_pct": [
+    88.2,
+    93.4
+   ],
+   "fast_path": {
+    "accepted": 368,
+    "coverage_pct": 79.5,
+    "correct": 355,
+    "wrong": 13,
+    "accuracy_pct": 96.5,
+    "ci95_pct": [
+     94.1,
+     97.9
+    ]
+   },
+   "cost_per_case_usd": 0.0079,
+   "latency_p50_s": 4.8,
+   "latency_p95_s": 8.1,
+   "calibration": {
+    "mean_confidence_pct": 94.9,
+    "ece_levels": 0.0498,
+    "ece_levels_ci95": [
+     0.0327,
+     0.0775
+    ],
+    "ece_10_bins": 0.0376,
+    "brier": 0.0722,
+    "brier_ci95": [
+     0.0511,
+     0.0938
+    ],
+    "brier_constant_forecast": 0.0807
+   }
+  },
+  "argon_gateway": {
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl",
+   "n": 463,
+   "correct": 425,
+   "errors": 0,
+   "accuracy_pct": 91.8,
+   "ci95_pct": [
+    88.9,
+    94.0
+   ],
+   "fast_path": {
+    "accepted": 375,
+    "coverage_pct": 81.0,
+    "correct": 359,
+    "wrong": 16,
+    "accuracy_pct": 95.7,
+    "ci95_pct": [
+     93.2,
+     97.4
+    ]
+   },
+   "cost_per_case_usd": 0.0079,
+   "latency_p50_s": 6.8,
+   "latency_p95_s": 10.8,
+   "calibration": {
+    "mean_confidence_pct": 95.2,
+    "ece_levels": 0.0451,
+    "ece_levels_ci95": [
+     0.0297,
+     0.0716
+    ],
+    "ece_10_bins": 0.0336,
+    "brier": 0.0689,
+    "brier_ci95": [
+     0.0503,
+     0.0899
+    ],
+    "brier_constant_forecast": 0.0753
+   }
+  },
+  "carbon_gateway": {
+   "file": "eval/results/dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl",
+   "n": 463,
+   "correct": 408,
+   "errors": 27,
+   "accuracy_pct": 88.1,
+   "ci95_pct": [
+    84.9,
+    90.8
+   ],
+   "fast_path": {
+    "accepted": 379,
+    "coverage_pct": 81.9,
+    "correct": 365,
+    "wrong": 14,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.9,
+     97.8
+    ]
+   },
+   "cost_per_case_usd": 0.0155,
+   "latency_p50_s": 13.0,
+   "latency_p95_s": 52.2,
+   "calibration": {
+    "mean_confidence_pct": 90.3,
+    "ece_levels": 0.0337,
+    "ece_levels_ci95": [
+     0.0261,
+     0.0611
+    ],
+    "ece_10_bins": 0.0213,
+    "brier": 0.0523,
+    "brier_ci95": [
+     0.0345,
+     0.071
+    ],
+    "brier_constant_forecast": 0.1047
+   }
+  },
+  "pro31_gateway": {
+   "file": "eval/results/dev-gemini-3.1-pro-preview-prec-engine-v1-litellm.jsonl",
+   "n": 463,
+   "correct": 404,
+   "errors": 10,
+   "accuracy_pct": 87.3,
+   "ci95_pct": [
+    83.9,
+    90.0
+   ],
+   "fast_path": {
+    "accepted": 387,
+    "coverage_pct": 83.6,
+    "correct": 359,
+    "wrong": 28,
+    "accuracy_pct": 92.8,
+    "ci95_pct": [
+     89.7,
+     94.9
+    ]
+   },
+   "cost_per_case_usd": 0.0178,
+   "latency_p50_s": 10.6,
+   "latency_p95_s": 24.7,
+   "calibration": {
+    "mean_confidence_pct": 93.8,
+    "ece_levels": 0.0655,
+    "ece_levels_ci95": [
+     0.0392,
+     0.0953
+    ],
+    "ece_10_bins": 0.0655,
+    "brier": 0.0932,
+    "brier_ci95": [
+     0.0696,
+     0.1197
+    ],
+    "brier_constant_forecast": 0.1112
+   }
+  },
+  "flash38_vertex": {
+   "file": "eval/results/dev-gemini-3.8-flash-prec-engine-v1-vertex.jsonl",
+   "n": 463,
+   "correct": 417,
+   "errors": 0,
+   "accuracy_pct": 90.1,
+   "ci95_pct": [
+    87.0,
+    92.5
+   ],
+   "fast_path": {
+    "accepted": 406,
+    "coverage_pct": 87.7,
+    "correct": 378,
+    "wrong": 28,
+    "accuracy_pct": 93.1,
+    "ci95_pct": [
+     90.2,
+     95.2
+    ]
+   },
+   "cost_per_case_usd": 0.005,
+   "latency_p50_s": 5.5,
+   "latency_p95_s": 20.4,
+   "calibration": {
+    "mean_confidence_pct": 95.4,
+    "ece_levels": 0.0637,
+    "ece_levels_ci95": [
+     0.0391,
+     0.0912
+    ],
+    "ece_10_bins": 0.0547,
+    "brier": 0.0871,
+    "brier_ci95": [
+     0.0654,
+     0.1114
+    ],
+    "brier_constant_forecast": 0.0895
+   }
+  },
+  "argon_rules_v2_gateway": {
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-rules-v2.jsonl",
+   "n": 463,
+   "correct": 421,
+   "errors": 0,
+   "accuracy_pct": 90.9,
+   "ci95_pct": [
+    88.0,
+    93.2
+   ],
+   "fast_path": {
+    "accepted": 360,
+    "coverage_pct": 77.8,
+    "correct": 348,
+    "wrong": 12,
+    "accuracy_pct": 96.7,
+    "ci95_pct": [
+     94.3,
+     98.1
+    ]
+   },
+   "cost_per_case_usd": 0.0086,
+   "latency_p50_s": 7.0,
+   "latency_p95_s": 10.6,
+   "calibration": {
+    "mean_confidence_pct": 94.6,
+    "ece_levels": 0.0478,
+    "ece_levels_ci95": [
+     0.0334,
+     0.0773
+    ],
+    "ece_10_bins": 0.0365,
+    "brier": 0.0739,
+    "brier_ci95": [
+     0.0541,
+     0.0949
+    ],
+    "brier_constant_forecast": 0.0825
+   }
+  },
+  "vote3_argon_first": {
+   "file": "computed: majority of argon_gateway, carbon_gateway, pro31_gateway",
+   "n": 463,
+   "correct": 424,
+   "errors": 0,
+   "accuracy_pct": 91.6,
+   "ci95_pct": [
+    88.7,
+    93.8
+   ],
+   "fast_path": {
+    "accepted": 353,
+    "coverage_pct": 76.2,
+    "correct": 340,
+    "wrong": 13,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "cost_per_case_usd": 0.0432,
+   "latency_p50_s": 14.3,
+   "latency_p95_s": 55.3,
+   "calibration": {
+    "mean_confidence_pct": 90.5,
+    "ece_levels": 0.0779,
+    "ece_levels_ci95": [
+     0.0712,
+     0.1103
+    ],
+    "ece_10_bins": 0.0295,
+    "brier": 0.0694,
+    "brier_ci95": [
+     0.0533,
+     0.0878
+    ],
+    "brier_constant_forecast": 0.0771
+   },
+   "unanimous": {
+    "n": 398,
+    "correct": 380,
+    "accuracy_pct": 95.5
+   }
+  },
+  "vote3_carbon_first": {
+   "file": "computed: majority of carbon_gateway, argon_gateway, pro31_gateway",
+   "n": 463,
+   "correct": 424,
+   "errors": 0,
+   "accuracy_pct": 91.6,
+   "ci95_pct": [
+    88.7,
+    93.8
+   ],
+   "fast_path": {
+    "accepted": 353,
+    "coverage_pct": 76.2,
+    "correct": 340,
+    "wrong": 13,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "cost_per_case_usd": 0.0432,
+   "latency_p50_s": 14.3,
+   "latency_p95_s": 55.3,
+   "calibration": {
+    "mean_confidence_pct": 90.5,
+    "ece_levels": 0.0779,
+    "ece_levels_ci95": [
+     0.0712,
+     0.1103
+    ],
+    "ece_10_bins": 0.0295,
+    "brier": 0.0694,
+    "brier_ci95": [
+     0.0533,
+     0.0878
+    ],
+    "brier_constant_forecast": 0.0771
+   },
+   "unanimous": {
+    "n": 398,
+    "correct": 380,
+    "accuracy_pct": 95.5
+   }
+  },
+  "vote3_pro31_first": {
+   "file": "computed: majority of pro31_gateway, carbon_gateway, argon_gateway",
+   "n": 463,
+   "correct": 420,
+   "errors": 0,
+   "accuracy_pct": 90.7,
+   "ci95_pct": [
+    87.7,
+    93.0
+   ],
+   "fast_path": {
+    "accepted": 353,
+    "coverage_pct": 76.2,
+    "correct": 340,
+    "wrong": 13,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "cost_per_case_usd": 0.0432,
+   "latency_p50_s": 14.3,
+   "latency_p95_s": 55.3,
+   "calibration": {
+    "mean_confidence_pct": 90.5,
+    "ece_levels": 0.0704,
+    "ece_levels_ci95": [
+     0.0664,
+     0.1023
+    ],
+    "ece_10_bins": 0.0203,
+    "brier": 0.0655,
+    "brier_ci95": [
+     0.05,
+     0.084
+    ],
+    "brier_constant_forecast": 0.0842
+   },
+   "unanimous": {
+    "n": 398,
+    "correct": 380,
+    "accuracy_pct": 95.5
+   }
+  }
+ },
+ "dev_vs_argon_vertex": {
+  "argon_gateway": {
+   "n": 463,
+   "fixed": 8,
+   "broke": 5,
+   "p": 0.581
+  },
+  "carbon_gateway": {
+   "n": 463,
+   "fixed": 6,
+   "broke": 20,
+   "p": 0.009
+  },
+  "pro31_gateway": {
+   "n": 463,
+   "fixed": 12,
+   "broke": 30,
+   "p": 0.008
+  },
+  "flash38_vertex": {
+   "n": 463,
+   "fixed": 13,
+   "broke": 18,
+   "p": 0.473
+  },
+  "argon_rules_v2_gateway": {
+   "n": 463,
+   "fixed": 9,
+   "broke": 10,
+   "p": 1.0
+  },
+  "vote3_argon_first": {
+   "n": 463,
+   "fixed": 8,
+   "broke": 6,
+   "p": 0.791
+  },
+  "vote3_carbon_first": {
+   "n": 463,
+   "fixed": 8,
+   "broke": 6,
+   "p": 0.791
+  },
+  "vote3_pro31_first": {
+   "n": 463,
+   "fixed": 8,
+   "broke": 10,
+   "p": 0.815
+  }
+ },
+ "dev_vs_argon_gateway": {
+  "argon_vertex": {
+   "n": 463,
+   "fixed": 5,
+   "broke": 8,
+   "p": 0.581
+  },
+  "carbon_gateway": {
+   "n": 463,
+   "fixed": 7,
+   "broke": 24,
+   "p": 0.003
+  },
+  "pro31_gateway": {
+   "n": 463,
+   "fixed": 10,
+   "broke": 31,
+   "p": 0.001
+  },
+  "flash38_vertex": {
+   "n": 463,
+   "fixed": 10,
+   "broke": 18,
+   "p": 0.185
+  },
+  "argon_rules_v2_gateway": {
+   "n": 463,
+   "fixed": 9,
+   "broke": 13,
+   "p": 0.523
+  }
+ },
+ "carbon_answered_vs_argon_gateway": {
+  "n": 436,
+  "fixed": 7,
+  "broke": 5,
+  "p": 0.774,
+  "carbon_correct": 408,
+  "argon_correct": 406
+ },
+ "calibration_maps": {
+  "argon_vertex": [
+   {
+    "from": 0.65,
+    "to_incl": 0.65,
+    "n": 1,
+    "correct": 0,
+    "calibrated": 0.0
+   },
+   {
+    "from": 0.72,
+    "to_incl": 0.85,
+    "n": 44,
+    "correct": 27,
+    "calibrated": 0.6136
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 45,
+    "correct": 35,
+    "calibrated": 0.7778
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.92,
+    "n": 40,
+    "correct": 36,
+    "calibrated": 0.9
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 61,
+    "correct": 55,
+    "calibrated": 0.9016
+   },
+   {
+    "from": 0.96,
+    "to_incl": 0.96,
+    "n": 31,
+    "correct": 29,
+    "calibrated": 0.9355
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 114,
+    "correct": 113,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 109,
+    "correct": 109,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 18,
+    "correct": 18,
+    "calibrated": 0.99
+   }
+  ],
+  "argon_gateway": [
+   {
+    "from": 0.72,
+    "to_incl": 0.72,
+    "n": 1,
+    "correct": 0,
+    "calibrated": 0.0
+   },
+   {
+    "from": 0.75,
+    "to_incl": 0.75,
+    "n": 2,
+    "correct": 1,
+    "calibrated": 0.5
+   },
+   {
+    "from": 0.78,
+    "to_incl": 0.78,
+    "n": 9,
+    "correct": 6,
+    "calibrated": 0.6667
+   },
+   {
+    "from": 0.85,
+    "to_incl": 0.85,
+    "n": 31,
+    "correct": 23,
+    "calibrated": 0.7419
+   },
+   {
+    "from": 0.88,
+    "to_incl": 0.9,
+    "n": 40,
+    "correct": 31,
+    "calibrated": 0.775
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.92,
+    "n": 36,
+    "correct": 31,
+    "calibrated": 0.8611
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.96,
+    "n": 98,
+    "correct": 88,
+    "calibrated": 0.898
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 124,
+    "correct": 123,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 107,
+    "correct": 107,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 15,
+    "correct": 15,
+    "calibrated": 0.99
+   }
+  ],
+  "carbon_gateway": [
+   {
+    "from": 0.0,
+    "to_incl": 0.0,
+    "n": 27,
+    "correct": 0,
+    "calibrated": 0.0
+   },
+   {
+    "from": 0.82,
+    "to_incl": 0.82,
+    "n": 2,
+    "correct": 1,
+    "calibrated": 0.5
+   },
+   {
+    "from": 0.84,
+    "to_incl": 0.85,
+    "n": 5,
+    "correct": 3,
+    "calibrated": 0.6
+   },
+   {
+    "from": 0.86,
+    "to_incl": 0.88,
+    "n": 22,
+    "correct": 16,
+    "calibrated": 0.7273
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 21,
+    "correct": 16,
+    "calibrated": 0.7619
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.93,
+    "n": 45,
+    "correct": 38,
+    "calibrated": 0.8444
+   },
+   {
+    "from": 0.94,
+    "to_incl": 0.94,
+    "n": 12,
+    "correct": 11,
+    "calibrated": 0.9167
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 49,
+    "correct": 46,
+    "calibrated": 0.9388
+   },
+   {
+    "from": 0.96,
+    "to_incl": 0.96,
+    "n": 51,
+    "correct": 49,
+    "calibrated": 0.9608
+   },
+   {
+    "from": 0.97,
+    "to_incl": 0.98,
+    "n": 114,
+    "correct": 113,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 113,
+    "correct": 113,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 2,
+    "correct": 2,
+    "calibrated": 0.99
+   }
+  ],
+  "pro31_gateway": [
+   {
+    "from": 0.0,
+    "to_incl": 0.0,
+    "n": 10,
+    "correct": 0,
+    "calibrated": 0.0
+   },
+   {
+    "from": 0.85,
+    "to_incl": 0.85,
+    "n": 4,
+    "correct": 2,
+    "calibrated": 0.5
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 57,
+    "correct": 38,
+    "calibrated": 0.6667
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 243,
+    "correct": 216,
+    "calibrated": 0.8889
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 24,
+    "correct": 23,
+    "calibrated": 0.9583
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 125,
+    "correct": 125,
+    "calibrated": 0.99
+   }
+  ],
+  "flash38_vertex": [
+   {
+    "from": 0.65,
+    "to_incl": 0.75,
+    "n": 2,
+    "correct": 1,
+    "calibrated": 0.5
+   },
+   {
+    "from": 0.85,
+    "to_incl": 0.85,
+    "n": 13,
+    "correct": 7,
+    "calibrated": 0.5385
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 35,
+    "correct": 25,
+    "calibrated": 0.7143
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 265,
+    "correct": 236,
+    "calibrated": 0.8906
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 94,
+    "correct": 94,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 19,
+    "correct": 19,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 35,
+    "correct": 35,
+    "calibrated": 0.99
+   }
+  ],
+  "argon_rules_v2_gateway": [
+   {
+    "from": 0.65,
+    "to_incl": 0.72,
+    "n": 5,
+    "correct": 3,
+    "calibrated": 0.6
+   },
+   {
+    "from": 0.78,
+    "to_incl": 0.85,
+    "n": 45,
+    "correct": 27,
+    "calibrated": 0.6
+   },
+   {
+    "from": 0.88,
+    "to_incl": 0.9,
+    "n": 48,
+    "correct": 38,
+    "calibrated": 0.7917
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.92,
+    "n": 32,
+    "correct": 29,
+    "calibrated": 0.9062
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.96,
+    "n": 109,
+    "correct": 101,
+    "calibrated": 0.9266
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 106,
+    "correct": 105,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 112,
+    "correct": 112,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 6,
+    "correct": 6,
+    "calibrated": 0.99
+   }
+  ]
+ },
+ "calibration_layer_engine_v1": {
+  "fitted_on": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+  "applied_to": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+  "method": "isotonic regression (pool-adjacent-violators), one block per emitted confidence value",
+  "map": [
+   {
+    "from": 0.65,
+    "to_incl": 0.65,
+    "n": 1,
+    "correct": 0,
+    "calibrated": 0.0
+   },
+   {
+    "from": 0.72,
+    "to_incl": 0.85,
+    "n": 44,
+    "correct": 27,
+    "calibrated": 0.6136
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 45,
+    "correct": 35,
+    "calibrated": 0.7778
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.92,
+    "n": 40,
+    "correct": 36,
+    "calibrated": 0.9
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 61,
+    "correct": 55,
+    "calibrated": 0.9016
+   },
+   {
+    "from": 0.96,
+    "to_incl": 0.96,
+    "n": 31,
+    "correct": 29,
+    "calibrated": 0.9355
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 114,
+    "correct": 113,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 0.99,
+    "n": 109,
+    "correct": 109,
+    "calibrated": 0.99
+   },
+   {
+    "from": 1.0,
+    "to_incl": 1.0,
+    "n": 18,
+    "correct": 18,
+    "calibrated": 0.99
+   }
+  ],
+  "heldout_before": {
+   "mean_confidence_pct": 94.7,
+   "ece_levels": 0.0585,
+   "ece_levels_ci95": [
+    0.0408,
+    0.0912
+   ],
+   "ece_10_bins": 0.0456,
+   "brier": 0.0808,
+   "brier_ci95": [
+    0.0588,
+    0.1046
+   ],
+   "brier_constant_forecast": 0.0885
+  },
+  "heldout_after": {
+   "mean_confidence_pct": 90.4,
+   "ece_levels": 0.03,
+   "ece_levels_ci95": [
+    0.0196,
+    0.0593
+   ],
+   "ece_10_bins": 0.0104,
+   "brier": 0.0724,
+   "brier_ci95": [
+    0.0557,
+    0.0917
+   ],
+   "brier_constant_forecast": 0.0885
+  },
+  "dev_in_sample_after": {
+   "mean_confidence_pct": 90.8,
+   "ece_levels": 0.0031,
+   "ece_levels_ci95": [
+    0.0111,
+    0.0396
+   ],
+   "ece_10_bins": 0.0031,
+   "brier": 0.065,
+   "brier_ci95": [
+    0.0491,
+    0.0818
+   ],
+   "brier_constant_forecast": 0.0807
+  }
+ },
+ "heldout": {
+  "final": {
+   "file": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "n": 377,
+   "correct": 340,
+   "errors": 0,
+   "accuracy_pct": 90.2,
+   "ci95_pct": [
+    86.8,
+    92.8
+   ],
+   "fast_path": {
+    "accepted": 300,
+    "coverage_pct": 79.6,
+    "correct": 288,
+    "wrong": 12,
+    "accuracy_pct": 96.0,
+    "ci95_pct": [
+     93.1,
+     97.7
+    ]
+   },
+   "cost_per_case_usd": 0.0078,
+   "latency_p50_s": 4.6,
+   "latency_p95_s": 5.7,
+   "calibration": {
+    "mean_confidence_pct": 94.7,
+    "ece_levels": 0.0585,
+    "ece_levels_ci95": [
+     0.0408,
+     0.0912
+    ],
+    "ece_10_bins": 0.0456,
+    "brier": 0.0808,
+    "brier_ci95": [
+     0.0588,
+     0.1046
+    ],
+    "brier_constant_forecast": 0.0885
+   }
+  },
+  "final2": {
+   "file": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl",
+   "n": 83,
+   "correct": 77,
+   "errors": 0,
+   "accuracy_pct": 92.8,
+   "ci95_pct": [
+    85.1,
+    96.6
+   ],
+   "fast_path": {
+    "accepted": 75,
+    "coverage_pct": 90.4,
+    "correct": 73,
+    "wrong": 2,
+    "accuracy_pct": 97.3,
+    "ci95_pct": [
+     90.8,
+     99.3
+    ]
+   },
+   "cost_per_case_usd": 0.0098,
+   "latency_p50_s": 7.5,
+   "latency_p95_s": 12.3,
+   "calibration": {
+    "mean_confidence_pct": 96.1,
+    "ece_levels": 0.0667,
+    "ece_levels_ci95": [
+     0.0387,
+     0.126
+    ],
+    "ece_10_bins": 0.0388,
+    "brier": 0.0603,
+    "brier_ci95": [
+     0.0209,
+     0.1087
+    ],
+    "brier_constant_forecast": 0.0671
+   },
+   "calibration_layer": {
+    "before": {
+     "mean_confidence_pct": 96.1,
+     "ece_levels": 0.0667,
+     "ece_levels_ci95": [
+      0.0387,
+      0.126
+     ],
+     "ece_10_bins": 0.0388,
+     "brier": 0.0603,
+     "brier_ci95": [
+      0.0209,
+      0.1087
+     ],
+     "brier_constant_forecast": 0.0671
+    },
+    "after": {
+     "mean_confidence_pct": 93.9,
+     "ece_levels": 0.0375,
+     "ece_levels_ci95": [
+      0.0298,
+      0.0986
+     ],
+     "ece_10_bins": 0.0228,
+     "brier": 0.0511,
+     "brier_ci95": [
+      0.0201,
+      0.0896
+     ],
+     "brier_constant_forecast": 0.0671
+    }
+   },
+   "selective": [
+    {
+     "threshold": 1.0,
+     "accepted": 1,
+     "correct": 1,
+     "coverage_pct": 1.2,
+     "accuracy_pct": 100.0,
+     "ci_lo_pct": 20.7,
+     "ci_hi_pct": 100.0
+    },
+    {
+     "threshold": 0.99,
+     "accepted": 23,
+     "correct": 23,
+     "coverage_pct": 27.7,
+     "accuracy_pct": 100.0,
+     "ci_lo_pct": 85.7,
+     "ci_hi_pct": 100.0
+    },
+    {
+     "threshold": 0.98,
+     "accepted": 52,
+     "correct": 52,
+     "coverage_pct": 62.7,
+     "accuracy_pct": 100.0,
+     "ci_lo_pct": 93.1,
+     "ci_hi_pct": 100.0
+    },
+    {
+     "threshold": 0.96,
+     "accepted": 61,
+     "correct": 61,
+     "coverage_pct": 73.5,
+     "accuracy_pct": 100.0,
+     "ci_lo_pct": 94.1,
+     "ci_hi_pct": 100.0
+    },
+    {
+     "threshold": 0.95,
+     "accepted": 67,
+     "correct": 66,
+     "coverage_pct": 80.7,
+     "accuracy_pct": 98.5,
+     "ci_lo_pct": 92.0,
+     "ci_hi_pct": 99.7
+    },
+    {
+     "threshold": 0.92,
+     "accepted": 75,
+     "correct": 73,
+     "coverage_pct": 90.4,
+     "accuracy_pct": 97.3,
+     "ci_lo_pct": 90.8,
+     "ci_hi_pct": 99.3
+    },
+    {
+     "threshold": 0.9,
+     "accepted": 78,
+     "correct": 74,
+     "coverage_pct": 94.0,
+     "accuracy_pct": 94.9,
+     "ci_lo_pct": 87.5,
+     "ci_hi_pct": 98.0
+    },
+    {
+     "threshold": 0.85,
+     "accepted": 82,
+     "correct": 76,
+     "coverage_pct": 98.8,
+     "accuracy_pct": 92.7,
+     "ci_lo_pct": 84.9,
+     "ci_hi_pct": 96.6
+    },
+    {
+     "threshold": 0.78,
+     "accepted": 83,
+     "correct": 77,
+     "coverage_pct": 100.0,
+     "accuracy_pct": 92.8,
+     "ci_lo_pct": 85.1,
+     "ci_hi_pct": 96.6
+    }
+   ],
+   "composition": {
+    "frozen_at": "2026-11-21T13:50+08:00",
+    "date_min": "2026-09-28",
+    "date_max": "2026-11-13",
+    "funnel": {
+     "labelled_rulings": 163,
+     "substantial_transformation": 85,
+     "multi_country": 85,
+     "with_held_origin": 85,
+     "excluded_two_or_more_countries_held": 2,
+     "without_facts_file": 0,
+     "in_split": 83
+    },
+    "collections": {
+     "NY": 83
+    },
+    "label_method": {
+     "regex": 81,
+     "manual": 2
+    }
+   }
+  },
+  "pooled_final_final2": {
+   "file": "both rows above",
+   "n": 460,
+   "correct": 417,
+   "errors": 0,
+   "accuracy_pct": 90.7,
+   "ci95_pct": [
+    87.6,
+    93.0
+   ],
+   "fast_path": {
+    "accepted": 375,
+    "coverage_pct": 81.5,
+    "correct": 361,
+    "wrong": 14,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "cost_per_case_usd": 0.0082,
+   "latency_p50_s": 4.8,
+   "latency_p95_s": 8.2,
+   "calibration": {
+    "mean_confidence_pct": 95.0,
+    "ece_levels": 0.0547,
+    "ece_levels_ci95": [
+     0.0405,
+     0.0849
+    ],
+    "ece_10_bins": 0.0434,
+    "brier": 0.0771,
+    "brier_ci95": [
+     0.0572,
+     0.0979
+    ],
+    "brier_constant_forecast": 0.0847
+   },
+   "calibration_layer": {
+    "before": {
+     "mean_confidence_pct": 95.0,
+     "ece_levels": 0.0547,
+     "ece_levels_ci95": [
+      0.0405,
+      0.0849
+     ],
+     "ece_10_bins": 0.0434,
+     "brier": 0.0771,
+     "brier_ci95": [
+      0.0572,
+      0.0979
+     ],
+     "brier_constant_forecast": 0.0847
+    },
+    "after": {
+     "mean_confidence_pct": 91.0,
+     "ece_levels": 0.0273,
+     "ece_levels_ci95": [
+      0.0174,
+      0.0533
+     ],
+     "ece_10_bins": 0.0126,
+     "brier": 0.0686,
+     "brier_ci95": [
+      0.053,
+      0.0853
+     ],
+     "brier_constant_forecast": 0.0847
+    }
+   }
+  }
+ },
+ "heldout_all_regimes": {
+  "substantial_transformation": {
+   "file": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "via": "Vertex AI",
+   "n": 377,
+   "correct": 340,
+   "accuracy_pct": 90.2,
+   "ci95_pct": [
+    86.8,
+    92.8
+   ]
+  },
+  "textile_102_21": {
+   "file": "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl",
+   "via": "Vertex AI",
+   "n": 71,
+   "correct": 61,
+   "accuracy_pct": 85.9,
+   "ci95_pct": [
+    76.0,
+    92.2
+   ]
+  },
+  "pharmaceutical": {
+   "file": "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl",
+   "via": "proxy",
+   "n": 56,
+   "correct": 50,
+   "accuracy_pct": 89.3,
+   "ci95_pct": [
+    78.5,
+    95.0
+   ]
+  },
+  "part102_marking": {
+   "file": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+   "via": "proxy",
+   "n": 32,
+   "correct": 25,
+   "accuracy_pct": 78.1,
+   "ci95_pct": [
+    61.2,
+    89.0
+   ]
+  },
+  "pooled": {
+   "n": 536,
+   "correct": 476,
+   "accuracy_pct": 88.8,
+   "ci95_pct": [
+    85.9,
+    91.2
+   ]
+  },
+  "pooled_with_final2": {
+   "n": 619,
+   "correct": 553,
+   "accuracy_pct": 89.3,
+   "ci95_pct": [
+    86.7,
+    91.5
+   ]
+  }
+ },
+ "candidate": {
+  "decision": "D153",
+  "engine": "engine-v1",
+  "model": "gemini-4-argon",
+  "retrieval": "bm25",
+  "k": 5,
+  "calibration": "isotonic map fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
+ }
+}

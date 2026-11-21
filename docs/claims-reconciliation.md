@@ -239,13 +239,13 @@ The same proposed replacements, as exact strings for the integrator, are in the 
 `eval/SHA256SUMS` already pins the labelled corpora and the splits, and `claimscheck` verifies it. The block below pins the other files the check reads (the facts directory is pinned by the digest of its sorted file-name list instead of repeating 3,081 hashes). A changed file fails the check until a person reviews it and refreshes the line. Regenerate with `cd backend && go run ./cmd/claimscheck -print-manifest`.
 
 ```
-f41de39daec2dd4b12e79c31d4a1abf31431e85a9b87ef9f4760811b26e2239f  eval/SHA256SUMS
+b17ddf2168e66c507600ab7a36edef3fcadb6c558abb6a364a9b8c1ec7461009  eval/SHA256SUMS
 727918a055ad3bb10d13392c7859da004f2d8cea2b90fd4a564e71a326d326ad  eval/data/scoring_adjustments.json
 2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81  eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
 c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl
 48e86727d5bbc59c415c8b7ae84325a86ce008492f8c7a8711077718d9948f9d  eval/results/scope-dev-router-v2-vertex.jsonl
-24f42d8b3979f391de415d4266c5a609b4ea0edb91274afe9a52503c7ae6e3b1  eval/results/RUNLOG.jsonl
+27e86a1f5fba0bad69a797e1c80108ece7d24cdbc57ceb168325256093dee6fe  eval/results/RUNLOG.jsonl
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl

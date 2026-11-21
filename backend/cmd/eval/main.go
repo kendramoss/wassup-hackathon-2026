@@ -142,6 +142,8 @@ func main() {
 		err = sliceCmd(os.Args[2:])
 	case "familycov":
 		err = familyCovCmd(os.Args[2:])
+	case "baselines":
+		err = baselinesCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -153,7 +155,7 @@ func main() {
 
 func run(args []string) error {
 	fl := flag.NewFlagSet("run", flag.ExitOnError)
-	split := fl.String("split", "dev", "dev, final or pilot; train or tune_check with -splits ../eval/splits/splits_tune.json")
+	split := fl.String("split", "dev", "dev, final or pilot; final2 with -splits ../eval/splits/splits_final2.json; train or tune_check with -splits ../eval/splits/splits_tune.json")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
@@ -164,12 +166,14 @@ func run(args []string) error {
 	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
+	rulesVersion := fl.String("rules-version", "v1", "with -rules: v1 (rules-v1) or v2 (rules-v2, D157)")
 	useReasoning := fl.Bool("reasoning", false, "show each precedent's CBP reasoning (reasoning-v1; needs -raw)")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
-	confirmFinal := fl.Bool("confirm-final", false, "required to score the held-out final split")
-	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
+	tag := fl.String("tag", "", "appended to the result file name, to keep a repeat run apart from an earlier file with the same configuration")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated; final2 needs ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
-	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
@@ -196,13 +200,13 @@ func run(args []string) error {
 		}
 	}
 
-	if *split == "final" && !*confirmFinal {
-		return errors.New("the final split is held out: pass -confirm-final, and do not change prompts, thresholds or retrieval because of its result")
+	if isHeldOut(*split) && !*confirmFinal {
+		return errors.New("the final splits are held out: pass -confirm-final, and do not change prompts, thresholds or retrieval because of its result")
 	}
 	if *cond != "prec" && *cond != "zero" {
 		return fmt.Errorf("-cond must be prec or zero, got %q", *cond)
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -210,11 +214,11 @@ func run(args []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	labels, err := corpus.LoadLabels(*labelsPath)
+	labels, err := loadLabelFiles(*labelsPath)
 	if err != nil {
 		return err
 	}
-	store, err := corpus.Load(labels, *factsDir)
+	store, err := corpus.LoadDirs(labels, splitComma(*factsDir)...)
 	if err != nil {
 		return err
 	}
@@ -296,6 +300,11 @@ func run(args []string) error {
 			Votes: *votes, VoteBelow: *voteBelow, PrecedentReasoning: *useReasoning}
 		if *useRules {
 			opts.Rules, opts.RulesVersion = engine.Rules, engine.RulesVersion
+			if *rulesVersion == "v2" {
+				opts.Rules, opts.RulesVersion = engine.Rules2, engine.RulesVersion2
+			} else if *rulesVersion != "v1" {
+				return fmt.Errorf("-rules-version must be v1 or v2, got %q", *rulesVersion)
+			}
 		}
 		eng = engine.New(model, retr, opts)
 	}
@@ -359,13 +368,23 @@ func run(args []string) error {
 		name += fmt.Sprintf("-vote%d", *votes)
 	}
 	if *useRules {
-		name += "-" + engine.RulesVersion
+		if *rulesVersion == "v2" {
+			name += "-" + engine.RulesVersion2
+		} else {
+			name += "-" + engine.RulesVersion
+		}
 	}
 	if *useReasoning {
 		name += "-" + engine.ReasoningVersion
 	}
 	if *useRouter {
 		name += "-router"
+	}
+	if *tag != "" {
+		if !regexp.MustCompile(`^[a-z0-9][a-z0-9.-]*$`).MatchString(*tag) {
+			return fmt.Errorf("-tag must be lower-case letters, digits, dots and dashes, got %q", *tag)
+		}
+		name += "-" + *tag
 	}
 	outPath := filepath.Join(*resultsDir, name+".jsonl")
 	done, err := completed(outPath)
@@ -439,6 +458,8 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 		Gold: domain.NormalizeCountry(lab.Origin()), Provider: cfg.LLMProvider, ModelID: cfg.EngineModel,
 		PromptVersion: engine.PromptVersion, InScope: true,
 	}
+	tally := &llm.CostTally{}
+	ctx = llm.ContextWithCostTally(ctx, tally)
 	inScope, scopeReason := true, ""
 	if rt != nil {
 		if l, err := rt.Classify(ctx, c.Facts); err == nil {
@@ -449,6 +470,7 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 		}
 	}
 	res, err := eng.Predict(ctx, domain.Case{ID: c.ID, Date: c.Date, Facts: c.Facts})
+	row.GatewayCostUSD = tally.USD()
 	if err != nil {
 		row.Error = err.Error()
 		return row
@@ -476,11 +498,43 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 			return nil, err
 		}
 		base = v
+	case providerLiteLLM:
+		base = llm.NewLiteLLM(os.Getenv("LITELLM_BASE_URL"), os.Getenv("LITELLM_API_KEY"), cfg.LLMTimeout)
 	default:
 		return nil, fmt.Errorf("eval needs a real model provider, got %q", cfg.LLMProvider)
 	}
 	base = llm.WithPace(base, cfg.LLMCallGap, llm.NewGate(cfg.LLMMaxInFlight, cfg.LLMCoolDown))
 	return llm.WithLogging(llm.WithRetry(base, cfg.LLMMaxRetries, 2*time.Second), logger), nil
+}
+
+// isHeldOut reports whether a split is a held-out test split: final (frozen
+// 14 Oct) or final2 (rulings dated after 25 Sep 2026, frozen 21 Nov, D150).
+// Both need -confirm-final and are logged with held_out true.
+func isHeldOut(split string) bool { return split == "final" || split == "final2" }
+
+// providerLiteLLM is accepted by the eval command only (D151): an
+// OpenAI-compatible LiteLLM gateway to Gemini, for development runs. The
+// server's config still refuses it (D49), so it cannot reach production.
+const providerLiteLLM = "litellm"
+
+// loadConfig reads the same environment as the server. LLM_PROVIDER=litellm
+// is validated as the offline provider, then recorded as "litellm" in every
+// row and in RUNLOG.jsonl; it needs LITELLM_BASE_URL and LITELLM_API_KEY.
+func loadConfig() (config.Config, error) {
+	if !strings.EqualFold(os.Getenv("LLM_PROVIDER"), providerLiteLLM) {
+		return config.Load()
+	}
+	if os.Getenv("LITELLM_BASE_URL") == "" || os.Getenv("LITELLM_API_KEY") == "" {
+		return config.Config{}, errors.New("LLM_PROVIDER=litellm needs LITELLM_BASE_URL and LITELLM_API_KEY")
+	}
+	_ = os.Setenv("LLM_PROVIDER", config.ProviderFake)
+	cfg, err := config.Load()
+	_ = os.Setenv("LLM_PROVIDER", providerLiteLLM)
+	if err != nil {
+		return config.Config{}, err
+	}
+	cfg.LLMProvider = providerLiteLLM
+	return cfg, nil
 }
 
 // completed returns rulings already scored without error in a result file.
@@ -555,7 +609,7 @@ func appendRunLog(dir, name, split string, cfg config.Config, s evalkit.Summary,
 		prompt = engine.PharmaVersion
 	}
 	entry := map[string]any{
-		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": split == "final",
+		"time": time.Now().Format(time.RFC3339), "run": name, "split": split, "held_out": isHeldOut(split),
 		"cases": n, "limit": limit, "scored": s.N, "correct": s.Correct, "errors": s.Errors,
 		"accuracy": round(s.Acc), "ci95": []float64{round(s.Lo), round(s.Hi)},
 		"fast_path_coverage": s.FastN, "fast_path_correct": s.FastK,
@@ -672,7 +726,7 @@ func scope(args []string) error {
 	}
 	var only map[string]bool
 	if *splitName != "" {
-		if *splitName == "final" && !*confirmFinal {
+		if isHeldOut(*splitName) && !*confirmFinal {
 			return errors.New("scope: tune the router on dev only; label final once with the frozen router (-confirm-final)")
 		}
 		sp, err := corpus.LoadSplits(*splitsPath)
@@ -689,7 +743,7 @@ func scope(args []string) error {
 		}
 		*perRegime = 1 << 30
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -778,7 +832,7 @@ func scope(args []string) error {
 			outN += t.out
 		}
 		b, _ := json.Marshal(map[string]any{"time": time.Now().Format(time.RFC3339), "run": "scope-" + *splitName + "-" + router.PromptVersion,
-			"split": *splitName, "held_out": *splitName == "final", "labelled": len(items), "out_of_scope": outN,
+			"split": *splitName, "held_out": isHeldOut(*splitName), "labelled": len(items), "out_of_scope": outN,
 			"router_model": cfg.RouterModel, "llm_provider": cfg.LLMProvider, "prompt_version": router.PromptVersion,
 			"git_revision": revision(), "interrupted": ctx.Err() != nil})
 		_, _ = f.Write(append(b, '\n'))
@@ -831,7 +885,7 @@ func planCmd(args []string) error {
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	_ = fl.Parse(args)
 
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -970,7 +1024,7 @@ func predictCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -1028,7 +1082,7 @@ func flipsCmd(args []string) error {
 	tag := fl.String("tag", "", "suffix for the result file, e.g. run2, to score the same prompt twice")
 	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier")
 	_ = fl.Parse(args)
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -1466,13 +1520,14 @@ func multiScenarioCmd(args []string) error {
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	outPath := fl.String("out", "../eval/data/multi_scenario.json", "output")
+	names := fl.String("split-names", "dev,final", "splits to scan (final2 with -splits ../eval/splits/splits_final2.json)")
 	_ = fl.Parse(args)
 	sp, err := corpus.LoadSplits(*splitsPath)
 	if err != nil {
 		return err
 	}
 	out := map[string]map[string]any{}
-	for _, split := range []string{"dev", "final"} {
+	for _, split := range splitComma(*names) {
 		ids, _ := sp.IDs(split)
 		for _, id := range ids {
 			b, err := os.ReadFile(filepath.Join(*rawDir, id+".json"))
@@ -1640,10 +1695,10 @@ func learnabilityCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	if len(rows) > 0 && rows[0].Split == "final" {
+	if len(rows) > 0 && isHeldOut(rows[0].Split) {
 		return errors.New("learnability uses gold labels in the prompt: dev only")
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}
@@ -1754,13 +1809,13 @@ func clarifyCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	if len(rows) > 0 && rows[0].Split == "final" && !*confirmFinal {
+	if len(rows) > 0 && isHeldOut(rows[0].Split) && !*confirmFinal {
 		return errors.New("held-out split: pass -confirm-final (run once with the frozen clarify prompt)")
 	}
 	if adj, err := evalkit.LoadAdjustments(*adjustFile); err == nil {
 		rows = adj.Apply(rows)
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}

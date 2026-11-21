@@ -71,6 +71,7 @@ func Prompts() []Prompt {
 		// production); recorded as <version>+reasoning-v1.
 		{"engine.user_reasoning", engine.PromptVersion + "+" + engine.ReasoningVersion, engine.RenderUserWithReasoning(fixtureFacts, prec)},
 		{"engine.rules", engine.RulesVersion, engine.Rules},
+		{"engine.rules2", engine.RulesVersion2, engine.Rules2},
 		{"engine.textile", engine.TextileVersion, engine.TextileSystem},
 		{"engine.textile2", engine.TextileVersion2, engine.TextileSystem2},
 		{"router.system", router.PromptVersion, withSchema(router.System, router.Schema)},

@@ -11,7 +11,8 @@ import (
 type Model interface {
 	Generate(ctx context.Context, req Request) (Response, error)
 	// Provider is the provider name recorded in every output ("vertex",
-	// "fake"; runs recorded before D49 say "litellm").
+	// "fake"; "litellm" for offline eval runs through the gateway, D151, and
+	// for runs recorded before D49).
 	Provider() string
 }
 

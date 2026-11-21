@@ -33,13 +33,27 @@ type Store struct {
 // included when its facts file exists and CBP held a single origin, the same
 // rule the research harness used for its precedent pool.
 func Load(labels []Label, factsDir string) (*Store, error) {
+	return LoadDirs(labels, factsDir)
+}
+
+// LoadDirs is Load with facts files looked up in each directory in turn
+// (the eval reads the second held-out split's facts from a directory of their
+// own, D150).
+func LoadDirs(labels []Label, factsDirs ...string) (*Store, error) {
 	s := &Store{byID: map[string]int{}, labels: map[string]Label{}}
 	for _, l := range labels {
 		s.labels[l.Ruling] = l
 		if l.Origin() == "" {
 			continue
 		}
-		b, err := os.ReadFile(filepath.Join(factsDir, l.Ruling+".txt"))
+		var b []byte
+		var err error
+		for _, dir := range factsDirs {
+			b, err = os.ReadFile(filepath.Join(dir, l.Ruling+".txt"))
+			if !errors.Is(err, fs.ErrNotExist) {
+				break
+			}
+		}
 		if errors.Is(err, fs.ErrNotExist) {
 			continue
 		}

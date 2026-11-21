@@ -1,0 +1,155 @@
+{
+  "compared": 2790,
+  "multi_country_agreement": 0.9849,
+  "no_raw_text": 0,
+  "reference": "../eval/data/labels.jsonl",
+  "regime_confusion": [
+    {
+      "labeller": "9802_us_components",
+      "n": 134,
+      "reference": "9802_us_components"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 3,
+      "reference": "9802_us_components"
+    },
+    {
+      "labeller": "other",
+      "n": 7,
+      "reference": "marking_only"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 2,
+      "reference": "marking_only"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 1,
+      "reference": "marking_only"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 7,
+      "reference": "marking_only"
+    },
+    {
+      "labeller": "other",
+      "n": 17,
+      "reference": "other"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 2,
+      "reference": "other"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 2,
+      "reference": "other"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 4,
+      "reference": "other"
+    },
+    {
+      "labeller": "other",
+      "n": 1,
+      "reference": "part102_tariff_shift"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 438,
+      "reference": "part102_tariff_shift"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 1,
+      "reference": "part102_tariff_shift"
+    },
+    {
+      "labeller": "single_country",
+      "n": 4,
+      "reference": "part102_tariff_shift"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 12,
+      "reference": "part102_tariff_shift"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 2,
+      "reference": "pharma_api"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 186,
+      "reference": "pharma_api"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 4,
+      "reference": "pharma_api"
+    },
+    {
+      "labeller": "other",
+      "n": 1,
+      "reference": "single_country"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 1,
+      "reference": "single_country"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 5,
+      "reference": "single_country"
+    },
+    {
+      "labeller": "single_country",
+      "n": 239,
+      "reference": "single_country"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 14,
+      "reference": "single_country"
+    },
+    {
+      "labeller": "9802_us_components",
+      "n": 6,
+      "reference": "substantial_transformation"
+    },
+    {
+      "labeller": "other",
+      "n": 4,
+      "reference": "substantial_transformation"
+    },
+    {
+      "labeller": "part102_tariff_shift",
+      "n": 9,
+      "reference": "substantial_transformation"
+    },
+    {
+      "labeller": "pharma_api",
+      "n": 9,
+      "reference": "substantial_transformation"
+    },
+    {
+      "labeller": "substantial_transformation",
+      "n": 1675,
+      "reference": "substantial_transformation"
+    }
+  ],
+  "st_regex_origin_agree_count": 1620,
+  "st_regex_origin_agree_nonnull": 1544,
+  "st_regex_origin_agreement": 1,
+  "st_regex_origin_disagreements": null,
+  "st_regex_rows": 1620,
+  "st_regime_precision": 0.9761,
+  "st_regime_recall": 0.9836
+}

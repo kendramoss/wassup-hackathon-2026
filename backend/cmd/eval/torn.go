@@ -151,7 +151,7 @@ func tornCmd(args []string) error {
 		return err
 	}
 	rows = adj.Apply(rows)
-	cfg, err := config.Load()
+	cfg, err := loadConfig()
 	if err != nil {
 		return err
 	}

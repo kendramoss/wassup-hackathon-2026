@@ -1,10 +1,11 @@
 # How the evaluation is built, traded off and benchmarked
 
-This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every number here comes from a committed file. The figures and the calibration numbers are rebuilt by one script with no model calls:
+This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every number here comes from a committed file. The figures and the calibration numbers are rebuilt by two scripts with no model calls:
 
 ```bash
 python3 -I eval/charts/build_evaluation.py .           # writes eval/results/evaluation-metrics.json and docs/img/*.svg
 python3 -I eval/charts/build_evaluation.py . --check   # fails if those files are stale
+python3 -I eval/charts/build_accuracy.py .             # model sweep, second held-out split, calibration layer (section 6)
 cd backend && go run ./cmd/claimscheck                 # recomputes the headline counts and checks docs/claims-reconciliation.md
 ```
 
@@ -69,6 +70,7 @@ Other splits, each built by a committed script and frozen before its held-out ru
 - **Textile** (`eval/splits/splits_textile.json`, `build_textile_split.py`): dev 99, final 71.
 - **Pharmaceutical** (`splits_pharma.json`, `build_pharma_split.py`) and **Part 102** (`splits_usmca.json`, `build_usmca_split.py`): final 56 and 32.
 - **Regression slice** (`eval/splits/slice30.json`): 30 dev rulings stratified by confidence band (`backend/internal/evalslice`, `Pick`).
+- **Second held-out split** (`eval/splits/splits_final2.json`, `build_final2_split.py`, D150): 83 substantial-transformation rulings dated 28 Sep to 13 Nov 2026, built with the same rule from rulings published after the first split and frozen on 21 Nov before any scoring. Section 6.
 
 ### 2.2 The exclusions, reconstructed
 
@@ -126,7 +128,7 @@ Measured, `eval/results/evaluation-metrics.json` (`selective`). The curve accept
 
 **Not adopted:** per-product-family bars fitted on dev (D63). On held-out they covered less (76.1%) at lower accuracy (94.1%), with 17 wrong auto-accepts instead of 12 (`eval/RESULTS.md`).
 
-For scale only: the most-mentioned-country rule scores 60.5% on all 377 cases. That figure is reported, unverified: its source is not in this repository. It is a number on all cases, so it is not compared with the fast path, which is a subset the model chose.
+For scale only, simple rules on all 377 cases, recomputed from the committed facts with no model (`go run ./cmd/eval baselines`, D155): the first country named in the facts is right on 63.4% (58.4–68.1), the most-mentioned country on 60.7% (55.7–65.5). The research figure for the second, 60.5%, is one case away; it stays labelled unverified where it is quoted, because its own source is not in this repository. These are numbers on all cases, so they are not compared with the fast path, which is a subset the model chose.
 
 ### 3.2 Precision against recall in the planner's precedent check
 
@@ -151,8 +153,15 @@ All on the development set (adjusted, n = 463), same engine-v1 prompt, BM25, K =
 | Gemini 3.8 Flash (fallback) | 90.1% (87.0–92.5) | 87.7% at 93.1% | 5.5 s / 21.6 s | not priced | fixed 13, broke 18, p = 0.473 |
 | Gemini 3.5 Flash, untuned | 90.5% (87.5–92.8) | 91.6% at 92.0% | 12.1 s / 51.2 s | $0.017 | fixed 16, broke 19, p = 0.736 |
 | Gemini 3.5 Flash, fine-tuned | 87.9% (84.6–90.6) | 94.0% at 89.4% | 6.0 s / 17.1 s | $0.0248 | fixed 15, broke 30, p = 0.036 |
+| Gemini 4 Argon, gateway (21 Nov) | 91.8% (88.9–94.0) | 81.0% at 95.7% | 6.8 s / 10.8 s | $0.0079 | fixed 8, broke 5, p = 0.58 |
+| Gemini 4 Carbon, gateway (21 Nov) | 88.1% (84.9–90.8), 27 failed calls | 81.9% at 96.3% | 13.0 s / 52.2 s | $0.0155 | fixed 6, broke 20, p = 0.009 |
+| Gemini 3.1 Pro preview, gateway (21 Nov) | 87.3% (83.9–90.0), 10 failed calls | 83.6% at 92.8% | 10.6 s / 24.7 s | $0.0178 | fixed 12, broke 30, p = 0.008 |
 
-Source: `eval/RESULTS.md` and `eval/results/dev-*-vertex.jsonl`.
+Source: `eval/RESULTS.md`, `eval/results/dev-*-vertex.jsonl` and, for the 21 Nov rows, `eval/results/accuracy-v2-metrics.json` (gateway runs, D151; cost as the gateway reported it). A failed call counts as wrong.
+
+![Development set accuracy by model](img/model-sweep-dev.svg)
+
+**21 Nov sweep (D152, D153).** The newer models do not beat Argon. Carbon's failures used its whole 8,000-token output budget on thinking; on the 436 cases it answered it matches Argon (408 against 406 right, p = 0.77), at twice the cost and a 52 s p95. 3.1 Pro preview is lower even on the cases it answered (p = 0.05). A majority vote of Argon, Carbon and 3.1 Pro reaches 91.6% at five times the cost. The gateway and Vertex agree on Argon (p = 0.58).
 
 **The choice.** Argon. Overall accuracy does not separate the base models (p ≥ 0.47). What separates them is the confident subset: only Argon keeps the fast path at or above the 95% the bar is set for, and it has the lowest tail latency. The Flash models say "confident" more often and are wrong more often when they do. Fine-tuning made accuracy significantly worse (p = 0.036), so it was dropped. None of these alternatives was run on held-out.
 
@@ -168,8 +177,9 @@ Every change below was tried on dev, paired against the plain engine, and **not 
 | 5 votes over precedent orders when confidence < 0.95 | 89.6% | 2 / 4 | 0.69 | $0.0169 |
 | Written CBP rules for the confident errors (n = 463) | 91.1% vs 90.9% | 10 / 9 | 1.0 | — |
 | CBP's reasoning shown with each precedent (n = 463) | 91.4% vs 90.9% | 7 / 5 | 0.77 | $0.0095 vs $0.0084 |
+| rules-v2: a rule for assemblies around one imported component (n = 463, 21 Nov, D157) | 90.9% vs 91.8% | 9 / 13 | 0.52 | $0.0086 vs $0.0079 |
 
-Source: `eval/RESULTS.md`, D22, D27, D28.
+Source: `eval/RESULTS.md`, D22, D27, D28, D157.
 
 **The choice.** Keep plain BM25 and one call. No change moved accuracy by more than half a point, and none was significant. The added parts cost money or latency for no measured gain. The held-out split was therefore not re-scored for any of them.
 
@@ -178,7 +188,7 @@ Source: `eval/RESULTS.md`, D22, D27, D28.
 ### 4.1 What is in place (built)
 
 - **Frozen protocol.** Engine-v1, BM25, K = 5, Gemini 4 Argon, router-v2, bar 0.92 were fixed before the held-out run. The split file records its freeze time.
-- **Held-out scored with a gate.** `-confirm-final` is required. The engine's held-out split appears twice in `RUNLOG.jsonl`, both with the frozen configuration: once through the proxy (89.9%) and once on Vertex AI (90.2%, the official figure). Nothing changed between them (McNemar p = 1.0). The specialist engines each have one held-out run.
+- **Held-out scored with a gate.** `-confirm-final` is required, for `final` and for `final2`. The engine's held-out split appears twice in `RUNLOG.jsonl`, both with the frozen configuration: once through the proxy (89.9%) and once on Vertex AI (90.2%, the official figure). Nothing changed between them (McNemar p = 1.0). The specialist engines each have one held-out run. The second held-out split has one run, of the candidate pre-registered in D153 (section 6).
 - **Intervals on every proportion.** 95% Wilson intervals (`backend/internal/evalkit`, `Wilson`). Small-n numbers are never shown without one.
 - **Paired tests for comparisons.** Two runs on the same cases are compared with an exact McNemar test on the discordant cases (`eval compare`; `mcnemarExact` in `backend/cmd/eval/main.go`), not by eyeballing two accuracies.
 - **Repeatable calls.** Temperature 0 on every model call, and since 17 Oct a fixed seed, 20261017 (`llm.Seed`, D76). The official held-out run (15 Oct) predates the seed. Google treats the seed as best effort.
@@ -209,26 +219,61 @@ What this says:
 - **Just below the bar it is not.** Cases scored 0.92 are right 29/35 = 82.9% of the time; 0.90 is 21/29 = 72.4%; 0.85 is 16/29 = 55.2%. These go to review, which is where they belong.
 - **The confidence ranks cases better than it states probabilities.** The Brier score is only about 9% better than a constant forecast. Its value is in ordering cases, which is what the bar uses.
 
+**A calibration layer (D156, built in the eval, not in the API).** An isotonic map from stated confidence to observed accuracy, fitted on the 463 development rows only and capped at 0.99, then applied unchanged to the held-out rows. On the 377: ECE 0.059 → 0.030 (0.020–0.059), Brier 0.081 → 0.072 (0.056–0.092), mean stated 94.7% → 90.4% against 90.2% right. On the second held-out split (83): ECE 0.067 → 0.038, Brier 0.060 → 0.051. The map is monotone, so it ranks cases exactly as before; only the stated number changes.
+
+![Held-out calibration before and after the layer](img/calibration-layer.svg)
+
 The model emits about 11 distinct confidence values, so the first ECE uses one bin per value. The standard 10-bin ECE puts every case from 0.90 to 1.00 in one bin and reads lower. ECE on a few hundred cases is biased upward; the intervals show how wide it is.
 
 ### 4.3 What we'd add next (planned)
 
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
-- **A recalibration step** (for example isotonic on dev, checked on held-out) if the product starts showing confidence as a probability. Today it is only compared with a bar.
-- **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82).
+- **Calibrated confidence in the product.** The layer is built and checked on held-out (section 4.2); the API still returns the stated confidence.
+- **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
+- **Scoring the other regimes on post-cutoff rulings.** 18 Part 102 and 12 pharmaceutical rulings after 25 Sep are labelled (`eval/data/labels_final2.jsonl`) but not scored.
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
-- **Committing the baseline computation**, so the 60.5% figure can be reproduced or dropped.
 
 ## 5. Known gaps
 
 - **Confidence is a self-report.** It is overconfident on average (section 4.2) and is used only as a ranking against a bar.
-- **One scored run** per configuration on held-out. Run-to-run variance is not measured for the official numbers.
-- **Baselines are unverified.** 60.5%, 40.6%, 39.8% and 12.2% are reported from a research document that is not in this repository.
+- **One scored run** per configuration on each held-out split. Run-to-run variance is not measured for the official numbers. Two dev runs of the same Argon configuration (Vertex and the gateway) differ by 13 cases (8 one way, 5 the other).
+- **Two baselines are still unverified.** Most-mentioned (60.7%) and majority (12.2%) are recomputed (D155); final-assembly 40.6% and last-mentioned 39.8% come from a research document that is not in this repository and are not reproduced.
 - **The split's cleaning script is not committed.** We reconstructed the rule (section 2.2) and it reproduces the counts exactly, but it is a reconstruction.
 - **The test set is not sealed against itself.** Earlier held-out rulings serve as precedents for later ones (414 of 1,885 slots).
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
 - **The planner is the least tested part.** Its precedent check has only development pairs and 2026 pairs that informed its prompt. There is no post-25-Sep test yet.
-- **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4 and every precedent-check result came through the LiteLLM proxy with the same Gemini model, not the official Vertex AI path.
+- **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path.
+- **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
+
+## 6. The second held-out split (21 Nov 2026)
+
+**Why.** The 377-ruling split had been scored and reported. To check the headline on rulings nobody had seen, and to score any new candidate cleanly, we built a second test set from CBP rulings published after 25 Sep 2026 and froze it before scoring anything on it (D150).
+
+**How it was built.**
+
+| Step | Count | Source |
+|---|---:|---|
+| Ruling numbers tried on rulings.cbp.gov (N362500–N367300, H361000–H362333) | 6,135 | `eval/data/final2_probe.jsonl` |
+| Rulings found | 1,013 | same |
+| Origin rulings dated 26 Sep 2026 or later, saved and labelled | 163 | `eval/data/labels_final2.jsonl` |
+| Substantial transformation, facts naming two or more countries | 85 | `eval/splits/splits_final2.json` (`funnel`) |
+| CBP held two or more countries (excluded) | 2 | same |
+| **In the split** (28 Sep to 13 Nov 2026, all New York rulings) | **83** | same |
+
+- CROSS's search endpoint refuses scripted requests, so rulings were found by number at about one request a second (`go run ./cmd/corpus probe`). Headquarters numbers are assigned at intake, so few recent HQ rulings were found; none is in the split. Rulings CBP had not yet posted are missing.
+- Labels come from the same regex holding extractor that produced `labels.jsonl` and a reconstructed regime rule. Re-run on all 2,790 earlier rulings, the extractor reproduces every one of the 1,620 regex-labelled substantial-transformation origins; the regime rule finds substantial transformation with precision 97.6% and recall 98.4% (`eval/data/final2_labeller_check.json`). Two holdings the regex missed were set by hand with the sentence and a reason (`eval/data/final2_manual.json`). The checks were made by the agent that built the split, not by a customs expert.
+- Leakage controls are the same as for the first split (section 2.3). Every precedent is a ruling dated before the case, from either label file; earlier rulings of the new split can be precedents for later ones.
+
+**Candidate and result.** The candidate was chosen on dev only and written down before the split was scored (D152, D153): engine-v1 on Gemini 4 Argon, unchanged, because no newer model or prompt beat it (section 3.3, 3.4). Scored once, through the gateway with the router (D154):
+
+| Held-out set | n | Accuracy (95% CI) | Fast path (≥ 0.92, in scope) | Path |
+|---|---:|---|---|---|
+| First (Jan–Sep 2026) | 377 | 90.2% (86.8–92.8) | 79.6% at 96.0% (93.1–97.7) | Vertex AI |
+| Second (Sep–Nov 2026) | 83 | 92.8% (85.1–96.6) | 90.4% at 97.3% (90.8–99.3) | gateway |
+| Both | 460 | 90.7% (87.6–93.0) | 81.5% at 96.3% (93.8–97.8) | mixed |
+
+**What it shows, and what it does not.** The engine holds up on rulings published after everything it was built and tuned on. It does not show an improvement: the intervals overlap, the second split is easier for simple rules (most-mentioned country 71.1% against 60.7%; `eval/results/baselines-final2.json`), and it has near-duplicates (62 distinct subjects among 83 rulings; counting each subject once gives 91.9%). Four of its six errors are CBP holding China where the engine named the assembling country, the same weakness as before. Production is unchanged.
+
