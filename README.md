@@ -198,3 +198,5 @@ setup still depends on it.
 | `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [EVALUATION.md](docs/EVALUATION.md), [MODEL-CARD.md](docs/MODEL-CARD.md), [DATASHEET.md](docs/DATASHEET.md), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).
+
+Licence: the project source is [MIT](LICENSE); bundled third-party assets and their licences are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
