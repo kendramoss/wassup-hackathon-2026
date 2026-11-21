@@ -143,3 +143,42 @@ func TestDescribedAlternativeNeedsPerson(t *testing.T) {
 		t.Fatalf("%+v", res)
 	}
 }
+
+// CBP's own wording in N337260: the components "are each classified outside
+// of heading 8473". That settles "from any other heading", but not the
+// simple-assembly exception for 8414, 8501, 8504, 8534, 8541 and 8542, which
+// a component outside 8473 could still be in.
+func TestNotInHeading(t *testing.T) {
+	in := Input{GoodHTS: "8473.30.5100", Country: "Mexico", Materials: []Material{
+		{Name: "components", NotIn: "8473", Origin: "China"},
+	}}
+	res := mustDefault(t).Evaluate(in)
+	if res.Status != Undetermined || !slices.Contains(res.Materials[0].Needs, needSimple) {
+		t.Fatalf("%+v", res)
+	}
+	in.SimpleAssembly = b(false)
+	if res = mustDefault(t).Evaluate(in); res.Status != Decided || res.Origin != "Mexico" {
+		t.Fatalf("%+v", res)
+	}
+	// Outside a subheading says nothing about the heading.
+	in.Materials[0].NotIn = "8473.30"
+	if res = mustDefault(t).Evaluate(in); res.Status != Undetermined {
+		t.Fatalf("%+v", res)
+	}
+}
+
+// A material whose origin is not given is fine when it shifts, and leaves
+// the answer open when it does not.
+func TestUnknownOrigin(t *testing.T) {
+	in := Input{GoodHTS: "8501.10", Country: "Mexico", Materials: []Material{
+		{Name: "steel laminations", HTS: "7326.90", Origin: ""},
+		{Name: "copper wire", HTS: "7408.11", Origin: "Chile"},
+	}}
+	if res := mustDefault(t).Evaluate(in); res.Status != Decided || res.Origin != "Mexico" {
+		t.Fatalf("%+v", res)
+	}
+	in.Materials[0].HTS = "8501.10"
+	if res := mustDefault(t).Evaluate(in); res.Status != Undetermined || !strings.Contains(res.Reason, "origin is not given") {
+		t.Fatalf("%+v", res)
+	}
+}
