@@ -2,9 +2,35 @@ import type { Metadata } from "next";
 import { AppBar, Main } from "@/components/op/chrome";
 import { copy } from "@/lib/copy";
 
-export const metadata: Metadata = { title: "Call the API" };
+export const metadata: Metadata = { title: "API and MCP" };
 
 const spec = `${copy.landing.repo}/blob/main/docs/api/openapi.yaml`;
+const mcpDoc = `${copy.landing.repo}/blob/main/docs/MCP.md`;
+const relay = `${copy.landing.repo}/tree/main/mcp/stdio`;
+
+const mcpAdd = `claude mcp add --transport http unde https://undelabs.dev/mcp`;
+const mcpAddKey = `claude mcp add --transport http unde https://undelabs.dev/mcp \\
+  --header "Authorization: Bearer op_…"`;
+
+// The MCP tools, in the order docs/MCP.md lists them; each runs one REST
+// operation with that operation's limits (internal/mcpserver).
+const tools: [string, string][] = [
+  ["predict_origin", "Predict the origin from facts or a structured product. Starts a case."],
+  ["extract_product", "Turn a description into a structured product to check."],
+  ["extract_product_from_media", "Read a photo or scan of a bill of materials into a draft product."],
+  ["plan_production_moves", "Search production moves for a case and check each against earlier rulings."],
+  ["compare_target_countries", "Run one plan search per country (2 to 4) and rank them."],
+  ["search_rulings", "Search the CBP rulings Unde reads."],
+  ["get_ruling", "Fetch one CBP ruling."],
+  ["get_duty_rates", "Look up the duty rates Unde uses for a tariff code."],
+  ["get_case", "Read a case."],
+  ["list_cases", "List your cases and the demos."],
+  ["export_ruling_request_draft", "Preview the draft ruling request for a broker."],
+];
+
+// The MCP one-liners wrap on a phone so the whole command shows.
+const wrap = " whitespace-pre-wrap [overflow-wrap:anywhere]";
+const pre = "overflow-x-auto border border-edge bg-white px-4 py-3 font-mono text-[12.5px] leading-relaxed shadow-[3px_3px_0_var(--shadow)]";
 
 const example = `UNDE_API=https://undelabs.dev/api
 
@@ -21,8 +47,80 @@ export default function Page() {
       <AppBar active="api" />
       <Main className="flex max-w-[860px] flex-col gap-6">
         <div>
-          <p className="eyebrow">API</p>
-          <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Call the API</h1>
+          <p className="eyebrow">API · MCP</p>
+          <h1 className="mt-1 text-[28px] tracking-[-0.05em]">Use Unde from your own tools</h1>
+          <p className="duo mt-2 max-w-[72ch] text-[13.5px]">
+            Two ways in, both built and running: an MCP server, so Claude can call Unde as tools, and a REST API for your own systems. Both work without a key, with lower
+            limits. Every answer is a prediction, not a ruling.
+          </p>
+          <p className="duo mt-2 text-[13.5px]">
+            <a href="#mcp" className="text-ok underline underline-offset-2">
+              Use it from Claude (MCP)
+            </a>
+            {" · "}
+            <a href="#api" className="text-ok underline underline-offset-2">
+              Call the REST API
+            </a>
+          </p>
+        </div>
+
+        <section id="mcp" aria-labelledby="mcp-h" className="flex scroll-mt-20 flex-col gap-3 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
+          <div>
+            <h2 id="mcp-h" className="eyebrow">
+              Use it from Claude (MCP)
+            </h2>
+            <p className="duo mt-1.5 max-w-[72ch] text-[13.5px]">
+              MCP (Model Context Protocol) is how Claude connects to other services. Unde&apos;s hosted MCP server is <code className="font-mono">https://undelabs.dev/mcp</code>.
+              Ask Claude something like &ldquo;Where would CBP say this heat gun is from, and what move would make it Thai?&rdquo; and it calls the tools below.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-[13.5px] font-medium">Claude Code: one line</h3>
+            <pre className={pre + wrap}>
+              <code>{mcpAdd}</code>
+            </pre>
+            <p className="duo text-[13px] text-dim">
+              With an API key, add it as a header. Check the connection with <code className="font-mono">/mcp</code> inside Claude Code.
+            </p>
+            <pre className={pre + wrap}>
+              <code>{mcpAddKey}</code>
+            </pre>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-[13.5px] font-medium">Claude.ai and Claude Desktop</h3>
+            <p className="duo max-w-[72ch] text-[13.5px]">
+              In connector settings, add a custom connector with the URL <code className="font-mono">https://undelabs.dev/mcp</code> and no sign-in. Menus differ by plan;
+              Anthropic&apos;s help center has the current steps. A{" "}
+              <a href={relay} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+                local stdio relay
+              </a>{" "}
+              is in the repository for clients that prefer a local process.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-[13.5px] font-medium">The 11 tools</h3>
+            <dl className="border-t border-line text-[13px]">
+              {tools.map(([name, what]) => (
+                <div key={name} className="grid gap-x-4 gap-y-0.5 border-b border-line py-1.5 sm:grid-cols-[240px_minmax(0,1fr)]">
+                  <dt className="font-mono text-[12.5px] [overflow-wrap:anywhere]">{name}</dt>
+                  <dd className="duo">{what}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="duo max-w-[72ch] text-[13px] text-dim">
+              Each tool runs one REST call, with the same limits as the API below. No tool deletes anything. Without a key, <code className="font-mono">predict_origin</code>{" "}
+              returns a <code className="font-mono">case_access_key</code>; pass it to the other tools to reach that case, and keep it private.
+            </p>
+          </div>
+          <p className="text-[13.5px]">
+            <a href={mcpDoc} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+              Full MCP guide: setup, tools, limits and privacy →
+            </a>
+          </p>
+        </section>
+
+        <div id="api" className="scroll-mt-20">
+          <h2 className="text-xl tracking-[-0.04em]">Call the REST API</h2>
           <p className="duo mt-2 max-w-[72ch] text-[13.5px]">
             Brokers can send cases to Unde from their own tools with an API key. The Unde Labs team issues keys; there&apos;s no key management in the browser. Requests without a key work as
             they do on this site.
@@ -31,7 +129,7 @@ export default function Page() {
 
         <section className="flex flex-col gap-2">
           <h2 className="eyebrow">Send the key with every request</h2>
-          <pre className="overflow-x-auto border border-edge bg-white px-4 py-3 font-mono text-[12.5px] leading-relaxed shadow-[3px_3px_0_var(--shadow)]">
+          <pre className={pre}>
             <code>{example}</code>
           </pre>
           <p className="duo text-[13px] text-dim">

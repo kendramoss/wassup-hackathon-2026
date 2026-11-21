@@ -1615,7 +1615,12 @@ function BomImport({
           ·{" "}
           <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom.pdf" download>
             PDF
+          </a>{" "}
+          ·{" "}
+          <a className="text-ok underline underline-offset-2" href="/samples/heatgun-bom-photo.png" download title={copy.product.bomSamplePhotoNote}>
+            {copy.product.bomSamplePhoto}
           </a>
+          <span className="sr-only"> ({copy.product.bomSamplePhotoNote})</span>
         </p>
         <a className="inline-flex items-center gap-1.5 text-ok underline underline-offset-2" href="/samples/bom-template.csv" download>
           <DownloadIcon />

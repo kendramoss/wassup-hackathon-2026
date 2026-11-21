@@ -27,10 +27,12 @@ const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   <img className="flag" alt="" src={flag(c)} style={h ? { height: h } : undefined} />
 );
 
-// The demo link: straight to the pinned heat-gun case when there is one,
+// The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
-function useDemoHref() {
-  const [href, setHref] = useState("/cases");
+// The pinned comparison case is a separate demo (its comparison is recorded).
+type DemoLinks = { demo: string; heat: string | null; compare: string };
+function useDemoLinks(): DemoLinks {
+  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", heat: null, compare: "/cases" });
   useEffect(() => {
     let live = true;
     (async () => {
@@ -39,11 +41,16 @@ function useDemoHref() {
         // The 2022-setup case tells the landing story (CBP held China; the
         // plan moves work to Thailand); other heat-gun demos are variants (#149).
         const heat = cases.cases.filter((c) => c.pinned && /heat gun|kobalt/i.test(`${c.display_name ?? ""} ${c.product_name ?? ""}`));
-        const pinned = heat.find((c) => /2022 setup/i.test(c.display_name ?? "")) ?? heat[0];
+        const pinned = heat.find((c) => /2022 setup/i.test(c.display_name ?? "")) ?? heat.find((c) => !/compare/i.test(c.display_name ?? ""));
+        const cmp = heat.find((c) => /compare/i.test(c.display_name ?? ""));
         const demo = (demos.demos ?? []).find((d) => /heat/i.test(`${d.id ?? ""} ${d.title ?? ""}`));
         if (!live) return;
-        if (pinned) setHref(`/cases/${encodeURIComponent(pinned.id)}/origin`);
-        else if (demo?.id) setHref(`/cases/new?demo=${encodeURIComponent(demo.id)}`);
+        const heatCase = pinned ? `/cases/${encodeURIComponent(pinned.id)}` : null;
+        setLinks({
+          demo: heatCase ? `${heatCase}/origin` : demo?.id ? `/cases/new?demo=${encodeURIComponent(demo.id)}` : "/cases",
+          heat: heatCase,
+          compare: cmp ? `/cases/${encodeURIComponent(cmp.id)}/compare` : "/cases",
+        });
       } catch {
         // keep /cases, where the demo cards are
       }
@@ -52,12 +59,35 @@ function useDemoHref() {
       live = false;
     };
   }, []);
-  return href;
+  return links;
+}
+
+const C = L.can;
+// Where each "What you can do" line leads. Heat-gun steps fall back to the
+// demo link (a new case from the demo, or /cases) when no pinned case loads.
+function canHref(key: string, l: DemoLinks): string {
+  switch (key) {
+    case "origin":
+      return l.demo;
+    case "import":
+      return "/cases/new";
+    case "plan":
+      return l.heat ? `${l.heat}/plan` : l.demo;
+    case "compare":
+      return l.compare;
+    case "draft":
+      return l.heat ? `${l.heat}/draft` : l.demo;
+    case "mcp":
+      return "/developers#mcp";
+    default:
+      return "/accuracy#misses";
+  }
 }
 
 export function Landing() {
   const root = useRef<HTMLDivElement>(null);
-  const demoHref = useDemoHref();
+  const links = useDemoLinks();
+  const demoHref = links.demo;
   useEffect(() => startLanding(root.current!, { flag }), []);
 
   const hero = (
@@ -71,6 +101,9 @@ export function Landing() {
           {copy.cases.newCase}
         </ButtonLink>
       </div>
+      <p className="also read">
+        {L.also} <a href="#can">{L.alsoLink}</a>
+      </p>
     </>
   );
 
@@ -396,6 +429,31 @@ export function Landing() {
           </div>
         </div>
 
+        {/* What you can do (judge journey): every built capability with a
+            way in, so the newer ones are found without reading the docs. */}
+        <section className="can" id="can" aria-labelledby="canh">
+          <h2 id="canh" className="eyebrow">
+            {C.title}
+          </h2>
+          <p className="read canlead">{C.lead}</p>
+          <dl>
+            {C.items.map((it) => (
+              <div key={it.key} className="canrow">
+                <dt className="read">{it.what}</dt>
+                <dd>
+                  <p className="read">{it.body}</p>
+                  {"code" in it && it.code ? (
+                    <pre className="cancode">
+                      <code>{it.code}</code>
+                    </pre>
+                  ) : null}
+                  <Link href={canHref(it.key, links)}>{it.link}</Link>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <section className="who" aria-labelledby="whoh">
           <h2 id="whoh" className="eyebrow">
             {L.whoTitle}
@@ -582,6 +640,7 @@ export function Landing() {
         <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
           {L.roadmap}
         </a>
+        <Link href="/developers">{copy.nav.api}</Link>
         <Link href="/privacy">{copy.legal.footer.privacy}</Link>
         <Link href="/terms">{copy.legal.footer.terms}</Link>
       </footer>

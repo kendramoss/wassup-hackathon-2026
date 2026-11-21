@@ -28,7 +28,10 @@ function Result({ id, c, setCase }: CaseCtx) {
   const route = c.triage?.route;
   const wv = watchView(c.watch?.status, c.watch?.basis, c.watch?.triage?.route);
   const wk = wv.kind;
-  const watchBoxed = wv.attention; // the exception box, not the folded line
+  // The exception box, not the folded line. A legacy re-check ("recheck")
+  // makes no claim either way, so it folds under the evidence instead of
+  // sitting above the answer's reasons (judge journey: the pinned heat gun).
+  const watchBoxed = wv.attention && wk !== "recheck";
   const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
@@ -83,7 +86,7 @@ function Result({ id, c, setCase }: CaseCtx) {
               </Fold>
             ) : null}
             {!watchBoxed ? (
-              <Fold title="Ruling watch" meta={c.watch ? `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}` : "not re-checked"}>
+              <Fold title="Ruling watch" meta={c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
                 <WatchLine c={c} setCase={setCase} />
               </Fold>
             ) : null}
