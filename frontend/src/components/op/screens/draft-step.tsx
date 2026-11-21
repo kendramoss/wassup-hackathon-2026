@@ -11,7 +11,9 @@ import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { moveKey, movePhrase } from "../plan-bits";
+import { ReviewNotes, fillIn, letterComponents } from "../letter";
 import { ReviewNote } from "../review-note";
+import { BrokerReviews } from "../broker-reviews";
 import { Button, Panel, PanelHead, Spinner, cx } from "../ui";
 
 export function DraftStep() {
@@ -34,10 +36,6 @@ const formats: { key: Format; label: string }[] = [
   { key: "markdown", label: "Short draft" },
   { key: "cfr177", label: copy.jurisdiction.part177Label },
 ];
-
-// The 19 CFR 177 letter marks what the case doesn't know as [FILL IN: …]
-// (D66). Wrapped as inline code so the letter can highlight them.
-const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 
 function Draft({ id, c, setCase }: CaseCtx) {
   const readOnly = caseReadOnly(c);
@@ -212,6 +210,14 @@ function Draft({ id, c, setCase }: CaseCtx) {
               <p className="mt-3 text-xs text-dim">Fills the bracketed placeholders in the letter. Nothing here is sent anywhere.</p>
             </Panel>
           )}
+          <BrokerReviews
+            id={id}
+            c={c}
+            setCase={setCase}
+            selection={{ move: move ?? null, target: target ?? null, format }}
+            draftLabel={defaulted ? "the shown plan" : move ? "the chosen move" : "the current setup"}
+            ready={Boolean(draft)}
+          />
           <NextSteps
             inline
             steps={[{ label: "Back to the plan", href: `/cases/${encodeURIComponent(id)}/plan` }]}
@@ -231,27 +237,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
             >
               {/* The 177.2 letter has its own [FILL IN: date] line. */}
               {!/\[FILL IN: date\]/.test(body) && <p className="mb-10 text-right text-[14px] text-dim">{dated}</p>}
-              <ReactMarkdown
-                components={{
-                  h1: (p) => <h1 className="mb-6 text-center text-[17px] font-bold" {...p} />,
-                  h2: (p) => <h2 className="mb-2 mt-7 text-[15px] font-bold" {...p} />,
-                  h3: (p) => <h3 className="mb-2 mt-5 text-[15px] font-bold italic" {...p} />,
-                  p: (p) => <p className="mt-4" {...p} />,
-                  ul: (p) => <ul className="mt-2 list-disc pl-5" {...p} />,
-                  ol: (p) => <ol className="mt-2 list-decimal pl-5" {...p} />,
-                  a: (p) => <a className="text-ok underline underline-offset-2" target="_blank" rel="noreferrer" {...p} />,
-                  code: ({ children }) => {
-                    const t = String(children);
-                    return t.startsWith("[FILL IN") ? (
-                      <mark className="rounded-[2px] bg-ask-wash px-1 font-sans text-[13px] text-ask">{t}</mark>
-                    ) : (
-                      <code className="font-mono text-[12.5px]">{t}</code>
-                    );
-                  },
-                }}
-              >
-                {body.replace(fillIn, (m) => "`" + m + "`")}
-              </ReactMarkdown>
+              <ReactMarkdown components={letterComponents}>{body.replace(fillIn, (m) => "`" + m + "`")}</ReactMarkdown>
               {/* The letter's body usually opens with the same notice; print it once. */}
               {/* No disclaimer in the letter itself: it's in the notes above, on screen only. */}
             </article>
@@ -276,29 +262,5 @@ function Draft({ id, c, setCase }: CaseCtx) {
   );
 }
 
-// The reviewer notes beside the letter (screen only, never printed). Each note
-// is its own paragraph so the "Legal framework not confirmed" warning is not
-// run together with the standing disclaimer; the words are the server's, as
-// sent. The below-bar note is the amber one.
-export function ReviewNotes({ notes }: { notes: string[] }) {
-  if (!notes.length) return null;
-  return (
-    <div className="no-print mx-auto mb-4 flex max-w-[760px] flex-col gap-2">
-      {notes.map((n, i) =>
-        /below the confidence bar/i.test(n) ? (
-          <p key={i} role="note" className="border border-ask-line bg-ask-wash px-4 py-3 text-[13px] text-ask">
-            {n}
-          </p>
-        ) : /^legal framework not confirmed/i.test(n) ? (
-          <p key={i} role="note" className="border border-ask-line bg-ask-wash px-4 py-2.5 text-[12.5px] text-ask">
-            {n}
-          </p>
-        ) : (
-          <p key={i} role="note" className="border border-line bg-sheet px-4 py-2.5 text-[12.5px] text-dim">
-            {n}
-          </p>
-        ),
-      )}
-    </div>
-  );
-}
+// Kept here for existing imports; it lives in ../letter.
+export { ReviewNotes };

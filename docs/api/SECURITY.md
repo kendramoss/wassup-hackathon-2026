@@ -4,7 +4,7 @@ What protects the public API, as built (D137 and the decisions it cites). Defaul
 
 ## How the API is reached
 
-- The backend runs on Cloud Run and only the frontend's service account may invoke it (Cloud Run IAM). Brokers and browsers reach it through the frontend's `/api/v1/...` proxy (`frontend/src/lib/backend.ts`), which forwards an allowlist of headers: `Content-Type`, `Accept`, `X-API-Key`, plus `X-Client-IP`, `X-Visitor-ID`, `X-User-Token` it sets itself, and a Google ID token as `Authorization: Bearer` on Cloud Run.
+- The backend runs on Cloud Run and only the frontend's service account may invoke it (Cloud Run IAM). Brokers and browsers reach it through the frontend's `/api/v1/...` proxy (`frontend/src/lib/backend.ts`), which forwards an allowlist of headers: `Content-Type`, `Accept`, `X-API-Key`, `X-Review-Token`, plus `X-Client-IP`, `X-Visitor-ID`, `X-User-Token` it sets itself, and a Google ID token as `Authorization: Bearer` on Cloud Run.
 - `REQUIRE_BEARER=on` (default off) makes the backend refuse, with 401, any request other than `/health` that has no `Authorization: Bearer` header. It is defence in depth behind Cloud Run IAM. It is off by default because it has not been run against the deployed service; turn it on after checking that Cloud Run passes the header through to the container.
 - CORS: the API sends no CORS headers, on any route. It is for server-to-server calls with `X-API-Key` and for the frontend's own proxy. Calls from a browser page on another site are not supported.
 
@@ -16,6 +16,7 @@ What protects the public API, as built (D137 and the decisions it cites). Defaul
 | Signed-in user | `X-User-Token` (Google ID token, `TEAMS=on`) | Verified on every request: signature, expiry, issuer, audience, verified email (D68). |
 | API key | `X-API-Key: op_...` (`API_KEYS=on`) | Only a SHA-256 of the key is stored. Unknown or disabled: 401 `unauthorized`, never a silent fall back to anonymous (D69). |
 | Admin | `X-Admin-Token` | Seeding, pinning, the batch watch, issuing keys. Not limited. Never sent from the browser. |
+| Broker review link | `X-Review-Token: ubr_...` (on `/v1/review*` only) | Opens one frozen draft and answers it; no identity on any other route (D200, below). |
 
 ## Rate limits
 
@@ -28,6 +29,7 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 | heavy | plan, compare targets | 4 a minute (`RATE_HEAVY_PER_MIN`) | shared on Cloud Run |
 | bulk | batch triage | the whole heavy allowance, once a minute | shared on Cloud Run |
 | lookup | ruling search (`GET /v1/rulings`); ruling and live duty-rate fetches from outside sources (cached answers are free) | 30 a minute (`RATE_LOOKUP_PER_MIN`) | shared on Cloud Run |
+| review | the broker's `GET /v1/review` and `POST /v1/review/decision` | 30 a minute (`RATE_REVIEW_PER_MIN`) | on each instance |
 | global | all model-calling requests together, in light units (heavy = 5, batch = 20) | 120 a minute (`RATE_GLOBAL_PER_MIN`) | shared on Cloud Run |
 
 - Shared counting (D70): on Cloud Run, with `RATE_LIMIT_STORE` unset, the model-route limits are counted in one-minute windows in Firestore (`rate_limits`), shared by every instance. Before D137 each instance counted its own, so with three instances a client got about three times its limit. If Firestore fails, the instance falls back to its own buckets and logs a warning at most once a minute. `RATE_LIMIT_STORE=local` restores per-instance counting. The basic class is always counted per instance: a Firestore write per read would cost more than it protects.
@@ -42,6 +44,23 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 - Each tool call re-enters the API in-process and runs one `/v1` route there, with that route's class, the in-flight cap, the spend share, the API-key quota and the failed-key limit. The POST does not take any of these itself, so each applies once per tool call. Tests: `TestMCPCallsCountOncePerToolCall`, `TestMCPPostLimitsAndHeaders`.
 - Body cap 12 MB (backend and the frontend `/mcp` proxy): room for 8 MB of media in base64. Over it: 413. The frontend proxy passes `Retry-After` and the RateLimit fields through.
 - With `REQUIRE_BEARER=on` the POST needs the bearer; the in-process tool calls are not refused for lacking it (the MCP guard removes `Authorization`).
+
+## Broker review links (D200)
+
+A case owner sends one draft to an outside customs broker as a link; the broker opens it without an account and approves it, requests changes or marks it to file as a binding ruling request. What protects it, as built:
+
+- **Who can make one.** `POST /v1/cases/{id}/reviews` goes through the same `loadCase` as every case route: a case the caller cannot see is the same 404 as a missing case; a workspace viewer gets 403; a pinned demo gets 403 for everyone, the admin token included. Revoke (`DELETE /v1/cases/{id}/reviews/{review}`) has the same rules. The isolation matrix drives all three routes with every principal.
+- **The token.** `ubr_` + the case id's 12 hex digits + `_` + 32 random bytes from `crypto/rand` (256 bits), base64url. It is returned once. The server keeps only `SHA-256("unde-broker-review:" + token)`, inside the case document beside the case it opens; the link's public id is the first 16 hex digits of that hash. A lookup reads that one case by id and compares the full hash with `crypto/subtle.ConstantTimeCompare`. The case id in the token only says which document to read; with any other secret the hash matches no link (tested: a token's secret under another case's id is a 404).
+- **Transport.** The link is `/review#<token>`: the token is the URL fragment, which browsers never send to a server, so it is in no request log (the frontend's, Cloud Run's platform log or any proxy's) and in no `Referer` header. Tested: the generated link has `/review` as its path and no query. The page reads `location.hash` once, removes it from the address bar and history with `history.replaceState`, and keeps the token in memory only (no storage); a reload or a bookmark shows "open the review link again". The browser then sends the token only in the `X-Review-Token` header to the frontend proxy, which forwards it to the backend. It is never in an API path or query, so neither the proxy's nor the backend's request log can hold it; both log the route pattern only, and the audit trail names the case, never the token or its hash (tested). A token in a path is never accepted: `/review/<anything>` is a plain 404 with no redirect, and the segment is never read. What remains: the link itself, in the message the owner sends and in the broker's browser history before the page clears it; expiry and revocation bound that.
+- **Expiry and revocation, server side.** `expires_in_days` defaults to 14, at most 30, checked by the server on every read and answer. A revoked link answers 410 `link_revoked`, an expired one 410 `link_expired`. Deleting the case deletes its links.
+- **Bad tokens.** A malformed or unknown token is 404 `not_found` and takes from a per-client invalid-credential bucket (the same size as the failed API-key limit, `RATE_AUTH_FAILURES_PER_MIN`, its own bucket, per instance). Past it the client gets 429 `auth_rate_limited` before any lookup. Each refusal, and each use of a revoked or expired link, is an anonymous `auth.denied` event in the `platform` audit tenant.
+- **Rate class.** The two broker routes have their own class (`review`, above), separate from the owner's routes. They make no model call.
+- **What the broker sees.** A snapshot taken when the link was made: product, the prediction behind the requested position with its calibrated confidence when one applies, the cited rulings, the plan, the draft letter, the reviewer notes and the "not a ruling" disclaimer. No case id, no other link, no owner, history, model trace or reasoning text (tested). A later change to the case does not change what the broker reads.
+- **What the broker can change.** Only the link's own record: a decision and a comment. Never the case's analysis, plan, history of analyses or export state (tested). A comment is plain text: control characters other than newline and tab are dropped, at most 2,000 characters, at most 20 answers a link. Both the owner's page and the broker's page render it as text, never as HTML or Markdown.
+- **Headers.** The broker routes add `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store` to the API's `Referrer-Policy: no-referrer`. The frontend serves `/review` and `/review/*` with `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex, nofollow`, and the page's metadata says noindex, nofollow.
+- **Audit.** With the trail on: `review.create` (a sensitive write: no intent record, no link), `review.revoke`, `review.decision` (intent and completion) and `review.view` (one event per read) in the case's tenant. The broker is recorded as anonymous. No comment text, product data or token reaches the trail.
+- **Storage.** No new collection and no Firestore index: links live in the case document (gzipped JSON), so every read is by document id.
+- **Not done.** No broker account or identity check: whoever holds the link is the reviewer, so share it only with the broker. No email or notification. The broker cannot edit the letter. No e-filing.
 
 ## Quotas and spend caps
 
@@ -75,13 +94,13 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 
 - Every limited response: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (IETF draft RateLimit header fields; seconds until the bucket is full or the window ends). The proxy passes them through.
 - Every 429 and 503 from a limit: `Retry-After` in seconds, repeated as `details.retry_after_s`.
-- Every backend response: `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`; every `/v1` response: `Cache-Control: no-store` (server-sent events use `no-cache`). The proxy marks its JSON responses `private, no-store`.
+- Every backend response: `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`; every `/v1` response: `Cache-Control: no-store` (server-sent events use `no-cache`); the broker review routes also `X-Robots-Tag: noindex, nofollow`. The proxy marks its JSON responses `private, no-store`.
 - Every response: `X-Request-ID`, the request reference used in logs and the audit trail (never the caller's own value, D135).
-- Frontend pages and `/api` responses: `Strict-Transport-Security: max-age=31536000; includeSubDomains`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy: camera=(self), microphone=(), geolocation=()`, and a Content Security Policy sent as `Content-Security-Policy-Report-Only` (violations are reported in the browser console, not blocked; see D137 for why).
+- Frontend pages and `/api` responses: `Strict-Transport-Security: max-age=31536000; includeSubDomains`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (`no-referrer` on `/review` and `/review/*`), `X-Frame-Options: DENY`, `Permissions-Policy: camera=(self), microphone=(), geolocation=()`, and a Content Security Policy sent as `Content-Security-Policy-Report-Only` (violations are reported in the browser console, not blocked; see D137 for why).
 
 ## What is logged
 
-Logs follow `docs/design/data-handling.md` (D135): a closed allowlist of keys and messages. A request log line has the request reference, method, matched route pattern, status and latency; never the body, path, query, headers, keys or addresses. Rate-limit counters in Firestore hold a hash of the client key, never the address. Per-client spend totals are stored under a hash of the client key. API keys are stored as hashes. The audit trail, when enabled, is described in `openapi.yaml` (#284).
+Logs follow `docs/design/data-handling.md` (D135): a closed allowlist of keys and messages. A request log line has the request reference, method, matched route pattern, status and latency; never the body, path, query, headers, keys or addresses. Rate-limit counters in Firestore hold a hash of the client key, never the address. Per-client spend totals are stored under a hash of the client key. API keys and broker review tokens are stored as hashes. The audit trail, when enabled, is described in `openapi.yaml` (#284).
 
 ## Reporting a vulnerability
 

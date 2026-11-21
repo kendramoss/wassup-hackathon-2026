@@ -17,6 +17,9 @@ const kinds: Record<string, string> = {
   unpinned: "Unpinned",
   renamed: "Renamed",
   bom_updated: "New BOM version",
+  review_link_created: "Broker link made",
+  review_link_revoked: "Broker link revoked",
+  broker_decision: "Broker answered",
 };
 
 function when(iso?: string) {

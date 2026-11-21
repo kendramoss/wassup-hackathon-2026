@@ -30,10 +30,11 @@ import (
 type routeClass int
 
 const (
-	caseScoped routeClass = iota // reads or changes an existing case named by {id}; must go through loadCase
-	caseCreate                   // makes new cases owned by the caller, or lists the caller's view
-	adminRoute                   // refuses a request without the admin token
-	noCaseData                   // reads or changes no stored case (static data, stateless helpers, workspaces)
+	caseScoped  routeClass = iota // reads or changes an existing case named by {id}; must go through loadCase
+	caseCreate                    // makes new cases owned by the caller, or lists the caller's view
+	adminRoute                    // refuses a request without the admin token
+	noCaseData                    // reads or changes no stored case (static data, stateless helpers, workspaces)
+	reviewToken                   // reaches one case's review link with its token only (D200); see reviews_test.go
 )
 
 // routeTable is keyed by the mux pattern, exactly as registered in server.go.
@@ -81,6 +82,11 @@ var routeTable = map[string]routeClass{
 	"DELETE /v1/admin/api-keys/{id}":               adminRoute,
 	"GET /v1/audit":                                noCaseData, // reads the audit trail, no case
 	"GET /v1/audit/verify":                         noCaseData,
+	"POST /v1/cases/{id}/reviews":                  caseScoped,
+	"GET /v1/cases/{id}/reviews":                   caseScoped,
+	"DELETE /v1/cases/{id}/reviews/{review}":       caseScoped,
+	"GET /v1/review":                               reviewToken,
+	"POST /v1/review/decision":                     reviewToken,
 	"GET /health":                                  noCaseData,
 }
 
@@ -164,6 +170,9 @@ func isoRoutes() []isoRoute {
 		{"answers", "POST", "/answers", `{"answers":[{"question_id":"q","answer":"yes"}]}`, nil, "POST /v1/cases/{id}/answers"},
 		{"bom version", "POST", "/bom-version", `{"csv":"x","apply":false}`, nil, "POST /v1/cases/{id}/bom-version"},
 		{"pin", "PUT", "/pin", `{"pinned":true}`, nil, "PUT /v1/cases/{id}/pin"},
+		{"review create", "POST", "/reviews", `{"expires_in_days":7}`, nil, "POST /v1/cases/{id}/reviews"},
+		{"review list", "GET", "/reviews", "", nil, "GET /v1/cases/{id}/reviews"},
+		{"review revoke", "DELETE", "/reviews/rv_0123456789abcdef", "", nil, "DELETE /v1/cases/{id}/reviews/{review}"},
 	}
 }
 
@@ -360,18 +369,18 @@ func TestIsolationAllowedCells(t *testing.T) {
 				}
 				for _, p := range owners {
 					id := e.hs.newCase(t, e.headrs[p])
-					if got := e.call(rt, id, e.headrs[p]); got.code == http.StatusNotFound || got.code == http.StatusUnauthorized || got.code >= 500 {
+					if got := e.call(rt, id, e.headrs[p]); (got.code == http.StatusNotFound && !noSuchLink(got.body)) || got.code == http.StatusUnauthorized || got.code >= 500 {
 						t.Errorf("%s as %s on their own fresh case = %d %s", rt.name, p, got.code, got.body)
 					}
 					id = e.hs.newCase(t, e.headrs[p])
-					if got := e.call(rt, id, admin); got.code == http.StatusNotFound || got.code >= 500 {
+					if got := e.call(rt, id, admin); (got.code == http.StatusNotFound && !noSuchLink(got.body)) || got.code >= 500 {
 						t.Errorf("%s as admin on %s's case = %d %s", rt.name, p, got.code, got.body)
 					}
 				}
 				// With ownership off, anonymous visitors share anonymous cases.
 				if !ownership {
 					id := e.hs.newCase(t, e.headrs["bob"])
-					if got := e.call(rt, id, e.headrs["alice"]); got.code == http.StatusNotFound || got.code >= 500 {
+					if got := e.call(rt, id, e.headrs["alice"]); (got.code == http.StatusNotFound && !noSuchLink(got.body)) || got.code >= 500 {
 						t.Errorf("ownership off: %s as alice on bob's anonymous case = %d", rt.name, got.code)
 					}
 				}
@@ -386,7 +395,7 @@ func TestIsolationPinnedDemoIsReadOnlyForNonAdmins(t *testing.T) {
 		t.Run(fmt.Sprintf("CASE_OWNERSHIP=%v", ownership), func(t *testing.T) {
 			e := newIsoEnv(t, ownership)
 			demo := e.ids["demo"]
-			refused := map[string]bool{"rename": true, "delete": true, "economics": true, "answers": true}
+			refused := map[string]bool{"rename": true, "delete": true, "economics": true, "answers": true, "review create": true, "review revoke": true}
 			for _, rt := range isoRoutes() {
 				if strings.HasSuffix(rt.pattern, "/pin") {
 					continue
@@ -614,6 +623,68 @@ func TestIsolationListFiltersBeforeTheDefaultCap(t *testing.T) {
 			}
 			if n := len(ids); n > 201 {
 				t.Errorf("ownership off: %d cases listed, the cap is the demo plus 200", n)
+			}
+		})
+	}
+}
+
+// noSuchLink reports the revoke route's answer for a link id the caller's own
+// (visible) case does not have: a 404 that names the link, never the case.
+// The fixed id in isoRoutes exists on no case, so an allowed revoke gets it.
+func noSuchLink(body string) bool { return errCode(body) == "review_not_found" }
+
+// A broker review token (D200) opens its own link's snapshot and nothing
+// else: it is no identity on any case route, it cannot reach another case's
+// links, and no principal reaches a link without its token.
+func TestIsolationReviewTokenOpensOneLinkOnly(t *testing.T) {
+	for _, ownership := range []bool{true, false} {
+		t.Run(fmt.Sprintf("CASE_OWNERSHIP=%v", ownership), func(t *testing.T) {
+			e := newIsoEnv(t, ownership)
+			code, out := e.hs.doAs(t, "POST", "/v1/cases/"+e.ids["acme"]+"/reviews", `{}`, e.headrs["acme"])
+			if code != http.StatusCreated {
+				t.Fatalf("acme makes a link = %d %v", code, out)
+			}
+			tok := map[string]string{reviewTokenHeader: out["token"].(string)}
+			before := e.snapshot()
+			// The token alone, on every case route of every case: as if no credential.
+			for _, rt := range isoRoutes() {
+				if strings.HasSuffix(rt.pattern, "/pin") {
+					continue
+				}
+				for _, c := range []string{"acme", "carol", "alice"} {
+					if c == "alice" && !ownership {
+						continue // an anonymous case is shared with everyone with ownership off
+					}
+					if got := e.call(rt, e.ids[c], tok); got.code != http.StatusNotFound {
+						t.Errorf("%s on %s's case with only acme's review token = %d %s", rt.name, c, got.code, got.body)
+					}
+				}
+			}
+			if after := e.snapshot(); after != before {
+				t.Error("a review token changed a stored case through a case route")
+			}
+			// Every principal, without the token, gets nothing from the broker routes.
+			for p, h := range e.headrs {
+				if code, _ := e.hs.doAs(t, "GET", "/v1/review", "", h); code != http.StatusNotFound && code != http.StatusTooManyRequests {
+					t.Errorf("GET /v1/review as %s without a token = %d", p, code)
+				}
+				if code, _ := e.hs.doAs(t, "POST", "/v1/review/decision", `{"decision":"approve"}`, h); code != http.StatusNotFound && code != http.StatusTooManyRequests {
+					t.Errorf("POST /v1/review/decision as %s without a token = %d", p, code)
+				}
+			}
+			// With the token, the packet is acme's snapshot only: no other case's id.
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/v1/review", nil)
+			req.Header.Set(reviewTokenHeader, tok[reviewTokenHeader])
+			req.Header.Set("X-Client-IP", "198.51.100.77") // its own failure budget
+			e.hs.h.ServeHTTP(rec, req)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("broker read = %d %s", rec.Code, rec.Body)
+			}
+			for name, id := range e.ids {
+				if strings.Contains(rec.Body.String(), id) {
+					t.Errorf("the packet names %s's case id", name)
+				}
 			}
 		})
 	}

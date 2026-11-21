@@ -240,16 +240,19 @@ type Deps struct {
 const maxBody = 256 << 10
 
 type api struct {
-	d          Deps
-	limiter    *limiter
-	shared     *sharedLimiter // nil unless Deps.RateStore is set
-	inflight   *inflight      // nil unless Limits.MaxInFlight is set
-	authFails  *authFailures  // failed API-key checks per client; nil unless Deps.APIKeys is set
-	quotaLocal *localQuota    // API-key requests counted here while the quota store fails
-	rulingMu   sync.Mutex
-	rulingMemo map[string]rulingDTO
-	askMu      sync.Mutex
-	askMemo    map[string]caseagent.Answer
+	d         Deps
+	limiter   *limiter
+	shared    *sharedLimiter // nil unless Deps.RateStore is set
+	inflight  *inflight      // nil unless Limits.MaxInFlight is set
+	authFails *authFailures  // failed API-key checks per client; nil unless Deps.APIKeys is set
+	// reviewFails counts invalid broker review tokens per client (D200); nil
+	// without limits.
+	reviewFails *authFailures
+	quotaLocal  *localQuota // API-key requests counted here while the quota store fails
+	rulingMu    sync.Mutex
+	rulingMemo  map[string]rulingDTO
+	askMu       sync.Mutex
+	askMemo     map[string]caseagent.Answer
 }
 
 func (a *api) meta() map[string]any {
@@ -647,6 +650,11 @@ func nonEmpty(s string) *string {
 
 func (a *api) caseFields(r *http.Request, c store.Case) map[string]any {
 	f := a.caseFieldsBase(r, c)
+	// Only a case with broker review links carries the field (D200), so the
+	// answer for every other case is byte for byte what it was.
+	if rv := a.ownerReviews(r, c); len(rv) > 0 {
+		f["broker_reviews"] = rv
+	}
 	moneyStaleFields(f, c)
 	return f
 }
@@ -1325,98 +1333,12 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, errForbidden)
 		return
 	}
-	format := strings.ToLower(strings.TrimSpace(in.Format))
-	switch {
-	case format == "" || format == formatMarkdown:
-		format = formatMarkdown
-	case format == formatCFR177 && a.d.ExportCFR177:
-	case format == formatCFR177:
-		a.fail(w, r, fmt.Errorf("%w: format cfr177 is not enabled on this server", domain.ErrInvalid))
-		return
-	default:
-		a.fail(w, r, fmt.Errorf("%w: format must be markdown or cfr177, got %q", domain.ErrInvalid, in.Format))
+	d, err := a.buildDraft(r, c, in)
+	if err != nil {
+		a.fail(w, r, err)
 		return
 	}
-	name := ""
-	if c.Product != nil {
-		name = c.Product.Name
-	}
-	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
-	if c.CurrentOrigin != nil {
-		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
-	}
-	if in.PlanIndex != nil && in.MoveKey != "" {
-		a.fail(w, r, fmt.Errorf("%w: give plan_index or move_key, not both", domain.ErrInvalid))
-		return
-	}
-	var chosen *domain.Plan
-	switch {
-	case in.PlanIndex != nil:
-		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
-			a.fail(w, r, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan", domain.ErrInvalid, *in.PlanIndex))
-			return
-		}
-		chosen = &c.Plan.Plans[*in.PlanIndex]
-	case in.MoveKey != "":
-		src := c.Plan
-		if in.Target != "" {
-			src = nil
-			if c.Targets != nil {
-				if res, ok := c.Targets.Results[domain.NormalizeCountry(in.Target)]; ok {
-					src = &res
-				}
-			}
-			if src == nil {
-				if a.demoReadOnly(r, c) {
-					a.fail(w, r, fmt.Errorf("%w: target %q is not in this demo's recorded country comparison; start a new case from the demo to compare and draft other countries", domain.ErrInvalid, in.Target))
-				} else {
-					a.fail(w, r, fmt.Errorf("%w: target %q is not in the latest country comparison; compare it again, then draft", domain.ErrInvalid, in.Target))
-				}
-				return
-			}
-		}
-		p, err := draftablePlan(src, in.MoveKey)
-		if err != nil {
-			a.fail(w, r, err)
-			return
-		}
-		chosen = p
-	}
-	srcTarget := in.Target
-	if in.MoveKey == "" {
-		srcTarget = "" // plan_index always reads the latest plan search
-	}
-	chosenFrom := ""
-	if chosen != nil {
-		chosenFrom = planSourceFingerprint(c, srcTarget)
-	}
-	if p := chosen; p != nil {
-		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
-		if c.Product != nil { // the letter lists where things are made after the move
-			moved := planner.Apply(*c.Product, p.Move)
-			ex.Product = &moved
-		}
-		if p.Verdict != nil {
-			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
-			if p.RejectionKind == domain.RejectBelowConfidence {
-				ex.BelowBar = &export.BelowBar{Confidence: p.Verdict.Confidence, Bar: a.d.PlanConfidence}
-			}
-		}
-	}
-	// The letter's regime is the one that produced the prediction behind the
-	// requester's position (the plan's, when one is drafted), read from its
-	// stored trace; never the router's label, which a specialist failure
-	// leaves pointing at an engine that did not answer.
-	regimeNote := ""
-	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
-	content := export.Markdown(ex)
-	if format == formatCFR177 {
-		content = export.CFR177(ex)
-	}
-	notes := export.Notes(ex, format == formatCFR177)
-	if regimeNote != "" {
-		notes = append(notes, regimeNote)
-	}
+	format, content, notes, ex, chosen, srcTarget, chosenFrom := d.format, d.content, d.notes, d.ex, d.chosen, d.srcTarget, d.chosenFrom
 	// A visitor viewing a pinned demo case gets the draft without writing to
 	// it: the seeded demos stay as recorded (D56).
 	if in.Preview || (c.Pinned && !a.isAdmin(r)) {
@@ -1457,6 +1379,109 @@ func (a *api) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "format": format, "content": content, "notes": notes})
+}
+
+// draftResult is a ruling-request draft for a case and a chosen plan (or
+// the current setup), with what the recording export needs to check that the
+// plan it drew from is still current.
+type draftResult struct {
+	format, content string
+	notes           []string
+	ex              export.Input
+	chosen          *domain.Plan
+	srcTarget       string // the comparison target the plan came from ("" the latest plan search)
+	chosenFrom      string // the fingerprint of that plan source
+}
+
+// buildDraft renders the draft for c as the export request in asks. It reads
+// the case only; export and the broker review link both use it.
+func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draftResult, error) {
+	format := strings.ToLower(strings.TrimSpace(in.Format))
+	switch {
+	case format == "" || format == formatMarkdown:
+		format = formatMarkdown
+	case format == formatCFR177 && a.d.ExportCFR177:
+	case format == formatCFR177:
+		return draftResult{}, fmt.Errorf("%w: format cfr177 is not enabled on this server", domain.ErrInvalid)
+	default:
+		return draftResult{}, fmt.Errorf("%w: format must be markdown or cfr177, got %q", domain.ErrInvalid, in.Format)
+	}
+	name := ""
+	if c.Product != nil {
+		name = c.Product.Name
+	}
+	ex := export.Input{ProductName: name, Product: c.Product, Facts: c.Facts, Requested: c.Prediction.Origin, Prediction: c.Prediction}
+	if c.CurrentOrigin != nil {
+		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
+	}
+	if in.PlanIndex != nil && in.MoveKey != "" {
+		return draftResult{}, fmt.Errorf("%w: give plan_index or move_key, not both", domain.ErrInvalid)
+	}
+	var chosen *domain.Plan
+	switch {
+	case in.PlanIndex != nil:
+		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
+			return draftResult{}, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan", domain.ErrInvalid, *in.PlanIndex)
+		}
+		chosen = &c.Plan.Plans[*in.PlanIndex]
+	case in.MoveKey != "":
+		src := c.Plan
+		if in.Target != "" {
+			src = nil
+			if c.Targets != nil {
+				if res, ok := c.Targets.Results[domain.NormalizeCountry(in.Target)]; ok {
+					src = &res
+				}
+			}
+			if src == nil {
+				if a.demoReadOnly(r, c) {
+					return draftResult{}, fmt.Errorf("%w: target %q is not in this demo's recorded country comparison; start a new case from the demo to compare and draft other countries", domain.ErrInvalid, in.Target)
+				}
+				return draftResult{}, fmt.Errorf("%w: target %q is not in the latest country comparison; compare it again, then draft", domain.ErrInvalid, in.Target)
+			}
+		}
+		p, err := draftablePlan(src, in.MoveKey)
+		if err != nil {
+			return draftResult{}, err
+		}
+		chosen = p
+	}
+	srcTarget := in.Target
+	if in.MoveKey == "" {
+		srcTarget = "" // plan_index always reads the latest plan search
+	}
+	chosenFrom := ""
+	if chosen != nil {
+		chosenFrom = planSourceFingerprint(c, srcTarget)
+	}
+	if p := chosen; p != nil {
+		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
+		if c.Product != nil { // the letter lists where things are made after the move
+			moved := planner.Apply(*c.Product, p.Move)
+			ex.Product = &moved
+		}
+		if p.Verdict != nil {
+			ex.Supporting, ex.Counter = p.Verdict.SupportingRuling, p.Verdict.CounterRuling
+			if p.RejectionKind == domain.RejectBelowConfidence {
+				ex.BelowBar = &export.BelowBar{Confidence: p.Verdict.Confidence, Bar: a.d.PlanConfidence}
+			}
+		}
+	}
+	// The letter's regime is the one that produced the prediction behind the
+	// requester's position (the plan's, when one is drafted), read from its
+	// stored trace; never the router's label, which a specialist failure
+	// leaves pointing at an engine that did not answer.
+	regimeNote := ""
+	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
+	content := export.Markdown(ex)
+	if format == formatCFR177 {
+		content = export.CFR177(ex)
+	}
+	notes := export.Notes(ex, format == formatCFR177)
+	if regimeNote != "" {
+		notes = append(notes, regimeNote)
+	}
+	return draftResult{format: format, content: content, notes: notes, ex: ex, chosen: chosen, srcTarget: srcTarget, chosenFrom: chosenFrom}, nil
 }
 
 const (

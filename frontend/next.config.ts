@@ -47,7 +47,29 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // The broker review page holds a secret token (in the URL fragment, which
+    // is never sent, and then in memory): no referrer leaves it and it is
+    // never indexed. /review/:path* is only ever a 404 (tokens are never
+    // accepted in a path) and gets the same headers. Listed after the
+    // site-wide rule, so its Referrer-Policy wins here (the last match for a
+    // header key applies).
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      {
+        source: "/review",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        source: "/review/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
   },
 };
 

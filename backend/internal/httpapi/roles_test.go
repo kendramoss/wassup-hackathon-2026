@@ -121,7 +121,7 @@ func roleRoutes() []roleRoute {
 			)
 			continue
 		}
-		out = append(out, roleRoute{rt, rt.name == "get" || rt.name == "plan estimate"})
+		out = append(out, roleRoute{rt, rt.name == "get" || rt.name == "plan estimate" || rt.name == "review list"})
 	}
 	return out
 }
@@ -140,7 +140,7 @@ func TestRolePermissionTable(t *testing.T) {
 					got := e.do(rt.isoRoute, id, user(who))
 					allowed := who != "vera" || rt.viewer
 					if allowed {
-						if got.code == http.StatusForbidden || got.code == http.StatusNotFound || got.code == http.StatusUnauthorized || got.code >= 500 {
+						if got.code == http.StatusForbidden || (got.code == http.StatusNotFound && !noSuchLink(got.body)) || got.code == http.StatusUnauthorized || got.code >= 500 {
 							t.Errorf("%s as %s = %d %s, want it allowed", rt.name, who, got.code, got.body)
 						}
 						continue
@@ -184,7 +184,7 @@ func TestRolePermissionTableCoversEveryCaseRoute(t *testing.T) {
 			reads = append(reads, p)
 		}
 	}
-	if len(reads) != 3 { // list, get, plan estimate; export is permExport
+	if len(reads) != 4 { // list, get, plan estimate, broker review list; export is permExport
 		t.Errorf("read-only routes = %v", reads)
 	}
 	if rolePerms["POST /v1/cases/{id}/export"] != permExport {
@@ -338,7 +338,7 @@ func TestRoleScopeOwnForeignPinnedAnonymous(t *testing.T) {
 		if rt.name == "delete" {
 			continue
 		}
-		if got := e.do(rt.isoRoute, e.veraOwn, user("vera")); got.code == http.StatusForbidden || got.code == http.StatusNotFound || got.code >= 500 {
+		if got := e.do(rt.isoRoute, e.veraOwn, user("vera")); got.code == http.StatusForbidden || (got.code == http.StatusNotFound && !noSuchLink(got.body)) || got.code >= 500 {
 			t.Errorf("%s as vera on her own pre-workspace case = %d %s", rt.name, got.code, got.body)
 		}
 	}

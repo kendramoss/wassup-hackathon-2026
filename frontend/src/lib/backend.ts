@@ -35,11 +35,12 @@ const ROUTE_WORDS = new Set([
   "v1", "api", "cases", "predict", "batch", "products", "import", "extract", "money-prefill", "hts-suggest", "cost-estimate",
   "family-check", "bom-version", "scenarios", "compare-targets", "ask", "economics", "pin", "watch", "run", "plan", "estimate",
   "export", "answers", "rulings", "eval", "summary", "duty-rates", "demos", "workspaces", "mine", "members", "join", "role",
-  "admin", "api-keys", "audit", "verify", "health", "mcp",
+  "admin", "api-keys", "audit", "verify", "health", "mcp", "review", "reviews", "decision",
 ]);
 const ERROR_CODES = new Set([
   "budget_reached", "conflict", "forbidden", "internal", "invalid_input", "not_found", "quota_exceeded", "rate_limited",
   "unauthenticated", "unauthorized", "audit_unavailable", "model_bad_response", "model_unavailable", "backend_unreachable",
+  "link_expired", "link_revoked", "review_not_found", "auth_rate_limited",
 ]);
 const ERROR_CLASSES = new Set(["AbortError", "TimeoutError", "TypeError", "SyntaxError", "RangeError", "BackendError", "Error"]);
 
@@ -204,6 +205,8 @@ export async function readCapped(request: Request, max = MAX_BODY): Promise<Arra
 // goes as X-User-Token beside it (D68), so their anonymous cases still show.
 // A broker's X-API-Key (D69) is passed through unchanged, so brokers reach
 // the private backend through this public proxy; the backend checks the key.
+// A broker review page's X-Review-Token passes through the same way; like
+// every header it is never logged.
 // The backend answers an expired or invalid token with 401
 // "unauthenticated"; then the cookie is cleared and the next request is
 // anonymous.
@@ -253,7 +256,7 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     return Response.json({ code: "internal", message: "BACKEND_URL is not set" }, noStore({ status: 500 }));
   }
   const headers: Record<string, string> = {};
-  for (const h of ["content-type", "accept", "x-api-key"]) {
+  for (const h of ["content-type", "accept", "x-api-key", "x-review-token"]) {
     const v = request.headers.get(h);
     if (v) headers[h] = v;
   }

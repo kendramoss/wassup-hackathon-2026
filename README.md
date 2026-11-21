@@ -68,7 +68,7 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 
 ## Use Unde from Claude
 
-Unde is also an MCP server: Claude can predict origin, search production moves, look up rulings and duty rates, and draft a ruling request as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
+Unde is also an MCP server: Claude can predict origin, search production moves, look up rulings and duty rates, draft a ruling request and send it to a broker for review as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
 
 ```bash
 # Claude Code, with an API key (keys are issued by the Unde admin)
@@ -83,7 +83,7 @@ In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign
 2. **Make it a step before any production move.** Check the plan before approving a supplier change, a new plant or a country shift.
 3. **Connect your systems.** Send bills of materials from your ERP through the API.
 4. **Keep watching.** Re-check saved cases on a schedule as CBP issues new rulings.
-5. **Keep the broker in the loop.** Unde speeds up the decision; a broker or a CBP ruling still confirms it.
+5. **Keep the broker in the loop.** Send the draft to your customs broker as a review link that expires and that you can revoke. The broker opens it without an account and approves it, asks for changes with a comment, or marks it to file as a binding ruling request; you see the answer on the case. Unde speeds up the decision; a broker or a CBP ruling still confirms it.
 
 ## Does it work?
 

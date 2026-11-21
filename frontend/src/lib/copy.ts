@@ -438,7 +438,7 @@ export const copy = {
           what: "Use it from Claude",
           body: "The same tools over MCP, the protocol Claude uses to connect to other services. In Claude Code, one line adds it:",
           code: "claude mcp add --transport http unde https://undelabs.dev/mcp",
-          link: "Setup for Claude.ai and Desktop, and the 11 tools →",
+          link: "Setup for Claude.ai and Desktop, and the 13 tools →",
         },
         {
           key: "misses",

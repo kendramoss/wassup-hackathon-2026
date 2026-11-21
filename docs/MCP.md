@@ -76,6 +76,8 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 | `get_case` | `GET /v1/cases/{id}` (`getCase`) | none | read-only |
 | `list_cases` | `GET /v1/cases` (`listCases`) | none | read-only |
 | `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | none | read-only (a preview records nothing) |
+| `create_broker_review_link` | `POST /v1/cases/{id}/reviews` (`createBrokerReviewLink`) | basic | writes a link on the case (D200) |
+| `get_broker_review_status` | `GET /v1/cases/{id}/reviews` (`listBrokerReviewLinks`) | basic | read-only |
 
 `extract_product_from_media` takes 1 to 4 files, 8 MB together (PNG, JPEG, WebP or scanned PDF), each as `{data, mime_type}` with base64 data, as an MCP image content block (`{type: "image", data, mimeType}`), or as an MCP embedded resource (`{type: "resource", resource: {mimeType, blob}}`). The tool decodes them and sends one multipart upload to the REST route, which checks the bytes and its other limits again. As on the website, the files are not stored and the draft must be reviewed before `predict_origin`.
 
@@ -83,11 +85,13 @@ No tool deletes anything (`destructiveHint: false` on all). Inputs have closed J
 
 Results carry a short text summary (with the disclaimer) and `structuredContent`: the API's JSON answer, without bulky internals (verifier search trails, model traces, cost stats, case history and chat; `GET /v1/cases/{id}` over REST has them). An API error becomes a tool error with the status, code and message, and the retry time for a rate limit.
 
+`create_broker_review_link` returns `review_path` (`/review#<token>` on the Unde web app: the token is the URL fragment, which browsers never send to a server) and the token once: Unde keeps only a hash. Whoever holds the link can read that one draft until it expires or is revoked, so share it with the broker only. The broker answers on the web page; `get_broker_review_status` reads the status and comments and never returns a token. Revoking is on the web app or `DELETE /v1/cases/{id}/reviews/{review}`; there is no MCP tool for it.
+
 Resources: `unde://demos` (the demo products) and `unde://demos/{id}` (one demo with ready request bodies). Prompt: `plan_production_move` (product text and a target country; walks extract, predict, plan, draft).
 
 ## Anonymous use and the case access key
 
-The hosted server is stateless (several instances serve it), so two MCP requests share no session. Without an API key, `predict_origin` returns a `case_access_key` beside the `case_id`. Pass it to `get_case`, `plan_production_moves`, `compare_target_countries`, `export_ruling_request_draft` and `list_cases` to reach that case. It works like the website's visitor cookie: whoever holds it can read and change the cases made with it, so keep it private. Pass the same key to later `predict_origin` calls to keep several cases under one key. With an API key, the key owns the cases and no access key is used.
+The hosted server is stateless (several instances serve it), so two MCP requests share no session. Without an API key, `predict_origin` returns a `case_access_key` beside the `case_id`. Pass it to `get_case`, `plan_production_moves`, `compare_target_countries`, `export_ruling_request_draft`, `create_broker_review_link`, `get_broker_review_status` and `list_cases` to reach that case. It works like the website's visitor cookie: whoever holds it can read and change the cases made with it, so keep it private. Pass the same key to later `predict_origin` calls to keep several cases under one key. With an API key, the key owns the cases and no access key is used.
 
 ## Limits
 

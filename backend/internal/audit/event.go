@@ -56,6 +56,12 @@ const (
 	AuditRead     Action = "audit.read"
 	AuditVerify   Action = "audit.verify"
 	AuthDenied    Action = "auth.denied"
+
+	// Broker review links (D200). The object is always the case.
+	ReviewCreate   Action = "review.create"
+	ReviewRevoke   Action = "review.revoke"
+	ReviewView     Action = "review.view"
+	ReviewDecision Action = "review.decision"
 )
 
 type actionSpec struct {
@@ -86,6 +92,12 @@ var actionSpecs = map[Action]actionSpec{
 	AuditRead:             {},
 	AuditVerify:           {},
 	AuthDenied:            {},
+	// Creating a link hands case content to someone outside the system: it
+	// fails closed like issuing an API key. Revoking never waits on the trail.
+	ReviewCreate:   {details: []string{"setup", "plan"}, sensitive: true},
+	ReviewRevoke:   {},
+	ReviewView:     {},
+	ReviewDecision: {details: []string{"approve", "changes", "file_request"}},
 }
 
 // Actions lists every action, for coverage tests and docs.

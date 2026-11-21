@@ -107,6 +107,11 @@ var auditTable = map[string]auditRoute{
 	"DELETE /v1/admin/api-keys/{id}":               {auditTwoPhase, audit.APIKeyDisable},
 	"GET /v1/audit":                                {auditSingleOnly, audit.AuditRead},
 	"GET /v1/audit/verify":                         {auditSingleOnly, audit.AuditVerify},
+	"POST /v1/cases/{id}/reviews":                  {auditTwoPhase, audit.ReviewCreate},
+	"GET /v1/cases/{id}/reviews":                   {auditDenyOnly, audit.CaseRead},
+	"DELETE /v1/cases/{id}/reviews/{review}":       {auditTwoPhase, audit.ReviewRevoke},
+	"GET /v1/review":                               {auditSingleOnly, audit.ReviewView},
+	"POST /v1/review/decision":                     {auditTwoPhase, audit.ReviewDecision},
 	"GET /health":                                  {auditNone, ""},
 }
 

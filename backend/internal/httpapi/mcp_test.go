@@ -97,6 +97,7 @@ func TestMCPListsToolsWithTightSchemas(t *testing.T) {
 	want := map[string]bool{ // name -> read-only
 		"predict_origin": false, "extract_product": true, "plan_production_moves": false, "compare_target_countries": false,
 		"search_rulings": true, "get_ruling": true, "get_duty_rates": true, "get_case": true, "list_cases": true, "export_ruling_request_draft": true,
+		"create_broker_review_link": false, "get_broker_review_status": true,
 	}
 	if len(lt.Tools) != len(want) {
 		t.Errorf("listed %d tools, want %d", len(lt.Tools), len(want))
@@ -356,5 +357,33 @@ func TestMCPMediaToolUsesTheRESTRoute(t *testing.T) {
 	}
 	if len(fake.Calls()) != 1 {
 		t.Errorf("a refused file reached the model")
+	}
+}
+
+// The broker review tools (D200) run the REST routes in-process with the
+// caller's case access key: the link is made on the caller's case only, the
+// status never carries a token, and another key sees nothing.
+func TestMCPBrokerReviewTools(t *testing.T) {
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.CaseOwnership = true })
+	cs := mcpClient(t, hs, nil)
+	_, out := callTool(t, cs, "predict_origin", heatGunArgs(t))
+	id, key := out["id"].(string), out["case_access_key"].(string)
+	res, made := callTool(t, cs, "create_broker_review_link", map[string]any{"case_id": id, "case_access_key": key, "expires_in_days": 7})
+	if res.IsError || !strings.HasPrefix(made["review_path"].(string), "/review#ubr_") || !strings.Contains(text(res), "Not a ruling") {
+		t.Fatalf("create link: %s", text(res))
+	}
+	tok := made["token"].(string)
+	if code, _ := hs.doAs(t, "POST", "/v1/review/decision", `{"decision":"changes","comment":"Add the plant address."}`, map[string]string{reviewTokenHeader: tok}); code != 200 {
+		t.Fatalf("broker answer = %d", code)
+	}
+	res, st := callTool(t, cs, "get_broker_review_status", map[string]any{"case_id": id, "case_access_key": key})
+	if res.IsError || !strings.Contains(text(res), "changes_requested") || !strings.Contains(text(res), "Add the plant address.") || strings.Contains(mustJSON(st), tok) {
+		t.Errorf("status: %s", text(res))
+	}
+	other := "mcp_" + strings.Repeat("0", 48)
+	for _, name := range []string{"create_broker_review_link", "get_broker_review_status"} {
+		if res, _ := callTool(t, cs, name, map[string]any{"case_id": id, "case_access_key": other}); !res.IsError {
+			t.Errorf("%s with another access key succeeded", name)
+		}
 	}
 }

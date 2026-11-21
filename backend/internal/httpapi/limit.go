@@ -39,13 +39,18 @@ type Limits struct {
 	// minute, on this instance; past it the client gets 429 before any key
 	// lookup (D137).
 	AuthFailuresPerMin int
+	// ReviewPerMin caps the broker review routes reached with a review
+	// link's token, per client, on this instance (D200). They make no model
+	// call. Invalid tokens are also counted against AuthFailuresPerMin, in a
+	// limiter of their own.
+	ReviewPerMin int
 }
 
 // HeavyWeight is what one heavy request takes from the global bucket.
 const HeavyWeight = 5
 
 // DefaultLimits suit a judged demo: a person clicking through never hits them.
-var DefaultLimits = Limits{BasicPerMin: 120, LightPerMin: 20, HeavyPerMin: 4, GlobalPerMin: 120, MaxInFlight: 4, AuthFailuresPerMin: 10}
+var DefaultLimits = Limits{BasicPerMin: 120, LightPerMin: 20, HeavyPerMin: 4, GlobalPerMin: 120, MaxInFlight: 4, AuthFailuresPerMin: 10, ReviewPerMin: 30}
 
 type class int
 
@@ -55,6 +60,7 @@ const (
 	bulk   // batch triage: the heavy bucket per client, MaxBatch from the global bucket
 	lookup // ruling lookups: their own bucket per client, not the global one
 	basic  // cheap routes with no model call: their own bucket per client, this instance only (D137)
+	review // broker review routes reached with a link token: their own bucket per client, this instance only (D200)
 )
 
 // rateDecision is the outcome of one rate check, with what the RateLimit-*
@@ -76,8 +82,8 @@ type limiter struct {
 }
 
 type clientBuckets struct {
-	basic, light, heavy, lookup *rate.Limiter
-	seen                        time.Time
+	basic, light, heavy, lookup, review *rate.Limiter
+	seen                                time.Time
 }
 
 func perMin(n int) (rate.Limit, int) {
@@ -110,7 +116,8 @@ func (l *limiter) decide(key string, c class) rateDecision {
 		lr, lb := perMin(l.lim.LightPerMin)
 		hr, hb := perMin(l.lim.HeavyPerMin)
 		kr, kb := perMin(l.lim.LookupPerMin)
-		cb = &clientBuckets{basic: rate.NewLimiter(sr, sb), light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), lookup: rate.NewLimiter(kr, kb), seen: now} // seen now, or the cleanup below drops it at once
+		vr, vb := perMin(l.lim.ReviewPerMin)
+		cb = &clientBuckets{basic: rate.NewLimiter(sr, sb), light: rate.NewLimiter(lr, lb), heavy: rate.NewLimiter(hr, hb), lookup: rate.NewLimiter(kr, kb), review: rate.NewLimiter(vr, vb), seen: now} // seen now, or the cleanup below drops it at once
 		l.clients[key] = cb
 		if len(l.clients) > 10000 { // forget idle clients so the map stays bounded
 			for k, v := range l.clients {
@@ -133,6 +140,8 @@ func (l *limiter) decide(key string, c class) rateDecision {
 		b, weight = cb.lookup, 0
 	case basic:
 		b, weight = cb.basic, 0
+	case review:
+		b, weight = cb.review, 0
 	}
 	rc := b.ReserveN(now, n)
 	if !rc.OK() || rc.DelayFrom(now) > 0 {

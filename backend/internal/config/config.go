@@ -170,6 +170,9 @@ type Config struct {
 	// RateAuthFailuresPerMin caps invalid API keys per client a minute; 0
 	// disables it (D137).
 	RateAuthFailuresPerMin int
+	// RateReviewPerMin caps the broker review routes (a review link's
+	// token) per client a minute; 0 disables it (D200).
+	RateReviewPerMin int
 	// DailySpendClientShare is the share of DailySpendCapUSD one client (API
 	// key or address) may spend in a UTC day; 0 disables the per-client cap
 	// (D137).
@@ -363,6 +366,7 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		RateBasicPerMin:        e.integer("RATE_BASIC_PER_MIN", 120),
 		RateMaxInFlight:        e.integer("RATE_MAX_IN_FLIGHT", 4),
 		RateAuthFailuresPerMin: e.integer("RATE_AUTH_FAILURES_PER_MIN", 10),
+		RateReviewPerMin:       e.integer("RATE_REVIEW_PER_MIN", 30),
 		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
 		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
 		DailySpendCapUSD:       e.float("DAILY_SPEND_CAP_USD", 0),
@@ -661,7 +665,7 @@ func (c Config) validate() error {
 	if c.PharmaFastPath < 0 || c.PharmaFastPath > 1 {
 		bad("PHARMA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.PharmaFastPath)
 	}
-	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
+	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_REVIEW_PER_MIN": c.RateReviewPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}

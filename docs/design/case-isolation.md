@@ -114,5 +114,11 @@ every kind of case, with ownership on and off, checking 404 existence hiding
 (identical to the answer for a case that does not exist), that a refused
 request changes nothing, read-only pinned demos, 401 for bad credentials,
 forged identity headers, and the list filter before the default cap.
+Broker review links (D200) add three case-scoped routes, driven through the
+same matrix, and two routes reached with a link token only:
+`TestIsolationReviewTokenOpensOneLinkOnly` checks that a token is no identity
+on any case route, that no principal reaches a link without its token, and
+that the broker's packet names no case id; `httpapi/reviews_test.go` checks
+that a token's secret under another case's id opens nothing.
 `httpapi/principal_test.go` fixes the principal, and compares the visibility
 rule with a frozen copy of the previous rule over every combination.
