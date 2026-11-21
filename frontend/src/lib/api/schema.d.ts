@@ -228,6 +228,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{id}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The case's broker review links with their status and the broker's answers
+         * @description Newest first. Never returns a token, its hash or the draft text. Also on GET /v1/cases/{id} as `broker_reviews` when the case has links. D200.
+         */
+        get: operations["listBrokerReviewLinks"];
+        put?: never;
+        /**
+         * Make a broker review link for one draft of the case
+         * @description D200. Freezes a snapshot of one draft (the current setup, or a plan picked as in `exportCase`) and returns a link a customs broker opens without an account. The token is returned once, in `token` and `review_path`; only its SHA-256 is stored, so it cannot be shown again (revoke and make a new one if it is lost). Expiry is `expires_in_days` (default 14, 1 to 30), enforced by the server. At most 5 open links per case (409 `conflict`). Refused (403) on a pinned demo and for a workspace viewer. With the audit trail on this is a sensitive write: no intent record, no link (503 `audit_unavailable`). See docs/api/SECURITY.md.
+         */
+        post: operations["createBrokerReviewLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{id}/reviews/{review}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a broker review link
+         * @description The link answers 410 `link_revoked` from now on. The record and the broker's answers stay on the case. Revoking twice keeps the first time. D200.
+         */
+        delete: operations["revokeBrokerReviewLink"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The broker's read-only review packet (the link token is the credential)
+         * @description D200. Send the link's token in `X-Review-Token`, never in the path or the query. Returns only the snapshot frozen when the link was made: no case id, no other link, no owner, no history. The first read stamps `first_viewed_at`; every read is an audit `review.view` event in the case's tenant when the trail is on. A malformed or unknown token is 404 `not_found` and counts against the client's invalid-credential budget (429 `auth_rate_limited` past it); a revoked link is 410 `link_revoked`, an expired one 410 `link_expired`. Responses carry `X-Robots-Tag: noindex, nofollow`, `Referrer-Policy: no-referrer` and `Cache-Control: no-store`. Rate class `review` (30 a minute per client).
+         */
+        get: operations["getBrokerReview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/review/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The broker's answer: approve, request changes, or file as a binding ruling request
+         * @description D200. Token in `X-Review-Token`. Changes only this link's record on the case, never the case's analysis. `comment` is plain text (control characters other than newline and tab are dropped, at most 2000 characters) and is required for `changes`; clients must render it as text. A link takes at most 20 answers (409 `conflict`). Errors as getBrokerReview, plus 400 `invalid_input`.
+         */
+        post: operations["decideBrokerReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/import": {
         parameters: {
             query?: never;
@@ -1244,6 +1328,8 @@ export interface components {
             /** @enum {string} */
             step?: "product" | "origin" | "plan" | "export";
             pinned?: boolean;
+            /** @description The case's broker review links, newest first (D200). Present only when the case has at least one; never on a pinned demo for non-admin callers. */
+            broker_reviews?: components["schemas"]["BrokerReview"][];
             /** @description Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
             can_write?: boolean;
             display_name?: string;
@@ -1281,7 +1367,7 @@ export interface components {
                 /** Format: date-time */
                 at?: string;
                 /** @enum {string} */
-                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated";
+                kind?: "predicted" | "answered" | "plan_searched" | "scenarios" | "targets_compared" | "watched" | "asked" | "exported" | "economics" | "pinned" | "unpinned" | "renamed" | "bom_updated" | "review_link_created" | "review_link_revoked" | "broker_decision";
                 summary?: string;
                 llm_provider?: string;
                 model_id?: string;
@@ -1704,6 +1790,88 @@ export interface components {
             case_id?: string;
             plan?: components["schemas"]["PlanResult"];
         };
+        BrokerReviewDecision: {
+            /** @enum {string} */
+            decision: "approve" | "changes" | "file_request";
+            /** @description Plain text from the broker. Render as text */
+            comment?: string;
+            /** Format: date-time */
+            at: string;
+        };
+        /** @description A broker review link as its case owner sees it (D200). Never carries the token, its hash or the draft text. */
+        BrokerReview: {
+            id: string;
+            /**
+             * @description revoked and expired win; otherwise the latest answer; else viewed or pending.
+             * @enum {string}
+             */
+            status: "pending" | "viewed" | "approved" | "changes_requested" | "file_requested" | "revoked" | "expired";
+            /** @enum {string} */
+            subject: "setup" | "plan";
+            /** @description Current setup, or the plan's description */
+            draft_label: string;
+            /** @enum {string} */
+            format: "markdown" | "cfr177";
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            revoked_at?: string;
+            /** Format: date-time */
+            first_viewed_at?: string;
+            /** @description Oldest first */
+            decisions: components["schemas"]["BrokerReviewDecision"][];
+        };
+        BrokerReviewForBroker: {
+            id: string;
+            /** @enum {string} */
+            status: "pending" | "viewed" | "approved" | "changes_requested" | "file_requested";
+            /** @enum {string} */
+            subject: "setup" | "plan";
+            draft_label: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            decisions: components["schemas"]["BrokerReviewDecision"][];
+        };
+        /** @description What the broker reads, frozen when the link was made (D200). */
+        BrokerReviewPacket: {
+            review: components["schemas"]["BrokerReviewForBroker"];
+            product_name: string;
+            /** @description The product as drafted (after the move, for a plan). */
+            product?: components["schemas"]["Product"] | null;
+            /** @description The prediction behind the requested position (the plan's, for a plan). */
+            prediction: {
+                origin_country?: string;
+                /** @description The model's stated confidence. */
+                confidence?: number;
+                /** @description The calibrated probability when a map applies (D160); null otherwise. */
+                calibrated_confidence?: number | null;
+                decisive_step?: string;
+                key_factors?: string[];
+            };
+            cited_rulings: components["schemas"]["PrecedentRef"][];
+            plan?: null | {
+                description?: string;
+                predicted_origin?: string;
+                supporting_ruling?: string;
+                counter_ruling?: string;
+                check_confidence?: number;
+                below_bar?: boolean;
+            };
+            draft: {
+                /** @enum {string} */
+                format?: "markdown" | "cfr177";
+                /** @description The letter (Markdown). */
+                content?: string;
+                notes?: string[];
+            };
+            /** Format: date-time */
+            shared_at: string;
+            disclaimer: string;
+        };
         ExportResponse: components["schemas"]["Meta"] & {
             case_id?: string;
             /**
@@ -1953,7 +2121,7 @@ export interface components {
         RateLimitReset: number;
         /** @description Seconds to wait before retrying. On 429 `rate_limited` until the bucket or window allows the request; on `quota_exceeded` and `client_budget_reached` (and 503 `budget_reached`) until 00:00 UTC; on `too_many_in_flight` 5; on `auth_rate_limited` until another key may be tried. */
         RetryAfter: number;
-        /** @description Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off. */
+        /** @description Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the fail-closed operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off. */
         AuditIncomplete: "completion-not-recorded";
     };
     pathItems: never;
@@ -2383,6 +2551,186 @@ export interface operations {
             409: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
+        };
+    };
+    listBrokerReviewLinks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The links */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id: string;
+                        reviews: components["schemas"]["BrokerReview"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    createBrokerReviewLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @description As in exportCase; omit plan_index and move_key for the current setup. */
+                    plan_index?: number;
+                    /** @description With move_key: a plan from that country's search in the latest compare-targets call. */
+                    target?: string;
+                    /** @description As in exportCase. */
+                    move_key?: string;
+                    /**
+                     * @default markdown
+                     * @enum {string}
+                     */
+                    format?: "markdown" | "cfr177";
+                    /** @default 14 */
+                    expires_in_days?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The link, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        review: components["schemas"]["BrokerReview"];
+                        /** @description The link's secret. Send as X-Review-Token on /v1/review. Not stored; shown only here. */
+                        token: string;
+                        /** @description The frontend path of the review page: /review/{token}. */
+                        review_path: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    revokeBrokerReviewLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+                review: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The revoked link */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        review: components["schemas"]["BrokerReview"];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description `not_found` (no such case, or hidden) or `review_not_found` (the case has no link with that id) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    getBrokerReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The packet */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrokerReviewPacket"];
+                };
+            };
+            404: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    decideBrokerReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    decision: "approve" | "changes" | "file_request";
+                    comment?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The link after the answer */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        review: components["schemas"]["BrokerReviewForBroker"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            410: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
         };
     };
     importProduct: {

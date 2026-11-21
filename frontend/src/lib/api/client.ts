@@ -2,6 +2,7 @@
 // Response shapes come from schema.d.ts, generated from docs/api/openapi.yaml
 // (npm run gen:api); never hand-write them.
 import type { components, paths } from "./schema";
+import type { BrokerPacket, CreateReviewBody, CreateReviewResponse, DecisionKind, ReviewList, ReviewSummary } from "../broker-review";
 
 type S = components["schemas"];
 export type CaseResponse = S["CaseResponse"];
@@ -334,6 +335,20 @@ export const api = {
   setMemberRole: (id: string, email: string, role: WorkspaceRole) => post<Workspace>(`/workspaces/${enc(id)}/members/${enc(email)}/role`, { role }, undefined, "PUT"),
   // An admin removes anyone; any member removes themself (leave).
   removeMember: (id: string, email: string) => call<RemoveMemberResponse>(`/workspaces/${enc(id)}/members/${enc(email)}`, { method: "DELETE" }),
+  // Broker review links, owner side. The token comes back once, on create.
+  createReview: (id: string, body: CreateReviewBody) => post<CreateReviewResponse>(`/cases/${enc(id)}/reviews`, body),
+  listReviews: (id: string) => call<ReviewList>(`/cases/${enc(id)}/reviews`),
+  revokeReview: (id: string, reviewId: string) => call<{ review: ReviewSummary }>(`/cases/${enc(id)}/reviews/${enc(reviewId)}`, { method: "DELETE" }),
+  // Broker side (/review/[token]). The token travels ONLY in the
+  // X-Review-Token header: never in the URL or a query string, never logged,
+  // never stored.
+  brokerReview: (token: string) => call<BrokerPacket>("/review", { headers: { "X-Review-Token": token } }),
+  brokerDecision: (token: string, body: { decision: DecisionKind; comment?: string }) =>
+    call<{ review: ReviewSummary }>("/review/decision", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Review-Token": token },
+      body: JSON.stringify(body),
+    }),
 };
 
 // Plan search events (POST /v1/cases/{id}/plan with Accept: text/event-stream).

@@ -54,7 +54,15 @@ test("the proxy forwards an allowlist: no caller role, workspace or tenant heade
   await proxyBackend(req(jwt("viewer"), { "x-role": "admin", "x-workspace": "ws1", "x-tenant": "t", "x-workspace-id": "ws1", "x-user-role": "admin", "x-user-email": "a@b.c" }), "cases/c1");
   const sent = Object.keys(upstream[0].headers);
   assert.deepEqual(sent.filter((k) => /role|workspace|tenant|email/.test(k)), []);
-  assert.ok(sent.every((k) => ["x-visitor-id", "x-user-token", "x-client-ip", "content-type", "accept", "x-api-key"].includes(k)), sent.join(","));
+  assert.ok(sent.every((k) => ["x-visitor-id", "x-user-token", "x-client-ip", "content-type", "accept", "x-api-key", "x-review-token"].includes(k)), sent.join(","));
+});
+
+test("a broker review page's X-Review-Token is forwarded as sent, on the bare /v1/review path", async () => {
+  backend();
+  const tok = "ubr_SYNTHETIC_test_token_0123";
+  await proxyBackend(new Request("http://front.test/api/v1/review", { headers: { "x-review-token": tok } }), "review");
+  assert.equal(upstream[0].headers["x-review-token"], tok);
+  assert.equal(upstream[0].u, "http://backend.test/v1/review", "the token is not in the URL");
 });
 
 test("the client reads the case from the server on every call (no-store, no module cache)", async () => {

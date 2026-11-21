@@ -47,7 +47,19 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // Broker review pages carry a secret token in the path: no referrer leaves
+    // them and they are never indexed. Listed after the site-wide rule, so its
+    // Referrer-Policy wins here (the last match for a header key applies).
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      {
+        source: "/review/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
   },
 };
 

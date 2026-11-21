@@ -26,6 +26,8 @@ const tools: [string, string][] = [
   ["get_case", "Read a case."],
   ["list_cases", "List your cases and the demos."],
   ["export_ruling_request_draft", "Preview the draft ruling request for a broker."],
+  ["create_broker_review_link", "Make a link your broker opens to approve the draft or ask for changes."],
+  ["get_broker_review_status", "Read the broker's answer and comments on each link."],
 ];
 
 // The MCP one-liners wrap on a phone so the whole command shows.
@@ -98,7 +100,7 @@ export default function Page() {
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-[13.5px] font-medium">The 11 tools</h3>
+            <h3 className="text-[13.5px] font-medium">The 13 tools</h3>
             <dl className="border-t border-line text-[13px]">
               {tools.map(([name, what]) => (
                 <div key={name} className="grid gap-x-4 gap-y-0.5 border-b border-line py-1.5 sm:grid-cols-[240px_minmax(0,1fr)]">

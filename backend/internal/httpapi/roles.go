@@ -40,22 +40,25 @@ const (
 // permEdit, so a new route is closed to viewers until someone decides; the
 // route-table test fails until it has a row.
 var rolePerms = map[string]perm{
-	"GET /v1/cases":                       permRead,
-	"GET /v1/cases/{id}":                  permRead,
-	"POST /v1/cases/{id}/plan/estimate":   permRead, // reads caches only: no model call, no write
-	"POST /v1/cases/{id}/export":          permExport,
-	"POST /v1/cases/predict":              permEdit,
-	"POST /v1/cases/batch":                permEdit,
-	"POST /v1/cases/{id}/bom-version":     permEdit,
-	"POST /v1/cases/{id}/scenarios":       permEdit,
-	"POST /v1/cases/{id}/compare-targets": permEdit,
-	"POST /v1/cases/{id}/ask":             permEdit,
-	"PUT /v1/cases/{id}/economics":        permEdit,
-	"POST /v1/cases/{id}/watch":           permEdit,
-	"DELETE /v1/cases/{id}":               permEdit,
-	"PATCH /v1/cases/{id}":                permEdit,
-	"POST /v1/cases/{id}/plan":            permEdit,
-	"POST /v1/cases/{id}/answers":         permEdit,
+	"GET /v1/cases":                          permRead,
+	"GET /v1/cases/{id}":                     permRead,
+	"POST /v1/cases/{id}/plan/estimate":      permRead, // reads caches only: no model call, no write
+	"POST /v1/cases/{id}/export":             permExport,
+	"POST /v1/cases/predict":                 permEdit,
+	"POST /v1/cases/batch":                   permEdit,
+	"POST /v1/cases/{id}/bom-version":        permEdit,
+	"POST /v1/cases/{id}/scenarios":          permEdit,
+	"POST /v1/cases/{id}/compare-targets":    permEdit,
+	"POST /v1/cases/{id}/ask":                permEdit,
+	"PUT /v1/cases/{id}/economics":           permEdit,
+	"POST /v1/cases/{id}/watch":              permEdit,
+	"DELETE /v1/cases/{id}":                  permEdit,
+	"PATCH /v1/cases/{id}":                   permEdit,
+	"POST /v1/cases/{id}/plan":               permEdit,
+	"POST /v1/cases/{id}/answers":            permEdit,
+	"GET /v1/cases/{id}/reviews":             permRead, // the owner's view of the links: status and comments
+	"POST /v1/cases/{id}/reviews":            permEdit, // shares case content outside the workspace
+	"DELETE /v1/cases/{id}/reviews/{review}": permEdit,
 }
 
 // permOf is what the matched route needs; unknown means permEdit.

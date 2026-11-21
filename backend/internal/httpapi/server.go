@@ -42,6 +42,9 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 				a.inflight = newInflight(d.Limits.MaxInFlight)
 			}
 		}
+		if d.Limits.AuthFailuresPerMin > 0 {
+			a.reviewFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+		}
 		if d.APIKeys != nil {
 			if d.Limits.AuthFailuresPerMin > 0 {
 				a.authFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
@@ -85,6 +88,13 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		}
 		mux.HandleFunc("POST /v1/cases/{id}/export", a.cheap(a.export))
 		mux.HandleFunc("POST /v1/cases/{id}/answers", a.limit(light, a.answers))
+		// Broker review links (D200): the owner's routes go through loadCase;
+		// the broker's carry the link token in X-Review-Token, never in a path.
+		mux.HandleFunc("POST /v1/cases/{id}/reviews", a.cheap(a.createReview))
+		mux.HandleFunc("GET /v1/cases/{id}/reviews", a.cheap(a.listReviews))
+		mux.HandleFunc("DELETE /v1/cases/{id}/reviews/{review}", a.cheap(a.revokeReview))
+		mux.HandleFunc("GET /v1/review", a.rateOnly(review, a.getReview))
+		mux.HandleFunc("POST /v1/review/decision", a.rateOnly(review, a.decideReview))
 		mux.HandleFunc("GET /v1/rulings/{id}", a.cheap(a.ruling))
 		if d.RulingSearch != nil {
 			mux.HandleFunc("GET /v1/rulings", a.rateOnly(lookup, a.searchRulings))

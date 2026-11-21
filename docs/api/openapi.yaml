@@ -53,11 +53,13 @@ info:
 
     Request reference and log text (#285): the server never echoes a caller-supplied `X-Request-ID`. A supplied value, whatever its length or shape, is replaced in the response by `h_` followed by the first 16 hex characters of its SHA-256; with no value the server generates 16 lowercase hex characters. The response value is the same one used in the server logs and in the audit trail for that request, so quote it to support. It is an unkeyed hash for log hygiene, not anonymisation. No response body shape, error code or status changes. Text only: `GET /health?deep=1` `checks.<name>.error` (on a failed check) is now a fixed phrase (for example `model provider unavailable`, `case store write failed (PermissionDenied)`) and no longer carries the provider body or the store message; new `history[].summary` text for `asked` is `question (<N> characters), <K> what-ifs, cited <ruling numbers>` and for `renamed` is `renamed` (earlier events keep their text and the actor is unchanged); a new `check_failed` rejection from the precedent check has a fixed `rejection_reason` by failure class (earlier reasons are not rewritten).
 
-    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the seven operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
+    Audit trail (#284): a tenant-scoped, append-only audit stream that is separate from the case history. It is off unless an operator configures it: `AUDIT` defaults to `auto`, which turns it on only when `AUDIT_ACTOR_KEY` is set, and `on` without a key fails at startup. When it is off, no event is recorded, the two `/v1/audit*` routes are not registered (404) and sensitive writes are not gated; nothing here says any deployment has it enabled. When it is on, the sensitive writes (case delete, workspace invite, join, role change, member removal or leave, API-key issue and disable) write an intent record first; if that record cannot be written the request is 503 `audit_unavailable` and nothing changes. Other writes proceed even if their intent cannot be recorded. If the completion record cannot be written after a change was made, the change is not rolled back and the response keeps its true status, with the header `X-Audit-Incomplete: completion-not-recorded`; the header can appear on any audited non-streaming route, on a success or an error response (every mutating route, a recording or preview export of a non-pinned case, the audit reads and the API-key list), and not only on the fail-closed operations that can answer 503; a Server-Sent-Events response has already committed its 200 before the work runs, so that header cannot be sent there, and the stream path writes its completion record before the final `done` or `error` event instead. In both cases the trail holds an intent with no completion, which `GET /v1/audit/verify` can report as an unresolved intent only on its final call, as of the verified snapshot, and not as an exact count when its own `complete` is false. Allowed ordinary case reads are not audited: the trail records writes, recording exports, previews of non-pinned cases, authorization denials and audit reads, so it is not a complete record of who read confidential data. Audit writes and the case, workspace or key writes are separate stores and are not atomic with each other. Event times are the server clock in microseconds and never go backwards within a tenant. The hash chain is tamper evidence by the application only: it is not immutable or WORM storage, does not protect against someone with write access to the datastore, and this is audit-readiness support, not SOC 2 certification.
 
     Strict auth (#283, `STRICT_AUTH=on`, default off, same values as `CASE_OWNERSHIP`; any other value fails startup): private case operations (creating, listing and every route on a non-pinned case) require a verified identity, meaning a validated user token, an API key or the admin token. An `X-Visitor-ID` alone is not authentication and gets 401 `unauthenticated`, identical for missing, hidden and unknown cases. Pinned demos, `/v1/demos*`, `/v1/rulings`, `/v1/eval/summary`, `/v1/duty-rates`, `/health` and the stateless `/v1/products/*` helpers stay open. With it off nothing changes.
 
     API keys (D69, `API_KEYS=on`, off by default): brokers may call the API with `X-API-Key: op_...` (securityScheme `ApiKey`). Every `/v1` request with a key is checked (unknown or disabled: 401 `unauthorized`) and counted against the key's daily quota (spent: 429 `quota_exceeded`, `Retry-After` at the next UTC day). A key has its own rate-limit buckets, sees the pinned demos and its own cases only, and its cases are hidden from everyone else but the admin, whatever `CASE_OWNERSHIP` says. The admin issues, lists and disables keys under `/v1/admin/api-keys`.
+
+    Broker review links (D200): a case owner makes a link for one draft (`POST /v1/cases/{id}/reviews`), and a customs broker opens it without an account. The broker's two routes, `GET /v1/review` and `POST /v1/review/decision`, take the link token in the `X-Review-Token` header (securityScheme `ReviewToken`), never in a path or query. They have their own rate class (`review`, 30 a minute per client, counted per instance, `RATE_REVIEW_PER_MIN`) and an invalid token counts against a per-client failure budget like an invalid API key (429 `auth_rate_limited`). A revoked or expired link is 410. A token opens one frozen draft snapshot and nothing else.
 security:
   - {}
   - ApiKey: []
@@ -413,6 +415,157 @@ paths:
         "409": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/reviews:
+    post:
+      operationId: createBrokerReviewLink
+      summary: Make a broker review link for one draft of the case
+      description: >-
+        D200. Freezes a snapshot of one draft (the current setup, or a plan picked as in `exportCase`) and
+        returns a link a customs broker opens without an account. The token is returned once, in `token`
+        and `review_path`; only its SHA-256 is stored, so it cannot be shown again (revoke and make a new
+        one if it is lost). Expiry is `expires_in_days` (default 14, 1 to 30), enforced by the server.
+        At most 5 open links per case (409 `conflict`). Refused (403) on a pinned demo and for a workspace
+        viewer. With the audit trail on this is a sensitive write: no intent record, no link (503
+        `audit_unavailable`). See docs/api/SECURITY.md.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                plan_index: { type: integer, description: "As in exportCase; omit plan_index and move_key for the current setup." }
+                target: { type: string, description: "With move_key: a plan from that country's search in the latest compare-targets call." }
+                move_key: { type: string, description: "As in exportCase." }
+                format: { type: string, enum: [markdown, cfr177], default: markdown }
+                expires_in_days: { type: integer, minimum: 1, maximum: 30, default: 14 }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "201":
+          description: The link, shown once, and its record
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [review, token, review_path]
+                properties:
+                  review: { $ref: "#/components/schemas/BrokerReview" }
+                  token: { type: string, pattern: "^ubr_[0-9a-f]{12}_[A-Za-z0-9_-]{43}$", description: "The link's secret. Send as X-Review-Token on /v1/review. Not stored; shown only here." }
+                  review_path: { type: string, description: "The frontend path of the review page: /review/{token}." }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: listBrokerReviewLinks
+      summary: The case's broker review links with their status and the broker's answers
+      description: Newest first. Never returns a token, its hash or the draft text. Also on GET /v1/cases/{id} as `broker_reviews` when the case has links. D200.
+      parameters: [{ $ref: "#/components/parameters/CaseID" }]
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "401": { $ref: "#/components/responses/Error" }
+        "200":
+          description: The links
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [case_id, reviews]
+                properties:
+                  case_id: { type: string }
+                  reviews: { type: array, items: { $ref: "#/components/schemas/BrokerReview" } }
+        "404": { $ref: "#/components/responses/Error" }
+  /v1/cases/{id}/reviews/{review}:
+    delete:
+      operationId: revokeBrokerReviewLink
+      summary: Revoke a broker review link
+      description: The link answers 410 `link_revoked` from now on. The record and the broker's answers stay on the case. Revoking twice keeps the first time. D200.
+      parameters:
+        - { $ref: "#/components/parameters/CaseID" }
+        - { name: review, in: path, required: true, schema: { type: string, pattern: "^rv_[0-9a-f]{16}$" } }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "401": { $ref: "#/components/responses/Error" }
+        "200":
+          description: The revoked link
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [review]
+                properties:
+                  review: { $ref: "#/components/schemas/BrokerReview" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { description: "`not_found` (no such case, or hidden) or `review_not_found` (the case has no link with that id)", content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  /v1/review:
+    get:
+      operationId: getBrokerReview
+      summary: The broker's read-only review packet (the link token is the credential)
+      description: >-
+        D200. Send the link's token in `X-Review-Token`, never in the path or the query. Returns only the
+        snapshot frozen when the link was made: no case id, no other link, no owner, no history. The first
+        read stamps `first_viewed_at`; every read is an audit `review.view` event in the case's tenant when
+        the trail is on. A malformed or unknown token is 404 `not_found` and counts against the client's
+        invalid-credential budget (429 `auth_rate_limited` past it); a revoked link is 410 `link_revoked`,
+        an expired one 410 `link_expired`. Responses carry `X-Robots-Tag: noindex, nofollow`,
+        `Referrer-Policy: no-referrer` and `Cache-Control: no-store`. Rate class `review` (30 a minute per client).
+      security: [{ ReviewToken: [] }]
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "200":
+          description: The packet
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrokerReviewPacket" }
+        "404": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
+  /v1/review/decision:
+    post:
+      operationId: decideBrokerReview
+      summary: "The broker's answer: approve, request changes, or file as a binding ruling request"
+      description: >-
+        D200. Token in `X-Review-Token`. Changes only this link's record on the case, never the case's
+        analysis. `comment` is plain text (control characters other than newline and tab are dropped,
+        at most 2000 characters) and is required for `changes`; clients must render it as text. A link
+        takes at most 20 answers (409 `conflict`). Errors as getBrokerReview, plus 400 `invalid_input`.
+      security: [{ ReviewToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approve, changes, file_request] }
+                comment: { type: string, maxLength: 2000 }
+      responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
+        "200":
+          description: The link after the answer
+          headers:
+            X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [review]
+                properties:
+                  review: { $ref: "#/components/schemas/BrokerReviewForBroker" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "410": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
       operationId: importProduct
@@ -1498,6 +1651,11 @@ components:
       name: X-API-Key
       description: |
         A broker's key, `op_` plus 43 characters, issued by the admin (D69; only with API_KEYS=on). Optional: requests without it are served as before. A key gets its own rate-limit buckets (instead of the X-Client-IP ones), a request quota per UTC day (over it: 429 `quota_exceeded` with Retry-After at the next UTC day), and owns the cases it creates. An unknown or disabled key gets 401 `unauthorized`. Model calls still count toward the daily spend cap (503 `budget_reached`).
+    ReviewToken:
+      type: apiKey
+      in: header
+      name: X-Review-Token
+      description: A broker review link's token, `ubr_` plus the case id's 12 hex digits, `_` and 43 characters (256 random bits), made by the case owner with createBrokerReviewLink (D200). It opens one link's snapshot only. Stored as a SHA-256 hash and compared in constant time.
     AdminToken:
       type: apiKey
       in: header
@@ -1541,7 +1699,7 @@ components:
       description: Seconds to wait before retrying. On 429 `rate_limited` until the bucket or window allows the request; on `quota_exceeded` and `client_budget_reached` (and 503 `budget_reached`) until 00:00 UTC; on `too_many_in_flight` 5; on `auth_rate_limited` until another key may be tried.
       schema: { type: integer }
     AuditIncomplete:
-      description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
+      description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the fail-closed operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
       schema: { type: string, enum: [completion-not-recorded] }
   responses:
     Error:
@@ -1863,6 +2021,7 @@ components:
             updated_at: { type: string, format: date-time }
             step: { type: string, enum: [product, origin, plan, export] }
             pinned: { type: boolean }
+            broker_reviews: { type: array, items: { $ref: "#/components/schemas/BrokerReview" }, description: "The case's broker review links, newest first (D200). Present only when the case has at least one; never on a pinned demo for non-admin callers." }
             can_write: { type: boolean, description: "Whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
             display_name: { type: string }
             precedents_detail:
@@ -1900,7 +2059,7 @@ components:
                 type: object
                 properties:
                   at: { type: string, format: date-time }
-                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed, bom_updated] }
+                  kind: { type: string, enum: [predicted, answered, plan_searched, scenarios, targets_compared, watched, asked, exported, economics, pinned, unpinned, renamed, bom_updated, review_link_created, review_link_revoked, broker_decision] }
                   summary: { type: string }
                   llm_provider: { type: string }
                   model_id: { type: string }
@@ -2262,6 +2421,76 @@ components:
           properties:
             case_id: { type: string }
             plan: { $ref: "#/components/schemas/PlanResult" }
+    BrokerReviewDecision:
+      type: object
+      required: [decision, at]
+      properties:
+        decision: { type: string, enum: [approve, changes, file_request] }
+        comment: { type: string, description: Plain text from the broker. Render as text, never as HTML or Markdown. }
+        at: { type: string, format: date-time }
+    BrokerReview:
+      type: object
+      description: A broker review link as its case owner sees it (D200). Never carries the token, its hash or the draft text.
+      required: [id, status, subject, draft_label, format, created_at, expires_at, decisions]
+      properties:
+        id: { type: string, pattern: "^rv_[0-9a-f]{16}$" }
+        status: { type: string, enum: [pending, viewed, approved, changes_requested, file_requested, revoked, expired], description: "revoked and expired win; otherwise the latest answer; else viewed or pending." }
+        subject: { type: string, enum: [setup, plan] }
+        draft_label: { type: string, description: "Current setup, or the plan's description" }
+        format: { type: string, enum: [markdown, cfr177] }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        revoked_at: { type: string, format: date-time }
+        first_viewed_at: { type: string, format: date-time }
+        decisions: { type: array, items: { $ref: "#/components/schemas/BrokerReviewDecision" }, description: Oldest first }
+    BrokerReviewForBroker:
+      type: object
+      required: [id, status, subject, draft_label, created_at, expires_at, decisions]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [pending, viewed, approved, changes_requested, file_requested] }
+        subject: { type: string, enum: [setup, plan] }
+        draft_label: { type: string }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        decisions: { type: array, items: { $ref: "#/components/schemas/BrokerReviewDecision" } }
+    BrokerReviewPacket:
+      type: object
+      description: What the broker reads, frozen when the link was made (D200).
+      required: [review, product_name, prediction, cited_rulings, draft, shared_at, disclaimer]
+      properties:
+        review: { $ref: "#/components/schemas/BrokerReviewForBroker" }
+        product_name: { type: string }
+        product: { oneOf: [{ $ref: "#/components/schemas/Product" }, { type: "null" }], description: "The product as drafted (after the move, for a plan)." }
+        prediction:
+          type: object
+          description: The prediction behind the requested position (the plan's, for a plan).
+          properties:
+            origin_country: { type: string }
+            confidence: { type: number, description: The model's stated confidence. }
+            calibrated_confidence: { type: [number, "null"], description: "The calibrated probability when a map applies (D160); null otherwise." }
+            decisive_step: { type: string }
+            key_factors: { type: array, items: { type: string } }
+        cited_rulings: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
+        plan:
+          oneOf:
+            - type: "null"
+            - type: object
+              properties:
+                description: { type: string }
+                predicted_origin: { type: string }
+                supporting_ruling: { type: string }
+                counter_ruling: { type: string }
+                check_confidence: { type: number }
+                below_bar: { type: boolean }
+        draft:
+          type: object
+          properties:
+            format: { type: string, enum: [markdown, cfr177] }
+            content: { type: string, description: The letter (Markdown). }
+            notes: { type: array, items: { type: string } }
+        shared_at: { type: string, format: date-time }
+        disclaimer: { type: string }
     ExportResponse:
       allOf:
         - $ref: "#/components/schemas/Meta"

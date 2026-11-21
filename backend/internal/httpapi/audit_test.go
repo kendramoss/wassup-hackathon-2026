@@ -530,6 +530,7 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 	intact func() bool // the state the request would have changed is untouched
 } {
 	dID := e.wsCase()
+	rID := e.wsCase()
 	_, ws := e.hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Fail Closed Co"}`, user("fiona"))
 	fid := ws["id"].(string)
 	e.hs.addToWorkspace(t, fid, "fiona", "gus")
@@ -553,6 +554,12 @@ func (e *auditEnv) sensitiveCases(t *testing.T) map[audit.Action]struct {
 		audit.CaseDelete: {
 			func() (int, map[string]any) { return e.hs.doAs(t, "DELETE", "/v1/cases/"+dID, "", user("dave")) },
 			func() bool { _, err := e.cs.Get(context.Background(), dID); return err == nil },
+		},
+		audit.ReviewCreate: {
+			func() (int, map[string]any) {
+				return e.hs.doAs(t, "POST", "/v1/cases/"+rID+"/reviews", `{}`, user("dave"))
+			},
+			func() bool { c, _ := e.cs.Get(context.Background(), rID); return len(c.BrokerReviews) == 0 },
 		},
 		audit.WorkspaceInvite: {
 			func() (int, map[string]any) {

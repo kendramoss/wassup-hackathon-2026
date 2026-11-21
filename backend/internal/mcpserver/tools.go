@@ -200,6 +200,36 @@ Returns the letter text and reviewer notes. It is a draft: a licensed customs br
 		}),
 		Annotations: readOnly("Draft a ruling request", false),
 	}, t.export)
+
+	add(s, &mcp.Tool{
+		Name: "create_broker_review_link",
+		Description: `Make a link a licensed customs broker opens without an account to review one ruling-request draft of a case, and approve it, request changes or mark it to file as a binding ruling request.
+Use it when the user wants their broker to check the draft. Input: case_id; optional plan_index (a shown plan of the latest plan search), or target with move_key; format; expires_in_days (default 14, 1 to 30).
+Returns review_path (/review/<token> on the Unde web app) and the token, shown once: Unde stores only a hash, so it cannot be shown again. Anyone holding the link can read that one draft until it expires or is revoked; share it with the broker only. The draft is frozen when the link is made. Follow up with get_broker_review_status.
+Not a ruling: the broker's answer is their professional view, not CBP's. REST: POST /v1/cases/{id}/reviews (operationId createBrokerReviewLink).`,
+		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"format":          enum("markdown (default) or cfr177.", "markdown", "cfr177"),
+			"plan_index":      integer("Index into the latest plan search's shown plans; omit for the current setup.", 0, 100),
+			"target":          country("With move_key: the country of a compare_target_countries search."),
+			"move_key":        str("A plan's move key, e.g. motor_fan_assembly@th+pcba@th.", 1, 300),
+			"expires_in_days": integer("Days until the link stops working (default 14).", 1, 30),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: writes("Create a broker review link"),
+	}, t.createReview)
+
+	add(s, &mcp.Tool{
+		Name: "get_broker_review_status",
+		Description: `Read the case's broker review links: each link's status (pending, viewed, approved, changes_requested, file_requested, revoked, expired), what draft it shares, when it expires, and the broker's answers with their comments.
+Use it after create_broker_review_link to see whether the broker answered. Input: case_id. Never returns a link's token.
+REST: GET /v1/cases/{id}/reviews (operationId listBrokerReviewLinks).`,
+		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
+			"case_id":         caseID(),
+			"case_access_key": accessKey(),
+		}),
+		Annotations: readOnly("Get broker review status", false),
+	}, t.reviewStatus)
 }
 
 func uniq(s *jsonschema.Schema) *jsonschema.Schema { s.UniqueItems = true; return s }
@@ -270,6 +300,16 @@ type exportIn struct {
 	Target    string `json:"target,omitempty"`
 	MoveKey   string `json:"move_key,omitempty"`
 	AccessKey string `json:"case_access_key,omitempty"`
+}
+
+type createReviewIn struct {
+	CaseID        string `json:"case_id"`
+	Format        string `json:"format,omitempty"`
+	PlanIndex     *int   `json:"plan_index,omitempty"`
+	Target        string `json:"target,omitempty"`
+	MoveKey       string `json:"move_key,omitempty"`
+	ExpiresInDays *int   `json:"expires_in_days,omitempty"`
+	AccessKey     string `json:"case_access_key,omitempty"`
 }
 
 // ---- handlers ----
@@ -537,6 +577,60 @@ func (t tools) export(ctx context.Context, hdr http.Header, in exportIn) (*mcp.C
 		b.WriteString("\n\nReviewer notes (not part of the letter):")
 		for _, n := range notes {
 			fmt.Fprintf(&b, "\n- %v", n)
+		}
+	}
+	return done(b.String(), out)
+}
+
+func (t tools) createReview(ctx context.Context, hdr http.Header, in createReviewIn) (*mcp.CallToolResult, any, error) {
+	body := map[string]any{}
+	if in.Format != "" {
+		body["format"] = in.Format
+	}
+	if in.PlanIndex != nil {
+		body["plan_index"] = *in.PlanIndex
+	}
+	if in.Target != "" {
+		body["target"] = in.Target
+	}
+	if in.MoveKey != "" {
+		body["move_key"] = in.MoveKey
+	}
+	if in.ExpiresInDays != nil {
+		body["expires_in_days"] = *in.ExpiresInDays
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/reviews"), body: body, access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	rv := obj(out["review"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "Broker review link for %s, expires %v.", str0(rv["draft_label"], "the draft"), rv["expires_at"])
+	fmt.Fprintf(&b, "\nOpen on the Unde web app at: %v", out["review_path"])
+	b.WriteString("\nThe link is shown once; Unde keeps only a hash. Share it with the broker only: whoever holds it can read this draft until it expires or is revoked.")
+	return done(b.String(), out)
+}
+
+func (t tools) reviewStatus(ctx context.Context, hdr http.Header, in caseIn) (*mcp.CallToolResult, any, error) {
+	res, err := t.call(ctx, hdr, apiCall{method: "GET", path: casePath(in.CaseID, "/reviews"), access: in.AccessKey})
+	if err != nil || !res.ok() {
+		return failed(res, err)
+	}
+	out := trim(res.body)
+	rvs := list(out["reviews"])
+	var b strings.Builder
+	fmt.Fprintf(&b, "%d broker review links.", len(rvs))
+	for _, x := range rvs {
+		rv := obj(x)
+		fmt.Fprintf(&b, "\n%v: %v (%s), expires %v.", rv["id"], rv["status"], str0(rv["draft_label"], ""), rv["expires_at"])
+		for _, d := range list(rv["decisions"]) {
+			dd := obj(d)
+			if c := str0(dd["comment"], ""); c != "" {
+				fmt.Fprintf(&b, "\n  %v at %v: %q", dd["decision"], dd["at"], c)
+			} else {
+				fmt.Fprintf(&b, "\n  %v at %v", dd["decision"], dd["at"])
+			}
 		}
 	}
 	return done(b.String(), out)

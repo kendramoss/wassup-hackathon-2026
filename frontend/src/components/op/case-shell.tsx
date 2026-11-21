@@ -10,6 +10,7 @@ import { caseReadOnly } from "@/lib/roles";
 import { caseTitle, useCase } from "@/lib/use-case";
 import { ActionSlotProvider } from "./action-bar";
 import { AskDrawer } from "./ask-drawer";
+import { BrokerReviewStatus } from "./broker-reviews";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
 import { Spinner } from "./ui";
 
@@ -78,6 +79,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
               {copy.access.readOnlyNote}
             </p>
           )}
+          <BrokerReviewStatus id={id} c={data} />
           {children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}
         </>
       )}
