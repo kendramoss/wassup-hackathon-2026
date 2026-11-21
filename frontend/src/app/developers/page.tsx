@@ -75,6 +75,25 @@ const tools: [string, string][] = [
 const wrap = " whitespace-pre-wrap [overflow-wrap:anywhere]";
 const pre = "overflow-x-auto border border-edge bg-white px-4 py-3 font-mono text-[12.5px] leading-relaxed shadow-[3px_3px_0_var(--shadow)]";
 
+// A code sample that can scroll sideways on a phone is a named, focusable
+// region, so a keyboard user can tab to it and scroll it with the arrow
+// keys; the global :focus-visible outline shows where focus is (#517). A
+// one-liner that wraps never scrolls and stays out of the tab order.
+function Code({ label, wraps, children }: { label: string; wraps?: boolean; children: string }) {
+  if (wraps) {
+    return (
+      <pre className={pre + wrap}>
+        <code>{children}</code>
+      </pre>
+    );
+  }
+  return (
+    <pre role="region" aria-label={label} tabIndex={0} className={pre}>
+      <code>{children}</code>
+    </pre>
+  );
+}
+
 const example = `UNDE_API=https://undelabs.dev/api
 
 curl -X POST "$UNDE_API/v1/cases/predict" \\
@@ -120,22 +139,16 @@ export default function Page() {
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-[13.5px] font-medium">Gemini CLI: one line</h3>
-            <pre className={pre + wrap}>
-              <code>{geminiAdd}</code>
-            </pre>
+            <Code label="Gemini CLI command" wraps>{geminiAdd}</Code>
             <p className="duo text-[13px] text-dim">
               Or add it to <code className="font-mono">~/.gemini/settings.json</code> (or a project&apos;s <code className="font-mono">.gemini/settings.json</code>). The{" "}
               <code className="font-mono">headers</code> line is only for an API key; leave it out to use the anonymous tier.
             </p>
-            <pre className={pre}>
-              <code>{geminiSettings}</code>
-            </pre>
+            <Code label="Gemini CLI settings.json">{geminiSettings}</Code>
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-[13.5px] font-medium">Google ADK agent (Python)</h3>
-            <pre className={pre}>
-              <code>{adkAgent}</code>
-            </pre>
+            <Code label="Google ADK agent in Python">{adkAgent}</Code>
             <p className="duo max-w-[72ch] text-[13px] text-dim">
               The Gemini CLI and ADK formats follow their documentation (
               <a href={geminiDocs} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
@@ -150,15 +163,11 @@ export default function Page() {
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-[13.5px] font-medium">Claude Code: one line</h3>
-            <pre className={pre + wrap}>
-              <code>{mcpAdd}</code>
-            </pre>
+            <Code label="Claude Code command" wraps>{mcpAdd}</Code>
             <p className="duo text-[13px] text-dim">
               With an API key, add it as a header. Check the connection with <code className="font-mono">/mcp</code> inside Claude Code.
             </p>
-            <pre className={pre + wrap}>
-              <code>{mcpAddKey}</code>
-            </pre>
+            <Code label="Claude Code command with an API key" wraps>{mcpAddKey}</Code>
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-[13.5px] font-medium">Claude.ai and Claude Desktop</h3>
@@ -171,9 +180,7 @@ export default function Page() {
               is in the repository for clients that prefer a local process. In Claude Desktop&apos;s config file it runs from a clone of this repository with Node 20 or
               later:
             </p>
-            <pre className={pre}>
-              <code>{desktopRelay}</code>
-            </pre>
+            <Code label="Claude Desktop config">{desktopRelay}</Code>
           </div>
           <div className="flex flex-col gap-1.5">
             <h3 className="text-[13.5px] font-medium">The 13 tools</h3>
@@ -207,9 +214,7 @@ export default function Page() {
 
         <section className="flex flex-col gap-2">
           <h2 className="eyebrow">Send the key with every request</h2>
-          <pre className={pre}>
-            <code>{example}</code>
-          </pre>
+          <Code label="REST request with an API key">{example}</Code>
           <p className="duo text-[13px] text-dim">
             A key is <code className="font-mono">op_</code> plus 43 characters, sent as the <code className="font-mono">X-API-Key</code> header. Responses are the same JSON this site uses, with the
             disclaimer on every one.

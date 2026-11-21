@@ -218,8 +218,11 @@ func (f *authFailures) bucket(client string, now time.Time) *failBucket {
 // key also spends a token in fail, while a valid key only returns the slot.
 // Checking and reserving happen under the same lock, so N concurrent guesses
 // cannot all pass the check before any of them reaches the store (#386).
-// When the token bucket is empty, even a lookup that would otherwise be free
-// is refused with its refill wait.
+// A lookup in flight holds one of the bucket's tokens until it finishes: a
+// lookup is admitted only while the tokens left, less the lookups in flight,
+// are at least one. Guesses that arrive while earlier ones are still in the
+// store therefore cannot reach it more than perMin times a minute (#505).
+// When no token is free, the lookup is refused with the refill wait.
 func (f *authFailures) begin(client string) (release func(), ok bool, wait time.Duration) {
 	if f == nil {
 		return func() {}, true, 0
@@ -227,13 +230,9 @@ func (f *authFailures) begin(client string) (release func(), ok bool, wait time.
 	f.mu.Lock()
 	now := f.now()
 	fb := f.bucket(client, now)
-	if t := fb.b.TokensAt(now); t < 1 {
+	if free := fb.b.TokensAt(now) - float64(fb.inflight); free < 1 {
 		f.mu.Unlock()
-		return nil, false, time.Duration((1 - t) / float64(fb.b.Limit()) * float64(time.Second))
-	}
-	if fb.inflight >= f.perMin {
-		f.mu.Unlock()
-		return nil, false, time.Second
+		return nil, false, max(time.Second/10, time.Duration((1-free)/float64(fb.b.Limit())*float64(time.Second)))
 	}
 	fb.inflight++
 	f.mu.Unlock()
@@ -244,7 +243,9 @@ func (f *authFailures) begin(client string) (release func(), ok bool, wait time.
 	}, true, 0
 }
 
-// fail records one invalid key from client.
+// fail records one invalid key from client. It always takes a token, into
+// debt if the bucket is already empty, so a failure recorded late still
+// lengthens the client's wait (#505).
 func (f *authFailures) fail(client string) {
 	if f == nil {
 		return
@@ -252,7 +253,7 @@ func (f *authFailures) fail(client string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	now := f.now()
-	f.bucket(client, now).b.AllowN(now, 1)
+	f.bucket(client, now).b.ReserveN(now, 1)
 }
 
 // localQuota counts API-key requests on this instance while the shared

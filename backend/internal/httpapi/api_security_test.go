@@ -502,6 +502,74 @@ func TestAPIKeyFailuresThrottledUnderConcurrency(t *testing.T) {
 	}
 }
 
+// #505: guesses that arrive a few milliseconds apart, while earlier lookups
+// are still in the store, must not reach it more than AuthFailuresPerMin
+// times either: an in-flight lookup holds a token until it finishes.
+func TestAPIKeyFailuresThrottledWhenStaggered(t *testing.T) {
+	for _, gap := range []time.Duration{0, 2 * time.Millisecond, 5 * time.Millisecond, 10 * time.Millisecond} {
+		store := &countingSlowStore{Memory: apikey.NewMemory(), delay: 50 * time.Millisecond}
+		hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+			d.APIKeys = apikey.New(store)
+			d.Limits = Limits{BasicPerMin: 1000, LightPerMin: 1000, HeavyPerMin: 1000, GlobalPerMin: 10000, AuthFailuresPerMin: 10}
+		})
+		const n = 60
+		statuses := make([]int, n)
+		var wg sync.WaitGroup
+		for i := range n {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				secret := "op_" + strings.Repeat("b", 43-len(strconv.Itoa(i))) + strconv.Itoa(i)
+				statuses[i] = serve(hs, "GET", "/v1/cases", "", map[string]string{"X-API-Key": secret, "X-Client-IP": "203.0.113.45"}).Code
+			}(i)
+			time.Sleep(gap)
+		}
+		wg.Wait()
+		var unauthorized, limited int
+		for _, code := range statuses {
+			switch code {
+			case http.StatusUnauthorized:
+				unauthorized++
+			case http.StatusTooManyRequests:
+				limited++
+			default:
+				t.Errorf("gap %v: status = %d, want 401 or 429", gap, code)
+			}
+		}
+		if got := store.count(); got > 10 || unauthorized > 10 {
+			t.Errorf("gap %v: %d key-store lookups, %d x 401; want at most 10", gap, got, unauthorized)
+		}
+		if limited < n-10 {
+			t.Errorf("gap %v: %d x 429, want at least %d", gap, limited, n-10)
+		}
+	}
+}
+
+// A failure recorded when the bucket is already spent still lengthens the
+// wait (#505): fail always takes a token, even into debt.
+func TestAuthFailuresDebtLengthensWait(t *testing.T) {
+	now := time.Unix(1_800_000_000, 0)
+	f := newAuthFailures(10)
+	f.now = func() time.Time { return now }
+	for range 10 {
+		release, ok, _ := f.begin("c")
+		if !ok {
+			t.Fatal("refused within the budget")
+		}
+		f.fail("c")
+		release()
+	}
+	_, ok, wait1 := f.begin("c")
+	if ok {
+		t.Fatal("11th lookup admitted")
+	}
+	f.fail("c") // a late failure from a lookup admitted earlier
+	_, _, wait2 := f.begin("c")
+	if wait2 <= wait1 {
+		t.Errorf("wait after a failure into debt = %v, want more than %v", wait2, wait1)
+	}
+}
+
 // failingUse is an API-key store whose usage counter is down.
 type failingUse struct{ *apikey.Memory }
 
