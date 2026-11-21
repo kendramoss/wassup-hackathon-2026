@@ -146,3 +146,91 @@ func plannerPostSummaryItems(resultsDir string) ([]evalsummary.Item, error) {
 		{Key: "planner_post_known-a_controls_shown", Label: label + ": no-change pairs shown as plans", Value: m.All.Controls.Value, N: m.All.Controls.N, Split: "post", Source: src},
 	}, nil
 }
+
+// plannerPostCombinedItems are the D170 pairs plus the D192 addendum (18
+// pairs), known-a, as eval/planner/summarize_addendum.py combines them. The
+// D170-only items above stay for the record; the results page shows these.
+func plannerPostCombinedItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "planner-post-addendum-summary.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	type frac struct {
+		K     int       `json:"k"`
+		N     int       `json:"n"`
+		Value float64   `json:"value"`
+		CI    []float64 `json:"ci95"`
+	}
+	var s struct {
+		Modes map[string]struct {
+			Combined struct {
+				Pairs     int  `json:"pairs"`
+				Precision frac `json:"precision_at_bar"`
+				Recall    frac `json:"recall_at_bar"`
+				Controls  frac `json:"controls_shown"`
+			} `json:"combined"`
+		} `json:"modes"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	m, ok := s.Modes["known-a"]
+	c := m.Combined
+	if !ok || c.Pairs == 0 || len(c.Precision.CI) != 2 || len(c.Recall.CI) != 2 || len(c.Controls.CI) != 2 {
+		return nil, fmt.Errorf("%s: no combined known-a metrics", file)
+	}
+	src := "eval/results/" + file + " (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen and scored once)"
+	label := fmt.Sprintf("Precedent check on post-cutoff flip pairs, D170 plus the D192 addendum (%d pairs, gateway, starting origin given)", c.Pairs)
+	return []evalsummary.Item{
+		{Key: "planner_post_combined_known-a_precision_at_bar", Label: label + ": moves shown at the 0.92 bar that were real changes", Value: c.Precision.Value, CILow: c.Precision.CI[0], CIHigh: c.Precision.CI[1], N: c.Precision.N, Split: "post", Source: src},
+		{Key: "planner_post_combined_known-a_recall_at_bar", Label: label + ": real changes shown at the 0.92 bar", Value: c.Recall.Value, CILow: c.Recall.CI[0], CIHigh: c.Recall.CI[1], N: c.Recall.N, Split: "post", Source: src},
+		{Key: "planner_post_combined_known-a_controls_shown", Label: label + ": no-change pairs shown as plans", Value: c.Controls.Value, CILow: c.Controls.CI[0], CIHigh: c.Controls.CI[1], N: c.Controls.N, Split: "post", Source: src},
+	}, nil
+}
+
+// repeatabilityItems are the three development runs of the engine (D190),
+// from eval/charts/build_repeatability.py's summary: each run's accuracy, the
+// mean, and the rulings whose answer changed between runs.
+func repeatabilityItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "repeatability-dev-litellm.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	type run struct {
+		Correct  int       `json:"correct"`
+		Accuracy float64   `json:"accuracy_pct"`
+		CI       []float64 `json:"ci95_pct"`
+	}
+	var s struct {
+		N      int            `json:"n"`
+		PerRun map[string]run `json:"per_run"`
+		Across struct {
+			Accuracy struct {
+				Mean float64 `json:"mean"`
+			} `json:"accuracy_pct"`
+			AnswerFlips int `json:"cases_answer_flips"`
+		} `json:"across_runs"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	if s.N == 0 || len(s.PerRun) != 3 {
+		return nil, fmt.Errorf("%s: want three runs over a non-empty set", file)
+	}
+	src := "eval/results/" + file + " (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+	var items []evalsummary.Item
+	for i := 1; i <= 3; i++ {
+		r, ok := s.PerRun[fmt.Sprintf("run%d", i)]
+		if !ok || len(r.CI) != 2 {
+			return nil, fmt.Errorf("%s: run%d missing", file, i)
+		}
+		items = append(items, evalsummary.Item{Key: fmt.Sprintf("repeat_dev_accuracy_run%d", i), Label: fmt.Sprintf("Repeatability: development accuracy, run %d of 3", i),
+			Value: float64(r.Correct) / float64(s.N), CILow: r.CI[0] / 100, CIHigh: r.CI[1] / 100, N: s.N, Split: "dev", DevelopmentOnly: true, Source: src})
+	}
+	return append(items,
+		evalsummary.Item{Key: "repeat_dev_accuracy_mean", Label: "Repeatability: mean development accuracy over the three runs", Value: s.Across.Accuracy.Mean / 100, N: s.N, Split: "dev", DevelopmentOnly: true, Source: src},
+		evalsummary.Item{Key: "repeat_dev_answer_flips", Label: "Repeatability: rulings whose answer changed between runs (a count)", Value: float64(s.Across.AnswerFlips), N: s.N, Split: "dev", DevelopmentOnly: true, Source: src},
+	), nil
+}

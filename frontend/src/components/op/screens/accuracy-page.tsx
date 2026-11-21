@@ -99,11 +99,18 @@ export function AccuracyPage() {
   const routeTex = get("router_textile_routing");
   const routeFalse = get("router_false_out_of_scope");
   const moveRec = get("verifier_unknown-a_recall");
-  // D170: the precedent check on flip pairs from rulings published after the
-  // corpus cut-off, frozen before scoring, CBP's starting origin given.
-  const postPrec = get("planner_post_known-a_precision_at_bar");
-  const postRec = get("planner_post_known-a_recall_at_bar");
-  const postCtl = get("planner_post_known-a_controls_shown");
+  // D170 + D192: the precedent check on flip pairs from rulings published
+  // after the corpus cut-off (the 15 D170 pairs plus the 3-pair addendum),
+  // each frozen before scoring and scored once, CBP's starting origin given.
+  const postPrec = get("planner_post_combined_known-a_precision_at_bar");
+  const postRec = get("planner_post_combined_known-a_recall_at_bar");
+  const postCtl = get("planner_post_combined_known-a_controls_shown");
+  const postPairs = (postRec?.n ?? 0) + (postCtl?.n ?? 0);
+  const postCtlShown = Math.round((postCtl?.value ?? 0) * (postCtl?.n ?? 0));
+  // D190: three development runs of the same engine, no cache.
+  const reps = [1, 2, 3].map((i) => get(`repeat_dev_accuracy_run${i}`)).filter((x): x is Item => Boolean(x));
+  const repMean = get("repeat_dev_accuracy_mean");
+  const repFlips = get("repeat_dev_answer_flips");
   const postShown = postPrec?.n ?? 0;
   const postRight = Math.round((postPrec?.value ?? 0) * postShown);
   const postReal = postRec?.n ?? 0;
@@ -156,7 +163,7 @@ export function AccuracyPage() {
   const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "final2_accuracy", "baseline_first_mentioned", "baseline_most_mentioned", "dev_accuracy_adjusted", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
   const value = (it: Item) =>
-    it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
+    it.key?.endsWith("_flips") ? `${it.value} of ${it.n}` : it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
 
   return (
     <Main>
@@ -169,7 +176,13 @@ export function AccuracyPage() {
         </a>{" "}
         are listed by name.
       </p>
-      <Reproduce />
+      {/* Below md the headline numbers come before the reproduce block, so a
+          phone sees the result first (judge panel round 2, D220). */}
+      <div className="flex flex-col">
+      <div className="max-md:order-2">
+        <Reproduce />
+      </div>
+      <div className="max-md:order-1">
       {error ? (
         <div className="mt-6">
           <ErrorBox error={error} onRetry={load} />
@@ -216,7 +229,7 @@ export function AccuracyPage() {
                 ))}
               </ul>
             </section>
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 max-lg:order-first">
               <Card title="Overall" big={pct(acc.value)}>
                 {right} of {n} right ({ci(acc)}).
               </Card>
@@ -228,6 +241,13 @@ export function AccuracyPage() {
               </Card>
             </div>
           </div>
+        </>
+      )}
+      </div>
+      </div>
+
+      {acc && (
+        <>
 
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <div className="flex flex-wrap items-center gap-3">
@@ -301,16 +321,35 @@ export function AccuracyPage() {
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Plan checks on rulings published after the test set</h2>
-                <span className="ml-auto text-[11px] text-dim">15 CBP flip pairs, each with a ruling from Sep–Nov 2026 · frozen before scoring · gateway, not Vertex AI · small</span>
+                <span className="ml-auto text-[11px] text-dim">{postPairs} CBP flip pairs, each with a ruling from Sep–Nov 2026 · each pair frozen before scoring, scored once · gateway, not Vertex AI · small</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
-                  at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `None of the ${postCtl.n} pairs where CBP kept the origin was shown.` : ""} With so few pairs the interval
+                  at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `${postCtlShown} of the ${postCtl.n} pairs where CBP kept the origin were shown.` : ""} The 15 pairs of the first set plus 3 added later (D192), each scored once. With so few pairs the interval
                   is wide. {PARITY}
                 </Card>
                 <Card title="Real changes found" big={pct(postRec.value, 0)}>
                   {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
                   broker as below the bar or without a supporting ruling.
+                </Card>
+              </div>
+            </section>
+          )}
+
+          {reps.length === 3 && repMean && (
+            <section className="mt-6" aria-labelledby="acc-repeat">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 id="acc-repeat" className="eyebrow">
+                  Run it again
+                </h2>
+                <span className="ml-auto text-[11px] text-dim">development set, {repMean.n} rulings · three runs, no cache · gateway, not Vertex AI · not measured on held-out rulings</span>
+              </div>
+              <div className="mt-3 grid gap-5 md:grid-cols-2">
+                <Card title="Three runs of the same engine" big={pct(repMean.value)}>
+                  mean of {reps.map((r) => pct(r.value)).join(", ")} on the same {repMean.n} development rulings. The same model was called fresh each time. {PARITY}
+                </Card>
+                <Card title="Answers that changed" big={repFlips ? `${repFlips.value} of ${repFlips.n}` : "—"}>
+                  rulings got a different country in one run than in another ({repFlips?.n ? pct((repFlips.value ?? 0) / repFlips.n) : "—"}). Everything else gave the same answer three times.
                 </Card>
               </div>
             </section>

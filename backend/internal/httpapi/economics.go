@@ -180,7 +180,7 @@ func (a *api) putEconomics(w http.ResponseWriter, r *http.Request) {
 	out := map[string]any{"case_id": saved.ID, "economics": saved.Economics}
 	moneyStaleFields(out, saved)
 	if len(saved.Scenarios) > 0 {
-		out["scenarios"] = a.scenarioFields(saved.Scenarios) // priced with the money just saved
+		out["scenarios"] = a.scenarioFields(saved, saved.Scenarios) // priced with the money just saved
 	}
 	writeJSON(w, http.StatusOK, out)
 }

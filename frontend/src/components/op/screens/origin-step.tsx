@@ -4,7 +4,8 @@ import { watchView } from "@/lib/watch-state";
 import { conflictLean } from "@/lib/conflict";
 import Link from "next/link";
 import { useState } from "react";
-import { api, type CaseResponse } from "@/lib/api/client";
+import { api, type CaseResponse, type Scenario } from "@/lib/api/client";
+import { asToday, readsDiffer } from "@/lib/plan-check";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { conf, formatDate, formatMonth, isProxy, originConf, originConfCaption, shortSubject } from "@/lib/format";
@@ -34,6 +35,13 @@ function Result({ id, c, setCase }: CaseCtx) {
   // makes no claim either way, so it folds under the evidence instead of
   // sitting above the answer's reasons (judge journey: the pinned heat gun).
   const watchBoxed = wv.attention && wk !== "recheck";
+  // A pinned demo can't re-run its watch, and a legacy watch makes no claim,
+  // so the demo explains why instead (D220).
+  const demoWatch = Boolean(c.pinned) && wk === "recheck";
+  // The same setup read from the parts list (the As today what-if, else the
+  // plan search's current-setup row) can give another answer (D220).
+  const today = asToday(c.scenarios) ?? (c.plan?.baseline?.prediction && c.product ? ({ product: c.product, prediction: c.plan.baseline.prediction } as Scenario) : undefined);
+  const differs = today ? readsDiffer(c, today) : null;
   const regime = regimeOf(c);
   const qs = c.clarify?.questions?.length ?? 0;
   const cited = p.cited_rulings?.length ?? 0;
@@ -64,6 +72,11 @@ function Result({ id, c, setCase }: CaseCtx) {
           {/* Locked frames: the disagreement first (p-res-conflict.html),
               then the questions; below the bar with no questions, the
               review panel (p-res-review.html). */}
+          {differs ? (
+            <p role="note" className="duo max-w-[75ch] border border-line bg-sheet px-3 py-2 text-[13px] text-body">
+              {differs}
+            </p>
+          ) : null}
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
           {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}
@@ -88,8 +101,8 @@ function Result({ id, c, setCase }: CaseCtx) {
               </Fold>
             ) : null}
             {!watchBoxed ? (
-              <Fold title="Ruling watch" meta={c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
-                <WatchLine c={c} setCase={setCase} />
+              <Fold title="Ruling watch" meta={demoWatch ? "not available on this demo" : c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
+                {demoWatch ? <DemoWatchNote c={c} /> : <WatchLine c={c} setCase={setCase} />}
               </Fold>
             ) : null}
             {/* Plain words first; model and prompt ids sit here (#93). */}
@@ -216,6 +229,26 @@ function OriginRuler({ p, width }: { p: Parameters<typeof originConf>[0]; width?
       width={width}
       caption={<Term explain={o.calibrated ? copy.terms.calibrated.text : copy.terms.stated.text}>{originConfCaption(o)}</Term>}
     />
+  );
+}
+
+// A pinned demo's ruling watch (D220). The demo excludes the rulings it is
+// tested against, including CBP's later ruling on the same product, so a
+// re-check here could never show that change; its stored re-check is from an
+// older version and makes no claim either way.
+function DemoWatchNote({ c }: { c: CaseResponse }) {
+  const ex = c.exclude_rulings ?? [];
+  return (
+    <p className="duo text-[13px] text-dim">
+      The ruling watch re-checks a case with rulings published after its date. This demo leaves out {ex.length ? <>{ex.map((r, i) => (
+        <span key={r}>
+          {i > 0 ? (i === ex.length - 1 ? " and " : ", ") : ""}
+          <RulingLink id={r} />
+        </span>
+      ))}</> : "the rulings it is tested against"}
+      , which include CBP&apos;s own rulings on this product, so a re-check here can&apos;t show a change. Its saved re-check is from an older version of Unde and makes no claim. Start a new case from the
+      demo to run a watch.
+    </p>
   );
 }
 

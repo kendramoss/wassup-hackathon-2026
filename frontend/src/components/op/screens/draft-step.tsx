@@ -14,6 +14,7 @@ import { moveKey, movePhrase } from "../plan-bits";
 import { ReviewNotes, fillIn, letterComponents } from "../letter";
 import { ReviewNote } from "../review-note";
 import { BrokerReviews } from "../broker-reviews";
+import { BrokerPreview } from "../broker-preview";
 import { Button, Panel, PanelHead, Spinner, cx } from "../ui";
 
 export function DraftStep() {
@@ -138,8 +139,8 @@ function Draft({ id, c, setCase }: CaseCtx) {
             {defaulted && shownPlan ? (
               <p className="duo mt-2 text-sm">
                 <span className="block text-[13px] text-dim">
-                  Make {movePhrase(shownPlan)}
-                  {c.plan?.target ? ` in ${c.plan.target}` : ""}.
+                  Move {movePhrase(shownPlan)}
+                  {c.plan?.target ? ` to ${c.plan.target}` : ""}.
                 </span>
                 <Link href={`/cases/${encodeURIComponent(id)}/draft?setup=current`} className="text-ok underline underline-offset-2">
                   Draft for today&apos;s setup instead →
@@ -151,8 +152,8 @@ function Draft({ id, c, setCase }: CaseCtx) {
                   Draft for the shown plan instead →
                 </Link>
                 <span className="block text-[13px] text-dim">
-                  Make {movePhrase(shownPlan)}
-                  {c.plan?.target ? ` in ${c.plan.target}` : ""}.
+                  Move {movePhrase(shownPlan)}
+                  {c.plan?.target ? ` to ${c.plan.target}` : ""}.
                 </span>
               </p>
             ) : null}
@@ -209,6 +210,16 @@ function Draft({ id, c, setCase }: CaseCtx) {
               </form>
               <p className="mt-3 text-xs text-dim">Fills the bracketed placeholders in the letter. Nothing here is sent anywhere.</p>
             </Panel>
+          )}
+          {/* A pinned demo can't make review links, so it shows the page the
+              broker would see instead (D220). */}
+          {c.pinned && (
+            <BrokerPreview
+              c={c}
+              draft={draft}
+              plan={move && !target ? [...(c.plan?.plans ?? []), ...(c.plan?.rejected ?? [])].find((p) => moveKey(p) === move) : undefined}
+              label={defaulted ? "the shown plan" : move ? "the chosen move" : "the current setup"}
+            />
           )}
           <BrokerReviews
             id={id}

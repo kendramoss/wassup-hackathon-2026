@@ -1312,6 +1312,8 @@ export interface components {
             facts?: string;
             product?: components["schemas"]["Product"];
             family?: string;
+            /** @description Rulings the engine and the plan search never read for this case (as given at prediction) */
+            exclude_rulings?: string[];
             prediction?: components["schemas"]["Prediction"];
             triage?: components["schemas"]["Triage"];
             router?: components["schemas"]["RouterLabel"];
@@ -1347,7 +1349,29 @@ export interface components {
                 triage?: components["schemas"]["Triage"];
                 precedents_detail?: components["schemas"]["PrecedentRef"][];
                 comparison?: components["schemas"]["Comparison"];
+                /** @description The latest plan search's row for the same move (the same groups to the same plants), so a scenario and a plan never give two verdicts on one move (D220). Present only when the scenario moves something and the plan search tried that move. The scenario's own triage is the engine's origin answer, not a plan approval. */
+                plan_check?: {
+                    /** @description true when the plan search shows this move as a precedent-supported plan */
+                    shown?: boolean;
+                    /** @description the precedent check's confidence; null when the move was not checked */
+                    confidence?: number | null;
+                    /** @description the precedent-check bar (0.92) */
+                    bar?: number;
+                    supporting_ruling?: string;
+                    /** @description why the plan search did not show it (below_confidence_bar, no_supporting_precedent, ...) */
+                    rejection_kind?: string;
+                    /** @description the plan row's reason, word for word */
+                    rejection_reason?: string;
+                    description?: string;
+                    net_per_year?: number;
+                    target?: string;
+                };
             }[];
+            /**
+             * @description What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product.
+             * @enum {string}
+             */
+            facts_source?: "parts_list" | "pasted";
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
             /**
@@ -1645,8 +1669,17 @@ export interface components {
             /** @example China */
             cbp_origin: string;
             agrees_with_cbp: boolean;
-            /** @description The first plan shown at the bar */
+            /** @description The first plan shown at the bar, if any, as the result file records it */
             best_plan?: string;
+            /** @description That plan's move, from the result file */
+            best_plan_move?: {
+                group?: string;
+                to_plant?: string;
+            }[];
+            /** @description The move in the product's own words (D220), e.g. Move the lid and firebox forming, the burners and gas train and the cooking surface, panels and frame to Indonesia */
+            best_plan_words?: string;
+            /** @description The parts and steps of the demo's product that the move takes with it (D220) */
+            best_plan_includes?: string[];
             plan_check?: number;
             plan_ruling?: string;
         };

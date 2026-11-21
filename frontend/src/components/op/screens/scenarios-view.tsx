@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Scenario } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { money, originConf, originConfCaption, pct } from "@/lib/format";
+import { BAR, conf, money, originConf, originConfCaption, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
@@ -13,11 +14,12 @@ import { DutyBreakdown } from "../duty-breakdown";
 import { MoneyDrawer } from "../money-drawer";
 import { opsErrorText } from "../operational-fields";
 import { OpsDetail, OpsScope, OpsUnknown } from "../ops-result";
-import { comparisonNetText, feasibilityText, figureText } from "../ops-view";
+import { comparisonNetText, feasibilityText, figureText, netText } from "../ops-view";
 import { opsActive } from "@/lib/ops";
 import { groupName } from "../plan-bits";
 import { ReviewNote } from "../review-note";
 import { exampleDrafts, initialDrafts, scenarioBody, type Draft } from "@/lib/scenario-drafts";
+import { engineLabel, highestNet, planCheckOf, planCheckWords, readsDiffer } from "@/lib/plan-check";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
 
 export function ScenariosView() {
@@ -306,36 +308,77 @@ function prettyLabel(label?: string) {
   return (label ?? "").replace(/[a-z]+(?:_[a-z]+)+|\bpcba\b/g, (g) => groupName(g));
 }
 
+// The plan search's recommendation above the cards, so a scenario's engine
+// answer is never read as the plan (D220).
+function PlanLine({ c }: { c: CaseResponse }) {
+  const best = c.plan?.plans?.find((p) => p.shown && (p.move?.length ?? 0) > 0);
+  if (!c.plan) return null;
+  const href = `/cases/${encodeURIComponent(c.id ?? "")}/plan`;
+  return (
+    <p className="duo border border-line bg-sheet px-4 py-3 text-[13px]">
+      {best ? (
+        <>
+          <span className="text-ok">The plan search recommends:</span> {best.description} · precedent check {conf(best.verdict?.confidence)} · {netText(best)}
+          {best.operations ? "" : "/yr"}.{" "}
+        </>
+      ) : (
+        <>No move cleared the {BAR} precedent-check bar in the plan search. </>
+      )}
+      <span className="text-dim">The cards below are the engine&apos;s origin answer for each what-if. A move becomes a plan only when its precedent check reaches {BAR}.</span>{" "}
+      <Link href={href} className="text-ok underline underline-offset-2">
+        Open Plan →
+      </Link>
+    </p>
+  );
+}
+
 function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   const cur = currentOrigin(c)?.country ?? c.prediction?.origin_country;
   const live = liveMfnOrigins(pricedEconomics(c));
-  const nets = sc.map((s) => s.comparison?.net_usd ?? -Infinity);
   const confs = sc.map((s) => s.prediction?.confidence ?? 0);
-  const bestNet = Math.max(...nets);
   const bestConf = Math.max(...confs);
-  // A chip only marks a clear winner; on a tie it says nothing (#89).
+  // A chip only marks a clear winner; on a tie it says nothing (#89). A move
+  // the plan search did not show is never "highest net" (D220).
   const oneBestConf = confs.filter((x) => x === bestConf).length === 1;
-  const oneBestNet = nets.filter((x) => x === bestNet).length === 1;
+  const top = highestNet(sc);
   return (
+    <div className="flex flex-col gap-5">
+    <PlanLine c={c} />
     <div className="grid gap-5 lg:grid-cols-3">
       {sc.map((s, i) => {
         const p = s.prediction ?? {};
         const cmp = s.comparison;
         const nothingMoves = s.product && (cmp?.moved?.length ?? 0) === 0;
+        const pc = planCheckOf(s);
+        const words = pc ? planCheckWords(pc) : null;
+        const differs = nothingMoves ? readsDiffer(c, s) : null;
         return (
           <Panel key={i} className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-[15px] font-medium">{prettyLabel(s.label)}</h2>
-              {nets[i] === bestNet && oneBestNet && Number.isFinite(bestNet) && bestNet > 0 && <Chip tone="ok">highest net</Chip>}
-              {confs[i] === bestConf && oneBestConf && sc.length > 1 && <Chip>highest confidence</Chip>}
+              {top?.index === i && <Chip tone={top.checked ? "ok" : undefined}>{top.checked ? "highest net" : "highest net · not precedent-checked"}</Chip>}
+              {confs[i] === bestConf && oneBestConf && sc.length > 1 && <Chip>highest engine confidence</Chip>}
             </div>
             <p className="flex items-center gap-3 text-[40px] leading-none tracking-[-0.06em]">
               <Flag country={p.origin_country} size={30} />
               {p.origin_country}
             </p>
-            <span className="self-start">
-              <StatusChip route={s.triage?.route} />
+            <span className="flex flex-wrap items-center gap-2 self-start">
+              {s.triage?.route === "auto" ? <Chip>{engineLabel(s)}</Chip> : <StatusChip route={s.triage?.route} />}
             </span>
+            {words && (
+              <div className={cx("border px-3 py-2 text-xs", words.supported ? "border-ok bg-ok-wash" : "border-dashed border-ask-line bg-ask-wash")}>
+                <p className="flex flex-wrap items-center gap-2">
+                  <span className="eyebrow">Plan search</span>
+                  <Chip tone={words.tone}>{words.chip}</Chip>
+                </p>
+                <p className={cx("duo mt-1", words.supported ? "text-ok" : "text-ask")}>
+                  {words.line}
+                  {pc?.supporting_ruling ? <> · closest support {pc.supporting_ruling}</> : null}.
+                </p>
+              </div>
+            )}
+            {differs && <p className="duo text-xs text-dim">{differs}</p>}
             {(cmp?.moved?.length ?? 0) > 0 && (
               <p className="flex flex-wrap items-center gap-1.5 text-xs">
                 <span className="text-dim">Moves</span>
@@ -394,6 +437,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
           </Panel>
         );
       })}
+    </div>
     </div>
   );
 }

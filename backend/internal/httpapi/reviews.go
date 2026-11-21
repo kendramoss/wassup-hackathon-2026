@@ -301,8 +301,8 @@ func (a *api) reviewDraft(c store.Case, d draftResult) store.ReviewDraft {
 		out.ProductName = firstWords(c.Facts, 8)
 	}
 	if p := d.chosen; p != nil {
-		out.Subject, out.Label = "plan", p.Description
-		rp := &store.ReviewPlan{Description: p.Description, PredictedOrigin: p.Prediction.Origin, BelowBar: d.ex.BelowBar != nil}
+		out.Subject, out.Label = "plan", d.ex.PlanSummary
+		rp := &store.ReviewPlan{Description: d.ex.PlanSummary, PredictedOrigin: p.Prediction.Origin, BelowBar: d.ex.BelowBar != nil}
 		if p.Verdict != nil {
 			conf := p.Verdict.Confidence
 			rp.Supporting, rp.Counter, rp.CheckConfidence = p.Verdict.SupportingRuling, p.Verdict.CounterRuling, &conf

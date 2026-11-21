@@ -5,7 +5,7 @@
   "description": "A laboratory PCR instrument for in vitro diagnostics. The power supply, main board, monitor, temperature module and the other parts come from China; they are screwed together and wired in Japan. CBP held China (N333453).",
   "source": "CBP ruling N333453, rulings.cbp.gov",
   "cbp_held": "China (N333453)",
-  "notes": "One of the families added in D138 (medical devices). Built from the D171 fixture for CBP ruling N333453 (train split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2023-07-05, and N333453 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n333453-litellm.json): the engine said China at 0.98 stated, where CBP held China (it agrees with CBP). First plan shown: \"Make PCBA and sensors in Japan\", check 0.92 on N330296. That ruling, read by hand: partial (N330296 held Vietnam for a camera whose PCBAs were made in the assembling country; right principle, different product.) A run on this site is a new run and may differ.",
+  "notes": "One of the families added in D138 (medical devices). Built from the D171 fixture for CBP ruling N333453 (train split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2023-07-05, and N333453 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n333453-litellm.json): the engine said China at 0.98 stated, where CBP held China (it agrees with CBP). First plan shown: \"Move the PCBA and sensors to Japan\" (in this product: Power supply; Power supply switch; Main printed circuit board; Monitor; Temperature control module), check 0.92 on N330296. That ruling, read by hand: partial (N330296 held Vietnam for a camera whose PCBAs were made in the assembling country; right principle, different product.) A run on this site is a new run and may differ.",
   "predict": {
     "date": "2023-07-05",
     "product": {
@@ -171,6 +171,12 @@
     "cbp_origin": "China",
     "agrees_with_cbp": true,
     "best_plan": "Make PCBA and sensors in Japan",
+    "best_plan_move": [
+      {
+        "group": "pcba_and_sensors",
+        "to_plant": "jp"
+      }
+    ],
     "plan_check": 0.92,
     "plan_ruling": "N330296"
   }

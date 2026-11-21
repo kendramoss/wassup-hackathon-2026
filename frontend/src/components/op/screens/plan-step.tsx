@@ -15,7 +15,7 @@ import { OPS_UNREADABLE, OperationalFields, opsErrorText, useOpsValidity } from 
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
-import { EconomicsEditor, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
+import { EconomicsEditor, MoveIncludes, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
@@ -317,6 +317,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
       ) : result && lead ? (
         <PlanBand
           plan={lead}
+          product={c.product}
           target={target}
           below={!best}
           shown={result.plans?.length ?? 0}
@@ -364,7 +365,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             comes after. Money inputs open in a drawer. */}
         {/* Top to bottom: the decision (band), every move searched, then why
             (left) beside what to do next (right); the rest folds (17 Oct). */}
-        {result && <AllMoves result={result} onDraft={draft} stale={stale} />}
+        {result && <AllMoves result={result} onDraft={draft} stale={stale} product={c.product} />}
         {result && (
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="flex min-w-0 flex-col gap-6">
@@ -526,8 +527,10 @@ function PlanBand({
   stale,
   demoted,
   objective,
+  product,
 }: {
   plan: Plan;
+  product?: Product | null;
   target: string;
   below: boolean;
   shown: number;
@@ -549,9 +552,10 @@ function PlanBand({
       <div>
         <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
-          {below ? "Closest: make " : "Make "}
-          <Explained text={sentence(plan)} terms={["pcba"]} /> in <To country={target} />
+          {below ? "Closest: move " : "Move "}
+          <Explained text={sentence(plan)} terms={["pcba"]} /> to <To country={target} />
         </h1>
+        <MoveIncludes product={product} plan={plan} className="mt-2 max-w-[80ch]" />
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
           <Chip>
@@ -744,7 +748,7 @@ function Reasoning({ text }: { text: string }) {
   );
 }
 
-function AllMoves({ result, onDraft, stale }: { result: PlanResult; onDraft: (key: string) => void; stale?: boolean }) {
+function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onDraft: (key: string) => void; stale?: boolean; product?: Product | null }) {
   const rejected = result.rejected ?? [];
   // Shown plans first, then the rest closest first (precedent check, then
   // net), matching the band (DESIGN.md: "every row greyed, closest first");
@@ -788,6 +792,7 @@ function AllMoves({ result, onDraft, stale }: { result: PlanResult; onDraft: (ke
                 <tr key={key || "baseline"} className={cx("border-b border-line last:border-0 max-sm:grid max-sm:grid-cols-[1fr_auto] max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-2 max-sm:px-3.5 max-sm:py-3", grey && "text-dim")}>
                   <td className="duo px-3.5 py-2.5 text-ink max-sm:col-span-2 max-sm:p-0">
                     {p.description}
+                    <MoveIncludes product={product} plan={p} className="mt-0.5" />
                     <span className="mt-0.5 block text-xs text-dim">
                       {p.shown ? (
                         <>

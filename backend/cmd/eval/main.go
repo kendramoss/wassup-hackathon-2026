@@ -1615,6 +1615,20 @@ func summaryCmd(args []string) error {
 	} else {
 		items = append(items, ppItems...)
 	}
+	if pcItems, err := plannerPostCombinedItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip combined post-cutoff flip pairs: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, pcItems...)
+	}
+	if rpItems, err := repeatabilityItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip repeatability: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, rpItems...)
+	}
 	items = append(items,
 		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},
 		item{Key: "baseline_final_assembly", Label: "Baseline: final-assembly country", Value: 0.406, CILow: 0.358, CIHigh: 0.456, N: 377, Split: "final", Source: v2},

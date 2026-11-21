@@ -37,6 +37,38 @@ FAMILY_NAME = {'vehicle_parts': 'vehicle parts', 'pcba_electronic_devices': 'PCB
                'power_supplies_chargers': 'power supplies and chargers', 'medical_devices': 'medical devices',
                'gas_grills_cooking': 'gas grills and cooking appliances'}
 
+TEMPLATES = {}
+import glob, os
+for tf in glob.glob(f'{REPO}/backend/internal/planner/templates/*.json'):
+    t = json.load(open(tf)); TEMPLATES[t['family']] = t
+
+def lower_word(s):
+    # planner.lowerWord: an ordinary word loses its capital, an acronym keeps it.
+    return s[0].lower() + s[1:] if len(s) >= 2 and s[0].isupper() and not s[1].isupper() else s
+
+def join_and(xs):
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+def describe(product, family, move):
+    # The words planner.Describe gives a move (D220), for the notes.
+    names = {g['id']: g['name'] for g in TEMPLATES[family]['groups']}
+    plants = {pl['id']: pl['country'] for pl in product['plants']}
+    countries = {plants[m['to_plant']] for m in move}
+    parts = ['the ' + lower_word(names.get(m['group'], m['group'].replace('_', ' '))) for m in move]
+    if len(countries) == 1:
+        return 'Move ' + join_and(parts) + ' to ' + countries.pop()
+    return 'Move ' + join_and([f"{x} to {plants[m['to_plant']]}" for x, m in zip(parts, move)])
+
+def moved_items(product, move):
+    # What the move takes with it in this product: the parts and steps of each
+    # moved group not already at the plant it moves to.
+    out = []
+    for m in move:
+        for x in product.get('components', []) + product.get('operations', []):
+            if x.get('group') == m['group'] and x.get('plant') != m['to_plant'] and x['name'] not in out:
+                out.append(x['name'])
+    return out
+
 def recorded(res_file, cbp_country):
     d = json.load(open(f'{REPO}/{res_file}'))
     b = d['baseline']['prediction']
@@ -46,7 +78,7 @@ def recorded(res_file, cbp_country):
          'cbp_origin': cbp_country, 'agrees_with_cbp': b['origin_country'] == cbp_country}
     if shown:
         p = shown[0]
-        r.update(best_plan=p['description'], plan_check=p['verdict']['confidence'], plan_ruling=p['verdict']['supporting_ruling'])
+        r.update(best_plan=p['description'], best_plan_move=p['move'], plan_check=p['verdict']['confidence'], plan_ruling=p['verdict']['supporting_ruling'])
     return r
 
 def write(path, d):
@@ -67,7 +99,7 @@ for did, order, fx, title, desc in DEMOS:
              f"Picked by family, not by result (D191): the first D171 fixture of each of four families. "
              f"Recorded result ({res}): the engine said {rec['engine_origin']} at {rec['stated_confidence']:.2f} stated, where CBP held {cbp}"
              + (" (it agrees with CBP)." if rec['agrees_with_cbp'] else "; it disagrees with CBP, and CBP's holding is the answer. The plan search starts from CBP's holding because the ruling is given.")
-             + (f" First plan shown: \"{rec['best_plan']}\", check {rec['plan_check']:.2f} on {rec['plan_ruling']}." if rec.get('best_plan') else " No plan was shown at the bar.")
+             + (f" First plan shown: \"{describe(f['product'], f['family'], rec['best_plan_move'])}\" (in this product: {'; '.join(moved_items(f['product'], rec['best_plan_move']))}), check {rec['plan_check']:.2f} on {rec['plan_ruling']}." if rec.get('best_plan') else " No plan was shown at the bar.")
              + (f" That ruling, read by hand: {spot['verdict']} ({spot['note']})" if spot else "")
              + " A run on this site is a new run and may differ.")
     demo = {'id': did, 'order': order, 'title': title, 'description': desc,

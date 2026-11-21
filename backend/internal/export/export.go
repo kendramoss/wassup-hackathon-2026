@@ -6,6 +6,7 @@ package export
 import (
 	"fmt"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -17,7 +18,7 @@ type Input struct {
 	ProductName  string
 	Facts        string // facts of the setup the request asks about
 	Requested    string // the origin the requester believes applies
-	PlanSummary  string // e.g. "Make Motor-fan assembly and PCBA (SMT) in Thailand"; empty for the current setup
+	PlanSummary  string // e.g. "Move the motor-fan assembly and the PCBA (SMT) to Thailand"; empty for the current setup
 	Prediction   domain.Prediction
 	Supporting   string
 	Counter      string
@@ -38,6 +39,57 @@ type Input struct {
 	// Textile is the older flag for the textile regime. It applies only when
 	// Regime is empty; Regime always wins. See EffectiveRegime.
 	Textile bool
+	// Rulings describes the cited rulings the corpus knows (date, subject,
+	// CBP's holding), so a citation names the ruling instead of a bare number
+	// (D220). A ruling missing here is cited by number alone.
+	Rulings map[string]RulingRef
+}
+
+// RulingRef is what the draft says about one earlier ruling.
+type RulingRef struct {
+	Date    string // YYYY-MM-DD
+	Subject string // CBP's subject line, e.g. "The country of origin of an air fryer"
+	Origin  string // the origin CBP held
+}
+
+// rulingName is how the draft names an earlier ruling: "CBP ruling N346397
+// (25 March 2025, an air fryer; CBP held Vietnam)", or "CBP ruling N346397"
+// when nothing more is known.
+func (in Input) rulingName(id string) string {
+	name := "CBP ruling " + id
+	r, ok := in.Rulings[id]
+	if !ok {
+		return name
+	}
+	var bits []string
+	if d, err := time.Parse(time.DateOnly, r.Date); err == nil {
+		bits = append(bits, d.Format("2 January 2006"))
+	}
+	if subj := shortSubject(r.Subject); subj != "" {
+		bits = append(bits, subj)
+	}
+	inner := strings.Join(bits, ", ")
+	if r.Origin != "" {
+		if inner != "" {
+			inner += "; "
+		}
+		inner += "CBP held " + r.Origin
+	}
+	if inner == "" {
+		return name
+	}
+	return name + " (" + inner + ")"
+}
+
+// shortSubject drops CBP's "The country of origin of" opening.
+func shortSubject(s string) string {
+	s = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "."))
+	for _, p := range []string{"The country of origin of ", "the country of origin of ", "Country of origin of "} {
+		if strings.HasPrefix(s, p) {
+			return strings.TrimSpace(s[len(p):])
+		}
+	}
+	return s
 }
 
 // BelowBar is the precedent check's confidence and the bar it missed.
@@ -97,21 +149,21 @@ func Markdown(in Input) string {
 func citations(in Input) []string {
 	var cites []string
 	if in.Supporting != "" {
-		cites = append(cites, fmt.Sprintf("- %s — a comparable change where CBP found the origin moved ([rulings.cbp.gov](%s)).", in.Supporting, domain.RulingURL(in.Supporting)))
+		cites = append(cites, fmt.Sprintf("- %s — a comparable change where CBP found the origin moved ([rulings.cbp.gov](%s)).", in.rulingName(in.Supporting), domain.RulingURL(in.Supporting)))
 	}
 	if in.Counter != "" {
-		cites = append(cites, fmt.Sprintf("- %s — a similar change that did not alter origin; distinguish it ([rulings.cbp.gov](%s)).", in.Counter, domain.RulingURL(in.Counter)))
+		cites = append(cites, fmt.Sprintf("- %s — a similar change that did not alter origin; distinguish it ([rulings.cbp.gov](%s)).", in.rulingName(in.Counter), domain.RulingURL(in.Counter)))
 	}
 	for _, id := range in.Prediction.CitedRulings {
 		if id != in.Supporting && id != in.Counter {
-			cites = append(cites, fmt.Sprintf("- %s ([rulings.cbp.gov](%s)).", id, domain.RulingURL(id)))
+			cites = append(cites, fmt.Sprintf("- %s ([rulings.cbp.gov](%s)).", in.rulingName(id), domain.RulingURL(id)))
 		}
 	}
 	// Nothing cited (#91): list the rulings the engine read, for the broker
 	// to keep or drop, before falling back to a placeholder.
 	if len(cites) == 0 {
 		for _, id := range in.Prediction.Precedents {
-			cites = append(cites, fmt.Sprintf("- %s — read by Unde, not cited; [CONFIRM RELEVANCE] ([rulings.cbp.gov](%s)).", id, domain.RulingURL(id)))
+			cites = append(cites, fmt.Sprintf("- %s — read by Unde, not cited; [CONFIRM RELEVANCE] ([rulings.cbp.gov](%s)).", in.rulingName(id), domain.RulingURL(id)))
 		}
 	}
 	if len(cites) == 0 {

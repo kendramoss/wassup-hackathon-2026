@@ -130,11 +130,11 @@ func TestCFR177Contents(t *testing.T) {
 		"201 Varick Street, Suite 501",                                                // 177.2(a): NCSD address
 		"## 1. Interested parties", "Manufacturer, Rayong plant (Thailand): [FILL IN", // 177.2(b)(1)
 		"## 2. Port of entry\n\n[FILL IN",
-		"## 3. The transaction", "Prospective importation", "proposed change to that setup: make Motor-fan assembly and PCBA (SMT) in Thailand",
+		"## 3. The transaction", "Prospective importation", "proposed change to that setup: move the motor-fan assembly and the PCBA (SMT) to Thailand",
 		"- switch: Malaysia (bought in).", "- wind the motor stator and assemble the motor-fan unit: Rayong plant, Thailand.", // eRulings origin checklist
 		"HTSUS subheading, for reference (classification is not requested): 8419.89.95.",
 		"Section 301 duties", "19 C.F.R. § 134.1(b)",
-		"19 C.F.R. § 177.2(b)(6)", "N347421 — a comparable change", "https://rulings.cbp.gov/ruling/N350001",
+		"19 C.F.R. § 177.2(b)(6)", "CBP ruling N347421 (11 April 2025, a hair dryer; CBP held Thailand) — a comparable change", "https://rulings.cbp.gov/ruling/N350001",
 		"not pending before the U.S. Court of International Trade", // 177.2(b)(5)
 		"one of a series of similar and related transactions",
 		"19 C.F.R. § 177.2(b)(7)", "10 working days", // confidentiality, 177.8(a)(3)
@@ -156,7 +156,7 @@ func TestCFR177Contents(t *testing.T) {
 			t.Errorf("letter uses the markdown placeholder %s", old)
 		}
 	}
-	if strings.Count(md, "N347421 —") != 1 {
+	if strings.Count(md, "N347421 (11 April 2025, a hair dryer; CBP held Thailand) —") != 1 {
 		t.Error("supporting ruling listed twice")
 	}
 }
@@ -181,5 +181,26 @@ func TestCFR177FillsInWhatTheCaseLacks(t *testing.T) {
 	}
 	if bb := strings.Join(Notes(goldenInputs()["below_bar"], true), "\n"); !strings.Contains(bb, "rated this change 0.88, under its 0.92 bar") {
 		t.Error("below-bar notice missing")
+	}
+}
+
+// A cited ruling is named, not left as a bare number (D220).
+func TestRulingName(t *testing.T) {
+	in := Input{Rulings: map[string]RulingRef{
+		"N346397": {Date: "2025-03-25", Subject: "The country of origin of an air fryer", Origin: "Vietnam"},
+		"N1":      {Subject: "Brackets."},
+	}}
+	for id, want := range map[string]string{
+		"N346397": "CBP ruling N346397 (25 March 2025, an air fryer; CBP held Vietnam)",
+		"N1":      "CBP ruling N1 (Brackets)",
+		"N340187": "CBP ruling N340187",
+	} {
+		if got := in.rulingName(id); got != want {
+			t.Errorf("rulingName(%s) = %q, want %q", id, got, want)
+		}
+	}
+	md := Markdown(Input{Facts: "f", Prediction: domain.Prediction{Precedents: []string{"N346397"}}, Rulings: in.Rulings})
+	if !strings.Contains(md, "- CBP ruling N346397 (25 March 2025, an air fryer; CBP held Vietnam) — read by Unde") {
+		t.Errorf("draft does not name the ruling:\n%s", md)
 	}
 }

@@ -75,7 +75,7 @@ func TestEnumerateUpToAddsTheHeatGunTriple(t *testing.T) {
 		t.Errorf("moves = %v\nwant    %v", keys, want)
 	}
 	m := EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, DefaultMaxMoves)[6]
-	if got := Describe(r.Product, tm, m); got != "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand" {
+	if got := Describe(r.Product, tm, m); got != "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand" {
 		t.Errorf("describe = %q", got)
 	}
 	if err := m.Validate(); err != nil {
@@ -166,7 +166,7 @@ func TestApplyMovesComponentsAndOperations(t *testing.T) {
 	if r.Product.Components[3].MadeIn != "China" {
 		t.Error("Apply modified the original product")
 	}
-	if got := Describe(r.Product, tm, m); got != "Make Motor-fan assembly and PCBA (SMT) in Thailand" {
+	if got := Describe(r.Product, tm, m); got != "Move the motor-fan assembly and the PCBA (SMT) to Thailand" {
 		t.Errorf("Describe = %q", got)
 	}
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T09:27:53Z",
+  "generated_at": "2026-11-21T10:09:52Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -295,6 +295,89 @@
       "split": "post",
       "development_only": false,
       "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+    },
+    {
+      "key": "planner_post_combined_known-a_precision_at_bar",
+      "label": "Precedent check on post-cutoff flip pairs, D170 plus the D192 addendum (18 pairs, gateway, starting origin given): moves shown at the 0.92 bar that were real changes",
+      "value": 1,
+      "ci_low": 0.7009,
+      "ci_high": 1,
+      "n": 9,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-addendum-summary.json (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen and scored once)"
+    },
+    {
+      "key": "planner_post_combined_known-a_recall_at_bar",
+      "label": "Precedent check on post-cutoff flip pairs, D170 plus the D192 addendum (18 pairs, gateway, starting origin given): real changes shown at the 0.92 bar",
+      "value": 0.75,
+      "ci_low": 0.4677,
+      "ci_high": 0.9111,
+      "n": 12,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-addendum-summary.json (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen and scored once)"
+    },
+    {
+      "key": "planner_post_combined_known-a_controls_shown",
+      "label": "Precedent check on post-cutoff flip pairs, D170 plus the D192 addendum (18 pairs, gateway, starting origin given): no-change pairs shown as plans",
+      "value": 0,
+      "ci_high": 0.3903,
+      "n": 6,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-addendum-summary.json (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen and scored once)"
+    },
+    {
+      "key": "repeat_dev_accuracy_run1",
+      "label": "Repeatability: development accuracy, run 1 of 3",
+      "value": 0.91792656587473,
+      "ci_low": 0.889,
+      "ci_high": 0.94,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+    },
+    {
+      "key": "repeat_dev_accuracy_run2",
+      "label": "Repeatability: development accuracy, run 2 of 3",
+      "value": 0.9114470842332614,
+      "ci_low": 0.882,
+      "ci_high": 0.934,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+    },
+    {
+      "key": "repeat_dev_accuracy_run3",
+      "label": "Repeatability: development accuracy, run 3 of 3",
+      "value": 0.9114470842332614,
+      "ci_low": 0.882,
+      "ci_high": 0.934,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+    },
+    {
+      "key": "repeat_dev_accuracy_mean",
+      "label": "Repeatability: mean development accuracy over the three runs",
+      "value": 0.9133,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
+    },
+    {
+      "key": "repeat_dev_answer_flips",
+      "label": "Repeatability: rulings whose answer changed between runs (a count)",
+      "value": 4,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/repeatability-dev-litellm.json (eval/charts/build_repeatability.py; development set, D23 adjustments, gateway, no cache)"
     },
     {
       "key": "research_final_accuracy",

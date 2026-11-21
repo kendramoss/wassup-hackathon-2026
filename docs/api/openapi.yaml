@@ -2011,6 +2011,7 @@ components:
             facts: { type: string, description: The facts the engine read (rendered from the product when one was given) }
             product: { $ref: "#/components/schemas/Product" }
             family: { type: string }
+            exclude_rulings: { type: array, items: { type: string }, description: "Rulings the engine and the plan search never read for this case (as given at prediction)" }
             prediction: { $ref: "#/components/schemas/Prediction" }
             triage: { $ref: "#/components/schemas/Triage" }
             router: { $ref: "#/components/schemas/RouterLabel" }
@@ -2048,6 +2049,20 @@ components:
                   triage: { $ref: "#/components/schemas/Triage" }
                   precedents_detail: { type: array, items: { $ref: "#/components/schemas/PrecedentRef" } }
                   comparison: { $ref: "#/components/schemas/Comparison" }
+                  plan_check:
+                    type: object
+                    description: "The latest plan search's row for the same move (the same groups to the same plants), so a scenario and a plan never give two verdicts on one move (D220). Present only when the scenario moves something and the plan search tried that move. The scenario's own triage is the engine's origin answer, not a plan approval."
+                    properties:
+                      shown: { type: boolean, description: "true when the plan search shows this move as a precedent-supported plan" }
+                      confidence: { type: number, nullable: true, description: "the precedent check's confidence; null when the move was not checked" }
+                      bar: { type: number, description: "the precedent-check bar (0.92)" }
+                      supporting_ruling: { type: string }
+                      rejection_kind: { type: string, description: "why the plan search did not show it (below_confidence_bar, no_supporting_precedent, ...)" }
+                      rejection_reason: { type: string, description: "the plan row's reason, word for word" }
+                      description: { type: string }
+                      net_per_year: { type: number }
+                      target: { type: string }
+            facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
             targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale" }
@@ -2289,7 +2304,10 @@ components:
         calibration: { type: string, example: cal-v2 }
         cbp_origin: { type: string, example: China }
         agrees_with_cbp: { type: boolean }
-        best_plan: { type: string, description: The first plan shown at the bar, if any }
+        best_plan: { type: string, description: "The first plan shown at the bar, if any, as the result file records it" }
+        best_plan_move: { type: array, items: { type: object, properties: { group: { type: string }, to_plant: { type: string } } }, description: "That plan's move, from the result file" }
+        best_plan_words: { type: string, description: "The move in the product's own words (D220), e.g. Move the lid and firebox forming, the burners and gas train and the cooking surface, panels and frame to Indonesia" }
+        best_plan_includes: { type: array, items: { type: string }, description: "The parts and steps of the demo's product that the move takes with it (D220)" }
         plan_check: { type: number }
         plan_ruling: { type: string }
     PlanRequest:

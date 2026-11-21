@@ -6,6 +6,7 @@ import { EstimateCosts } from "./money-prefill";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
+import { outcomeLabels } from "@/lib/plan-check";
 import { Country, Flag, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
@@ -47,9 +48,44 @@ const phrases: Record<string, string> = {
 const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
 
 export function movePhrase(p: Plan): string {
+  // The backend's description, "Move the X and the Y to Thailand" (D220),
+  // carries each family's own group names; a one-country move gives its
+  // middle. Anything else falls back to the heat-gun phrases.
+  const d = /^Move (.+) to ([A-Z][^,;]*)$/.exec(p.description ?? "");
+  if (d && !/ to [A-Z]/.test(d[1])) return d[1];
   const parts = (p.move ?? []).map((m) => phrases[m.group ?? ""] ?? `the ${lowerFirst(groupName(m.group))}`);
-  if (parts.length === 0) return (p.description ?? "").replace(/^Make /, "");
+  if (parts.length === 0) return (p.description ?? "").replace(/^(Make|Move) /, "");
   return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+// What a move takes with it (D220): for each moved group, the parts and
+// steps of this product in that group that are not already at the plant it
+// moves to, by the names the parts list gives them.
+export function movedParts(product: Product | null | undefined, plan: Plan): { group: string; items: string[] }[] {
+  if (!product) return [];
+  return (plan.move ?? []).map((m) => {
+    const items = [...(product.components ?? []), ...(product.operations ?? [])]
+      .filter((x) => x.group === m.group && ("plant" in x ? x.plant !== m.to_plant : true))
+      .map((x) => x.name)
+      .filter((n): n is string => Boolean(n));
+    return { group: m.group ?? "", items: [...new Set(items)] };
+  });
+}
+
+export function MoveIncludes({ product, plan, className }: { product: Product | null | undefined; plan: Plan; className?: string }) {
+  const groups = movedParts(product, plan).filter((g) => g.items.length > 0);
+  if (groups.length === 0) return null;
+  return (
+    <p className={cx("duo text-xs text-dim", className)}>
+      <span className="text-body">What moves:</span>{" "}
+      {groups.map((g, i) => (
+        <span key={g.group}>
+          {i > 0 ? " · " : ""}
+          <span className="text-body">{groupName(g.group)}</span> ({g.items.join("; ")})
+        </span>
+      ))}
+    </p>
+  );
 }
 
 // Whether the backend's backtest says the top plan moves exactly the parts
@@ -78,16 +114,8 @@ export function agreementWords(a: string | null | undefined): string | null {
   return m ? copy.plan.agreement(m[2], m[1]) : null;
 }
 
-export const rejectionLabels: Record<string, string> = {
-  current_setup: "Current setup",
-  below_confidence_bar: "Below the bar",
-  no_supporting_precedent: "No precedent",
-  engine_other_origin: "Other origin",
-  check_failed: "Check failed",
-  // Operations mode (#281): the move cleared the legal gate, then was demoted on your cost inputs.
-  operationally_infeasible: "Not feasible",
-  net_costlier: "Net costlier",
-};
+// One table of outcome labels for Plan and Scenarios (lib/plan-check.ts, D220).
+export const rejectionLabels = outcomeLabels;
 
 // fig.2: one column per plant, operation groups from the product, moved
 // groups in blue (or amber for a below-bar move) with "moved".

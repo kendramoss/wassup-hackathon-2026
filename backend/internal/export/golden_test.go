@@ -39,16 +39,17 @@ func goldenInputs() map[string]Input {
 		"plan": {
 			ProductName: "Kobalt 12.5-amp heat gun, model 5208257", Product: heatGun(),
 			Facts:     "The motor-fan assembly and PCBA are made in Thailand. Final assembly in Thailand.",
-			Requested: "Thailand", PlanSummary: "Make Motor-fan assembly and PCBA (SMT) in Thailand", CurrentRuled: "China (N328954)",
+			Requested: "Thailand", PlanSummary: "Move the motor-fan assembly and the PCBA (SMT) to Thailand", CurrentRuled: "China (CBP ruling N328954, 12 December 2022)",
 			Prediction: domain.Prediction{KeyFactors: []string{"Motor-fan assembly made in Thailand", "PCBA populated in Thailand"}, CitedRulings: []string{"N350001", "N347421"}},
 			Supporting: "N347421", Counter: "N345859",
+			Rulings: map[string]RulingRef{"N347421": {Date: "2025-04-11", Subject: "The country of origin of a hair dryer", Origin: "Thailand"}},
 		},
 		"facts_only": {
 			Facts:      "Steel brackets are stamped in Vietnam from Chinese coil and zinc plated in Vietnam.",
 			Prediction: domain.Prediction{Precedents: []string{"N340187"}},
 		},
 		"below_bar": {
-			ProductName: "heat gun", Facts: "PCBA made in Thailand.", Requested: "Thailand", PlanSummary: "Make PCBA in Thailand",
+			ProductName: "heat gun", Facts: "PCBA made in Thailand.", Requested: "Thailand", PlanSummary: "Move the PCBA to Thailand",
 			CurrentRuled: "China (N328954)", Supporting: "N347421", BelowBar: &BelowBar{Confidence: 0.88, Bar: 0.92},
 		},
 		"textile": {

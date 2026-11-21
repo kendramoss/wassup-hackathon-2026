@@ -61,7 +61,7 @@ The precedent check is not fully repeatable from run to run (D31, D33). The heat
 
 - **Don't re-seed until a plan clears the bar.** Picking a favourable run would misrepresent the system. If no plan clears 0.92, record the "No plan cleared the bar" screen and "Draft for the closest move"; it shows the bar doing its job.
 - To start fresh for another reason (new provider, changed code), delete `data/verifier-cache` and `data/cases`, then seed again. Note the reason in the video log.
-- The scenarios screen does not depend on the precedent check, so it is the stable way to show "move X → saves $Y" (heat gun: motor-fan assembly to Thailand, Thailand 0.95, net $380k/yr, illustrative economics).
+- The scenarios screen shows the engine's answer for a move and, when the plan search tried the same move, its precedent check (D220). Use it to show "move X → the engine says Y", not as a plan.
 
 ## 3. Click path (main story and new capabilities, ~2:30 of the 3:00)
 
@@ -72,9 +72,10 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
 3. **Origin.** **China, calibrated 0.60 (the model stated 0.85)**, below the 0.90 auto-accept bar, so the route is **needs info**: "no earlier ruling on point: answer the questions first". CBP held China (N328954), and the page shows "same as this prediction". Show the three follow-up questions (how the heating element and housing are made in Thailand, and the cost split). Open "Earlier CBP rulings read" (cited N348083 and N351922). The beat to say: *the model is unsure about today's setup, and it says so instead of guessing.*
 4. **Ask the case** (optional, ~15 s; the answer is already recorded): "Why this origin, and which earlier ruling is closest?"
 5. **Scenarios.** Three columns, with illustrative economics on $2M a year:
-   - **As today:** Thailand, calibrated 0.60 (stated 0.78), needs review, $0. The engine reads the structured product, not CBP's text; CBP's holding is China, which is why the plan starts from China.
-   - **Motor-fan assembly in Thailand:** Thailand, calibrated 0.99 (stated 0.98), net **$380k/yr**.
-   - **Motor-fan + PCBA in Thailand:** Thailand, calibrated 0.99 (stated 0.99), net **$320k/yr**.
+   - **As today:** Thailand, calibrated 0.60 (stated 0.78), needs review, $0. The engine reads the structured product, not CBP's text; CBP's holding is China, which is why the plan starts from China. The card says this on screen (D220), and so does the Origin step.
+   - **Motor-fan assembly in Thailand:** the engine says Thailand, calibrated 0.99 (stated 0.98), net **$380k/yr**, but the card also shows Plan's verdict on the same move: "△ Below the bar", not precedent-supported (0.90 < 0.92). It is not marked highest net (D220).
+   - **Motor-fan + PCBA in Thailand:** the engine says Thailand, calibrated 0.99 (stated 0.99), net **$320k/yr**; Plan found no supporting ruling for it (check 0.85).
+   - Above the cards, the plan search's recommendation: the three-group move at $285k. Say: *the what-if is the engine's answer; a move becomes a plan only when the precedent check reaches 0.92.*
 6. **Plan.** In order:
    1. Show the estimate line under the button: 7 moves; a replay costs nothing.
    2. Run the search. It replays from the cache in seconds.

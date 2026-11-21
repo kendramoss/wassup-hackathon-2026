@@ -139,3 +139,31 @@ func TestRecordedRunsMatchResultFiles(t *testing.T) {
 		t.Errorf("recorded runs = %d (disagree %d), want 5 (1)", n, disagree)
 	}
 }
+
+// A recorded plan reads in the product's words (D220): the wheel's plan says
+// it moves the forging, not just "Housings and structural parts".
+func TestRecordedPlanWords(t *testing.T) {
+	ds, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"aluminum-wheel-2025": "Move the housings and structural parts to Thailand",
+		"gas-grill-2023":      "Move the lid and firebox forming, the burners and gas train and the cooking surface, panels and frame to Indonesia",
+	}
+	for _, d := range ds {
+		r := d.Recorded
+		if r == nil || r.BestPlan == "" {
+			continue
+		}
+		if r.BestPlanWords == "" || len(r.BestPlanIncludes) == 0 || strings.HasPrefix(r.BestPlanWords, "Make ") {
+			t.Errorf("%s: words %q, includes %v", d.ID, r.BestPlanWords, r.BestPlanIncludes)
+		}
+		if w, ok := want[d.ID]; ok && r.BestPlanWords != w {
+			t.Errorf("%s: %q, want %q", d.ID, r.BestPlanWords, w)
+		}
+		if d.ID == "aluminum-wheel-2025" && !strings.Contains(strings.Join(r.BestPlanIncludes, "; "), "Forged circular aluminum blank") {
+			t.Errorf("wheel plan does not name the forging: %v", r.BestPlanIncludes)
+		}
+	}
+}

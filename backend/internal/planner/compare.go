@@ -186,3 +186,57 @@ func movesBetween(current, variant domain.Product) domain.Move {
 func ptr(f float64) *float64 { return &f }
 
 func round2(f float64) float64 { return math.Round(f*100) / 100 }
+
+// MatchMove is the plan search's row for the move that turns current into
+// variant: the same groups to the same plants, in any order. Nil when the
+// variant moves nothing or the search did not try that move (D220).
+func MatchMove(r *Result, current, variant domain.Product) *domain.Plan {
+	if r == nil {
+		return nil
+	}
+	want := movesBetween(current, variant)
+	if len(want) == 0 {
+		return nil
+	}
+	key := sortedKey(want)
+	for _, list := range [][]domain.Plan{r.Plans, r.Rejected} {
+		for i := range list {
+			if len(list[i].Move) == len(want) && sortedKey(list[i].Move) == key {
+				return &list[i]
+			}
+		}
+	}
+	return nil
+}
+
+func sortedKey(m domain.Move) string {
+	parts := make([]string, len(m))
+	for i, g := range m {
+		parts[i] = g.Group + "@" + g.ToPlant
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, "+")
+}
+
+// MovedItems names what a move takes with it in this product (D220): the
+// components and operations of each moved group that are not already at the
+// plant the group moves to, in product order, each once.
+func MovedItems(p domain.Product, m domain.Move) []string {
+	var out []string
+	seen := map[string]bool{}
+	add := func(name, group, plant string) {
+		for _, gm := range m {
+			if gm.Group == group && plant != gm.ToPlant && name != "" && !seen[name] {
+				seen[name] = true
+				out = append(out, name)
+			}
+		}
+	}
+	for _, c := range p.Components {
+		add(c.Name, c.Group, c.Plant)
+	}
+	for _, o := range p.Operations {
+		add(o.Name, o.Group, o.Plant)
+	}
+	return out
+}

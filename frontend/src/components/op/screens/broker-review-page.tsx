@@ -130,9 +130,24 @@ function Gone({ kind }: { kind: keyof typeof GONE }) {
 
 const safeUrl = (u: string | undefined) => (u && /^https:\/\//i.test(u) ? u : null);
 
-function Packet({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string; onPacket: (p: BrokerPacket) => void; onGone: (e: unknown) => void }) {
+// The packet as the broker reads it. With preview (D220) it is the owner's
+// look at the same page for a draft no link was made for (a pinned demo): no
+// token, nothing sent, and the decision form records nothing.
+export function Packet({
+  p,
+  token,
+  onPacket,
+  onGone,
+  preview,
+}: {
+  p: BrokerPacket;
+  token: string;
+  onPacket: (p: BrokerPacket) => void;
+  onGone: (e: unknown) => void;
+  preview?: boolean;
+}) {
   const r = p.review;
-  const s = statusLabel(effectiveStatus(r));
+  const s = preview ? { label: "Preview", tone: undefined } : statusLabel(effectiveStatus(r));
   const o = originConf(p.prediction);
   const parts = Array.isArray(p.product?.components) ? p.product!.components!.filter((x) => x && typeof x.name === "string" && x.name) : [];
   const rulings = Array.isArray(p.cited_rulings) ? p.cited_rulings.filter((x) => x && typeof x.id === "string") : [];
@@ -150,7 +165,9 @@ function Packet({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string
           <span>Draft ruling request for {r.draft_label || (r.subject === "plan" ? "a planned change" : "the current setup")}</span>
         </div>
         <p className="duo mt-2 max-w-[70ch] text-[13px] text-dim">
-          This is the draft as it was when the link was made. Read it, then record your decision at the end of the page.{" "}
+          {preview
+            ? "This is what your broker sees when you send this draft. In this preview no link exists and nothing you choose is recorded."
+            : "This is the draft as it was when the link was made. Read it, then record your decision at the end of the page."}{" "}
           <a href="#decision" className="text-ok underline underline-offset-2">
             Go to the decision
           </a>
@@ -294,7 +311,7 @@ function Packet({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string
         )}
       </section>
 
-      <Decide p={p} token={token} onPacket={onPacket} onGone={onGone} />
+      <Decide p={p} token={token} onPacket={onPacket} onGone={onGone} preview={preview} />
     </div>
   );
 }
@@ -305,7 +322,7 @@ const CHOICES: { key: DecisionKind; label: string; hint: string; button: string 
   { key: "file_request", label: "File as a binding ruling request", hint: "Ask the sender to go ahead and file it with CBP.", button: "Ask to file it" },
 ];
 
-function Decide({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string; onPacket: (p: BrokerPacket) => void; onGone: (e: unknown) => void }) {
+function Decide({ p, token, onPacket, onGone, preview }: { p: BrokerPacket; token: string; onPacket: (p: BrokerPacket) => void; onGone: (e: unknown) => void; preview?: boolean }) {
   const uid = useId();
   const [decision, setDecision] = useState<DecisionKind>("approve");
   const [comment, setComment] = useState("");
@@ -319,7 +336,7 @@ function Decide({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (busy) return;
+    if (busy || preview) return;
     setError(null);
     setDone("");
     const check = checkDecision(decision, comment);
@@ -402,10 +419,12 @@ function Decide({ p, token, onPacket, onGone }: { p: BrokerPacket; token: string
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={busy || count.over}>
+            <Button type="submit" disabled={busy || count.over || preview} title={preview ? "Preview only: nothing is recorded" : undefined}>
               {busy ? "Sending…" : choice.button}
             </Button>
-            <span className="duo text-xs text-dim">Plain text. The sender sees your comment exactly as written.</span>
+            <span className="duo text-xs text-dim">
+              {preview ? "Preview only. The broker records a decision on the real link; nothing here is sent or saved." : "Plain text. The sender sees your comment exactly as written."}
+            </span>
           </div>
           {error ? <ErrorBox error={error} onRetry={() => setError(null)} /> : null}
           <p aria-live="polite" role="status" className={cx("duo text-sm", done && "border border-ok bg-ok-wash px-3 py-2 text-ok")}>

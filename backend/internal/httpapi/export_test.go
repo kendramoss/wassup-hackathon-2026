@@ -32,9 +32,9 @@ func TestExportCFR177Format(t *testing.T) {
 		{body: `{"plan_index":0,"preview":true}`, format: "markdown", code: 200, want: []string{"[REQUESTER NAME]", "## Requester's position"}},
 		{body: `{"plan_index":0,"format":"markdown","preview":true}`, format: "markdown", code: 200, want: []string{"[REQUESTER NAME]"}},
 		{body: `{"plan_index":0,"format":"CFR177","preview":true}`, format: "cfr177", code: 200, want: []string{
-			"## 2. Port of entry", "proposed change to that setup: make Motor-fan assembly and PCBA (SMT) in Thailand", "origin China (N328954)",
+			"## 2. Port of entry", "proposed change to that setup: move the motor-fan assembly and the PCBA (SMT) to Thailand", "origin China (CBP ruling N328954, ",
 			"- electric motor: Thailand (Rayong plant).", // the move is applied to the component list
-			"- power cord: China (China suppliers).", "Manufacturer, Rayong plant (Thailand): [FILL IN", "N347421 — a comparable change",
+			"- power cord: China (China suppliers).", "Manufacturer, Rayong plant (Thailand): [FILL IN", "CBP ruling N347421 (25 March 2025, Air fryer; CBP held Vietnam) — a comparable change",
 			"variant facts", "substantial transformation (19 C.F.R. § 134.1(b))",
 		}},
 		{body: `{"move_key":"pcba@th","format":"cfr177","preview":true}`, format: "cfr177", code: 200, want: []string{"rated this change 0.88, under its 0.92 bar", "- electric motor: China (China suppliers)."}},

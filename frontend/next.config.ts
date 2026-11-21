@@ -8,7 +8,8 @@ const isDev = process.env.NODE_ENV === "development";
 // prerendering rule out. Google sign-in loads its script, frames and styles
 // from accounts.google.com/gsi. Shipped as Report-Only (D137): sign-in could
 // not be exercised locally, so a violation is reported in the console rather
-// than breaking the page.
+// than breaking the page. Still Report-Only after D220: enforcing it needs a
+// real Google sign-in to be tried against it, which can't be done locally.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client${isDev ? " 'unsafe-eval'" : ""}`,
@@ -36,6 +37,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // No x-powered-by header (judge panel round 2, D220): it names the
+  // framework and helps no visitor.
+  poweredByHeader: false,
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
