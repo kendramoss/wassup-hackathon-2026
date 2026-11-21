@@ -62,8 +62,10 @@ Final JSON: {"route": ..., "subfamily": ..., "regime": ..., "reason": ...}`
 // finished in Canada or Mexico, where CBP decides origin under the Part 102
 // tariff-shift rules; router-v2 told the model not to pick usmca_part102 for
 // that cue. It also told the model nothing about how the route and the regime
-// relate, and scenario requests about drugs lost the pharma label. Tuned on
-// the dev router split only.
+// relate, and scenario requests about drugs lost the pharma label. Adoption
+// was tuned on the dev router split only; the "trade programs" cue below was
+// written after reading post-cutoff misses, so final2 is not clean held-out
+// evidence for v3/v4 (issue #464; docs/EVALUATION.md section 6.2).
 const regimeAddendumV3 = `
 Also return "regime": the origin rule CBP will apply to the question asked. Decide it separately from "route": a scenario, set or commodity can have any regime.
 - textile_102_21: the product is a textile or apparel good (yarn, fabric, knit or woven garments, home textiles and bedding, sewn textile articles) classified in HTSUS chapters 50 to 63, whose origin follows the textile rules of 19 CFR 102.21. Goods classified outside those chapters (wipes, pads, diapers, footwear, furniture) are not textile goods even if they contain textile.

@@ -1083,6 +1083,30 @@ type routeCheckRow struct {
 	Error      string `json:"error"`
 }
 
+// tradeProgramRulings returns the post-cutoff rulings whose facts contain the
+// "trade programs" cue. That cue was written into router-v3/v4 after D230 read
+// this window's misses for error analysis (issue #464), so figures that include
+// these rulings are not clean held-out evidence for those router versions.
+// The detection is deliberately just the phrase from the decision log, so it
+// can be recomputed from committed files with no model calls. A fact file that
+// is absent (as in the small test fixture) simply does not carry the cue.
+func tradeProgramRulings(root string, ids []string) map[string]bool {
+	out := map[string]bool{}
+	for _, id := range ids {
+		for _, rel := range []string{"eval/data/facts_final2/" + id + ".txt", factsDir + "/" + id + ".txt"} {
+			b, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+			if err != nil {
+				continue
+			}
+			if strings.Contains(strings.ToLower(string(b)), "trade program") {
+				out[id] = true
+				break
+			}
+		}
+	}
+	return out
+}
+
 // routerChecks recomputes the router's routing per gold engine on each
 // router split, with the gold engine taken from the frozen router splits
 // (not the row), and the routed end-to-end path of router-v2 and router-v4
@@ -1111,8 +1135,10 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 		}
 		return m, true
 	}
+	tp := tradeProgramRulings(root, sp.Final2)
 	ids := map[string][]string{"dev": sp.Dev, "final": sp.Final, "final2": sp.Final2}
 	routes := map[string]map[string]routeCheckRow{}
+	var nocueSpecialistN int
 	for _, f := range routerRuns {
 		m, ok := lastRoute(f.file)
 		if !ok {
@@ -1120,6 +1146,7 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 		}
 		routes[f.split+"."+f.key] = m
 		k, n := map[string]int{}, map[string]int{}
+		var ncK, ncN int
 		for _, id := range ids[f.split] {
 			g := sp.Gold[id]
 			r, seen := m[id]
@@ -1144,6 +1171,12 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 					k[key]++
 				}
 			}
+			if f.split == "final2" && g != "none" && g != "general" && !tp[id] {
+				ncN++
+				if right {
+					ncK++
+				}
+			}
 		}
 		for _, key := range []string{"all", "specialist", "general", "usmca_part102"} {
 			p := "router." + f.split + "." + f.key + "." + key
@@ -1151,6 +1184,33 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 			out.add(p+".n", n[key])
 		}
 		out.add("router."+f.split+"."+f.key+".all.pct", pct(k["all"], n["all"]))
+		if f.split == "final2" {
+			nocueSpecialistN = ncN
+			out.add("router.final2."+f.key+".nocue.specialist.correct", ncK)
+		}
+	}
+	out.add("router.final2.nocue.specialist.n", nocueSpecialistN)
+	// Crossover counts on those same post-cutoff rulings with the leaked cue
+	// removed, so the disclosure cannot drift from the shipped figures (#464).
+	{
+		v2, v4 := routes["final2.v2"], routes["final2.v4"]
+		var fixed, broke int
+		for _, id := range sp.Final2 {
+			g := sp.Gold[id]
+			if g == "none" || g == "general" || tp[id] {
+				continue
+			}
+			r2, r4 := v2[id], v4[id]
+			right2, right4 := r2.Error == "" && r2.Engine == g, r4.Error == "" && r4.Engine == g
+			if right4 && !right2 {
+				fixed++
+			}
+			if right2 && !right4 {
+				broke++
+			}
+		}
+		out.add("router.final2.nocue.specialist.fixed", fixed)
+		out.add("router.final2.nocue.specialist.broke", broke)
 	}
 	// Routed path on the post-cutoff rulings.
 	pred := map[string]map[string]bool{}
@@ -1174,7 +1234,7 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 	}
 	for _, v := range []string{"v2", "v4"} {
 		m := routes["final2."+v]
-		var k, n, sent int
+		var k, n, sent, ncK, ncN int
 		for _, id := range sp.Final2 {
 			r := m[id]
 			right, scored := pred[r.Engine][id]
@@ -1186,6 +1246,12 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 			if right {
 				k++
 			}
+			if !tp[id] {
+				ncN++
+				if right {
+					ncK++
+				}
+			}
 			if sp.Gold[id] != r.Engine {
 				sent++
 			}
@@ -1195,6 +1261,10 @@ func routerChecks(out *kvs, probs *[]string, root string) {
 		out.add(p+".n", n)
 		out.add(p+".pct", pct(k, n))
 		out.add(p+".sent_elsewhere", sent)
+		np := "router.w2.routed.nocue." + v
+		out.add(np+".correct", ncK)
+		out.add(np+".n", ncN)
+		out.add(np+".pct", pct(ncK, ncN))
 	}
 }
 

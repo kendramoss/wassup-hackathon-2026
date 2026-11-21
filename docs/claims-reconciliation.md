@@ -251,6 +251,17 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `router.w2.routed.v4.correct` | 95 | of those, right with the engine the router picked |
 | `router.w2.routed.v4.pct` | 88.8 | percent right |
 | `router.w2.routed.v4.sent_elsewhere` | 6 | rulings the router sent to an engine other than their own |
+| `router.final2.nocue.specialist.n` | 17 | post-cutoff specialist rulings whose facts do not contain the "trade programs" cue written after D230 read this window (#464); was 22 |
+| `router.final2.v2.nocue.specialist.correct` | 12 | of those 17, router-v2 sent to the right engine (was 13/22) |
+| `router.final2.v4.nocue.specialist.correct` | 14 | of those 17, router-v4 sent to the right engine (was 19/22) |
+| `router.final2.nocue.specialist.fixed` | 2 | v4 fixed, v2 missed, among the 17 without the cue (was 6/22; exact McNemar p = 0.5) |
+| `router.final2.nocue.specialist.broke` | 0 | v2 fixed, v4 missed, among the 17 without the cue |
+| `router.w2.routed.nocue.v2.n` | 101 | routed path, post-cutoff, all regimes, with the 6 "trade programs" rulings removed (#464): rulings |
+| `router.w2.routed.nocue.v2.correct` | 91 | of those, right with the engine router-v2 picked |
+| `router.w2.routed.nocue.v2.pct` | 90.1 | percent right (all rulings: 87.9) |
+| `router.w2.routed.nocue.v4.n` | 101 | routed path, post-cutoff, all regimes, with the 6 "trade programs" rulings removed (#464): rulings |
+| `router.w2.routed.nocue.v4.correct` | 90 | of those, right with the engine router-v4 picked |
+| `router.w2.routed.nocue.v4.pct` | 89.1 | percent right (all rulings: 88.8) — v4 now trails v2 by one ruling |
 | `cal.version` | cal-v2 | calibration map version (backend/internal/calibrate/map.json, D160) |
 | `cal.bar` | 0.9 | auto-accept bar on calibrated probability |
 | `final.cal.fast.n` | 300 | auto-accepted at the calibrated bar and in scope |

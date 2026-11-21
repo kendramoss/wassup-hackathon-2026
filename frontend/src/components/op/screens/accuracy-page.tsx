@@ -458,6 +458,7 @@ export function AccuracyPage() {
                       ? ` On the ${route2.n} later rulings: ${pct(route2.value)}, and ${pct(route2Spec.value)} of the ${route2Spec.n} specialist ones (${ci(route2Spec)}).`
                       : ""}
                     {routeOut2 ? ` The router before it kept only ${pct(routeOut2.value)} of later pharmaceutical and Part 102 rulings away from the general engine.` : ""}
+                    Caveat: the &quot;trade programs&quot; cue in router-v4 came from reading these later misses, not from development, so this is not clean held-out evidence; without the 6 cue rulings the specialist comparison is 14/17 vs 12/17 (fixed 2, broke 0).
                   </Card>
                 )}
                 {routed && (
@@ -465,7 +466,7 @@ export function AccuracyPage() {
                     on {routed.n} later rulings (28 Sep to 13 Nov 2026), all four rule sets, each answered by the engine the router picked ({ci(routed)}),{" "}
                     {Math.round((routed.value ?? 0) * (routed.n ?? 0))} right.
                     {routedOld ? ` With the router before it: ${Math.round((routedOld.value ?? 0) * (routedOld.n ?? 0))} of ${routedOld.n} right.` : ""} Each ruling sent straight to its own rules scores a little higher; the gap is the cost
-                    of routing.
+                    of routing. Caveat: the &quot;trade programs&quot; cue in router-v4 came from reading these later misses; without the 6 cue rulings router-v4 is 90/101, below router-v2&apos;s 91/101, so this is not clean held-out evidence.
                   </Card>
                 )}
               </div>
