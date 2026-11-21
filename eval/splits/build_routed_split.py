@@ -6,7 +6,8 @@
 # Usage: python3 -I eval/splits/build_routed_split.py . <route file> <tag>
 #   e.g. eval/results/route-final2-router-v2-gemini-3.8-flash-litellm.jsonl v2
 #
-# A pair is already held when the D211 run of that engine scored the ruling:
+# A pair is already held when the D211 run of that engine, or an earlier
+# routed run (eval/results/<same name>-routed-<tag>.jsonl), scored the ruling:
 #   general        eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl
 #   textile_102_21 eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl
 #   pharma_api     eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl
@@ -38,6 +39,13 @@ def last_rows(p):
 
 
 held = {e: set(last_rows(f)) for e, (f, _) in D211.items()}
+# Pairs an earlier routed run already scored are reused, not run again: each
+# (ruling, engine) pair is run once.
+for e, (f, _) in D211.items():
+    prefix = os.path.basename(f).removesuffix("-router.jsonl") + "-routed-"
+    for name in sorted(os.listdir(f"{root}/eval/results")):
+        if name.startswith(prefix) and name.endswith(".jsonl"):
+            held[e] |= set(last_rows(f"eval/results/{name}"))
 routes = last_rows(route_file)
 need = {e: [] for e in D211}
 for rid, r in sorted(routes.items()):
