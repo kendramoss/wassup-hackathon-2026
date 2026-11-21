@@ -613,6 +613,28 @@ export const copy = {
     encoded: (e: number, n: number) => `${e} of ${n} sentences of this rule are encoded; the others name goods in words and are left to a person.`,
   },
 
+  // Per-part HTS suggestions (D380): offered, never filled in by themselves.
+  partsHts: {
+    suggest: "Suggest codes for all parts",
+    again: "Suggest again",
+    busy: "Reading earlier rulings…",
+    why: "The tariff-shift rule check needs a code for the product and each part.",
+    acceptAll: "Accept all top suggestions",
+    accepted: (n: number) => `${n} code${n === 1 ? "" : "s"} filled in. They take effect when you run the prediction.`,
+    unverified: "Unverified suggestions: check every code with your broker before you rely on it.",
+    fromRulings: "earlier CBP ruling",
+    fromModel: "model's reading, no ruling found",
+    use: "Use",
+    using: "Using",
+    none: "No suggestion",
+    product: "Product",
+    tooMany: (n: number) => `Suggesting the first ${n} parts without a code; run it again for the rest.`,
+    noneMissing: "Every part already has a code.",
+    reasonsDown: "Reasons are unavailable right now; only codes from earlier rulings are listed.",
+    failed: "Couldn't get suggestions. Try again, or type the codes.",
+    busyLimit: "Too many suggestions at once. Wait a moment and try again.",
+  },
+
   // Operating costs (#281). New keys only; the review and privacy blocks are untouched.
   ops: {
     section: "Operating costs",

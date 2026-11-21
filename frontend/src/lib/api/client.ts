@@ -51,6 +51,8 @@ export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
 export type PlanEstimate = S["PlanEstimate"];
 export type HtsSuggestResponse = Json<"/v1/products/hts-suggest", "post">;
 export type HtsCandidate = NonNullable<HtsSuggestResponse["candidates"]>[number];
+export type PartsHtsSuggestResponse = Json<"/v1/products/parts-hts-suggest", "post">;
+export type PartHtsCandidate = components["schemas"]["PartHtsCandidate"];
 export type MoneyPrefillResponse = Json<"/v1/products/money-prefill", "post">;
 export type FamilyCheckResponse = Json<"/v1/products/family-check", "post">;
 export type CostEstimateResponse = Json<"/v1/products/cost-estimate", "post">;
@@ -312,6 +314,8 @@ export const api = {
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economicsOnWire(economics), undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
+  // Codes for each part (D380): suggestions only, nothing is stored.
+  partsHtsSuggest: (body: { product: Product }, signal?: AbortSignal) => post<PartsHtsSuggestResponse>("/products/parts-hts-suggest", body, signal),
   // The lookups price duty and group costs only: the operating-cost block is
   // not sent to them (a draft of it may not validate yet) and is never invented.
   moneyPrefill: (body: { product: Product; economics?: Economics }, signal?: AbortSignal) => post<MoneyPrefillResponse>("/products/money-prefill", noOps(body), signal),

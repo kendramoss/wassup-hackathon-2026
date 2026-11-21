@@ -1,0 +1,209 @@
+{
+ "cells": [
+  {
+   "run": "dev-smoke",
+   "split": "dev",
+   "set": "usmca",
+   "products": 3,
+   "failed_calls": 1,
+   "parts": 13,
+   "parts_with_a_suggestion": 10,
+   "gold_parts": 1,
+   "gold_products": 1,
+   "top1": 1,
+   "top1_ci": [
+    20.7,
+    100
+   ],
+   "top3": 1,
+   "top3_ci": [
+    20.7,
+    100
+   ],
+   "top1_same_heading": 1,
+   "top1_from_rulings": 0,
+   "top1_from_rulings_right": 0,
+   "top1_from_model": 1,
+   "top1_from_model_right": 1,
+   "good_gold": 3,
+   "good_top1": 2,
+   "good_top3": 2,
+   "cost_usd": 0.0299,
+   "cost_per_product_usd": 0.01,
+   "input_tokens": 7780,
+   "output_tokens": 3555,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 3,
+     "out_of_scope": 1,
+     "decided": 0,
+     "agree_cbp": 0,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 1,
+      "a material needs a fact (condition or goods description)": 1
+     }
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 3,
+     "out_of_scope": 1,
+     "decided": 1,
+     "agree_cbp": 1,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 1
+     },
+     "decided_rulings": [
+      "N337260"
+     ]
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 3,
+     "out_of_scope": 2,
+     "decided": 1,
+     "agree_cbp": 1,
+     "undetermined_reasons": {},
+     "decided_rulings": [
+      "N337260"
+     ]
+    }
+   ]
+  },
+  {
+   "run": "dev-v1",
+   "split": "dev",
+   "set": "usmca",
+   "products": 69,
+   "failed_calls": 0,
+   "parts": 393,
+   "parts_with_a_suggestion": 389,
+   "gold_parts": 27,
+   "gold_products": 19,
+   "top1": 20,
+   "top1_ci": [
+    55.3,
+    86.8
+   ],
+   "top3": 22,
+   "top3_ci": [
+    63.3,
+    91.8
+   ],
+   "top1_same_heading": 22,
+   "top1_from_rulings": 9,
+   "top1_from_rulings_right": 7,
+   "top1_from_model": 18,
+   "top1_from_model_right": 13,
+   "good_gold": 68,
+   "good_top1": 36,
+   "good_top3": 42,
+   "cost_usd": 0.7138,
+   "cost_per_product_usd": 0.0103,
+   "input_tokens": 220671,
+   "output_tokens": 146503,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 69,
+     "out_of_scope": 38,
+     "decided": 2,
+     "agree_cbp": 2,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 16,
+      "a material needs a fact (condition or goods description)": 11,
+      "de minimis value not given": 1,
+      "no HTS code for the good": 1
+     },
+     "decided_rulings": [
+      "N344091",
+      "N344002"
+     ]
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 69,
+     "out_of_scope": 38,
+     "decided": 9,
+     "agree_cbp": 9,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 1,
+      "a material needs a fact (condition or goods description)": 14,
+      "de minimis value not given": 5,
+      "no HTS code for the good": 1,
+      "other: centrifugal fan do not shift and their origin is not given": 1
+     },
+     "decided_rulings": [
+      "H333407",
+      "N338219",
+      "N341003",
+      "N344091",
+      "N343893",
+      "N344002",
+      "N350133",
+      "N352763",
+      "N354024"
+     ]
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 69,
+     "out_of_scope": 38,
+     "decided": 10,
+     "agree_cbp": 9,
+     "undetermined_reasons": {
+      "a material needs a fact (condition or goods description)": 15,
+      "de minimis value not given": 5,
+      "other: centrifugal fan do not shift and their origin is not given": 1
+     },
+     "decided_rulings": [
+      "H333407",
+      "N338219",
+      "N338502",
+      "N340017",
+      "N341003",
+      "N344091",
+      "N344002",
+      "N350133",
+      "N352763",
+      "N354024"
+     ]
+    }
+   ]
+  },
+  {
+   "run": "dev-v1",
+   "split": "dev",
+   "set": "family",
+   "products": 23,
+   "failed_calls": 0,
+   "parts": 200,
+   "parts_with_a_suggestion": 200,
+   "gold_parts": 2,
+   "gold_products": 1,
+   "top1": 2,
+   "top1_ci": [
+    34.2,
+    100
+   ],
+   "top3": 2,
+   "top3_ci": [
+    34.2,
+    100
+   ],
+   "top1_same_heading": 2,
+   "top1_from_rulings": 0,
+   "top1_from_rulings_right": 0,
+   "top1_from_model": 2,
+   "top1_from_model_right": 2,
+   "good_gold": 0,
+   "good_top1": 0,
+   "good_top3": 0,
+   "cost_usd": 0.3203,
+   "cost_per_product_usd": 0.0139,
+   "input_tokens": 102341,
+   "output_tokens": 64963
+  }
+ ],
+ "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"
+}
