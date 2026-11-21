@@ -12,6 +12,7 @@ import (
 	"io"
 	"log/slog"
 	"math"
+	"net"
 	"net/http"
 	"sort"
 	"strings"
@@ -134,6 +135,10 @@ type Deps struct {
 	// RequireBearer refuses requests other than /health without an
 	// "Authorization: Bearer" header (REQUIRE_BEARER, off by default; D137).
 	RequireBearer bool
+	// TrustedProxyCIDRs are the source ranges whose X-Client-IP header may
+	// be used for rate-limit keys. Empty means ignore the header and key on
+	// RemoteAddr, so a direct caller cannot pick its own bucket (#421).
+	TrustedProxyCIDRs []*net.IPNet
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
