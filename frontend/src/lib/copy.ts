@@ -163,6 +163,11 @@ export const copy = {
     notSupport: "not counted as support for this case",
   },
   plan: {
+    // The stored backtest waits for the demo's record of the real change
+    // (plan-step, judge panel round 7 N1).
+    backtestLoading: "Loading the record of CBP's real change to compare with…",
+    backtestFailed: "The record of CBP's real change did not load, so the backtest is not shown.",
+    backtestRetry: "Try again",
     best: "Best plan",
     none: `No plan cleared the 0.92 precedent-check bar`,
     supported: "Precedent-supported",
