@@ -651,3 +651,39 @@ func TestAPISecurityLimitsConfig(t *testing.T) {
 		}
 	}
 }
+
+// #420: a production-looking deployment must say which auth/audit switches
+// are off instead of booting as though it were fully locked down.
+func TestProductionWarnings(t *testing.T) {
+	cloud := map[string]string{"K_SERVICE": "backend", "GOOGLE_CLOUD_PROJECT": "p"}
+	c, err := FromEnv(getenv(cloud))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(c.Warnings) != 3 {
+		t.Fatalf("warnings = %q", c.Warnings)
+	}
+	for _, flag := range []string{"STRICT_AUTH", "REQUIRE_BEARER", "AUDIT_ACTOR_KEY"} {
+		var found bool
+		for _, w := range c.Warnings {
+			if strings.Contains(w, flag) {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("no warning names %s: %q", flag, c.Warnings)
+		}
+	}
+
+	locked := merge(cloud, map[string]string{
+		"STRICT_AUTH":     "on",
+		"REQUIRE_BEARER":  "on",
+		"AUDIT_ACTOR_KEY": "0123456789abcdef0123456789abcdef0123456789abcdef",
+	})
+	if c, err := FromEnv(getenv(locked)); err != nil || len(c.Warnings) != 0 {
+		t.Errorf("fully configured Cloud Run: warnings %q, err %v", c.Warnings, err)
+	}
+	if c, err := FromEnv(getenv(vertexEnv())); err != nil || len(c.Warnings) != 0 {
+		t.Errorf("local dev: warnings %q, err %v", c.Warnings, err)
+	}
+}

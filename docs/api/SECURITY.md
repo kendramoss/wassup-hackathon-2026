@@ -8,6 +8,25 @@ What protects the public API, as built (D137 and the decisions it cites). Defaul
 - `REQUIRE_BEARER=on` (default off) makes the backend refuse, with 401, any request other than `/health` that has no `Authorization: Bearer` header. It is defence in depth behind Cloud Run IAM. It is off by default because it has not been run against the deployed service; turn it on after checking that Cloud Run passes the header through to the container.
 - CORS: the API sends no CORS headers, on any route. It is for server-to-server calls with `X-API-Key` and for the frontend's own proxy. Calls from a browser page on another site are not supported.
 
+## As built vs as deployed (21 Nov 2026)
+
+The code defaults are permissive so local UI work works without credentials. "As deployed" is read from `.github/workflows/deploy.yml` and checked against the live public paths; the backend itself is IAM-private (`/health` returns 403 from Google Frontend). This matrix is the answer to "is isolation/auth on?" — do not claim more than it says (#420).
+
+| Switch | Code default | Deployed value | Live evidence / why |
+|---|---|---|---|
+| Cloud Run IAM on backend | n/a (platform) | only the frontend service account may invoke | direct `https://backend-88903435351.us-central1.run.app/health` → **403**; public proxy is the only path |
+| `CASE_OWNERSHIP` | off | **on** | `curl https://undelabs.dev/api/v1/cases` shows the six pinned demos and no visitor cases |
+| `TEAMS` / `TEAMS_AUDIENCE` | off / empty | **on** / `88903435351-…apps.googleusercontent.com` | Google ID tokens verified on every request |
+| `API_KEYS` | off | **on** | unknown/disabled keys get 401, never anonymous fallback |
+| `DAILY_SPEND_CAP_USD` | 0 (uncapped) | **25** | new model calls stop with 503 `budget_reached` past the cap |
+| `ADMIN_TOKEN` | empty | **set from Secret Manager** | needed to pin demos and issue keys; never sent from the browser |
+| `STRICT_AUTH` | off | **off (intentional)** | would refuse an anonymous visitor ID for private case operations; the public demo is anonymous by design. Cloud Run IAM plus `CASE_OWNERSHIP` are the current boundary |
+| `REQUIRE_BEARER` | off | **off (intentional)** | not enabled until Cloud Run header pass-through to the container has been verified end to end; it is defence in depth behind IAM, not the primary boundary |
+| `AUDIT_ACTOR_KEY` / `AUDIT` | empty / `auto` | **unset / auto → audit off** | `curl -i https://undelabs.dev/api/v1/audit` → **404**; there is no certification or immutable log. Enabling it is a product decision, not a code-only change |
+| `RATE_LIMIT_STORE` | local, auto-firestore on Cloud Run with a project | **Firestore (defaulted)** | model-route buckets are shared by all three instances; `X-Client-IP` is set by the proxy, so a client cannot choose its own bucket through the public path (#421) |
+
+When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACTOR_KEY` is missing, the server now logs a `production config` warning at startup naming the gap. This is deliberately a warning, not a boot failure: the flags are off on purpose today, but they must not be invisible.
+
 ## Who the caller is
 
 | Mode | Header | Notes |

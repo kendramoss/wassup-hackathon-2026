@@ -71,6 +71,11 @@ type Config struct {
 	GCPLocation string
 	OnCloudRun  bool
 
+	// Warnings are non-fatal production-safety gaps found while loading the
+	// config. They are logged at startup (#420) so a deployment cannot look
+	// fully locked down just because it boots.
+	Warnings []string
+
 	// Models (IDs depend on the provider; the defaults are served by both).
 	EngineModel string
 	RouterModel string
@@ -532,7 +537,29 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	if err := errors.Join(append(e.errs, c.validate())...); err != nil {
 		return Config{}, fmt.Errorf("config: %w", err)
 	}
+	c.Warnings = c.productionWarnings()
 	return c, nil
+}
+
+// productionWarnings names the auth/audit flags that are deliberately off in
+// a Cloud Run deployment. They stay warnings, not errors: the public demo
+// needs anonymous visitors and the owner must verify header pass-through
+// before turning on REQUIRE_BEARER. Hiding the gap is what is unsafe (#420).
+func (c Config) productionWarnings() []string {
+	if !c.OnCloudRun {
+		return nil
+	}
+	var out []string
+	if !c.StrictAuth {
+		out = append(out, "STRICT_AUTH is off: a visitor ID alone is accepted as an anonymous principal; Cloud Run IAM and CASE_OWNERSHIP remain the boundaries")
+	}
+	if !c.RequireBearer {
+		out = append(out, "REQUIRE_BEARER is off: the backend accepts proxied requests without a bearer token; verify Cloud Run header pass-through before enabling it")
+	}
+	if c.AuditActorKey == "" || !c.Audit {
+		out = append(out, "AUDIT_ACTOR_KEY is unset (or AUDIT=off): no audit trail is written; this is an explicit product choice, not certification")
+	}
+	return out
 }
 
 func (c Config) validate() error {

@@ -115,6 +115,11 @@ func credentialHint(err error) string {
 
 func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke bool) error {
 	logger.Info("config", "summary", cfg.String())
+	// #420: a missing auth/audit flag must not be invisible just because the
+	// service starts. The allowlisted logger logs the message only.
+	for _, w := range cfg.Warnings {
+		logger.Warn("production config", "warning", w)
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
