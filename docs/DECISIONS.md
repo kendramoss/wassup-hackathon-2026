@@ -1700,7 +1700,7 @@ Committed before any suggestion run and before any gold code was read. Nothing i
 - **Cost cap:** $8 for all runs (estimate: about 100 products a run at about $0.02 each).
 
 ## D382 — Per-part HTS suggestions: results (22 Nov)
-Run as pre-registered in D381. Development runs on 22 Nov; code frozen at commit dde4fec9 (kept as branch `improve/hts-suggest-parts-freeze`) before the held-out gold was read; the held-out products were suggested and scored once. Rows: `eval/tariffshift/parts/`; recompute with `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`).
+Run as pre-registered in D381. Development runs on 22 Nov; code frozen at commit dde4fec9 (kept, with the D381 commit 65415b9a, as branch `improve/hts-suggest-parts-freeze`; the merged history has new hashes) before the held-out gold was read; the held-out products were suggested and scored once. Rows: `eval/tariffshift/parts/`; recompute with `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`).
 
 | Run | Products | Parts with a suggestion | Gold parts | Top-1 | Top-3 | Good: top-1 / top-3 | Cost per product |
 |---|---:|---:|---:|---:|---:|---:|---:|
