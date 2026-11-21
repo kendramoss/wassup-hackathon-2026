@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
   api,
   streamPredict,
@@ -26,6 +26,7 @@ import { MoneyDrawer, hasAnyMoney, hasMoney, moneySummary, productGroups } from 
 import { opsErrorText } from "../operational-fields";
 import { Combobox, countryOptions, type ComboOption } from "../combobox";
 import { HtsField } from "../hts-field";
+import { PartSuggestionRow, PartsHtsBar, suggestionFor, type PartsSuggestions } from "../parts-hts";
 import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
@@ -276,6 +277,8 @@ export function ProductStep() {
   const [family, setFamily] = useState("motorised_tools_small_appliances");
   const [facts, setFacts] = useState("");
   const [hts, setHts] = useState("");
+  // Per-part code suggestions (D380), shown under each part until replaced.
+  const [partsSugg, setPartsSugg] = useState<PartsSuggestions | null>(null);
   const [product, setProduct] = useState<Product>(emptyProduct);
   const [economics, setEconomics] = useState<Economics | undefined>(undefined);
   // The money as it is now, for an import that finishes after a reset.
@@ -605,7 +608,22 @@ export function ProductStep() {
           )}
 
           <div className="mt-5" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
-            {tab === "parts" && <PartsEditor product={product} family={family} economics={economics} onChange={setProduct} />}
+            {tab === "parts" && (
+              <PartsEditor
+                product={product}
+                family={family}
+                economics={economics}
+                onChange={setProduct}
+                name={name}
+                suggestions={partsSugg}
+                onSuggestions={setPartsSugg}
+                goodHts={hts}
+                onGoodHts={(v) => {
+                  autoHts.current = false;
+                  setHts(v);
+                }}
+              />
+            )}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
                 <Field label={copy.product.facts}>
@@ -1049,7 +1067,31 @@ function plantId(product: Product, economics?: Economics) {
   return `p${n}`;
 }
 
-export function PartsEditor({ product, family, economics, onChange }: { product: Product; family?: string; economics?: Economics; onChange: (p: Product) => void }) {
+export function PartsEditor({
+  product,
+  family,
+  economics,
+  onChange,
+  name = "",
+  goodHts = "",
+  onGoodHts,
+  suggestions = null,
+  onSuggestions,
+}: {
+  product: Product;
+  family?: string;
+  economics?: Economics;
+  onChange: (p: Product) => void;
+  // For the per-part code suggestions (D380): the case name and the
+  // product's own code, which the suggestion can fill when the user accepts it.
+  name?: string;
+  goodHts?: string;
+  onGoodHts?: (hts: string) => void;
+  // Held by the caller, so this editor stays a plain function of its props.
+  suggestions?: PartsSuggestions | null;
+  onSuggestions?: (s: PartsSuggestions | null) => void;
+}) {
+  const sugg = suggestions;
   const plants = product.plants ?? [];
   const ops = product.operations ?? [];
   const setPlants = (p: Plant[]) => onChange({ ...product, plants: p });
@@ -1157,6 +1199,7 @@ export function PartsEditor({ product, family, economics, onChange }: { product:
       <Panel className="min-w-0">
         <PanelHead right={product.components.length ? `${product.components.length} parts` : undefined}>Parts</PanelHead>
         {product.components.length === 0 && <p className="duo mb-1 text-[13px] text-dim">Each component and where it&apos;s made.</p>}
+        {onSuggestions && <PartsHtsBar product={product} name={name} goodHts={goodHts} onGoodHts={onGoodHts} onChange={onChange} value={sugg} setValue={onSuggestions} />}
         {product.components.length > 0 && (
           <div className="relative overflow-x-auto">
             <table className="w-full min-w-[760px] border-collapse text-sm">
@@ -1173,65 +1216,79 @@ export function PartsEditor({ product, family, economics, onChange }: { product:
                 </tr>
               </thead>
               <tbody>
-                {product.components.map((c, i) => (
-                  <tr key={i}>
-                    <td className="py-1 pr-2">
-                      <input id={`field-part-name-${i}`} aria-label="Part name" placeholder="e.g. electric motor" className={cell} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
-                    </td>
-                    <td className="py-1 pr-2">
-                      <Combobox
-                        ariaLabel="Made at"
-                        placeholder="Search or add a supplier"
-                        className={cell}
-                        value={c.plant ?? ""}
-                        onChange={(v) => madeAt(i, v)}
-                        options={plantOptions}
-                        allowCustom
-                        customLabel={(t) => `Add “${t}” as a new supplier`}
-                        customHint="adds it to Plants"
-                      />
-                    </td>
-                    <td className="py-1 pr-2">
-                      <Combobox
-                        id={`field-part-country-${i}`}
-                        ariaLabel="Country it's made in"
-                        placeholder="Search a country"
-                        className={cell}
-                        value={c.made_in}
-                        onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: v } : x)))}
-                        options={countryOptions}
-                        allowCustom
-                        flags
-                      />
-                    </td>
-                    <td className="py-1 pr-2">
-                      {/* Only the 19 CFR 102.20 rule check reads a part's
-                          code (D363); it is not part of the facts. */}
-                      <input
-                        id={`field-part-hts-${i}`}
-                        aria-label={`HTS code of ${c.name || "this part"} (optional)`}
-                        placeholder="e.g. 7616.99"
-                        inputMode="decimal"
-                        className={cx(cell, "w-[7.5rem]")}
-                        value={c.hts ?? ""}
-                        onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: e.target.value.trim() ? e.target.value : undefined } : x)))}
-                      />
-                    </td>
-                    <td className="py-1 pr-2">
-                      <Combobox
-                        ariaLabel="Operation group"
-                        placeholder="Search groups"
-                        className={cell}
-                        value={c.group ?? ""}
-                        onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))}
-                        options={groupOptions}
-                      />
-                    </td>
-                    <td>
-                      <RemoveButton label={`Remove ${c.name || "part"}`} onClick={() => setComps(product.components.filter((_, j) => j !== i))} />
-                    </td>
-                  </tr>
-                ))}
+                {product.components.map((c, i) => {
+                  const cands = suggestionFor(sugg, i, c);
+                  return (
+                    <Fragment key={i}>
+                      <tr>
+                        <td className="py-1 pr-2">
+                          <input id={`field-part-name-${i}`} aria-label="Part name" placeholder="e.g. electric motor" className={cell} value={c.name} onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+                        </td>
+                        <td className="py-1 pr-2">
+                          <Combobox
+                            ariaLabel="Made at"
+                            placeholder="Search or add a supplier"
+                            className={cell}
+                            value={c.plant ?? ""}
+                            onChange={(v) => madeAt(i, v)}
+                            options={plantOptions}
+                            allowCustom
+                            customLabel={(t) => `Add “${t}” as a new supplier`}
+                            customHint="adds it to Plants"
+                          />
+                        </td>
+                        <td className="py-1 pr-2">
+                          <Combobox
+                            id={`field-part-country-${i}`}
+                            ariaLabel="Country it's made in"
+                            placeholder="Search a country"
+                            className={cell}
+                            value={c.made_in}
+                            onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, made_in: v } : x)))}
+                            options={countryOptions}
+                            allowCustom
+                            flags
+                          />
+                        </td>
+                        <td className="py-1 pr-2">
+                          {/* Only the 19 CFR 102.20 rule check reads a part's
+                              code (D363); it is not part of the facts. */}
+                          <input
+                            id={`field-part-hts-${i}`}
+                            aria-label={`HTS code of ${c.name || "this part"} (optional)`}
+                            placeholder="e.g. 7616.99"
+                            inputMode="decimal"
+                            className={cx(cell, "w-[7.5rem]")}
+                            value={c.hts ?? ""}
+                            onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: e.target.value.trim() ? e.target.value : undefined } : x)))}
+                          />
+                        </td>
+                        <td className="py-1 pr-2">
+                          <Combobox
+                            ariaLabel="Operation group"
+                            placeholder="Search groups"
+                            className={cell}
+                            value={c.group ?? ""}
+                            onChange={(v) => setComps(product.components.map((x, j) => (j === i ? { ...x, group: v || undefined } : x)))}
+                            options={groupOptions}
+                          />
+                        </td>
+                        <td>
+                          <RemoveButton label={`Remove ${c.name || "part"}`} onClick={() => setComps(product.components.filter((_, j) => j !== i))} />
+                        </td>
+                      </tr>
+                      {cands && (
+                        <PartSuggestionRow
+                          colSpan={6}
+                          cands={cands}
+                          value={c.hts ?? ""}
+                          label={c.name}
+                          onUse={(code) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: code } : x)))}
+                        />
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

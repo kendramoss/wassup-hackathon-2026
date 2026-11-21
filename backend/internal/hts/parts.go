@@ -322,7 +322,7 @@ func (p *PartsSuggester) Suggest(ctx context.Context, prod domain.Product, opt P
 	}
 	resp, err := p.model.Generate(ctx, llm.Request{Model: p.modelID, System: partsSystem,
 		Messages:   []llm.Message{{Role: llm.RoleUser, Content: partsPrompt(prod, items)}},
-		JSONSchema: partsSchema(items), SchemaName: "parts_hts_suggestion", MaxOutputTokens: min(8192, 1024+400*len(items))})
+		JSONSchema: partsSchema(items), SchemaName: "parts_hts_suggestion", MaxOutputTokens: 8192})
 	var a partsAnswer
 	if err == nil {
 		err = resp.DecodeJSON(&a)

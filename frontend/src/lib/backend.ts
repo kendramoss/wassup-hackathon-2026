@@ -32,7 +32,7 @@ export function clientIP(request: Request): string | undefined {
 // them can echo a user's BOM, an email or a token. A value outside its closed
 // set is replaced by a constant, never printed.
 const ROUTE_WORDS = new Set([
-  "v1", "api", "cases", "predict", "batch", "products", "import", "extract", "money-prefill", "hts-suggest", "cost-estimate",
+  "v1", "api", "cases", "predict", "batch", "products", "import", "extract", "money-prefill", "hts-suggest", "parts-hts-suggest", "cost-estimate",
   "family-check", "bom-version", "scenarios", "compare-targets", "ask", "economics", "pin", "watch", "run", "plan", "estimate",
   "export", "answers", "rulings", "eval", "summary", "duty-rates", "demos", "workspaces", "mine", "members", "join", "role",
   "admin", "api-keys", "audit", "verify", "health", "mcp", "review", "reviews", "decision",
