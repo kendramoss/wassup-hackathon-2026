@@ -85,8 +85,7 @@ func mediaHarness(t *testing.T, answer string) (harness, *llm.Fake) {
 	fake := &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
 		return llm.Response{Text: answer, FinishReason: "STOP", Usage: llm.Usage{InputTokens: 1500, OutputTokens: 200}}, nil
 	}}
-	var hs harness
-	hs = newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
 		lg := harnessLogger
 		if lg == nil {
 			lg = slog.New(suiteHandler)
