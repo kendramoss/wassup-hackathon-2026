@@ -188,7 +188,10 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
         <Chip tone={r.agrees_with_cbp ? "ok" : "fail"}>{r.agrees_with_cbp ? T.agrees : T.disagrees}</Chip>
       </span>
       {r.best_plan ? (
-        <span className="text-dim">{T.plan(r.best_plan, conf(r.plan_check), r.plan_ruling ?? "")}</span>
+        <span className="text-dim">
+          {T.plan(r.best_plan_words ? r.best_plan_words.replace(/^Move /, "move ") : r.best_plan, conf(r.plan_check), r.plan_ruling ?? "")}
+          {r.best_plan_includes?.length ? <span className="mt-0.5 block">{T.includes(r.best_plan_includes)}</span> : null}
+        </span>
       ) : (
         <span className="text-dim">{T.noPlan}</span>
       )}
@@ -225,11 +228,20 @@ function DemoCard({ c }: { c: CaseSummary }) {
           {differs ? ". Unde's prediction differs; the plan starts from CBP's holding." : ""}
         </span>
       )}
+      {/* What the prediction read (D220): the same setup can give two answers
+          from CBP's text and from the parts list. */}
+      {full?.facts_source && (
+        <span className="text-xs text-dim">
+          {full.facts_source === "pasted"
+            ? "Unde read CBP's own text for this setup; scenarios and plans read its parts list."
+            : "Unde read the structured parts list, not CBP's text. From CBP's text the same setup can get another answer."}
+        </span>
+      )}
       {c.date && <span className="text-xs text-dim">{copy.cases.demoDate(formatDate(c.date))}</span>}
       <span className="duo mt-auto border-t border-line pt-2 text-xs">
         {best ? (
           <>
-            <span className="text-ok">Plan:</span> make {movePhrase(best)} in {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) ·{" "}
+            <span className="text-ok">Plan:</span> move {movePhrase(best)} to {full?.plan?.target} · check {conf(best.verdict?.confidence)} ({checkWords(best.verdict?.confidence)}) ·{" "}
             {full?.plan_economics_stale ? (
               copy.stale.title.toLowerCase()
             ) : (

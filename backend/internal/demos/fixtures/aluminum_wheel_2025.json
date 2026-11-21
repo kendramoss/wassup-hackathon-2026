@@ -5,7 +5,7 @@
   "description": "A semi-trailer wheel. Aluminum bar is forged into a round blank in China; in Thailand the blank is flow formed, heat treated, machined, finished and fitted with a valve. CBP held China (N349871): the forging decides.",
   "source": "CBP ruling N349871, rulings.cbp.gov",
   "cbp_held": "China (N349871)",
-  "notes": "One of the families added in D138 (vehicle parts). Built from the D171 fixture for CBP ruling N349871 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-03, and N349871 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n349871-litellm.json): the engine said Thailand at 0.85 stated, where CBP held China; it disagrees with CBP, and CBP's holding is the answer. The plan search starts from CBP's holding because the ruling is given. First plan shown: \"Make Housings and structural parts in Thailand\", check 0.94 on N346803. That ruling, read by hand: partial (N346803 held Italy for a copper shield finished from an Italian forged blank (a single-country ruling): forging location decides, different product.) A run on this site is a new run and may differ.",
+  "notes": "One of the families added in D138 (vehicle parts). Built from the D171 fixture for CBP ruling N349871 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-03, and N349871 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n349871-litellm.json): the engine said Thailand at 0.85 stated, where CBP held China; it disagrees with CBP, and CBP's holding is the answer. The plan search starts from CBP's holding because the ruling is given. First plan shown: \"Move the housings and structural parts to Thailand\" (in this product: Aluminum bar / ingot; Forged circular aluminum blank ('cookie'); Cutting aluminum bars; Heating, forging ingots into a circular shape, and expanding to form a 'cookie'), check 0.94 on N346803. That ruling, read by hand: partial (N346803 held Italy for a copper shield finished from an Italian forged blank (a single-country ruling): forging location decides, different product.) A run on this site is a new run and may differ.",
   "predict": {
     "date": "2025-07-03",
     "product": {
@@ -129,6 +129,12 @@
     "cbp_origin": "China",
     "agrees_with_cbp": false,
     "best_plan": "Make Housings and structural parts in Thailand",
+    "best_plan_move": [
+      {
+        "group": "housings_and_structures",
+        "to_plant": "th"
+      }
+    ],
     "plan_check": 0.94,
     "plan_ruling": "N346803"
   }

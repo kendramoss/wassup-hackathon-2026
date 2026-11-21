@@ -12,6 +12,8 @@ import (
 	"sort"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
 //go:embed fixtures/*.json
@@ -48,6 +50,14 @@ type Recorded struct {
 	BestPlan             string  `json:"best_plan,omitempty"`
 	PlanCheck            float64 `json:"plan_check,omitempty"`
 	PlanRuling           string  `json:"plan_ruling,omitempty"`
+	// BestPlanMove is the first shown plan's move as the result file has it.
+	// BestPlanWords and BestPlanIncludes are filled at load (D220): the move
+	// in planner.Describe's words, and the parts and steps of this product it
+	// takes with it, so a card never shows a bare group name ("Housings and
+	// structural parts") for a forged wheel blank. BestPlan stays as recorded.
+	BestPlanMove     domain.Move `json:"best_plan_move,omitempty"`
+	BestPlanWords    string      `json:"best_plan_words,omitempty"`
+	BestPlanIncludes []string    `json:"best_plan_includes,omitempty"`
 }
 
 // Summary is a list entry.
@@ -66,6 +76,10 @@ func Load() ([]Demo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("demos: %w", err)
 	}
+	tms, err := planner.LoadTemplates()
+	if err != nil {
+		return nil, fmt.Errorf("demos: %w", err)
+	}
 	var out []Demo
 	for _, e := range entries {
 		b, err := fixtures.ReadFile(path.Join("fixtures", e.Name()))
@@ -81,6 +95,9 @@ func Load() ([]Demo, error) {
 			// script checks), the configuration the map was fitted for.
 			m := calibrate.Must()
 			d.Recorded.CalibratedConfidence, d.Recorded.Calibration = m.Value(d.Recorded.StatedConfidence), m.Version
+			if err := d.Recorded.describe(d.Predict, tms); err != nil {
+				return nil, fmt.Errorf("demos: %s: %w", e.Name(), err)
+			}
 		}
 		out = append(out, d)
 	}
@@ -96,4 +113,26 @@ func Summaries(ds []Demo) []Summary {
 			HasPlan: len(d.Plan) > 0 && string(d.Plan) != "null", Recorded: d.Recorded}
 	}
 	return out
+}
+
+// describe fills the recorded plan's words and contents from the demo's own
+// product and family template (D220).
+func (r *Recorded) describe(predict json.RawMessage, tms map[string]planner.Template) error {
+	if len(r.BestPlanMove) == 0 {
+		return nil
+	}
+	var req struct {
+		Product domain.Product `json:"product"`
+		Family  string         `json:"family"`
+	}
+	if err := json.Unmarshal(predict, &req); err != nil {
+		return err
+	}
+	tm, ok := tms[req.Family]
+	if !ok {
+		return fmt.Errorf("no template for family %q", req.Family)
+	}
+	r.BestPlanWords = planner.Describe(req.Product, tm, r.BestPlanMove)
+	r.BestPlanIncludes = planner.MovedItems(req.Product, r.BestPlanMove)
+	return nil
 }

@@ -48,14 +48,14 @@ void nameOf;
 // ---- legacy DTOs: no operations, no objective, no economics_basis ---------------------------
 const verdict = (c = 0.96) => ({ confidence: c, agreement: "3/3", supporting_ruling: "N325810", counter_ruling: "N111111", reasoning: "Because." });
 const legacyMove = (extra = {}) => ({
-  key: "motor_fan_assembly@th", description: "Make the motor-fan assembly in Thailand", move: [{ group: "motor_fan_assembly", to_plant: "th" }], shown: true,
+  key: "motor_fan_assembly@th", description: "Move the motor-fan assembly to Thailand", move: [{ group: "motor_fan_assembly", to_plant: "th" }], shown: true,
   prediction: { origin_country: "Thailand", confidence: 0.95 }, verdict: verdict(), duty_effect_per_year: 500000, added_cost_per_year: 115000, net_per_year: 385000, net_priced: true, ...extra,
 });
 const legacyPlan = () => ({
-  target: "Thailand", plans: [legacyMove(), legacyMove({ key: "pcba@th", description: "Make the PCBA in Thailand", move: [{ group: "pcba", to_plant: "th" }], net_per_year: 120000, added_cost_per_year: 30000, duty_effect_per_year: 150000 })],
+  target: "Thailand", plans: [legacyMove(), legacyMove({ key: "pcba@th", description: "Move the PCBA to Thailand", move: [{ group: "pcba", to_plant: "th" }], net_per_year: 120000, added_cost_per_year: 30000, duty_effect_per_year: 150000 })],
   rejected: [
-    legacyMove({ key: "housing@th", description: "Make the housing in Thailand", shown: false, rejection_kind: "below_confidence_bar", verdict: verdict(0.8), net_per_year: 90000 }),
-    legacyMove({ key: "switch@th", description: "Make the switch in Thailand", shown: false, rejection_kind: "no_supporting_precedent", rejection_reason: "no earlier ruling supports this move", net_per_year: 10000 }),
+    legacyMove({ key: "housing@th", description: "Move the housing to Thailand", shown: false, rejection_kind: "below_confidence_bar", verdict: verdict(0.8), net_per_year: 90000 }),
+    legacyMove({ key: "switch@th", description: "Move the switch to Thailand", shown: false, rejection_kind: "no_supporting_precedent", rejection_reason: "no earlier ruling supports this move", net_per_year: 10000 }),
     legacyMove({ key: "", description: "No change", shown: false, rejection_kind: "current_setup", net_per_year: 0, move: [] }),
   ],
   stats: { moves_searched: 4, engine_calls: 5, wall_seconds: 12 }, duty_rates_note: "USITC fetched 2026-11-01",
@@ -63,7 +63,7 @@ const legacyPlan = () => ({
 const legacyCase = (extra = {}) => F.caseJson({ economics: { illustrative: true, annual_import_value_usd: 2000000, duty_rates: { China: 0.417, Thailand: 0.167 }, group_costs: { motor_fan_assembly: { cn: 300000, th: 340000 } } }, ...extra });
 const ranked = [
   { rank: 1, target: "Thailand", status: "plan", moves_searched: 4, best: legacyMove() },
-  { rank: 2, target: "India", status: "below_bar", moves_searched: 4, best: legacyMove({ description: "Make the PCBA in India", verdict: verdict(0.8), net_per_year: 5000 }) },
+  { rank: 2, target: "India", status: "below_bar", moves_searched: 4, best: legacyMove({ description: "Move the PCBA to India", verdict: verdict(0.8), net_per_year: 5000 }) },
   { rank: 3, target: "Vietnam", status: "no_plan", moves_searched: 4 },
 ];
 const scenario = (cmp) => ({ label: "Move the motor", prediction: { origin_country: "Thailand", confidence: 0.9 }, triage: { route: "auto" }, product: F.product, comparison: cmp });

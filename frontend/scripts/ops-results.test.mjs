@@ -24,19 +24,19 @@ const CLAIMS = /optimal|cheapest|guaranteed/i;
 
 const infeasibleRow = () =>
   move({
-    key: "pcba@th", description: "Make the PCBA in Thailand", shown: false, rejection_kind: "operationally_infeasible", net_per_year: 135000,
+    key: "pcba@th", description: "Move the PCBA to Thailand", shown: false, rejection_kind: "operationally_infeasible", net_per_year: 135000,
     rejection_reason: "not operationally feasible on the inputs you entered: lead time 120 days exceeds your 90-day limit", operations: opsInfeasible(),
   });
 const costlierRow = () =>
   move({
-    key: "heating_element@th", description: "Make the heating element in Thailand", shown: false, rejection_kind: "net_costlier", net_per_year: -115000,
+    key: "heating_element@th", description: "Move the heating element to Thailand", shown: false, rejection_kind: "net_costlier", net_per_year: -115000,
     rejection_reason: "modelled net is negative: duty effect $500,000.00 a year, operating cost difference $115,000.00, one-time costs $500,000.00 a year, net -$115,000.00 a year (modelled terms only; see not_modelled)",
     operations: opsCostlier(),
   });
-const belowBar = () => move({ key: "housing@th", description: "Make the housing in Thailand", shown: false, rejection_kind: "below_confidence_bar", verdict: { confidence: 0.8, supporting_ruling: "N222222" }, net_per_year: 99000, operations: opsPriced() });
+const belowBar = () => move({ key: "housing@th", description: "Move the housing to Thailand", shown: false, rejection_kind: "below_confidence_bar", verdict: { confidence: 0.8, supporting_ruling: "N222222" }, net_per_year: 99000, operations: opsPriced() });
 const legalRejectedNegative = () =>
   move({
-    key: "switch@th", description: "Make the switch in Thailand", shown: false, rejection_kind: "no_supporting_precedent", rejection_reason: "no earlier ruling supports this move",
+    key: "switch@th", description: "Move the switch to Thailand", shown: false, rejection_kind: "no_supporting_precedent", rejection_reason: "no earlier ruling supports this move",
     net_per_year: -50000, operations: opsCostlier({}),
   });
 
@@ -109,7 +109,7 @@ test("plan, new rejection rows: the reason is the server's, the legal rejection 
   assert.match(t, /no earlier ruling supports this move/);
   assert.doesNotMatch(t, /Left out on the operating inputs you entered\.\s*no earlier ruling/);
   // server order: operationally_infeasible, net_costlier, then the below-bar row
-  const i = t.indexOf("lead time 120 days"), j = t.indexOf("modelled net is negative"), k = t.indexOf("Make the housing in Thailand");
+  const i = t.indexOf("lead time 120 days"), j = t.indexOf("modelled net is negative"), k = t.indexOf("Move the housing to Thailand");
   assert.ok(i > 0 && j > i && k > j, `order ${i} ${j} ${k}`);
   assert.doesNotMatch(t, CLAIMS);
 });

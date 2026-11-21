@@ -5,7 +5,7 @@
   "description": "A motor speed sensor: a Hall-effect circuit board made in China, a wire harness and a connector, enclosed in a plastic housing in Thailand. CBP held China (N350727): the sensor board decides.",
   "source": "CBP ruling N350727, rulings.cbp.gov",
   "cbp_held": "China (N350727)",
-  "notes": "One of the families added in D138 (PCBA electronic devices). Built from the D171 fixture for CBP ruling N350727 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-09, and N350727 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n350727-litellm.json): the engine said China at 0.98 stated, where CBP held China (it agrees with CBP). First plan shown: \"Make PCBA (SMT) in Thailand\", check 0.96 on N344809. That ruling, read by hand: supports (N344809 held Thailand for speed sensors once the sensing IC was made in Thailand.) A run on this site is a new run and may differ.",
+  "notes": "One of the families added in D138 (PCBA electronic devices). Built from the D171 fixture for CBP ruling N350727 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-09, and N350727 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n350727-litellm.json): the engine said China at 0.98 stated, where CBP held China (it agrees with CBP). First plan shown: \"Move the PCBA (SMT) to Thailand\" (in this product: Printed circuit board assembly (PCBA) with Hall Effect sensor; Manufacture PCBA with Hall Effect sensor), check 0.96 on N344809. That ruling, read by hand: supports (N344809 held Thailand for speed sensors once the sensing IC was made in Thailand.) A run on this site is a new run and may differ.",
   "predict": {
     "date": "2025-07-09",
     "product": {
@@ -130,6 +130,12 @@
     "cbp_origin": "China",
     "agrees_with_cbp": true,
     "best_plan": "Make PCBA (SMT) in Thailand",
+    "best_plan_move": [
+      {
+        "group": "pcba_manufacturing",
+        "to_plant": "th"
+      }
+    ],
     "plan_check": 0.96,
     "plan_ruling": "N344809"
   }

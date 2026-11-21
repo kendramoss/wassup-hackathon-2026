@@ -234,6 +234,20 @@
     "cbp_origin": "China",
     "agrees_with_cbp": true,
     "best_plan": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+    "best_plan_move": [
+      {
+        "group": "lid_and_firebox",
+        "to_plant": "id"
+      },
+      {
+        "group": "burners_and_gas_train",
+        "to_plant": "id"
+      },
+      {
+        "group": "cooking_surface_frame",
+        "to_plant": "id"
+      }
+    ],
     "plan_check": 0.96,
     "plan_ruling": "N333420"
   }

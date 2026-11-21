@@ -20,7 +20,7 @@
    {
     "best": {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) in Thailand",
+     "description": "Move the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -146,6 +146,7 @@
    "N357771"
   ],
   "facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover and heating element are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+  "facts_source": "parts_list",
   "family": "motorised_tools_small_appliances",
   "history": [
    {
@@ -174,7 +175,7 @@
     "llm_provider": "fake",
     "model_id": "gemini-4-argon",
     "prompt_version": "engine-v1",
-    "summary": "target Thailand: 7 moves searched, 6 shown; best: Make PCBA (SMT) in Thailand"
+    "summary": "target Thailand: 7 moves searched, 6 shown; best: Move the PCBA (SMT) to Thailand"
    },
    {
     "kind": "targets_compared",
@@ -233,7 +234,7 @@
    "plans": [
     {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) in Thailand",
+     "description": "Move the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -284,7 +285,7 @@
     },
     {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -339,7 +340,7 @@
     },
     {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly in Thailand",
+     "description": "Move the motor-fan assembly to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -390,7 +391,7 @@
     },
     {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -445,7 +446,7 @@
     },
     {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -500,7 +501,7 @@
     },
     {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -595,7 +596,7 @@
     },
     {
      "added_cost_per_year": 0,
-     "description": "Make Switch, cord and minor parts in Thailand",
+     "description": "Move the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 0,
      "move": [
       {
@@ -864,6 +865,15 @@
     },
     "facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover, heating element and electric motor are produced in Thailand. The fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
     "label": "Motor in Thailand",
+    "plan_check": {
+     "bar": 0.92,
+     "confidence": 0.97,
+     "description": "Move the motor-fan assembly to Thailand",
+     "net_per_year": -700000,
+     "shown": true,
+     "supporting_ruling": "N325810",
+     "target": "Thailand"
+    },
     "precedents_detail": [
      {
       "date": "2025-03-25",
@@ -1048,7 +1058,7 @@
     {
      "best": {
       "added_cost_per_year": 699990,
-      "description": "Make PCBA (SMT) in Thailand",
+      "description": "Move the PCBA (SMT) to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1172,7 +1182,7 @@
    "plans": [
     {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) in Thailand",
+     "description": "Move the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1223,7 +1233,7 @@
     },
     {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1278,7 +1288,7 @@
     },
     {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly in Thailand",
+     "description": "Move the motor-fan assembly to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1329,7 +1339,7 @@
     },
     {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1384,7 +1394,7 @@
     },
     {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1439,7 +1449,7 @@
     },
     {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -1534,7 +1544,7 @@
     },
     {
      "added_cost_per_year": 0,
-     "description": "Make Switch, cord and minor parts in Thailand",
+     "description": "Move the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 0,
      "move": [
       {
@@ -1689,7 +1699,7 @@
     "plans": [
      {
       "added_cost_per_year": 699990,
-      "description": "Make PCBA (SMT) in Thailand",
+      "description": "Move the PCBA (SMT) to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1740,7 +1750,7 @@
      },
      {
       "added_cost_per_year": 699990,
-      "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+      "description": "Move the PCBA (SMT) and the switch, cord and minor parts to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1795,7 +1805,7 @@
      },
      {
       "added_cost_per_year": 800000,
-      "description": "Make Motor-fan assembly in Thailand",
+      "description": "Move the motor-fan assembly to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1846,7 +1856,7 @@
      },
      {
       "added_cost_per_year": 800000,
-      "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+      "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1901,7 +1911,7 @@
      },
      {
       "added_cost_per_year": 1499990,
-      "description": "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+      "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -1956,7 +1966,7 @@
      },
      {
       "added_cost_per_year": 1499990,
-      "description": "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand",
+      "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
       "duty_effect_per_year": 100000,
       "move": [
        {
@@ -2051,7 +2061,7 @@
      },
      {
       "added_cost_per_year": 0,
-      "description": "Make Switch, cord and minor parts in Thailand",
+      "description": "Move the switch, cord and minor parts to Thailand",
       "duty_effect_per_year": 0,
       "move": [
        {
@@ -2123,7 +2133,7 @@
     "key": "motor_fan_assembly@th",
     "plan": {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly in Thailand",
+     "description": "Move the motor-fan assembly to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2178,7 +2188,7 @@
     "key": "motor_fan_assembly@th+pcba@th",
     "plan": {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2237,7 +2247,7 @@
     "key": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
     "plan": {
      "added_cost_per_year": 1499990,
-     "description": "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2300,7 +2310,7 @@
     "key": "motor_fan_assembly@th+switch_cord_minor_parts@th",
     "plan": {
      "added_cost_per_year": 800000,
-     "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2359,7 +2369,7 @@
     "key": "pcba@th",
     "plan": {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) in Thailand",
+     "description": "Move the PCBA (SMT) to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2414,7 +2424,7 @@
     "key": "pcba@th+switch_cord_minor_parts@th",
     "plan": {
      "added_cost_per_year": 699990,
-     "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 100000,
      "move": [
       {
@@ -2473,7 +2483,7 @@
     "key": "switch_cord_minor_parts@th",
     "plan": {
      "added_cost_per_year": 0,
-     "description": "Make Switch, cord and minor parts in Thailand",
+     "description": "Move the switch, cord and minor parts to Thailand",
      "duty_effect_per_year": 0,
      "move": [
       {
@@ -2517,7 +2527,7 @@
   "start": {
    "moves": [
     {
-     "description": "Make Motor-fan assembly in Thailand",
+     "description": "Move the motor-fan assembly to Thailand",
      "key": "motor_fan_assembly@th",
      "move": [
       {
@@ -2527,7 +2537,7 @@
      ]
     },
     {
-     "description": "Make PCBA (SMT) in Thailand",
+     "description": "Move the PCBA (SMT) to Thailand",
      "key": "pcba@th",
      "move": [
       {
@@ -2537,7 +2547,7 @@
      ]
     },
     {
-     "description": "Make Switch, cord and minor parts in Thailand",
+     "description": "Move the switch, cord and minor parts to Thailand",
      "key": "switch_cord_minor_parts@th",
      "move": [
       {
@@ -2547,7 +2557,7 @@
      ]
     },
     {
-     "description": "Make Motor-fan assembly and PCBA (SMT) in Thailand",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
      "key": "motor_fan_assembly@th+pcba@th",
      "move": [
       {
@@ -2561,7 +2571,7 @@
      ]
     },
     {
-     "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
      "key": "motor_fan_assembly@th+switch_cord_minor_parts@th",
      "move": [
       {
@@ -2575,7 +2585,7 @@
      ]
     },
     {
-     "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "key": "pcba@th+switch_cord_minor_parts@th",
      "move": [
       {
@@ -2589,7 +2599,7 @@
      ]
     },
     {
-     "description": "Make Motor-fan assembly, PCBA (SMT) and Switch, cord and minor parts in Thailand",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
      "key": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
      "move": [
       {
@@ -2891,6 +2901,7 @@
    "N357771"
   ],
   "facts": "The merchandise under consideration is a Kobalt 12.5-amp heat gun, model 5208257. It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing. The Kobalt 12.5-amp heat gun, model 5208257 is assembled in Thailand using components sourced from Thailand and China.\n\nThe main housing, front cover and heating element are produced in Thailand. The electric motor, fan, motor support, printed circuit board assembly (PCBA), switch, power cord, wiring, knob, back cover and support ring, heat insulator and fasteners are sourced from China. \n\nFinal assembly in Thailand: press fit the fan to the motor spindle and attach the fan cover; crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA; fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support; secure the power cord, add the switch slider, close the housing with screws, test, label and pack.\n",
+  "facts_source": "parts_list",
   "family": "motorised_tools_small_appliances",
   "history": [
    {

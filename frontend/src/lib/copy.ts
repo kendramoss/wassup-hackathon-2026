@@ -28,6 +28,7 @@ export const copy = {
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
       plan: (plan: string, check: string, ruling: string) => `First plan shown: ${plan}, check ${check}${ruling ? ` on ${ruling}` : ""}.`,
+      includes: (items: string[]) => `What moves: ${items.join("; ")}.`,
       noPlan: "No plan shown at the bar.",
       selection:
         "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 23 per-family checks the engine disagreed with CBP's holding on 7.",

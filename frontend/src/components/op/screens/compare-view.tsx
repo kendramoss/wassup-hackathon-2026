@@ -11,7 +11,7 @@ import { CaseShell, type CaseCtx } from "../case-shell";
 import { DemoNote, Elapsed, ErrorBox, Footer, Main, Next } from "../chrome";
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { netText } from "../ops-view";
-import { moveKey } from "../plan-bits";
+import { moveKey, movePhrase } from "../plan-bits";
 import { ReviewNote } from "../review-note";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, MiniRuler, Ruler, cx } from "../ui";
 
@@ -109,8 +109,8 @@ function Compare({ id, c, setCase }: CaseCtx) {
               <div>
                 <p className={cx("eyebrow", !anyPlan && "text-ask")}>Step 3 of 4 · {anyPlan ? "Best country" : "No country cleared the 0.92 precedent-check bar"}</p>
                 <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">
-                  {anyPlan ? "" : "Closest: "}
-                  {(top.best.description ?? "").replace(/^Make /, "make ").replace(/ in [A-Z][\w ]+$/, "")} in{" "}
+                  {anyPlan ? "Move " : "Closest: move "}
+                  {movePhrase(top.best)} to{" "}
                   <span className="inline-flex items-center gap-2 whitespace-nowrap">
                     <Flag country={top.target} size={26} />
                     {top.target}

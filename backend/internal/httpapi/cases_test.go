@@ -330,7 +330,7 @@ func TestPredictFromProductThenPlanThenExport(t *testing.T) {
 		t.Fatalf("export %d: %v", code, ex)
 	}
 	md := ex["content"].(string)
-	if !strings.Contains(md, "make Motor-fan assembly and PCBA (SMT) in Thailand") || !strings.Contains(md, "N347421") || !strings.Contains(md, "China (N328954)") {
+	if !strings.Contains(md, "move the motor-fan assembly and the PCBA (SMT) to Thailand") || !strings.Contains(md, "N347421") || !strings.Contains(md, "China (CBP ruling N328954, ") {
 		t.Errorf("export content:\n%s", md)
 	}
 	if code, _ := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"plan_index":5}`); code != http.StatusBadRequest {
@@ -675,7 +675,7 @@ func TestExportBelowBarPlanByMoveKey(t *testing.T) {
 	hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
 	code, ex := hs.do(t, "POST", "/v1/cases/"+id+"/export", `{"move_key":"pcba@th"}`)
 	md, _ := ex["content"].(string)
-	if code != 200 || !strings.Contains(joinNotes(ex), "rated this change 0.88, under its 0.92 bar") || strings.Contains(md, "under its 0.92 bar") || !strings.Contains(md, "make PCBA in Thailand") || !strings.Contains(md, "N347421") {
+	if code != 200 || !strings.Contains(joinNotes(ex), "rated this change 0.88, under its 0.92 bar") || strings.Contains(md, "under its 0.92 bar") || !strings.Contains(md, "move the PCBA (SMT) to Thailand") || !strings.Contains(md, "N347421") {
 		t.Fatalf("below-bar export %d:\n%s", code, md)
 	}
 	for body, want := range map[string]int{

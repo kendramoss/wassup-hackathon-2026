@@ -641,6 +641,23 @@ func (a *api) precedentRefs(ids []string) []precedentRef {
 	return out
 }
 
+// rulingRefs is what the corpus knows about each ruling id, for the draft.
+func (a *api) rulingRefs(ids []string) map[string]export.RulingRef {
+	out := map[string]export.RulingRef{}
+	if a.d.Precedents == nil {
+		return out
+	}
+	for _, id := range ids {
+		if id == "" {
+			continue
+		}
+		if p, ok := a.d.Precedents.Get(id); ok {
+			out[id] = export.RulingRef{Date: p.Date.Format(time.DateOnly), Subject: p.Subject, Origin: p.Origin}
+		}
+	}
+	return out
+}
+
 func nonEmpty(s string) *string {
 	if s == "" {
 		return nil
@@ -663,17 +680,22 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// Everything derived (fingerprints, staleness, scenario basis) reads the
 	// case as stored; only the predictions shown carry the read-time
 	// calibrated value (D180).
-	cal := a.withCalibration(c)
-	return map[string]any{
+	cal := a.redescribed(a.withCalibration(c))
+	f := map[string]any{
 		"id": c.ID, "date": c.Date, "facts": c.Facts, "product": c.Product, "family": c.Family,
 		"exclude_rulings": c.Exclude, "current_origin": c.CurrentOrigin, "prediction": cal.Prediction,
 		"triage": c.Triage, "router": c.Router, "plan": cal.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
-		"scenarios":    a.scenarioFields(a.calibratedScenarios(a.currentScenarios(c))), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
+		"scenarios":    a.scenarioFields(c, a.calibratedScenarios(a.currentScenarios(c))), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
 		"targets": targetsField(cal.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 		"can_write": a.canWrite(r, c),
 	}
+	// What the case's own prediction read (D220), present only when known.
+	if src := a.factsSource(c); src != "" {
+		f["facts_source"] = src
+	}
+	return f
 }
 
 func historyField(h []store.Event) []store.Event {
@@ -752,11 +774,15 @@ func targetsField(t *store.TargetComparison) any {
 	return map[string]any{"checked_at": t.CheckedAt, "ranked": t.Ranked}
 }
 
-func (a *api) scenarioFields(ss []store.Scenario) []map[string]any {
+func (a *api) scenarioFields(c store.Case, ss []store.Scenario) []map[string]any {
 	out := make([]map[string]any, len(ss))
 	for i, s := range ss {
 		out[i] = map[string]any{"label": s.Label, "facts": s.Facts, "product": s.Product, "prediction": s.Prediction,
 			"triage": s.Triage, "precedents_detail": a.precedentRefs(s.Prediction.Precedents), "comparison": s.Comparison}
+		// The plan search's verdict on the same move (D220), only when it tried it.
+		if pc := a.scenarioCheck(c, s); pc != nil {
+			out[i]["plan_check"] = pc
+		}
 	}
 	return out
 }
@@ -1455,7 +1481,11 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		chosenFrom = planSourceFingerprint(c, srcTarget)
 	}
 	if p := chosen; p != nil {
-		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, p.Description, p.Prediction.Origin, p.Prediction
+		fam := ""
+		if c.Plan != nil {
+			fam = c.Plan.Family
+		}
+		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, a.planDescription(c, *p, fam), p.Prediction.Origin, p.Prediction
 		if c.Product != nil { // the letter lists where things are made after the move
 			moved := planner.Apply(*c.Product, p.Move)
 			ex.Product = &moved
@@ -1465,6 +1495,18 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 			if p.RejectionKind == domain.RejectBelowConfidence {
 				ex.BelowBar = &export.BelowBar{Confidence: p.Verdict.Confidence, Bar: a.d.PlanConfidence}
 			}
+		}
+	}
+	// Name each cited ruling by date, subject and holding (D220).
+	ids := append(append([]string{ex.Supporting, ex.Counter}, ex.Prediction.CitedRulings...), ex.Prediction.Precedents...)
+	if c.CurrentOrigin != nil {
+		ids = append(ids, c.CurrentOrigin.Ruling)
+	}
+	ex.Rulings = a.rulingRefs(ids)
+	if c.CurrentOrigin != nil && c.CurrentOrigin.Ruling != "" {
+		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (CBP ruling " + c.CurrentOrigin.Ruling + ")")
+		if t, err := time.Parse(time.DateOnly, ex.Rulings[c.CurrentOrigin.Ruling].Date); err == nil {
+			ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (CBP ruling " + c.CurrentOrigin.Ruling + ", " + t.Format("2 January 2006") + ")")
 		}
 	}
 	// The letter's regime is the one that produced the prediction behind the

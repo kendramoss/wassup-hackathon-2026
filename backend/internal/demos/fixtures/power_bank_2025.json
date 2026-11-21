@@ -5,7 +5,7 @@
   "description": "A 4,000 mAh power bank. The circuit board and the plastic case come from Vietnam; the two lithium-ion cells come from China, where the bank is assembled. CBP held China (N352355).",
   "source": "CBP ruling N352355, rulings.cbp.gov",
   "cbp_held": "China (N352355)",
-  "notes": "One of the families added in D138 (power supplies and chargers). Built from the D171 fixture for CBP ruling N352355 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-09-03, and N352355 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n352355-litellm.json): the engine said China at 0.95 stated, where CBP held China (it agrees with CBP). First plan shown: \"Make Power conversion or charging module in Vietnam\", check 0.96 on N352014. That ruling, read by hand: supports (N352014 (power bank) holds origin by where the battery cells are made.) A run on this site is a new run and may differ.",
+  "notes": "One of the families added in D138 (power supplies and chargers). Built from the D171 fixture for CBP ruling N352355 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-09-03, and N352355 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n352355-litellm.json): the engine said China at 0.95 stated, where CBP held China (it agrees with CBP). First plan shown: \"Move the power conversion or charging module to Vietnam\" (in this product: Two cylindrical lithium-ion battery cells), check 0.96 on N352014. That ruling, read by hand: supports (N352014 (power bank) holds origin by where the battery cells are made.) A run on this site is a new run and may differ.",
   "predict": {
     "date": "2025-09-03",
     "product": {
@@ -150,6 +150,12 @@
     "cbp_origin": "China",
     "agrees_with_cbp": true,
     "best_plan": "Make Power conversion or charging module in Vietnam",
+    "best_plan_move": [
+      {
+        "group": "power_charging_modules",
+        "to_plant": "vn"
+      }
+    ],
     "plan_check": 0.96,
     "plan_ruling": "N352014"
   }
