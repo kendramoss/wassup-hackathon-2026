@@ -114,7 +114,7 @@ Every held-out ruling the engine got wrong is listed, with a link to CBP's rulin
 - **No jurisdiction guard.** A question about another country's rules gets a U.S. answer.
 - **Planner recall.** The precedent check is strict: about 30% of real origin changes clear its bar on the development pairs. A move that would work may be shown as "below the bar" with its closest ruling.
 - **Run-to-run variation.** Temperature 0 and a seed reduce it but do not remove it; plan verdicts are cached so a repeat search is stable.
-- **Inputs are taken as true.** If the bill of materials is wrong, the answer is wrong. Imports from images and scans are drafts the user must check; their field accuracy is not measured yet ([MULTIMODAL.md](MULTIMODAL.md)).
+- **Inputs are taken as true.** If the bill of materials is wrong, the answer is wrong. Imports from images and scans are drafts the user must check. Measured once on 20 synthetic images: 151/170 part names read exactly and 151/170 countries correct; 15/20 images fully read; gateway, Gemini 4 Argon. Accuracy on real photos, scans and handwriting is not measured ([MULTIMODAL.md](MULTIMODAL.md)).
 
 ## 7. Ethical and legal considerations
 
