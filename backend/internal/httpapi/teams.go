@@ -357,16 +357,16 @@ func (a *api) joinWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wsID := r.PathValue("id")
-	pending, err := a.d.Workspaces.Invites(r.Context(), id.email)
-	if err != nil {
+	// Read the target workspace itself. Invites is capped at MaxInvites for
+	// the UI, so a 21st pending invitation would otherwise look absent and
+	// could never be accepted (#374). A missing or uninvited workspace is
+	// still the same 404, with the denial only in the caller's own trail.
+	ws, err := a.d.Workspaces.Get(r.Context(), wsID)
+	if err != nil && !errors.Is(err, teams.ErrNotFound) {
 		a.fail(w, r, err)
 		return
 	}
-	invited := false
-	for _, p := range pending {
-		invited = invited || p.ID == wsID
-	}
-	if !invited { // no invitation: indistinguishable from an unknown workspace, and no event goes into that workspace's trail
+	if err != nil || !ws.HasInvite(id.email) {
 		auditHidden(r)
 		a.workspaceError(w, r, teams.ErrNotFound, "")
 		return
@@ -375,7 +375,7 @@ func (a *api) joinWorkspace(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	ws, err := a.d.Workspaces.Join(r.Context(), wsID, id.email)
+	ws, err = a.d.Workspaces.Join(r.Context(), wsID, id.email)
 	if err != nil {
 		a.workspaceError(w, r, err, alreadyInOne)
 		return
