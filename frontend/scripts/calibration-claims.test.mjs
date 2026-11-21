@@ -53,6 +53,8 @@ test("the docs no longer claim the calibration map preserves ranking exactly", (
   assert.match(numbers, /same-bin 0\.0500/);
   assert.match(decisions, /## D262 — Correction to D156/);
   assert.match(decisions, /## D306 - Same-bin ECE on every held-out set/);
+  assert.match(decisions, /Calibration layer on it:\*\* ECE 0\.067 → 0\.038[^\n]*0\.0614/);
+  assert.match(decisions, /ECE 0\.059 → 0\.028 on the 377 \(11 → 6 bins; same-bin stated 0\.0528\)/);
   assert.match(decisions, /weakly monotone/);
 });
 
