@@ -1,8 +1,11 @@
 package httpapi
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,6 +13,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -302,5 +307,54 @@ func TestMCPRefusesTheAdminToken(t *testing.T) {
 	callTool(t, cs, "predict_origin", heatGunArgs(t))
 	if res, _ := callTool(t, cs, "predict_origin", heatGunArgs(t)); !res.IsError || !strings.Contains(text(res), "rate_limited") {
 		t.Errorf("a bearer admin token lifted the limits: %s", text(res))
+	}
+}
+
+// extract_product_from_media goes through POST /v1/products/extract-media:
+// its byte checks, its light rate-limit bucket and the model call behind it.
+func TestMCPMediaToolUsesTheRESTRoute(t *testing.T) {
+	fake := &llm.Fake{Respond: func(llm.Request) (llm.Response, error) {
+		return llm.Response{Text: readAnswer, FinishReason: "STOP", Usage: llm.Usage{InputTokens: 1500, OutputTokens: 200}}, nil
+	}}
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.MediaExtractor = extract.New(llm.WithLogging(fake, slog.New(suiteHandler)), "gemini-4-argon")
+		d.Limits = Limits{LightPerMin: 1, HeavyPerMin: 1, GlobalPerMin: 1000}
+	})
+	ip := "198.51.100.61"
+	cs := mcpClient(t, hs, map[string]string{"X-Client-IP": ip})
+	png := base64.StdEncoding.EncodeToString(testPNG(t, 40, 30))
+	res, out := callTool(t, cs, "extract_product_from_media", map[string]any{
+		"files": []any{map[string]any{"type": "image", "data": png, "mimeType": "image/png"}}, "family": "motorised_tools_small_appliances",
+	})
+	if res.IsError || out["product"] == nil {
+		t.Fatalf("extract_product_from_media: %s", text(res))
+	}
+	if strings.Contains(mustJSON(out), secret) || strings.Contains(text(res), secret) {
+		t.Error("file bytes leaked into the result")
+	}
+	if len(fake.Calls()) != 1 {
+		t.Errorf("model calls = %d", len(fake.Calls()))
+	}
+	// The MCP call used the address's light token: the REST upload is refused.
+	body, ct := mediaBody(t, []upload{{"a.png", "image/png", testPNG(t, 40, 30)}}, nil)
+	req := httptest.NewRequest("POST", "/v1/products/extract-media", bytes.NewReader(body))
+	req.Header.Set("Content-Type", ct)
+	req.Header.Set("X-Client-IP", ip)
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusTooManyRequests {
+		t.Errorf("REST extract-media after the MCP call = %d, want 429", rec.Code)
+	}
+	// A file the route refuses by its bytes (declared PNG, really text) is a
+	// tool error from the route, with no model call.
+	other := mcpClient(t, hs, map[string]string{"X-Client-IP": "198.51.100.62"})
+	res, _ = callTool(t, other, "extract_product_from_media", map[string]any{
+		"files": []any{map[string]any{"data": base64.StdEncoding.EncodeToString([]byte("just some text, not an image")), "mime_type": "image/png"}},
+	})
+	if !res.IsError || !strings.Contains(text(res), "415") {
+		t.Errorf("non-image bytes: %s", text(res))
+	}
+	if len(fake.Calls()) != 1 {
+		t.Errorf("a refused file reached the model")
 	}
 }

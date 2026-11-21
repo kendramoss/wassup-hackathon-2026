@@ -23,6 +23,7 @@ func (a *api) mcp(root *http.Handler, version string) http.HandlerFunc {
 		API:          http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { (*root).ServeHTTP(w, r) }),
 		Families:     families,
 		RulingSearch: a.d.RulingSearch != nil,
+		MediaExtract: a.d.MediaExtractor != nil,
 		Version:      version,
 	})
 	return h.ServeHTTP

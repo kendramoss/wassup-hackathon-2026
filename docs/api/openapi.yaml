@@ -618,6 +618,7 @@ paths:
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/extract-media:
     post:
+      operationId: extractProductFromMedia
       summary: Draft an editable structured product from images or scanned PDFs (nothing is saved, nothing is predicted)
       description: |
         "Import from an image or scanned document". Upload a photo or screenshot of a bill of materials, a scanned BOM or spec-sheet PDF, or a product photo with its spec sheet. The engine model (Gemini, multimodal; ENGINE_MODEL) reads the files once and returns the same draft as POST /v1/products/extract, with rows citing the file and page they were read from instead of a paragraph. Parts printed without a country are listed in one warning, never guessed. Rows the model was not sure it read are marked `unclear`; places it could not read are listed in `unreadable` and in `warnings`.

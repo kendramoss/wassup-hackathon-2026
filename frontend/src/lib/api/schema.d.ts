@@ -366,77 +366,7 @@ export interface paths {
          *     Limits: 1 to 4 files, 8 MB together; images up to 12,000 pixels a side and 40 megapixels; PDFs up to 10 pages together; encrypted PDFs are refused. The type is sniffed from the bytes (the file name and declared Content-Type are ignored). Files are read into memory, sent to the model and dropped: they are not stored, cached or logged, and the response describes them by type, size and pages only.
          *     With LLM_PROVIDER=fake the answer is a fixed example with `simulated: true` and a first warning saying so. Rate-limited as light. Through the web proxy the body limit is 9 MB.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        /** @description repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf */
-                        file: string[];
-                        /** @description needed for groups and capability questions */
-                        family?: string;
-                        /** @description product name; defaults to the name printed in the files */
-                        name?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The draft, to review and edit before predicting */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            product: components["schemas"]["Product"];
-                            plants?: {
-                                id?: string;
-                                name?: string;
-                                country?: string;
-                                capabilities?: string[];
-                                name_guessed?: boolean;
-                            }[];
-                            components: components["schemas"]["DraftRow"][];
-                            operations: components["schemas"]["DraftRow"][];
-                            /** @description what to check, in plain words; includes every unreadable place and unclear row */
-                            warnings: string[];
-                            questions?: {
-                                plant_id?: string;
-                                ask?: string;
-                                options?: string[];
-                            }[];
-                            /** @description always 0 for media */
-                            paragraphs?: number;
-                            /** @enum {string} */
-                            source: "media";
-                            files: components["schemas"]["MediaFile"][];
-                            unreadable: {
-                                /** @description 1-based file position */
-                                file?: number;
-                                /** @description 1-based page; 0 if the model cited a page that does not exist */
-                                page?: number;
-                                /** @description what could not be read, e.g. "row 7, the country is cut off" */
-                                what?: string;
-                            }[];
-                            /** @description true when the local fake model answered: the files were not read and the rows are a fixed example */
-                            simulated?: boolean;
-                            /** @description provider, model_id, prompt_version (extract-image-v1), tokens, latency */
-                            trace?: Record<string, never>;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                413: components["responses"]["Error"];
-                415: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["extractProductFromMedia"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2641,6 +2571,77 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    extractProductFromMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** @description repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf */
+                    file: string[];
+                    /** @description needed for groups and capability questions */
+                    family?: string;
+                    /** @description product name; defaults to the name printed in the files */
+                    name?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The draft, to review and edit before predicting */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        product: components["schemas"]["Product"];
+                        plants?: {
+                            id?: string;
+                            name?: string;
+                            country?: string;
+                            capabilities?: string[];
+                            name_guessed?: boolean;
+                        }[];
+                        components: components["schemas"]["DraftRow"][];
+                        operations: components["schemas"]["DraftRow"][];
+                        /** @description what to check, in plain words; includes every unreadable place and unclear row */
+                        warnings: string[];
+                        questions?: {
+                            plant_id?: string;
+                            ask?: string;
+                            options?: string[];
+                        }[];
+                        /** @description always 0 for media */
+                        paragraphs?: number;
+                        /** @enum {string} */
+                        source: "media";
+                        files: components["schemas"]["MediaFile"][];
+                        unreadable: {
+                            /** @description 1-based file position */
+                            file?: number;
+                            /** @description 1-based page; 0 if the model cited a page that does not exist */
+                            page?: number;
+                            /** @description what could not be read, e.g. "row 7, the country is cut off" */
+                            what?: string;
+                        }[];
+                        /** @description true when the local fake model answered: the files were not read and the rows are a fixed example */
+                        simulated?: boolean;
+                        /** @description provider, model_id, prompt_version (extract-image-v1), tokens, latency */
+                        trace?: Record<string, never>;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            413: components["responses"]["Error"];
+            415: components["responses"]["Error"];
             429: components["responses"]["Error"];
             502: components["responses"]["Error"];
         };
