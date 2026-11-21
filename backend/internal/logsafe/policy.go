@@ -19,6 +19,15 @@ const (
 	maxEnumLen      = 80
 )
 
+// productionConfigWarnings are the exact texts config.Config.Warnings can
+// emit. Keeping them in the log allowlist means a real warning is printed,
+// while an arbitrary string under "warning" is still dropped (#420).
+var productionConfigWarnings = []string{
+	"STRICT_AUTH is off: a visitor ID alone is accepted as an anonymous principal; Cloud Run IAM and CASE_OWNERSHIP remain the boundaries",
+	"REQUIRE_BEARER is off: the backend accepts proxied requests without a bearer token; verify Cloud Run header pass-through before enabling it",
+	"AUDIT_ACTOR_KEY is unset (or AUDIT=off): no audit trail is written; this is an explicit product choice, not certification",
+}
+
 // Rule accepts or rejects one value for one key. It receives values that are
 // never LogValuers (except logsafe's own). It returns the value to emit.
 type Rule func(slog.Value) (slog.Value, bool)
@@ -177,7 +186,7 @@ var knownMessages = []string{
 	"live MFN lookup failed", "live MFN lookup failed; no rate filled", "llm call failed", "llm call",
 	"llm call sizes", "model bad response", "model calls paced", "model unavailable",
 	"money prefill: hts suggestion failed; no duty filled", "near-miss advice on", "pharma engine on",
-	"precedent-check panel on", "rate counters not pruned", "rate limits counted in fixed windows in memory", "rate limits shared in Firestore",
+	"precedent-check panel on", "production config", "rate counters not pruned", "rate limits counted in fixed windows in memory", "rate limits shared in Firestore",
 	"request", "router failed; scope unknown", "shared rate limiter unavailable; using this instance's limits",
 	"sign-in token refused", "specialist engine failed; provisional general prediction needs review",
 	"teams on: Google sign-in and workspaces", "textile engine on",
@@ -215,6 +224,9 @@ func DefaultPolicy() *Policy {
 	}
 	p.keys["class"] = OneOf(classes...)
 	p.keys["reason"] = OneOf(reasonSanitizer)
+	// #420 startup disclosure: only the three fixed warning texts may be
+	// logged under "warning"; arbitrary text is never printed by the policy.
+	p.keys["warning"] = OneOf(productionConfigWarnings...)
 	p.keys["err"] = errRule
 	p.keys["route"] = routeRule(p.routes)
 	return p
