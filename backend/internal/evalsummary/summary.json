@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T12:06:01Z",
+  "generated_at": "2026-11-21T12:18:25Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -835,7 +835,7 @@
     },
     {
       "key": "router_out_of_scope_recall",
-      "label": "Router-v2 (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine",
+      "label": "Router-v2 (Jul-Dec 2025): pharmaceutical and Part 102 marking rulings kept out of the substantial-transformation engine",
       "value": 0.8837,
       "ci_low": 0.7552,
       "ci_high": 0.9493,

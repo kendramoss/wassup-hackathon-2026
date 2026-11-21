@@ -859,7 +859,7 @@ export function ProductStep() {
           ) : null}
           {/* Step 1 is a form: its action sits after the fields, not above the heading. */}
           <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-            <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. It usually takes under a minute."}</Next>
+            <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. Progress is shown below."}</Next>
             <div className="ml-auto flex items-center gap-3">
               {!busy && missing ? (
                 <span id="go-why" className="text-[13px] text-dim">
@@ -950,7 +950,7 @@ function PredictStatus({ since, date, stages }: { since: number; date: string; s
     <div id="go-status" role="status" aria-live="polite" className={cx("mt-4 border px-4 py-3.5 text-[13px]", slow ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
       <p className={cx("flex items-center gap-2 font-medium", slow ? "text-ask" : "text-ok")}>
         <span className={cx("size-2 rotate-45 motion-safe:animate-pulse", slow ? "bg-ask" : "bg-ok")} aria-hidden="true" />
-        {slow ? "Taking longer than usual. Still working." : "Working on it. This usually takes under a minute."}
+        {slow ? "Taking longer than usual. Still working." : "Working on it. Progress is shown below."}
         <span className="ml-auto font-normal tabular-nums text-dim" aria-hidden="true">
           {secs} s
         </span>
