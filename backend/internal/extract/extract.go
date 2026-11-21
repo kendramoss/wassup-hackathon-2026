@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -371,7 +372,7 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 			if u.Page > 0 && src.pages[u.File-1] > 1 {
 				where += fmt.Sprintf(", page %d", u.Page)
 			}
-			d.Warnings = append(d.Warnings, fmt.Sprintf("%s: could not read %s.", where, what))
+			d.Warnings = append(d.Warnings, unreadableWarning(where, what))
 		}
 	}
 	for _, n := range a.Notes {
@@ -397,4 +398,16 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 		d.Product.Operations = append(d.Product.Operations, domain.Operation{Name: r.Name, Plant: r.Plant, Group: r.Group})
 	}
 	return d
+}
+
+// unreadableWarning words one unreadable place for the user. The model
+// sometimes names the place ("row 7") and sometimes writes a sentence ("The
+// descriptions are cut off"), so a sentence is quoted as written instead of
+// being forced into "could not read ...".
+func unreadableWarning(where, what string) string {
+	what = strings.TrimRight(strings.TrimSpace(what), ".")
+	if r := []rune(what); len(r) > 0 && unicode.IsUpper(r[0]) && strings.ContainsRune(what, ' ') {
+		return fmt.Sprintf("%s, hard to read: %s.", where, what)
+	}
+	return fmt.Sprintf("%s: could not read %s.", where, what)
 }

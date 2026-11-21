@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -9,6 +10,7 @@ import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { recordExport } from "@/lib/record-export";
 import { CaseShell, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
+import { moveKey, movePhrase } from "../plan-bits";
 import { ReviewNote } from "../review-note";
 import { Button, Panel, PanelHead, Spinner, cx } from "../ui";
 
@@ -53,6 +55,7 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const formId = useId();
 
   const pick = move ? { move_key: move, target } : {};
+  const shownPlan = c.plan?.plans?.find((p) => p.shown && (p.move?.length ?? 0) > 0);
   // A visit only previews; Download and Print record the export (#86).
   const fetchDraft = () => {
     api.exportDraft(id, { ...pick, preview: true }).then((d) => {
@@ -128,6 +131,20 @@ function Draft({ id, c, setCase }: CaseCtx) {
             <p className="duo mt-1 text-sm text-dim">
               A draft binding-ruling request under 19 C.F.R. Part 177 {move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
             </p>
+            {/* Opened from the step bar, the letter is for today's setup;
+                when the plan found a supported move, offer that letter too
+                (judge journey: the plan is what people came to draft). */}
+            {!move && shownPlan ? (
+              <p className="duo mt-2 text-sm">
+                <Link href={`/cases/${encodeURIComponent(id)}/draft?move=${encodeURIComponent(moveKey(shownPlan))}`} className="text-ok underline underline-offset-2">
+                  Draft for the shown plan instead →
+                </Link>
+                <span className="block text-[13px] text-dim">
+                  Make {movePhrase(shownPlan)}
+                  {c.plan?.target ? ` in ${c.plan.target}` : ""}.
+                </span>
+              </p>
+            ) : null}
           </div>
           {cfr177 && (
             <fieldset>
