@@ -172,6 +172,43 @@
 .lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
 .lp .whobox { margin-top: 12px; border: 1px dashed var(--guide); background: var(--sheet); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
 .lp .whobox p { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+/* ---- fig.4, the impact story ----
+   A drawing sheet like fig.3: numbered beats down the left, bars only for
+   measured figures (values written on them), plain text for the rest. */
+.lp .story { max-width: 1240px; margin: 0 auto; padding: 48px var(--gutter) 0; }
+.lp .storysheet { background: var(--sheet); border: 1px solid var(--edge); border-radius: 2px; box-shadow: 4px 4px 0 var(--shadow); padding: 28px 32px 18px; }
+.lp .storyhead { display: grid; grid-template-columns: 1fr auto; gap: 10px 24px; align-items: end; padding-bottom: 14px; border-bottom: 1px solid var(--ink); }
+.lp .storyhead h2 { margin-top: 4px; font-size: 20px; font-weight: 500; letter-spacing: -.04em; line-height: 1.25; color: var(--ink); text-wrap: balance; }
+.lp .illus { border: 1px dashed var(--ask-line); background: var(--ask-wash); padding: 6px 10px; font-size: 11.5px; color: var(--ink); white-space: nowrap; }
+.lp .beats { list-style: none; margin: 0; padding: 0; }
+.lp .beat { display: grid; grid-template-columns: 200px 1fr; gap: 8px 28px; padding: 20px 0; }
+.lp .beat + .beat { border-top: 1px dashed var(--guide); }
+.lp .bn { display: flex; align-items: baseline; gap: 10px; font-size: 13px; font-weight: 500; color: var(--ink); }
+.lp .bn b { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: none; border: 1px solid var(--ink); border-radius: 50%; font-size: 11px; font-weight: 500; }
+.lp .bc { display: flex; flex-direction: column; gap: 10px; max-width: 78ch; }
+.lp .bc p, .lp .sums, .lp .todo { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .cmp { display: flex; flex-direction: column; gap: 14px; margin: 4px 0; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lp .cmphead { text-transform: uppercase; letter-spacing: .08em; }
+.lp .cmphead span + span { margin-left: 16px; }
+.lp .cmphead i { display: inline-block; width: 14px; height: 8px; margin-right: 6px; vertical-align: 0; }
+.lp .cmphead .bw { background: var(--ink); }
+.lp .cmphead .bu { background: var(--ok); }
+.lp .cmprow { display: flex; flex-direction: column; gap: 5px; }
+.lp .cmprow .eyebrow { color: var(--ink); }
+.lp .bar { display: grid; grid-template-columns: minmax(120px, 2fr) 3fr; gap: 4px 14px; align-items: center; }
+.lp .bt { position: relative; display: block; height: 10px; border-left: 1px solid var(--ink); }
+.lp .bt i { position: absolute; left: 0; top: 1px; bottom: 1px; display: block; }
+.lp .bt .bw { width: 100%; background: var(--ink); }
+.lp .bt .bu { background: var(--ok); }
+.lp .val { font-size: 12px; line-height: 1.45; color: var(--dim); }
+.lp .val b { font-weight: 500; font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.lp .val b.ok { color: var(--ok); }
+.lp .sums, .lp .todo { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.lp .sums { list-style: none; padding-left: 0; }
+.lp .sums b { font-weight: 600; color: var(--ink); }
+.lp .todo { list-style: square; }
+.lp .storyfoot { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+
 .lp .lpfoot { max-width: 1240px; margin: 40px auto 0; padding: 18px var(--gutter) 28px; border-top: 1px dashed var(--guide); display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 12.5px; color: var(--dim); }
 .lp .lpfoot a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 
@@ -205,6 +242,11 @@
   .lp .crop { display: none; }
   .lp .ruler { display: none; } /* too small to read at phone width; the claims below carry the numbers */
   .lp .panels, .lp .claims, .lp .forag, .lp .whobox { grid-template-columns: 1fr; }
+  .lp .story { padding-top: 36px; }
+  .lp .storysheet { padding: 20px 16px 14px; }
+  .lp .storyhead, .lp .beat, .lp .bar { grid-template-columns: 1fr; }
+  .lp .illus { white-space: normal; justify-self: start; }
+  .lp .beat { padding: 16px 0; }
   .lp .panel + .panel { padding: 18px 0 0; border-left: 0; border-top: 1px dashed var(--guide); }
   .lp .testhead { grid-template-columns: 1fr; }
   .lp .testhead .meta { text-align: left; }
