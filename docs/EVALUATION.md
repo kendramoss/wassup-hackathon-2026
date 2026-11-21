@@ -459,7 +459,7 @@ The same engine configuration (engine-v1 on Gemini 4 Argon, BM25, K = 5, tempera
 - Calibrated confidence changes on 50 rulings, by 0.005 on average over all 463.
 - Run 1 is the highest of the three. The single-run figures elsewhere in this document can sit up to about a point above or below a repeat.
 
-Source: `eval/results/repeatability-dev-litellm.json`, built by `python3 -I eval/charts/build_repeatability.py .` from the three committed row files. For the held-out splits, see 8b.
+Source: `eval/results/repeatability-dev-litellm.json`, built by `python3 -I -B eval/charts/build_repeatability.py .` from the three committed row files. For the held-out splits, see 8b.
 
 ### 8b. Repeatability on held-out (21 Nov 2026, D240, D241)
 
@@ -494,4 +494,4 @@ Second held-out split (83 rulings, Sep-Nov 2026). Each run makes its own router 
 
 Reading: on the 377 the official figure is within a ruling of both repeats. On the 83 the official figure is the lower end. Neither split's official figure is flattered by the single run. The intervals above are each run's own; the run-to-run spread is well inside them.
 
-Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I eval/charts/build_repeatability_heldout.py .` from the committed row files; `go run ./cmd/claimscheck` recomputes the per-run counts, means and flips (`repeat_heldout.*`). Cost $7.47 gateway-reported for the four runs and their resumes.
+Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I -B eval/charts/build_repeatability_heldout.py .` from the committed row files; `go run ./cmd/claimscheck` recomputes the per-run counts, means and flips (`repeat_heldout.*`). Cost $7.47 gateway-reported for the four runs and their resumes.

@@ -40,6 +40,7 @@ doctor: ## check the tools and LF checkout that make reproduce needs
 	if [ "$$ok" -eq 1 ]; then echo "Ready: make reproduce"; else echo "Fix the MISS lines, then re-run make doctor"; exit 1; fi
 
 reproduce: ## recompute every published number from committed files: no model calls, no credentials
+	@if git ls-files '*.pyc' 2>/dev/null | grep -q .; then echo "tracked Python bytecode — remove it from the index:"; git ls-files '*.pyc'; exit 1; fi
 	$(MAKE) verify-data
 	cd $(GO_DIR) && go run ./cmd/claimscheck
 	cd $(GO_DIR) && go run ./cmd/eval summary -check
