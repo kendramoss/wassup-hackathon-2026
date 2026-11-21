@@ -94,6 +94,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	cmp := &store.TargetComparison{CheckedAt: time.Now().UTC(), Results: map[string]planner.Result{}}
 	for i, t := range targets {
+		results[i] = a.calibratedResult(results[i]) // the response and the store carry what a read shows (D251)
 		stampBasis(&results[i], st.basis)
 		cmp.Results[t] = results[i]
 		cmp.Ranked = append(cmp.Ranked, summarise(t, results[i]))

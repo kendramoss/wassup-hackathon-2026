@@ -2,7 +2,10 @@ package httpapi
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -123,5 +126,124 @@ func TestCalibrationBackfilledAtReadTime(t *testing.T) {
 	}
 	if stored.Prediction.CalibratedConfidence != nil || stored.Plan.Plans[0].Prediction.CalibratedConfidence != nil {
 		t.Error("the stored case was changed")
+	}
+}
+
+// D251 (#435): the plan search and the country comparison calibrate their
+// predictions when they run, so the JSON response, every streamed event
+// that carries a plan and the compare response show the same calibrated
+// value that GET /v1/cases/{id} shows for the same plan, and the stored
+// result carries it too.
+func TestPlanAndCompareResponsesCarryCalibration(t *testing.T) {
+	m := calibrate.Must()
+	mem := store.NewMemory()
+	hs := realPlannerHarness(t, func(d *Deps) {
+		d.Cases = mem
+		d.Calibration, d.CalibratedFastPath = &m, m.Bar
+	})
+	_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	id := c["id"].(string)
+	pred := func(v any) map[string]any { return v.(map[string]any)["prediction"].(map[string]any) }
+	// want checks a plan prediction: calibrated, and as the map gives it.
+	want := func(where string, p map[string]any) {
+		t.Helper()
+		stated, _ := p["confidence"].(float64)
+		cal, ok := p["calibrated_confidence"].(float64)
+		if p["origin_country"] == "" || !ok || p["calibration"] != m.Version || cal != m.Value(stated) {
+			t.Errorf("%s: prediction %v, want calibrated %v (%s)", where, p, m.Value(stated), m.Version)
+		}
+	}
+	readPlans := func() []any {
+		t.Helper()
+		_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+		return got["plan"].(map[string]any)["plans"].([]any)
+	}
+
+	code, out := hs.do(t, "POST", "/v1/cases/"+id+"/plan", `{"target":"Thailand"}`)
+	if code != http.StatusOK {
+		t.Fatalf("plan %d: %v", code, out)
+	}
+	plans := out["plan"].(map[string]any)["plans"].([]any)
+	if len(plans) == 0 {
+		t.Fatal("no plan shown")
+	}
+	read := readPlans()
+	for i := range plans {
+		want("POST /plan plans["+strconv.Itoa(i)+"]", pred(plans[i]))
+		if a, b := pred(plans[i])["calibrated_confidence"], pred(read[i])["calibrated_confidence"]; a != b {
+			t.Errorf("plan %d: response calibrated %v, read %v", i, a, b)
+		}
+	}
+	want("POST /plan baseline", pred(out["plan"].(map[string]any)["baseline"]))
+
+	req := httptest.NewRequest("POST", "/v1/cases/"+id+"/plan", strings.NewReader(`{"target":"Thailand"}`))
+	req.Header.Set("Accept", "text/event-stream")
+	rec := httptest.NewRecorder()
+	hs.h.ServeHTTP(rec, req)
+	seen := map[string]int{}
+	for _, blk := range strings.Split(rec.Body.String(), "\n\n") {
+		var name, data string
+		for _, ln := range strings.Split(blk, "\n") {
+			if v, ok := strings.CutPrefix(ln, "event: "); ok {
+				name = v
+			} else if v, ok := strings.CutPrefix(ln, "data: "); ok {
+				data = v
+			}
+		}
+		if name != "baseline" && name != "move_done" && name != "done" {
+			continue
+		}
+		var ev map[string]any
+		if err := json.Unmarshal([]byte(data), &ev); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		p, _ := ev["plan"].(map[string]any)
+		switch name {
+		case "done":
+			for i, sp := range p["plans"].([]any) {
+				want("stream done plans["+strconv.Itoa(i)+"]", pred(sp))
+				if a, b := pred(sp)["calibrated_confidence"], pred(readPlans()[i])["calibrated_confidence"]; a != b {
+					t.Errorf("stream plan %d: calibrated %v, read %v", i, a, b)
+				}
+			}
+		default:
+			if p != nil && pred(p)["origin_country"] != "" {
+				want("stream "+name, pred(p))
+			}
+		}
+		seen[name]++
+	}
+	if seen["baseline"] != 1 || seen["move_done"] == 0 || seen["done"] != 1 {
+		t.Fatalf("stream events %v:\n%s", seen, rec.Body.String())
+	}
+
+	code, out = hs.do(t, "POST", "/v1/cases/"+id+"/compare-targets", `{"targets":["Thailand","Vietnam"]}`)
+	if code != http.StatusOK {
+		t.Fatalf("compare %d: %v", code, out)
+	}
+	_, got := hs.do(t, "GET", "/v1/cases/"+id, "")
+	ranked := got["targets"].(map[string]any)["ranked"].([]any)
+	n := 0
+	for i, r := range out["targets"].([]any) {
+		best, _ := r.(map[string]any)["best"].(map[string]any)
+		if best == nil {
+			continue
+		}
+		n++
+		want("compare targets["+strconv.Itoa(i)+"].best", pred(best))
+		if a, b := pred(best)["calibrated_confidence"], pred(ranked[i].(map[string]any)["best"])["calibrated_confidence"]; a != b {
+			t.Errorf("compare %d: response calibrated %v, read %v", i, a, b)
+		}
+	}
+	if n == 0 {
+		t.Fatal("the comparison has no best plan to check")
+	}
+
+	stored, err := mem.Get(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stored.Plan.Plans[0].Prediction.CalibratedConfidence == nil || stored.Targets.Ranked[0].Best.Prediction.CalibratedConfidence == nil {
+		t.Error("the stored plan or comparison has no calibrated value")
 	}
 }

@@ -1042,6 +1042,7 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
+	res = a.calibratedResult(res) // the response and the store carry what a read shows (D251)
 	stampBasis(&res, st.basis)
 	if !a.demoReadOnly(r, c) {
 		ev := a.planEvent(res)
@@ -1280,14 +1281,15 @@ func (a *api) planStream(w http.ResponseWriter, r *http.Request, c store.Case, r
 		case planner.EventStarted:
 			send("start", map[string]any{"target": e.Target, "moves": e.Moves, "total": e.Total})
 		case planner.EventBaseline:
-			send("baseline", map[string]any{"plan": e.Plan})
+			send("baseline", map[string]any{"plan": a.calibratedPlan(e.Plan)})
 		case planner.EventMoveStarted:
 			send("move_started", map[string]any{"key": e.Move, "done": e.Done, "total": e.Total})
 		case planner.EventMoveDone:
-			send("move_done", map[string]any{"key": e.Move, "plan": e.Plan, "done": e.Done, "total": e.Total})
+			send("move_done", map[string]any{"key": e.Move, "plan": a.calibratedPlan(e.Plan), "done": e.Done, "total": e.Total})
 		}
 	})
 	if err == nil {
+		res = a.calibratedResult(res) // D251
 		stampBasis(&res, st.basis)
 	}
 	if err == nil && !a.demoReadOnly(r, c) {

@@ -100,6 +100,7 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Direction of the misses | CBP held China, Unde said another: 13 (7 auto-accepted). Unde said China, CBP held another: 18 (4 auto-accepted). Neither China: 6 | same file, `china` | Measured |
 | Held-out accuracy by collection | NY 328/364; HQ 12/13 | same file, `by_collection` | Measured. HQ n = 13 is too small to compare |
 | Corpus | 2,790 rulings, 2023-01-10 to 2026-09-25; NY 2,619 / HQ 171; by year 354 / 425 / 1,358 / 653; regex 2,696 / manual 94; 3,081 facts files | `eval/results/corpus-stats.json` | Measured |
+| Broker draft facts cleaning, committed facts (D250) | of 3,081 facts files, 2,613 carry a CBP reply phrase; after cleaning none keeps one and no paragraph starts with a fragment; 32,973 of 33,046 reference sentences kept (99.78%; D180 version 98.04%); test bar 99.5% | `backend/internal/export/facts_test.go` (`TestCleanFactsCorpus`) over `backend/data/facts` | Measured, no model |
 | Substantial-transformation pool | 1,703 rulings, 1,593 with a single held origin, 93 countries; China + ASEAN 62.8% of those 1,593 | same file | Measured |
 
 ## Planner product scope (D138)
