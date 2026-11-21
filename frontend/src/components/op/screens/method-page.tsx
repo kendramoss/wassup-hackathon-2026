@@ -361,8 +361,9 @@ export function MethodPage() {
 
       <Section id="choices" n={3}>
         <p>
-          <b className="font-medium text-ink">On development rulings only, by rules written down first.</b> The development split is CBP rulings from July to December 2025. The
-          prompt, the number of precedents, the router, the calibration map and the auto-accept bar were all compared there.
+          <b className="font-medium text-ink">On development rulings, by rules written down first.</b> The engine development split is CBP rulings from July to December 2025. The
+          prompt, the number of precedents, the calibration map and the auto-accept bar were compared there. The router has its own 729-ruling development split (25 Jan 2024 to 31
+          Dec 2025); one router cue came from reading later misses, so its post-cutoff figures are qualified below.
         </p>
         <p>
           Since 21 Nov every experiment follows one pattern. A decision entry, written before the run, names the variants, the pass rule and what happens to the held-out splits. A

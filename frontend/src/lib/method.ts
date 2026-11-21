@@ -104,7 +104,7 @@ export const AXIS = { from: "2023-01-01", to: "2026-12-31" };
 export const BANDS: Band[] = [
   { key: "pool", label: "Precedent pool", from: "2023-01-10", to: "2026-09-25", n: "2,790 rulings", note: "every labelled ruling; a case may only read ones dated before it", tone: "pool" },
   { key: "tune", label: "Fine-tuning split", from: "2023-01-10", to: "2025-06-30", n: "632 + 67", note: "train and check; used only by the dropped fine-tuning experiment", tone: "train" },
-  { key: "dev", label: "Development", from: "2025-07-01", to: "2025-12-31", n: "469 (463 scored)", note: "prompts, thresholds, calibration and routers chosen here", tone: "dev" },
+  { key: "dev", label: "Development", from: "2025-07-01", to: "2025-12-31", n: "469 (463 scored)", note: "prompts, thresholds and calibration chosen here; the router has its own 729-ruling dev split (Jan 2024 – Dec 2025)", tone: "dev" },
   { key: "final", label: "Held-out 1", from: "2026-01-02", to: "2026-09-25", n: "377", note: "frozen 14 Oct 2026, official run on Vertex AI", tone: "test" },
   { key: "final2", label: "Held-out 2", from: "2026-09-28", to: "2026-11-13", n: "83", note: "frozen 21 Nov 2026, published after everything above", tone: "test" },
 ];

@@ -55,3 +55,16 @@ test("every figure on the page is in docs/NUMBERS.md", () => {
   assert.ok(numbers.includes(`${LEAK.casesTouched} of ${LEAK.cases}`));
   for (const b of BANDS) for (const n of b.n.match(/[\d,]+/g)) assert.ok(numbers.includes(n), `${b.label}: ${n}`);
 });
+
+// #480 / D266: the router cue is a protocol shortfall, not a clean example.
+// Every surface that publishes the post-cutoff router figures must say so.
+test("the method page qualifies the router's development split and cue", () => {
+  assert.match(page, /On development rulings, by rules written down first/);
+  assert.doesNotMatch(page, /On development rulings only/);
+  assert.match(page, /trade programs/);
+  assert.match(page, /729-ruling development split \(25 Jan 2024 to 31\s+Dec 2025\)/);
+  const lib = readFileSync(new URL("../src/lib/method.ts", import.meta.url), "utf8");
+  assert.match(lib, /729-ruling dev split/);
+  const accuracy = readFileSync(new URL("../src/components/op/screens/accuracy-page.tsx", import.meta.url), "utf8");
+  assert.match(accuracy, /\{" "\}Caveat: the &quot;trade programs/);
+});

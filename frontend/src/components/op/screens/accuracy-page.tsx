@@ -459,7 +459,7 @@ export function AccuracyPage() {
                       ? ` On the ${route2.n} later rulings: ${pct(route2.value)}, and ${pct(route2Spec.value)} of the ${route2Spec.n} specialist ones (${ci(route2Spec)}).`
                       : ""}
                     {routeOut2 ? ` The router before it kept only ${pct(routeOut2.value)} of later pharmaceutical and Part 102 rulings away from the general engine.` : ""}
-                    Caveat: the &quot;trade programs&quot; cue in router-v4 came from reading these later misses, not from development, so this is not clean held-out evidence; without the 6 cue rulings the specialist comparison is 14/17 vs 12/17 (fixed 2, broke 0).
+                    {" "}Caveat: the &quot;trade programs&quot; cue in router-v4 came from reading these later misses, not from development, so this is not clean held-out evidence; without the 6 cue rulings the specialist comparison is 14/17 vs 12/17 (fixed 2, broke 0).
                   </Card>
                 )}
                 {routed && (
