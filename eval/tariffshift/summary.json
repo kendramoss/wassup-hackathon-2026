@@ -8,10 +8,6 @@
    "out_of_scope": 5,
    "decided": 0,
    "agree_cbp": 0,
-   "agree_cbp_ci": [
-    0,
-    0
-   ],
    "disagree_model": 0,
    "decided_if_not_de_minimis": 0,
    "agree_cbp_if_not_de_minimis": 0,
@@ -47,6 +43,66 @@
     "no HTS code for the good": 1
    },
    "model_accuracy_on_decided": "2/2"
+  },
+  {
+   "split": "final",
+   "source": "facts",
+   "n": 32,
+   "extracted": 32,
+   "out_of_scope": 6,
+   "decided": 0,
+   "agree_cbp": 0,
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 0,
+   "agree_cbp_if_not_de_minimis": 0,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 2,
+    "an origin or the country of production not given": 8,
+    "no HTS code for the good": 16
+   }
+  },
+  {
+   "split": "final",
+   "source": "full_text",
+   "n": 32,
+   "extracted": 30,
+   "out_of_scope": 17,
+   "decided": 2,
+   "agree_cbp": 2,
+   "agree_cbp_ci": [
+    34.2,
+    100
+   ],
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 2,
+   "agree_cbp_if_not_de_minimis": 2,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 7,
+    "a material needs a fact (condition or goods description)": 2,
+    "extraction failed": 2,
+    "no HTS code for the good": 2
+   },
+   "model_accuracy_on_decided": "2/2"
+  },
+  {
+   "split": "final2",
+   "source": "facts",
+   "n": 13,
+   "extracted": 13,
+   "out_of_scope": 3,
+   "decided": 0,
+   "agree_cbp": 0,
+   "disagree_model": 0,
+   "decided_if_not_de_minimis": 0,
+   "agree_cbp_if_not_de_minimis": 0,
+   "disagree_model_if_not_de_minimis": 0,
+   "undetermined_reasons": {
+    "a foreign material has no HTS code": 1,
+    "an origin or the country of production not given": 4,
+    "no HTS code for the good": 5
+   }
   }
  ],
  "note": "19 CFR 102.20 rule check on the committed Part 102 rulings (D360, D361). source facts = the facts the engine reads; source full_text = the whole CROSS text with CBP's own classifications (an encoding check, not product evidence). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift eval -check"

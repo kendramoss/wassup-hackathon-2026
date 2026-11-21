@@ -69,7 +69,7 @@ type Cell struct {
 	OutOfScope     int            `json:"out_of_scope"`
 	Decided        int            `json:"decided"`
 	AgreeCBP       int            `json:"agree_cbp"`
-	AgreeCBPCI     [2]float64     `json:"agree_cbp_ci,omitempty"`
+	AgreeCBPCI     *[2]float64    `json:"agree_cbp_ci,omitempty"`
 	DisagreeModel  int            `json:"disagree_model"`
 	CondDecided    int            `json:"decided_if_not_de_minimis"`
 	CondAgreeCBP   int            `json:"agree_cbp_if_not_de_minimis"`
@@ -159,7 +159,7 @@ func cmdEval(args []string) error {
 		}
 		if cell.Decided > 0 {
 			lo, hi := wilson(cell.AgreeCBP, cell.Decided)
-			cell.AgreeCBPCI = [2]float64{lo, hi}
+			cell.AgreeCBPCI = &[2]float64{lo, hi}
 			cell.ModelAccuracy = fmt.Sprintf("%d/%d", modelRight, cell.Decided)
 		}
 		cells = append(cells, cell)
