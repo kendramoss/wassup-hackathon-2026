@@ -15,6 +15,11 @@ type Material struct {
 	Name   string `json:"name"`
 	HTS    string `json:"hts,omitempty"`
 	Origin string `json:"origin"`
+	// NotIn is a code the material is known to be classified outside of,
+	// when its own code is not given (CBP often writes "the foreign
+	// materials are classified outside heading 8473"). It decides only
+	// tests that need no more than that.
+	NotIn string `json:"not_in,omitempty"`
 	// ValueShare is the material's value as a fraction of the good's value
 	// (0 to 1), for the 102.13 de minimis rule. Optional.
 	ValueShare *float64 `json:"value_share,omitempty"`
@@ -176,16 +181,13 @@ func (r *Rules) Evaluate(in Input) Result {
 	foreign := 0
 	for _, m := range in.Materials {
 		o := domain.NormalizeCountry(m.Origin)
+		// A material of unknown origin is treated as foreign: if it shifts,
+		// its origin does not matter; if it does not, the answer stays open.
 		mr := MaterialResult{Name: m.Name, HTS: m.HTS, Origin: o, Foreign: o != country}
-		if o == "" {
-			res.Status, res.Reason = Undetermined, fmt.Sprintf("the origin of %q is not given", m.Name)
-			res.Materials = append(res.Materials, mr)
-			return res
-		}
 		if mr.Foreign {
 			foreign++
 		}
-		mr.Status, mr.Alternative, mr.Needs = r.material(rule, g, Digits(m.HTS), in)
+		mr.Status, mr.Alternative, mr.Needs = r.material(rule, g, mcode{code: Digits(m.HTS), notIn: Digits(m.NotIn)}, in)
 		res.Materials = append(res.Materials, mr)
 	}
 	if foreign == 0 {
@@ -195,7 +197,7 @@ func (r *Rules) Evaluate(in Input) Result {
 		return res
 	}
 
-	var fail, open []int
+	var fail, open, noOrigin []int
 	for i, mr := range res.Materials {
 		if !mr.Foreign {
 			continue
@@ -203,6 +205,9 @@ func (r *Rules) Evaluate(in Input) Result {
 		switch mr.Status {
 		case MatNoShift:
 			fail = append(fail, i)
+			if mr.Origin == "" {
+				noOrigin = append(noOrigin, i)
+			}
 		case MatNeedsFact, MatMissingHTS:
 			open = append(open, i)
 		}
@@ -218,6 +223,11 @@ func (r *Rules) Evaluate(in Input) Result {
 	if len(open) > 0 {
 		res.Status = Undetermined
 		res.Reason = "the shift cannot be decided for " + names(res.Materials, open) + "; see what each needs"
+		return res
+	}
+	if len(noOrigin) > 0 {
+		res.Status = Undetermined
+		res.Reason = names(res.Materials, noOrigin) + " do not shift and their origin is not given"
 		return res
 	}
 
@@ -332,8 +342,8 @@ func names(ms []MaterialResult, idx []int) string {
 }
 
 // material tests one material against every alternative of the rule.
-func (r *Rules) material(rule Rule, g, m string, in Input) (string, int, []string) {
-	if m == "" {
+func (r *Rules) material(rule Rule, g string, m mcode, in Input) (string, int, []string) {
+	if m.code == "" && m.notIn == "" {
 		return MatMissingHTS, 0, []string{"the material's HTS code"}
 	}
 	best, alt := no, 0
@@ -382,11 +392,12 @@ const (
 	needBending  = "whether the tubes are bent to shape"
 	needDescribe = "whether the goods match a description in the rule"
 	needCode     = "a longer HTS code"
+	needOwnCode  = "the material's own HTS code (only a code it is outside is known)"
 	needPerson   = "a person to read an alternative written by goods description"
 )
 
 // alternative evaluates one alternative for good g and material m.
-func alternative(a Alternative, g, m string, in Input, needs map[string]bool) tri {
+func alternative(a Alternative, g string, m mcode, in Input, needs map[string]bool) tri {
 	applies := yes
 	if len(a.To) > 0 {
 		applies = anyContains(a.To, g)
@@ -406,7 +417,7 @@ func alternative(a Alternative, g, m string, in Input, needs map[string]bool) tr
 		pass = fromClause(a, g, m)
 	}
 	for _, s := range a.Also {
-		c := anyContains(s.From, m)
+		c := m.in(s.From)
 		if s.Described {
 			c = and(c, describe(needs))
 		}
@@ -417,7 +428,7 @@ func alternative(a Alternative, g, m string, in Input, needs map[string]bool) tr
 	}
 	exc := no
 	for _, e := range a.Except {
-		c := anyContains(e.From, m)
+		c := m.in(e.From)
 		if len(e.To) > 0 {
 			c = and(c, anyContains(e.To, g))
 		}
@@ -445,8 +456,13 @@ func alternative(a Alternative, g, m string, in Input, needs map[string]bool) tr
 		t = and(t, fact(in.GRI2a, needGRI, needs).not())
 	}
 	t = and(t, applies)
-	if t == maybe && (len(m) < 6 || len(g) < 6) {
-		needs[needCode] = true
+	if t == maybe {
+		switch {
+		case m.code == "":
+			needs[needOwnCode] = true
+		case len(m.code) < 6 || len(g) < 6:
+			needs[needCode] = true
+		}
 	}
 	return t
 }
@@ -457,7 +473,7 @@ func describe(needs map[string]bool) tri {
 }
 
 // fromClause is the "from any other chapter/heading/subheading" test.
-func fromClause(a Alternative, g, m string) tri {
+func fromClause(a Alternative, g string, m mcode) tri {
 	L := a.From
 	var to Range
 	if len(a.To) > 0 {
@@ -467,9 +483,41 @@ func fromClause(a Alternative, g, m string) tri {
 	}
 	switch a.Group {
 	case "outside":
-		return to.contains(m).not()
+		return m.in([]Range{to}).not()
 	case "within":
-		return and(to.contains(m), differ(m, g, L))
+		return and(m.in([]Range{to}), m.differ(g, L))
 	}
-	return differ(m, g, L)
+	return m.differ(g, L)
+}
+
+// mcode is a material's code, or only a code it is known to be outside.
+type mcode struct{ code, notIn string }
+
+// in says whether the material is in any of rs.
+func (m mcode) in(rs []Range) tri {
+	if m.code != "" {
+		return anyContains(rs, m.code)
+	}
+	ex := Range{Lo: m.notIn, Hi: m.notIn}
+	t := no
+	for _, r := range rs {
+		// A range wholly inside the excluded code cannot hold the material.
+		if r.Level() >= ex.Level() && ex.contains(r.Lo) == yes && ex.contains(r.Hi) == yes {
+			continue
+		}
+		t = maybe
+	}
+	return t
+}
+
+// differ says whether the material's code differs from g in the first n
+// digits.
+func (m mcode) differ(g string, n int) tri {
+	if m.code != "" {
+		return differ(m.code, g, n)
+	}
+	if len(m.notIn) <= n && len(g) >= len(m.notIn) && g[:len(m.notIn)] == m.notIn {
+		return yes
+	}
+	return maybe
 }

@@ -18,15 +18,19 @@ import (
 )
 
 // ExtractPrompt names the extraction prompt below (D361).
-const ExtractPrompt = "tariffshift-extract-v1"
+const ExtractPrompt = "tariffshift-extract-v2"
+
+// v1 (dev only, kept in eval/tariffshift/dev-v1/) differed in two points:
+// origins could come back as adjectives ("Chinese"), and there was no
+// not_in field, so "classified outside heading 8473" was lost.
 
 const extractSystem = `You read a U.S. Customs (CBP) ruling text and copy out the facts a tariff-shift rule needs. You never classify anything yourself.
 
 Return JSON:
 - good_hts: the HTSUS code the text gives for the finished good, copied exactly as written (e.g. "8473.30.5100"), or "" if the text gives none.
 - good_hts_quote: the shortest sentence fragment, copied verbatim from the text, that contains that code.
-- country_of_production: the country where the finished good is made or assembled, as the text says; "" if not stated.
-- materials: every component or raw material named as going into the good (not packaging, labels or instructions). For each: name (short, from the text); hts (the HTSUS code the text gives for THAT material, copied exactly, or "" if none is given for it; never a code given for another item, never "outside heading ..."); hts_quote (verbatim fragment containing that code, or ""); origin (the country the text says the material comes from, or "" if not stated).
+- country_of_production: the country where the finished good is made or assembled, as a country name; "" if not stated or replaced by a placeholder.
+- materials: every component or raw material named as going into the good (not packaging, labels or instructions). For each: name (short, from the text); hts (the HTSUS code the text gives for THAT material, copied exactly, or "" if none is given for it; never a code given for another item, never "outside heading ..."); hts_quote (verbatim fragment containing that code, or ""); not_in (when the text says this material, or all the foreign materials, is classified outside a heading or subheading, that code copied exactly, else ""); not_in_quote (verbatim fragment containing it, or ""); origin (the country the text says the material comes from, as a country name such as "China", not an adjective; "" if not stated or replaced by a placeholder such as "Country B").
 
 If the text covers several goods, use the first one described. Copy codes and quotes exactly; do not infer, complete or correct a code.`
 
@@ -39,12 +43,14 @@ var extractSchema = map[string]any{
 		"materials": map[string]any{"type": "array", "items": map[string]any{
 			"type": "object",
 			"properties": map[string]any{
-				"name":      map[string]any{"type": "string"},
-				"hts":       map[string]any{"type": "string"},
-				"hts_quote": map[string]any{"type": "string"},
-				"origin":    map[string]any{"type": "string"},
+				"name":         map[string]any{"type": "string"},
+				"hts":          map[string]any{"type": "string"},
+				"hts_quote":    map[string]any{"type": "string"},
+				"not_in":       map[string]any{"type": "string"},
+				"not_in_quote": map[string]any{"type": "string"},
+				"origin":       map[string]any{"type": "string"},
 			},
-			"required": []string{"name", "hts", "hts_quote", "origin"},
+			"required": []string{"name", "hts", "hts_quote", "not_in", "not_in_quote", "origin"},
 		}},
 	},
 	"required": []string{"good_hts", "good_hts_quote", "country_of_production", "materials"},
@@ -58,6 +64,8 @@ type extracted struct {
 		Name     string `json:"name"`
 		HTS      string `json:"hts"`
 		HTSQuote string `json:"hts_quote"`
+		NotIn    string `json:"not_in"`
+		NotInQ   string `json:"not_in_quote"`
 		Origin   string `json:"origin"`
 	} `json:"materials"`
 }
@@ -84,7 +92,11 @@ func cmdExtract(args []string) error {
 	model := fl.String("model", "gemini-3.8-flash", "gateway model")
 	workers := fl.Int("workers", 4, "parallel calls")
 	confirm := fl.Bool("confirm-heldout", false, "required for final and final2 (D361: once)")
+	retry := fl.Bool("retry-errors", false, "development only: re-run the rows of an existing file that failed")
 	_ = fl.Parse(args)
+	if *retry && *split != "dev" {
+		return errors.New("-retry-errors is for the development split only")
+	}
 	if *split != "dev" && !*confirm {
 		return errors.New("held-out extraction runs once (D361); pass -confirm-heldout")
 	}
@@ -100,8 +112,14 @@ func cmdExtract(args []string) error {
 		return err
 	}
 	out := filepath.Join(evalDir, fmt.Sprintf("inputs-%s-%s.jsonl", *split, *source))
+	var prev []InputRow
 	if _, err := os.Stat(out); err == nil {
-		return fmt.Errorf("%s exists; extraction runs once", out)
+		if !*retry {
+			return fmt.Errorf("%s exists; extraction runs once", out)
+		}
+		if prev, err = readInputs(out); err != nil {
+			return err
+		}
 	}
 	ll := llm.NewLiteLLM(base, key, 120*time.Second)
 	ll.SkipCache(true)
@@ -111,6 +129,10 @@ func cmdExtract(args []string) error {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, *workers)
 	for i, id := range ids {
+		if prev != nil && prev[i].Ruling == id && prev[i].Error == "" {
+			rows[i] = prev[i]
+			continue
+		}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -126,12 +148,17 @@ func cmdExtract(args []string) error {
 		return err
 	}
 	w := bufio.NewWriter(f)
-	errs, cost := 0, 0.0
-	for _, r := range rows {
+	errs, cost, called := 0, 0.0, 0
+	for i, r := range rows {
+		if prev == nil || prev[i].Error != "" {
+			called++
+		}
 		if r.Error != "" {
 			errs++
 		}
-		cost += r.CostUSD
+		if prev == nil || prev[i].Error != "" {
+			cost += r.CostUSD
+		}
 		b, _ := json.Marshal(r)
 		w.Write(append(b, '\n'))
 	}
@@ -143,7 +170,7 @@ func cmdExtract(args []string) error {
 	}
 	runlog := map[string]any{
 		"run": fmt.Sprintf("tariffshift-extract-%s-%s", *split, *source), "prereg": "D361",
-		"cases": len(ids), "errors": errs, "cost_usd": round4(cost), "model": *model,
+		"cases": len(ids), "calls": called, "retry_errors": *retry, "errors": errs, "cost_usd": round4(cost), "model": *model,
 		"prompt": ExtractPrompt, "llm_provider": "litellm", "llm_no_cache": true,
 		"held_out": *split != "dev", "split": *split, "source": *source,
 		"git_revision": revision(), "time": time.Now().Format(time.RFC3339),
@@ -172,7 +199,7 @@ func extractOne(ctx context.Context, ll *llm.LiteLLM, model, id, split, source, 
 			Messages:        []llm.Message{{Role: llm.RoleUser, Content: text}},
 			JSONSchema:      extractSchema,
 			SchemaName:      "tariffshift_extract",
-			MaxOutputTokens: 4096,
+			MaxOutputTokens: 8192,
 		})
 		if err == nil {
 			break
@@ -208,7 +235,8 @@ func extractOne(ctx context.Context, ll *llm.LiteLLM, model, id, split, source, 
 	row.Input.Country = strings.TrimSpace(x.Country)
 	for _, m := range x.Materials {
 		row.Input.Materials = append(row.Input.Materials, tariffshift.Material{
-			Name: strings.TrimSpace(m.Name), HTS: check(m.HTS, m.HTSQuote), Origin: strings.TrimSpace(m.Origin),
+			Name: strings.TrimSpace(m.Name), HTS: check(m.HTS, m.HTSQuote), NotIn: check(m.NotIn, m.NotInQ),
+			Origin: strings.TrimSpace(m.Origin),
 		})
 	}
 	if len(row.Quotes) == 0 {
