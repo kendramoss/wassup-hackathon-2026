@@ -64,6 +64,9 @@ export const DECISIONS: Record<string, string> = {
   D342: "d342--a-template-group-split-later-keeps-its-former-name-for-a-product-made-before-the-split-22-nov-judge-panel-round-6-item-4",
   D343: "d343--revoked-and-modified-rulings-are-marked-wherever-the-site-shows-a-ruling-22-nov-judge-panel-round-6-item-2",
   D344: "d344--the-backtest-finds-kept-parts-by-component-name-when-a-demo-has-no-map-519-22-nov",
+  D360: "d360--a-deterministic-19-cfr-10220-rule-check-beside-the-part-102-engine-22-nov-judge-panel-round-6-the-main-remaining-larger-build",
+  D362: "d362--the-rule-check-on-the-committed-part-102-rulings-results-22-nov",
+  D363: "d363--the-rule-check-is-shown-beside-the-model-display-only-22-nov",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;

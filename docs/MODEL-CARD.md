@@ -14,6 +14,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 | Who built it | Unde Labs, a team of two, for the Google Cloud AI Builder Cup 2026 (Manufacturing theme) |
 | Version | origin engine prompt `engine-v1`, router `router-v2` (router `router-v4` in production since 21 Nov, D233; the held-out engine figures were measured with router-v2), precedent check `verifier-v2`, frozen 2026-10-14 for the held-out run ([splits_final.json](../eval/splits/splits_final.json)) |
 | Models (built) | Origin engine: Gemini 4 Argon. Router: Gemini 3.8 Flash. Precedent check: an ADK agent on Gemini 4 Argon that searches and reads CBP rulings. Ask-the-case agent: the engine model unless `CASE_AGENT_MODEL` is set. Fallback engine on a 429, 503, 504 or deadline: Gemini 3.8 Flash, whose answers never auto-accept. Defaults in `backend/internal/config/config.go` |
+| Rule check (built, no model) | A deterministic 19 CFR 102.20 tariff-shift check for chapters 73, 82, 84, 85, 87, 90 and 94 (`backend/internal/tariffshift`, D360). It runs only when the product gives HTS codes, answers "undetermined" rather than guess, and is display only: it never changes the engine's answer, the triage or auto-accept (D363) |
 | Retrieval | BM25 over the facts sections of 2,790 labelled CBP rulings, the 5 most similar rulings dated strictly before the case (D10) |
 | Decoding | temperature 0 and a fixed seed (20261017) on every call (D76) |
 | Training | None. No fine-tuned model is in use. A fine-tuning experiment on Gemini 3.5 Flash was tried and not adopted ([EVALUATION.md §3.3](EVALUATION.md#33-model-size-against-cost-and-latency)) |
@@ -63,6 +64,7 @@ The factors that change accuracy, from the evaluation and the failure analysis b
 | Precedent check: precision, recall, specificity | [EVALUATION.md §3.2](EVALUATION.md#32-precision-against-recall-in-the-planners-precedent-check) | `GET /v1/eval/summary`, built by `make eval-summary` |
 | Cost and latency per prediction | [NUMBERS.md](NUMBERS.md) | from the same held-out rows |
 | Failure cases, accuracy by origin | section 6 below; the Accuracy page | `python3 -I eval/charts/build_trust_data.py . --check` |
+| Rule check coverage and agreement on the Part 102 rulings | [EVALUATION.md §9](EVALUATION.md#9-rule-check-19-cfr-10220-tariff-shift-offline-22-nov-2026-d360-d362); decides 0 of 117 from the facts, 4 of 104 from the full ruling text | `cd backend && go run ./cmd/tariffshift eval -check` |
 
 The recomputed rows and ledger checks run with `make reproduce`, with no model calls and no credentials. Confidence intervals, label counts by method, cost and latency figures are reported from `eval/RESULTS.md`, not recomputed there.
 

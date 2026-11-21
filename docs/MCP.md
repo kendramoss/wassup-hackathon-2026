@@ -128,6 +128,8 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 
 `extract_product_from_media` takes 1 to 4 files, 8 MB together (PNG, JPEG, WebP or scanned PDF), each as `{data, mime_type}` with base64 data, as an MCP image content block (`{type: "image", data, mimeType}`), or as an MCP embedded resource (`{type: "resource", resource: {mimeType, blob}}`). The tool decodes them and sends one multipart upload to the REST route, which checks the bytes and its other limits again. As on the website, the files are not stored and the draft must be reviewed before `predict_origin`.
 
+When the product gives an HTS code for the good (`product.hts`) and for at least one part (`components[].hts`), `predict_origin` and `get_case` add one line for the 19 CFR 102.20 rule check (D363), and the structured result carries `rule_check`. The line says when the check differs from the model and that it changes neither the prediction nor the triage.
+
 No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. Countries are free text with a length and character check, because the API has no country enum.
 
 Results carry a short text summary (with the disclaimer) and `structuredContent`: the API's JSON answer, without bulky internals (verifier search trails, model traces, cost stats, case history and chat; `GET /v1/cases/{id}` over REST has them). An API error becomes a tool error with the status, code and message, and the retry time for a rate limit.

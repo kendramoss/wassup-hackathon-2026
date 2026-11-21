@@ -16,6 +16,7 @@ import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
+import { RuleCheckPanel } from "../rule-check";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
@@ -77,6 +78,7 @@ function Result({ id, c, setCase }: CaseCtx) {
               {differs}
             </p>
           ) : null}
+          <RuleCheckPanel c={c} />
           {c.clarify?.conflict ? <Conflict c={c} /> : null}
           {qs ? <Questions c={c} setCase={setCase} /> : null}
           {route === "needs_review" && !qs && !regime ? <ReviewPanel c={c} /> : null}

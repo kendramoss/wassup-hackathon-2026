@@ -363,6 +363,9 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	if cl := obj(out["clarify"]); len(list(cl["questions"])) > 0 {
 		fmt.Fprintf(&b, "\nOpen questions: %d (see clarify.questions).", len(list(cl["questions"])))
 	}
+	if l := ruleCheckLine(out); l != "" {
+		b.WriteString("\n" + l)
+	}
 	fmt.Fprintf(&b, "\nCase id: %v.", out["id"])
 	if access != "" && !hasKey(hdr) {
 		out["case_access_key"] = access
@@ -525,7 +528,39 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 	if pl := obj(out["plan"]); len(pl) > 0 {
 		fmt.Fprintf(&b, "\nLatest plan search: target %v, %d shown plans.", pl["target"], len(list(pl["plans"])))
 	}
+	if l := ruleCheckLine(out); l != "" {
+		b.WriteString("\n" + l)
+	}
 	return done(b.String(), out)
+}
+
+// ruleCheckLine summarises the 19 CFR 102.20 rule check (D363), or "" when
+// the case has none. It never restates the model's answer as the rule's.
+func ruleCheckLine(out map[string]any) string {
+	rc := obj(out["rule_check"])
+	if len(rc) == 0 {
+		return ""
+	}
+	res := obj(rc["result"])
+	var b strings.Builder
+	b.WriteString("Rule check (19 CFR 102.20")
+	if rc["applies"] == "informational" {
+		b.WriteString(", for information: this case is decided under substantial transformation")
+	}
+	b.WriteString("): ")
+	switch res["status"] {
+	case "decided":
+		fmt.Fprintf(&b, "%s under %s.", str0(res["origin"], "unknown"), str0(res["basis"], "the rule"))
+		if rc["review"] == true {
+			b.WriteString(" It differs from the model's answer: worth a broker's look.")
+		}
+	case "out_of_scope":
+		fmt.Fprintf(&b, "not covered (%s).", str0(res["reason"], ""))
+	default:
+		fmt.Fprintf(&b, "undetermined: %s.", str0(res["reason"], ""))
+	}
+	b.WriteString(" Display only; it does not change the prediction or triage.")
+	return b.String()
 }
 
 func (t tools) listCases(ctx context.Context, hdr http.Header, in listIn) (*mcp.CallToolResult, any, error) {

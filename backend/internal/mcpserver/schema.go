@@ -91,6 +91,7 @@ func (t tools) product() *jsonschema.Schema {
 		"made_in": country("Country the part is made in."),
 		"plant":   id(),
 		"group":   id(),
+		"hts":     pattern("Optional HTS heading or subheading of this part, e.g. 7616.99. With the product's hts, it turns on the 19 CFR 102.20 rule check (rule_check).", `^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$`, 14),
 	})
 	op := object("An assembly or processing step and the plant that does it.", []string{"name", "plant"}, map[string]*jsonschema.Schema{
 		"name":  name(),

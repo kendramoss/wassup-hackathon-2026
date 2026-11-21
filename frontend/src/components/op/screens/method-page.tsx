@@ -389,6 +389,12 @@ export function MethodPage() {
           the model&apos;s stated confidence into a probability, and the code that routes, checks and logs each answer.
         </p>
         <p>
+          <b className="font-medium text-ink">Rule check.</b> Beside the model sits a deterministic check of the 19 CFR 102.20 tariff-shift rules for seven HTS chapters
+          (<D id="D360" />). It runs only when the parts list gives HTS codes, says &quot;undetermined&quot; rather than guess, and never changes the answer or what is
+          auto-accepted (<D id="D363" />). On the committed Part 102 rulings it decides none from the facts the model reads, because they rarely give codes; from the full
+          ruling text it decides 4 of 104, each as CBP held (<D id="D362" />).
+        </p>
+        <p>
           We did try fine-tuning once. On 16 and 17 Oct we tuned Gemini 3.5 Flash on CBP&apos;s own reasoning from rulings older than the development split. It was worse on the
           development set, so we dropped it, deleted the endpoints, and never scored it on held-out rulings (<D id="D73" />; chart in question 6). When Argon is unavailable a base
           Gemini 3.8 Flash answers instead, and its answers always go to review.

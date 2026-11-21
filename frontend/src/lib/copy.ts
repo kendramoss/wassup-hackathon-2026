@@ -588,6 +588,23 @@ export const copy = {
     noDetector: "Unde is for U.S. origin questions. It has no automatic check that detects or blocks a question about another country's rules, so do not use it for one.",
   },
 
+  // The 19 CFR 102.20 rule check (D363), shown only when the parts list gives
+  // HTS codes. It never restates the model's answer as the rule's.
+  ruleCheck: {
+    title: "Rule check (19 CFR 102.20)",
+    decided: "under the tariff-shift rules, from the codes given.",
+    differs: (m: string) => `under the tariff-shift rules, from the codes given. The model said ${m || "something else"}: worth a broker's look.`,
+    deMinimis: (country: string, o: string) => `Open on value: ${country || "the country of production"} if the parts that do not shift are worth no more than 7% of the good, otherwise ${o}.`,
+    undetermined: "Not decided from the codes given.",
+    outOfScope: "This product's chapter is not encoded yet.",
+    informational: "This case is decided under substantial transformation; the Part 102 check is for comparison only.",
+    note: "A deterministic check from the HTS codes you gave. It does not change the answer above or what is auto-accepted. Not a ruling.",
+    parts: "Each part",
+    domestic: "same country",
+    ruleText: "The rule, as published",
+    encoded: (e: number, n: number) => `${e} of ${n} sentences of this rule are encoded; the others name goods in words and are left to a person.`,
+  },
+
   // Operating costs (#281). New keys only; the review and privacy blocks are untouched.
   ops: {
     section: "Operating costs",

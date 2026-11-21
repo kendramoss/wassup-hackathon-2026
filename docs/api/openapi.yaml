@@ -1915,6 +1915,57 @@ components:
         made_in: { type: string }
         plant: { type: string, description: Plant ID when made at one of the product's own plants }
         group: { type: string, description: Operation group that produces it }
+        hts: { type: string, pattern: "^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$", example: "7616.99", description: "Optional HTS heading or subheading of the part. Read only by the 19 CFR 102.20 rule check (rule_check, D363); not part of the facts." }
+    RuleCheck:
+      type: object
+      description: "The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it."
+      required: [rules, applies, country, country_from, result, review, note]
+      properties:
+        rules: { type: string, enum: ["19 CFR 102.20"] }
+        applies: { type: string, enum: [part102, informational], description: "part102 when the router sent the case to the Part 102 rules; informational when it is decided under substantial transformation" }
+        country: { type: string, description: "Country of production the check used; empty when not known" }
+        country_from: { type: string, description: "How the country was read from the product (final assembly plant, plant of the last operation, the only plant)" }
+        model_origin: { type: string }
+        agrees: { type: boolean, description: "Present only when the check decided: whether it names the model's origin" }
+        review: { type: boolean, description: "True when the decided check differs from the model: worth a person's look. Does not change the triage route" }
+        note: { type: string }
+        result:
+          type: object
+          required: [status, reason]
+          properties:
+            status: { type: string, enum: [decided, undetermined, out_of_scope] }
+            origin: { type: string }
+            basis: { type: string, description: "The paragraphs and 102.20 row that decided it" }
+            reason: { type: string }
+            assumes: { type: array, items: { type: string } }
+            if_not_de_minimis:
+              type: object
+              description: "When only the 102.13 de minimis value is open: the answer if the materials that do not shift are worth more than 7% of the good"
+              properties:
+                origin: { type: string }
+                basis: { type: string }
+                condition: { type: string }
+            rule:
+              type: object
+              properties:
+                id: { type: string, example: "19 CFR 102.20(o), 8473" }
+                hts: { type: string }
+                text: { type: string, description: "Verbatim eCFR text of the row" }
+                alternatives: { type: integer }
+                encoded: { type: integer }
+            materials:
+              type: array
+              items:
+                type: object
+                required: [name, origin, foreign, status]
+                properties:
+                  name: { type: string }
+                  hts: { type: string }
+                  origin: { type: string }
+                  foreign: { type: boolean }
+                  status: { type: string, enum: [shift, no_shift, needs_fact, missing_hts] }
+                  alternative: { type: integer, description: "1-based alternative of the row the part satisfies" }
+                  needs: { type: array, items: { type: string } }
     Operation:
       type: object
       required: [name, plant]
@@ -2072,6 +2123,7 @@ components:
                       net_per_year: { type: number }
                       target: { type: string }
             facts_source: { type: string, enum: [parts_list, pasted], description: "What the case's own prediction read (D220): parts_list when its facts are the structured product rendered with the family template, as scenarios and plan moves are; pasted when they are text the user gave, such as CBP's own facts. The two can give different answers for the same setup. Absent without a product." }
+            rule_check: { $ref: "#/components/schemas/RuleCheck" }
             economics: { description: "latest economics given for the case, if any", allOf: [{ $ref: "#/components/schemas/Economics" }] }
             plan_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when the stored plan was priced from economics that have since changed: do not present its money as current; a missing flag means not stale" }
             targets_economics_stale: { type: boolean, enum: [true], description: "Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale" }

@@ -149,3 +149,13 @@ func TestVerdictValidate(t *testing.T) {
 	wantProblems(t, Verdict{PrecedentSupported: true, Confidence: 0.96}.Validate(), "requires a supporting ruling")
 	wantProblems(t, Verdict{CounterRuling: "abc", Confidence: -0.1}.Validate(), "outside [0, 1]", `"abc"`)
 }
+
+func TestComponentHTSValidation(t *testing.T) {
+	p := Product{Name: "x", Components: []Component{{Name: "fins", MadeIn: "China"}}}
+	for code, ok := range map[string]bool{"": true, "7616": true, "7616.99": true, "8473.30.5100": true, " 7616.99 ": true, "76": false, "abc": false, "7616.9": false} {
+		p.Components[0].HTS = code
+		if err := p.Validate(); (err == nil) != ok {
+			t.Errorf("hts %q: err %v, want ok %v", code, err, ok)
+		}
+	}
+}
