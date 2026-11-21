@@ -1,0 +1,140 @@
+"use client";
+
+// Repeat runs of the frozen engine (D190, D240, D241), drawn from
+// GET /v1/eval/summary: each run a dot on one accuracy scale, with how many
+// rulings changed answer. Nothing here is computed beyond the summary's own
+// values; the official single runs stay the published figures.
+import { useEffect, useState } from "react";
+import { api, type EvalSummary } from "@/lib/api/client";
+import { ErrorBox } from "./chrome";
+import { Spinner, cx } from "./ui";
+import { decisionHref } from "@/lib/method";
+
+type Item = NonNullable<EvalSummary["items"]>[number];
+
+const LO = 0.86;
+const HI = 0.97;
+const x = (v: number) => `${((v - LO) / (HI - LO)) * 100}%`;
+const pct = (v?: number) => (v === undefined ? "—" : `${(v * 100).toFixed(1)}%`);
+
+type Row = { title: string; note: string; runs: { label: string; it?: Item; official?: boolean }[]; flips?: Item; refs: string[] };
+
+export function Stability() {
+  const [data, setData] = useState<EvalSummary | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const load = () => {
+    setError(null);
+    api.evalSummary().then(setData, setError);
+  };
+  useEffect(() => {
+    api.evalSummary().then(setData, setError);
+  }, []);
+
+  if (error) return <div className="mt-4"><ErrorBox error={error} onRetry={load} /></div>;
+  if (!data) return <div className="mt-4"><Spinner label="Loading the repeat runs…" /></div>;
+
+  const get = (k: string) => data.items?.find((i) => i.key === k);
+  const rows: Row[] = [
+    {
+      title: "Development set",
+      note: "three runs, gateway",
+      runs: [1, 2, 3].map((i) => ({ label: `run ${i}`, it: get(`repeat_dev_accuracy_run${i}`) })),
+      flips: get("repeat_dev_answer_flips"),
+      refs: ["D190"],
+    },
+    {
+      title: "Held-out 1",
+      note: "official Vertex AI run, two gateway repeats",
+      runs: [
+        { label: "official", it: get("repeat_final_accuracy_official"), official: true },
+        { label: "repeat 1", it: get("repeat_final_accuracy_repeat1") },
+        { label: "repeat 2", it: get("repeat_final_accuracy_repeat2") },
+      ],
+      flips: get("repeat_final_answer_flips"),
+      refs: ["D240", "D241"],
+    },
+    {
+      title: "Held-out 2",
+      note: "official gateway run, two gateway repeats",
+      runs: [
+        { label: "official", it: get("repeat_final2_accuracy_official"), official: true },
+        { label: "repeat 1", it: get("repeat_final2_accuracy_repeat1") },
+        { label: "repeat 2", it: get("repeat_final2_accuracy_repeat2") },
+      ],
+      flips: get("repeat_final2_answer_flips"),
+      refs: ["D240", "D241"],
+    },
+  ].filter((r) => r.runs.every((u) => u.it?.value !== undefined));
+
+  if (rows.length === 0) return <p className="mt-4 text-[13px] text-dim">The repeat runs are not in this build&apos;s summary.</p>;
+
+  return (
+    <figure
+      aria-label={rows
+        .map((r) => `${r.title}, ${r.runs[0].it?.n} rulings: ${r.runs.map((u) => `${u.label} ${pct(u.it?.value)}`).join(", ")}; answer changed on ${r.flips?.value ?? "—"}.`)
+        .join(" ")}
+      className="mt-5 max-w-[960px] border border-edge bg-sheet px-4 py-4 shadow-[4px_4px_0_var(--shadow)] sm:px-5"
+    >
+      <figcaption className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="eyebrow">Same engine, run again</span>
+        <span className="text-[11px] text-dim sm:ml-auto">accuracy per run · every call fresh, no cache · from GET /v1/eval/summary</span>
+      </figcaption>
+      <ul className="mt-4 flex flex-col">
+        {rows.map((r) => (
+          <li key={r.title} className="grid gap-x-4 gap-y-2 border-b border-dashed border-line py-3 text-[12.5px] md:grid-cols-[200px_minmax(0,1fr)_230px]">
+            <div>
+              <p className="font-medium text-ink">
+                {r.title} <span className="tabular-nums font-normal text-dim">· {r.runs[0].it?.n} rulings</span>
+              </p>
+              <p className="text-[11.5px] text-dim">{r.note}</p>
+            </div>
+            <div className="relative h-6 self-center" aria-hidden="true">
+              <i className="absolute inset-x-0 top-1/2 h-px bg-line" />
+              {r.runs.map((u, i) => (
+                <i
+                  key={u.label}
+                  className={cx("absolute size-2.5 -translate-x-1/2 rotate-45", u.official ? "bg-ok" : "border border-ink bg-white")}
+                  style={{ left: x(u.it!.value!), top: `${4 + i * 6}px` }}
+                />
+              ))}
+            </div>
+            <div className="text-[12px] text-dim md:text-right">
+              <ul className="tabular-nums">
+                {r.runs.map((u) => (
+                  <li key={u.label}>
+                    <span className={cx(u.official && "text-ink")}>{u.label}</span> <b className="font-medium text-ink">{pct(u.it?.value)}</b>
+                  </li>
+                ))}
+              </ul>
+              <p className="tabular-nums">
+                answer changed on <b className="font-medium text-ink">{r.flips?.value ?? "—"}</b> of {r.flips?.n ?? "—"} ·{" "}
+                {r.refs.map((id, i) => (
+                  <span key={id}>
+                    {i > 0 ? ", " : ""}
+                    <a href={decisionHref(id)} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
+                      {id}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-2 grid gap-x-4 text-[11px] text-dimension md:grid-cols-[200px_minmax(0,1fr)_230px]">
+        <span className="max-md:hidden" />
+        <span className="relative h-4">
+          {[0.88, 0.9, 0.92, 0.94, 0.96].map((t) => (
+            <span key={t} className="absolute -translate-x-1/2 tabular-nums" style={{ left: x(t) }}>
+              {Math.round(t * 100)}%
+            </span>
+          ))}
+        </span>
+      </div>
+      <p className="mt-3 text-[12px] text-dim">
+        Filled marker: the official run, which is the published figure. The first held-out official run used Vertex AI and predates the fixed seed; the repeats went through an
+        OpenAI-compatible gateway to the same Gemini model. Two repeats per held-out split is a small sample.
+      </p>
+    </figure>
+  );
+}

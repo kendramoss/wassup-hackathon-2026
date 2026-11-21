@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, type EvalSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -591,7 +592,13 @@ function HowBuilt() {
       </ol>
       <p className="read mt-4 max-w-[95ch] text-[13.5px] text-dim">
         Product facts in, a broker-ready plan out: every answer cites the rulings it read, nothing reads rulings dated after the case, and a daily spend cap keeps model costs
-        bounded. The engine, router and verifier are measured above; the held-out rulings were never used to tune prompts, thresholds or retrieval.
+        bounded. The engine, router and verifier are measured above. The held-out rulings were never used to tune prompts or retrieval; the general engine&apos;s auto-accept bar is fitted on development rulings, while the textile, pharmaceutical and Part 102 bars came from their first held-out windows.
+      </p>
+      <p className="read mt-3 text-[13.5px]">
+        <Link href="/method" className="text-ok underline underline-offset-2">
+          How it&apos;s built and tested →
+        </Link>{" "}
+        <span className="text-dim">what the model is, what it reads, how each setting was chosen, how the test sets are kept clean and what did not work.</span>
       </p>
     </section>
   );

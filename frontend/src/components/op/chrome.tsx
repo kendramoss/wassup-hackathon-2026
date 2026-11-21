@@ -14,7 +14,7 @@ import { Button, ButtonLink, Spinner, cx } from "./ui";
 // The active section is passed in rather than read from the URL, so the bar
 // prerenders in the static shell of dynamic routes. Cases lives at /cases;
 // the landing page (/) passes "none".
-export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "api" | "none"; sticky?: boolean }) {
+export function AppBar({ active = "cases", sticky = false }: { active?: "cases" | "accuracy" | "method" | "api" | "none"; sticky?: boolean }) {
   // The sections read as buttons, not loose text (18 Oct): one segmented
   // group, the current one filled.
   const item = (on: boolean) =>
@@ -61,7 +61,12 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
             {copy.nav.cases}
           </Link>
           <Link href="/accuracy" aria-current={active === "accuracy" ? "page" : undefined} className={item(active === "accuracy")}>
-            {copy.nav.accuracy}
+            {/* Below lg the short label, so four sections fit beside the logo (390 to 1023 px). */}
+            <span className="lg:hidden">{copy.nav.accuracyShort}</span>
+            <span className="hidden lg:inline">{copy.nav.accuracy}</span>
+          </Link>
+          <Link href="/method" aria-current={active === "method" ? "page" : undefined} className={item(active === "method")}>
+            {copy.nav.method}
           </Link>
           <Link href="/developers" aria-current={active === "api" ? "page" : undefined} className={item(active === "api")}>
             {copy.nav.api}
