@@ -374,6 +374,62 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// #557: the money drawer's cost tabs must follow the ARIA tabs pattern (one
+// Tab stop, arrows move between tabs, named tabpanel). Stub an extract result
+// with plants/groups so the drawer's cost section renders.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases/new (cost tabs)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases/new (cost tabs)", console: String(e) }));
+  const product = {
+    name: "Probe gun",
+    plants: [
+      { id: "p1", name: "CN plant", country: "CN" },
+      { id: "p2", name: "TH plant", country: "TH" },
+    ],
+    components: [
+      { name: "Fan", made_in: "CN", plant: "p1", group: "motor_fan_assembly" },
+      { name: "Board", made_in: "TH", plant: "p2", group: "pcba" },
+    ],
+  };
+  await page.route("**/api/v1/products/extract", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ product, warnings: [] }) }),
+  );
+  await page.route("**/api/v1/duty-rates", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.route("**/api/v1/products/hts-suggest", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.goto(base + newCasePath, { waitUntil: "networkidle" });
+  await page.getByRole("tab", { name: "Paste a description" }).click();
+  await page.locator("textarea").first().fill("Each heat gun is assembled in Thailand using components sourced from China and Thailand, with a fan and a board and a housing.");
+  await page.getByRole("button", { name: "Turn into parts and plants" }).click();
+  await page.getByRole("button", { name: /money inputs/i }).first().click();
+  const tabs = page.locator('[role="tablist"][aria-label="How to enter costs"] [role="tab"]');
+  if ((await tabs.count()) !== 2) {
+    problems.push({ page: "/cases/new (cost tabs)", focus: "cost tablist did not render", count: await tabs.count() });
+  } else {
+    const before = await tabs.evaluateAll((es) => es.map((e) => ({ text: e.textContent?.trim(), ti: e.getAttribute("tabindex"), controls: e.getAttribute("aria-controls") })));
+    const tabStops = await page.evaluate(() => [...document.querySelectorAll('[role="tab"]')].filter((e) => e.getAttribute("tabindex") !== "-1").length);
+    if (before[0]?.ti !== "0" || before[1]?.ti !== "-1" || tabStops !== 2 || !before[0]?.controls)
+      problems.push({ page: "/cases/new (cost tabs)", focus: "cost tabs are not a single Tab stop", before, tabStops });
+    await tabs.first().focus();
+    await page.keyboard.press("ArrowRight");
+    const after = await page.evaluate((controls) => {
+      const selected = document.querySelector('[role="tablist"][aria-label="How to enter costs"] [aria-selected="true"]');
+      const panel = controls ? document.getElementById(controls) : null;
+      return {
+        text: document.activeElement?.textContent?.trim(),
+        selected: selected?.textContent?.trim(),
+        panelRole: panel?.getAttribute("role"),
+        panelLabelledBy: panel?.getAttribute("aria-labelledby"),
+        selectedId: selected?.id,
+      };
+    }, before[0]?.controls);
+    if (after.text !== "Each group" || after.selected !== "Each group" || after.panelRole !== "tabpanel" || !after.panelLabelledBy || after.panelLabelledBy !== after.selectedId)
+      problems.push({ page: "/cases/new (cost tabs)", focus: "ArrowRight did not move and select the next tab", after });
+  }
+  await ctx.close();
+}
+
 // #548: the elapsed counter in a pending live region must not be announced
 // once a second. Enter both states with a delayed stub, let the counter tick,
 // and fail if the changing text is exposed to assistive tech.

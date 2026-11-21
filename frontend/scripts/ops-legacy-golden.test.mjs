@@ -19,6 +19,9 @@ import { html } from "./render-support.mjs";
 // D371 re-captured the compare screen once, on purpose: the only changes are
 // the caption and fold text saying countries rank by their best plan's tier,
 // and the tier chip under each shown plan's check.
+// #557 re-captured the money drawer once, on purpose: the only changes are the
+// ARIA tabs pattern on "How to enter costs" (tab ids, aria-controls, roving
+// tabindex, and a labelled tabpanel wrapper). Every other piece is unchanged.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });
