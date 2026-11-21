@@ -36,6 +36,15 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Full plan, heat gun | $0.22 promo / $0.45 list, 33 s, 7 engine calls + 6 verifier runs | `eval/results/plan-heatgun-2022-local-litellm.json` | Proxy; demo fixture |
 | Latency per prediction | p50 4.6 s / p95 5.7 s | final Vertex rows | Official Vertex AI. The proxy run was p50 5.0 s / p95 6.4 s |
 
+### Repeatability (D190)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Development accuracy over three runs (463, adjusted) | 91.8%, 91.1%, 91.1%; mean 91.3%, spread 0.7 points | `eval/results/repeatability-dev-litellm.json`; recomputed by `claimscheck` (`repeat.*`) | Measured, development set, gateway (not Vertex AI). Say "development set" |
+| Rulings whose answer changes between runs | 4 of 463 (0.9%) | same | Measured |
+| Fast path coverage over three runs | 81.0%, 81.4%, 80.6% (fixed scope file) at 95.5-95.7%; 8 rulings move in or out | same | Measured, development set |
+| Calibrated confidence over three runs | mean 91.2%, 91.2%, 91.0%; ECE 0.022, 0.020, 0.017; changes on 50 rulings, 0.005 on average | same | Measured, development set |
+
 ## API limits (developers page, `docs/api/SECURITY.md`)
 
 | Number | Value | Source | Status |

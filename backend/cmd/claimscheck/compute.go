@@ -43,6 +43,12 @@ const (
 	// setup given (known-a).
 	postPairs = "eval/data/flips_post.jsonl"
 	postRows  = "eval/results/flips-post-verifier-v2-known-a-litellm.jsonl"
+	// Repeatability (D190): three development runs of the production engine
+	// through the gateway, the first from the D152 sweep.
+	repRun1 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl"
+	repRun2 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl"
+	repRun3 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl"
+
 	// planBar is the precedent check's plan bar (config.DefaultPlanBar).
 	planBar = 0.92
 
@@ -530,6 +536,7 @@ func Compute(root string) (kv []KV, problems []string) {
 	}
 
 	plannerPost(out, &problems, root)
+	repeatability(out, &problems, root, adj)
 
 	var calib struct {
 		Splits []struct {
@@ -664,6 +671,7 @@ var requiredManifest = []string{
 	sumsFile, adjustFile,
 	finalRows, finalScope, devRows, devScope,
 	runlogFile, calibFile, sliceFile, postRows, calMapFile,
+	repRun1, repRun2, repRun3,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
 	factsNamesPath,
 }
@@ -842,4 +850,85 @@ func plannerPost(out *kvs, probs *[]string, root string) {
 	out.add("planner_post.known_a.shown_right", right)
 	out.add("planner_post.known_a.controls_shown", ctlShown)
 	out.add("planner_post.known_a.recall_pct", pct(right, real))
+}
+
+// repeatability recomputes the D190 figures: three development runs of the
+// same engine configuration, scored with the D23 adjustments, the fast path
+// on the fixed router-v2 scope file. A resumed run can hold a ruling twice;
+// the last row counts, as in the eval command.
+func repeatability(out *kvs, probs *[]string, root string, adj adjustments) {
+	scope, err := readJSONL[scopeRow](root, devScope)
+	if err != nil {
+		*probs = append(*probs, err.Error())
+		return
+	}
+	in := map[string]bool{}
+	for _, s := range scope {
+		in[s.Ruling] = s.InScope
+	}
+	type state struct {
+		pred     string
+		ok, fast bool
+	}
+	var runs []map[string]state
+	for _, rel := range []string{repRun1, repRun2, repRun3} {
+		rows, err := readJSONL[engineRow](root, rel)
+		if err != nil {
+			*probs = append(*probs, err.Error())
+			return
+		}
+		m := map[string]state{}
+		for _, r := range rows {
+			if _, ex := adj.Exclude[r.Ruling]; ex {
+				continue
+			}
+			m[r.Ruling] = state{r.Pred, adj.rowOK(r), r.Error == "" && r.Confidence >= fastPathBar && in[r.Ruling]}
+		}
+		runs = append(runs, m)
+	}
+	n := len(runs[0])
+	minC, maxC := n, 0
+	for i, m := range runs {
+		if len(m) != n {
+			*probs = append(*probs, fmt.Sprintf("repeatability: run %d has %d scored rulings, run 1 has %d", i+1, len(m), n))
+			return
+		}
+		c := 0
+		for _, s := range m {
+			if s.ok {
+				c++
+			}
+		}
+		minC, maxC = min(minC, c), max(maxC, c)
+		out.add(fmt.Sprintf("repeat.run%d.correct", i+1), c)
+	}
+	var answer, correct, fast int
+	for id, s := range runs[0] {
+		a, c, f := false, false, false
+		for _, m := range runs[1:] {
+			t, ok := m[id]
+			if !ok {
+				*probs = append(*probs, "repeatability: "+id+" missing from a repeat run")
+				return
+			}
+			a = a || t.pred != s.pred
+			c = c || t.ok != s.ok
+			f = f || t.fast != s.fast
+		}
+		if a {
+			answer++
+		}
+		if c {
+			correct++
+		}
+		if f {
+			fast++
+		}
+	}
+	out.add("repeat.n", n)
+	out.add("repeat.accuracy_min_pct", pct(minC, n))
+	out.add("repeat.accuracy_max_pct", pct(maxC, n))
+	out.add("repeat.answer_flips", answer)
+	out.add("repeat.correctness_flips", correct)
+	out.add("repeat.fast_path_flips", fast)
 }

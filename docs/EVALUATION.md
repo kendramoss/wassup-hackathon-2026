@@ -395,3 +395,21 @@ Three more searches for pairs under the same rule: wider BM25 neighbours of the 
 
 One control run (not given mode) failed on a gateway timeout and counts as not shown. The addendum barely moves the intervals. A bigger clean test has to wait for CBP to publish more rulings. Source: `eval/results/planner-post-addendum-summary.json`, built by `python3 -I eval/planner/summarize_addendum.py .`.
 
+## 8. Repeatability (21 Nov 2026, D190)
+
+The same engine configuration (engine-v1 on Gemini 4 Argon, BM25, K = 5, temperature 0, fixed seed, router on) was run three times on the development set, through an OpenAI-compatible LiteLLM gateway to Gemini. Runs 2 and 3 bypass the gateway's response cache, so they are fresh model calls, not replays.
+
+| Run | Right (n = 463, adjusted) | Accuracy (95% CI) | Fast path coverage / accuracy | Mean calibrated confidence | ECE, calibrated |
+|---|---|---|---|---|---|
+| 1 (D152 sweep) | 425 | 91.8% (88.9-94.0) | 81.0% / 95.7% | 91.2% | 0.022 |
+| 2 | 422 | 91.1% (88.2-93.4) | 81.4% / 95.5% | 91.2% | 0.020 |
+| 3 | 422 | 91.1% (88.2-93.4) | 80.6% / 95.7% | 91.0% | 0.017 |
+
+- Mean accuracy 91.3%, spread 0.7 points.
+- The answer changes on 4 of 463 rulings (0.9%); 421 are right every time, 38 wrong every time.
+- 8 rulings move in or out of the fast path (fixed scope file). With each run's own router call, coverage moves 1.8 points.
+- Calibrated confidence changes on 50 rulings, by 0.005 on average over all 463.
+- Run 1 is the highest of the three. The single-run figures elsewhere in this document can sit up to about a point above or below a repeat.
+
+Source: `eval/results/repeatability-dev-litellm.json`, built by `python3 -I eval/charts/build_repeatability.py .` from the three committed row files. Held-out splits were not re-run.
+

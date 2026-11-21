@@ -27,6 +27,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I eval/charts/build_evaluation.py . --check
 	python3 -I eval/charts/build_trust_data.py . --check
 	python3 -I eval/charts/build_accuracy.py . --check
+	python3 -I eval/charts/build_repeatability.py . --check
 	python3 -I eval/planner/summarize.py . --check
 	python3 -I eval/charts/build_adjudicator.py . --check
 	python3 -I eval/planner/summarize_addendum.py . --check

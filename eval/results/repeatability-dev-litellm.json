@@ -1,0 +1,194 @@
+{
+ "_doc": "Built by eval/charts/build_repeatability.py from committed rows; no model calls. Development set = dev split with the D23 scoring adjustments. Fast path = in scope and stated confidence >= 0.92 (the same cases as calibrated >= 0.90); \"fixed scope\" uses the Vertex router-v2 scope file for every run, as the published dev figures do; \"own router\" uses each run's own router call.",
+ "files": {
+  "run1": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl",
+  "run2": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl",
+  "run3": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl"
+ },
+ "calibration_map": "cal-v2",
+ "n": 463,
+ "per_run": {
+  "run1": {
+   "correct": 425,
+   "errors": 0,
+   "accuracy_pct": 91.8,
+   "ci95_pct": [
+    88.9,
+    94.0
+   ],
+   "fast_path_fixed_scope": {
+    "n": 463,
+    "auto": 375,
+    "correct": 359,
+    "wrong": 16,
+    "coverage_pct": 81.0,
+    "accuracy_pct": 95.7,
+    "ci95_pct": [
+     93.2,
+     97.4
+    ]
+   },
+   "fast_path_own_router": {
+    "n": 463,
+    "auto": 380,
+    "correct": 364,
+    "wrong": 16,
+    "coverage_pct": 82.1,
+    "accuracy_pct": 95.8,
+    "ci95_pct": [
+     93.3,
+     97.4
+    ]
+   },
+   "mean_calibrated_pct": 91.2,
+   "ece_calibrated_levels": 0.0221,
+   "mean_stated_pct": 95.2,
+   "gateway_cost_usd": 3.6957,
+   "rows_without_gateway_cost": 3
+  },
+  "run2": {
+   "correct": 422,
+   "errors": 0,
+   "accuracy_pct": 91.1,
+   "ci95_pct": [
+    88.2,
+    93.4
+   ],
+   "fast_path_fixed_scope": {
+    "n": 463,
+    "auto": 377,
+    "correct": 360,
+    "wrong": 17,
+    "coverage_pct": 81.4,
+    "accuracy_pct": 95.5,
+    "ci95_pct": [
+     92.9,
+     97.2
+    ]
+   },
+   "fast_path_own_router": {
+    "n": 463,
+    "auto": 376,
+    "correct": 359,
+    "wrong": 17,
+    "coverage_pct": 81.2,
+    "accuracy_pct": 95.5,
+    "ci95_pct": [
+     92.9,
+     97.2
+    ]
+   },
+   "mean_calibrated_pct": 91.2,
+   "ece_calibrated_levels": 0.02,
+   "mean_stated_pct": 95.1,
+   "gateway_cost_usd": 4.6642,
+   "rows_without_gateway_cost": 0
+  },
+  "run3": {
+   "correct": 422,
+   "errors": 0,
+   "accuracy_pct": 91.1,
+   "ci95_pct": [
+    88.2,
+    93.4
+   ],
+   "fast_path_fixed_scope": {
+    "n": 463,
+    "auto": 373,
+    "correct": 357,
+    "wrong": 16,
+    "coverage_pct": 80.6,
+    "accuracy_pct": 95.7,
+    "ci95_pct": [
+     93.1,
+     97.3
+    ]
+   },
+   "fast_path_own_router": {
+    "n": 463,
+    "auto": 372,
+    "correct": 356,
+    "wrong": 16,
+    "coverage_pct": 80.3,
+    "accuracy_pct": 95.7,
+    "ci95_pct": [
+     93.1,
+     97.3
+    ]
+   },
+   "mean_calibrated_pct": 91.0,
+   "ece_calibrated_levels": 0.0165,
+   "mean_stated_pct": 94.9,
+   "gateway_cost_usd": 4.6095,
+   "rows_without_gateway_cost": 0
+  }
+ },
+ "across_runs": {
+  "accuracy_pct": {
+   "mean": 91.33,
+   "min": 91.1,
+   "max": 91.8,
+   "spread_points": 0.7
+  },
+  "fast_path_coverage_pct_fixed_scope": {
+   "min": 80.6,
+   "max": 81.4,
+   "spread_points": 0.8
+  },
+  "fast_path_coverage_pct_own_router": {
+   "min": 80.3,
+   "max": 82.1,
+   "spread_points": 1.8
+  },
+  "fast_path_accuracy_pct_fixed_scope": {
+   "min": 95.5,
+   "max": 95.7
+  },
+  "cases_answer_flips": 4,
+  "cases_correctness_flips": 4,
+  "cases_fast_path_membership_flips": 8,
+  "cases_calibrated_value_changes": 50,
+  "right_in_all_runs": 421,
+  "wrong_in_all_runs": 38,
+  "majority_of_three_correct": 423,
+  "majority_of_three_accuracy_pct": 91.4,
+  "answer_flip_rulings": [
+   "N351538",
+   "N351582",
+   "N352231",
+   "N353152"
+  ],
+  "correctness_flip_rulings": [
+   "N351538",
+   "N351582",
+   "N352231",
+   "N353152"
+  ],
+  "pairwise": {
+   "run1_vs_run2": {
+    "answer_differs": 3,
+    "n": 463,
+    "fixed": 0,
+    "broke": 3,
+    "p": 0.25,
+    "mean_abs_calibrated_change": 0.005
+   },
+   "run1_vs_run3": {
+    "answer_differs": 3,
+    "n": 463,
+    "fixed": 0,
+    "broke": 3,
+    "p": 0.25,
+    "mean_abs_calibrated_change": 0.0059
+   },
+   "run2_vs_run3": {
+    "answer_differs": 2,
+    "n": 463,
+    "fixed": 1,
+    "broke": 1,
+    "p": 1.0,
+    "mean_abs_calibrated_change": 0.0054
+   }
+  }
+ }
+}
