@@ -19,7 +19,7 @@ const commands = `git clone ${repo}.git && cd wassup-hackathon-2026
 make reproduce
 # or one at a time:
 make verify-data                                         # data files match eval/SHA256SUMS
-cd backend && go run ./cmd/claimscheck && cd ..         # headline counts, from the result rows
+cd backend && go run ./cmd/claimscheck && cd ..         # figure ledger and provenance, from committed artifacts
 python3 -I eval/charts/build_evaluation.py . --check     # calibration, curves, split funnel
 python3 -I eval/charts/build_trust_data.py . --check     # failure cases, corpus counts
 python3 -I eval/charts/build_accuracy.py . --check       # model sweep, second test set, calibration`;
