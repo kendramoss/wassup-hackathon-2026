@@ -43,10 +43,12 @@ DEV_RUNS = {
     "carbon_gateway": R + "dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl",
     "pro31_gateway": R + "dev-gemini-3.1-pro-preview-prec-engine-v1-litellm.jsonl",
     "flash38_vertex": R + "dev-gemini-3.8-flash-prec-engine-v1-vertex.jsonl",
+    "argon_rules_v2_gateway": R + "dev-gemini-4-argon-prec-engine-v1-litellm-rules-v2.jsonl",
 }
 BASELINE = "argon_vertex"
 # The candidate pre-registered in D153 and its held-out runs (D154).
-CANDIDATE = None  # set in D153 before any held-out file exists
+CANDIDATE = {"decision": "D153", "engine": "engine-v1", "model": "gemini-4-argon", "retrieval": "bm25", "k": 5,
+             "calibration": "isotonic map fitted on " + "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"}
 HELDOUT_RUNS = {}
 
 
@@ -340,6 +342,7 @@ SWEEP_LABELS = [
     ("flash38_vertex", "Gemini 3.8 Flash, Vertex AI"),
     ("pro31_gateway", "Gemini 3.1 Pro preview, gateway"),
     ("carbon_gateway", "Gemini 4 Carbon, gateway"),
+    ("argon_rules_v2_gateway", "Argon + rules-v2 prompt, gateway"),
 ]
 
 
@@ -441,8 +444,15 @@ def main():
         metrics["dev"][name] = {"file": DEV_RUNS[name], **summary(rows)}
         if name != BASELINE:
             metrics["dev_vs_" + BASELINE][name] = mcnemar(dev[BASELINE], rows)
-    if "argon_gateway" in dev and "carbon_gateway" in dev:
+    if "argon_gateway" in dev:
         metrics["dev_vs_argon_gateway"] = {n: mcnemar(dev["argon_gateway"], dev[n]) for n in dev if n != "argon_gateway"}
+    # Carbon on the cases it answered (its failures are budget exhaustion).
+    if "carbon_gateway" in dev:
+        c = dev["carbon_gateway"]
+        ans = {i: r for i, r in c.items() if not r["err"]}
+        metrics["carbon_answered_vs_argon_gateway"] = mcnemar({i: dev["argon_gateway"][i] for i in ans}, ans)
+        metrics["carbon_answered_vs_argon_gateway"]["carbon_correct"] = sum(r["ok"] for r in ans.values())
+        metrics["carbon_answered_vs_argon_gateway"]["argon_correct"] = sum(dev["argon_gateway"][i]["ok"] for i in ans)
 
     # Ensembles of the three newest gateway runs (no extra calls: computed
     # from the rows above).

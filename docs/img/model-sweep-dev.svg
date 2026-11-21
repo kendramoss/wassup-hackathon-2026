@@ -1,28 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="760" height="380" role="img" aria-labelledby="t d" font-family="'Paper Mono', ui-monospace, SFMono-Regular, Menlo, monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 432" width="760" height="432" role="img" aria-labelledby="t d" font-family="'Paper Mono', ui-monospace, SFMono-Regular, Menlo, monospace">
 <title id="t">Development set accuracy by model</title>
 <desc id="d">Accuracy of engine-v1 on the 463-ruling development set for each model, with 95% intervals. Gemini 4 Argon is highest; Carbon and 3.1 Pro preview are lower and fail on some calls.</desc>
-<rect width="760" height="380" fill="#f9fbfe"/>
+<rect width="760" height="432" fill="#f9fbfe"/>
 <text x="24.0" y="26.0" font-size="15" fill="#13213a" text-anchor="start" font-weight="600">Development set accuracy by model, engine-v1</text>
 <text x="24.0" y="46.0" font-size="11" fill="#47566f" text-anchor="start" font-weight="400">Same prompt, retrieval and K = 5; 463 rulings after scoring adjustments. Bars: 95% Wilson interval.</text>
 <text x="24.0" y="62.0" font-size="11" fill="#47566f" text-anchor="start" font-weight="400">A failed call (no answer) counts as wrong.</text>
-<line x1="300.0" x2="300.0" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="300.0" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">80%</text>
-<line x1="352.5" x2="352.5" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="352.5" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">82%</text>
-<line x1="405.0" x2="405.0" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="405.0" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">84%</text>
-<line x1="457.5" x2="457.5" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="457.5" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">86%</text>
-<line x1="510.0" x2="510.0" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="510.0" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">88%</text>
-<line x1="562.5" x2="562.5" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="562.5" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">90%</text>
-<line x1="615.0" x2="615.0" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="615.0" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">92%</text>
-<line x1="667.5" x2="667.5" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="667.5" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">94%</text>
-<line x1="720.0" x2="720.0" y1="84" y2="340" stroke="#d3dff0" stroke-width="1"/>
-<text x="720.0" y="358.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">96%</text>
+<line x1="300.0" x2="300.0" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="300.0" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">80%</text>
+<line x1="352.5" x2="352.5" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="352.5" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">82%</text>
+<line x1="405.0" x2="405.0" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="405.0" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">84%</text>
+<line x1="457.5" x2="457.5" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="457.5" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">86%</text>
+<line x1="510.0" x2="510.0" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="510.0" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">88%</text>
+<line x1="562.5" x2="562.5" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="562.5" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">90%</text>
+<line x1="615.0" x2="615.0" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="615.0" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">92%</text>
+<line x1="667.5" x2="667.5" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="667.5" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">94%</text>
+<line x1="720.0" x2="720.0" y1="84" y2="392" stroke="#d3dff0" stroke-width="1"/>
+<text x="720.0" y="410.0" font-size="11" fill="#6e7c94" text-anchor="middle" font-weight="400">96%</text>
 <text x="24.0" y="116.0" font-size="12" fill="#13213a" text-anchor="start" font-weight="400">Gemini 4 Argon, Vertex AI (in use)</text>
 <text x="24.0" y="132.0" font-size="10" fill="#47566f" text-anchor="start" font-weight="400">422/463 · $0.0079/case · no failed calls</text>
 <line x1="515.3" x2="651.8" y1="112" y2="112" stroke="#8fa7d6" stroke-width="3"/>
@@ -48,4 +48,9 @@
 <line x1="428.6" x2="583.5" y1="320" y2="320" stroke="#8fa7d6" stroke-width="3"/>
 <circle cx="512.6" cy="320" r="6" fill="#13213a" stroke="#f9fbfe" stroke-width="2"/>
 <text x="512.6" y="308.0" font-size="11" fill="#13213a" text-anchor="middle" font-weight="600">88.1%</text>
+<text x="24.0" y="376.0" font-size="12" fill="#13213a" text-anchor="start" font-weight="400">Argon + rules-v2 prompt, gateway</text>
+<text x="24.0" y="392.0" font-size="10" fill="#47566f" text-anchor="start" font-weight="400">421/463 · $0.0086/case · no failed calls</text>
+<line x1="510.0" x2="646.5" y1="372" y2="372" stroke="#8fa7d6" stroke-width="3"/>
+<circle cx="586.1" cy="372" r="6" fill="#13213a" stroke="#f9fbfe" stroke-width="2"/>
+<text x="586.1" y="360.0" font-size="11" fill="#13213a" text-anchor="middle" font-weight="600">90.9%</text>
 </svg>
