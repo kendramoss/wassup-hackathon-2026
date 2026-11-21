@@ -2,7 +2,7 @@
 
 import { watchView } from "@/lib/watch-state";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
@@ -451,8 +451,16 @@ function RenameField({ value, onDone }: { value: string; onDone: (v: string | nu
 function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // #553: a menu opened from the keyboard must land focus on its first item,
+  // but a mouse click should leave the pointer user's focus alone.
+  const keyboardOpen = useRef(false);
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      keyboardOpen.current = false;
+      return;
+    }
+    if (keyboardOpen.current) menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])')?.focus();
     const close = (e: MouseEvent | KeyboardEvent) => {
       if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) {
         setOpen(false);
@@ -467,6 +475,17 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
       document.removeEventListener("keydown", close);
     };
   }, [open]);
+  // #553: arrow/Home/End navigation for a role=menu, skipping disabled items.
+  const onMenuKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Home" && e.key !== "End") return;
+    e.preventDefault();
+    const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])') ?? [])];
+    if (!items.length) return;
+    const active = document.activeElement;
+    const i = active ? items.indexOf(active as HTMLElement) : -1;
+    const next = e.key === "Home" ? 0 : e.key === "End" ? items.length - 1 : i < 0 ? 0 : (i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items[next]?.focus();
+  };
   return (
     <div
       className="relative inline-block"
@@ -477,11 +496,31 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
       }}
     >
-      <button type="button" aria-label={`Actions for ${c.display_name}`} aria-expanded={open} className="px-2 py-1 text-base text-dim hover:text-ink" onClick={() => setOpen((o) => !o)}>
+      <button
+        type="button"
+        aria-label={`Actions for ${c.display_name}`}
+        aria-expanded={open}
+        className="px-2 py-1 text-base text-dim hover:text-ink"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") keyboardOpen.current = true;
+          if (e.key === "ArrowDown" && !open) {
+            e.preventDefault();
+            keyboardOpen.current = true;
+            setOpen(true);
+          }
+        }}
+        onClick={() => setOpen((o) => !o)}
+      >
         ⋯
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 z-20 mt-1 w-40 border border-edge bg-sheet py-1 text-left text-[13px] shadow-[4px_4px_0_var(--shadow)]">
+        <div
+          role="menu"
+          aria-label={`Actions for ${c.display_name}`}
+          ref={menuRef}
+          onKeyDown={onMenuKeyDown}
+          className="absolute right-0 z-20 mt-1 w-40 border border-edge bg-sheet py-1 text-left text-[13px] shadow-[4px_4px_0_var(--shadow)]"
+        >
           <Link role="menuitem" href={caseHref(c)} className="block px-3 py-1.5 hover:bg-wash">
             Open
           </Link>
