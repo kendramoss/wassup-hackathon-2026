@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ApiError, api, type BomVersionResponse, type CaseResponse } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
-import { conf } from "@/lib/format";
+import { originConf, originConfCaption } from "@/lib/format";
 import { ErrorBox } from "./chrome";
 import { Button, Country, Panel, PanelHead, Spinner } from "./ui";
 
@@ -128,7 +128,7 @@ export function BomVersion({ id, c, reload }: { id: string; c: CaseResponse; rel
                 ))}
               </ul>
               <p className="text-[13px]">
-                Origin <Country name={res.old_origin} /> → <Country name={res.new_origin} /> (confidence {conf(res.new_confidence)})
+                Origin <Country name={res.old_origin} /> → <Country name={res.new_origin} /> ({originConfCaption(originConf({ confidence: res.new_confidence, calibrated_confidence: res.new_calibrated_confidence }))})
                 {res.facts_basis === "rendered" && <span className="text-dim"> · both versions read from the parts list, so the wording doesn&apos;t move the origin</span>}
               </p>
               {(res.warnings ?? []).map((w) => (

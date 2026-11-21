@@ -139,7 +139,7 @@
     "model_id": "gemini-4-argon",
     "output_tokens": 300,
     "prompt_version": "engine-v1",
-    "summary": "origin China, confidence 0.97, auto"
+    "summary": "origin China, confidence 0.97 as stated by the model, not calibrated, auto"
    },
    {
     "cost_usd": 0.009125,
@@ -2867,7 +2867,7 @@
     "model_id": "gemini-4-argon",
     "output_tokens": 300,
     "prompt_version": "engine-v1",
-    "summary": "origin China, confidence 0.97, auto"
+    "summary": "origin China, confidence 0.97 as stated by the model, not calibrated, auto"
    },
    {
     "cost_usd": 0.009125,

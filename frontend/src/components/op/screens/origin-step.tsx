@@ -8,7 +8,7 @@ import { api, type CaseResponse, type Scenario } from "@/lib/api/client";
 import { asToday, readsDiffer } from "@/lib/plan-check";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { conf, formatDate, formatMonth, isProxy, originConf, originConfCaption, shortSubject } from "@/lib/format";
+import { formatDate, formatMonth, isProxy, originConf, originConfCaption, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { DemoNote, ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
@@ -284,7 +284,7 @@ export function WatchLine({ c, setCase }: { c: CaseResponse; setCase: (c: CaseRe
         )}
         {w && view.kind === "changed" && (
           <>
-            <b className="font-medium text-ask">Changed:</b> with today&apos;s rulings it&apos;s <Country name={w.prediction?.origin_country} /> ({conf(w.prediction?.confidence)}).{" "}
+            <b className="font-medium text-ask">Changed:</b> with today&apos;s rulings it&apos;s <Country name={w.prediction?.origin_country} /> ({originConfCaption(originConf(w.prediction))}).{" "}
             {view.reviewNote ? <>{view.reviewNote}{" "}</> : null}
             {w.newer_rulings?.map((r) => (
               <span key={r.id}>

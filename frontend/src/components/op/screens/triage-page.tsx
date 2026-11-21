@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { api, type BatchResponse } from "@/lib/api/client";
-import { conf, seconds } from "@/lib/format";
+import { originConf, originConfCaption, seconds } from "@/lib/format";
 import { csvNumber, csvText, preview, type Preview } from "@/lib/triage-csv";
 import { Elapsed, ErrorBox, Main } from "../chrome";
 import { Button, Chip, Country, ScrollX, StatusChip, cx } from "../ui";
@@ -266,8 +266,8 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
   ].filter((x) => x.n > 0);
 
   const download = () => {
-    const head = ["name", "case_id", "predicted_origin", "confidence", "triage_route", "out_of_scope", "reason", "cost_usd", "error"];
-    const numeric = new Set(["confidence", "cost_usd"]);
+    const head = ["name", "case_id", "predicted_origin", "confidence", "calibrated_confidence", "calibration", "triage_route", "out_of_scope", "reason", "cost_usd", "error"];
+    const numeric = new Set(["confidence", "calibrated_confidence", "cost_usd"]);
     const lines = [head.join(","), ...rows.map((r) => head.map((k) => (numeric.has(k) ? csvNumber : csvText)(r[k as keyof Row])).join(","))];
     const url = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
     const a = document.createElement("a");
@@ -346,7 +346,7 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
                   <td className="whitespace-nowrap px-3.5 py-3">
                     {r.predicted_origin ? (
                       <>
-                        <Country name={r.predicted_origin} /> <span className="text-dim">{conf(r.confidence)}</span>
+                        <Country name={r.predicted_origin} /> <span className="text-dim">{originConfCaption(originConf(r))}</span>
                       </>
                     ) : (
                       "—"

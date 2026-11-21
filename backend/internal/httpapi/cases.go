@@ -747,7 +747,7 @@ func predictionEvent(kind string, c store.Case, start time.Time) store.Event {
 	if c.Clarify != nil {
 		u.trace(c.Clarify.Trace)
 	}
-	return u.on(store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, confidence %.2f, %s", p.Origin, p.Confidence, c.Triage.Route),
+	return u.on(store.Event{Kind: kind, Summary: fmt.Sprintf("origin %s, %s, %s", p.Origin, confidencePhrase(p), c.Triage.Route),
 		Provider: p.Trace.Provider, Model: p.Trace.ModelID, Prompt: p.Trace.PromptVersion}, start)
 }
 

@@ -240,8 +240,8 @@ func agentCaseText(c store.Case) string {
 	}
 	fmt.Fprintf(&b, "\n%s", caseagent.FactsSection(c.Facts))
 	p := c.Prediction
-	fmt.Fprintf(&b, "\nPREDICTION: origin %s, confidence %.2f. Decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Review route: %s (%s).\n",
-		p.Origin, p.Confidence, p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), c.Triage.Route, c.Triage.Reason)
+	fmt.Fprintf(&b, "\nPREDICTION: origin %s, %s. Decisive step: %s. Reasoning: %s. Earlier rulings used: %s. Review route: %s (%s).\n",
+		p.Origin, confidencePhrase(p), p.DecisiveStep, p.Reasoning, strings.Join(p.Precedents, ", "), c.Triage.Route, c.Triage.Reason)
 	if c.Clarify != nil {
 		fmt.Fprintf(&b, "Follow-up questions suggested: %s\n", strings.Join(c.Clarify.Questions, " | "))
 	}
