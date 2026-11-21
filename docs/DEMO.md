@@ -218,3 +218,18 @@ History, for the record: the first production search (`backend-00043-bvb`) lost 
 2. The first production check on that move had 4 of its 6 searches come back empty, because CBP's search needs every word to match. It stored 0.96, "origin changes", with no supporting ruling.
 3. After the relaxed search fix (D89), and with Anas's approval, that one stored verdict was deleted and checked once more: 0.96 on N345938, shown. The other six verdicts were never touched.
 
+
+## 7. New-family demos with recorded runs (D191, 21 Nov)
+Five demos come from the families added in D138. Each card on /cases shows CBP's holding and a recorded development run (one run each, through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92). Four were picked by family, not by result (D191); one of them disagrees with CBP, and the card says so.
+
+| Demo | CBP held | Engine (recorded run) | First plan shown | Cited ruling, read by hand |
+|---|---|---|---|---|
+| Gas grill (N335085, scenario 1) | China | China, stated 0.95, calibrated 0.90 | lid and firebox forming, burners and gas train, cooking surface and frame in Indonesia, check 0.96, N333420 | not spot-checked |
+| Aluminum truck wheel (N349871) | China | **Thailand, stated 0.85, calibrated 0.60: disagrees** | housings and structural parts (the forging) in Thailand, check 0.94, N346803 | partial |
+| Washing-machine speed sensor (N350727) | China | China, stated 0.98, calibrated 0.99 | PCBA in Thailand, check 0.96, N344809 | supports |
+| Power bank (N352355) | China | China, stated 0.95, calibrated 0.90 | power conversion module in Vietnam, check 0.96, N352014 | supports |
+| PCR detection instrument (N333453) | China | China, stated 0.98, calibrated 0.99 | PCBA and sensors in Japan, check 0.92, N330296 | partial |
+
+Sources: `eval/results/families-plan-gas-grill-2023-litellm.json`, `eval/results/planner-families-{n349871,n350727,n352355,n333453}-litellm.json`, `eval/planner/spot_checks.json`.
+
+**Before recording or judging:** run `make demo-seed` against the production API with the admin token so each of these has a pinned case on Vertex AI. That run is new and may differ from the table. Record what it shows, including a disagreement.

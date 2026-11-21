@@ -1158,6 +1158,7 @@ paths:
                         description: { type: string }
                         cbp_held: { type: string, example: "China (N328954)" }
                         has_plan: { type: boolean }
+                        recorded: { $ref: "#/components/schemas/DemoRecordedRun" }
   /v1/demos/{id}:
     get:
       operationId: getDemo
@@ -1185,6 +1186,7 @@ paths:
                   notes: { type: string }
                   predict: { $ref: "#/components/schemas/PredictRequest" }
                   plan: { oneOf: [{ $ref: "#/components/schemas/PlanRequest" }, { type: "null" }] }
+                  recorded: { $ref: "#/components/schemas/DemoRecordedRun" }
         "404": { $ref: "#/components/responses/Error" }
   /v1/workspaces:
     post:
@@ -2113,6 +2115,24 @@ components:
         mode: { type: string, example: operations_v1 }
         scope: { type: string, example: searched_moves_only }
         statement: { type: string }
+    DemoRecordedRun:
+      type: object
+      description: >-
+        A development run of a demo kept in a committed result file (D191), shown beside CBP's holding before the demo is run on this
+        site. It is not a run on this site. Present only on demos that have one.
+      required: [run, file, engine_origin, stated_confidence, calibrated_confidence, calibration, cbp_origin, agrees_with_cbp]
+      properties:
+        run: { type: string, description: How and when it ran (model, gateway, plan bar) }
+        file: { type: string, example: eval/results/planner-families-n349871-litellm.json }
+        engine_origin: { type: string, example: Thailand }
+        stated_confidence: { type: number }
+        calibrated_confidence: { type: number, description: The stated confidence through the calibration map (D160) }
+        calibration: { type: string, example: cal-v2 }
+        cbp_origin: { type: string, example: China }
+        agrees_with_cbp: { type: boolean }
+        best_plan: { type: string, description: The first plan shown at the bar, if any }
+        plan_check: { type: number }
+        plan_ruling: { type: string }
     PlanRequest:
       type: object
       required: [target]

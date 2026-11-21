@@ -1543,6 +1543,27 @@ export interface components {
             scope: string;
             statement: string;
         };
+        /** @description A development run of a demo kept in a committed result file (D191), shown beside CBP's holding before the demo is run on this site. It is not a run on this site. Present only on demos that have one. */
+        DemoRecordedRun: {
+            /** @description How and when it ran (model */
+            run: string;
+            /** @example eval/results/planner-families-n349871-litellm.json */
+            file: string;
+            /** @example Thailand */
+            engine_origin: string;
+            stated_confidence: number;
+            /** @description The stated confidence through the calibration map (D160) */
+            calibrated_confidence: number;
+            /** @example cal-v2 */
+            calibration: string;
+            /** @example China */
+            cbp_origin: string;
+            agrees_with_cbp: boolean;
+            /** @description The first plan shown at the bar */
+            best_plan?: string;
+            plan_check?: number;
+            plan_ruling?: string;
+        };
         PlanRequest: {
             /** @example Thailand */
             target: string;
@@ -3242,6 +3263,7 @@ export interface operations {
                             /** @example China (N328954) */
                             cbp_held?: string;
                             has_plan?: boolean;
+                            recorded?: components["schemas"]["DemoRecordedRun"];
                         }[];
                     };
                 };
@@ -3276,6 +3298,7 @@ export interface operations {
                         notes?: string;
                         predict?: components["schemas"]["PredictRequest"];
                         plan?: components["schemas"]["PlanRequest"] | null;
+                        recorded?: components["schemas"]["DemoRecordedRun"];
                     };
                 };
             };

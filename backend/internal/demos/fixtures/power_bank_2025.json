@@ -1,0 +1,156 @@
+{
+  "id": "power-bank-2025",
+  "order": 9,
+  "title": "Power bank, battery cells from China, circuit board and case from Vietnam",
+  "description": "A 4,000 mAh power bank. The circuit board and the plastic case come from Vietnam; the two lithium-ion cells come from China, where the bank is assembled. CBP held China (N352355).",
+  "source": "CBP ruling N352355, rulings.cbp.gov",
+  "cbp_held": "China (N352355)",
+  "notes": "One of the families added in D138 (power supplies and chargers). Built from the D171 fixture for CBP ruling N352355 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-09-03, and N352355 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n352355-litellm.json): the engine said China at 0.95 stated, where CBP held China (it agrees with CBP). First plan shown: \"Make Power conversion or charging module in Vietnam\", check 0.96 on N352014. That ruling, read by hand: supports (N352014 (power bank) holds origin by where the battery cells are made.) A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2025-09-03",
+    "product": {
+      "name": "Deal Worthy 4,000 mAh power bank, model number PB41",
+      "description": "A portable battery for charging electronic devices with a nominal capacity of 4,000 mAh and a nominal energy of 14.8 Wh. It consists of two cylindrical lithium-ion battery cells and a printed circuit board assembly enclosed in an injection molded plastic case with a plastic button, light guide, light shield, USB-A output connector, and micro-USB input connector, packaged with a charging cable.",
+      "plants": [
+        {
+          "id": "vn",
+          "name": "Vietnam Plant",
+          "country": "Vietnam",
+          "capabilities": [
+            "pcba_manufacturing",
+            "power_charging_modules",
+            "housing_cables_parts"
+          ]
+        },
+        {
+          "id": "cn",
+          "name": "China Plant",
+          "country": "China",
+          "capabilities": [
+            "power_charging_modules",
+            "housing_cables_parts",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "Printed circuit board assembly (with a USB-A and a micro-USB connector)",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "pcba_manufacturing"
+        },
+        {
+          "name": "Light guide",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "housing_cables_parts"
+        },
+        {
+          "name": "Light shield",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "housing_cables_parts"
+        },
+        {
+          "name": "Plastic button",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "housing_cables_parts"
+        },
+        {
+          "name": "Injection molded case (bottom and top cases)",
+          "made_in": "Vietnam",
+          "plant": "vn",
+          "group": "housing_cables_parts"
+        },
+        {
+          "name": "Two cylindrical lithium-ion battery cells",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "power_charging_modules"
+        },
+        {
+          "name": "Charging cable",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "housing_cables_parts"
+        }
+      ],
+      "operations": [
+        {
+          "name": "Inspect each component",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Solder wires to the printed circuit board assembly",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Weld a nickel strip to two battery cells",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Weld the wires from the printed circuit board assembly to the battery cells",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Place the PCBA and battery cell assembly inside the bottom case with a pre-installed button, light guide, and light shield",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Install the top case",
+          "plant": "cn",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Test, inspect, and package the device with the charging cable",
+          "plant": "cn",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "power_supplies_chargers",
+    "exclude_rulings": [
+      "N352355"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N352355"
+    }
+  },
+  "plan": {
+    "target": "Vietnam",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.425,
+        "Vietnam": 0.125
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "power_charging_modules": {
+          "cn": 100000,
+          "vn": 125000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 21 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/planner-families-n352355-litellm.json",
+    "engine_origin": "China",
+    "stated_confidence": 0.95,
+    "cbp_origin": "China",
+    "agrees_with_cbp": true,
+    "best_plan": "Make Power conversion or charging module in Vietnam",
+    "plan_check": 0.96,
+    "plan_ruling": "N352014"
+  }
+}

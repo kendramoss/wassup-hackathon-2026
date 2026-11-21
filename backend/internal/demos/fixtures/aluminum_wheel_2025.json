@@ -1,0 +1,135 @@
+{
+  "id": "aluminum-wheel-2025",
+  "order": 7,
+  "title": "Aluminum truck wheel, forged in China, finished in Thailand",
+  "description": "A semi-trailer wheel. Aluminum bar is forged into a round blank in China; in Thailand the blank is flow formed, heat treated, machined, finished and fitted with a valve. CBP held China (N349871): the forging decides.",
+  "source": "CBP ruling N349871, rulings.cbp.gov",
+  "cbp_held": "China (N349871)",
+  "notes": "One of the families added in D138 (vehicle parts). Built from the D171 fixture for CBP ruling N349871 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-03, and N349871 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n349871-litellm.json): the engine said Thailand at 0.85 stated, where CBP held China; it disagrees with CBP, and CBP's holding is the answer. The plan search starts from CBP's holding because the ruling is given. First plan shown: \"Make Housings and structural parts in Thailand\", check 0.94 on N346803. That ruling, read by hand: partial (N346803 held Italy for a copper shield finished from an Italian forged blank (a single-country ruling): forging location decides, different product.) A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2025-07-03",
+    "product": {
+      "name": "Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607)",
+      "description": "Aluminum wheels used in semi-trailer trucks and trailers, produced by forging aluminum bars into a circular blank ('cookie'), flow forming and machining the rim, applying surface treatments, and installing a valve.",
+      "plants": [
+        {
+          "id": "cn",
+          "name": "China Plant",
+          "country": "China",
+          "capabilities": [
+            "housings_and_structures"
+          ]
+        },
+        {
+          "id": "th",
+          "name": "Thailand Plant",
+          "country": "Thailand",
+          "capabilities": [
+            "precision_machined_parts",
+            "housings_and_structures",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "Aluminum bar / ingot",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Forged circular aluminum blank ('cookie')",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Valve",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "final_assembly"
+        }
+      ],
+      "operations": [
+        {
+          "name": "Cutting aluminum bars",
+          "plant": "cn",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Heating, forging ingots into a circular shape, and expanding to form a 'cookie'",
+          "plant": "cn",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Flow forming (stretching the rim to the required size and structure)",
+          "plant": "th",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Solution heat treatment",
+          "plant": "th",
+          "group": "precision_machined_parts"
+        },
+        {
+          "name": "Turning, milling holes, drilling holes, finish turning, and deburring",
+          "plant": "th",
+          "group": "precision_machined_parts"
+        },
+        {
+          "name": "Pre-cleaning, burnishing (sanding), polishing inside and outside, applying special anti-oxidation coating, and removing polishing paste",
+          "plant": "th",
+          "group": "housings_and_structures"
+        },
+        {
+          "name": "Loading valve",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Marking, testing, and packaging",
+          "plant": "th",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "vehicle_parts",
+    "exclude_rulings": [
+      "N349871"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N349871"
+    }
+  },
+  "plan": {
+    "target": "Thailand",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.425,
+        "Thailand": 0.125
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "housings_and_structures": {
+          "cn": 100000,
+          "th": 125000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 21 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/planner-families-n349871-litellm.json",
+    "engine_origin": "Thailand",
+    "stated_confidence": 0.85,
+    "cbp_origin": "China",
+    "agrees_with_cbp": false,
+    "best_plan": "Make Housings and structural parts in Thailand",
+    "plan_check": 0.94,
+    "plan_ruling": "N346803"
+  }
+}

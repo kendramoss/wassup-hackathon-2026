@@ -19,8 +19,19 @@ export const copy = {
     demos: "Demos · real CBP facts",
     demosNote: "Demos were picked because CBP ruled on the same product, so you can compare the answer with CBP's. They show how it works, not how often it is right.",
     demosMisses: "Every held-out ruling it got wrong →",
-    moreDemos: "More demos · not run yet",
+    moreDemos: "More demos · not run on this site yet",
     moreDemosNote: "Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
+    // A demo's recorded development run (D191), on its card.
+    recorded: {
+      label: "Recorded development run",
+      engine: "Engine:",
+      agrees: "Agrees with CBP",
+      disagrees: "Disagrees with CBP",
+      plan: (plan: string, check: string, ruling: string) => `First plan shown: ${plan}, check ${check}${ruling ? ` on ${ruling}` : ""}.`,
+      noPlan: "No plan shown at the bar.",
+      selection:
+        "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 23 per-family checks the engine disagreed with CBP's holding on 7.",
+    },
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
   },

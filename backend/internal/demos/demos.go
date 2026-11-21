@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"path"
 	"sort"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 )
 
 //go:embed fixtures/*.json
@@ -27,15 +29,35 @@ type Demo struct {
 	Notes       string          `json:"notes"`
 	Predict     json.RawMessage `json:"predict"`
 	Plan        json.RawMessage `json:"plan"`
+	Recorded    *Recorded       `json:"recorded,omitempty"`
+}
+
+// Recorded is a development run of the demo kept in a committed result file
+// (D191), so the Cases page can show the engine's answer next to CBP's
+// holding before anyone runs the demo here. It is not a run on this site.
+// CalibratedConfidence is filled at load from the calibration map.
+type Recorded struct {
+	Run                  string  `json:"run"`
+	File                 string  `json:"file"`
+	EngineOrigin         string  `json:"engine_origin"`
+	StatedConfidence     float64 `json:"stated_confidence"`
+	CalibratedConfidence float64 `json:"calibrated_confidence"`
+	Calibration          string  `json:"calibration"`
+	CBPOrigin            string  `json:"cbp_origin"`
+	AgreesWithCBP        bool    `json:"agrees_with_cbp"`
+	BestPlan             string  `json:"best_plan,omitempty"`
+	PlanCheck            float64 `json:"plan_check,omitempty"`
+	PlanRuling           string  `json:"plan_ruling,omitempty"`
 }
 
 // Summary is a list entry.
 type Summary struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CBPHeld     string `json:"cbp_held"`
-	HasPlan     bool   `json:"has_plan"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CBPHeld     string    `json:"cbp_held"`
+	HasPlan     bool      `json:"has_plan"`
+	Recorded    *Recorded `json:"recorded,omitempty"`
 }
 
 // Load returns all demos in display order.
@@ -54,6 +76,12 @@ func Load() ([]Demo, error) {
 		if err := json.Unmarshal(b, &d); err != nil {
 			return nil, fmt.Errorf("demos: %s: %w", e.Name(), err)
 		}
+		if d.Recorded != nil {
+			// Recorded runs are engine-v1 on gemini-4-argon (the build
+			// script checks), the configuration the map was fitted for.
+			m := calibrate.Must()
+			d.Recorded.CalibratedConfidence, d.Recorded.Calibration = m.Value(d.Recorded.StatedConfidence), m.Version
+		}
 		out = append(out, d)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Order < out[j].Order })
@@ -65,7 +93,7 @@ func Summaries(ds []Demo) []Summary {
 	out := make([]Summary, len(ds))
 	for i, d := range ds {
 		out[i] = Summary{ID: d.ID, Title: d.Title, Description: d.Description, CBPHeld: d.CBPHeld,
-			HasPlan: len(d.Plan) > 0 && string(d.Plan) != "null"}
+			HasPlan: len(d.Plan) > 0 && string(d.Plan) != "null", Recorded: d.Recorded}
 	}
 	return out
 }
