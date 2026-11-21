@@ -257,7 +257,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
 - **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
-- **The production path for the other regimes, end to end.** The post-cutoff regime runs (section 6.1) send each case to its regime's engine; the router sent 10 of those 24 rulings to the general engine instead, and that path is not scored.
+- **The routed path on the first held-out window.** The post-cutoff routed path is now scored (section 6.2); the first window's is not, because it needs an engine run on every misrouted window-1 pair.
 - **A textile split rule that reads the law, not the boilerplate.** The D51 rule matches any mention of 102.21 (section 6.1).
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
 
@@ -273,7 +273,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
 - **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 14 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
-- **The other regimes' post-cutoff splits are small** (17, 6 and 13), and their router path is not scored (section 6.1).
+- **The other regimes' post-cutoff splits are small** (17, 6 and 13); their routed path is scored once (section 6.2), on 107 rulings.
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
 
 ## 6. The second held-out split (21 Nov 2026)
@@ -320,9 +320,28 @@ The same 163 labelled rulings hold 30 that the textile, pharmaceutical and Part 
 **All regimes, all held-out windows, each ruling once: 547/616 = 88.8% (86.1–91.1).** Adding the splits as they are gives 583/655 = 89.0% (86.4–91.2).
 
 - **A correction to the earlier pooled figure.** The first-window pool, 476/536 = 88.8%, counted 27 rulings twice. The textile rule matches "102.21" anywhere in a ruling, and Part 102 rulings on non-textile goods name 102.21 in their boilerplate, so 27 of the 32 Part 102 rulings were also in the textile split. Counted once (under Part 102, a rule fixed before the runs), the first window is 451/509 = 88.6%. In window 2 only 3 of the 17 textile rulings apply 102.21 itself; all 3 were right.
-- **Routing.** The production router sent 7 of 13 Part 102 rulings, 1 of 6 pharmaceutical rulings and 1 of the 3 true textile rulings to the general engine. The table scores each regime's own engine, so it is the best case for routing; the routed path was not scored.
+- **Routing.** The router then in production (router-v2) sent 7 of 13 Part 102 rulings, 1 of 6 pharmaceutical rulings and 1 of the 3 true textile rulings to the general engine. The table scores each regime's own engine, so it is the best case for routing. Section 6.2 scores the routed path and the router that replaced it.
 - **What it shows.** The specialist engines hold up after the cutoff within wide intervals. The windows are small, the paths are mixed (Vertex AI, the earlier proxy, the gateway), and nothing here was tuned. `eval/RESULTS.md` lists the misses.
 - **Limits of "held out" and of the intervals.** Held out means not used to tune anything; it is not a sealed set. Within each window, earlier rulings can be precedents for later ones (section 2.3), BM25 statistics use the whole corpus, and model pre-training exposure cannot be excluded. Each figure is one scored run; the Wilson intervals treat that run's rows as independent and leave out run-to-run, label-error and split-construction uncertainty, and near-duplicate rulings.
+
+### 6.2 The router, and the routed path (D230–D233)
+
+**Why.** Section 6.1 scores each regime's own engine, the best case. In the product the router picks the engine, and a wrong pick applies the wrong legal test. On the post-cutoff rulings the router then in production kept only 11 of 19 pharmaceutical and Part 102 rulings away from the general engine, against 88.4% on its development window.
+
+**How.** The router got its own splits (`eval/splits/splits_router.json`), built from the committed engine splits without reading model output: each ruling carries the engine of its legal test. Development is everything before 2026 (725 rulings with a gold engine, including the 70 Part 102 development rulings the old development window lacked); the two held-out windows are 505 and 105. Variants were tuned on development only, against a pass rule written first (specialist routing up, p < 0.05; all-rulings routing up; general routing at most 1 point lower; cost at most 1.5×). Each held-out window was scored once per router.
+
+**What we found.** The 88.4% was mostly pharmaceutical rulings. On the full development split router-v2 sent only 36 of 70 Part 102 rulings to the Part 102 engine. Most misses are goods finished in Canada or Mexico, where CBP applies the Part 102 tariff-shift rules; router-v2's prompt told the model to ignore that cue.
+
+| Router | Development (725) | Held-out, Jan–Sep 2026 (505) | Post-cutoff (105) | Post-cutoff specialist (22) |
+|---|---|---|---|---|
+| router-v2 (before) | 93.4% (91.3–95.0) | 96.6% (94.7–97.9) | 91.4% (84.5–95.4) | 59.1% (38.7–76.7) |
+| **router-v4 (production now)** | **96.1% (94.5–97.3)** | **97.0% (95.2–98.2)** | **96.2% (90.6–98.5)** | **86.4% (66.7–95.3)** |
+
+router-v3, the first variant, failed the general-routing limit on development and was not used. router-v4 passed on development (all rulings p = 0.0005) and the adoption check on the first held-out window (fixed 5, broke 3; general 0.3 points lower), so it is now the production router, on the same model.
+
+**The routed path, post-cutoff, all four rule sets, each ruling once (107 rulings).** Each ruling answered by the engine its router label picks: **router-v4 88.8% (81.4–93.5)**, router-v2 87.9% (80.3–92.8), against 89.7% (82.5–94.2) when each ruling goes straight to its own engine. Misrouting cost less end to end than the routing table suggests, because the general engine often names the same country as the Part 102 engine. The two routers differ on 3 rulings, so the end-to-end gain is not significant.
+
+**What it does not show.** router-v4 sends a few more ordinary cases to the Part 102 engine (general routing 0.3 to 1.2 points lower on every set): CBP decides some goods finished in Canada or Mexico under substantial transformation, and the facts rarely say which. The gold engine comes from regex-built splits. The router runs here are gateway runs, not Vertex AI. The official engine figures were measured with router-v2. Details and every run: `eval/RESULTS.md`.
 
 ## 7. Planner (21 Nov 2026)
 

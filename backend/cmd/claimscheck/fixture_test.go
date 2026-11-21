@@ -163,6 +163,32 @@ func newFixture(t *testing.T) *fixture {
 	write(t, root, "eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", fxEngine("P2", "2026-10-04", false, "India", .9))
 	write(t, root, "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
 		`{"ruling":"U4","date":"2026-10-05","correct":false,"pred":"","confidence":0,"error":"timeout"}`+"\n"+fxEngine("U4", "2026-10-05", true, "Canada", .9))
+	// Router (D230-D232). Dev: D1 general, D2 Part 102. router-v2 sends both
+	// to the general engine, router-v3 both to Part 102, router-v4 each to
+	// its own. Post-cutoff: router-v2 sends P2 and U4 to the general engine,
+	// which gets P2 right and U4 wrong.
+	write(t, root, "eval/splits/splits_router.json", `{"dev":["D1","D2","N1"],"final":["F1","F2"],"final2":["S1","S2","T2","P2","U4"],`+
+		`"gold":{"D1":"general","D2":"usmca_part102","N1":"none","F1":"general","F2":"pharma_api","S1":"general","S2":"general","T2":"textile_102_21","P2":"pharma_api","U4":"usmca_part102"}}`)
+	route := func(id, gold, eng string) string {
+		return fmt.Sprintf(`{"ruling":%q,"gold_engine":%q,"engine":%q,"correct":%t}`+"\n", id, gold, eng, gold == eng)
+	}
+	write(t, root, "eval/results/route-dev-router-v2-gemini-3.8-flash-litellm.jsonl", route("D1", "general", "general")+route("D2", "usmca_part102", "general"))
+	write(t, root, "eval/results/route-dev-router-v3-gemini-3.8-flash-litellm.jsonl", route("D1", "general", "usmca_part102")+route("D2", "usmca_part102", "usmca_part102"))
+	write(t, root, "eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl",
+		route("D1", "general", "general")+route("D2", "usmca_part102", "usmca_part102")+route("N1", "none", "general"))
+	write(t, root, "eval/results/route-final2-router-v2-d211.jsonl", route("S1", "general", "general")+route("S2", "general", "general")+
+		route("T2", "textile_102_21", "textile_102_21")+route("P2", "pharma_api", "general")+route("U4", "usmca_part102", "general"))
+	write(t, root, "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-routed-v2.jsonl",
+		fxEngine("P2", "2026-10-04", true, "Australia", .9)+fxEngine("U4", "2026-10-05", false, "China", .9))
+	write(t, root, "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v2.jsonl", "")
+	// router-v4: F2 right where router-v2 missed it; post-cutoff it sends U4
+	// to the Part 102 engine (right, from the D211 row) and S2 there too
+	// (a routed-v4 pair, wrong).
+	write(t, root, "eval/results/route-final-router-v2-gemini-3.8-flash-litellm.jsonl", route("F1", "general", "general")+route("F2", "pharma_api", "general"))
+	write(t, root, "eval/results/route-final-router-v4-gemini-3.8-flash-litellm.jsonl", route("F1", "general", "general")+route("F2", "pharma_api", "pharma_api"))
+	write(t, root, "eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl", route("S1", "general", "general")+route("S2", "general", "usmca_part102")+
+		route("T2", "textile_102_21", "textile_102_21")+route("P2", "pharma_api", "pharma_api")+route("U4", "usmca_part102", "usmca_part102"))
+	write(t, root, "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v4.jsonl", fxEngine("S2", "2026-10-02", false, "Canada", .9))
 	// eval/SHA256SUMS pins data files relative to eval/.
 	var sums strings.Builder
 	for _, rel := range []string{"data/labels.jsonl", "data/labels_usmca.jsonl", "splits/splits_final.json"} {

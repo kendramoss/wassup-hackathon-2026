@@ -1746,6 +1746,11 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	items = append(items, scopeItems...)
+	routerItems, err := routerSummaryItems(*resultsDir)
+	if err != nil {
+		return err
+	}
+	items = append(items, routerItems...)
 	cal, err := verifierCalibration(*resultsDir, config.DefaultPlanBar)
 	if err != nil {
 		return err
@@ -2280,7 +2285,7 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	}
 	if seen > 0 {
 		p, lo, hi := evalkit.Wilson(kept, seen)
-		items = append(items, evalsummary.Item{Key: "router_final2_out_of_scope_recall", Label: "Router, post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
+		items = append(items, evalsummary.Item{Key: "router_final2_out_of_scope_recall", Label: "Router-v2 (the router before D233), post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
 			Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: seen, Split: "final2",
 			Source: "eval/results/{pharma,usmca}-final2-*-router.jsonl (router_regime)"})
 	}
@@ -2401,9 +2406,9 @@ func scopeSummaryItems(dir, textileSplits string) ([]evalsummary.Item, error) {
 		return evalsummary.Item{Key: key, Label: label, Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n, Split: "dev", DevelopmentOnly: true, Source: src}
 	}
 	return []evalsummary.Item{
-		item("router_out_of_scope_recall", "Router (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
-		item("router_textile_routing", "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
-		item("router_false_out_of_scope", "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
+		item("router_out_of_scope_recall", "Router-v2 (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
+		item("router_textile_routing", "Router-v2 (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
+		item("router_false_out_of_scope", "Router-v2 (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
 	}, nil
 }
 

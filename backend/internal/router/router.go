@@ -15,7 +15,9 @@ import (
 
 // PromptVersion is the production router prompt, recorded with every route.
 // Other versions stay selectable for evaluation (NewVersion, eval route).
-const PromptVersion = PromptV2
+// router-v4 replaced router-v2 after passing the D230 rule on dev and the
+// adoption check on the first held-out split (D232, D233).
+const PromptVersion = PromptV4
 
 // Router prompt versions.
 const (

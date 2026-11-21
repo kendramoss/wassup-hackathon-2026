@@ -1,5 +1,6 @@
 {
   "generated_at": "2026-11-21T10:09:52Z",
+  "generated_at": "2026-11-21T10:35:13Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -711,7 +712,7 @@
     },
     {
       "key": "router_final2_out_of_scope_recall",
-      "label": "Router, post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
+      "label": "Router-v2 (the router before D233), post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
       "value": 0.5789,
       "ci_low": 0.3628,
       "ci_high": 0.7686,
@@ -733,7 +734,7 @@
     },
     {
       "key": "router_out_of_scope_recall",
-      "label": "Router (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine",
+      "label": "Router-v2 (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine",
       "value": 0.8837,
       "ci_low": 0.7552,
       "ci_high": 0.9493,
@@ -744,7 +745,7 @@
     },
     {
       "key": "router_textile_routing",
-      "label": "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine",
+      "label": "Router-v2 (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine",
       "value": 0.8788,
       "ci_low": 0.7267,
       "ci_high": 0.9518,
@@ -755,7 +756,7 @@
     },
     {
       "key": "router_false_out_of_scope",
-      "label": "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope",
+      "label": "Router-v2 (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope",
       "value": 0.05,
       "ci_low": 0.0138,
       "ci_high": 0.165,
@@ -763,6 +764,94 @@
       "split": "dev",
       "development_only": true,
       "source": "eval/results/scope-window-dev-router-v2-vertex.jsonl"
+    },
+    {
+      "key": "router_dev_routing",
+      "label": "Router (router-v4), development (before 2026): rulings sent to the engine of their legal test",
+      "value": 0.9614,
+      "ci_low": 0.9447,
+      "ci_high": 0.9731,
+      "n": 725,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "router_dev_specialist_routing",
+      "label": "Router (router-v4), development (before 2026): pharmaceutical, Part 102 and textile rulings sent to their own engine",
+      "value": 0.9157,
+      "ci_low": 0.8656,
+      "ci_high": 0.9483,
+      "n": 178,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "router_final_routing",
+      "label": "Router (router-v4), held-out (Jan–Sep 2026): rulings sent to the engine of their legal test",
+      "value": 0.9703,
+      "ci_low": 0.9516,
+      "ci_high": 0.9819,
+      "n": 505,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/route-final-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "router_final_specialist_routing",
+      "label": "Router (router-v4), held-out (Jan–Sep 2026): pharmaceutical, Part 102 and textile rulings sent to their own engine",
+      "value": 0.9766,
+      "ci_low": 0.9334,
+      "ci_high": 0.992,
+      "n": 128,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/route-final-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "router_final2_routing",
+      "label": "Router (router-v4), post-cutoff held-out (28 Sep–13 Nov 2026): rulings sent to the engine of their legal test",
+      "value": 0.9619,
+      "ci_low": 0.9061,
+      "ci_high": 0.9851,
+      "n": 105,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "router_final2_specialist_routing",
+      "label": "Router (router-v4), post-cutoff held-out (28 Sep–13 Nov 2026): pharmaceutical, Part 102 and textile rulings sent to their own engine",
+      "value": 0.8636,
+      "ci_low": 0.6666,
+      "ci_high": 0.9525,
+      "n": 22,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl"
+    },
+    {
+      "key": "all_regimes_final2_routed_accuracy",
+      "label": "All regimes, post-cutoff held-out (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router (router-v4) picks, each ruling once",
+      "value": 0.8879,
+      "ci_low": 0.8141,
+      "ci_high": 0.9347,
+      "n": 107,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl + the D211 and routed engine rows"
+    },
+    {
+      "key": "all_regimes_final2_routed_accuracy_router_v2",
+      "label": "All regimes, post-cutoff held-out, routed path with the previous router (router-v2, as D211 ran it)",
+      "value": 0.8785,
+      "ci_low": 0.8032,
+      "ci_high": 0.9276,
+      "n": 107,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/route-final2-router-v2-d211.jsonl + the D211 and routed-v2 engine rows"
     }
   ],
   "verifier_calibration": {

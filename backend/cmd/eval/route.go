@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 )
@@ -488,4 +489,120 @@ func routedCmd(args []string) error {
 			c.routedOK, 100*pr, 100*lr, 100*hr, c.ownOK, 100*po, 100*lo, 100*ho, c.misrouted, c.misroutedOK)
 	}
 	return nil
+}
+
+// routedFiles are the engine result files the routed path reads (D231,
+// D232): each engine's D211 run plus the routed pairs run since.
+func routedFiles(dir string) map[string][]string {
+	j := func(names ...string) []string {
+		var out []string
+		for _, n := range names {
+			out = append(out, filepath.Join(dir, n))
+		}
+		return out
+	}
+	return map[string][]string{
+		engineGeneral:        j("final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl", "final2-gemini-4-argon-prec-engine-v1-litellm-routed-v2.jsonl"),
+		router.RegimeTextile: j("textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl"),
+		router.RegimePharma:  j("pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl"),
+		router.RegimeUSMCA: j("usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
+			"usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v2.jsonl", "usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v4.jsonl"),
+	}
+}
+
+// routedScore scores a route file's routed path: each ruling with the
+// prediction of the engine its label picks. Missing predictions are errors.
+func routedScore(routeFile string, files map[string][]string) (k, n int, err error) {
+	routes, err := readRouteRows(routeFile)
+	if err != nil {
+		return 0, 0, err
+	}
+	pred := map[string]map[string]bool{}
+	for eng, list := range files {
+		pred[eng] = map[string]bool{}
+		for _, f := range list {
+			rows, err := readRows(f, nil)
+			if err != nil {
+				return 0, 0, err
+			}
+			for _, r := range rows {
+				pred[eng][r.Ruling] = r.Correct && r.Error == ""
+			}
+		}
+	}
+	for _, r := range routes {
+		ok, found := pred[r.Engine][r.Ruling]
+		if r.Error != "" || !found {
+			return 0, 0, fmt.Errorf("routed: no %s prediction for %s", r.Engine, r.Ruling)
+		}
+		n++
+		if ok {
+			k++
+		}
+	}
+	return k, n, nil
+}
+
+// routerSummaryItems reports the production router on the router splits
+// (D230-D232) and the routed end-to-end path on the post-cutoff rulings.
+func routerSummaryItems(dir string) ([]evalsummary.Item, error) {
+	r4 := func(x float64) float64 { return float64(int(x*10000+0.5)) / 10000 }
+	var items []evalsummary.Item
+	add := func(key, label, split, src string, k, n int) {
+		p, lo, hi := evalkit.Wilson(k, n)
+		items = append(items, evalsummary.Item{Key: key, Label: label, Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n,
+			Split: split, DevelopmentOnly: split == "dev", Source: src})
+	}
+	v := router.PromptVersion
+	for _, s := range []struct{ split, file, what string }{
+		{"dev", "route-dev-" + v + "-gemini-3.8-flash-litellm.jsonl", "development (before 2026)"},
+		{"final", "route-final-" + v + "-gemini-3.8-flash-litellm.jsonl", "held-out (Jan–Sep 2026)"},
+		{"final2", "route-final2-" + v + "-gemini-3.8-flash-litellm.jsonl", "post-cutoff held-out (28 Sep–13 Nov 2026)"},
+	} {
+		path := filepath.Join(dir, s.file)
+		rows, err := readRouteRows(path)
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Fprintf(os.Stderr, "summary: skip router %s: %v\n", s.split, err)
+			continue
+		} else if err != nil {
+			return nil, err
+		}
+		var k, n, sk, sn int
+		for _, r := range rows {
+			if r.GoldEngine == goldNone {
+				continue
+			}
+			ok := r.Error == "" && r.Correct
+			n++
+			if ok {
+				k++
+			}
+			if r.GoldEngine != engineGeneral {
+				sn++
+				if ok {
+					sk++
+				}
+			}
+		}
+		src := "eval/results/" + s.file
+		add("router_"+s.split+"_routing", "Router ("+v+"), "+s.what+": rulings sent to the engine of their legal test", s.split, src, k, n)
+		add("router_"+s.split+"_specialist_routing", "Router ("+v+"), "+s.what+": pharmaceutical, Part 102 and textile rulings sent to their own engine", s.split, src, sk, sn)
+	}
+	routeFile := filepath.Join(dir, "route-final2-"+v+"-gemini-3.8-flash-litellm.jsonl")
+	if v == router.PromptV2 {
+		routeFile = filepath.Join(dir, "route-final2-router-v2-d211.jsonl")
+	}
+	if _, err := os.Stat(routeFile); err == nil {
+		k, n, err := routedScore(routeFile, routedFiles(dir))
+		if err != nil {
+			return nil, err
+		}
+		add("all_regimes_final2_routed_accuracy", "All regimes, post-cutoff held-out (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router ("+v+") picks, each ruling once",
+			"final2", "eval/results/"+filepath.Base(routeFile)+" + the D211 and routed engine rows", k, n)
+	}
+	if k, n, err := routedScore(filepath.Join(dir, "route-final2-router-v2-d211.jsonl"), routedFiles(dir)); err == nil && v != router.PromptV2 {
+		add("all_regimes_final2_routed_accuracy_router_v2", "All regimes, post-cutoff held-out, routed path with the previous router (router-v2, as D211 ran it)",
+			"final2", "eval/results/route-final2-router-v2-d211.jsonl + the D211 and routed-v2 engine rows", k, n)
+	}
+	return items, nil
 }

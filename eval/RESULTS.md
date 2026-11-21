@@ -95,10 +95,53 @@ The post-cutoff splits of the textile, pharmaceutical and Part 102 engines were 
 - **The 536 counted 27 rulings twice.** The textile rule (D51) matches "102.21" anywhere in a ruling, and Part 102 rulings on non-textile goods name 102.21 in their boilerplate. 27 of the 32 first-window Part 102 rulings are also among the 71 textile ones; in window 2, 12 of the 13 Part 102 rulings are among the 17 textile ones. The rule was kept so the windows compare. "Each ruling once" counts those rulings under Part 102, a rule fixed before the runs (D210). On the overlap the textile engine did better than the Part 102 engine (window 1: 25 against 21 of 27; window 2: 11 against 10 of 12), so this choice gives the lower pooled figure. Of the 17 window-2 textile rulings, only 3 apply 102.21 itself, and all 3 were right.
 - **Pharmaceutical has 6 rulings.** 12 were labelled pharmaceutical; 4 hold no origin (tariff classification only) and 2 are steel tubes made to "API 5CT" that the regime rule mislabelled, left out before the run. 4 of 6 right says little either way.
 - **Misses, window 2:** textile N365940 (gold China, said Canada, 0.55) and N366728 (France, said China, 0.65); pharmaceutical N365255 (India, said South Korea, 0.40) and N366376 (Australia, said China, 0.90); Part 102 N366698 (Mexico, said Brazil, 0.95) and N366728 (France, said Canada, 0.65).
-- **Routing went worse than these numbers suggest.** These runs send every case to its regime's engine. The production router sent 7 of the 13 Part 102 rulings, 1 of the 6 pharmaceutical rulings and 1 of the 3 rulings that apply 102.21 to the substantial-transformation engine instead (`router_regime` on each row). In the product those cases would get the general engine's answer; that path was not scored. On the development window the router kept 88.4% of pharmaceutical and Part 102 rulings out of the general engine; on this small post-cutoff set it kept 11 of 19.
+- **Routing went worse than these numbers suggest.** These runs send every case to its regime's engine. The router then in production (router-v2) sent 7 of the 13 Part 102 rulings, 1 of the 6 pharmaceutical rulings and 1 of the 3 rulings that apply 102.21 to the substantial-transformation engine instead (`router_regime` on each row). On the development window it had kept 88.4% of pharmaceutical and Part 102 rulings out of the general engine; on this small post-cutoff set it kept 11 of 19. The routed path is now scored, and the router replaced: see the next section (D230–D233).
 - **Cost:** $0.41 for the three runs (gateway-reported): textile $0.0139, pharmaceutical $0.0101, Part 102 $0.0085 per case.
 - **Mixed paths.** Window 1 mixes Vertex AI and the earlier LiteLLM proxy; window 2 is the gateway. Textile window 1 is textile-v1; window 2 is textile-v2, the prompt in production.
 - **Limits of "held out" and of the intervals.** Held out means not used to tune anything; it is not a sealed set. Within each window, earlier rulings can be precedents for later ones (docs/EVALUATION.md 2.3), BM25 statistics use the whole corpus, and model pre-training exposure cannot be excluded. Each figure is one scored run; the Wilson intervals treat that run's rows as independent and leave out run-to-run, label-error and split-construction uncertainty, and near-duplicate rulings.
+
+## Router: sending each case to the right legal test (21 Nov 2026; D230–D233)
+
+All runs through an OpenAI-compatible LiteLLM gateway to Gemini, router on Gemini 3.8 Flash, `eval route` (rows in `results/route-*.jsonl`, every run in `results/RUNLOG.jsonl`). Splits: `splits/splits_router.json` (`splits/build_router_split.py`, built from the committed engine splits without reading any model output, pinned in `SHA256SUMS`). Each ruling carries the engine of its legal test ("gold engine"): pharmaceutical split → pharmaceutical engine; Part 102 split → Part 102 engine; textile split and the ruling applies 102.21 itself → textile engine; the general engine's splits → general engine. Correct = the router's label picks that engine. Wilson 95% intervals; paired tests are exact McNemar. Recomputed by `go run ./cmd/claimscheck` (`router.*`).
+
+**Why the development figure misled.** The 88.4% "kept out of the general engine" on the Jul–Dec 2025 window counted 43 rulings, 36 of them pharmaceutical. That window holds few Part 102 rulings on non-textile goods. Adding the 72 Part 102 development rulings of 2024–2025 shows router-v2 sent only 36 of 70 to the Part 102 engine.
+
+**Error analysis (router-v2, development).** 33 Part 102 rulings went to the general engine: 26 name Canada or Mexico as where the good is made or finished, and only 3 name USMCA or NAFTA. router-v2's prompt told the model not to pick Part 102 because a plant is in Canada or Mexico. Its one-line reasons explain the route (assembly, commodity, scenario), never the regime. No general-engine development ruling names USMCA or NAFTA (0 of 547), against 34 of 70 Part 102 rulings. The 2 pharmaceutical misses were scenario requests. Of the 11 general rulings sent elsewhere, 8 went to the textile engine (nonwoven pads, wipes, tie-down straps, a towel). Post-cutoff, read only to describe: of the 8 misses among 19 pharmaceutical and Part 102 rulings, 4 facts texts ask about "trade programs" and name no country of processing, 1 names Canada, 2 are made in France or Slovenia with no Part 102 cue, and 1 is a dietary supplement.
+
+**Development set (before 2026; 725 rulings with a gold engine), paired with router-v2.** Pass rule written first (D230): specialist routing up with p < 0.05, all-rulings routing up, general routing at most 1.0 point lower, cost at most 1.5×.
+
+| Router | All | Specialist | General | Part 102 | Pharmaceutical | Textile | Cost per case | Pass |
+|---|---|---|---|---|---|---|---|---|
+| router-v2 (before) | 677/725 = 93.4% (91.3–95.0) | 141/178 = 79.2% | 536/547 = 98.0% | 36/70 | 33/35 | 72/73 | $0.00214 | — |
+| router-v3 | 695/725 = 95.9% (94.2–97.1) | 167/178 = 93.8% | 528/547 = 96.5% | 65/70 | 33/35 | 69/73 | $0.00229 | no: general −1.5 points (p = 0.039) |
+| **router-v4** | **697/725 = 96.1% (94.5–97.3)** | **163/178 = 91.6%** | **534/547 = 97.6%** | 57/70 | 34/35 | 72/73 | $0.00231 | **yes** (all p = 0.0005; specialist p < 0.0001; general −0.4 points, p = 0.73) |
+| router-v4 on Gemini 4 Carbon | stopped after 25 rulings | | | | | | about $0.006 | no: 2.9× cost, one answer cut off at 2,000 tokens |
+
+router-v3 changed the prompt: the regime decided apart from the route; Part 102 for USMCA, NAFTA or trade-program questions and for goods whose last production step is in Canada or Mexico, unless the question is Section 301 or procurement; textile limited to chapters 50–63; and a check after the model (facts naming USMCA or NAFTA → Part 102). It sent 9 general rulings on goods finished in Canada or Mexico to Part 102 and 3 textile rulings on surgical sponges to the general engine. router-v4 states the textile scope as 102.21 does (chapters 50–63 plus listed headings such as 3005, 4202, 6501–6505, 9404) and adds a second check: a Part 102 label on facts with no classification, heading, marking, trade-program or USMCA wording becomes substantial transformation.
+
+**Held-out, scored once each (D232, D233).**
+
+| Window | Router | All | Specialist | General | Part 102 | Pharmaceutical | Textile |
+|---|---|---|---|---|---|---|---|
+| Jan–Sep 2026 | router-v2 | 488/505 = 96.6% (94.7–97.9) | 122/128 = 95.3% | 366/377 = 97.1% | 26/32 | 56/56 | 40/40 |
+| Jan–Sep 2026 | **router-v4** | **490/505 = 97.0% (95.2–98.2)** | **125/128 = 97.7% (93.3–99.2)** | 365/377 = 96.8% | 29/32 | 56/56 | 40/40 |
+| 28 Sep–13 Nov 2026 | router-v2 (D211 labels) | 96/105 = 91.4% (84.5–95.4) | 13/22 = 59.1% (38.7–76.7) | 83/83 | 6/13 | 5/6 | 2/3 |
+| 28 Sep–13 Nov 2026 | **router-v4** | **101/105 = 96.2% (90.6–98.5)** | **19/22 = 86.4% (66.7–95.3)** | 82/83 | 11/13 | 6/6 | 2/3 |
+
+Window 1: fixed 5, broke 3, p = 0.73 (all); the adoption check (all higher, general at most 1.0 point lower) holds, so **router-v4 is the production router**. Window 2: specialist fixed 6, broke 0, p = 0.031. In D211's terms router-v4 kept 17 of the 19 post-cutoff pharmaceutical and Part 102 rulings away from the general engine (router-v2: 11). router-v2's window-1 labels for the 377 general-engine rulings are the official Vertex AI scope run, the other 132 a gateway run; its cost there is not comparable.
+
+**The routed path, post-cutoff, all regimes, each ruling once (107 rulings; `eval routed`).** Each ruling is answered by the engine its router label picks. Where that engine already scored the ruling in D211 its row is used; the 13 other (ruling, engine) pairs were run once (`results/*-routed-v2.jsonl`, `results/*-routed-v4.jsonl`).
+
+| Path | Right | Sent to another engine | Of those, right anyway |
+|---|---|---:|---:|
+| Each ruling to its own engine (D211, the best case) | 96/107 = 89.7% (82.5–94.2) | 0 | — |
+| Routed, router-v2 (the product until now) | 94/107 = 87.9% (80.3–92.8) | 11 | 6 |
+| **Routed, router-v4 (the product now)** | **95/107 = 88.8% (81.4–93.5)** | 6 | 4 |
+
+- **What it shows.** Misrouting cost router-v2 2 of 107 rulings end to end, less than the routing table suggests, because the general engine often names the same country as the Part 102 engine. router-v4 recovers one of them: it fixed 2 Part 102 rulings and broke 1 pharmaceutical ruling that the general engine had answered right (the pharmaceutical engine missed it). The two routed paths do not differ significantly on 107 rulings.
+- **What went worse.** router-v4's general routing is lower on every set (development −0.4, window 1 −0.3, window 2 −1.2 points): goods finished in Canada or Mexico that CBP decided under substantial transformation now go to the Part 102 engine more often. Gemini 4 Carbon cost too much to finish.
+- **Not done.** The window-1 routed path (it needs engine runs on every misrouted window-1 pair). A Vertex AI re-run of the router. The official engine figures (fast path, held-out accuracy) were measured with router-v2 and are not re-run.
+- **Spend:** $6.83 in all (gateway-reported).
 
 ## Calibrated confidence in the product (21 Nov 2026; D160, D161)
 

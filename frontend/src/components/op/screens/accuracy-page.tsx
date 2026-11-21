@@ -94,10 +94,15 @@ export function AccuracyPage() {
   const us2 = get("usmca_final2_accuracy");
   const allReg = get("all_regimes_heldout_accuracy");
   const later = (it?: Item) => (it ? ` On ${it.n} later rulings (28 Sep to 13 Nov 2026, scored once): ${pct(it.value)} (${ci(it)}).` : "");
+  // D233: the router (router-v4) on the held-out windows, and the routed
+  // path: each later ruling answered by the engine the router picks.
   const routeOut2 = get("router_final2_out_of_scope_recall");
-  const routeOut = get("router_out_of_scope_recall");
-  const routeTex = get("router_textile_routing");
-  const routeFalse = get("router_false_out_of_scope");
+  const route1 = get("router_final_routing");
+  const route1Spec = get("router_final_specialist_routing");
+  const route2 = get("router_final2_routing");
+  const route2Spec = get("router_final2_specialist_routing");
+  const routed = get("all_regimes_final2_routed_accuracy");
+  const routedOld = get("all_regimes_final2_routed_accuracy_router_v2");
   const moveRec = get("verifier_unknown-a_recall");
   // D170 + D192: the precedent check on flip pairs from rulings published
   // after the corpus cut-off (the 15 D170 pairs plus the 3-pair addendum),
@@ -156,11 +161,12 @@ export function AccuracyPage() {
     if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
     if (it.key?.startsWith("final2_") || it.key?.includes("_final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
     if (it.key === "all_regimes_heldout_accuracy") return { label: "held-out · pooled, mixed paths" };
+    if (it.key?.startsWith("router_final")) return { label: "held-out · gateway, scored once" };
     if (!it.development_only && it.source?.includes("litellm")) return { label: "held-out · LiteLLM proxy, not Vertex AI" };
     if (it.key?.startsWith("change_detection")) return { label: "weak" };
     return it.development_only ? { label: "development set" } : { label: "official", tone: "ok" };
   };
-  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "final2_accuracy", "baseline_first_mentioned", "baseline_most_mentioned", "dev_accuracy_adjusted", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
+  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "final2_accuracy", "baseline_first_mentioned", "baseline_most_mentioned", "dev_accuracy_adjusted", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_final_routing", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
   const value = (it: Item) =>
     it.key?.endsWith("_flips") ? `${it.value} of ${it.n}` : it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
@@ -392,11 +398,11 @@ export function AccuracyPage() {
             </div>
           </section>
 
-          {(texAcc || routeOut) && (
+          {(texAcc || route1) && (
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Beyond substantial transformation</h2>
-                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and Part 102 marking held-out, two windows · router on the development window</span>
+                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and Part 102 marking held-out, two windows · router held-out, two windows</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-3">
                 {texAcc && (
@@ -425,15 +431,22 @@ export function AccuracyPage() {
                     proxy and the gateway are pooled.
                   </Card>
                 )}
-                {routeOut && (
-                  <Card title="Kept out of the general engine" big={pct(routeOut.value)}>
-                    of pharmaceutical and Part 102 marking rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}), on the development window. Those go to their own rules, or to a person.
-                    {routeOut2 ? ` On the ${routeOut2.n} later rulings it kept only ${pct(routeOut2.value)} (${ci(routeOut2)}) away; the rest got the general engine.` : ""}
+                {route1 && (
+                  <Card title="Sent to the right rules" big={pct(route1.value)}>
+                    of {route1.n} held-out 2026 rulings the router sent to the engine of their legal test ({ci(route1)}); {pct(route1Spec?.value)} of the {route1Spec?.n}{" "}
+                    pharmaceutical, Part 102 and textile ones.
+                    {route2 && route2Spec
+                      ? ` On the ${route2.n} later rulings: ${pct(route2.value)}, and ${pct(route2Spec.value)} of the ${route2Spec.n} specialist ones (${ci(route2Spec)}).`
+                      : ""}
+                    {routeOut2 ? ` The router before it kept only ${pct(routeOut2.value)} of later pharmaceutical and Part 102 rulings away from the general engine.` : ""}
                   </Card>
                 )}
-                {routeTex && (
-                  <Card title="Textiles to the textile rules" big={pct(routeTex.value)}>
-                    of textile rulings routed to the textile engine ({ci(routeTex)}, n {routeTex.n}); {pct(routeFalse?.value, 0)} of ordinary cases wrongly sent out of scope.
+                {routed && (
+                  <Card title="The product, end to end" big={pct(routed.value)}>
+                    on {routed.n} later rulings (28 Sep to 13 Nov 2026), all four rule sets, each answered by the engine the router picked ({ci(routed)}),{" "}
+                    {Math.round((routed.value ?? 0) * (routed.n ?? 0))} right.
+                    {routedOld ? ` With the router before it: ${Math.round((routedOld.value ?? 0) * (routedOld.n ?? 0))} of ${routedOld.n} right.` : ""} Each ruling sent straight to its own rules scores a little higher; the gap is the cost
+                    of routing.
                   </Card>
                 )}
               </div>

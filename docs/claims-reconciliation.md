@@ -160,6 +160,77 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `regimes.all.dedup.correct` | 547 | both windows, all regimes, each ruling once |
 | `regimes.all.dedup.n` | 616 | both windows, distinct rulings |
 | `regimes.all.dedup.pct` | 88.8 | percent |
+| `router.dev.v2.all.n` | 725 | router-v2, router dev split (before 2026, D230): rulings with a gold engine |
+| `router.dev.v2.all.correct` | 677 | of those, sent to the right engine |
+| `router.dev.v2.specialist.n` | 178 | router-v2, router dev split (before 2026, D230): pharmaceutical, Part 102 and textile rulings |
+| `router.dev.v2.specialist.correct` | 141 | of those, sent to the right engine |
+| `router.dev.v2.general.n` | 547 | router-v2, router dev split (before 2026, D230): general-engine rulings |
+| `router.dev.v2.general.correct` | 536 | of those, sent to the right engine |
+| `router.dev.v2.usmca_part102.n` | 70 | router-v2, router dev split (before 2026, D230): Part 102 rulings |
+| `router.dev.v2.usmca_part102.correct` | 36 | of those, sent to the right engine |
+| `router.dev.v2.all.pct` | 93.4 | router-v2, router dev split (before 2026, D230): percent sent to the engine of their legal test |
+| `router.dev.v3.all.n` | 725 | router-v3, router dev split (before 2026, D230): rulings with a gold engine |
+| `router.dev.v3.all.correct` | 695 | of those, sent to the right engine |
+| `router.dev.v3.specialist.n` | 178 | router-v3, router dev split (before 2026, D230): pharmaceutical, Part 102 and textile rulings |
+| `router.dev.v3.specialist.correct` | 167 | of those, sent to the right engine |
+| `router.dev.v3.general.n` | 547 | router-v3, router dev split (before 2026, D230): general-engine rulings |
+| `router.dev.v3.general.correct` | 528 | of those, sent to the right engine |
+| `router.dev.v3.usmca_part102.n` | 70 | router-v3, router dev split (before 2026, D230): Part 102 rulings |
+| `router.dev.v3.usmca_part102.correct` | 65 | of those, sent to the right engine |
+| `router.dev.v3.all.pct` | 95.9 | router-v3, router dev split (before 2026, D230): percent sent to the engine of their legal test |
+| `router.dev.v4.all.n` | 725 | router-v4, router dev split (before 2026, D230): rulings with a gold engine |
+| `router.dev.v4.all.correct` | 697 | of those, sent to the right engine |
+| `router.dev.v4.specialist.n` | 178 | router-v4, router dev split (before 2026, D230): pharmaceutical, Part 102 and textile rulings |
+| `router.dev.v4.specialist.correct` | 163 | of those, sent to the right engine |
+| `router.dev.v4.general.n` | 547 | router-v4, router dev split (before 2026, D230): general-engine rulings |
+| `router.dev.v4.general.correct` | 534 | of those, sent to the right engine |
+| `router.dev.v4.usmca_part102.n` | 70 | router-v4, router dev split (before 2026, D230): Part 102 rulings |
+| `router.dev.v4.usmca_part102.correct` | 57 | of those, sent to the right engine |
+| `router.dev.v4.all.pct` | 96.1 | router-v4, router dev split (before 2026, D230): percent sent to the engine of their legal test |
+| `router.final.v2.all.n` | 505 | router-v2, first held-out window (Jan–Sep 2026, D233): rulings with a gold engine |
+| `router.final.v2.all.correct` | 488 | of those, sent to the right engine |
+| `router.final.v2.specialist.n` | 128 | router-v2, first held-out window (Jan–Sep 2026, D233): pharmaceutical, Part 102 and textile rulings |
+| `router.final.v2.specialist.correct` | 122 | of those, sent to the right engine |
+| `router.final.v2.general.n` | 377 | router-v2, first held-out window (Jan–Sep 2026, D233): general-engine rulings |
+| `router.final.v2.general.correct` | 366 | of those, sent to the right engine |
+| `router.final.v2.usmca_part102.n` | 32 | router-v2, first held-out window (Jan–Sep 2026, D233): Part 102 rulings |
+| `router.final.v2.usmca_part102.correct` | 26 | of those, sent to the right engine |
+| `router.final.v2.all.pct` | 96.6 | router-v2, first held-out window (Jan–Sep 2026, D233): percent sent to the engine of their legal test |
+| `router.final.v4.all.n` | 505 | router-v4, first held-out window (Jan–Sep 2026, D233): rulings with a gold engine |
+| `router.final.v4.all.correct` | 490 | of those, sent to the right engine |
+| `router.final.v4.specialist.n` | 128 | router-v4, first held-out window (Jan–Sep 2026, D233): pharmaceutical, Part 102 and textile rulings |
+| `router.final.v4.specialist.correct` | 125 | of those, sent to the right engine |
+| `router.final.v4.general.n` | 377 | router-v4, first held-out window (Jan–Sep 2026, D233): general-engine rulings |
+| `router.final.v4.general.correct` | 365 | of those, sent to the right engine |
+| `router.final.v4.usmca_part102.n` | 32 | router-v4, first held-out window (Jan–Sep 2026, D233): Part 102 rulings |
+| `router.final.v4.usmca_part102.correct` | 29 | of those, sent to the right engine |
+| `router.final.v4.all.pct` | 97.0 | router-v4, first held-out window (Jan–Sep 2026, D233): percent sent to the engine of their legal test |
+| `router.final2.v2.all.n` | 105 | router-v2, post-cutoff window (28 Sep–13 Nov 2026, D233): rulings with a gold engine |
+| `router.final2.v2.all.correct` | 96 | of those, sent to the right engine |
+| `router.final2.v2.specialist.n` | 22 | router-v2, post-cutoff window (28 Sep–13 Nov 2026, D233): pharmaceutical, Part 102 and textile rulings |
+| `router.final2.v2.specialist.correct` | 13 | of those, sent to the right engine |
+| `router.final2.v2.general.n` | 83 | router-v2, post-cutoff window (28 Sep–13 Nov 2026, D233): general-engine rulings |
+| `router.final2.v2.general.correct` | 83 | of those, sent to the right engine |
+| `router.final2.v2.usmca_part102.n` | 13 | router-v2, post-cutoff window (28 Sep–13 Nov 2026, D233): Part 102 rulings |
+| `router.final2.v2.usmca_part102.correct` | 6 | of those, sent to the right engine |
+| `router.final2.v2.all.pct` | 91.4 | router-v2, post-cutoff window (28 Sep–13 Nov 2026, D233): percent sent to the engine of their legal test |
+| `router.final2.v4.all.n` | 105 | router-v4, post-cutoff window (28 Sep–13 Nov 2026, D233): rulings with a gold engine |
+| `router.final2.v4.all.correct` | 101 | of those, sent to the right engine |
+| `router.final2.v4.specialist.n` | 22 | router-v4, post-cutoff window (28 Sep–13 Nov 2026, D233): pharmaceutical, Part 102 and textile rulings |
+| `router.final2.v4.specialist.correct` | 19 | of those, sent to the right engine |
+| `router.final2.v4.general.n` | 83 | router-v4, post-cutoff window (28 Sep–13 Nov 2026, D233): general-engine rulings |
+| `router.final2.v4.general.correct` | 82 | of those, sent to the right engine |
+| `router.final2.v4.usmca_part102.n` | 13 | router-v4, post-cutoff window (28 Sep–13 Nov 2026, D233): Part 102 rulings |
+| `router.final2.v4.usmca_part102.correct` | 11 | of those, sent to the right engine |
+| `router.final2.v4.all.pct` | 96.2 | router-v4, post-cutoff window (28 Sep–13 Nov 2026, D233): percent sent to the engine of their legal test |
+| `router.w2.routed.v2.n` | 107 | routed path with router-v2, post-cutoff, all regimes (D233): rulings, each once |
+| `router.w2.routed.v2.correct` | 94 | of those, right with the engine the router picked |
+| `router.w2.routed.v2.pct` | 87.9 | percent right |
+| `router.w2.routed.v2.sent_elsewhere` | 11 | rulings the router sent to an engine other than their own |
+| `router.w2.routed.v4.n` | 107 | routed path with router-v4, post-cutoff, all regimes (D233): rulings, each once |
+| `router.w2.routed.v4.correct` | 95 | of those, right with the engine the router picked |
+| `router.w2.routed.v4.pct` | 88.8 | percent right |
+| `router.w2.routed.v4.sent_elsewhere` | 6 | rulings the router sent to an engine other than their own |
 | `cal.version` | cal-v2 | calibration map version (backend/internal/calibrate/map.json, D160) |
 | `cal.bar` | 0.9 | auto-accept bar on calibrated probability |
 | `final.cal.fast.n` | 300 | auto-accepted at the calibrated bar and in scope |
@@ -305,13 +376,13 @@ The same proposed replacements, as exact strings for the integrator, are in the 
 `eval/SHA256SUMS` already pins the labelled corpora and the splits, and `claimscheck` verifies it. The block below pins the other files the check reads (the facts directory is pinned by the digest of its sorted file-name list instead of repeating 3,081 hashes). A changed file fails the check until a person reviews it and refreshes the line. Regenerate with `cd backend && go run ./cmd/claimscheck -print-manifest`.
 
 ```
-5e9d1136b85f25bd108f9113ae442fee42a9b63f15aa6c4842aabd7e6362e891  eval/SHA256SUMS
+d3fcd72a7b937dadef183b33cf02106b88f3fd4d6dcd236beab83c23dfdf7b55  eval/SHA256SUMS
 727918a055ad3bb10d13392c7859da004f2d8cea2b90fd4a564e71a326d326ad  eval/data/scoring_adjustments.json
 2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81  eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
 c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl
 48e86727d5bbc59c415c8b7ae84325a86ce008492f8c7a8711077718d9948f9d  eval/results/scope-dev-router-v2-vertex.jsonl
-a2ac7abd51462b92540740b03e4822fc5536d05b4ddabf443edc7c51c2dcacd0  eval/results/RUNLOG.jsonl
+f4bee0f7a1a4d9294d3c77d05d9fd9c24d9dd131479d5251df37a565b7b9b9fc  eval/results/RUNLOG.jsonl
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
@@ -331,4 +402,14 @@ ba5c1652e19c972f55dde4c7cdf810abc4dd2e06962b8505389511079b03e718  eval/results/u
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl
 6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d  backend/data/labels_usmca.jsonl
 ad7227af446b0412395673de95749d0da1ab2ab54de3bd99c63e49084e4d7d08  names:backend/data/facts
+3e0abc1a5f1ae5ef508887c1387cb74535ff4da9688d22dbf63560ede197724e  eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-routed-v2.jsonl
+f1ffdaa746d07c56fed5ef0e83593001db2a59efbeb8be24d1901cadc025957d  eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v2.jsonl
+39108513052d656c7a5ba495ad84007ad67bf47d2b3668a1535b2d0fbd611e1e  eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v4.jsonl
+360c2d6505e46dc701cb19a96723af64a893c2ff65499534a3a417aaf7ae011b  eval/results/route-dev-router-v2-gemini-3.8-flash-litellm.jsonl
+087534f5376c34b800f05d3f313d3fc956e415cbfc0dfa89cafb2240cbb3ae68  eval/results/route-dev-router-v3-gemini-3.8-flash-litellm.jsonl
+cf8f3ee1ec158e02aaf204ded0c0190f1c344e9cc3c4f9896af1092fbf76cbe0  eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl
+a39cea584077727c1acac578ff78a76e2d0daea9b777307e2aea288f469fe86c  eval/results/route-final-router-v2-gemini-3.8-flash-litellm.jsonl
+6f1ebcb843c7950a31072a21e0eb078cfcfa6739ce4441fa76689bbf334d9329  eval/results/route-final-router-v4-gemini-3.8-flash-litellm.jsonl
+bfe9546d46c8cfdad3c5e86965c0ce1c3203f4e5ce146632614e6403c28dfa28  eval/results/route-final2-router-v2-d211.jsonl
+2ef307752c706304d24873e7fe7aa462156eab3ffea4243689e5e5d44bfb1d76  eval/results/route-final2-router-v4-gemini-3.8-flash-litellm.jsonl
 ```

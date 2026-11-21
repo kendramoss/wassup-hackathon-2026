@@ -12,7 +12,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 |---|---|
 | What it is | A system that predicts the country of origin U.S. Customs and Border Protection (CBP) would likely assign to a product made in several countries, cites the earlier CBP rulings it relied on, and searches production moves that change that origin |
 | Who built it | Unde Labs, a team of two, for the Google Cloud AI Builder Cup 2026 (Manufacturing theme) |
-| Version | origin engine prompt `engine-v1`, router `router-v2`, precedent check `verifier-v2`, frozen 2026-10-14 for the held-out run ([splits_final.json](../eval/splits/splits_final.json)) |
+| Version | origin engine prompt `engine-v1`, router `router-v2` (router `router-v4` in production since 21 Nov, D233; the held-out engine figures were measured with router-v2), precedent check `verifier-v2`, frozen 2026-10-14 for the held-out run ([splits_final.json](../eval/splits/splits_final.json)) |
 | Models (built) | Origin engine: Gemini 4 Argon. Router: Gemini 3.8 Flash. Precedent check: an ADK agent on Gemini 4 Argon that searches and reads CBP rulings. Ask-the-case agent: the engine model unless `CASE_AGENT_MODEL` is set. Fallback engine on a 429, 503, 504 or deadline: Gemini 3.8 Flash, whose answers never auto-accept. Defaults in `backend/internal/config/config.go` |
 | Retrieval | BM25 over the facts sections of 2,790 labelled CBP rulings, the 5 most similar rulings dated strictly before the case (D10) |
 | Decoding | temperature 0 and a fixed seed (20261017) on every call (D76) |

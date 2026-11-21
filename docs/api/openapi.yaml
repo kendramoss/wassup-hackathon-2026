@@ -1888,7 +1888,7 @@ components:
       required: [model_ids, prompt_versions, llm_provider, disclaimer]
       properties:
         model_ids: { type: object, additionalProperties: { type: string }, example: { engine: gemini-4-argon, router: gemini-3.8-flash } }
-        prompt_versions: { type: object, additionalProperties: { type: string }, example: { engine: engine-v1, router: router-v2 } }
+        prompt_versions: { type: object, additionalProperties: { type: string }, example: { engine: engine-v1, router: router-v4 } }
         llm_provider: { type: string, enum: [vertex, fake], description: "fake results are simulated, local development only; earlier litellm results are labelled proxy (D49)" }
         disclaimer: { type: string, example: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling." }
     Plant:
@@ -2001,6 +2001,7 @@ components:
         subfamily: { type: string }
         regime: { type: string, enum: [substantial_transformation, textile_102_21, usmca_part102, pharma_api, unclear] }
         reason: { type: string }
+        rule: { type: string, enum: [usmca-named, no-part102-cue], description: 'Present when a deterministic check after the model changed the regime (router-v4, D232): usmca-named (the facts name USMCA or NAFTA, so usmca_part102) or no-part102-cue (a usmca_part102 label on facts with no classification, marking, trade-program or USMCA wording, so substantial_transformation).' }
     CaseResponse:
       allOf:
         - $ref: "#/components/schemas/Meta"
