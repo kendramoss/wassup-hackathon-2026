@@ -98,3 +98,22 @@ func TestEvaluate(t *testing.T) {
 		t.Errorf("ECE calibrated = %v", r.ECECalibrated)
 	}
 }
+
+// D262 / #493: the map's cap ties three stated levels into one. The own-bin
+// ECE pair therefore compares 3 bins with 1; scoring the stated values on the
+// calibrated bin gives the same error as the calibrated value, which isolates
+// the bin-merging part of the drop.
+func TestEvaluateSameBinPartition(t *testing.T) {
+	m := Must()
+	r := m.Evaluate([]Scored{{0.98, true}, {0.99, true}, {1.0, false}})
+	if r.StatedLevels != 3 || r.CalibratedLevels != 1 {
+		t.Fatalf("levels = %d stated, %d calibrated; want 3, 1", r.StatedLevels, r.CalibratedLevels)
+	}
+	// One calibrated bin at 0.99 with 2/3 right: |2/3 - 0.99| = 97/300.
+	if d := r.ECEStatedOnCalibratedBins - 97.0/300; d > 1e-9 || d < -1e-9 {
+		t.Errorf("same-bin ECE = %v, want %v", r.ECEStatedOnCalibratedBins, 97.0/300)
+	}
+	if r.ECEStatedOnCalibratedBins >= r.ECEStated {
+		t.Errorf("same-bin ECE %v should be below own-bin stated ECE %v", r.ECEStatedOnCalibratedBins, r.ECEStated)
+	}
+}

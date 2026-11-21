@@ -119,15 +119,20 @@ type Scored struct {
 }
 
 // Report compares stated confidence and the calibrated probability on a set
-// of scored predictions. ECE uses one bin per distinct value (the
-// definition eval/charts/build_accuracy.py uses).
+// of scored predictions. ECEStated and ECECalibrated use one bin per distinct
+// value on each side (the definition eval/charts/build_accuracy.py uses);
+// ECEStatedOnCalibratedBins scores the same stated values on the map's coarser
+// partition so the bin-merging effect can be stated separately (D262, #493).
 type Report struct {
-	N              int
-	Accuracy       float64
-	MeanStated     float64
-	MeanCalibrated float64
-	ECEStated      float64
-	ECECalibrated  float64
+	N                         int
+	Accuracy                  float64
+	MeanStated                float64
+	MeanCalibrated            float64
+	ECEStated                 float64
+	ECECalibrated             float64
+	ECEStatedOnCalibratedBins float64
+	StatedLevels              int
+	CalibratedLevels          int
 }
 
 // Evaluate maps every row and reports both calibrations.
@@ -150,7 +155,56 @@ func (m Map) Evaluate(rows []Scored) Report {
 	n := float64(r.N)
 	r.Accuracy, r.MeanStated, r.MeanCalibrated = float64(k)/n, r.MeanStated/n, r.MeanCalibrated/n
 	r.ECEStated, r.ECECalibrated = eceLevels(stated, ok), eceLevels(cal, ok)
+	r.ECEStatedOnCalibratedBins = eceOnPartition(stated, cal, ok)
+	r.StatedLevels = distinctLevels(stated)
+	r.CalibratedLevels = distinctLevels(cal)
 	return r
+}
+
+func distinctLevels(p []float64) int {
+	seen := map[float64]bool{}
+	for _, v := range p {
+		seen[v] = true
+	}
+	return len(seen)
+}
+
+// eceOnPartition scores p using the bins of partition. The per-bin sums are
+// accumulated in row order and the bins read in sorted order, so the float is
+// stable across runs even though the map's iteration order is not.
+func eceOnPartition(p, partition []float64, ok []bool) float64 {
+	type bin struct {
+		n, k int
+		sum  float64
+	}
+	bins := map[float64]*bin{}
+	for i, v := range partition {
+		b := bins[v]
+		if b == nil {
+			b = &bin{}
+			bins[v] = b
+		}
+		b.n++
+		b.sum += p[i]
+		if ok[i] {
+			b.k++
+		}
+	}
+	vals := make([]float64, 0, len(bins))
+	for v := range bins {
+		vals = append(vals, v)
+	}
+	sort.Float64s(vals)
+	tot := 0.0
+	for _, v := range vals {
+		b := bins[v]
+		d := float64(b.k)/float64(b.n) - b.sum/float64(b.n)
+		if d < 0 {
+			d = -d
+		}
+		tot += float64(b.n) * d
+	}
+	return tot / float64(len(p))
 }
 
 func eceLevels(p []float64, ok []bool) float64 {

@@ -1481,8 +1481,9 @@ func final2SummaryItems(resultsDir string) ([]evalsummary.Item, error) {
 
 // calibrationSummaryItems are the held-out calibration figures of the map the
 // server embeds (D160): mean stated confidence and mean calibrated
-// probability against accuracy, and ECE (one bin per value) for each. The map
-// was fitted on dev only; these rows are the held-out check.
+// probability against accuracy, ECE with one bin per value on each side, and
+// the stated ECE scored on the calibrated bins (D262, #493). The map was fitted
+// on dev only; these rows are the held-out check.
 func calibrationSummaryItems(resultsDir string, run summaryRun) ([]evalsummary.Item, error) {
 	rows, err := readRows(filepath.Join(resultsDir, run.File), nil)
 	if err != nil {
@@ -1502,11 +1503,16 @@ func calibrationSummaryItems(resultsDir string, run summaryRun) ([]evalsummary.I
 	round := func(x float64) float64 { return math.Round(x*1e6) / 1e6 }
 	src := "eval/results/" + run.File + " + backend/internal/calibrate/map.json (" + m.Version + ", fitted on " + m.FittedOn + ")"
 	label := fmt.Sprintf("Held-out (%d rulings), calibration", rep.N)
+	// D262 / #493: the two ECE figures use one bin per value on their own
+	// side, and the map pools levels. Say so in the served label and give the
+	// same-bin figure beside it; otherwise the drop looks better than it is.
+	bins := fmt.Sprintf(" (different bins: %d stated levels, %d calibrated levels on these rows)", rep.StatedLevels, rep.CalibratedLevels)
 	return []evalsummary.Item{
 		{Key: "final_calibration_mean_stated", Label: label + ": mean stated confidence", Value: round(rep.MeanStated), N: rep.N, Split: "final", Source: src},
 		{Key: "final_calibration_mean_calibrated", Label: label + ": mean calibrated probability", Value: round(rep.MeanCalibrated), N: rep.N, Split: "final", Source: src},
-		{Key: "final_calibration_ece_stated", Label: label + ": ECE of stated confidence (one bin per value)", Value: round(rep.ECEStated), N: rep.N, Split: "final", Source: src},
-		{Key: "final_calibration_ece_calibrated", Label: label + ": ECE of calibrated probability (one bin per value)", Value: round(rep.ECECalibrated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_ece_stated", Label: label + ": ECE of stated confidence (one bin per stated value)" + bins, Value: round(rep.ECEStated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_ece_calibrated", Label: label + ": ECE of calibrated probability (one bin per calibrated value)" + bins, Value: round(rep.ECECalibrated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_ece_stated_same_bins", Label: label + fmt.Sprintf(": ECE of stated confidence on the same %d calibrated bins", rep.CalibratedLevels), Value: round(rep.ECEStatedOnCalibratedBins), N: rep.N, Split: "final", Source: src},
 	}, nil
 }
 
