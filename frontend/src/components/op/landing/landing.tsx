@@ -79,6 +79,8 @@ function canHref(key: string, l: DemoLinks): string {
       return l.heat ? `${l.heat}/draft` : l.demo;
     case "mcp":
       return "/developers#mcp";
+    case "method":
+      return "/method";
     default:
       return "/accuracy#misses";
   }
@@ -643,6 +645,7 @@ export function Landing() {
         <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
           {L.roadmap}
         </a>
+        <Link href="/method">{copy.method.footer}</Link>
         <Link href="/developers">{copy.nav.api}</Link>
         <Link href="/privacy">{copy.legal.footer.privacy}</Link>
         <Link href="/terms">{copy.legal.footer.terms}</Link>

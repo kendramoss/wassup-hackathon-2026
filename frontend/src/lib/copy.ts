@@ -7,7 +7,7 @@ import { conf, type OriginConf } from "./format";
 export const copy = {
   name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
-  nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API · MCP" },
+  nav: { cases: "Cases", accuracy: "How accurate is it?", accuracyShort: "Accuracy", method: "Method", api: "API · MCP" },
 
   cases: {
     title: "Cases",
@@ -203,6 +203,9 @@ export const copy = {
   // /privacy and /terms (D80): what the app actually stores and sends, for
   // Google's OAuth consent screen and for visitors. Keep in step with
   // lib/visitor.ts, lib/user.ts and the backend's request log.
+  // /method, "How it's built and tested" (review follow-up).
+  method: { footer: "How it's built and tested" },
+
   legal: {
     contact: "anasqumhiyeh@gmail.com",
     updated: "18 October 2026",
@@ -442,6 +445,12 @@ export const copy = {
           body: "The same tools over MCP, the protocol Claude uses to connect to other services. In Claude Code, one line adds it:",
           code: "claude mcp add --transport http unde https://undelabs.dev/mcp",
           link: "Setup for Claude.ai and Desktop, and the 13 tools →",
+        },
+        {
+          key: "method",
+          what: "Check how it was tested",
+          body: "No model is trained. The page says what Gemini sees, how every setting was chosen on development rulings only, how the test sets were kept clean, and what we tried that did not work.",
+          link: "How it's built and tested →",
         },
         {
           key: "misses",

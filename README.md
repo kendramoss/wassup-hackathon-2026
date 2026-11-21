@@ -87,6 +87,8 @@ In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign
 
 ## Does it work?
 
+Unde is not a trained or fine-tuned model: it prompts Gemini with earlier CBP rulings it retrieves, and its prompts, retrieval settings and calibration map were chosen on development rulings (the page names the confidence bars that were not). [How it's built and tested](https://undelabs.dev/method) answers, in order, what the model is, what data it sees, how the test sets are kept clean (and where they are not), what we tried that did not work, and how stable the results are, each linked to its dated entry in [docs/DECISIONS.md](docs/DECISIONS.md).
+
 Scored once on a **377-ruling temporal test split** of cleaned, single-origin 2026 substantial-transformation rulings. Prompts were not tuned on it; earlier split rulings may serve as precedents, BM25 statistics use the whole corpus, and pretraining exposure cannot be excluded (a case's own ruling and later rulings are never retrieved as precedent):
 
 | Method | Accuracy |

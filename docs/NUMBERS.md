@@ -65,6 +65,20 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Second held-out split: calibrated ECE over three runs | 0.037, 0.040, 0.066 | same | Measured, small n |
 | Cost of the four repeat runs | $7.47 gateway-reported, with resumes | same (`gateway_cost_usd`) | Measured |
 
+### Method page (/method): negative results, splits and leakage, already in the decision record
+
+These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Fine-tuned Gemini 3.5 Flash, development set (463 adjusted; D73) — not adopted | 87.9% (84.6–90.6) against Argon on Vertex AI 91.1% (88.2–93.4); fixed 15, broke 30, exact McNemar p = 0.036; fast path at 0.92: 94.0% of cases at 89.4%. Held-out not run; the tuned endpoints were deleted | `eval/results/dev-gemini-3.5-flash-tuned-prec-engine-v1-vertex.jsonl`; docs/EVALUATION.md 3.3 | Measured, Vertex AI. Must say **"development set"** and "dropped". A negative result |
+| Untuned Gemini 3.5 Flash and Gemini 3.8 Flash, development set (D44, D73) | 3.5 Flash 90.5% (87.5–92.8), fixed 16, broke 19, p = 0.736; 3.8 Flash 90.1% (87.0–92.5), fixed 13, broke 18, p = 0.473 (both against Argon on Vertex AI) | `eval/results/dev-gemini-3.5-flash-prec-engine-v1-vertex.jsonl`, `eval/results/dev-gemini-3.8-flash-prec-engine-v1-vertex.jsonl`; docs/EVALUATION.md 3.3 | Measured; must say **"development set"** |
+| Model sweep intervals, development set (D153) | Argon gateway 91.8% (88.9–94.0), fixed 8, broke 5, p = 0.58; Carbon 88.1% (84.9–90.8), fixed 6, broke 20, p = 0.009; 3.1 Pro preview 87.3% (83.9–90.0), fixed 12, broke 30, p = 0.008; majority of three 91.6% (88.7–93.8), fixed 8, broke 6, p = 0.79 (each against Argon on Vertex AI) | `eval/results/accuracy-v2-metrics.json` (`dev`); D153 table | Measured; gateway runs; must say **"development set"** |
+| rules-v2, development set (D157) — not adopted | 90.9% (88.0–93.2) against 91.8% for engine-v1 on the same gateway path; fixed 9, broke 13, p = 0.52 | `eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-rules-v2.jsonl` | Measured; gateway; must say **"development set"** |
+| router-v3, router development split (D231) — not adopted | general-engine routing 528/547 = 96.5% against router-v2 536/547 = 98.0%, 1.5 points lower, over the 1.0-point limit of the D230 rule | `eval/results/route-dev-router-v3-gemini-3.8-flash-litellm.jsonl` | Measured; gateway; must say **"development set"** |
+| Fine-tuning split (D38, D73) | 699 rulings dated before 2025-07-01: train 632, tune_check 67; used only by the fine-tuning experiment | `eval/splits/splits_tune.json`; docs/EVALUATION.md 2.1 | Built |
+| Held-out precedents that are earlier held-out rulings (first held-out split, official run) | 414 of 1,885 retrieved precedent slots, in 209 of 377 cases; 0 slots dated on or after their case | `claimscheck` (`final.precedent_slots_in_final_split`, `final.cases_with_final_split_precedent`, `final.precedent_slots_not_before_case`); docs/claims-reconciliation.md 4.2 | Measured. A stated leak path, not an estimate of its effect: no committed run removes those slots |
+
 ## API limits (developers page, `docs/api/SECURITY.md`)
 
 | Number | Value | Source | Status |
