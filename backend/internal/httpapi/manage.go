@@ -145,6 +145,7 @@ func (a *api) pinCase(w http.ResponseWriter, r *http.Request) {
 		kind := "unpinned"
 		if latest.Pinned {
 			kind = "pinned"
+			closeReviewsOnPin(r, latest) // links made before the pin stop working (#447)
 		}
 		record(r.Context(), latest, store.Event{Kind: kind, Summary: "case " + kind + " by the admin"})
 		return nil

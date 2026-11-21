@@ -74,7 +74,24 @@ var (
 	errReviewExpired = errors.New("review link expired")
 	errReviewMissing = errors.New("no such review link")
 	errReviewFull    = errors.New("review link limit reached")
+	errReviewPinned  = errors.New("review link closed: the case is a pinned demo")
 )
+
+// closeReviewsOnPin revokes every still-open link on a case that is about to
+// become a public demo, and records the closure (issue #447). #406 refuses new
+// links on pinned cases; this closes ones made before the pin, so no broker
+// can keep reading or writing a demo that must stay as recorded.
+func closeReviewsOnPin(r *http.Request, c *store.Case) {
+	for i := range c.BrokerReviews {
+		if c.BrokerReviews[i].RevokedAt != nil {
+			continue
+		}
+		now := time.Now().UTC()
+		c.BrokerReviews[i].RevokedAt = &now
+		record(r.Context(), c, store.Event{Kind: "review_link_closed_on_pin",
+			Summary: "broker review link for " + c.BrokerReviews[i].Draft.Label + " closed when the case was pinned"})
+	}
+}
 
 // newReviewToken mints a token for caseID ("case_<12 hex>").
 func newReviewToken(caseID string) (string, error) {
@@ -425,6 +442,14 @@ func (a *api) reviewByToken(w http.ResponseWriter, r *http.Request) (store.Case,
 		return bad()
 	}
 	rv := c.BrokerReviews[i]
+	// A demo is never shared out, whichever came first: the pin, or this
+	// link. Pinning closes open links (issue #447); this also covers cases
+	// pinned by older builds that left them open.
+	if c.Pinned {
+		a.auditAuthDenied(r)
+		a.reviewGone(w, errReviewPinned)
+		return store.Case{}, store.BrokerReview{}, false
+	}
 	if err := reviewOpen(rv, time.Now().UTC()); err != nil {
 		a.auditAuthDenied(r)
 		a.reviewGone(w, err)
@@ -444,6 +469,10 @@ func reviewOpen(rv store.BrokerReview, now time.Time) error {
 }
 
 func (a *api) reviewGone(w http.ResponseWriter, err error) {
+	if errors.Is(err, errReviewPinned) {
+		writeError(w, http.StatusGone, "link_revoked", "this case is a pinned demo; the case owner closed its review links", nil)
+		return
+	}
 	if errors.Is(err, errReviewRevoked) {
 		writeError(w, http.StatusGone, "link_revoked", "the case owner revoked this review link", nil)
 		return
@@ -612,6 +641,9 @@ func (a *api) decideReview(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UTC()
 	var out store.BrokerReview
 	_, err = a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if latest.Pinned { // pinned between the token check and this write (#447)
+			return errReviewPinned
+		}
 		i := indexOfReview(latest.BrokerReviews, rv.ID)
 		if i < 0 {
 			return errReviewMissing
@@ -632,7 +664,7 @@ func (a *api) decideReview(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	switch {
-	case errors.Is(err, errReviewRevoked), errors.Is(err, errReviewExpired):
+	case errors.Is(err, errReviewRevoked), errors.Is(err, errReviewExpired), errors.Is(err, errReviewPinned):
 		a.reviewGone(w, err)
 		return
 	case errors.Is(err, errReviewMissing):
