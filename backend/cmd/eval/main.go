@@ -2448,7 +2448,7 @@ func scopeSummaryItems(dir, textileSplits string) ([]evalsummary.Item, error) {
 		return evalsummary.Item{Key: key, Label: label, Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n, Split: "dev", DevelopmentOnly: true, Source: src}
 	}
 	return []evalsummary.Item{
-		item("router_out_of_scope_recall", "Router-v2 (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
+		item("router_out_of_scope_recall", "Router-v2 (Jul-Dec 2025): pharmaceutical and Part 102 marking rulings kept out of the substantial-transformation engine", oosK, oosN),
 		item("router_textile_routing", "Router-v2 (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
 		item("router_false_out_of_scope", "Router-v2 (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
 	}, nil
