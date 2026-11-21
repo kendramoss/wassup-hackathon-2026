@@ -854,7 +854,7 @@ export interface paths {
         put?: never;
         /**
          * Model Context Protocol endpoint (Streamable HTTP, stateless JSON-RPC)
-         * @description The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
+         * @description The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. The POST itself counts once against the caller's basic class (D137); a tool call that is refused by a limit returns a tool error with `retry_after`. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
          */
         post: operations["mcp"];
         delete?: never;
@@ -1889,14 +1889,39 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Refused by a limit (D137, docs/api/SECURITY.md). `code` says which: `rate_limited` (the route's rate class), `too_many_in_flight` (too many model-calling requests running at once), `client_budget_reached` (this client's share of the day's model budget is spent), `quota_exceeded` (the API key's daily request quota) or `auth_rate_limited` (too many invalid API keys from this client). `details.retry_after_s` repeats `Retry-After`. */
+        TooManyRequests: {
+            headers: {
+                "Retry-After": components["headers"]["RetryAfter"];
+                "RateLimit-Limit": components["headers"]["RateLimitLimit"];
+                "RateLimit-Remaining": components["headers"]["RateLimitRemaining"];
+                "RateLimit-Reset": components["headers"]["RateLimitReset"];
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
     };
     parameters: {
+        /** @description An anonymous browser's id, set by the frontend proxy from an httpOnly cookie (D58). With CASE_OWNERSHIP=on it scopes which cases a visitor sees; it is not authentication (STRICT_AUTH=on refuses it alone for private case operations). Server-to-server callers use X-API-Key instead and need not send it. Accepted on every /v1 route. */
+        VisitorID: string;
+        /** @description The browser's address, forwarded by the frontend proxy; it keys the per-client limits (IPv6 grouped by /64). Without it the connection's address is used. A request with a valid X-API-Key is keyed by the key instead. Accepted on every /v1 route. */
+        ClientIP: string;
         CaseID: string;
         /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
         UserToken: string;
     };
     requestBodies: never;
     headers: {
+        /** @description The size of the caller's bucket for this route's rate class (IETF draft RateLimit header fields, D137). Sent on every rate-limited route when the limit is on; absent for the admin token. */
+        RateLimitLimit: number;
+        /** @description Requests left in the bucket after this one (0 on a 429). */
+        RateLimitRemaining: number;
+        /** @description Seconds until the bucket is full again (per-instance buckets) or until the current one-minute window ends (shared counters). */
+        RateLimitReset: number;
+        /** @description Seconds to wait before retrying. On 429 `rate_limited` until the bucket or window allows the request; on `quota_exceeded` and `client_budget_reached` (and 503 `budget_reached`) until 00:00 UTC; on `too_many_in_flight` 5; on `auth_rate_limited` until another key may be tried. */
+        RetryAfter: number;
         /** @description Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off. */
         AuditIncomplete: "completion-not-recorded";
     };
@@ -1924,7 +1949,7 @@ export interface operations {
                     "application/json": components["schemas"]["Health"];
                 };
             };
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             /** @description A dependency check failed (deep=1) */
             503: {
                 headers: {
@@ -1961,7 +1986,7 @@ export interface operations {
             400: components["responses"]["Error"];
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2031,13 +2056,18 @@ export interface operations {
             400: components["responses"]["Error"];
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     listCases: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description An anonymous browser's id, set by the frontend proxy from an httpOnly cookie (D58). With CASE_OWNERSHIP=on it scopes which cases a visitor sees; it is not authentication (STRICT_AUTH=on refuses it alone for private case operations). Server-to-server callers use X-API-Key instead and need not send it. Accepted on every /v1 route. */
+                "X-Visitor-ID"?: components["parameters"]["VisitorID"];
+                /** @description The browser's address, forwarded by the frontend proxy; it keys the per-client limits (IPv6 grouped by /64). Without it the connection's address is used. A request with a valid X-API-Key is keyed by the key instead. Accepted on every /v1 route. */
+                "X-Client-IP"?: components["parameters"]["ClientIP"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2055,6 +2085,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getCase: {
@@ -2079,6 +2110,7 @@ export interface operations {
             };
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     deleteCase: {
@@ -2103,6 +2135,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -2136,6 +2169,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     pinCase: {
@@ -2198,7 +2232,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2232,7 +2266,7 @@ export interface operations {
             400: components["responses"]["Error"];
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     exportCase: {
@@ -2279,6 +2313,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     answerCase: {
@@ -2315,7 +2350,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2383,6 +2418,7 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     prefillMoney: {
@@ -2429,7 +2465,7 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     checkFamily: {
@@ -2476,7 +2512,7 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     estimateCost: {
@@ -2520,7 +2556,7 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     extractProduct: {
@@ -2571,7 +2607,7 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2642,7 +2678,7 @@ export interface operations {
             400: components["responses"]["Error"];
             413: components["responses"]["Error"];
             415: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2707,7 +2743,7 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -2753,7 +2789,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2808,6 +2844,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     askCase: {
@@ -2861,7 +2898,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2903,7 +2940,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -2993,7 +3030,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -3022,7 +3059,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             502: components["responses"]["Error"];
         };
     };
@@ -3095,7 +3132,7 @@ export interface operations {
                 };
             };
             400: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getRuling: {
@@ -3120,6 +3157,7 @@ export interface operations {
             };
             400: components["responses"]["Error"];
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getDutyRates: {
@@ -3167,7 +3205,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     listDemos: {
@@ -3198,6 +3236,7 @@ export interface operations {
                     };
                 };
             };
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getDemo: {
@@ -3231,6 +3270,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     createWorkspace: {
@@ -3264,6 +3304,7 @@ export interface operations {
             400: components["responses"]["Error"];
             401: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getMyWorkspace: {
@@ -3307,6 +3348,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     inviteMember: {
@@ -3348,6 +3390,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -3388,6 +3431,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -3426,6 +3470,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -3456,6 +3501,7 @@ export interface operations {
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
             503: components["responses"]["Error"];
         };
     };
@@ -3502,7 +3548,7 @@ export interface operations {
             401: components["responses"]["Error"];
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     verifyAudit: {
@@ -3536,7 +3582,7 @@ export interface operations {
             403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             409: components["responses"]["Error"];
-            429: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
         };
     };
     getEvalSummary: {
@@ -3557,6 +3603,7 @@ export interface operations {
                     "application/json": components["schemas"]["EvalSummary"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
         };
     };
     listApiKeys: {
@@ -3684,6 +3731,14 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description The body is over 12 MB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["TooManyRequests"];
         };
     };
 }

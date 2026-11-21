@@ -108,3 +108,27 @@ test("SSE responses keep their streaming headers, not private/no-store", async (
   assert.match(r.headers.get("content-type"), /^text\/event-stream/);
   assert.match(await r.text(), /event: done/);
 });
+
+test("the proxy passes the backend's limit headers through, and no other backend header", async () => {
+  const limited = {
+    "Retry-After": "7",
+    "RateLimit-Limit": "20",
+    "RateLimit-Remaining": "0",
+    "RateLimit-Reset": "7",
+    "X-Internal": "secret",
+  };
+  for (const status of [429, 204]) {
+    globalThis.fetch = async (url, init = {}) => {
+      if (!String(url).startsWith("http://backend.test")) return realFetch(url, init);
+      const body = status === 204 ? null : JSON.stringify({ code: "rate_limited", message: "too many requests" });
+      return new Response(body, { status, headers: { "Content-Type": "application/json", ...limited } });
+    };
+    const res = await proxyBackend(new Request("http://front.test/api/v1/cases"), "cases");
+    assert.equal(res.status, status);
+    for (const h of ["Retry-After", "RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"]) {
+      assert.equal(res.headers.get(h), limited[h], `${status} ${h}`);
+    }
+    assert.equal(res.headers.get("X-Internal"), null);
+  }
+  globalThis.fetch = realFetch;
+});

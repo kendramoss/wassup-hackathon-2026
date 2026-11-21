@@ -156,3 +156,45 @@ func TestLiDARSampleMatchesDemo(t *testing.T) {
 		t.Errorf("Vietnam plant row not parsed: %+v", vn)
 	}
 }
+
+// ReadRows caps a CSV while reading it, as it does a sheet (D137).
+func TestReadRowsCSVCaps(t *testing.T) {
+	header := "name,country\n"
+	tests := []struct {
+		name    string
+		csv     string
+		wantErr string
+		check   func(t *testing.T, rows [][]string)
+	}{
+		{"at the row cap", header + strings.Repeat("a,China\n", maxSheetRows-1), "", func(t *testing.T, rows [][]string) {
+			if len(rows) != maxSheetRows {
+				t.Errorf("%d rows", len(rows))
+			}
+		}},
+		{"past the row cap", header + strings.Repeat("a,China\n", maxSheetRows), "more than 1000 rows", nil},
+		{"wide rows are cut to the column cap", header + "a,China" + strings.Repeat(",x", 100) + "\n", "", func(t *testing.T, rows [][]string) {
+			if len(rows[1]) != maxSheetCols {
+				t.Errorf("%d columns", len(rows[1]))
+			}
+		}},
+		{"a field at the length cap", header + strings.Repeat("a", maxFieldLen) + ",China\n", "", nil},
+		{"a field past the length cap", header + strings.Repeat("a", maxFieldLen+1) + ",China\n", "row 2, column 1 is longer than 2000 characters", nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rows, err := ReadRows(strings.NewReader(tt.csv))
+			if tt.wantErr != "" {
+				if !errors.Is(err, ErrInvalid) || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("err = %v, want ErrInvalid naming %q", err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if tt.check != nil {
+				tt.check(t, rows)
+			}
+		})
+	}
+}

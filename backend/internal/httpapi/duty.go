@@ -76,7 +76,7 @@ func (a *api) liveMFN(w http.ResponseWriter, r *http.Request, hts string) (m dut
 	m, cached, err := a.d.LiveMFN.Cached(hts)
 	if !cached {
 		if a.limiter != nil && !a.isAdmin(r) {
-			if allowed, wait := a.limiter.allow(clientKey(r), lookup); !allowed {
+			if allowed, wait := a.allow(r, lookup); !allowed { // the shared counters when configured, as for rulings
 				a.tooMany(w, wait)
 				return duty.MFN{}, false, true
 			}

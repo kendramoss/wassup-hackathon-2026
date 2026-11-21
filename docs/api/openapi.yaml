@@ -11,17 +11,31 @@ info:
     Every successful response carries `model_ids`, `prompt_versions`, `llm_provider`
     and the `disclaimer`. Errors use `{code, message, details}`.
 
-    Rate limits (D45): endpoints that call a model are limited per client (the
-    frontend forwards the browser's address as `X-Client-IP`): light ones (predict,
-    answers, ask, extract, import, scenarios, watch, bom-version) 20 a minute, heavy ones (plan,
-    compare-targets) 4 a minute, plus a global cap. Over the limit: 429
-    `rate_limited` with `Retry-After` and `details.retry_after_s`. Requests with
-    the admin token (`X-Admin-Token` header) are not limited.
+    Security and limits (D137): the full list of auth modes, limits, quotas, spend caps, size
+    limits, timeouts, headers and logging is in `docs/api/SECURITY.md`. In short:
 
-    By default each server instance counts its own limits. With `RATE_LIMIT_STORE=firestore`
-    (D70) the same limits are counted in one-minute windows shared by every instance, and
-    `Retry-After` is the time until the current window ends; if that store is unavailable the
-    instance falls back to its own limits.
+    Rate limits (D45, D137): every `/v1` route has a rate class, keyed per client (the
+    frontend forwards the browser's address as `X-Client-IP`; an API key has its own
+    buckets). Cheap routes with no model call (case reads, rename, delete, economics,
+    export, demos, rulings, duty rates, eval summary, workspaces) 120 a minute; light model
+    routes (predict, answers, ask, extract, extract-media, import, scenarios, watch, bom-version) 20 a
+    minute; heavy ones (plan, compare-targets) 4 a minute; plus a global cap. A client may
+    have at most 4 model-calling requests running at once (429 `too_many_in_flight`). Over a
+    limit: 429 with `Retry-After` and `details.retry_after_s`. Limited responses carry
+    `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset`. Requests with the admin
+    token (`X-Admin-Token` header) are not limited.
+
+    On Cloud Run the model-route limits are counted in one-minute windows shared by every
+    instance (D70; the default there since D137, `RATE_LIMIT_STORE`), and `Retry-After` is the
+    time until the current window ends; if that store is unavailable the instance falls back
+    to its own limits. Locally, and for the cheap class everywhere, each instance counts its own.
+
+    Spend: past the day's model budget new analyses get 503 `budget_reached`; one client
+    (API key or address) may spend at most 10% of that budget a day (429
+    `client_budget_reached`). Both reset at 00:00 UTC.
+
+    CORS: the API sends no CORS headers. It is for server-to-server calls (`X-API-Key`) and
+    for the frontend's own proxy; cross-origin browser calls are not supported.
 
     Ruling lookups (`GET /v1/rulings/{id}`) have their own per-client limit (30 fetches a minute; a ruling already fetched is free), separate from the model budget (D58).
 
@@ -64,7 +78,7 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Health" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503":
           description: A dependency check failed (deep=1)
           content:
@@ -94,7 +108,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/batch:
     post:
@@ -162,14 +176,16 @@ paths:
                           cost_usd: { type: number }
                           latency_ms: { type: integer }
         "400": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/cases:
     get:
       operationId: listCases
       summary: List the cases the caller can see, pinned (seeded demos) first, then most recently updated
       description: |
         Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
+      parameters: [{ $ref: "#/components/parameters/VisitorID" }, { $ref: "#/components/parameters/ClientIP" }]
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "401": { $ref: "#/components/responses/Error" }
         "200":
           description: Case summaries
@@ -188,6 +204,7 @@ paths:
       summary: Fetch a case with its prediction and latest plan
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The case
@@ -206,6 +223,7 @@ paths:
           application/json:
             schema: { type: object, required: [display_name], properties: { display_name: { type: string, minLength: 1, maxLength: 200 } } }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "401": { $ref: "#/components/responses/Error" }
         "200":
           description: The updated case row
@@ -221,6 +239,7 @@ paths:
       description: Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
       parameters: [{ $ref: "#/components/parameters/CaseID" }]
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "204": { description: Deleted, headers: { X-Audit-Incomplete: { $ref: "#/components/headers/AuditIncomplete" } } }
@@ -237,6 +256,7 @@ paths:
         content:
           application/json:
             schema: { type: object, required: [pinned], properties: { pinned: { type: boolean } } }
+      security: [{ AdminToken: [] }]
       responses:
         "200":
           description: The case
@@ -279,7 +299,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/plan/estimate:
     post:
@@ -311,7 +331,7 @@ paths:
                   estimate: { $ref: "#/components/schemas/PlanEstimate" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/cases/{id}/export:
     post:
       operationId: exportCase
@@ -350,6 +370,7 @@ paths:
                   default: markdown
                   description: "markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66)."
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "200":
@@ -390,7 +411,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/import:
     post:
@@ -436,6 +457,7 @@ paths:
                 fallback_name: { type: string }
                 name_hint: { type: string }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups)
           content:
@@ -489,7 +511,7 @@ paths:
                   hts_note: { type: string, example: "suggestion only — confirm the classification with a licensed broker", description: "Also set when the product's HTS is given but is not a valid 8- or 10-digit number: nothing is looked up or filled (D108)" }
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/products/family-check:
     post:
       operationId: checkFamily
@@ -531,7 +553,7 @@ paths:
                   llm_provider: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/products/cost-estimate:
     post:
       operationId: estimateCost
@@ -578,7 +600,7 @@ paths:
                   llm_provider: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/products/extract:
     post:
       operationId: extractProduct
@@ -614,7 +636,7 @@ paths:
                   paragraphs: { type: integer }
                   trace: { type: object }
         "400": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/extract-media:
     post:
@@ -673,7 +695,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "413": { $ref: "#/components/responses/Error" }
         "415": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/products/hts-suggest:
     post:
@@ -722,7 +744,7 @@ paths:
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
@@ -758,7 +780,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/economics:
     put:
@@ -772,6 +794,7 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/Economics" }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "200":
@@ -853,7 +876,7 @@ paths:
                   chat: { type: array, items: { $ref: "#/components/schemas/ChatTurn" } }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/scenarios:
     post:
@@ -893,7 +916,7 @@ paths:
               schema: { $ref: "#/components/schemas/CaseResponse" }
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/bom-version:
     post:
@@ -966,7 +989,7 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/watch:
     post:
@@ -986,12 +1009,13 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "409": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "502": { $ref: "#/components/responses/Error" }
   /v1/watch/run:
     post:
       operationId: runWatch
       summary: Re-check every analysed case (for a scheduler; admin token required)
+      security: [{ AdminToken: [] }]
       responses:
         "403": { $ref: "#/components/responses/Error" }
         "200":
@@ -1040,7 +1064,7 @@ paths:
                         score: { type: number }
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/rulings/{id}:
     get:
       operationId: getRuling
@@ -1051,6 +1075,7 @@ paths:
           required: true
           schema: { type: string, pattern: "^[NH][0-9]{6}$", example: N357771 }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: Ruling
           content:
@@ -1109,12 +1134,13 @@ paths:
                   lines: { type: array, items: { type: object } }
                   live_mfn: { $ref: "#/components/schemas/LiveMFN" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/demos:
     get:
       operationId: listDemos
       summary: Demo cases for the UI's "load demo" button
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: Demo list
           content:
@@ -1142,6 +1168,7 @@ paths:
           required: true
           schema: { type: string }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: Demo
           content:
@@ -1171,6 +1198,7 @@ paths:
           application/json:
             schema: { type: object, required: [name], properties: { name: { type: string, minLength: 1, maxLength: 100, description: Whitespace is collapsed } } }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "201":
           description: The workspace
           content:
@@ -1185,6 +1213,7 @@ paths:
       summary: The signed-in user, their workspace and pending invitations (TEAMS=on)
       parameters: [{ $ref: "#/components/parameters/UserToken" }]
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: The user's email, workspace (null when they have none) and pending invitations
           content:
@@ -1222,6 +1251,7 @@ paths:
           application/json:
             schema: { type: object, required: [email], properties: { email: { type: string, format: email, description: Lower-cased } } }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
         "200":
           headers:
@@ -1250,6 +1280,7 @@ paths:
           application/json:
             schema: { type: object, required: [role], additionalProperties: false, properties: { role: { $ref: "#/components/schemas/WorkspaceRole" } } }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
         "200":
           headers:
@@ -1273,6 +1304,7 @@ paths:
         - { name: id, in: path, required: true, schema: { type: string } }
         - { name: email, in: path, required: true, schema: { type: string, format: email }, description: URL-encoded and lower-cased }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
         "200":
           headers:
@@ -1301,6 +1333,7 @@ paths:
         - { $ref: "#/components/parameters/UserToken" }
         - { name: id, in: path, required: true, schema: { type: string } }
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
         "200":
           headers:
@@ -1341,7 +1374,7 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/audit/verify:
     get:
       operationId: verifyAudit
@@ -1363,12 +1396,13 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
-        "429": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/eval/summary:
     get:
       operationId: getEvalSummary
       summary: Evaluation numbers for the results page (from eval/RESULTS.md runs)
       responses:
+        "429": { $ref: "#/components/responses/TooManyRequests" }
         "200":
           description: Summary
           content:
@@ -1439,7 +1473,7 @@ paths:
       operationId: mcp
       summary: Model Context Protocol endpoint (Streamable HTTP, stateless JSON-RPC)
       description: |
-        The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
+        The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. The POST itself counts once against the caller's basic class (D137); a tool call that is refused by a limit returns a tool error with `retry_after`. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
       security: [{}, { ApiKey: [] }]
       requestBody:
         required: true
@@ -1452,6 +1486,8 @@ paths:
         "400": { description: Malformed MCP request }
         "403": { description: The admin token was sent }
         "405": { description: Only POST is served }
+        "413": { description: The body is over 12 MB }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
 components:
   securitySchemes:
     ApiKey:
@@ -1466,6 +1502,18 @@ components:
       name: X-Admin-Token
       description: The deployment's admin token (seeding, pinning, issuing API keys). Never sent from the browser.
   parameters:
+    VisitorID:
+      name: X-Visitor-ID
+      in: header
+      required: false
+      description: "An anonymous browser's id, set by the frontend proxy from an httpOnly cookie (D58). With CASE_OWNERSHIP=on it scopes which cases a visitor sees; it is not authentication (STRICT_AUTH=on refuses it alone for private case operations). Server-to-server callers use X-API-Key instead and need not send it. Accepted on every /v1 route."
+      schema: { type: string, maxLength: 64 }
+    ClientIP:
+      name: X-Client-IP
+      in: header
+      required: false
+      description: "The browser's address, forwarded by the frontend proxy; it keys the per-client limits (IPv6 grouped by /64). Without it the connection's address is used. A request with a valid X-API-Key is keyed by the key instead. Accepted on every /v1 route."
+      schema: { type: string, maxLength: 64 }
     CaseID:
       name: id
       in: path
@@ -1478,12 +1526,35 @@ components:
       description: The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint.
       schema: { type: string }
   headers:
+    RateLimitLimit:
+      description: "The size of the caller's bucket for this route's rate class (IETF draft RateLimit header fields, D137). Sent on every rate-limited route when the limit is on; absent for the admin token."
+      schema: { type: integer }
+    RateLimitRemaining:
+      description: Requests left in the bucket after this one (0 on a 429).
+      schema: { type: integer }
+    RateLimitReset:
+      description: Seconds until the bucket is full again (per-instance buckets) or until the current one-minute window ends (shared counters).
+      schema: { type: integer }
+    RetryAfter:
+      description: Seconds to wait before retrying. On 429 `rate_limited` until the bucket or window allows the request; on `quota_exceeded` and `client_budget_reached` (and 503 `budget_reached`) until 00:00 UTC; on `too_many_in_flight` 5; on `auth_rate_limited` until another key may be tried.
+      schema: { type: integer }
     AuditIncomplete:
       description: "Set to `completion-not-recorded` when the audit trail is enabled and the completion or single event of an audited request could not be stored. It can appear on ANY audited route that is not a Server-Sent-Events stream, on a success OR an error response, not only on the seven operations that can answer 503: every mutating route, a recording or preview export of a non-pinned case, the audit read and verify routes, and the API-key list. For a write, the change stands and the response status is the true one. It is never sent on a Server-Sent-Events response, whose headers are committed before the work runs, so a stream that could not record its completion carries no header and the trail holds an intent without a completion. It is not present when the audit trail is off."
       schema: { type: string, enum: [completion-not-recorded] }
   responses:
     Error:
       description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    TooManyRequests:
+      description: |
+        Refused by a limit (D137, docs/api/SECURITY.md). `code` says which: `rate_limited` (the route's rate class), `too_many_in_flight` (too many model-calling requests running at once), `client_budget_reached` (this client's share of the day's model budget is spent), `quota_exceeded` (the API key's daily request quota) or `auth_rate_limited` (too many invalid API keys from this client). `details.retry_after_s` repeats `Retry-After`.
+      headers:
+        Retry-After: { $ref: "#/components/headers/RetryAfter" }
+        RateLimit-Limit: { $ref: "#/components/headers/RateLimitLimit" }
+        RateLimit-Remaining: { $ref: "#/components/headers/RateLimitRemaining" }
+        RateLimit-Reset: { $ref: "#/components/headers/RateLimitReset" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }

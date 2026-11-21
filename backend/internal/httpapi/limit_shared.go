@@ -67,6 +67,8 @@ func (s *sharedLimiter) counters(key string, c class, start time.Time) ([]rateli
 		bucket, perClient, n, weight = "heavy", s.lim.HeavyPerMin, max(1, s.lim.HeavyPerMin), MaxBatch
 	case lookup:
 		bucket, perClient, weight = "lookup", s.lim.LookupPerMin, 0
+	case basic: // never sent here (counted per instance); kept for completeness
+		bucket, perClient, weight = "basic", s.lim.BasicPerMin, 0
 	}
 	win := start.Unix()
 	if perClient > 0 {
@@ -83,25 +85,48 @@ func (s *sharedLimiter) counters(key string, c class, start time.Time) ([]rateli
 	return cs, limits
 }
 
+// perClient is the per-client limit of class c (0: none).
+func (s *sharedLimiter) perClient(c class) int {
+	switch c {
+	case heavy, bulk:
+		return s.lim.HeavyPerMin
+	case lookup:
+		return s.lim.LookupPerMin
+	case basic:
+		return s.lim.BasicPerMin
+	}
+	return s.lim.LightPerMin
+}
+
 // allow takes one request of class c for key. When refused it returns how
 // long until the window ends. A store error is returned for the caller to
 // fall back on its local limiter.
 func (s *sharedLimiter) allow(ctx context.Context, key string, c class) (bool, time.Duration, error) {
+	d, err := s.decide(ctx, key, c)
+	return d.ok, d.wait, err
+}
+
+// decide is allow with the client counter's state for the RateLimit-*
+// headers: its limit, what is left of it and when the window ends.
+func (s *sharedLimiter) decide(ctx context.Context, key string, c class) (rateDecision, error) {
 	now := s.now()
 	start := now.Truncate(rateWindow)
 	end := start.Add(rateWindow)
 	cs, limits := s.counters(key, c, start)
 	if len(cs) == 0 {
-		return true, 0, nil
+		return rateDecision{ok: true}, nil
 	}
+	// The client counter, when the class has a per-client limit, is first
+	// (see counters).
+	clientLimit := s.perClient(c)
 	if s.anyFull(cs, now) {
-		return false, end.Sub(now), nil
+		return rateDecision{wait: end.Sub(now), limit: clientLimit, reset: end.Sub(now)}, nil
 	}
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), sharedStoreTimeout)
 	defer cancel()
 	totals, err := s.store.Add(ctx, cs, end)
 	if err != nil {
-		return false, 0, err
+		return rateDecision{}, err
 	}
 	refused := false
 	for i, t := range totals {
@@ -116,8 +141,13 @@ func (s *sharedLimiter) allow(ctx context.Context, key string, c class) (bool, t
 			}
 		}
 	}
+	d := rateDecision{limit: clientLimit, reset: end.Sub(now)}
 	if !refused {
-		return true, 0, nil
+		d.ok = true
+		if clientLimit > 0 {
+			d.remaining = clientLimit - int(totals[0])
+		}
+		return d, nil
 	}
 	undo := make([]ratelimit.Counter, len(cs))
 	for i, x := range cs {
@@ -125,7 +155,8 @@ func (s *sharedLimiter) allow(ctx context.Context, key string, c class) (bool, t
 	}
 	// Best effort: if this fails the request still counts until the window ends.
 	_, _ = s.store.Add(ctx, undo, end)
-	return false, end.Sub(now), nil
+	d.wait = end.Sub(now)
+	return d, nil
 }
 
 func (s *sharedLimiter) anyFull(cs []ratelimit.Counter, now time.Time) bool {
@@ -162,21 +193,28 @@ func (s *sharedLimiter) shouldLog(now time.Time) bool {
 	return true
 }
 
-// allow applies the rate limits to r: the shared counters when configured,
-// this instance's buckets otherwise. If the shared store fails, the request
-// falls back to this instance's buckets (fail open to the local limits,
-// D70) rather than being refused or let through unlimited.
-func (a *api) allow(r *http.Request, c class) (bool, time.Duration) {
-	key := clientKey(r)
-	if a.shared != nil {
-		ok, wait, err := a.shared.allow(r.Context(), key, c)
+// rateCheck applies the rate limits to r for the client key: the shared
+// counters when configured, this instance's buckets otherwise. If the shared
+// store fails, the request falls back to this instance's buckets (fail open
+// to the local limits, D70) rather than being refused or let through
+// unlimited. The basic class is always counted here (D137): a store write
+// per read would cost more than the limit protects.
+func (a *api) rateCheck(r *http.Request, key string, c class) rateDecision {
+	if a.shared != nil && c != basic {
+		d, err := a.shared.decide(r.Context(), key, c)
 		if err == nil {
-			return ok, wait
+			return d
 		}
 		if a.shared.shouldLog(a.shared.now()) {
 			a.d.Logger.LogAttrs(r.Context(), slog.LevelWarn, "shared rate limiter unavailable; using this instance's limits",
 				slog.Any("request_id", requestRef(r.Context())), slog.Any("err", logsafe.Err(err)))
 		}
 	}
-	return a.limiter.allow(key, c)
+	return a.limiter.decide(key, c)
+}
+
+// allow is rateCheck for r's own client key, without the header state.
+func (a *api) allow(r *http.Request, c class) (bool, time.Duration) {
+	d := a.rateCheck(r, clientKey(r), c)
+	return d.ok, d.wait
 }

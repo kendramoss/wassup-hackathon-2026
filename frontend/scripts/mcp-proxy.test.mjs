@@ -82,3 +82,13 @@ test("a body over 12 MB is refused", async () => {
   assert.equal((await proxyMcp(big)).status, 413);
   assert.equal(sent.length, 0);
 });
+
+test("passes the backend's limit headers through (D137), and no other backend header", async () => {
+  const limited = { "content-type": "application/json", "retry-after": "12", "ratelimit-limit": "120", "ratelimit-remaining": "0", "ratelimit-reset": "12", "x-internal": "secret" };
+  backend(() => new Response(`{"code":"rate_limited","message":"too many requests"}`, { status: 429, headers: limited }));
+  const res = await proxyMcp(req());
+  assert.equal(res.status, 429);
+  for (const h of ["retry-after", "ratelimit-limit", "ratelimit-remaining", "ratelimit-reset"]) assert.equal(res.headers.get(h), limited[h], h);
+  assert.equal(res.headers.get("x-internal"), null);
+  globalThis.fetch = realFetch;
+});

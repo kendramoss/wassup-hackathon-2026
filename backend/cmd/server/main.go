@@ -147,16 +147,7 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 	if deps.Audit, err = newAudit(ctx, cfg, cases, logger); err != nil {
 		return err
 	}
-	srv := &http.Server{
-		Addr:              ":" + cfg.Port,
-		Handler:           httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps),
-		ReadHeaderTimeout: 10 * time.Second,
-		// net/http's own error lines (a handler panic with its value and stack,
-		// TLS and connection errors) become one constant record of class
-		// stdlog. The bridge never recovers: http.ErrAbortHandler and a
-		// committed stream behave exactly as net/http defines.
-		ErrorLog: errorLog,
-	}
+	srv := newServer(":"+cfg.Port, httpapi.NewHandler(logger, httpapi.Info{Provider: model.Provider(), Version: os.Getenv("K_REVISION")}, deps), errorLog)
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -168,6 +159,67 @@ func run(logger *slog.Logger, errorLog *log.Logger, cfg config.Config, smoke boo
 		return fmt.Errorf("server: %w", err)
 	}
 	return nil
+}
+
+// Server timeouts (D137). ReadTimeout bounds reading a whole request,
+// headers and body (the largest body is a 5 MB upload); IdleTimeout closes
+// idle keep-alive connections. There is no WriteTimeout: predict and plan
+// stream server-sent events for longer than any fixed write deadline, so
+// handlers bound their own work instead (model call timeouts, and a
+// deadline on the cheap routes).
+const (
+	readHeaderTimeout = 10 * time.Second
+	readTimeout       = 30 * time.Second
+	idleTimeout       = 120 * time.Second
+	maxHeaderBytes    = 64 << 10
+)
+
+func newServer(addr string, h http.Handler, errorLog *log.Logger) *http.Server {
+	return &http.Server{
+		Addr:              addr,
+		Handler:           h,
+		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readTimeout,
+		IdleTimeout:       idleTimeout,
+		MaxHeaderBytes:    maxHeaderBytes,
+		// net/http's own error lines (a handler panic with its value and stack,
+		// TLS and connection errors) become one constant record of class
+		// stdlog. The bridge never recovers: http.ErrAbortHandler and a
+		// committed stream behave exactly as net/http defines.
+		ErrorLog: errorLog,
+	}
+}
+
+// rateCounterPrune is how often each instance deletes ended rate-limit
+// windows, rateCounterKeep how long an ended window is kept, and
+// rateCounterBatch how many one pass deletes at most (D137).
+const (
+	rateCounterPrune = 10 * time.Minute
+	rateCounterKeep  = 5 * time.Minute
+	rateCounterBatch = 500
+)
+
+// pruneRateCounters keeps the rate_limits collection bounded when no
+// Firestore TTL policy deletes ended windows: every rateCounterPrune it
+// deletes windows that ended more than rateCounterKeep ago, a batch at a
+// time, up to ten batches. Failures are logged and retried next time.
+func pruneRateCounters(fc *store.FirestoreCounters, logger *slog.Logger) {
+	t := time.NewTicker(rateCounterPrune)
+	defer t.Stop()
+	for range t.C {
+		for range 10 {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			n, err := fc.Prune(ctx, time.Now().Add(-rateCounterKeep), rateCounterBatch)
+			cancel()
+			if err != nil {
+				logger.Warn("rate counters not pruned", "err", logsafe.Err(err))
+				break
+			}
+			if n < rateCounterBatch {
+				break
+			}
+		}
+	}
 }
 
 // buildModels wraps the raw provider client into the shared model and the
@@ -202,7 +254,7 @@ func newMeter(cfg config.Config, cases store.Cases, logger *slog.Logger) *spend.
 	if cfg.DailySpendCapUSD > 0 {
 		logger.Info("daily model spend cap", "usd", cfg.DailySpendCapUSD)
 	}
-	return spend.New(spendStore, cfg.DailySpendCapUSD)
+	return spend.New(spendStore, cfg.DailySpendCapUSD).WithClientShare(cfg.DailySpendClientShare)
 }
 
 // newBase builds the configured provider with no retry. The router, verifier,
@@ -517,11 +569,18 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	switch cfg.RateLimitStore {
 	case config.RateFirestore:
 		fc, err := store.NewFirestoreCounters(context.Background(), cfg.GCPProject, cfg.FirestoreDatabase)
-		if err != nil {
+		switch {
+		case err != nil && cfg.RateLimitStoreDefaulted:
+			// Chosen by the Cloud Run default, not asked for: start with
+			// this instance's limits rather than not at all (D137).
+			logger.Warn("shared rate limiter unavailable; using this instance's limits", "err", logsafe.Err(err))
+		case err != nil:
 			return httpapi.Deps{}, err
+		default:
+			rateStore = fc
+			go pruneRateCounters(fc, logger)
+			logger.Info("rate limits shared in Firestore", "collection", store.RateLimitCollection)
 		}
-		rateStore = fc
-		logger.Info("rate limits shared in Firestore", "collection", store.RateLimitCollection)
 	case config.RateMemory:
 		rateStore = ratelimit.NewMemory()
 		logger.Info("rate limits counted in fixed windows in memory")
@@ -551,7 +610,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		VerifierModel:         cfg.VerifierModel,
 		VerifierPromptVersion: map[string]string{"v1": verifier.PromptVersion, "v2": verifier.PromptVersion2, "v3": verifier.PromptVersion3}[cfg.VerifierPrompt],
 		Logger:                logger,
-		Limits:                httpapi.Limits{LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin},
+		Limits:                httpapi.Limits{BasicPerMin: cfg.RateBasicPerMin, LightPerMin: cfg.RateLightPerMin, HeavyPerMin: cfg.RateHeavyPerMin, GlobalPerMin: cfg.RateGlobalPerMin, LookupPerMin: cfg.RateLookupPerMin, MaxInFlight: cfg.RateMaxInFlight, AuthFailuresPerMin: cfg.RateAuthFailuresPerMin},
+		RequireBearer:         cfg.RequireBearer,
 		RateStore:             rateStore,
 		CasesListLimit:        cfg.CasesListLimit,
 		CaseOwnership:         cfg.CaseOwnership,
