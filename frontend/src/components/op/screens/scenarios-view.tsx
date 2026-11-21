@@ -246,7 +246,7 @@ export function Editor({ drafts, setDrafts, c, groups }: { drafts: Draft[]; setD
   const set = (i: number, d: Partial<Draft>) =>
     setDrafts(drafts.map((x, j) => (j === i ? { ...x, ...d, ...("groups" in d || "plant" in d ? { stored: undefined } : {}) } : x)));
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {drafts.map((d, i) => (
         <Panel key={i}>
           <PanelHead right={<button type="button" className="text-dim hover:text-fail" aria-label={`Remove ${d.label}`} onClick={() => setDrafts(drafts.filter((_, j) => j !== i))}>×</button>}>
@@ -346,7 +346,7 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
   return (
     <div className="flex flex-col gap-5">
     <PlanLine c={c} />
-    <div className="grid gap-5 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {sc.map((s, i) => {
         const p = s.prediction ?? {};
         const cmp = s.comparison;

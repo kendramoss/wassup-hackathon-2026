@@ -7,7 +7,7 @@
 // Writes PNGs and report.json to .ui-check/ and exits 1 if axe finds
 // violations or a page logs console errors. Uses an installed Chrome or Edge
 // (no browser download); set BROWSER=msedge or BROWSER=chrome to pick one.
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright-core";
 import { AxeBuilder } from "@axe-core/playwright";
 
@@ -17,7 +17,14 @@ const paths = args.filter((a) => a.startsWith("/"));
 if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage");
 const out = ".ui-check";
 
-const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 } };
+const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 }, narrow: { width: 320, height: 720 } };
+
+// #522: the 320 px WCAG reflow size caught scenario cards forcing the whole
+// page sideways. Use the recorded case so this state does not depend on a
+// live backend (or spend a prediction) and is checked on every ui-check run.
+const reflowId = "case_878d76540b91";
+const reflowPath = `/cases/${reflowId}/scenarios`;
+const reflowFixture = JSON.parse(await readFile(new URL("../../eval/results/demo-seed-heatgun-scenarios-vertex-prod.json", import.meta.url), "utf8"));
 
 async function launch() {
   // PW_CHROME: a browser binary to use instead (e.g. Playwright's headless shell).
@@ -42,8 +49,14 @@ for (const scheme of ["light", "dark"]) {
     let current = "";
     page.on("console", (m) => m.type() === "error" && problems.push({ page: current, vp, scheme, console: m.text() }));
     page.on("pageerror", (e) => problems.push({ page: current, vp, scheme, console: String(e) }));
+    if (vp === "narrow") {
+      await page.route(`**/api/v1/cases/${reflowId}`, (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(reflowFixture) }),
+      );
+    }
+    const checkPaths = vp === "narrow" ? [...new Set([...paths, reflowPath])] : paths;
 
-    for (const path of paths) {
+    for (const path of checkPaths) {
       current = path;
       await page.goto(base + path, { waitUntil: "networkidle" });
       // Hide the Next.js dev-mode badge so it doesn't show up in screenshots.
@@ -120,7 +133,7 @@ for (const scheme of ["light", "dark"]) {
 
 await browser.close();
 await writeFile(`${out}/report.json`, JSON.stringify(problems, null, 2));
-console.log(`Screenshots and report.json in ${out}/ (${paths.join(", ")} x light/dark x desktop/mobile)`);
+console.log(`Screenshots and report.json in ${out}/ (${[...paths, reflowPath].join(", ")} x light/dark x desktop/mobile/narrow)`);
 if (problems.length) {
   console.log(`${problems.length} problem(s):`);
   for (const p of problems) console.log(" ", JSON.stringify(p));
