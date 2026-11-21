@@ -87,7 +87,7 @@ In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign
 
 ## Does it work?
 
-Tested on **377 real CBP rulings** from January to September 2026 that were never used to tune prompts or settings (earlier rulings, including earlier test rulings, can be retrieved as precedent for later ones, but never a case's own ruling or a later one):
+Scored once on a **377-ruling temporal test split** of cleaned, single-origin 2026 substantial-transformation rulings. Prompts were not tuned on it; earlier split rulings may serve as precedents, BM25 statistics use the whole corpus, and pretraining exposure cannot be excluded (a case's own ruling and later rulings are never retrieved as precedent):
 
 | Method | Accuracy |
 |---|---|
