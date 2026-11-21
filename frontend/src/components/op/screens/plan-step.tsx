@@ -73,6 +73,8 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   const [rows, setRows] = useState<Row[]>([]);
   const [baseline, setBaseline] = useState<Plan | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number; since: number } | null>(null);
+  // #571: announce one short line per finished move, not the whole table.
+  const [announce, setAnnounce] = useState("");
   const [lit, setLit] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [showMoney, setShowMoney] = useState(false);
@@ -230,6 +232,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     setRows([]);
     setBaseline(null);
     setProgress({ done: 0, total: 0, since: Date.now() });
+    setAnnounce("");
     // A stream that closes without "done" or "error" was cut (a timeout or a
     // dropped connection): say so, with a retry, rather than spin forever.
     let finished = false;
@@ -242,6 +245,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             case "start":
               setRows(e.data.moves.map((m: MoveRef) => ({ key: m.key, description: m.description })));
               setProgress((p) => p && { ...p, total: e.data.total });
+              setAnnounce(`Checking ${e.data.total} moves to ${target}.`);
               break;
             case "baseline":
               setBaseline(e.data.plan);
@@ -264,6 +268,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                   : [...rs, { key: e.data.key, description: e.data.plan.description ?? copy.plan.advice.pending, plan: e.data.plan, advice: true }],
               );
               setProgress((p) => p && { ...p, done: e.data.done, total: e.data.total });
+              setAnnounce(`Move ${e.data.done} of ${e.data.total} checked: ${e.data.plan.description ?? copy.plan.advice.pending}.`);
               setLit(e.data.key);
               break;
             case "done":
@@ -424,7 +429,14 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             </div>
           </div>
         )}
-        {searching && <LiveTable rows={rows} baseline={baseline} lit={lit} />}
+        {searching && (
+          <>
+            <p role="status" className="sr-only">
+              {announce}
+            </p>
+            <LiveTable rows={rows} baseline={baseline} lit={lit} />
+          </>
+        )}
         {/* #4: the decision first (band above), then the moves and why the
             best one is supported side by side; the diagram explains, so it
             comes after. Money inputs open in a drawer. */}
@@ -798,7 +810,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
             ))}
           </tr>
         </thead>
-        <tbody aria-live="polite">
+        <tbody>
           <tr className="border-b border-line text-dim">
             <td className="px-3.5 py-2.5">Current setup</td>
             <td className="px-3.5 py-2.5">{baseline ? <Chip>Baseline</Chip> : "…"}</td>

@@ -546,6 +546,98 @@ const delayed = async (route, body) => {
   await ctx.close();
 }
 
+// #571: the streamed move table is a visual scratchpad, not a live region.
+// Re-announcing the whole tbody on each cell change buries the one new fact;
+// a small status must announce just the completed move.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases/[id]/plan (live table)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases/[id]/plan (live table)", console: String(e) }));
+  await page.addInitScript((caseId) => {
+    localStorage.setItem(`op:demo:${caseId}`, "heatgun-2022");
+    const real = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      const url = typeof input === "string" ? input : input.url;
+      if (!url.includes(`/api/v1/cases/${caseId}/plan`)) return real(input, init);
+      const enc = new TextEncoder();
+      let n = 0;
+      const events = [
+        { event: "start", data: { moves: [
+          { key: "m1", description: "Move fan to Thailand" },
+          { key: "m2", description: "Move motor to Thailand" },
+          { key: "m3", description: "Move board to Thailand" },
+        ], total: 3 } },
+        { event: "baseline", data: { plan: { description: "No change: keep the current setup", net_per_year: 0 } } },
+        { event: "move_started", data: { key: "m1", done: 1, total: 3 } },
+        { event: "move_done", data: { key: "m1", done: 1, total: 3, plan: { description: "Move fan to Thailand", net_per_year: 5000, verdict: { confidence: 0.94 } } } },
+        { event: "move_started", data: { key: "m2", done: 2, total: 3 } },
+        { event: "move_done", data: { key: "m2", done: 2, total: 3, plan: { description: "Move motor to Thailand", net_per_year: 8000, verdict: { confidence: 0.93 } } } },
+        { event: "move_started", data: { key: "m3", done: 3, total: 3 } },
+        { event: "move_done", data: { key: "m3", done: 3, total: 3, plan: { description: "Move board to Thailand", net_per_year: 3000, verdict: { confidence: 0.95 } } } },
+      ];
+      const stream = new ReadableStream({
+        start(c) {
+          const t = setInterval(() => {
+            if (n < events.length) {
+              const e = events[n++];
+              c.enqueue(enc.encode(`event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`));
+            }
+          }, 120);
+          window.__stopPlanSse = () => { clearInterval(t); c.close(); };
+        },
+      });
+      return Promise.resolve(new Response(stream, { status: 200, headers: { "content-type": "text/event-stream" } }));
+    };
+  }, reflowId);
+  await page.route("**/api/session", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ client_id: "ui-check", email: "ui-check@example.com", name: "UI Check", picture: null, exp: null }) }),
+  );
+  await page.route("**/api/v1/workspaces/mine", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ email: "ui-check@example.com", workspace: null, invites: [] }) }),
+  );
+  await page.route("**/api/v1/demos/heatgun-2022", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(reflowFixture) }),
+  );
+  await page.route("**/api/v1/demos", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ demos: [] }) }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ...reflowFixture, plan: null, targets: null }) }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/plan/estimate`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.goto(base + `/cases/${reflowId}/plan?target=Thailand`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Search moves to/i }).first().click();
+  await page.locator("tbody").first().waitFor();
+  // Wait for the stream to reach the second move; before the fix this is where
+  // the old tbody live region replays every row instead of one short status.
+  await page.waitForFunction(() => (document.querySelector("tbody")?.textContent ?? "").includes("$8k"), null, { timeout: 8000 });
+  const live = await page.evaluate(() => {
+    const tbody = document.querySelector("tbody");
+    const update = [...document.querySelectorAll('[role="status"]')].find((el) => /Move 2 of 3 checked/.test(el.textContent ?? ""));
+    return {
+      tbodyLive: tbody?.getAttribute("aria-live") ?? null,
+      updateText: (update?.textContent ?? "").trim().replace(/\s+/g, " "),
+      updateCount: update ? 1 : 0,
+      tableRows: tbody?.querySelectorAll("tr").length ?? 0,
+    };
+  });
+  if (live.tbodyLive || live.updateCount !== 1 || !/Move 2 of 3 checked: Move motor to Thailand/.test(live.updateText)) {
+    problems.push({ page: "/cases/[id]/plan (live table)", focus: "streamed move table re-announces every row instead of one status", ...live });
+  }
+  // A one-cell change must not put the whole table text inside a live region.
+  const replay = await page.evaluate(() => {
+    const tbody = document.querySelector("tbody");
+    return (tbody?.textContent ?? "").trim().replace(/\s+/g, " ");
+  });
+  if (/Move fan to Thailand.*Move motor to Thailand/s.test(live.updateText) || live.updateText === replay) {
+    problems.push({ page: "/cases/[id]/plan (live table)", focus: "status replays the whole move table", update: live.updateText.slice(0, 200) });
+  }
+  await ctx.close();
+}
+
 await browser.close();
 await writeFile(`${out}/report.json`, JSON.stringify(problems, null, 2));
 console.log(`Screenshots and report.json in ${out}/ (${[...paths, reflowPath].join(", ")} x light/dark x desktop/mobile/narrow)`);
