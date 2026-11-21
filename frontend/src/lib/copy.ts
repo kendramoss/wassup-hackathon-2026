@@ -370,14 +370,14 @@ export const copy = {
     // planner_post_combined_known-a_* by GET /v1/eval/summary.
     planCheck: {
       head: "C · the plan check, on later rulings",
-      meta: "18 CBP flip pairs from Sep–Nov 2026 · each frozen, scored once · gateway, not Vertex AI",
+      meta: "18 CBP flip pairs from Sep–Nov 2026 · each frozen · same result in 3 runs · gateway, not Vertex AI",
       lead: "Every move is checked both ways, for and against, against earlier CBP rulings only. Tested on pairs of CBP rulings on one product before and after a change, at least one of them published after the 377 above, with CBP's starting origin given.",
       rows: [
         { k: 9, n: 9, label: "moves shown were real changes", lo: 70, hi: 100, lowerIsBetter: false },
-        { k: 9, n: 12, label: "later real changes found, one run, starting origin given (75%)", lo: 47, hi: 91, lowerIsBetter: false },
+        { k: 9, n: 12, label: "later real changes found, each of 3 runs, starting origin given (75%)", lo: 47, hi: 91, lowerIsBetter: false },
         { k: 0, n: 6, label: "no-change pairs shown as a plan", lo: 0, hi: 39, lowerIsBetter: true },
       ],
-      foot: "Small samples, so wide intervals. Without the starting origin: 5 of 6 shown were right, 5 of 12 found. The accuracy page also says about 29%: that is a stricter count on earlier pairs, where a pair counts only if it cleared the bar in every one of several runs, with and without the starting origin (17 of 59).",
+      foot: "Small samples, so wide intervals. Without the starting origin: 5 of 6 shown were right in runs 1 and 2 and 5 of 5 in run 3, 5 of 12 found each time. The accuracy page also says about 29%: that is a stricter count on earlier pairs, where a pair counts only if it cleared the bar in every one of several runs, with and without the starting origin (17 of 59).",
       link: "Plan checks on the accuracy page →",
     },
     more: "How accurate is it? →",

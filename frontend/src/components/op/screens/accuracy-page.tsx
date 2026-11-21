@@ -181,7 +181,9 @@ export function AccuracyPage() {
     if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
     // D241: held-out repeat runs (the official run, then gateway repeats).
     if (it.key?.startsWith("repeat_final")) return { label: "held-out · repeatability, gateway repeats" };
-    if (it.key?.startsWith("final2_") || it.key?.includes("_final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
+    // D354: the post-cutoff flip pairs were run three times, same figures.
+    if (it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, same in 3 runs" };
+    if (it.key?.startsWith("final2_") || it.key?.includes("_final2_")) return { label: "held-out · gateway, scored once" };
     if (it.key === "all_regimes_heldout_accuracy") return { label: "held-out · pooled, mixed paths" };
     if (it.key?.startsWith("router_final")) return { label: "held-out · gateway, scored once" };
     if (!it.development_only && it.source?.includes("litellm")) return { label: "held-out · LiteLLM proxy, not Vertex AI" };
@@ -358,15 +360,15 @@ export function AccuracyPage() {
             <section id="plan-checks" className="mt-6 scroll-mt-20">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Plan checks on rulings published after the test set</h2>
-                <span className="ml-auto text-[11px] text-dim">{postPairs} CBP flip pairs, each with a ruling from Sep–Nov 2026 · each pair frozen before scoring, scored once · gateway, not Vertex AI · small</span>
+                <span className="ml-auto text-[11px] text-dim">{postPairs} CBP flip pairs, each with a ruling from Sep–Nov 2026 · each pair frozen before scoring · same figures in 3 runs · gateway, not Vertex AI · small</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
-                  at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `${postCtlShown} of the ${postCtl.n} pairs where CBP kept the origin were shown.` : ""} The 15 pairs of the first set plus 3 added later (D192), each scored once. With so few pairs the interval
+                  at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `${postCtlShown} of the ${postCtl.n} pairs where CBP kept the origin were shown.` : ""} The 15 pairs of the first set plus 3 added later (D192); three runs gave the same moves (D354). With so few pairs the interval
                   is wide.
                 </Card>
                 <Card title="Later real changes found, starting origin given" big={pct(postRec.value, 0)}>
-                  {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}), in one run with CBP&apos;s starting
+                  {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}), the same in each of 3 runs, with CBP&apos;s starting
                   origin given. The rest go to a broker as below the bar or without a supporting ruling.{calPairs ? (
                     <>
                       {" "}The precedent check below says about {pct(calEvery / calPairs, 0)} instead ({calEvery} of {calPairs}): that counts earlier pairs (the development pairs and the first 2026 pairs), and only those

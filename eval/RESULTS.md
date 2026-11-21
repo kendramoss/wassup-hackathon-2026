@@ -669,6 +669,20 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
   - unknown-a: shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6 (0-39.0), one control row an error.
 - Core tier unchanged (no core pair was added).
 
+## Planner: the 18 post-cutoff flip pairs, runs 2 and 3 (gateway, 22 Nov; D353, D354)
+
+### Pre-registered in D353 (commit ea48b5a4) before any run; same configuration as run 1
+- verifier-v2 on gemini-4-argon, one vote, no panel, local corpus search, plan bar 0.92, fixed seed, OpenAI-compatible LiteLLM gateway to Gemini, `LITELLM_NO_CACHE=1`. `go run ./cmd/eval flips -post [-known-a] -tag run<N>` and the addendum with `-tag addendum-run<N>`.
+- Starting origin given (known-a), combined 18 pairs:
+  - run 2: shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls 0/6. $0.66.
+  - run 3: shown 9, right 9/9; recall 9/12; controls 0/6. $0.69.
+  - Same 9 moves in runs 1, 2 and 3; confidences within 0.02; 8 of 9 cite the same ruling each run.
+- Not given (unknown-a):
+  - run 2: shown 6, right 5/6; recall 5/12; controls 0/6; one control row failed (gateway timeout), counted as not shown. $0.63.
+  - run 3: shown 5, right 5/5; recall 5/12; controls 0/6. $0.69.
+  - The fracking unit (wrong later origin) was shown at 0.92 in runs 1 and 2 and at 0.88, below the bar, in run 3.
+- Total $2.66. Rows `results/flips-post-verifier-v2-{run2,run3,addendum-run2,addendum-run3}-{known-a,unknown-a}-litellm.jsonl`; summary `results/planner-post-repeats-summary.json`. Every run is in RUNLOG.
+
 ## Planner: the 0.92 plan bar re-examined on committed rows (no model calls, 21 Nov; D300, D301)
 
 ### Rule written first (D300, commit e4a555e6), bar chosen on development rows only

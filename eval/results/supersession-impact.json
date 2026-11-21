@@ -232,7 +232,7 @@
    "supported_verdicts_on_superseded": 0
   }
  },
- "files_with_rulings": 140,
+ "files_with_rulings": 148,
  "map_version": "supersession-v1",
  "note": "Offline count (D320): committed result rows that showed or cited a CBP ruling revoked or modified on or before the row's case date. No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured.",
  "rows": [
@@ -921,7 +921,7 @@
   "rows_citing_superseded": 10,
   "rows_showing_superseded": 43,
   "rows_undated": 342,
-  "rows_with_rulings": 13102,
+  "rows_with_rulings": 13166,
   "supported_verdicts_on_superseded": 1,
   "undated_rows_naming_any_superseded": 0
  },
