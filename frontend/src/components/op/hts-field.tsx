@@ -29,6 +29,7 @@ export function HtsField({
   source,
   inputClass,
   help,
+  onNeedSource,
 }: {
   value: string;
   onChange: (hts: string) => void;
@@ -37,8 +38,11 @@ export function HtsField({
   source: { facts: string } | { product: Product } | null;
   inputClass: string;
   help?: string;
+  // #546: take the user to the field that unlocks the suggestion.
+  onNeedSource?: () => void;
 }) {
   const id = useId();
+  const whyId = `${id}-why`;
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<HtsSuggestResponse | null>(null);
@@ -85,9 +89,25 @@ export function HtsField({
           inputMode="decimal"
         />
         {on && (
-          <Button variant="ghost" onClick={suggest} disabled={!source || busy} title={source ? undefined : "Describe the product first"}>
-            Suggest from earlier rulings
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={busy ? undefined : source ? suggest : onNeedSource}
+              disabled={busy}
+              // #546: a natively disabled button is skipped by Tab and its
+              // title never reaches the accessibility tree. Follow #100:
+              // stay focusable and point at a visible reason instead.
+              aria-disabled={!source || undefined}
+              aria-describedby={!source ? whyId : undefined}
+            >
+              Suggest from earlier rulings
+            </Button>
+            {!source && (
+              <span id={whyId} className="text-[12.5px] text-dim">
+                Describe the product first
+              </span>
+            )}
+          </>
         )}
       </div>
       {help && <p className="duo mt-1.5 text-[11.5px] text-dim">{help}</p>}

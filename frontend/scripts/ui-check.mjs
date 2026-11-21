@@ -180,6 +180,29 @@ for (const scheme of ["light", "dark"]) {
         if (!/How to find your HTS subheading/.test(restored.label ?? "") || restored.tooltip) {
           problems.push({ page: `${path} (hts help)`, vp, scheme, focus: "Escape did not close the tip and restore focus", ...restored });
         }
+
+        // #546: on a fresh case the HTS suggest button has no source. Its
+        // reason must be focusable and exposed as a description, not hidden
+        // in a title on a natively disabled button (the #100 pattern).
+        const suggest = page.getByRole("button", { name: "Suggest from earlier rulings" });
+        if (await suggest.count()) {
+          await suggest.focus();
+          const state = await page.evaluate(() => {
+            const b = document.activeElement;
+            const described = b?.getAttribute("aria-describedby");
+            const reason = described ? document.getElementById(described) : null;
+            const box = reason?.getBoundingClientRect();
+            return {
+              disabled: b?.disabled,
+              ariaDisabled: b?.getAttribute("aria-disabled"),
+              reason: (reason?.textContent ?? "").trim(),
+              visible: Boolean(box && box.width > 0 && box.height > 0),
+            };
+          });
+          if (state.disabled !== false || state.ariaDisabled !== "true" || !state.reason || !state.visible) {
+            problems.push({ page: `${path} (hts suggest)`, vp, scheme, focus: "HTS suggest reason is not keyboard reachable", ...state });
+          }
+        }
       }
 
       // #534: the broker preview declares aria-modal=true, so Tab must not

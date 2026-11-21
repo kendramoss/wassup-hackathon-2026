@@ -786,6 +786,7 @@ export function ProductStep() {
               }}
               source={htsSource}
               inputClass={input}
+              onNeedSource={showMissing}
               help={
                 tab === "paste"
                   ? "Fills sourced duty rates for the plan once the case has parts and plants. The origin engine doesn't read it."
