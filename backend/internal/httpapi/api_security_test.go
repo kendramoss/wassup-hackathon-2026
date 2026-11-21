@@ -440,6 +440,68 @@ func TestAPIKeyFailuresThrottled(t *testing.T) {
 	}
 }
 
+// countingSlowStore models a key-store round trip: every Get takes long
+// enough for other requests with the same address to reach the limiter.
+type countingSlowStore struct {
+	*apikey.Memory
+	mu    sync.Mutex
+	gets  int
+	delay time.Duration
+}
+
+func (s *countingSlowStore) Get(ctx context.Context, id string) (apikey.Key, error) {
+	s.mu.Lock()
+	s.gets++
+	s.mu.Unlock()
+	time.Sleep(s.delay)
+	return s.Memory.Get(ctx, id)
+}
+
+func (s *countingSlowStore) count() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.gets
+}
+
+// #386: the failures bucket is checked before the lookup, but a concurrent
+// burst must not all see it empty first. With a slow store, at most
+// AuthFailuresPerMin unknown keys from one address reach the store.
+func TestAPIKeyFailuresThrottledUnderConcurrency(t *testing.T) {
+	store := &countingSlowStore{Memory: apikey.NewMemory(), delay: 20 * time.Millisecond}
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.APIKeys = apikey.New(store)
+		d.Limits = Limits{BasicPerMin: 1000, LightPerMin: 1000, HeavyPerMin: 1000, GlobalPerMin: 10000, AuthFailuresPerMin: 10}
+	})
+	const n = 50
+	statuses := make([]int, n)
+	var wg sync.WaitGroup
+	for i := range n {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			secret := "op_" + strings.Repeat("a", 43-len(strconv.Itoa(i))) + strconv.Itoa(i)
+			statuses[i] = serve(hs, "GET", "/v1/cases", "", map[string]string{"X-API-Key": secret, "X-Client-IP": "203.0.113.44"}).Code
+		}(i)
+	}
+	wg.Wait()
+	var limited int
+	for _, code := range statuses {
+		switch code {
+		case http.StatusUnauthorized:
+		case http.StatusTooManyRequests:
+			limited++
+		default:
+			t.Errorf("status = %d, want 401 or 429", code)
+		}
+	}
+	if got := store.count(); got > 10 {
+		t.Errorf("key-store lookups = %d, want at most 10", got)
+	}
+	if limited == 0 {
+		t.Error("no request was refused with 429 auth_rate_limited")
+	}
+}
+
 // failingUse is an API-key store whose usage counter is down.
 type failingUse struct{ *apikey.Memory }
 

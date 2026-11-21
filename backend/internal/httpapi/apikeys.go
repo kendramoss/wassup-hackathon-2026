@@ -57,8 +57,13 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 		}
 		// Throttle guessing before the key lookup: a client (its address;
 		// no key is known yet) that has failed too often waits (D137).
+		// Reserve a slot under the bucket's lock, so concurrent guesses
+		// cannot all observe a free bucket before any failure is recorded
+		// (#386). Only an invalid key consumes a failure token; a valid
+		// key gives the slot back.
 		client := a.clientKey(r)
-		if ok, wait := a.authFails.allowed(client); !ok {
+		release, ok, wait := a.authFails.begin(client)
+		if !ok {
 			a.d.Logger.WarnContext(r.Context(), "api key failures limited", "request_id", requestRef(r.Context()))
 			secs := max(1, int(math.Ceil(wait.Seconds())))
 			w.Header().Set("Retry-After", fmt.Sprint(secs))
@@ -69,11 +74,13 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 		key, err := a.d.APIKeys.Authenticate(r.Context(), secret)
 		if errors.Is(err, apikey.ErrInvalid) {
 			a.authFails.fail(client)
+			release()
 			a.auditAuthDenied(r)
 			writeError(w, http.StatusUnauthorized, "unauthorized", "the API key is invalid or disabled", nil)
 			return
 		}
 		if err != nil {
+			release()
 			a.fail(w, r, err)
 			return
 		}
@@ -86,6 +93,7 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 			ok, used = a.quotaLocal.use(key.ID, key.DailyQuota, time.Now())
 		}
 		if !ok {
+			release()
 			secs := max(1, int(math.Ceil(reset.Seconds())))
 			a.d.Logger.WarnContext(r.Context(), "api key quota exceeded", "request_id", requestRef(r.Context()), keyAttr(key.ID), "used", used, "quota", key.DailyQuota)
 			w.Header().Set("Retry-After", fmt.Sprint(secs))
@@ -94,6 +102,7 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 				map[string]int{"retry_after_s": secs, "daily_quota": key.DailyQuota})
 			return
 		}
+		release()
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), apiKeyCtx{}, key)))
 	})
 }
@@ -178,8 +187,9 @@ type authFailures struct {
 }
 
 type failBucket struct {
-	b    *rate.Limiter
-	seen time.Time
+	b        *rate.Limiter
+	seen     time.Time
+	inflight int // lookups in progress, counted under authFailures.mu (#386)
 }
 
 func newAuthFailures(perMin int) *authFailures {
@@ -201,6 +211,37 @@ func (f *authFailures) bucket(client string, now time.Time) *failBucket {
 	}
 	fb.seen = now
 	return fb
+}
+
+// begin reserves one key-lookup slot for client and returns the function
+// that gives it back. A slot is separate from the failure token: an invalid
+// key also spends a token in fail, while a valid key only returns the slot.
+// Checking and reserving happen under the same lock, so N concurrent guesses
+// cannot all pass the check before any of them reaches the store (#386).
+// When the token bucket is empty, even a lookup that would otherwise be free
+// is refused with its refill wait.
+func (f *authFailures) begin(client string) (release func(), ok bool, wait time.Duration) {
+	if f == nil {
+		return func() {}, true, 0
+	}
+	f.mu.Lock()
+	now := f.now()
+	fb := f.bucket(client, now)
+	if t := fb.b.TokensAt(now); t < 1 {
+		f.mu.Unlock()
+		return nil, false, time.Duration((1 - t) / float64(fb.b.Limit()) * float64(time.Second))
+	}
+	if fb.inflight >= f.perMin {
+		f.mu.Unlock()
+		return nil, false, time.Second
+	}
+	fb.inflight++
+	f.mu.Unlock()
+	return func() {
+		f.mu.Lock()
+		fb.inflight--
+		f.mu.Unlock()
+	}, true, 0
 }
 
 // allowed reports whether client may try a key now, and if not how long
