@@ -109,13 +109,13 @@ The precedent check that gates every plan has never been wrong at its bar: 182 v
 
 ## Reproduce our numbers
 
-Every number above is recomputed from files in this repository, with no model calls and no credentials:
+The arithmetic behind the headline figures is checked from committed files, with no model calls and no credentials. `claimscheck` reconciles a frozen figure ledger against the committed result rows and provenance; it does not rerun model experiments or recompute reported confidence intervals, costs and latencies:
 
 ```bash
 make reproduce
 # which runs:
 make verify-data                                        # data files match eval/SHA256SUMS
-cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
+cd backend && go run ./cmd/claimscheck && cd ..        # figure ledger and provenance, from committed artifacts
 python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
 python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
 python3 -I eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer

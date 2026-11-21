@@ -444,7 +444,7 @@ export const copy = {
         {
           key: "misses",
           what: "See where it fails",
-          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute every number on the page from the repository.",
+          body: "Every held-out ruling it got wrong is listed by name, beside the commands that check the headline figures on the page against committed files in the repository.",
           link: "Known failure cases →",
         },
       ],
@@ -637,7 +637,7 @@ export const copy = {
   // eval/charts/build_trust_data.py from the committed held-out run.
   trust: {
     reproTitle: "Reproduce these numbers",
-    reproLead: "Every number on this page is recomputed from files in the repository. No model calls, no account, a few minutes on a laptop.",
+    reproLead: "The arithmetic behind every figure on this page is checked from committed files in the repository. No model calls, no account, a few minutes on a laptop.",
     reproNote: "Each check fails loudly if a number has drifted from its source file.",
     failTitle: "Known failure cases",
     failLead: (miss: number, auto: number, n: number) =>
