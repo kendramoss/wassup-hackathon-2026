@@ -84,7 +84,8 @@ def main(root, check):
               "supported_verdicts_on_superseded": 0, "rows_undated": 0,
               "undated_rows_naming_any_superseded": 0}
     for path in files:
-        rel = os.path.relpath(path, root)
+        # JSON keys must match the Linux-generated artifact on every platform.
+        rel = os.path.relpath(path, root).replace(os.sep, "/")
         if rel == OUT:
             continue
         f = {"rows_with_rulings": 0, "rows_showing_superseded": 0, "rows_citing_superseded": 0, "supported_verdicts_on_superseded": 0, "rows_undated": 0}
