@@ -44,9 +44,32 @@ func testPNG(t *testing.T, w, h int) []byte {
 func testPDF(pages int) []byte {
 	var b strings.Builder
 	b.WriteString("%PDF-1.4\n")
-	fmt.Fprintf(&b, "2 0 obj << /Type /Pages /Count %d >> endobj\n", pages)
+	var refs []string
+	for i := 0; i < pages; i++ {
+		refs = append(refs, fmt.Sprintf("%d 0 R", i+3))
+	}
+	fmt.Fprintf(&b, "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
+	fmt.Fprintf(&b, "2 0 obj << /Type /Pages /Kids [%s] /Count %d >> endobj\n", strings.Join(refs, " "), pages)
 	for i := 0; i < pages; i++ {
 		fmt.Fprintf(&b, "%d 0 obj << /Type /Page /Parent 2 0 R >> endobj\n", i+3)
+	}
+	b.WriteString("%%EOF\n")
+	return []byte(b.String())
+}
+
+// testPDFEscapedPages is the #381 reproduction: the page tree and 40 pages
+// use PDF's #xx name escapes, plus a loose /Type /Page in a comment.
+func testPDFEscapedPages(pages int) []byte {
+	var b strings.Builder
+	b.WriteString("%PDF-1.5\n% /Type /Page\n")
+	var refs []string
+	for i := 0; i < pages; i++ {
+		refs = append(refs, fmt.Sprintf("%d 0 R", i+3))
+	}
+	b.WriteString("1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
+	fmt.Fprintf(&b, "2 0 obj << /Type /P#61ges /Kids [%s] /Count %d >> endobj\n", strings.Join(refs, " "), pages)
+	for i := 0; i < pages; i++ {
+		fmt.Fprintf(&b, "%d 0 obj << /Type /P#61ge /Parent 2 0 R >> endobj\n", i+3)
 	}
 	b.WriteString("%%EOF\n")
 	return []byte(b.String())
@@ -208,6 +231,7 @@ func TestExtractMediaRejects(t *testing.T) {
 		{"bomb header", []upload{{"x.png", "image/png", pngBombHeader()}}, "", 400, "pixels"},
 		{"too many files", []upload{{"a.png", "", testPNG(t, 2, 2)}, {"b.png", "", testPNG(t, 2, 2)}, {"c.png", "", testPNG(t, 2, 2)}, {"d.png", "", testPNG(t, 2, 2)}, {"e.png", "", testPNG(t, 2, 2)}}, "", 400, "at most 4"},
 		{"too many pages", []upload{{"a.pdf", "application/pdf", testPDF(7)}, {"b.pdf", "application/pdf", testPDF(4)}}, "", 400, "11 pages"},
+		{"40 escaped pages", []upload{{"a.pdf", "application/pdf", testPDFEscapedPages(40)}}, "", 400, "40 pages"},
 		{"over 8 MB together", []upload{{"a.png", "image/png", bigPNG}, {"b.png", "image/png", bigPNG}}, "", 413, "8 MB"},
 		{"unknown family", []upload{{"a.png", "image/png", testPNG(t, 2, 2)}}, "family", 400, "no template"},
 	}

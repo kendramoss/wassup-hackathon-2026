@@ -9,16 +9,13 @@ package media
 
 import (
 	"bytes"
-	"compress/zlib"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"image"
 	_ "image/jpeg" // register DecodeConfig for JPEG
 	_ "image/png"  // register DecodeConfig for PNG
-	"io"
 	"regexp"
-	"strconv"
 )
 
 // Limits for one request. They are deliberately strict: a BOM photo or a
@@ -170,61 +167,8 @@ func webpSize(b []byte) (int, int, error) {
 	return 0, 0, errors.New("unknown WebP chunk")
 }
 
-var (
-	pdfEncrypted = regexp.MustCompile(`/Encrypt\s*\d+\s+\d+\s+R|/Encrypt\s*<<`)
-	// A page object: "/Type /Page" not followed by "s" (that is /Pages).
-	pdfPage  = regexp.MustCompile(`/Type\s*/Page(?:[^s]|$)`)
-	pdfCount = regexp.MustCompile(`/Type\s*/Pages\b[^>]*?/Count\s+(\d+)|/Count\s+(\d+)[^>]*?/Type\s*/Pages\b`)
-	// The dictionary in front of a compressed object stream.
-	pdfObjStm = regexp.MustCompile(`<<[^>]*?/Type\s*/ObjStm[^>]*?>>\s*stream\r?\n`)
-)
+var pdfEncrypted = regexp.MustCompile(`/Encrypt\s*\d+\s+\d+\s+R|/Encrypt\s*<<`)
 
-// maxInflate caps the decompressed bytes read from object streams while
-// counting pages, so a crafted stream cannot exhaust memory.
-const maxInflate = 4 << 20
-
-// PDFPages counts the pages of a PDF without rendering it: page objects in
-// the file, page objects in its compressed object streams, and the page
-// tree's /Count, whichever is largest (a maximum, not a sum, so a stream
-// stored uncompressed is not counted twice). It returns 0 when it finds none.
-func PDFPages(b []byte) int {
-	pages := len(pdfPage.FindAllIndex(b, -1))
-	inStreams := 0
-	budget := maxInflate
-	for _, loc := range pdfObjStm.FindAllIndex(b, -1) {
-		if budget <= 0 {
-			break
-		}
-		zr, err := zlib.NewReader(bytes.NewReader(b[loc[1]:]))
-		if err != nil {
-			continue
-		}
-		var buf bytes.Buffer
-		n, _ := io.Copy(&buf, io.LimitReader(zr, int64(budget)))
-		_ = zr.Close()
-		budget -= int(n)
-		inStreams += len(pdfPage.FindAllIndex(buf.Bytes(), -1))
-		if c := maxCount(buf.Bytes()); c > pages {
-			pages = c
-		}
-	}
-	if inStreams > pages {
-		pages = inStreams
-	}
-	if c := maxCount(b); c > pages {
-		pages = c
-	}
-	return pages
-}
-
-func maxCount(b []byte) int {
-	best := 0
-	for _, m := range pdfCount.FindAllSubmatch(b, -1) {
-		for _, g := range m[1:] {
-			if n, err := strconv.Atoi(string(g)); err == nil && n > best {
-				best = n
-			}
-		}
-	}
-	return best
-}
+// PDFPages lives in pdf.go: it follows the page tree instead of counting
+// raw /Type /Page matches, so incremental saves and escaped names cannot
+// change the limit (#381).
