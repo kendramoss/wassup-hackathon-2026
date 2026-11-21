@@ -91,11 +91,14 @@ Tested on **377 real CBP rulings** from January to September 2026 that were neve
 
 | Method | Accuracy |
 |---|---|
-| Best simple rule (most-mentioned country) | 60.5% (reported; source not in this repository, unverified) |
+| Best simple rule we recomputed (first country named in the facts; no model) | 63.4% (239 of 377) |
+| Most-mentioned country (recomputed; the research figure was 60.5%, unverified) | 60.7% (229 of 377) |
 | **Unde** (Gemini 4 Argon on Vertex AI + past rulings), all 377 cases | **90.2%** (340 of 377) |
 | Unde, confident cases only: confidence at least 0.92 and in scope, 79.6% of cases | 96.0% (288 of 300) |
 
-The 96.0% covers a subset the model's own confidence selected, so it is not comparable with the all-case baseline, and a gap in percentage points is not evidence that the confidence scores are calibrated. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
+The 96.0% covers a subset the model's own confidence selected, so it is not comparable with the all-case baselines, and a gap in percentage points is not evidence that the confidence scores are calibrated. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md). The baselines are recomputed by `go run ./cmd/eval baselines` from the committed facts ([D155](docs/DECISIONS.md)).
+
+**A second test set, built after the first was spent.** 83 CBP rulings published 28 Sep to 13 Nov 2026, found and labelled with committed tools and frozen before anything was scored on it. The same engine, scored once: **92.8%** (77 of 83, interval 85.1–96.6); both test sets together 90.7% (417 of 460). These new runs went through an OpenAI-compatible gateway to the same Gemini model, not Vertex AI. The new set is small and easier for simple rules, so it shows the engine holds up after its cutoff, not that it improved. Newer Gemini models (4 Carbon, 3.1 Pro preview) and a prompt change were tried on the development set and none beat Argon ([docs/EVALUATION.md](docs/EVALUATION.md#6-the-second-held-out-split-21-nov-2026)).
 
 On the two demo products, the plan Unde shows matches what really happened:
 
@@ -115,6 +118,7 @@ make verify-data                                        # data files match eval/
 cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
 python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
 python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
+python3 -I eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer
 ```
 
 It needs Go and Python 3 (standard library only). Each step fails if a published number has drifted from its source.
@@ -123,8 +127,8 @@ It needs Go and Python 3 (standard library only). Each step fails if a published
 
 ## Limitations
 
-- **The planner is the least tested part.** A clean test needs CBP rulings published after 25 Sep 2026, and none with an origin holding existed yet on 18 Oct.
-- **Benchmark claims are reconciled, with limits.** Every headline number is recomputed from committed files by `cd backend && go run ./cmd/claimscheck`; the 60.5% baseline cannot be reproduced from this repository. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
+- **The planner is the least tested part.** A clean test needs CBP rulings published after 25 Sep 2026; the origin engine now has such a test set (83 rulings), the planner's change pairs do not yet.
+- **Benchmark claims are reconciled, with limits.** Every headline number is recomputed from committed files by `cd backend && go run ./cmd/claimscheck`; the research 60.5% baseline cannot be reproduced from this repository (our recomputation gives 60.7%; D155). See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 - **U.S. origin only.** The tool answers U.S. CBP country-of-origin questions under four regimes (substantial transformation, textile 19 CFR 102.21, Part 102 marking origin, pharmaceutical active ingredient). EU Binding Origin Information, USMCA regional value content and preferential-origin claims are not supported, and nothing detects or blocks a question about another country's rules. See [docs/scope-and-jurisdiction.md](docs/scope-and-jurisdiction.md).
 - **Plans count duty and the costs you enter only.** An optional operating-cost mode adds labour, logistics, one-time capex and retooling spread over a horizon you choose, plus lead-time and minimum-order checks. It prices only what you typed, lists what it leaves out (capacity, time value, tax, yield, subsidies) and never calls a plan the cheapest or best possible; see [docs/modelled-operational-costs.md](docs/modelled-operational-costs.md).
 - **Plans need one of 13 product families.** Ten were added from CBP precedent (D138): electronics built on a PCBA, vehicle parts, hand tools, cables and harnesses, medical devices, power supplies, furniture, displays and cameras, water filters and gas grills, beside motorised tools, LiDAR modules and LED lights. On the 2026 held-out rulings, 57.0% now match a family with a template, up from 4.2% with the first three; a match means a template exists, not that a plan will be found. Other products get an origin but no plan. Plan quality on the new families is checked on one fixture each, not evaluated ([eval/RESULTS.md](eval/RESULTS.md)).

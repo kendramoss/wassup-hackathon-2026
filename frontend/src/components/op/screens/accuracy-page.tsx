@@ -54,6 +54,10 @@ export function AccuracyPage() {
   const p50 = get("final_latency_p50_s");
   const p95 = get("final_latency_p95_s");
   const dev = get("dev_accuracy");
+  const devAdj = get("dev_accuracy_adjusted");
+  const f2Acc = get("final2_accuracy");
+  const f2FpAcc = get("final2_fastpath_accuracy");
+  const f2FpCov = get("final2_fastpath_coverage");
   const change = get("change_detection_heldout");
   const changeBase = get("change_detection_always_change_baseline");
   const movePrec = get("verifier_unknown-a_precision");
@@ -93,21 +97,25 @@ export function AccuracyPage() {
 
   const bars = [
     { label: "Unde (Gemini, Vertex AI)", it: acc, ours: true },
+    { label: "First country named", it: get("baseline_first_mentioned") },
     { label: "Most-mentioned country", it: get("baseline_most_mentioned") },
-    { label: "Country of final assembly", it: get("baseline_final_assembly") },
-    { label: "Last-mentioned country", it: get("baseline_last_mentioned") },
+    { label: "Country of final assembly*", it: get("baseline_final_assembly") },
+    { label: "Last-mentioned country*", it: get("baseline_last_mentioned") },
     { label: "Always the most common origin", it: get("baseline_majority") },
   ].filter((b) => b.it);
 
   // Rows whose source is the research write-up cannot be recomputed from this
-  // repository (docs/NUMBERS.md), so they never read "official".
+  // repository (docs/NUMBERS.md), so they never read "official". Recomputed
+  // baselines and the second held-out split say what they are (D154, D155).
   const status = (it: Item): { label: string; tone?: "ok" | "ask" } => {
     const kind = it.key?.startsWith("baseline") ? "baseline, no model" : it.key?.startsWith("change_detection") ? "weak" : "research run";
-    if (it.source?.startsWith("hackathon-research/")) return { label: `${kind} · reported, unverified` };
+    if (it.source?.startsWith("hackathon-research/") || it.source?.startsWith("unavailable:")) return { label: `${kind} · reported, unverified` };
+    if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
+    if (it.key?.startsWith("final2_")) return { label: "held-out · gateway, scored once" };
     if (it.key?.startsWith("change_detection")) return { label: "weak" };
     return it.development_only ? { label: "development set" } : { label: "official", tone: "ok" };
   };
-  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
+  const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "final2_accuracy", "baseline_first_mentioned", "baseline_most_mentioned", "dev_accuracy_adjusted", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
   const value = (it: Item) =>
     it.key?.endsWith("_usd") ? `$${it.value?.toFixed(4).replace(/0+$/, "")}` : it.key?.endsWith("_s") ? `${it.value?.toFixed(1)} s` : pct(it.value);
@@ -186,7 +194,7 @@ export function AccuracyPage() {
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="eyebrow">Against rules of thumb</h2>
-              <span className="ml-auto text-[11px] text-dim">same {n} rulings · 95% interval · baselines reported, unverified: their scoring script is not in the repository</span>
+              <span className="ml-auto text-[11px] text-dim">same {n} rulings · 95% interval · recomputed with no model (go run ./cmd/eval baselines) · * reported, unverified: not reproducible from this repository</span>
             </div>
             <div className="mt-4 flex flex-col gap-2.5">
               {bars.map(({ label, it, ours }) => (
@@ -224,18 +232,38 @@ export function AccuracyPage() {
             {/* The eval times one engine call; a live prediction also runs the
                 router and waits on Vertex, so say both (#183). */}
             <Card title="Engine time per ruling" big={p50 ? `${p50.value?.toFixed(1)} s` : "—"}>
-              median in the held-out run; {p95?.value?.toFixed(1)} s for 95%. A live prediction on this site adds the scope check and queueing, usually under a minute.
+              median in the held-out run; {p95?.value?.toFixed(1)} s for 95%. A live prediction on this site also runs the scope check and may wait in a queue; that end-to-end time is not measured here.
             </Card>
             <Card title="Against the proxy run" big={`p = ${PROXY.p}`}>
               no difference ({pct(PROXY.from)} → {pct(PROXY.to)}, McNemar).
             </Card>
           </div>
 
+          {f2Acc && (
+            <section className="mt-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="eyebrow">Rulings published after the test set</h2>
+                <span className="ml-auto text-[11px] text-dim">second held-out split, Sep–Nov 2026 · frozen before scoring · same Gemini model through a gateway, not Vertex AI</span>
+              </div>
+              <div className="mt-3 grid gap-5 md:grid-cols-2">
+                <Card title="Second held-out split" big={pct(f2Acc.value)}>
+                  on {f2Acc.n} CBP rulings from 28 Sep to 13 Nov 2026 ({ci(f2Acc)}), the same engine scored once. It is small and easier for simple rules, so it shows the
+                  engine holds up after its cutoff, not that it improved.
+                </Card>
+                {f2FpAcc && (
+                  <Card title="Auto-accepted there" big={pct(f2FpAcc.value)}>
+                    right, on {pct(f2FpCov?.value)} of those rulings ({ci(f2FpAcc)}).
+                  </Card>
+                )}
+              </div>
+            </section>
+          )}
+
           {(texAcc || routeOut) && (
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Beyond substantial transformation</h2>
-                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and USMCA held-out · router on the development window</span>
+                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and Part 102 marking held-out · router on the development window</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-3">
                 {texAcc && (
@@ -337,7 +365,8 @@ export function AccuracyPage() {
           </section>
 
           <p className="duo mt-6 max-w-[90ch] text-[11.5px] text-dim">
-            {data?.status} {dev ? `Development split: ${pct(dev.value)} on ${dev.n}.` : ""} Generated {data?.generated_at?.slice(0, 10)} from GET /v1/eval/summary; every row traces to
+            {data?.status} {dev ? `Development split: ${pct(dev.value)} on all ${dev.n} rulings, unadjusted` : ""}
+            {devAdj ? `; ${pct(devAdj.value)} on ${devAdj.n} after the scoring adjustments.` : dev ? "." : ""} Generated {data?.generated_at?.slice(0, 10)} from GET /v1/eval/summary; every row traces to
             docs/NUMBERS.md.
           </p>
         </>
@@ -350,7 +379,7 @@ export function AccuracyPage() {
 // How the pieces fit, for anyone judging the Gen AI (#153). Model names and
 // settings are the backend defaults (internal/config); the Ask agent is ADK.
 const stages: { n: number; name: string; model: string; does: string }[] = [
-  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and USMCA rulings go to their own rules; other questions outside substantial transformation go to a person." },
+  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and Part 102 marking rulings go to their own rules; other questions outside substantial transformation go to a person." },
   { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
   { n: 3, name: "Triage", model: "0.92 bar", does: "At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
   { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },

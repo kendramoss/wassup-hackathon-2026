@@ -104,7 +104,7 @@ func baselinesCmd(args []string) error {
 			rows[rule] = append(rows[rule], evalkit.Row{Ruling: it.id, Gold: it.gold, Pred: p, Correct: p != "" && p == it.gold})
 		}
 	}
-	res := map[string]any{"split": *split, "splits_file": *splitsPath, "facts": *factsDir, "majority_origin": majority}
+	res := map[string]any{"split": *split, "splits_file": *splitsPath, "facts": *factsDir, "majority_country": majority}
 	var names []string
 	for _, rule := range rules {
 		rs := adj.Apply(rows[rule])

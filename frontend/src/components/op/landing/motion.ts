@@ -261,8 +261,10 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     for (let v = 0; v <= 100; v += 10) if (X(v) <= 20 + 600 * axis) s += `<line x1="${X(v)}" y1="${v % 50 ? 116 : 112}" x2="${X(v)}" y2="${v % 50 ? 124 : 128}" class="tick"/>`;
     s += `<text x="20" y="144" text-anchor="middle">0</text><text x="${X(50)}" y="144" text-anchor="middle">50</text><text x="${X(100)}" y="144" text-anchor="middle">100%</text>`;
     const b = ramp(t, 0.25, 0.5);
-    s += `<g opacity="${b}"><line x1="${X(40.6)}" y1="120" x2="${X(40.6)}" y2="160" class="base"/><text x="${X(40.6) - 6}" y="172" text-anchor="end">final assembly 40.6%</text>`;
-    s += `<line x1="${X(60.5)}" y1="120" x2="${X(60.5)}" y2="160" class="base"/><text x="${X(60.5) + 6}" y="172">best simple rule 60.5%</text><text x="${X(60.5) + 6}" y="185" class="sm">most-mentioned country</text></g>`;
+    // The best simple rule, recomputed from the committed facts with no model
+    // (eval/results/baselines-final.json, D155). The research baselines that
+    // cannot be reproduced here (final assembly 40.6%) are not drawn.
+    s += `<g opacity="${b}"><line x1="${X(63.4)}" y1="120" x2="${X(63.4)}" y2="160" class="base"/><text x="${X(63.4) - 6}" y="172" text-anchor="end">best simple rule 63.4%</text><text x="${X(63.4) - 6}" y="185" text-anchor="end" class="sm">first country named, recomputed</text></g>`;
     const v1 = lerp(0, 90.2, ramp(t, 0.35, 0.85)), v2 = lerp(0, 96.0, ramp(t, 0.5, 0.95));
     s += `<line x1="${X(v1)}" y1="40" x2="${X(v1)}" y2="120" class="mark"/><polygon points="${X(v1)},114 ${X(v1) - 5},106 ${X(v1) + 5},106" class="arrow"/>`;
     s += `<g opacity="${ramp(t, 0.8, 1)}"><path d="M${X(86.8)} 84 H${X(92.8)} M${X(86.8)} 78 V90 M${X(92.8)} 78 V90" class="bracket"/><text x="${X(90.2) - 8}" y="36" text-anchor="end" class="ink">origin accuracy 90.2%</text><text x="${X(90.2) - 8}" y="50" text-anchor="end" class="dim">86.8–92.8</text>`;

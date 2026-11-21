@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T19:20:54Z",
+  "generated_at": "2026-11-21T06:04:32Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -155,6 +155,81 @@
       "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl"
     },
     {
+      "key": "dev_accuracy_adjusted",
+      "label": "Development (463 rulings after scoring adjustments, D23) accuracy",
+      "value": 0.9114,
+      "ci_low": 0.8821,
+      "ci_high": 0.9341,
+      "n": 463,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl + eval/data/scoring_adjustments.json"
+    },
+    {
+      "key": "baseline_first_mentioned",
+      "label": "Baseline: first country named in the facts (recomputed)",
+      "value": 0.634,
+      "ci_low": 0.5842,
+      "ci_high": 0.681,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/baselines-final.json (go run ./cmd/eval baselines, no model)"
+    },
+    {
+      "key": "baseline_most_mentioned",
+      "label": "Baseline: most-mentioned country (recomputed)",
+      "value": 0.6074,
+      "ci_low": 0.5573,
+      "ci_high": 0.6554,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/baselines-final.json (go run ./cmd/eval baselines, no model)"
+    },
+    {
+      "key": "baseline_majority",
+      "label": "Baseline: always Vietnam, the development set's most common origin (recomputed)",
+      "value": 0.122,
+      "ci_low": 0.0927,
+      "ci_high": 0.1589,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/baselines-final.json (go run ./cmd/eval baselines, no model)"
+    },
+    {
+      "key": "final2_accuracy",
+      "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway) accuracy",
+      "value": 0.927711,
+      "ci_low": 0.85113,
+      "ci_high": 0.96645,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "final2_fastpath_accuracy",
+      "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "value": 0.973333,
+      "ci_low": 0.907883,
+      "ci_high": 0.992656,
+      "n": 75,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "final2_fastpath_coverage",
+      "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway): fast path coverage",
+      "value": 0.903614,
+      "n": 83,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+    },
+    {
       "key": "research_final_accuracy",
       "label": "Research run: Gemini 4 Argon + dated precedents",
       "value": 0.891,
@@ -163,18 +238,7 @@
       "n": 377,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
-    },
-    {
-      "key": "baseline_most_mentioned",
-      "label": "Baseline: most-mentioned country",
-      "value": 0.605,
-      "ci_low": 0.555,
-      "ci_high": 0.653,
-      "n": 377,
-      "split": "final",
-      "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "baseline_final_assembly",
@@ -185,29 +249,18 @@
       "n": 377,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "baseline_last_mentioned",
-      "label": "Baseline: last country mentioned",
+      "label": "Baseline: last country mentioned (research definition)",
       "value": 0.398,
       "ci_low": 0.35,
       "ci_high": 0.448,
       "n": 377,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
-    },
-    {
-      "key": "baseline_majority",
-      "label": "Baseline: majority country (Vietnam)",
-      "value": 0.122,
-      "ci_low": 0.093,
-      "ci_high": 0.159,
-      "n": 377,
-      "split": "final",
-      "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "research_argon_facts_only",
@@ -218,7 +271,7 @@
       "n": 377,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "change_detection_heldout",
@@ -229,7 +282,7 @@
       "n": 22,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "change_detection_always_change_baseline",
@@ -238,7 +291,7 @@
       "n": 22,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "change_detection_balanced_accuracy",
@@ -247,7 +300,7 @@
       "n": 22,
       "split": "final",
       "development_only": false,
-      "source": "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+      "source": "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
     },
     {
       "key": "verifier_unknown-a_precision",
@@ -444,7 +497,7 @@
     },
     {
       "key": "usmca_final_accuracy",
-      "label": "USMCA rules, held-out (2026, usmca-v1) accuracy",
+      "label": "Part 102 marking-origin rules, held-out (2026, usmca-v1) accuracy",
       "value": 0.7813,
       "ci_low": 0.6124,
       "ci_high": 0.8898,
@@ -455,7 +508,7 @@
     },
     {
       "key": "usmca_final_conf95_accuracy",
-      "label": "USMCA rules, held-out (2026, usmca-v1): accuracy when confidence ≥ 0.95",
+      "label": "Part 102 marking-origin rules, held-out (2026, usmca-v1): accuracy when confidence ≥ 0.95",
       "value": 1,
       "ci_low": 0.7961,
       "ci_high": 1,
@@ -466,7 +519,7 @@
     },
     {
       "key": "usmca_final_conf95_coverage",
-      "label": "USMCA rules, held-out (2026, usmca-v1): share with confidence ≥ 0.95",
+      "label": "Part 102 marking-origin rules, held-out (2026, usmca-v1): share with confidence ≥ 0.95",
       "value": 0.4688,
       "n": 32,
       "split": "final",
