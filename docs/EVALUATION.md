@@ -178,8 +178,11 @@ Every change below was tried on dev, paired against the plain engine, and **not 
 | Written CBP rules for the confident errors (n = 463) | 91.1% vs 90.9% | 10 / 9 | 1.0 | — |
 | CBP's reasoning shown with each precedent (n = 463) | 91.4% vs 90.9% | 7 / 5 | 0.77 | $0.0095 vs $0.0084 |
 | rules-v2: a rule for assemblies around one imported component (n = 463, 21 Nov, D157) | 90.9% vs 91.8% | 9 / 13 | 0.52 | $0.0086 vs $0.0079 |
+| Adjudicator, narrow: a second call with contrastive China precedents when the engine named another country under 0.96 (n = 463, D163, D164) | 90.1% vs 91.1% | 2 / 7 | 0.18 | $0.0098 vs $0.0079 |
+| Adjudicator, symmetric: the same call whenever the facts name China and confidence is under 0.95 (D164) | 90.9% vs 91.1% | 9 / 10 | 1.0 | $0.0100 vs $0.0079 |
+| Adjudicator, symmetric, keeping only its moves away from China (computed, chosen after seeing the two above; D164) | 92.0% vs 91.1% | 7 / 3 | 0.34 | $0.0100 vs $0.0079 |
 
-Source: `eval/RESULTS.md`, D22, D27, D28, D157.
+Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164. The adjudicator rows are paired against the Vertex AI dev rows they were applied to.
 
 **The choice.** Keep plain BM25 and one call. No change moved accuracy by more than half a point, and none was significant. The added parts cost money or latency for no measured gain. The held-out split was therefore not re-scored for any of them.
 
