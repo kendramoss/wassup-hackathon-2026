@@ -21,6 +21,10 @@
 //	corpus embed   [-facts DIR] [-out FILE] [-dims 768]
 //	    Embed the facts of every labelled ruling (gemini-embedding-001 via the
 //	    configured LLM provider) into a vector index for hybrid retrieval.
+//	corpus probe  [-prefix N] [-from 364000] [-to 367500] [-since 2026-09-26]
+//	    Walk a range of ruling numbers through /api/ruling/<id> (~1 request/s)
+//	    and save the origin rulings dated on or after -since; every number
+//	    and its answer go to eval/data/final2_probe.jsonl (D150).
 //	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
 //	    List the rulings whose text states the HTS subheading CBP applied
 //	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
@@ -62,7 +66,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -85,6 +89,8 @@ func main() {
 		err = usmcaLabel(os.Args[2:])
 	case "hts-index":
 		err = htsIndex(os.Args[2:])
+	case "probe":
+		err = probe(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

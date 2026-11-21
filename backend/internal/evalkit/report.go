@@ -32,6 +32,9 @@ func Markdown(title, split string, s Summary) string {
 		s.FastN, s.N, pct(s.FastN, s.N), 100*fp, 100*flo, 100*fhi)
 	fmt.Fprintf(&b, "- Cost per case: $%.4f (promo) / $%.4f (list) · mean tokens in %.0f / out %.0f · latency p50 %.1f s / p95 %.1f s\n\n",
 		s.CostPerCase, s.CostPerCaseList, s.MeanInTok, s.MeanOut, float64(s.LatencyP50)/1000, float64(s.P95)/1000)
+	if s.GatewayCostPerCase > 0 {
+		fmt.Fprintf(&b, "- Gateway-reported cost per case: $%.4f\n\n", s.GatewayCostPerCase)
+	}
 	b.WriteString("| Confidence | n | correct | accuracy (95% CI) |\n|---|---:|---:|---|\n")
 	rows := append(append([]Bin{}, s.Bins...), s.AtLeast95, s.AtLeast90)
 	for i, bin := range rows {
