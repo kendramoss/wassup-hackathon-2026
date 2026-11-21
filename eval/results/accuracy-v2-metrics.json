@@ -945,6 +945,60 @@
    ],
    "brier_constant_forecast": 0.0885
   },
+  "heldout_stated_on_calibrated_bins": 0.0528,
+  "heldout_level_counts": {
+   "stated": 11,
+   "calibrated": 6
+  },
+  "heldout_calibrated_levels": [
+   {
+    "calibrated": 0.6136,
+    "n": 42,
+    "stated": [
+     0.72,
+     0.78,
+     0.85,
+     0.88
+    ]
+   },
+   {
+    "calibrated": 0.7778,
+    "n": 29,
+    "stated": [
+     0.9
+    ]
+   },
+   {
+    "calibrated": 0.9,
+    "n": 35,
+    "stated": [
+     0.92
+    ]
+   },
+   {
+    "calibrated": 0.9016,
+    "n": 71,
+    "stated": [
+     0.95
+    ]
+   },
+   {
+    "calibrated": 0.9355,
+    "n": 20,
+    "stated": [
+     0.96
+    ]
+   },
+   {
+    "calibrated": 0.99,
+    "n": 180,
+    "stated": [
+     0.98,
+     0.99,
+     1.0
+    ]
+   }
+  ],
   "dev_in_sample_after": {
    "mean_confidence_pct": 90.8,
    "ece_levels": 0.0031,

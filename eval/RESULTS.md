@@ -72,6 +72,8 @@ All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into
 
 ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). This is cal-v1, eval only. The product uses cal-v2 (next section).
 
+**Read the ECE drop with care (D262, #397).** The map is only weakly monotone: on the 377 it merges 11 stated levels into 6 (0.72–0.88 → 0.6136, 42 cases; 0.98–1.00 → 0.99, 180 cases), so the "before" and "after" ECE above use 11 and 6 bins. Scoring the stated confidences on the calibrated layer's 6 bins gives 0.0528 (`accuracy-v2-metrics.json`, `heldout_stated_on_calibrated_bins`), so about a fifth of 0.059 → 0.030 is bin merging, not better probabilities. Brier is bin-independent and unchanged by this caveat. There is no calibrated cut equivalent to a stated 0.99 or 1.00 bar; use stated confidence there.
+
 ### All regimes, held-out, both windows (D210)
 
 Built by `python3 -I eval/charts/build_accuracy.py .` into `results/accuracy-v2-metrics.json` (`heldout_all_regimes_by_window`); recomputed in Go by `go run ./cmd/claimscheck` (`regimes.*`). Wilson 95% intervals.

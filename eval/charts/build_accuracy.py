@@ -151,6 +151,32 @@ def ece_levels(rs, key="conf"):
     return tot / len(rs)
 
 
+def ece_on_partition(rs, value_key, partition_key):
+    """ECE with value_key as the probability, grouped by partition_key.
+
+    The before/after ECE in calib() uses one bin per emitted value, so the two
+    sides do not share a partition when the map pools levels. Scoring the
+    stated values on the calibrated partition separates probability quality
+    from the number of bins (issue #397)."""
+    tot = 0.0
+    for level in {r[partition_key] for r in rs}:
+        b = [r for r in rs if r[partition_key] == level]
+        pred = sum(r[value_key] for r in b) / len(b)
+        obs = sum(r["ok"] for r in b) / len(b)
+        tot += len(b) * abs(obs - pred)
+    return tot / len(rs)
+
+
+def level_ties(rs, value_key="conf"):
+    """How many stated values each calibrated level merges, and how many rows."""
+    out = []
+    for level in sorted({r["cal"] for r in rs}):
+        b = [r for r in rs if r["cal"] == level]
+        out.append({"calibrated": level, "n": len(b),
+                    "stated": sorted({r[value_key] for r in b})})
+    return out
+
+
 def ece_bins(rs, key="conf", m=10):
     bins = [[] for _ in range(m)]
     for r in rs:
@@ -622,6 +648,10 @@ def main():
         "method": "isotonic regression (pool-adjacent-violators), one block per emitted confidence value",
         "map": m,
         "heldout_before": calib(fin_c, "conf"), "heldout_after": calib(fin_c, "cal"),
+        "heldout_stated_on_calibrated_bins": r4(ece_on_partition(fin_c, "conf", "cal")),
+        "heldout_level_counts": {"stated": len({r["conf"] for r in fin_c}),
+                                 "calibrated": len({r["cal"] for r in fin_c})},
+        "heldout_calibrated_levels": level_ties(fin_c),
         "dev_in_sample_after": calib(dev_c, "cal"),
     }
 
