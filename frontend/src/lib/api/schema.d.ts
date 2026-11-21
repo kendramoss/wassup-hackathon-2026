@@ -155,6 +155,12 @@ export interface paths {
          *     - `: keep-alive` comment lines every 10 s.
          *     - `error` with code `conflict` and `retryable: true` when the case's inputs changed (new BOM or answers) while the search ran: the result was discarded, not saved. D97.
          *     Input errors (400/404) are returned as normal JSON responses before the stream starts.
+         *
+         *     Duplicate searches (JSON responses only, D402): a request whose case and inputs match a search still running on the same
+         *     server instance waits for that search and gets its answer; no second search starts. The search keeps running for 2 minutes
+         *     after its last caller disconnects, so a client that timed out can retry and join it. With an `Idempotency-Key` header, a
+         *     finished search's answer is also returned to a request with the same key for 15 minutes; the same key with different inputs
+         *     is 409 `conflict`. Streamed requests are not joined.
          */
         post: operations["planCase"];
         delete?: never;
@@ -2617,7 +2623,10 @@ export interface operations {
     planCase: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional, 1 to 200 printable ASCII characters without spaces. Send the same value when retrying the same search (D402). */
+                "Idempotency-Key"?: string;
+            };
             path: {
                 id: components["parameters"]["CaseID"];
             };

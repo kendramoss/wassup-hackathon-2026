@@ -58,7 +58,7 @@ root_agent = LlmAgent(
 )
 ```
 
-Plan search can take minutes. ADK's default MCP read timeout is 300 s; pass `sse_read_timeout=900` to `StreamableHTTPConnectionParams` so a slow plan call is not cut off and retried (D391).
+Plan search can take minutes. ADK's default MCP read timeout is 300 s; pass `sse_read_timeout=900` to `StreamableHTTPConnectionParams` so a slow plan call is not cut off and retried (D391). If a client does time out and call again with the same input, the server joins the search still running rather than starting (and paying for) a second one; pass the same `idempotency_key` on the retry to also get a search that already finished (kept 15 minutes, D402). Joining works within one server instance.
 
 ### Claude Code
 
