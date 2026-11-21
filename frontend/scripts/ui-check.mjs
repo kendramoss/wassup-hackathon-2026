@@ -398,6 +398,11 @@ for (const scheme of ["light", "dark"]) {
   );
   await page.route("**/api/v1/duty-rates", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
   await page.route("**/api/v1/products/hts-suggest", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  // #573: the per-part HTS feature check runs once per page load. Stub it too,
+  // or its intentional local 404 becomes a console error and fails ui-check.
+  await page.route("**/api/v1/products/parts-hts-suggest", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ parts: [], good: null, max_parts: 20 }) }),
+  );
   await page.goto(base + newCasePath, { waitUntil: "networkidle" });
   await page.getByRole("tab", { name: "Paste a description" }).click();
   await page.locator("textarea").first().fill("Each heat gun is assembled in Thailand using components sourced from China and Thailand, with a fan and a board and a housing.");
