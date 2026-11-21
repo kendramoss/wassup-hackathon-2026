@@ -28,6 +28,10 @@ export async function resolve(spec, ctx, next) {
 }
 
 export async function load(url, ctx, next) {
+  // A JSON file the app imports (Next bundles it; Node wants an attribute).
+  if (url.startsWith("file:") && url.includes("/frontend/src/") && url.endsWith(".json")) {
+    return { format: "module", source: `export default ${await readFile(fileURLToPath(url), "utf8")};`, shortCircuit: true };
+  }
   if (url.startsWith("file:") && url.includes("/frontend/src/") && /\.tsx?$/.test(url)) {
     const source = await readFile(fileURLToPath(url), "utf8");
     const out = ts.transpileModule(source, {

@@ -1,0 +1,134 @@
+{
+ "note": "Recorded example, rebuilt from committed files by `cd backend \u0026\u0026 go run ./cmd/tariffshift parts-example -check`. Suggestions: the committed D382 development run (no new model call). Rule check: the deterministic 19 CFR 102.20 layer on CBP's code for the good and the top suggestion for each part.",
+ "ruling": "N341003",
+ "date": "2024-07-15",
+ "split": "dev",
+ "run": "eval/tariffshift/parts/suggest-dev-v1.jsonl",
+ "model": "gemini-3.8-flash",
+ "prompt": "parts-hts-suggest-v1",
+ "product": "hose clamps",
+ "good_hts": "7326.90.8688",
+ "country": "Canada",
+ "parts": [
+  {
+   "name": "flat coiled stainless steel",
+   "origin": "India",
+   "suggestions": [
+    {
+     "hts": "7219.33",
+     "source": "rulings",
+     "reason": "Flat-rolled stainless steel products in coils are classified under heading 7219 as flat-rolled stainless steel.",
+     "supporting_rulings": [
+      {
+       "id": "N334104",
+       "date": "2023-08-11",
+       "part": "rolls and flat sheets of thin stainless steel",
+       "sentence": "Noting the rolls and flat sheets of thin stainless steel classified in subheading 7219.33, 7219.34 or 7219.35, HTSUS, are sent from China to Canada where they are manufactured into Vortex Stainless Flex Liner Kits classified in heading 8307, HTSUS, the tariff shift requirement is met, and the flex liner kits would be c…",
+       "url": "https://rulings.cbp.gov/ruling/N334104"
+      }
+     ],
+     "cited": [
+      "N334104"
+     ]
+    },
+    {
+     "hts": "7220.20",
+     "source": "model",
+     "reason": "Flat-rolled stainless steel coils of a width of less than 600 mm not further worked than cold-rolled fall under subheading 7220.20.",
+     "supporting_rulings": [],
+     "cited": []
+    }
+   ]
+  },
+  {
+   "name": "steel screws",
+   "origin": "China",
+   "stated_hts": "7318",
+   "suggestions": [
+    {
+     "hts": "7318.15",
+     "source": "rulings",
+     "reason": "Steel threaded fasteners such as screws and bolts are classified under subheading 7318.15.",
+     "supporting_rulings": [
+      {
+       "id": "H322364",
+       "date": "2022-06-03",
+       "part": "bolt and nut",
+       "sentence": "LAW AND ANALYSIS: Classification You submit that the cast steel plates and the cast steel yoke or casing are classified in subheading 7325.99.50, HTSUS, as “Other cast articles of iron or steel, other, other, other.” Further, you submit that the other non-originating steel components, i.e., the rod or bolt, and nut, ar…",
+       "url": "https://rulings.cbp.gov/ruling/H322364"
+      }
+     ],
+     "cited": [
+      "H322364"
+     ]
+    }
+   ]
+  }
+ ],
+ "before": {
+  "status": "undetermined",
+  "reason": "the shift cannot be decided for flat coiled stainless steel; see what each needs",
+  "rule": {
+   "id": "19 CFR 102.20(n), 7325-7326",
+   "hts": "7325-7326",
+   "text": "A change to heading 7325 through 7326 from any other heading, including another heading within that group.",
+   "alternatives": 1,
+   "encoded": 1
+  },
+  "materials": [
+   {
+    "name": "flat coiled stainless steel",
+    "origin": "India",
+    "foreign": true,
+    "status": "missing_hts",
+    "needs": [
+     "the material's HTS code"
+    ]
+   },
+   {
+    "name": "steel screws",
+    "hts": "7318",
+    "origin": "China",
+    "foreign": true,
+    "status": "shift",
+    "alternative": 1
+   }
+  ]
+ },
+ "after": {
+  "status": "decided",
+  "origin": "Canada",
+  "basis": "19 CFR 102.11(a)(3); 19 CFR 102.20(n), 7325-7326",
+  "reason": "each foreign material undergoes the change in tariff classification the rule requires, in Canada",
+  "rule": {
+   "id": "19 CFR 102.20(n), 7325-7326",
+   "hts": "7325-7326",
+   "text": "A change to heading 7325 through 7326 from any other heading, including another heading within that group.",
+   "alternatives": 1,
+   "encoded": 1
+  },
+  "materials": [
+   {
+    "name": "flat coiled stainless steel",
+    "hts": "7219.33",
+    "origin": "India",
+    "foreign": true,
+    "status": "shift",
+    "alternative": 1
+   },
+   {
+    "name": "steel screws",
+    "hts": "7318.15",
+    "origin": "China",
+    "foreign": true,
+    "status": "shift",
+    "alternative": 1
+   }
+  ],
+  "assumes": [
+   "the work in Canada is more than the operations 102.17 says do not count (for example simple packing, dilution or disassembly)"
+  ]
+ },
+ "cbp_origin": "Canada",
+ "agrees": true
+}

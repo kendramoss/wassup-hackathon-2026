@@ -1,0 +1,49 @@
+import { html, text } from "./render-support.mjs";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { test } from "node:test";
+import { stubNavigation } from "./lib/hook-runtime.mjs";
+
+// Judge panel round 8, N11: the demo tour reached neither the per-part codes
+// nor the rule check, because the demo case has no part codes. The tour now
+// ends on a recorded example: one development ruling's committed suggestions
+// and the real rule check's result on them, labelled recorded, read only.
+stubNavigation({ id: "case_x", search: "tour=1&from=case_878d76540b91" });
+const { RuleCheckExample } = await import("../src/components/op/screens/rule-check-example.tsx");
+const { DemoTour } = await import("../src/components/op/demo-tour.tsx");
+const ex = JSON.parse(readFileSync(new URL("../src/lib/rule-check-example.json", import.meta.url), "utf8"));
+
+test("the example is a development ruling whose check decides only with the suggested codes", () => {
+  assert.equal(ex.split, "dev");
+  assert.notEqual(ex.before.status, "decided");
+  assert.equal(ex.after.status, "decided");
+  assert.equal(ex.after.origin, ex.cbp_origin);
+  assert.match(ex.run, /^eval\/tariffshift\/parts\/suggest-dev-v1\.jsonl$/);
+});
+
+test("the page shows the recorded suggestions, the check before and after, and CBP's answer", () => {
+  const m = html(RuleCheckExample, {});
+  const t = text(m);
+  assert.match(t, /Recorded example/);
+  assert.match(t, /recorded: nothing here calls a model or saves anything/);
+  assert.match(t, new RegExp(ex.product));
+  for (const p of ex.parts) {
+    assert.ok(t.includes(p.name), p.name);
+    assert.ok(t.includes(p.suggestions[0].hts), p.suggestions[0].hts);
+  }
+  assert.match(t, /earlier CBP ruling/);
+  assert.match(t, /Unverified suggestions/);
+  assert.match(t, /With only the codes the ruling's text states Rule check \(19 CFR 102\.20\): add HTS codes for 1 part to run it\. \(flat coiled stainless steel\)/);
+  assert.match(t, /Canada under the tariff-shift rules, from the codes given\./);
+  assert.match(t, /The check agrees with CBP's ruling\./);
+  assert.match(t, /On most Part 102 rulings it still does not decide/);
+  assert.match(m, /href="\/cases\/case_878d76540b91\/draft\?tour=1"/, "back to the tour");
+  // Read only: nothing to press that writes, no form, no "Add codes" link.
+  assert.doesNotMatch(m, /<form|<button|Add codes|cases\/new/);
+});
+
+test("the tour's last step points at the example", () => {
+  const m = html(DemoTour, { id: "case_878d76540b91", tab: "draft" });
+  assert.match(m, /href="\/examples\/rule-check\?tour=1&amp;from=case_878d76540b91"/);
+  assert.match(text(m), /Next: per-part codes and the rule check \(recorded example\) →/);
+});
