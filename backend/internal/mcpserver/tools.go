@@ -126,7 +126,7 @@ Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/
 			Name: "search_rulings",
 			Description: `Search Unde's corpus of earlier CBP country-of-origin rulings by text (keyword ranking over the facts sections).
 Use it to find precedents for a product or an operation, e.g. "printed circuit board assembly motor housing".
-Input: query, optional before date and limit. Returns ruling numbers, dates, subjects, CBP's held origin, a facts snippet and a link. Read one in full with get_ruling.
+Input: query, optional before date and limit. Returns ruling numbers, dates, subjects, CBP's held origin, a facts snippet and a link, plus "superseded" when a later CBP ruling revoked or modified one. Read one in full with get_ruling.
 REST: GET /v1/rulings (operationId searchRulings).`,
 			InputSchema: object("", []string{"query"}, map[string]*jsonschema.Schema{
 				"query":  str("Words to search for (at least one word of 3 or more letters).", 3, 300),
@@ -139,7 +139,7 @@ REST: GET /v1/rulings (operationId searchRulings).`,
 
 	add(s, &mcp.Tool{
 		Name: "get_ruling",
-		Description: `Read one CBP ruling's text with its date, subject, CBP's held origin and public link on rulings.cbp.gov.
+		Description: `Read one CBP ruling's text with its date, subject, CBP's held origin and public link on rulings.cbp.gov (and "superseded" when a later CBP ruling revoked or modified it).
 Use it to read a ruling that a prediction, plan or search cited. Input: ruling_id like N357771 or H301234.
 REST: GET /v1/rulings/{id} (operationId getRuling).`,
 		InputSchema: object("", []string{"ruling_id"}, map[string]*jsonschema.Schema{

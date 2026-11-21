@@ -34,6 +34,10 @@ type rulingHitDTO struct {
 	URL     string  `json:"url"`
 	Snippet string  `json:"snippet"`
 	Score   float64 `json:"score"`
+	// Superseded is set when CBP revoked or modified the ruling on or
+	// before `before` (any known supersession without it, D320). The ruling
+	// is still listed so a reader can see it and the ruling that replaced it.
+	Superseded *supersededDTO `json:"superseded,omitempty"`
 }
 
 // searchRulings answers GET /v1/rulings?q=&limit=&before= from the local
@@ -82,6 +86,7 @@ func (a *api) searchRulings(w http.ResponseWriter, r *http.Request) {
 			ID: h.Ruling.ID, Date: h.Ruling.Date.Format(time.DateOnly), Subject: h.Ruling.Subject,
 			Origin: nonEmpty(h.Ruling.Origin), URL: domain.RulingURL(h.Ruling.ID),
 			Snippet: snippet(h.Ruling.Facts, searchSnippetLen), Score: h.Score,
+			Superseded: supersededAsOf(h.Ruling.ID, before),
 		})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"rulings": out, "disclaimer": domain.Disclaimer})

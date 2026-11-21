@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/blob"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"os"
 	"slices"
 	"time"
@@ -103,7 +104,9 @@ func repairKey(key string) string { return key + "-" + ValidationEpoch }
 //   - r.Proof present, of the current ValidationEpoch, recorded for the same
 //     Before date and the same exclusion set as t;
 //   - every cited ruling is in Proof.Eligible (validated direct retrievals of
-//     that run) and not in t.Exclude.
+//     that run), not in t.Exclude, and not revoked or modified by CBP on or
+//     before t.Before (D320; checked first, so an old verdict citing a
+//     ruling revoked since is a miss).
 //
 // The display Trail is never consulted: it lists rejected, future and
 // mismatched reads. Entries without proof, including legacy and seeded demo
@@ -119,6 +122,9 @@ func cachedViolation(r Result, t Task) string {
 	for _, id := range cited {
 		if slices.Contains(t.Exclude, id) {
 			return "cites excluded ruling " + id
+		}
+		if s, ok := domain.SupersededAsOf(id, t.Before); ok {
+			return "cites ruling " + id + " " + s.Note()
 		}
 	}
 	if v.PrecedentSupported && v.SupportingRuling == "" {
@@ -156,6 +162,12 @@ func cachedViolation(r Result, t Task) string {
 	return ""
 }
 
+// blocked reports whether task t may never cite ruling id: it is excluded,
+// or CBP revoked or modified it on or before t.Before (D320).
+func blocked(t Task, id string) bool {
+	return slices.Contains(t.Exclude, id) || superseded(id, t.Before)
+}
+
 // sanitize removes citations that fail cachedViolation from a fresh result so
 // an unsafe supported verdict is never returned; it reports whether it changed
 // anything. Dropped names what was removed.
@@ -175,10 +187,10 @@ func sanitize(r Result, t Task) (Result, bool) {
 			// clear the flag only. Citations are kept as they were validated;
 			// nothing is dropped or invented.
 			r.Verdict.PrecedentSupported = false
-		case v.CounterRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.CounterRuling) || slices.Contains(t.Exclude, v.CounterRuling)):
+		case v.CounterRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.CounterRuling) || blocked(t, v.CounterRuling)):
 			r.Dropped = append(r.Dropped, v.CounterRuling)
 			r.Verdict.CounterRuling = ""
-		case v.SupportingRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.SupportingRuling) || slices.Contains(t.Exclude, v.SupportingRuling)):
+		case v.SupportingRuling != "" && (r.Proof == nil || !slices.Contains(r.Proof.Eligible, v.SupportingRuling) || blocked(t, v.SupportingRuling)):
 			r.Dropped = append(r.Dropped, v.SupportingRuling)
 			r.Verdict.SupportingRuling, r.Verdict.PrecedentSupported = "", false
 		default: // proof itself is for another task or epoch

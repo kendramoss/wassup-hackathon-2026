@@ -83,3 +83,12 @@ func TestSearchHonoursExcludeList(t *testing.T) {
 		}
 	}
 }
+
+func TestPrecedentFilterSkipsRulingsRevokedByTheCaseDate(t *testing.T) {
+	revoked := domain.Ruling{ID: "N345891", Date: time.Date(2025, 3, 11, 0, 0, 0, 0, time.UTC)} // revoked by H346161, 2025-05-05 (D320)
+	before := PrecedentFilter(domain.Case{ID: "c", Date: time.Date(2025, 5, 1, 0, 0, 0, 0, time.UTC)})
+	after := PrecedentFilter(domain.Case{ID: "c", Date: time.Date(2025, 5, 5, 0, 0, 0, 0, time.UTC)})
+	if !before(revoked) || after(revoked) {
+		t.Errorf("before=%v after=%v", before(revoked), after(revoked))
+	}
+}

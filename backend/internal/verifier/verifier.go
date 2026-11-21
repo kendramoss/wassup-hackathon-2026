@@ -614,12 +614,12 @@ func (v *Verifier) Verify(ctx context.Context, t Task) (Result, error) {
 }
 
 // eligibleHits lists the search hits a verdict may cite: well-formed ids dated
-// strictly before the bound and not excluded. A backend that ignored the
+// strictly before the bound, not excluded and not superseded by then. A backend that ignored the
 // bound or the exclusions gets no credit for it here.
 func eligibleHits(hits []Hit, before time.Time, exclude map[string]bool) []string {
 	var ids []string
 	for _, h := range hits {
-		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && inBound(h.Date, before) {
+		if domain.ValidRulingID(h.ID) && !exclude[h.ID] && inBound(h.Date, before) && !superseded(h.ID, before) {
 			ids = append(ids, h.ID)
 		}
 	}
@@ -634,7 +634,7 @@ var readHeader = regexp.MustCompile(`^\[([NH][0-9]{6})(?: \| ([0-9]{4}-[0-9]{2}-
 // be excluded, and a header date must be before the bound. Ids mentioned in
 // the text of the result are never eligible.
 func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []string {
-	if out == notFound || !domain.ValidRulingID(id) || exclude[id] {
+	if out == notFound || !domain.ValidRulingID(id) || exclude[id] || superseded(id, before) {
 		return nil
 	}
 	m := readHeader.FindStringSubmatch(out)
@@ -649,6 +649,13 @@ func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []s
 		return nil
 	}
 	return []string{id}
+}
+
+// superseded reports whether CBP revoked or modified ruling id on or before
+// the bound (D320); such a ruling is never citable.
+func superseded(id string, before time.Time) bool {
+	_, ok := domain.SupersededAsOf(id, before)
+	return ok
 }
 
 // inBound reports whether a ruling dated d may be precedent for a task bounded

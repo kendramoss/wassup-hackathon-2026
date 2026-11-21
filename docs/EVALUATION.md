@@ -91,6 +91,7 @@ One mismatch we found: the tune split's `rule` says "single-origin", but 27 of i
 | Date split | dev ends 2025-12-31; final starts 2026-01-02 | `splits_final.json`; checked by claimscheck (`temporal.final_starts_after_dev_ends`) |
 | Precedents strictly earlier | a retrieved precedent must be dated before the case, and is never the case itself or a ruling the case excludes | `domain.Ruling.UsableAsPrecedentFor`, `retrieval.PrecedentFilter`; claimscheck counts 0 of 1,885 held-out precedent slots on or after their case |
 | Facts only | the engine reads the facts section, cut at the first legal-analysis cue; sentences that state the origin conclusion are redacted | `corpus.SplitFacts` |
+| Not revoked or modified by then (D320) | a precedent CBP revoked or modified on or before the case date is skipped; one revoked later stays, because it was CBP's position at the case date | `domain.SupersededAsOf`, map `backend/internal/domain/supersession.json` from `go run ./cmd/corpus supersession`; effect on committed runs in section 2.5 |
 | Held-out gate | `eval run -split final` refuses to run without `-confirm-final` and prints "do not change prompts, thresholds or retrieval because of its result" | `backend/cmd/eval/main.go` |
 | Run log | every run appends its config, git revision and a `held_out` flag to `eval/results/RUNLOG.jsonl` | `eval/results/RUNLOG.jsonl` |
 
@@ -108,6 +109,25 @@ The label is **CBP's stated holding**: the origin CBP held in the ruling, not ou
 - Reported quality checks: a second extractor and a 30-item audit, not an expert panel ([DETAILS.md](DETAILS.md#limitations)). The audit records are not in this repository.
 - Six labels the model, acting as a judge, called wrong were checked by hand against the ruling text. All six matched CBP (D23).
 - Data files are pinned by `eval/SHA256SUMS` (`make verify-data`).
+
+### 2.5 Revoked and modified precedents in committed runs (D320)
+
+Before D320 the precedent filter only checked dates, so a ruling CBP had already revoked could be shown to the engine or cited by the verifier. `python3 -I -B eval/supersession/impact.py .` counts, offline, how often that happened in the committed results (`eval/results/supersession-impact.json`). No model calls; nothing was re-scored, so the effect on accuracy is not measured.
+
+| Committed rows | Rows | Showed a superseded precedent | Cited one |
+|---|---:|---:|---:|
+| All result rows with rulings (135 files) | 12,998 | 43 | 10 |
+| Development engine runs (general) | | 21 (20 of them the case H325607) | 2 |
+| First held-out split, engine (4 runs) | | 8 (N361172 and N364229, N331974 shown) | 3 |
+| Textile development runs | | 8 (N345891 shown) | 4 |
+| Part 102 development runs | | 6 | 0 |
+| Move verifier, flip pairs | | 0 | 0 |
+| Heat-gun plan runs (bound 14 Jan 2026) | | 0 | 1 |
+
+- **H325607 is the revocation letter itself.** It revoked N331974 on its own date, and every one of the 20 development runs showed N331974 for it. All 20 were wrong: 19 answered Spain and one China, where CBP held Thailand. The guard now hides N331974 for that case. Whether that would fix the answer was not run.
+- **The held-out rows were right anyway.** The 8 held-out rows that showed N331974 were all correct. The held-out accuracy figures are unchanged: they are committed runs, and no held-out split was re-scored.
+- **One verifier verdict cited a modified ruling.** In `plan-heatgun-2022-verifier-v2-litellm.json`, a rejected heat-gun move (0.90, below the 0.92 bar) cited N322364, which H323218 modified on 16 Dec 2025, a month before the demo's bound. The shown plan does not cite it. The current flagship plan cites N345938, which is not superseded.
+- 342 plan and demo rows carry no date; none of them names any superseded ruling.
 
 ## 3. What we trade off
 

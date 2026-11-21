@@ -1,0 +1,379 @@
+{
+ "version": "supersession-v1",
+ "rule": "A ruling is superseded when a later CBP ruling in the corpus states that it is revoked or modified: the EFFECT ON OTHER RULINGS section, any \"is/are hereby revoked/modified\" or \"we hereby revoke/modify\" sentence, a subject line that starts \"Revocation of\" or \"Modification of/to\", or a later ruling stating that one ruling \"was revoked/modified by\" another. The date is the superseding ruling's issue date. Notices of proposed revocation and affirmations are not supersessions. A ruling revoked after a case date stays usable for that case.",
+ "counts": {
+  "edges": 35,
+  "edges_modified": 25,
+  "edges_revoked": 10,
+  "rulings_read": 3275,
+  "rulings_with_full_text": 3112,
+  "source_effect_on_other_rulings": 27,
+  "source_hereby": 4,
+  "source_reference": 1,
+  "source_subject": 3,
+  "superseded_in_pool": 13,
+  "superseded_in_pool_general": 3,
+  "superseded_in_pool_usmca": 10,
+  "superseded_rulings": 34,
+  "superseding_rulings": 28
+ },
+ "edges": [
+  {
+   "ruling": "558009",
+   "superseded_by": "H314649",
+   "date": "2022-03-03",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H314649",
+   "quote": "HQ 558009 is hereby MODIFIED"
+  },
+  {
+   "ruling": "963233",
+   "superseded_by": "H293881",
+   "date": "2018-06-18",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H293881",
+   "quote": "HQ 963233, dated December 13, 2000, is hereby MODIFIED"
+  },
+  {
+   "ruling": "E87234",
+   "superseded_by": "H243329",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H243329",
+   "quote": "NY E87234, dated October 1, 1999, is hereby MODIFIED"
+  },
+  {
+   "ruling": "F88926",
+   "superseded_by": "H256782",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H256782",
+   "quote": "NY F88926, dated January 13, 2000, is hereby MODIFIED"
+  },
+  {
+   "ruling": "H265611",
+   "superseded_by": "H293880",
+   "date": "2018-06-19",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H293880",
+   "quote": "HQ H265611, dated October 21, 2015, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "H300226",
+   "superseded_by": "H301619",
+   "date": "2018-11-06",
+   "kind": "modified",
+   "source": "reference",
+   "source_ruling": "H302244",
+   "quote": "HQ H300226 was modified by HQ H301619, dated November 6, 2018",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "H303733",
+   "superseded_by": "H304419",
+   "date": "2024-12-11",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H304419",
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+  },
+  {
+   "ruling": "H303773",
+   "superseded_by": "H304419",
+   "date": "2024-12-11",
+   "kind": "revoked",
+   "source": "hereby",
+   "source_ruling": "H304419",
+   "quote": "we hereby revoke HQ H303773, HQ H303816, and NY N299944"
+  },
+  {
+   "ruling": "H303816",
+   "superseded_by": "H304419",
+   "date": "2024-12-11",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H304419",
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+  },
+  {
+   "ruling": "H82352",
+   "superseded_by": "H256785",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H256785",
+   "quote": "NY H82352, dated August 10, 2001, is hereby MODIFIED"
+  },
+  {
+   "ruling": "H84143",
+   "superseded_by": "H256783",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H256783",
+   "quote": "NY H84143, dated August 6, 2001, is hereby MODIFIED"
+  },
+  {
+   "ruling": "N047417",
+   "superseded_by": "H266527",
+   "date": "2016-04-11",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H266527",
+   "quote": "NY R00721, dated September 17, 2004 and NY N047417, dated January 14, 2009, are hereby revoked"
+  },
+  {
+   "ruling": "N057699",
+   "superseded_by": "H072375",
+   "date": "2015-11-10",
+   "kind": "modified",
+   "source": "subject",
+   "source_ruling": "H072375",
+   "quote": "Modification of New York Ruling Letter N057699, dated May 15, 2009"
+  },
+  {
+   "ruling": "N228118",
+   "superseded_by": "H256781",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H256781",
+   "quote": "NY N228118, dated August 8, 2012, is hereby MODIFIED"
+  },
+  {
+   "ruling": "N260916",
+   "superseded_by": "H270451",
+   "date": "2017-01-04",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H270451",
+   "quote": "NY N260916, dated February 18, 2015, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N261615",
+   "superseded_by": "H263571",
+   "date": "2015-11-04",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H263571",
+   "quote": "New York Ruling Letter (NY) N261615, dated Mar. 11, 2015, is hereby modified"
+  },
+  {
+   "ruling": "N263735",
+   "superseded_by": "H263735",
+   "date": "2015-05-06",
+   "kind": "modified",
+   "source": "subject",
+   "source_ruling": "H263735",
+   "quote": "Modification of N263735"
+  },
+  {
+   "ruling": "N271090",
+   "superseded_by": "H281296",
+   "date": "2017-05-23",
+   "kind": "modified",
+   "source": "hereby",
+   "source_ruling": "H281296",
+   "quote": "NY N271090, dated July 12, 2016, is hereby modified"
+  },
+  {
+   "ruling": "N284181",
+   "superseded_by": "H288252",
+   "date": "2017-09-11",
+   "kind": "modified",
+   "source": "hereby",
+   "source_ruling": "H288252",
+   "quote": "For the reasons set forth below, NY N284181 is hereby modified",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N287930",
+   "superseded_by": "H290258",
+   "date": "2018-06-19",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H290258",
+   "quote": "NY N287930, dated August 3, 2017, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N299096",
+   "superseded_by": "H300226",
+   "date": "2018-09-13",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H300226",
+   "quote": "NY N299096, dated July 25, 2018, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N299096",
+   "superseded_by": "H301619",
+   "date": "2018-11-06",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H301619",
+   "quote": "NY N299096, dated July 25, 2018, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N299944",
+   "superseded_by": "H304419",
+   "date": "2024-12-11",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H304419",
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+  },
+  {
+   "ruling": "N302378",
+   "superseded_by": "H325607",
+   "date": "2025-08-29",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H325607",
+   "quote": "NY N302378, dated February 15, 2019, and NY N331974, dated May 3, 2023, are hereby REVOKED"
+  },
+  {
+   "ruling": "N303338",
+   "superseded_by": "H305371",
+   "date": "2024-07-12",
+   "kind": "modified",
+   "source": "hereby",
+   "source_ruling": "H305371",
+   "quote": "The analysis applying the NAFTA Marking Rules in 19 CFR Part 102 is not applicable to the question of whether the computer server cabinet is subject to Section 301 duties under 9903.88.03, HTSUS, and NY N303338 is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N306886",
+   "superseded_by": "H312440",
+   "date": "2020-12-03",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H312440",
+   "quote": "To the extent that a post-importation 19 U.S.C. 1520(d) will be made, HQ N306886, dated November 18, 2019, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N307465",
+   "superseded_by": "N308442",
+   "date": "2019-12-19",
+   "kind": "modified",
+   "source": "subject",
+   "source_ruling": "N308442",
+   "quote": "Modification to New York ruling N307465.",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N322364",
+   "superseded_by": "H323218",
+   "date": "2025-12-16",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H323218",
+   "quote": "NY N322364, dated November 18, 2021, is hereby MODIFIED"
+  },
+  {
+   "ruling": "N322681",
+   "superseded_by": "H323218",
+   "date": "2025-12-16",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H323218",
+   "quote": "NY N322681, dated December 1, 2021, is hereby REVOKED"
+  },
+  {
+   "ruling": "N326445",
+   "superseded_by": "H335139",
+   "date": "2024-05-01",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H335139",
+   "quote": "NY N326445, dated June 30, 2022, is hereby MODIFIED",
+   "pools": [
+    "usmca"
+   ]
+  },
+  {
+   "ruling": "N331974",
+   "superseded_by": "H325607",
+   "date": "2025-08-29",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H325607",
+   "quote": "NY N302378, dated February 15, 2019, and NY N331974, dated May 3, 2023, are hereby REVOKED",
+   "pools": [
+    "general"
+   ]
+  },
+  {
+   "ruling": "N344694",
+   "superseded_by": "H344999",
+   "date": "2026-05-06",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H344999",
+   "quote": "NY N344694, dated January 14,2025, is hereby MODIFIED",
+   "pools": [
+    "general"
+   ]
+  },
+  {
+   "ruling": "N345891",
+   "superseded_by": "H346161",
+   "date": "2025-05-05",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H346161",
+   "quote": "NY N345891, dated March 11, 2025, is hereby REVOKED",
+   "pools": [
+    "general"
+   ]
+  },
+  {
+   "ruling": "R00721",
+   "superseded_by": "H266527",
+   "date": "2016-04-11",
+   "kind": "revoked",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H266527",
+   "quote": "NY R00721, dated September 17, 2004 and NY N047417, dated January 14, 2009, are hereby revoked"
+  },
+  {
+   "ruling": "R02589",
+   "superseded_by": "H256784",
+   "date": "2015-12-28",
+   "kind": "modified",
+   "source": "effect_on_other_rulings",
+   "source_ruling": "H256784",
+   "quote": "NY R02589, dated September 23, 2005, is hereby MODIFIED"
+  }
+ ]
+}

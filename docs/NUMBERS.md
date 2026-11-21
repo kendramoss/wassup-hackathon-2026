@@ -118,6 +118,17 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Broker draft facts cleaning, committed facts (D250) | of 3,081 facts files, 2,613 carry a CBP reply phrase; after cleaning none keeps one and no paragraph starts with a fragment; 32,973 of 33,046 reference sentences kept (99.78%; D180 version 98.04%); test bar 99.5% | `backend/internal/export/facts_test.go` (`TestCleanFactsCorpus`) over `backend/data/facts` | Measured, no model |
 | Substantial-transformation pool | 1,703 rulings, 1,593 with a single held origin, 93 countries; China + ASEAN 62.8% of those 1,593 | same file | Measured |
 
+### Revoked and modified precedents (D320)
+
+Built by `go run ./cmd/corpus supersession` (from `backend/`; `-check` verifies) and `python3 -I -B eval/supersession/impact.py . --check`. No model calls.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Supersession map | 35 edges from 3,275 rulings read (3,112 with full text, 163 by subject only); 34 rulings revoked or modified (10 revoked, 25 modified edges), by 28 later rulings; 13 of the 34 are in a precedent pool (3 general, 10 Part 102) | `backend/internal/domain/supersession.json` (`counts`) | Measured. Only revocations whose letter is in the corpus, or that a later ruling in it mentions |
+| Committed rows that showed or cited a superseded precedent | of 12,998 rows with rulings: 43 showed one revoked or modified on or before the case date, 10 cited one, 1 supported verifier verdict cited one (a rejected heat-gun move at 0.90, N322364) | `eval/results/supersession-impact.json` (`totals`) | Measured offline; nothing re-scored |
+| H325607 (the letter that revoked N331974) | wrong in 20 of 20 development engine runs, each of which showed N331974 | same file, `rows` | Measured. Not re-run with the guard, so no effect is claimed |
+| First held-out split rows that showed N331974 | 8 over 4 runs (N361172, N364229), all correct | same file | Measured. Held-out figures unchanged |
+
 ## Planner product scope (D138)
 
 | Number | Value | Source | Status |

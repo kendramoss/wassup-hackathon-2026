@@ -1934,6 +1934,21 @@ export interface components {
             url?: string;
             /** @description CBP's held origin; null when the ruling has no single held origin */
             origin?: string | null;
+            superseded?: components["schemas"]["Superseded"];
+        };
+        /** @description Present only when a later CBP ruling in the corpus revoked or modified this one (D320). On GET /v1/rulings it is as of `before` (any known one without it); on GET /v1/rulings/{id} it is any known one. Precedent checks never cite such a ruling for a case dated on or after `date`. */
+        Superseded: {
+            /** @example H325607 */
+            by: string;
+            /** @enum {string} */
+            kind: "revoked" | "modified";
+            /**
+             * Format: date
+             * @description Issue date of the superseding ruling
+             */
+            date: string;
+            /** @example revoked by H325607 on 2025-08-29 */
+            note: string;
         };
         /** @description Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced. */
         Comparison: {
@@ -3558,6 +3573,7 @@ export interface operations {
                             /** @description The first 300 characters of the ruling's facts section */
                             snippet: string;
                             score: number;
+                            superseded?: components["schemas"]["Superseded"];
                         }[];
                         disclaimer: string;
                     };

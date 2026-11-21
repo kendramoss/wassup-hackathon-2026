@@ -118,6 +118,14 @@ func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
 		return Result{}, false, nil
 	}
 	p := v.Prediction
+	// A stored answer whose precedents include a ruling CBP revoked or
+	// modified on or before the case date was made from evidence the
+	// precedent filter no longer shows (D320): predict again.
+	for _, id := range p.Precedents {
+		if _, superseded := domain.SupersededAsOf(id, k.Date); superseded {
+			return Result{}, false, nil
+		}
+	}
 	if p.Trace.RequestedModel == "" {
 		// Stored before RequestedModel existed: this key is the primary's.
 		p.Trace.RequestedModel = c.inner.opts.Model

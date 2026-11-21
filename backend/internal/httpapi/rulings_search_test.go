@@ -21,6 +21,8 @@ func (fakeSearch) Search(ctx context.Context, q string, k int, allow func(domain
 		{ID: "N300001", Date: day("2019-05-01"), Subject: "heat gun", Facts: "A heat gun with a motor and fan assembled in Thailand from a Chinese printed circuit board.", Origin: "Thailand"},
 		{ID: "N300002", Date: day("2023-02-01"), Subject: "hair dryer", Facts: "A hair dryer whose motor is wound in Vietnam and assembled in China.", Origin: "China"},
 		{ID: "H300003", Date: day("2021-07-01"), Subject: "lidar sensor", Facts: "A lidar sensor module calibrated in Mexico."},
+		// N345891 is real: H346161 revoked it on 2025-05-05 (D320).
+		{ID: "N345891", Date: day("2025-03-11"), Subject: "pillow cover", Facts: "A pillow cover cut and sewn from Chinese fabric.", Origin: "China"},
 	}
 	return retrieval.NewBM25(rs, func(r domain.Ruling) string { return r.Facts }).Search(ctx, q, k, allow)
 }
@@ -54,6 +56,28 @@ func TestSearchRulings(t *testing.T) {
 	// Without a search index the route is not served.
 	if code, _ := newHarness(t, "substantial_transformation").do(t, "GET", "/v1/rulings?q=motor", ""); code != http.StatusNotFound {
 		t.Errorf("without RulingSearch = %d, want 404", code)
+	}
+}
+
+func TestSearchRulingsMarksSupersededRulings(t *testing.T) {
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) { d.RulingSearch = fakeSearch{} })
+	for _, tc := range []struct {
+		before string
+		want   bool
+	}{{"", true}, {"&before=2026-01-01", true}, {"&before=2025-05-01", false}} {
+		_, out := hs.do(t, "GET", "/v1/rulings?q=pillow+cover+sewn"+tc.before, "")
+		rs := out["rulings"].([]any)
+		if len(rs) == 0 || rs[0].(map[string]any)["id"] != "N345891" {
+			t.Fatalf("%q: %v", tc.before, rs)
+		}
+		sup, ok := rs[0].(map[string]any)["superseded"].(map[string]any)
+		if ok != tc.want || (ok && (sup["by"] != "H346161" || sup["kind"] != "revoked" || sup["date"] != "2025-05-05")) {
+			t.Errorf("%q: superseded = %v", tc.before, rs[0])
+		}
+	}
+	_, out := hs.do(t, "GET", "/v1/rulings?q=heat+gun+motor", "")
+	if _, ok := out["rulings"].([]any)[0].(map[string]any)["superseded"]; ok {
+		t.Error("an ordinary ruling carries superseded")
 	}
 }
 
