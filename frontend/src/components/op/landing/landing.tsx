@@ -6,7 +6,8 @@
 // explodes and moves its Chinese parts to Thailand, a caption box naming
 // each phase; fig.2, one case as four sheets of real output with the facts
 // drawn through them; fig.3, a test sheet for the 377 held-out rulings,
-// ending on the way into the cases. Phones keep the figures stacked. Every
+// ending on the way into the cases. Phones keep the figures stacked. After
+// "Who it's for", fig.4 tells the impact as one illustrative story. Every
 // number comes from docs/NUMBERS.md.
 import Link from "next/link";
 import { Explained } from "../term";
@@ -18,6 +19,7 @@ import { startLanding } from "./motion";
 import "./landing.css";
 
 const L = copy.landing;
+const S = L.story;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
 const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   // eslint-disable-next-line @next/next/no-img-element
@@ -402,12 +404,163 @@ export function Landing() {
             <p className="read">{L.whoFact}</p>
           </div>
         </section>
+
+        {/* fig.4, the impact told as one story (review follow-up). It sits
+            after "Who it's for" so the reader meets the user first and then
+            follows one of them through a decision. Measured figures get bars
+            with their values on them; system properties are plain text. The
+            firm is a labelled composite. */}
+        <section className="story" aria-labelledby="storyh">
+          <div className="storysheet">
+            <div className="storyhead">
+              <div>
+                <div className="eyebrow">{S.fig}</div>
+                <h2 id="storyh">{S.title}</h2>
+              </div>
+              <p className="illus">{S.label}</p>
+            </div>
+            <ol className="beats">
+              <li className="beat">
+                <span className="bn">
+                  <b>1</b>
+                  {S.beats.decision}
+                </span>
+                <div className="bc">
+                  {S.decision.map((t) => (
+                    <p key={t} className="read">
+                      {t}
+                    </p>
+                  ))}
+                </div>
+              </li>
+              <li className="beat">
+                <span className="bn">
+                  <b>2</b>
+                  {S.beats.oldWay}
+                </span>
+                <div className="bc">
+                  <p className="read">{S.oldWayLead}</p>
+                  <div className="cmp">
+                    <div className="cmphead dimn" aria-hidden="true">
+                      <span>
+                        <i className="bw" />
+                        {S.keyBefore}
+                      </span>
+                      <span>
+                        <i className="bu" />
+                        {S.keyAfter}
+                      </span>
+                    </div>
+                    {S.rows.map((r) => (
+                      <div key={r.label} className="cmprow">
+                        <span className="eyebrow">{r.label}</span>
+                        <div className="bar">
+                          <span className="bt" aria-hidden="true">
+                            <i className="bw" />
+                          </span>
+                          <span className="val">
+                            <b>{r.before}</b> {r.beforeNote}
+                          </span>
+                        </div>
+                        <div className="bar">
+                          <span className="bt" aria-hidden="true">
+                            <i className="bu" style={{ width: `max(2px, ${(r.ratio * 100).toFixed(6)}%)` }} />
+                          </span>
+                          <span className="val">
+                            <b className="ok">{r.after}</b> {r.afterNote}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="dimn">{S.minBar}</div>
+                  </div>
+                  <p className="read">{S.oldWayRisk}</p>
+                </div>
+              </li>
+              <li className="beat">
+                <span className="bn">
+                  <b>3</b>
+                  {S.beats.withUnde}
+                </span>
+                <div className="bc">
+                  {S.withUnde.map((t, i) => (
+                    <p key={t} className="read">
+                      {t}
+                      {i === 1 ? (
+                        <>
+                          {" "}
+                          {S.withUndeRuling} <RulingLink id="N345938" />.
+                        </>
+                      ) : null}
+                    </p>
+                  ))}
+                </div>
+              </li>
+              <li className="beat">
+                <span className="bn">
+                  <b>4</b>
+                  {S.beats.outcome}
+                </span>
+                <div className="bc">
+                  <p className="read">{S.outcomeLead}</p>
+                  <div className="cmp">
+                    <div className="cmphead dimn" aria-hidden="true">
+                      {S.dutyHead}
+                    </div>
+                    {S.duty.map((d) => (
+                      <div key={d.country} className="cmprow">
+                        <span className="eyebrow">
+                          <Flag c={d.country} /> {d.country} origin · {d.rate}
+                        </span>
+                        <div className="bar">
+                          <span className="bt" aria-hidden="true">
+                            <i className={d.country === "China" ? "bw" : "bu"} style={{ width: `${(d.share / S.duty[0].share) * 100}%` }} />
+                          </span>
+                          <span className="val">
+                            <b className={d.country === "China" ? undefined : "ok"}>{d.value}</b> {d.sum}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <ul className="sums read">
+                    <li>{S.dutyGap}</li>
+                    <li>{S.dutyCost}</li>
+                    <li>
+                      <b>{S.dutyNet}</b>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="beat">
+                <span className="bn">
+                  <b>5</b>
+                  {S.beats.broker}
+                </span>
+                <div className="bc">
+                  <ul className="todo read">
+                    {S.broker.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            </ol>
+            <div className="storyfoot">
+              <span>{S.sources}</span>
+              <span>{copy.name} · sheet 04</span>
+            </div>
+          </div>
+        </section>
       </main>
       <footer className="lpfoot">
         <span>{L.footerDisclaimer}</span>
         <span>{L.built}</span>
         <a href={L.repo} target="_blank" rel="noreferrer">
           GitHub
+        </a>
+        <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
+          {L.roadmap}
         </a>
         <Link href="/privacy">{copy.legal.footer.privacy}</Link>
         <Link href="/terms">{copy.legal.footer.terms}</Link>

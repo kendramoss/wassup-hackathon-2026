@@ -76,7 +76,7 @@ On the two demo products, the plan Unde shows matches what really happened:
 - **Heat gun:** Unde's plan (move the motor-fan assembly, circuit board and switch to Thailand) matches CBP's later 2026 ruling holding Thai origin.
 - **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling.
 
-Across 182 precedent checks that cleared the bar, none was wrong. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results).
+Across 182 precedent checks that cleared the bar, none was wrong. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Limitations
 
@@ -89,6 +89,8 @@ Across 182 precedent checks that cleared the bar, none was wrong. The bar is str
 - **It's a hackathon prototype.** Company sign-in and data hosting would need work before production use.
 
 All limitations: [docs/DETAILS.md](docs/DETAILS.md#limitations).
+
+What we would build to turn the prototype into an enterprise product, phase by phase: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## How it's built
 
@@ -142,6 +144,6 @@ setup still depends on it.
 | `backend/` | Go API, origin engine, planner, verifier, eval tools |
 | `frontend/` | Next.js web app |
 | `eval/` | Test sets and results ([eval/RESULTS.md](eval/RESULTS.md)) |
-| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
+| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).
