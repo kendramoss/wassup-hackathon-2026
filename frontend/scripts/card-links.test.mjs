@@ -64,3 +64,18 @@ test("a pinned demo card has no nested interactive elements", () => {
   const c = { id: "case_1", display_name: "Heat gun", step: "origin", predicted_origin: "China", confidence: 0.9, triage_route: "auto_accept", pinned: true };
   assert.deepEqual(nested(html(DemoCard, { c })), []);
 });
+
+// Judge panel round 3 (D270): a card that starts a live run never says a plan
+// is included, and a pinned demo with no recorded current origin (the dryer
+// latches) still says what CBP held, from its demo entry.
+test("a live-run card says it will search plans, not that a plan is included", () => {
+  const m = html(LoadDemoCard, { d: demo });
+  assert.doesNotMatch(m, /Plan included/);
+  assert.match(m, /Runs a plan search too/);
+});
+
+test("a pinned demo card says what CBP held from its demo entry", () => {
+  const c = { id: "case_2", display_name: "Dryer door latch", step: "origin", predicted_origin: "China", confidence: 0.99, triage_route: "auto", pinned: true, demo_id: "dryer" };
+  assert.match(html(DemoCard, { c, demo: { id: "dryer", title: "Dryer door latch", cbp_held: "China" } }), /CBP held/);
+  assert.doesNotMatch(html(DemoCard, { c }), /CBP held/);
+});

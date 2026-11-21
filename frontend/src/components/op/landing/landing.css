@@ -232,6 +232,15 @@
 .lp .lpfoot { max-width: 1240px; margin: 40px auto 0; padding: 18px var(--gutter) 28px; border-top: 1px dashed var(--guide); display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 12.5px; color: var(--dim); }
 .lp .lpfoot a { color: var(--ok); text-decoration: underline; text-underline-offset: 2px; }
 
+/* Folded on phones only (PhoneFold): wide screens never show the summary. */
+.lp .pfold > summary { display: none; }
+@media (max-width: 900px) {
+  .lp .pfold > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 10px; padding: 8px 0; border-top: 1px solid var(--edge); border-bottom: 1px dashed var(--guide); list-style: none; cursor: pointer; color: var(--ink); font-size: 14px; }
+  .lp .pfold > summary::-webkit-details-marker { display: none; }
+  .lp .pfold .pfmark { display: inline-block; width: 12px; color: var(--dim); transition: transform .15s ease; }
+  .lp .pfold[open] .pfmark { transform: rotate(90deg); }
+}
+
 /* ---- phones ---- */
 @media (max-width: 900px) {
   .lp { --gutter: 16px; }
@@ -241,7 +250,7 @@
   .lp .track { display: block; width: auto; transform: none !important; }
   .lp .pane { height: auto; }
   .lp .p1 { display: block; padding: 0; }
-  .lp .scroller { height: 360vh; position: relative; }
+  .lp .scroller { height: 260vh; position: relative; } /* 360vh until D270; the animation runs on progress, not distance */
   .lp .sheet { position: sticky; top: var(--bar); height: calc(100vh - var(--bar)); border-left: 0; border-right: 0; box-shadow: none; }
   .lp .stamp { left: 12px; right: auto; top: 56px; min-width: 0; padding: 6px 10px; }
   .lp .stamp .held { font-size: 19px; }
@@ -279,6 +288,7 @@
 @media (prefers-reduced-motion: reduce) {
   .lp .stamp.flip { animation: none; }
   .lp .mini, .lp .mini .real > * { transition: none; }
+  .lp .pfold .pfmark { transition: none; }
 }
 
 /* ---- window sizes between phone and full desktop ----

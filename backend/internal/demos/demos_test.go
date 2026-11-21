@@ -148,7 +148,8 @@ func TestRecordedPlanWords(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := map[string]string{
-		"aluminum-wheel-2025": "Move the housings and structural parts to Thailand",
+		"aluminum-wheel-2025": "Move the aluminum bar / ingot and the forged circular aluminum blank ('cookie') to Thailand",
+		"power-bank-2025":     "Move the two cylindrical lithium-ion battery cells to Vietnam",
 		"gas-grill-2023":      "Move the lid and firebox forming, the burners and gas train and the cooking surface, panels and frame to Indonesia",
 	}
 	for _, d := range ds {

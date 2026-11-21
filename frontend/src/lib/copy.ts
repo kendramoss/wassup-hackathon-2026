@@ -5,6 +5,12 @@
 import { conf, type OriginConf } from "./format";
 
 export const copy = {
+  // Where calibrated values appear (judge panel round 3, D270). The map is
+  // backend/internal/calibrate/map.json (cal-v2, D160): its lowest step is 0.60
+  // from stated 0.65 (a value below the lowest step takes it), the next starts
+  // at stated 0.90, and 0.98 or more maps to 0.99.
+  calSteps:
+    "Calibrated values come in steps: the map gives one value to each band of stated confidence (every stated confidence under 0.90 becomes 0.60, and 0.98 or more becomes 0.99), so many cases share the same value.",
   name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
   nav: { cases: "Cases", accuracy: "How accurate is it?", accuracyShort: "Accuracy", method: "Method", api: "API · MCP" },
@@ -32,6 +38,11 @@ export const copy = {
       plan: (plan: string, check: string, ruling: string) => `First plan shown: ${plan}, check ${check}${ruling ? ` on ${ruling}` : ""}.`,
       includes: (items: string[]) => `What moves: ${items.join("; ")}.`,
       noPlan: "No plan shown at the bar.",
+      // On a card that starts a live run: the run will search plans, nothing
+      // is shown yet (judge panel round 3: "Plan included" read as ready).
+      planRuns: "Runs a plan search too",
+      // A pinned demo read from CBP's text alone has no parts list to plan.
+      originOnly: "Origin only: CBP's text, no parts list to plan",
       selection:
         "The four newest demos were picked by family, not by result: the first per-family check for vehicle parts, PCBA devices, power supplies and medical devices. Across all 23 per-family checks the engine disagreed with CBP's holding on 7.",
     },
@@ -125,7 +136,7 @@ export const copy = {
     },
     calibrated: {
       match: /calibrated/,
-      text: "The chance this origin is right, from a calibration map fitted on 463 development rulings. The model's own confidence runs high: on 377 held-out rulings it averaged 94.7% against 90.2% right; calibrated, 90.2%. Auto-accept needs 0.90 or more.",
+      text: "The chance this origin is right, from a calibration map fitted on 463 development rulings. The model's own confidence runs high: on 377 held-out rulings it averaged 94.7% against 90.2% right; calibrated, 90.2%. Auto-accept needs 0.90 or more. Calibrated values come in steps, so many cases share one.",
     },
     stated: {
       match: /^confidence \d/,
@@ -288,17 +299,20 @@ export const copy = {
     },
   },
   landing: {
+    // Phone-only folds (D270): the summary says what is inside.
+    foldRoles: (roles: string[]) => `Show who uses it, pays for it and benefits (${roles.length} roles)`,
+    foldStory: (beats: string[]) => `Read the story in ${beats.length} steps: ${beats.map((t) => t[0].toLowerCase() + t.slice(1)).join(", ")}`,
     eyebrow: "fig.0 — US Customs country of origin",
     title: "Plan the production change before you build it.",
     sub: "See the origin CBP would likely assign, and which production moves would change it, backed by CBP rulings.",
     demo: "Try the heat-gun demo →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real CBP rulings",
-    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site may instead show no plan above the bar: check the live case before quoting 0.96. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
+    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site shows the same plan at 0.96. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part, where it is made, and which decide the origin." },
-      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Recorded 18 Oct run: check 0.96, above the 0.92 bar. The pinned demo may show no plan above the bar.", for: "N345938" },
+      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Recorded 18 Oct run: check 0.96, above the 0.92 bar; the pinned demo shows the same.", for: "N345938" },
       { title: "2026 setup", body: "The maker moved the same parts, and the outer shells. CBP held Thailand", ruling: "N357771" },
     ],
     stepOf: (n: number) => `Step ${n} of 4`,

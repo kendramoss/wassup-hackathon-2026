@@ -180,11 +180,23 @@ function ArmRow({ r }: { r: Arm }) {
       <span className="relative h-5 self-center" aria-hidden="true">
         <i className="absolute inset-x-0 top-1/2 h-px bg-line" />
         {r.lo !== undefined && r.hi !== undefined && <i className="absolute top-1/2 h-px -translate-y-px bg-ink" style={{ left: x(r.lo), width: `calc(${x(r.hi)} - ${x(r.lo)})`, height: 2 }} />}
+        {r.runs && r.runs.length > 1 && (
+          <>
+            <i
+              className="absolute top-1/2 -translate-y-px bg-ink"
+              style={{ left: x(Math.min(...r.runs)), width: `calc(${x(Math.max(...r.runs))} - ${x(Math.min(...r.runs))})`, height: 2 }}
+            />
+            {r.runs.map((v, i) => (
+              <i key={i} className="absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink" style={{ left: x(v) }} />
+            ))}
+          </>
+        )}
         <i className={cx("absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45", r.ref ? "bg-ok" : "border border-ink bg-white")} style={{ left: x(r.v) }} />
       </span>
       <span className="text-[12px] text-dim md:text-right">
         <b className="font-medium tabular-nums text-ink">{pct(r.v)}</b>
         {r.lo !== undefined && r.hi !== undefined ? <span className="tabular-nums"> ({(r.lo * 100).toFixed(1)}–{(r.hi * 100).toFixed(1)})</span> : null}
+        {r.runs ? <span className="block tabular-nums">runs {r.runs.map((v) => pct(v)).join(", ")}</span> : null}
         {r.vs ? <span className="block tabular-nums">{r.vs}</span> : null}
         <span className="block">
           {r.note} · <Refs ids={r.refs} />
@@ -199,7 +211,7 @@ function Negatives() {
   return (
     <Figure
       title="Tried on the development set and not adopted"
-      note="463 development rulings · 95% interval where recorded · paired test against Argon on Vertex AI unless marked"
+      note="463 development rulings · 95% interval where recorded, or each run as a dot · paired test against Argon on Vertex AI unless marked"
       label={`Development accuracy of ${all.length} configurations: ${all.map((r) => `${r.label} ${pct(r.v)}`).join("; ")}.`}
     >
       {ARMS.map((g) => (
@@ -244,7 +256,8 @@ function Negatives() {
         </ul>
         <p className="mt-2 text-[12px] text-dim">
           router-v3 routed specialist rulings better but sent more ordinary rulings away, past the {ROUTER_V3.limit} its rule allowed (<D id="D231" />). router-v4, defined before its run, passed
-          and is in production (<D id="D233" />).
+          and is in production (<D id="D233" />). One caveat: its &quot;trade programs&quot; cue was written after reading the post-cutoff misses, so the post-cutoff router figures are
+          not clean held-out evidence for it. Without the 6 cue rulings the routed path scores 90/101 for router-v4 against 91/101 for router-v2.
         </p>
       </div>
     </Figure>
@@ -373,6 +386,11 @@ export function MethodPage() {
             post-cutoff pairs on the accuracy page are.
           </li>
           <li>The model-sweep selection rule was written while two of its runs were still going, before any held-out file existed for them (<D id="D152" />).</li>
+          <li>
+            router-v4&apos;s &quot;trade programs&quot; cue came from reading the misses on the post-cutoff split, not from development (1 of 70 development Part 102 rulings uses
+            the phrase). Its post-cutoff gains are not clean held-out evidence: without the 6 cue rulings, router-v4 scores 90/101 on the routed path and router-v2 91/101. The
+            adoption decision used the first held-out window, where the phrase is nearly absent (<D id="D233" />).
+          </li>
         </ul>
       </Section>
 

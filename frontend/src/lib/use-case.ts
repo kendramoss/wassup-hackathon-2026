@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ACCESS_STALE, api, type CaseResponse } from "./api/client";
+import { localEntry, pickLocal } from "./case-local";
 
 // Pinned demos are read-only for visitors (backend D57): plan, scenarios,
 // compare, watch and ask answer but don't save. This tab keeps the latest
@@ -9,18 +10,18 @@ import { ACCESS_STALE, api, type CaseResponse } from "./api/client";
 // next screen loads the case again. Per tab, for this visit only.
 const localKey = (id: string) => `op:local:${id}`;
 
-function readLocal(id: string): CaseResponse | null {
+function readLocal(server: CaseResponse): CaseResponse {
   try {
-    const s = sessionStorage.getItem(localKey(id));
-    return s ? (JSON.parse(s) as CaseResponse) : null;
+    const s = server.id ? sessionStorage.getItem(localKey(server.id)) : null;
+    return s ? pickLocal(server, JSON.parse(s)) : server;
   } catch {
-    return null;
+    return server;
   }
 }
 
-function writeLocal(c: CaseResponse) {
+function writeLocal(c: CaseResponse, base: string | null | undefined) {
   try {
-    if (c.id && c.pinned) sessionStorage.setItem(localKey(c.id), JSON.stringify(c));
+    if (c.id && c.pinned) sessionStorage.setItem(localKey(c.id), JSON.stringify(localEntry(c, base)));
   } catch {}
 }
 
@@ -28,10 +29,13 @@ function writeLocal(c: CaseResponse) {
 export function useCase(id: string) {
   const [data, setState] = useState<CaseResponse | null>(null);
   const [error, setError] = useState<unknown>(null);
+  // The server's updated_at for this case, so a kept demo copy is tied to it.
+  const base = useRef<string | null | undefined>(undefined);
   const fetchCase = useCallback(
     () =>
       api.getCase(id).then((c) => {
-        setState(c.pinned ? (readLocal(id) ?? c) : c);
+        base.current = c.updated_at;
+        setState(c.pinned ? readLocal(c) : c);
       }, setError),
     [id],
   );
@@ -61,7 +65,7 @@ export function useCase(id: string) {
   const setData = useCallback((next: CaseResponse | null | ((d: CaseResponse | null) => CaseResponse | null)) => {
     setState((d) => {
       const c = typeof next === "function" ? next(d) : next;
-      if (c) writeLocal(c);
+      if (c) writeLocal(c, base.current ?? c.updated_at);
       return c;
     });
   }, []);

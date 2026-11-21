@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"unicode"
@@ -129,7 +130,7 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 	country := ""
 	sameCountry := true
 	for i, gm := range m {
-		names = append(names, "the "+lowerWord(GroupName(t, gm.Group)))
+		names = append(names, groupPhrase(p, t, gm.Group))
 		pl, _ := p.PlantByID(gm.ToPlant)
 		if i > 0 && pl.Country != country {
 			sameCountry = false
@@ -145,6 +146,70 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 		parts[i] = names[i] + " to " + pl.Country
 	}
 	return "Move " + joinAnd(parts)
+}
+
+// groupPhrase names a moved group in a plan sentence: "the " and the
+// template's group name, unless that name describes none of this product's
+// parts in the group. Then it names the parts, as Render does in the facts
+// (D270): a power bank's battery cells filed under the template's "Power
+// conversion or charging module" read "the two cylindrical lithium-ion
+// battery cells", not a module the product does not have.
+func groupPhrase(p domain.Product, t Template, id string) string {
+	name := GroupName(t, id)
+	comps := groupComponents(p, id)
+	if len(comps) == 0 || describesAny(name, comps) {
+		return "the " + lowerWord(name)
+	}
+	parts := make([]string, 0, 3)
+	for i, c := range comps {
+		if i == 2 && len(comps) > 3 {
+			parts = append(parts, fmt.Sprintf("%d other parts", len(comps)-2))
+			break
+		}
+		parts = append(parts, "the "+lowerWord(c))
+	}
+	return joinAnd(parts)
+}
+
+// Words too general to show that a group name fits a part.
+var vagueWords = map[string]bool{"and": true, "or": true, "the": true, "of": true, "with": true, "for": true, "part": true, "minor": true, "other": true, "assembly": true, "module": true, "component": true, "unit": true, "smt": true}
+
+// Words that stand for one another in group and part names.
+var sameWords = map[string][]string{"pcba": {"printed", "circuit", "board"}, "pcb": {"printed", "circuit", "board"}}
+
+// nameWords is a name's significant words, lower case, with a plural "s"
+// dropped ("lids" and "lid" match), expanded with their synonyms.
+func nameWords(s string) map[string]bool {
+	out := map[string]bool{}
+	for _, w := range strings.FieldsFunc(strings.ToLower(s), func(r rune) bool { return !unicode.IsLetter(r) }) {
+		if strings.HasSuffix(w, "es") && len(w) > 4 && strings.HasSuffix(w, "xes") {
+			w = strings.TrimSuffix(w, "es")
+		} else if strings.HasSuffix(w, "s") && len(w) > 3 && !strings.HasSuffix(w, "ss") {
+			w = strings.TrimSuffix(w, "s")
+		}
+		if len(w) < 3 || vagueWords[w] {
+			continue
+		}
+		out[w] = true
+		for _, x := range sameWords[w] {
+			out[x] = true
+		}
+	}
+	return out
+}
+
+// describesAny reports whether a group name shares a significant word with
+// at least one of the parts filed under it.
+func describesAny(name string, parts []string) bool {
+	nw := nameWords(name)
+	for _, c := range parts {
+		for w := range nameWords(c) {
+			if nw[w] {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // GroupName is a group's name in the template, else its id with spaces.

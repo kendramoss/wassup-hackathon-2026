@@ -6,15 +6,16 @@ const isDev = process.env.NODE_ENV === "development";
 // "content-security-policy", section "Without Nonces"): nonces would force
 // every page to render per request, which cacheComponents and partial
 // prerendering rule out. Google sign-in loads its script, frames and styles
-// from accounts.google.com/gsi. Shipped as Report-Only (D137): sign-in could
-// not be exercised locally, so a violation is reported in the console rather
-// than breaking the page. Still Report-Only after D220: enforcing it needs a
-// real Google sign-in to be tried against it, which can't be done locally.
+// from accounts.google.com/gsi. Shipped as Report-Only (D137, D220) until
+// D270: enforced once the app's pages showed no violations and the Google
+// button's script and frame loaded under the enforced policy in a local
+// production build.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
-  "img-src 'self' blob: data:",
+  // The signed-in avatar is Google's profile picture (sign-in.tsx).
+  "img-src 'self' blob: data: https://lh3.googleusercontent.com",
   "font-src 'self'",
   "connect-src 'self' https://accounts.google.com/gsi/",
   "frame-src https://accounts.google.com/gsi/",
@@ -32,7 +33,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
-  { key: "Content-Security-Policy-Report-Only", value: csp },
+  { key: "Content-Security-Policy", value: csp },
 ];
 
 const nextConfig: NextConfig = {

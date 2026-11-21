@@ -219,24 +219,36 @@ func sortedKey(m domain.Move) string {
 }
 
 // MovedItems names what a move takes with it in this product (D220): the
-// components and operations of each moved group that are not already at the
-// plant the group moves to, in product order, each once.
+// components of each moved group that are not already at the plant the group
+// moves to, in product order, each once. A group's operations are listed only
+// when none of its components move, so the list names parts, not process
+// sentences (judge panel round 3, D270: the gas grill listed 18 items).
 func MovedItems(p domain.Product, m domain.Move) []string {
 	var out []string
 	seen := map[string]bool{}
-	add := func(name, group, plant string) {
+	hasParts := map[string]bool{}
+	add := func(name, group, plant string) bool {
+		added := false
 		for _, gm := range m {
-			if gm.Group == group && plant != gm.ToPlant && name != "" && !seen[name] {
-				seen[name] = true
-				out = append(out, name)
+			if gm.Group == group && plant != gm.ToPlant && name != "" {
+				added = true
+				if !seen[name] {
+					seen[name] = true
+					out = append(out, name)
+				}
 			}
 		}
+		return added
 	}
 	for _, c := range p.Components {
-		add(c.Name, c.Group, c.Plant)
+		if add(c.Name, c.Group, c.Plant) {
+			hasParts[c.Group] = true
+		}
 	}
 	for _, o := range p.Operations {
-		add(o.Name, o.Group, o.Plant)
+		if !hasParts[o.Group] {
+			add(o.Name, o.Group, o.Plant)
+		}
 	}
 	return out
 }

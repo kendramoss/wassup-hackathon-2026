@@ -3,8 +3,9 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
-// Issue #411: the landing's 0.96 is a recorded 18 Oct production run, not the
-// answer of the currently pinned demo. If either side changes, this test fails
+// Issue #411: the landing's 0.96 is a recorded 18 Oct production run. Since
+// D270 the copy also says the pinned demo shows it (the pinned case's 18 Oct
+// plan search is that run). If either side changes, this test fails
 // so the stage copy cannot silently drift into a self-contradiction again.
 const read = (relative) =>
   readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
@@ -35,8 +36,14 @@ test("every landing 0.96 plan copy is labelled as a recorded 18 Oct run", () => 
         `${name}: every 0.96 plan line must say it is a recorded 18 Oct run`,
       );
     }
-    assert.match(source, /may (?:instead )?show no plan above the bar/i);
   }
+  // D270: the pinned case's plan search was re-run on 18 Oct and is the run
+  // in DEMO.md section 6 (its history: "7 moves searched, 1 shown"), so the
+  // landing says the pinned case shows the same plan, no longer that it may not.
+  assert.doesNotMatch(copy + landing, /may (?:instead )?show no plan above the bar/i);
+  assert.match(landing, /pinned case on this site shows the same plan at 0\.96/);
+  assert.match(demoDoc, /## 6\. Heat gun: the plan that clears the bar \(production, 18 Oct\)/);
+  assert.match(demoDoc, /pinned case \(`case_878d76540b91`, updated 18 Oct\) shows the same plan at 0\.96/);
 });
 
 test("the demo script has one canonical branch for the below-bar screen", () => {
@@ -44,7 +51,7 @@ test("the demo script has one canonical branch for the below-bar screen", () => 
   assert.match(demoDoc, /If the Plan screen shows a plan/);
   assert.match(
     demoDoc,
-    /If it shows no plan above the bar \(the current pinned seed\)/,
+    /If it shows no plan above the bar \(an earlier pinned seed\)/,
   );
   assert.match(demoDoc, /recorded 18 Oct(?: 2026)? production run/i);
 });

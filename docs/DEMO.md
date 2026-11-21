@@ -10,12 +10,12 @@ The story follows one decision through the five roles on the landing page ("Who 
 
 ### Plan screen: one canonical instruction, two branches
 
-The landing's "check 0.96" is a **recorded 18 Oct 2026 production run**, committed in section 6 below. The pinned case on this site came from a different run (section 4) whose plan is below the bar. Never call 0.96 the answer of the pinned case you are about to open.
+The landing's "check 0.96" is a **recorded 18 Oct 2026 production run**, committed in section 6 below. As of 21 Nov 2026 the pinned case (`case_878d76540b91`, updated 18 Oct) shows the same plan at 0.96; earlier pinned seeds (section 4) showed no plan above the bar, so check before the talk.
 
 - **If the Plan screen shows a plan:** "This is the recorded 18 Oct run: motor-fan assembly, PCBA, switch, cord and minor parts in Thailand, check 0.96 on N345938, $285k a year on illustrative economics. The bar held the motor-fan-only move (0.90) back."
-- **If it shows no plan above the bar (the current pinned seed):** "No move cleared the 0.92 bar in this pinned run. The closest below-bar move is PCBA in Thailand at 0.75 on N345938. The landing shows a separate recorded 18 Oct run that did clear it at 0.96; the bar is deliberately conservative, so a below-bar result is not a failed search."
+- **If it shows no plan above the bar (an earlier pinned seed):** "No move cleared the 0.92 bar in this pinned run. The closest below-bar move is PCBA in Thailand at 0.75 on N345938. The landing shows a separate recorded 18 Oct run that did clear it at 0.96; the bar is deliberately conservative, so a below-bar result is not a failed search."
 
-Check which branch applies with `GET /v1/cases` (pinned `case_878d76540b91`) before the talk. The landing copy itself now labels the 0.96 as recorded and warns that the pinned demo may differ.
+Check which branch applies with `GET /v1/cases` (pinned `case_878d76540b91`) before the talk. The landing copy labels the 0.96 as recorded and says the pinned case shows the same plan; change that copy if the case is re-seeded.
 
 ### Which demo cards are safe to click (#412)
 
