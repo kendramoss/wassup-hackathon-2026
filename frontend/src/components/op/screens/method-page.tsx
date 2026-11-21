@@ -292,7 +292,7 @@ function PlanChecks() {
   return (
     <Figure
       title="The precedent check on later rulings"
-      note="18 frozen CBP flip pairs, at least one ruling of each from Sep–Nov 2026 · each scored once · gateway · 95% interval"
+      note="18 frozen CBP flip pairs, at least one ruling of each from Sep–Nov 2026 · run 3 times, same figures each time with the starting origin given (D354) · gateway · 95% interval"
       label={PLAN_POST.map((g) => `${g.title}: ${g.rows.map((r) => `${r.label} ${r.k} of ${r.n}`).join("; ")}`).join(". ")}
     >
       {PLAN_POST.map((g) => (
