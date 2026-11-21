@@ -692,7 +692,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Summary: `results/repeatability-heldout-litellm.json`.
 
 ## Plan check run again: the heat-gun demo, three runs (gateway, 21 Nov; D321, D322)
-- Pre-registered in D321 (commit 0abafde, the `git_revision` of all three runs and of their RUNLOG lines) before any run. Production's verifier configuration (verifier-v2, panel, near-miss and follow advice, one vote, bar 0.92) and searcher (relaxed CROSS search filled from the corpus), `LITELLM_NO_CACHE=1`. A demonstration, not a test.
+- Pre-registered in D321 (commit 0abafde, the `git_revision` of all three runs and of their RUNLOG lines; kept as branch `improve/panel5-plan-stability-prereg`, since the PR branch was rebased onto main afterwards) before any run. A later change on main (#510) added backtest fields to `backend/testdata/heatgun_2022.json`; it does not touch the moves or the checks. Production's verifier configuration (verifier-v2, panel, near-miss and follow advice, one vote, bar 0.92) and searcher (relaxed CROSS search filled from the corpus), `LITELLM_NO_CACHE=1`. A demonstration, not a test.
 - Rows: `results/plan-heatgun-2022-relaxed-verifier-v2-stability-run{1,2,3}-litellm.json`. Summary with every earlier recorded run: `results/plan-stability-heatgun.json` (`python3 -I -B eval/planner/plan_stability.py . --check`).
 
 | Move to Thailand | Run 1 | Run 2 | Run 3 | Shown |
