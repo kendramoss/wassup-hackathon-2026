@@ -51,6 +51,14 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Fast path coverage over three runs | 81.0%, 81.4%, 80.6% (fixed scope file) at 95.5-95.7%; 8 rulings move in or out | same | Measured, development set |
 | Calibrated confidence over three runs | mean 91.2%, 91.2%, 91.0%; ECE 0.022, 0.020, 0.017; changes on 50 rulings, 0.005 on average | same | Measured, development set |
 
+### Plan check run again (D321, D322)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Heat-gun plan, three runs, production verifier settings | a plan shown in 3 of 3 runs; the same 3 moves each time; the three-group move checked 0.95, 0.96, 0.96; motor-fan + PCBA 0.92, 0.92, 0.94; motor-fan + switch, cord and minor parts 0.92 three times; motor-fan alone 0.90, 0.91, 0.91 (not shown) | `eval/results/plan-stability-heatgun.json` (`d321`), rows `eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run{1,2,3}-litellm.json`; served as `plan_stability_heatgun_*` | Measured, pre-registered (D321), gateway, demonstration not test. Two shown moves sit exactly on the 0.92 bar |
+| Earlier recorded heat-gun plan runs (15–18 Oct) | 13 runs with older settings; a plan shown in 6; best checks 0.75 to 0.96 | same file (`recorded_before_d321`, `runs`) | Recorded; settings differ run to run, so not a stability measure |
+| Cost of the three runs | $1.32 gateway-reported | same file (`d321.gateway_cost_usd`) | Measured |
+
 ### Repeatability on held-out (D240, D241)
 
 | Number | Value | Source | Status |

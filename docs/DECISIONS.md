@@ -1478,3 +1478,13 @@ Committed before any of the runs below. Nothing in the product is changed becaus
 - **Not changed because of it:** the plan bar (0.92, D301), the verifier prompt, the templates, the demo's pinned plan. This is a measurement of the configuration as it is.
 - **Not a test:** the heat gun is a demonstration. Three-group moves were added after seeing CBP's real change (D84). The live CROSS search can return different hits on different days, which is part of what production sees.
 - **Cost cap:** $3 for the three runs (estimate $0.30–0.50 each, from D89's $0.27 promo-priced proxy run).
+
+## D322 — The heat-gun plan, run again three times: results (21 Nov, judge panel round 5, item 5)
+- **Ran as registered in D321** (commit 0abafde): three runs, none failed or retried. Rows and table: eval/RESULTS.md, "Plan check run again"; summary `eval/results/plan-stability-heatgun.json`.
+- **A plan was shown in 3 of 3 runs, and the same three moves were shown each time.** The three-group move (motor-fan assembly, PCBA, and switch, cord and minor parts to Thailand) checked 0.95, 0.96 and 0.96. Motor-fan + PCBA checked 0.92, 0.92 and 0.94; motor-fan + switch, cord and minor parts 0.92 all three times. Motor-fan alone stayed just below the bar (0.90, 0.91, 0.91). Every move kept the same supported or unsupported verdict across the runs.
+- **What is not stable:** two of the shown moves sit exactly on the bar, so a 0.01 drop would hide them. The three-group move's supporting ruling changed (N347421 in run 1, N345859 in runs 2 and 3), and none of the three cited N345938, the ruling behind the pinned production plan. The pinned 18 Oct production run showed only the three-group move; these runs, through the gateway rather than Vertex AI, also show the two pairs.
+- **Earlier recorded runs are not repeats.** 13 runs from 15–18 Oct (10 with a committed file, 3 recorded in DEMO.md only) used older settings: verifier-v1 or v3, pairs of groups only, strict CROSS search, or no panel. A plan was shown in 6 of them, with best checks from 0.75 to 0.96. They show that the plan moved as the settings changed, not how much one setting varies.
+- **Cost:** $1.32 gateway-reported for the three runs.
+- **Where it shows:** `GET /v1/eval/summary` items `plan_stability_heatgun_*`, and /method question 7 under the engine repeats.
+- **Not changed:** the bar, the prompts, the templates and the pinned demo.
+- **Not done:** no Vertex AI repeat; the 18 post-cutoff flip pairs were not re-run three times (outside this cap).

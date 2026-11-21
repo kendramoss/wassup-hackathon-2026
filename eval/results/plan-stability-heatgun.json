@@ -1,0 +1,1005 @@
+{
+ "bar": 0.92,
+ "d321": {
+  "best_check_per_run": [
+   0.95,
+   0.96,
+   0.96
+  ],
+  "gateway_cost_usd": 1.3238,
+  "moves_shown_in_every_run": [
+   "motor_fan_assembly+pcba",
+   "motor_fan_assembly+pcba+switch_cord_minor_parts",
+   "motor_fan_assembly+switch_cord_minor_parts"
+  ],
+  "moves_shown_in_some_runs_only": [],
+  "per_move": {
+   "motor_fan_assembly": {
+    "checks": [
+     0.9,
+     0.91,
+     0.91
+    ],
+    "range": [
+     0.9,
+     0.91
+    ],
+    "shown_in": 0,
+    "supporting": [
+     "N347421",
+     "N347421",
+     "N347421"
+    ]
+   },
+   "motor_fan_assembly+pcba": {
+    "checks": [
+     0.92,
+     0.92,
+     0.94
+    ],
+    "range": [
+     0.92,
+     0.94
+    ],
+    "shown_in": 3,
+    "supporting": [
+     "N347421",
+     "N347421",
+     "N347421"
+    ]
+   },
+   "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+    "checks": [
+     0.95,
+     0.96,
+     0.96
+    ],
+    "range": [
+     0.95,
+     0.96
+    ],
+    "shown_in": 3,
+    "supporting": [
+     "N347421",
+     "N345859",
+     "N345859"
+    ]
+   },
+   "motor_fan_assembly+switch_cord_minor_parts": {
+    "checks": [
+     0.92,
+     0.92,
+     0.92
+    ],
+    "range": [
+     0.92,
+     0.92
+    ],
+    "shown_in": 3,
+    "supporting": [
+     "N347421",
+     "N347421",
+     "N347421"
+    ]
+   },
+   "pcba": {
+    "checks": [
+     0.75,
+     0.75,
+     0.82
+    ],
+    "range": [
+     0.75,
+     0.82
+    ],
+    "shown_in": 0,
+    "supporting": [
+     "",
+     "",
+     ""
+    ]
+   },
+   "pcba+switch_cord_minor_parts": {
+    "checks": [
+     0.85,
+     0.78,
+     0.85
+    ],
+    "range": [
+     0.78,
+     0.85
+    ],
+    "shown_in": 0,
+    "supporting": [
+     "N347421",
+     "N351503",
+     "N351503"
+    ]
+   },
+   "switch_cord_minor_parts": {
+    "checks": [
+     0.85,
+     0.9,
+     0.85
+    ],
+    "range": [
+     0.85,
+     0.9
+    ],
+    "shown_in": 0,
+    "supporting": [
+     "",
+     "",
+     ""
+    ]
+   }
+  },
+  "runs": 3,
+  "same_shown_moves_in_all_runs": true,
+  "shown_moves_per_run": [
+   [
+    "motor_fan_assembly+pcba",
+    "motor_fan_assembly+pcba+switch_cord_minor_parts",
+    "motor_fan_assembly+switch_cord_minor_parts"
+   ],
+   [
+    "motor_fan_assembly+pcba",
+    "motor_fan_assembly+pcba+switch_cord_minor_parts",
+    "motor_fan_assembly+switch_cord_minor_parts"
+   ],
+   [
+    "motor_fan_assembly+pcba",
+    "motor_fan_assembly+pcba+switch_cord_minor_parts",
+    "motor_fan_assembly+switch_cord_minor_parts"
+   ]
+  ],
+  "with_a_plan_shown": 3
+ },
+ "note": "Heat-gun flagship plan runs (D321). 'best' is the highest precedent check among the moves of that run; the plan bar is 0.92. Runs before 21 Nov used earlier configurations (see 'config'); only the three D321 runs share one configuration.",
+ "recorded_before_d321": {
+  "best_checks": [
+   0.95,
+   0.92,
+   0.9,
+   0.9,
+   0.75,
+   0.92,
+   0.85,
+   0.85,
+   0.9,
+   0.9,
+   0.95,
+   0.96,
+   0.96
+  ],
+  "runs": 13,
+  "with_a_plan_shown": 6
+ },
+ "runs": [
+  {
+   "best": 0.95,
+   "config": "verifier-v1, local corpus search, pairs of groups only",
+   "date": "2026-10-15",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "N345859",
+     "check": 0.85,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "N345859",
+     "check": 0.95,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.9,
+     "for": "N345859",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.78,
+     "for": "N346613",
+     "shown": false,
+     "supported": true
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.85,
+     "for": "N351503",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.78,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-local-litellm.json",
+   "provider": "proxy",
+   "shown": [
+    {
+     "check": 0.95,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba"
+    }
+   ]
+  },
+  {
+   "best": 0.92,
+   "config": "verifier-v1, demo seed run 2, pairs only",
+   "date": "2026-10-16",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.75,
+     "for": "N325810",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.92,
+     "for": "N350304",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "N325810",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.75,
+     "for": "H309758",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/demo-seed-heatgun-plan-litellm.json",
+   "provider": "proxy",
+   "shown": [
+    {
+     "check": 0.92,
+     "for": "N350304",
+     "move": "motor_fan_assembly+pcba"
+    }
+   ]
+  },
+  {
+   "best": 0.9,
+   "config": "verifier-v1, pairs only",
+   "date": "2026-10-16",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.85,
+     "for": "N325810",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.9,
+     "for": "N346397",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "H309758",
+     "check": 0.85,
+     "for": "N325810",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/demo-seed-heatgun-plan-vertex.json",
+   "provider": "Vertex AI staging",
+   "shown": []
+  },
+  {
+   "best": 0.9,
+   "config": "verifier-v1, pairs only",
+   "date": "2026-10-16",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.9,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "N323054",
+     "check": 0.85,
+     "for": "N324601",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.75,
+     "for": "H309758",
+     "shown": false,
+     "supported": true
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "H309758",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "H309758",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/demo-seed-heatgun-plan-vertex-prod.json",
+   "provider": "Vertex AI production",
+   "shown": []
+  },
+  {
+   "best": 0.75,
+   "config": "verifier-v1, pairs only",
+   "date": "2026-10-16",
+   "note": "closest named as PCBA at 0.75; that summary printed the first below-bar row (DEMO.md \u00a74), so a higher check may have existed",
+   "path": "docs/DEMO.md \u00a74 (run 1)",
+   "provider": "proxy",
+   "shown": []
+  },
+  {
+   "best": 0.92,
+   "config": "verifier-v2, pairs only",
+   "date": "2026-10-17",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.85,
+     "for": "N325810",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.9,
+     "for": "N322364",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.55,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-verifier-v2-litellm.json",
+   "provider": "proxy",
+   "shown": [
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.85,
+   "config": "verifier-v3 (not adopted), run 1",
+   "date": "2026-10-17",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.85,
+     "for": "H318255",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "H309758",
+     "check": 0.78,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.78,
+     "for": "H342833",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "",
+     "check": 0.55,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "N351503",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-verifier-v3-run1-litellm.json",
+   "provider": "proxy",
+   "shown": []
+  },
+  {
+   "best": 0.85,
+   "config": "verifier-v3 (not adopted), run 2",
+   "date": "2026-10-17",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "H309758",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "H309758",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.7,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-verifier-v3-run2-litellm.json",
+   "provider": "proxy",
+   "shown": []
+  },
+  {
+   "best": 0.9,
+   "config": "verifier-v2, pairs only",
+   "date": "2026-10-17",
+   "note": "motor-fan assembly 0.90 on N325810",
+   "path": "docs/DEMO.md \u00a74 (production, verifier-v2)",
+   "provider": "Vertex AI production",
+   "shown": []
+  },
+  {
+   "best": 0.9,
+   "config": "verifier-v2 + near-miss, strict CROSS search",
+   "date": "2026-10-18",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.9,
+     "for": "N342916",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.78,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba": {
+     "against": "H309758",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-near-miss-v1-litellm.json",
+   "provider": "proxy",
+   "shown": []
+  },
+  {
+   "best": 0.95,
+   "config": "verifier-v2, three-group moves added (D84), strict CROSS search",
+   "date": "2026-10-18",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.75,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.82,
+     "for": "N346720",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.95,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.75,
+     "for": "N345859",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "H309758",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-triples-follow-litellm.json",
+   "provider": "proxy",
+   "shown": [
+    {
+     "check": 0.95,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.96,
+   "config": "verifier-v2, relaxed search (D89), seed",
+   "date": "2026-10-18",
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "",
+     "check": 0.85,
+     "for": "N321415",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "",
+     "check": 0.85,
+     "for": "N342916",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.96,
+     "for": "N345938",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "H309758",
+     "check": 0.75,
+     "for": "H303177",
+     "shown": false,
+     "supported": true
+    },
+    "pcba": {
+     "against": "N345938",
+     "check": 0.65,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "H309758",
+     "check": 0.75,
+     "for": "H303753",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-relaxed-search-litellm.json",
+   "provider": "proxy",
+   "shown": [
+    {
+     "check": 0.96,
+     "for": "N345938",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.96,
+   "config": "verifier-v2, three-group moves, relaxed search; one verdict re-checked with approval (D89)",
+   "date": "2026-10-18",
+   "note": "the demo's stored plan",
+   "path": "docs/DEMO.md \u00a76 (production, pinned)",
+   "provider": "Vertex AI production",
+   "shown": [
+    {
+     "check": 0.96,
+     "for": "N345938",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.95,
+   "config": "D321 run 1: production configuration, no cache",
+   "date": "2026-11-21",
+   "gateway_cost_usd": 0.4597,
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "N351503",
+     "check": 0.9,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "N345859",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.95,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "N351503",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "pcba": {
+     "against": "N347421",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "N345859",
+     "check": 0.85,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run1-litellm.json",
+   "provider": "gateway",
+   "shown": [
+    {
+     "check": 0.95,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    },
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba"
+    },
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.96,
+   "config": "D321 run 2: production configuration, no cache",
+   "date": "2026-11-21",
+   "gateway_cost_usd": 0.4528,
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "N345859",
+     "check": 0.91,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "N345859",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+     "against": "N351503",
+     "check": 0.96,
+     "for": "N345859",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "N345859",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "pcba": {
+     "against": "N347421",
+     "check": 0.75,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.78,
+     "for": "N351503",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.9,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run2-litellm.json",
+   "provider": "gateway",
+   "shown": [
+    {
+     "check": 0.96,
+     "for": "N345859",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    },
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba"
+    },
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+switch_cord_minor_parts"
+    }
+   ]
+  },
+  {
+   "best": 0.96,
+   "config": "D321 run 3: production configuration, no cache",
+   "date": "2026-11-21",
+   "gateway_cost_usd": 0.4113,
+   "moves": {
+    "motor_fan_assembly": {
+     "against": "N345859",
+     "check": 0.91,
+     "for": "N347421",
+     "shown": false,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba": {
+     "against": "N345859",
+     "check": 0.94,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+pcba+switch_cord_minor_parts": {
+     "against": "",
+     "check": 0.96,
+     "for": "N345859",
+     "shown": true,
+     "supported": true
+    },
+    "motor_fan_assembly+switch_cord_minor_parts": {
+     "against": "N345859",
+     "check": 0.92,
+     "for": "N347421",
+     "shown": true,
+     "supported": true
+    },
+    "pcba": {
+     "against": "N347421",
+     "check": 0.82,
+     "for": "",
+     "shown": false,
+     "supported": false
+    },
+    "pcba+switch_cord_minor_parts": {
+     "against": "N345859",
+     "check": 0.85,
+     "for": "N351503",
+     "shown": false,
+     "supported": true
+    },
+    "switch_cord_minor_parts": {
+     "against": "N347421",
+     "check": 0.85,
+     "for": "",
+     "shown": false,
+     "supported": false
+    }
+   },
+   "path": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run3-litellm.json",
+   "provider": "gateway",
+   "shown": [
+    {
+     "check": 0.96,
+     "for": "N345859",
+     "move": "motor_fan_assembly+pcba+switch_cord_minor_parts"
+    },
+    {
+     "check": 0.94,
+     "for": "N347421",
+     "move": "motor_fan_assembly+pcba"
+    },
+    {
+     "check": 0.92,
+     "for": "N347421",
+     "move": "motor_fan_assembly+switch_cord_minor_parts"
+    }
+   ]
+  }
+ ]
+}
