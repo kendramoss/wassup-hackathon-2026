@@ -53,6 +53,7 @@ func probe(args []string) error {
 	rawDir := fl.String("raw", "../data/corpus/raw", "output directory for CROSS JSON")
 	index := fl.String("index", "../eval/data/final2_probe.jsonl", "probe index (appended)")
 	delay := fl.Duration("delay", time.Second, "pause between requests")
+	skipFound := fl.String("skip-found", "", "another probe index: numbers found there are not fetched again (a re-probe for rulings posted since, D192)")
 	_ = fl.Parse(args)
 	if *prefix != "N" && *prefix != "H" {
 		return fmt.Errorf("-prefix must be N or H")
@@ -63,6 +64,20 @@ func probe(args []string) error {
 		for sc.Scan() {
 			var r probeRow
 			if json.Unmarshal(sc.Bytes(), &r) == nil && r.Error == "" {
+				seen[r.Ruling] = true
+			}
+		}
+		f.Close()
+	}
+	if *skipFound != "" {
+		f, err := os.Open(*skipFound)
+		if err != nil {
+			return err
+		}
+		sc := bufio.NewScanner(f)
+		for sc.Scan() {
+			var r probeRow
+			if json.Unmarshal(sc.Bytes(), &r) == nil && r.Found {
 				seen[r.Ruling] = true
 			}
 		}
