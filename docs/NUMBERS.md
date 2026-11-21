@@ -106,6 +106,20 @@ Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make rep
 | Coverage from the full ruling text (CBP's own codes) | dev 2 of 72, final 2 of 32 decided; all 4 agree with CBP (2 of 2 per split, 34.2-100%) and with the model | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure |
 | Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
 
+### Per-part HTS suggestions (D380-D382)
+
+Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`) from the committed rows; no model calls at scoring.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Part index | 1,159 classifying sentences in 562 of 3,112 corpus rulings | `backend/data/part_hts_index.json` (`go run ./cmd/corpus part-hts-index`) | Built |
+| Limits per request | up to 20 parts, up to 3 codes each, one model call, answers cached a day (at most 2,000) | `backend/internal/hts/parts.go` | Built |
+| Parts with a suggestion | dev 389 of 393 (Part 102), 200 of 200 (families); final 225 of 245 | `eval/tariffshift/parts/summary.json` | Measured |
+| Top suggestion matches CBP's stated part code | dev 20 of 27 (55.3-86.8%), top 3: 22 of 27; families 2 of 2; final (held out) 2 of 3 (20.8-93.9%) | same | Measured, small n; always with n. Post hoc, 4 dev gold codes look wrong; without them 19 of 23 |
+| Good's code, top suggestion matches CBP's | dev 36 of 68, final 14 of 27 | same | Measured |
+| Rule check decided with suggested part codes (CBP's good code) | dev 9 of 69 (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only: 2 and 2 | same | Measured. Not product accuracy; most rulings stay out of scope |
+| Cost per product | $0.0103 (dev Part 102), $0.0139 (families), $0.0123 (final); $1.42 for all runs | same; `eval/results/RUNLOG.jsonl` (`parts-hts-*`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

@@ -507,7 +507,7 @@ export const copy = {
           what: "Use it from Gemini CLI, ADK agents or Claude",
           body: "The same tools over MCP (Model Context Protocol), the open protocol agents use to call other services. In Gemini CLI, one line adds it:",
           code: "gemini mcp add --transport http unde https://undelabs.dev/mcp",
-          link: "Setup for Gemini CLI, Google ADK, Claude Code and Claude Desktop, and the 13 tools →",
+          link: "Setup for Gemini CLI, Google ADK, Claude Code and Claude Desktop, and the 14 tools →",
         },
         {
           key: "method",
@@ -611,6 +611,28 @@ export const copy = {
     domestic: "same country",
     ruleText: "The rule, as published",
     encoded: (e: number, n: number) => `${e} of ${n} sentences of this rule are encoded; the others name goods in words and are left to a person.`,
+  },
+
+  // Per-part HTS suggestions (D380): offered, never filled in by themselves.
+  partsHts: {
+    suggest: "Suggest codes for all parts",
+    again: "Suggest again",
+    busy: "Reading earlier rulings…",
+    why: "The tariff-shift rule check needs a code for the product and each part.",
+    acceptAll: "Accept all top suggestions",
+    accepted: (n: number) => `${n} code${n === 1 ? "" : "s"} filled in. They take effect when you run the prediction.`,
+    unverified: "Unverified suggestions: check every code with your broker before you rely on it.",
+    fromRulings: "earlier CBP ruling",
+    fromModel: "model's reading, no ruling found",
+    use: "Use",
+    using: "Using",
+    none: "No suggestion",
+    product: "Product",
+    tooMany: (n: number) => `Suggesting the first ${n} parts without a code; run it again for the rest.`,
+    noneMissing: "Every part already has a code.",
+    reasonsDown: "Reasons are unavailable right now; only codes from earlier rulings are listed.",
+    failed: "Couldn't get suggestions. Try again, or type the codes.",
+    busyLimit: "Too many suggestions at once. Wait a moment and try again.",
   },
 
   // Operating costs (#281). New keys only; the review and privacy blocks are untouched.

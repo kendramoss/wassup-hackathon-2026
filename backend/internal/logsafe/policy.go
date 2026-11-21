@@ -182,6 +182,8 @@ var knownMessages = []string{
 	"clarify failed; staying needs_review", "client daily model budget reached", "config", "corpus loaded", "daily model budget reached",
 	"daily model spend cap", "engine fallback on", "fatal", "following near-miss advice", "health check failed",
 	"hts reasons failed; candidates without reasons", "hts suggest on",
+	"parts hts reasons failed; ruling candidates without reasons", "parts hts suggest on",
+	"parts hts suggest off: index not loaded", "parts hts suggest: no product index, so no code for the good",
 	"import: family check failed; family left as given", "internal error", "listening", "live MFN duty rates on",
 	"live MFN lookup failed", "live MFN lookup failed; no rate filled", "llm call failed", "llm call",
 	"llm call sizes", "model bad response", "model calls paced", "model unavailable",

@@ -69,6 +69,7 @@ const tools: [string, string][] = [
   ["export_ruling_request_draft", "Preview the draft ruling request for a broker."],
   ["create_broker_review_link", "Make a link your broker opens to approve the draft or ask for changes."],
   ["get_broker_review_status", "Read the broker's answer and comments on each link."],
+  ["suggest_part_hts", "Suggest HTS codes for each part, each marked as from an earlier ruling or the model's reading, so the tariff-shift rule check can run."],
 ];
 
 // The MCP one-liners wrap on a phone so the whole command shows.
@@ -183,7 +184,7 @@ export default function Page() {
             <Code label="Claude Desktop config">{desktopRelay}</Code>
           </div>
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-[13.5px] font-medium">The 13 tools</h3>
+            <h3 className="text-[13.5px] font-medium">The 14 tools</h3>
             <dl className="border-t border-line text-[13px]">
               {tools.map(([name, what]) => (
                 <div key={name} className="grid gap-x-4 gap-y-0.5 border-b border-line py-1.5 sm:grid-cols-[240px_minmax(0,1fr)]">
@@ -226,7 +227,7 @@ export default function Page() {
           <ul className="duo flex list-disc flex-col gap-1.5 pl-5 text-[13.5px]">
             <li>Each key has a number of requests per UTC day. Past it: 429 <code className="font-mono">quota_exceeded</code>, with Retry-After set to the next UTC day.</li>
             <li>
-              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, import, scenarios) and 4 a minute for plan searches. Reads and
+              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, import, scenarios, code suggestions) and 4 a minute for plan searches. Reads and
               other requests without a model call: 120 a minute. Over that: 429 <code className="font-mono">rate_limited</code> with Retry-After.
             </li>
             <li>

@@ -207,6 +207,10 @@ type Deps struct {
 	// HTS, when set, serves POST /v1/products/hts-suggest (HTS_SUGGEST=on,
 	// D64); nil leaves the route unregistered (404).
 	HTS HTSSuggester
+	// PartsHTS, when set, serves POST /v1/products/parts-hts-suggest: codes
+	// for each part, for the 19 CFR 102.20 rule check (on unless
+	// PARTS_HTS_SUGGEST=off, D380); nil leaves the route unregistered (404).
+	PartsHTS PartsHTSSuggester
 	// Family, when set, serves POST /v1/products/family-check: typed text
 	// matched to a template family or "none" (18 Oct).
 	Family FamilyChecker

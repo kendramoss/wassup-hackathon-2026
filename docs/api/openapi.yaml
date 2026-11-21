@@ -901,6 +901,57 @@ paths:
         "404": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
         "503": { $ref: "#/components/responses/Error" }
+  /v1/products/parts-hts-suggest:
+    post:
+      operationId: suggestPartsHts
+      summary: Suggest up to 3 HTS codes for each part of a product, for the 19 CFR 102.20 rule check (on unless PARTS_HTS_SUGGEST=off, D380)
+      description: |
+        For each named part (at most 20), BM25 over the part index (`backend/data/part_hts_index.json`: sentences of CBP rulings that classify a named part, such as "The aluminum pegs will be classified in subheading 8302.50") gives up to 4 codes CBP stated for similar parts. One router-model call for the whole product ranks them and, when no ruling fits, may give its own code. Each candidate says where it comes from: `rulings` (an earlier ruling states this code for a similar part; `supporting_rulings` lists them, `cited` the ones the reason relies on) or `model` (the model's own reading of the HTSUS, no supporting ruling). A model code of 8 digits is kept only when it is in today's HTS. When the product has no `hts`, the good's code is suggested in the same call (`good`; candidates from the same search as /v1/products/hts-suggest). Answers per part are cached for a day by the part's and the product's name.
+        Nothing is stored or filled in. Accepting a code is the client's step: put it on the part (`components[].hts`) and the rule check runs when the case is read (D363). Every response carries the note "unverified suggestions — check every code with your customs broker before you rely on it". If the model call fails, the ruling candidates come back without reasons (`reasons_unavailable: true`). Rate-limited as light; counts toward the daily spend cap and the client's share of it. 404 when PARTS_HTS_SUGGEST=off.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product]
+              properties:
+                product: { $ref: "#/components/schemas/Product" }
+      responses:
+        "200":
+          description: Codes per part, best first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer, description: "position of the part in product.components" }
+                        name: { type: string }
+                        cached: { type: boolean, description: "answered from the one-day cache, no model call" }
+                        candidates: { type: array, maxItems: 3, items: { $ref: "#/components/schemas/PartHtsCandidate" } }
+                  good:
+                    type: object
+                    nullable: true
+                    description: "null when the product already has an hts"
+                    properties:
+                      candidates: { type: array, maxItems: 3, items: { $ref: "#/components/schemas/PartHtsCandidate" } }
+                      source: { type: string, enum: [cross, index] }
+                  note: { type: string, example: "unverified suggestions — check every code with your customs broker before you rely on it" }
+                  reasons_unavailable: { type: boolean }
+                  trace: { type: object, nullable: true }
+                  llm_provider: { type: string }
+                  prompt_version: { type: string, example: parts-hts-suggest-v1 }
+                  max_parts: { type: integer, example: 20 }
+                  disclaimer: { type: string }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/Error" }
   /v1/cases/{id}/compare-targets:
     post:
       operationId: compareTargets
@@ -1726,6 +1777,16 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    PartHtsCandidate:
+      type: object
+      properties:
+        hts: { type: string, example: "8501.31", description: "4, 6 or 8 digits, at the level stated" }
+        source: { type: string, enum: [rulings, model], description: "rulings: an earlier CBP ruling states this code for a similar part; model: the model's own reading, no supporting ruling" }
+        reason: { type: string, description: "empty when reasons_unavailable" }
+        supporting_rulings:
+          type: array
+          items: { type: object, properties: { id: { type: string }, date: { type: string, format: date }, part: { type: string }, sentence: { type: string }, subject: { type: string }, url: { type: string } } }
+        cited: { type: array, items: { type: string } }
     Health:
       type: object
       properties:

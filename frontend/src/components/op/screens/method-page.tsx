@@ -392,7 +392,10 @@ export function MethodPage() {
           <b className="font-medium text-ink">Rule check.</b> Beside the model sits a deterministic check of the 19 CFR 102.20 tariff-shift rules for seven HTS chapters
           (<D id="D360" />). It runs only when the parts list gives HTS codes, says &quot;undetermined&quot; rather than guess, and never changes the answer or what is
           auto-accepted (<D id="D363" />). On the committed Part 102 rulings it decides none from the facts the model reads, because they rarely give codes; from the full
-          ruling text it decides 4 of 104, each as CBP held (<D id="D362" />).
+          ruling text it decides 4 of 104, each as CBP held (<D id="D362" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
+          each marked as from an earlier CBP ruling on a similar part or as the model&apos;s own reading, and fills one in only when you accept it (<D id="D380" />). Where
+          CBP states a part&apos;s code, the top suggestion matched it for 20 of 27 development parts; with suggested part codes the check decides 16 of 98 Part 102
+          rulings instead of 4, and 15 of those 16 agree with CBP (<D id="D382" />). The codes are unverified: check them with a broker.
         </p>
         <p>
           We did try fine-tuning once. On 16 and 17 Oct we tuned Gemini 3.5 Flash on CBP&apos;s own reasoning from rulings older than the development split. It was worse on the

@@ -123,7 +123,7 @@ var filler = map[string]bool{"the": true, "and": true, "for": true, "with": true
 // subheadings, weighted by how early its query ran and its rank in that
 // query, with a small bonus for newer rulings; the subheading with the most
 // weight from the most rulings ranks first.
-func crossCandidates(ctx context.Context, live Live, current Current, text, name string) ([]Candidate, error) {
+func crossCandidates(ctx context.Context, live Live, current Current, text, name string, before time.Time, exclude string) ([]Candidate, error) {
 	type vote struct {
 		w    float64
 		refs []Ref
@@ -134,7 +134,11 @@ func crossCandidates(ctx context.Context, live Live, current Current, text, name
 	var firstErr error
 	answered := false
 	for qi, q := range crossQueries(text, name) {
-		hits, err := live.Search(ctx, q, time.Time{}, crossPage)
+		toDate := time.Time{}
+		if !before.IsZero() {
+			toDate = before.AddDate(0, 0, -1)
+		}
+		hits, err := live.Search(ctx, q, toDate, crossPage)
 		if err != nil {
 			if firstErr == nil {
 				firstErr = err
@@ -143,7 +147,7 @@ func crossCandidates(ctx context.Context, live Live, current Current, text, name
 		}
 		answered = true
 		for rank, h := range hits {
-			if h.Tariffs == "" || !strings.Contains(strings.ToLower(h.Categories), "classification") {
+			if h.RulingNumber == exclude || h.Tariffs == "" || !strings.Contains(strings.ToLower(h.Categories), "classification") {
 				continue // origin and marking rulings state no subheading
 			}
 			w := 1 / (1 + float64(qi)) / (1 + 0.15*float64(rank))

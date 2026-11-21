@@ -313,6 +313,23 @@ func TestFastPathByFamily(t *testing.T) {
 	}
 }
 
+func TestPartsHTSSuggestIsOnByDefault(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil || !c.PartsHTSSuggest || c.PartsHTSSuggestSet || c.PartHTSIndex != "data/part_hts_index.json" {
+		t.Fatalf("parts hts defaults = %v %v %q %v", c.PartsHTSSuggest, c.PartsHTSSuggestSet, c.PartHTSIndex, err)
+	}
+	off, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"PARTS_HTS_SUGGEST": "off"})))
+	if err != nil || off.PartsHTSSuggest || !off.PartsHTSSuggestSet {
+		t.Errorf("parts hts off = %v %v %v", off.PartsHTSSuggest, off.PartsHTSSuggestSet, err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"PARTS_HTS_SUGGEST": "maybe"}))); err == nil || !strings.Contains(err.Error(), "PARTS_HTS_SUGGEST must be on or off") {
+		t.Errorf("bad value = %v", err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"PART_HTS_INDEX": "data/facts"}))); err == nil || !strings.Contains(err.Error(), "PART_HTS_INDEX must be a .json file") {
+		t.Errorf("bad index = %v", err)
+	}
+}
+
 func TestHTSSuggestConfig(t *testing.T) {
 	c, err := FromEnv(getenv(vertexEnv()))
 	if err != nil || c.HTSSuggest || c.HTSIndex != "data/hts_index.json" {

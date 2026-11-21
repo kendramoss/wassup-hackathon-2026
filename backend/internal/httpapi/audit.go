@@ -72,6 +72,7 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/products/extract-media":              {auditNone, ""},
 	"POST /v1/products/money-prefill":              {auditNone, ""},
 	"POST /v1/products/hts-suggest":                {auditNone, ""},
+	"POST /v1/products/parts-hts-suggest":          {auditNone, ""},
 	"POST /v1/products/cost-estimate":              {auditNone, ""},
 	"POST /v1/products/family-check":               {auditNone, ""},
 	"POST /v1/cases/{id}/bom-version":              {auditTwoPhase, audit.CaseUpdate},

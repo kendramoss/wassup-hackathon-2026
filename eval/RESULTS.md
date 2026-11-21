@@ -768,3 +768,18 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Decided rulings: N344091 (8507.90, Mexico) and N344002 (8414.30, Mexico) on dev; N360891 (8708.29, Canada) and N362506 (8507.10, Mexico) held out. One more dev ruling, H339179 (unfinished valves, 8409.91), is open only on the de minimis value; its answer if de minimis does not apply, China, is CBP's.
 - Development v1 runs (0 decided on facts; 0 decided, 1 open only on de minimis on full text) are in `tariffshift/dev-v1/`. Nine dev v2 rows ran out of output tokens and were re-run once at 8,192; 2 dev and 2 final full-text rows still failed. final2 full text was not run (raw texts not available locally).
 - Rows: `tariffshift/inputs-*.jsonl` (extractions with quotes), `tariffshift/results-*.jsonl`, `tariffshift/summary.json`. `cd backend && go run ./cmd/tariffshift eval -check` recomputes them (in `make reproduce`). Cost $2.58 gateway-reported; RUNLOG `tariffshift-extract-*`.
+
+## Per-part HTS suggestions for the rule check (gateway, 22 Nov; D380, D381, D382)
+- `POST /v1/products/parts-hts-suggest` suggests up to 3 codes per part from sentences of earlier CBP rulings that classify a similar part, or from the model's own reading (labelled). Gemini 3.8 Flash through the gateway, prompt `parts-hts-suggest-v1`, one call per product. Pre-registered in D381 (commit 65415b9a); code frozen at dde4fec9 (both commits kept as branch `improve/hts-suggest-parts-freeze`; the merged history has new hashes) before the held-out gold was read; the held-out products were suggested and scored once.
+- Gold: the code CBP states for the part in the scored ruling's full text (`hts.PartStatements`, regex, matched by name). Suggestions saw only rulings dated before the scored one, never the ruling itself; no CROSS search, no USITC check.
+
+| Run | Set | Products | Parts suggested | Gold parts | Top-1 | Top-3 | Good top-1 | Cost |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| dev-smoke (3 products, output cap 1,024 + 400/item) | Part 102 | 3 | 10 of 13 | 1 | 1 | 1 | 2 of 3 | $0.0299 |
+| dev-v1 | Part 102 | 69 | 389 of 393 | 27 | 20 | 22 | 36 of 68 | $0.7138 |
+| dev-v1 | family fixtures | 23 | 200 of 200 | 2 | 2 | 2 | – | $0.3203 |
+| final (held out, once) | Part 102 | 29 | 225 of 245 | 3 | 2 | 2 | 14 of 27 | $0.3577 |
+
+- Rule check with CBP's good code and the top part suggestions: dev 9 of 69 decided (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only (D362): 2 and 2. With every code suggested: dev 10 (9 agree), final 8 (7 agree).
+- Post hoc, by reading the sentences: 4 of the 29 dev gold codes look wrong (vinyl skin, adhesive, brake caliper core, pressure switch); without them dev top-1 is 19 of 23.
+- Rows: `tariffshift/parts/` (gold, suggestions, `summary.json`). `cd backend && go run ./cmd/tariffshift parts-eval -check` recomputes them (in `make reproduce`). Cost $1.42 gateway-reported; RUNLOG `parts-hts-*`.

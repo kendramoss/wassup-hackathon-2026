@@ -19,6 +19,7 @@ The code defaults are permissive so local UI work works without credentials. "As
 | `TEAMS` / `TEAMS_AUDIENCE` | off / empty | **on** / `88903435351-…apps.googleusercontent.com` | Google ID tokens verified on every request |
 | `API_KEYS` | off | **on** | unknown/disabled keys get 401, never anonymous fallback |
 | `DAILY_SPEND_CAP_USD` | 0 (uncapped) | **25** | new model calls stop with 503 `budget_reached` past the cap |
+| `PARTS_HTS_SUGGEST` | **on** | on (code default, not set by the deploy) | `POST /v1/products/parts-hts-suggest` calls the router model once per request; light rate class, in-flight cap, daily spend cap and the client's share apply (D380). `off` removes the route |
 | `ADMIN_TOKEN` | empty | **set from Secret Manager** | needed to pin demos and issue keys; never sent from the browser |
 | `STRICT_AUTH` | off | **off (intentional)** | would refuse an anonymous visitor ID for private case operations; the public demo is anonymous by design. Cloud Run IAM plus `CASE_OWNERSHIP` are the current boundary |
 | `REQUIRE_BEARER` | off | **off (intentional)** | not enabled until Cloud Run header pass-through to the container has been verified end to end; it is defence in depth behind IAM, not the primary boundary |

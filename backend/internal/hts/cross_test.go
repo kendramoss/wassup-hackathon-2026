@@ -54,7 +54,7 @@ var heatGunCROSS = []cross.SearchHit{
 func TestCrossCandidatesRanksClassificationRulings(t *testing.T) {
 	f := &fakeCROSS{hits: heatGunCROSS}
 	current := func(_ context.Context, sub string) bool { return sub != "8419.89.90" }
-	cs, err := crossCandidates(context.Background(), f, current, "The merchandise is a heat gun with a heating element and fan.", "Kobalt 12.5-amp heat gun")
+	cs, err := crossCandidates(context.Background(), f, current, "The merchandise is a heat gun with a heating element and fan.", "Kobalt 12.5-amp heat gun", time.Time{}, "")
 	if err != nil {
 		t.Fatal(err)
 	}

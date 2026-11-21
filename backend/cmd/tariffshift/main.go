@@ -3,6 +3,7 @@
 //	go run ./cmd/tariffshift rules -ecfr part102.xml   # rebuild internal/tariffshift/rules.json
 //	go run ./cmd/tariffshift extract -split dev -source facts   # read rule inputs with a model (gateway; D361)
 //	go run ./cmd/tariffshift eval -check                # recompute the offline evaluation (no model calls)
+//	go run ./cmd/tariffshift parts-gold|parts-suggest|parts-eval   # per-part HTS suggestions (D380, D381; parts.go)
 //
 // The eCFR XML is the full text of 19 CFR Part 102 from
 // https://www.ecfr.gov/api/versioner/v1/full/<date>/title-19.xml?part=102
@@ -22,7 +23,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval [flags]")
+		fmt.Fprintln(os.Stderr, "usage: tariffshift rules|extract|eval|parts-gold|parts-suggest|parts-eval [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -33,6 +34,12 @@ func main() {
 		err = cmdExtract(os.Args[2:])
 	case "eval":
 		err = cmdEval(os.Args[2:])
+	case "parts-gold":
+		err = cmdPartsGold(os.Args[2:])
+	case "parts-suggest":
+		err = cmdPartsSuggest(os.Args[2:])
+	case "parts-eval":
+		err = cmdPartsEval(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
