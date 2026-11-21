@@ -714,10 +714,10 @@ func historyField(h []store.Event) []store.Event {
 // non-admin reader: a pinned demo is not shared out for broker review (D200),
 // and a link made before the pin is closed by it (issue #447).
 var demoReviewEvents = map[string]bool{
-	"review_link_created":      true,
-	"review_link_revoked":      true,
+	"review_link_created":       true,
+	"review_link_revoked":       true,
 	"review_link_closed_on_pin": true,
-	"broker_decision":          true,
+	"broker_decision":           true,
 }
 
 // historyFor hides broker-review events on a pinned demo from everyone but
