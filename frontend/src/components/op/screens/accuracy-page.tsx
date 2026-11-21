@@ -191,7 +191,7 @@ export function AccuracyPage() {
         <a href="#misses" className="text-ok underline underline-offset-2">
           rulings it got wrong
         </a>{" "}
-        are listed by name.
+        are listed by name. The intervals resample these same scored rows with a fixed seed; they describe sampling error conditional on one run, not model-run variance, label error, calibration fitting or split construction. Repeatability is measured separately on the development set only.
       </p>
       {/* Below md the headline numbers come before the reproduce block, so a
           phone sees the result first (judge panel round 2, D220). */}
