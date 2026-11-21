@@ -12,7 +12,8 @@ const moved = new Set(["www.undelabs.dev", "frontend-guxax2teha-uc.a.run.app"]);
 // page's parallel API calls start. Without this, each cookie-less call mints
 // its own ID and the last response overwrites the cookie (D58, #160). The
 // #269 canonical-host change dropped this; #307 restores it.
-const isPage = (path: string) => !/^\/(api\/|_next\/)/.test(path) && !/\.[^/]+$/.test(path);
+// The MCP endpoint (/mcp) is an API, not a page: no visitor cookie there.
+const isPage = (path: string) => !/^\/(api\/|_next\/)/.test(path) && path !== "/mcp" && !/\.[^/]+$/.test(path);
 
 export function proxy(req: NextRequest) {
   const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "").split(":")[0].toLowerCase();

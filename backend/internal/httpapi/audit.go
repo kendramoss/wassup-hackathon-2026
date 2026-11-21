@@ -90,6 +90,8 @@ var auditTable = map[string]auditRoute{
 	"POST /v1/cases/{id}/export":                   {auditTwoPhase, audit.CaseExport},
 	"POST /v1/cases/{id}/answers":                  {auditTwoPhase, audit.CaseUpdate},
 	"GET /v1/rulings/{id}":                         {auditNone, ""},
+	"GET /v1/rulings":                              {auditNone, ""},
+	"POST /mcp":                                    {auditNone, ""}, // each tool call is its own audited /v1 request
 	"GET /v1/eval/summary":                         {auditNone, ""},
 	"GET /v1/duty-rates":                           {auditNone, ""},
 	"GET /v1/demos":                                {auditNone, ""},

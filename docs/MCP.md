@@ -1,0 +1,109 @@
+# Use Unde from Claude (MCP)
+
+Status: built. The Unde API is also a [Model Context Protocol](https://modelcontextprotocol.io) server, so Claude (and other MCP clients) can call it as tools.
+
+- Hosted endpoint (Streamable HTTP): `https://undelabs.dev/mcp`
+- Local stdio relay for clients that prefer a local process: `mcp/stdio/` (`undelabs-mcp`)
+
+Every answer is a prediction, not a ruling. Confirm it with a licensed customs broker or a CBP binding ruling. Each tool result says so.
+
+## Set it up
+
+### Claude Code
+
+With an API key:
+
+```bash
+claude mcp add --transport http unde https://undelabs.dev/mcp --header "Authorization: Bearer op_..."
+```
+
+Anonymous (per-address limits, see below):
+
+```bash
+claude mcp add --transport http unde https://undelabs.dev/mcp
+```
+
+Check it with `claude mcp get unde`, or `/mcp` inside Claude Code.
+
+### Claude.ai and Claude Desktop (custom connector)
+
+Add a custom connector from the connector settings ("Add custom connector"), with the URL `https://undelabs.dev/mcp` and no sign-in. Unde has no OAuth: without a key the connector uses the anonymous tier. If your connector settings offer request headers, you can add `Authorization: Bearer op_...` there to use an API key. Menus differ by plan and change over time; Anthropic's help center has the current steps.
+
+### Claude Desktop with the stdio relay
+
+The relay is not published to npm (publishing is an owner step). Run it from a clone of this repository. It has no dependencies, so there is nothing to install beyond Node 20 or later.
+
+```json
+{
+  "mcpServers": {
+    "unde": {
+      "command": "node",
+      "args": ["/path/to/wassup-hackathon-2026/mcp/stdio/index.js"],
+      "env": { "UNDE_API_KEY": "op_..." }
+    }
+  }
+}
+```
+
+Or, for Claude Code: `claude mcp add --env UNDE_API_KEY=op_... --transport stdio unde -- node /path/to/mcp/stdio/index.js`. `npx /path/to/mcp/stdio` also runs it (bin `undelabs-mcp`).
+
+Environment: `UNDE_API_KEY` (optional, `op_...`, sent as a bearer token) and `UNDE_BASE_URL` (default `https://undelabs.dev`; the relay calls `<base>/mcp`). The relay forwards each JSON-RPC message to the hosted endpoint and writes the answers back. It holds no logic of its own, so it always lists the hosted tools.
+
+## API keys
+
+Keys (`op_...`) are issued by the Unde admin, not self-service. An admin issues one with `go run ./cmd/apikey issue -name "..." -quota N` (see `backend/cmd/apikey`) or `POST /v1/admin/api-keys` with the admin token. Ask the team for one. A key:
+
+- has its own rate-limit buckets and a daily request quota (each tool call is one request);
+- owns the cases it creates: only that key (and the admin) can see them;
+- still counts toward the deployment's daily model spend cap.
+
+The admin token is never accepted on `/mcp` (403).
+
+## Tools
+
+Each tool runs exactly one REST operation in-process, so it has that operation's rate-limit class, quota, spend cap, case isolation and audit row. Tool names follow the OpenAPI `operationId`s in [api/openapi.yaml](api/openapi.yaml).
+
+| Tool | REST operation (operationId) | Limit class | Annotations |
+|---|---|---|---|
+| `predict_origin` | `POST /v1/cases/predict` (`predictCase`) | light | writes a new case |
+| `extract_product` | `POST /v1/products/extract` (`extractProduct`) | light | read-only |
+| `extract_product_from_media` | `POST /v1/products/extract-media` (`extractProductFromMedia`) | light | read-only |
+| `plan_production_moves` | `POST /v1/cases/{id}/plan` (`planCase`) | heavy | writes the case's plan |
+| `compare_target_countries` | `POST /v1/cases/{id}/compare-targets` (`compareTargets`) | heavy | writes the case's comparison |
+| `search_rulings` | `GET /v1/rulings?q=` (`searchRulings`) | ruling lookup | read-only |
+| `get_ruling` | `GET /v1/rulings/{id}` (`getRuling`) | ruling lookup (CBP fetches only) | read-only, open world |
+| `get_duty_rates` | `GET /v1/duty-rates` (`getDutyRates`) | lookup (live fetches only) | read-only, open world |
+| `get_case` | `GET /v1/cases/{id}` (`getCase`) | none | read-only |
+| `list_cases` | `GET /v1/cases` (`listCases`) | none | read-only |
+| `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | none | read-only (a preview records nothing) |
+
+`extract_product_from_media` takes 1 to 4 files, 8 MB together (PNG, JPEG, WebP or scanned PDF), each as `{data, mime_type}` with base64 data, as an MCP image content block (`{type: "image", data, mimeType}`), or as an MCP embedded resource (`{type: "resource", resource: {mimeType, blob}}`). The tool decodes them and sends one multipart upload to the REST route, which checks the bytes and its other limits again. As on the website, the files are not stored and the draft must be reviewed before `predict_origin`.
+
+No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. Countries are free text with a length and character check, because the API has no country enum.
+
+Results carry a short text summary (with the disclaimer) and `structuredContent`: the API's JSON answer, without bulky internals (verifier search trails, model traces, cost stats, case history and chat; `GET /v1/cases/{id}` over REST has them). An API error becomes a tool error with the status, code and message, and the retry time for a rate limit.
+
+Resources: `unde://demos` (the demo products) and `unde://demos/{id}` (one demo with ready request bodies). Prompt: `plan_production_move` (product text and a target country; walks extract, predict, plan, draft).
+
+## Anonymous use and the case access key
+
+The hosted server is stateless (several instances serve it), so two MCP requests share no session. Without an API key, `predict_origin` returns a `case_access_key` beside the `case_id`. Pass it to `get_case`, `plan_production_moves`, `compare_target_countries`, `export_ruling_request_draft` and `list_cases` to reach that case. It works like the website's visitor cookie: whoever holds it can read and change the cases made with it, so keep it private. Pass the same key to later `predict_origin` calls to keep several cases under one key. With an API key, the key owns the cases and no access key is used.
+
+## Limits
+
+The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file): per-client buckets (by API key, else by the caller's address), light and heavy classes, a separate ruling-lookup bucket, a global cap and the daily spend cap. Over a limit, the tool result is an error with `rate_limited`, `quota_exceeded` or `budget_reached` and when to retry. One MCP request body is capped at 12 MB (room for 8 MB of files in base64). Plan search and target comparison take about as long as on the website (tens of seconds).
+
+## Privacy
+
+What you send through a tool is what the REST API receives: product facts, parts and countries are stored on the case, under your API key or access key, as described on the website's privacy page (`/privacy`). Request bodies and queries are never logged; each tool call appears in the server log as an ordinary request line (route, status, latency). The MCP endpoint forwards only your API key and your address; it never forwards cookies or other headers. Claude, as the MCP client, sees the tool results; what Anthropic does with them is governed by your Claude plan, not by Unde.
+
+## How it is built
+
+- `backend/internal/mcpserver`: the MCP server (official Go SDK `github.com/modelcontextprotocol/go-sdk`, Streamable HTTP, stateless). Tools build one REST request each and dispatch it to the API's own handler chain in-process (`httpapi.(*api).mcp`), with only the caller's API key, client address and access key. The admin and user tokens never reach the API from there.
+- `POST /mcp` on the backend (registered in `httpapi/server.go`).
+- `frontend/src/app/mcp/route.ts` and `frontend/src/lib/mcp-proxy.ts`: the public route. The backend is private on Cloud Run, so the frontend proxies `/mcp` as it proxies `/api/v1`. It forwards the MCP headers, maps `Authorization: Bearer op_...` to `X-API-Key`, sets `X-Client-IP`, refuses the admin token, and streams the response through (an MCP answer can be a `text/event-stream`).
+- `mcp/stdio/index.js`: the stdio relay.
+
+Why in the Go backend rather than in Next.js: tools then share the API's rate limits, quotas, spend cap, isolation and audit natively, instead of re-implementing them, and the proxy stays a thin pass-through.
+
+Adding a tool is one `add(...)` call and one handler in `internal/mcpserver` (`extract_product_from_media` in `media.go` is an example). A tool is listed only when its REST route is served.

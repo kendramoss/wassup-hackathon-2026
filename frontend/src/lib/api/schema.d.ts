@@ -15,38 +15,7 @@ export interface paths {
          * Liveness check (not /healthz — Cloud Run reserves paths ending in "z")
          * @description With deep=1 it also writes, reads and deletes a probe case with its own random ID (D118) and makes one small model call, and returns 503 when either fails (D47). deep=1 is rate-limited like a light request.
          */
-        get: {
-            parameters: {
-                query?: {
-                    deep?: "1";
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-                429: components["responses"]["Error"];
-                /** @description A dependency check failed (deep=1) */
-                503: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-            };
-        };
+        get: operations["getHealth"];
         put?: never;
         post?: never;
         delete?: never;
@@ -72,35 +41,7 @@ export interface paths {
          *     - `: keep-alive` comment lines every 10 s.
          *     The stream itself answers 200. Input errors (400), rate limits (429) and the spend cap (503) are returned as normal JSON responses before the stream starts. With the flag off the header is ignored and the response is JSON as before.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["PredictRequest"];
-                };
-            };
-            responses: {
-                /** @description Case created with its prediction */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["predictCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -120,75 +61,7 @@ export interface paths {
          * Triage a portfolio (up to 20 products) in one call
          * @description Each product is predicted from its facts, triaged and saved as an ordinary case (D47). One product's failure fills its row's error and does not fail the rest. Send JSON, or multipart/form-data with a "file" (CSV or .xlsx with a header row: name (or product, sku), facts (or description), optional date). Rate-limited as one heavy request per client that takes 20 from the global cap.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        items: {
-                            name?: string;
-                            facts: string;
-                            /**
-                             * Format: date
-                             * @description Default today
-                             */
-                            date?: string;
-                        }[];
-                    };
-                    "multipart/form-data": {
-                        /** Format: binary */
-                        file: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description One row per product, in order, and counts */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Meta"] & {
-                            rows: {
-                                /** @description The given name */
-                                name: string;
-                                case_id?: string;
-                                predicted_origin?: string;
-                                confidence?: number;
-                                /** @enum {string} */
-                                triage_route?: "auto" | "needs_review" | "needs_info";
-                                out_of_scope: boolean;
-                                /** @description triage.reason */
-                                reason?: string;
-                                cost_usd?: number;
-                                /** @description null when the product was analysed */
-                                error: string | null;
-                            }[];
-                            summary: {
-                                total?: number;
-                                auto?: number;
-                                needs_review?: number;
-                                needs_info?: number;
-                                /** @description Included in needs_review */
-                                out_of_scope?: number;
-                                failed?: number;
-                                cost_usd?: number;
-                                latency_ms?: number;
-                            };
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        post: operations["triageBatch"];
         delete?: never;
         options?: never;
         head?: never;
@@ -206,29 +79,7 @@ export interface paths {
          * List the cases the caller can see, pinned (seeded demos) first, then most recently updated
          * @description Scoped before the cap (D119): pinned demos, the caller's own cases and their workspace's cases are read first, then the recent-case cap is applied, so other users' activity cannot push an authorized case out of the list. Health probes are never listed. On Firestore the owner and pinned reads scan the whole collection (legacy documents lack the fields), which costs more reads as the collection grows.
          */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Case summaries */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            cases: components["schemas"]["CaseSummary"][];
-                        };
-                    };
-                };
-                401: components["responses"]["Error"];
-            };
-        };
+        get: operations["listCases"];
         put?: never;
         post?: never;
         delete?: never;
@@ -245,99 +96,21 @@ export interface paths {
             cookie?: never;
         };
         /** Fetch a case with its prediction and latest plan */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The case */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                401: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-            };
-        };
+        get: operations["getCase"];
         put?: never;
         post?: never;
         /**
          * Delete a case
          * @description Pinned cases (the seeded demos) need the admin token; anyone can delete other cases.
          */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Deleted */
-                204: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        delete: operations["deleteCase"];
         options?: never;
         head?: never;
         /**
          * Rename a case (its display name on Cases home)
          * @description Sets display_name; product_name stays as entered. Whitespace is collapsed; 1–200 characters. Pinned cases need the admin token (403 otherwise). No model call; recorded in history as renamed; updated_at is unchanged (D48).
          */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        display_name: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The updated case row */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseSummary"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-            };
-        };
+        patch: operations["renameCase"];
         trace?: never;
     };
     "/v1/cases/{id}/pin": {
@@ -352,37 +125,7 @@ export interface paths {
          * Pin or unpin a case (admin token required)
          * @description Pinned cases list first and cannot be deleted without the admin token. The demo seed pins the cases it creates. Recorded in history; updated_at is unchanged.
          */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        pinned: boolean;
-                    };
-                };
-            };
-            responses: {
-                /** @description The case */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-            };
-        };
+        put: operations["pinCase"];
         post?: never;
         delete?: never;
         options?: never;
@@ -413,39 +156,7 @@ export interface paths {
          *     - `error` with code `conflict` and `retryable: true` when the case's inputs changed (new BOM or answers) while the search ran: the result was discarded, not saved. D97.
          *     Input errors (400/404) are returned as normal JSON responses before the stream starts.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["PlanRequest"];
-                };
-            };
-            responses: {
-                /** @description Plan search result */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PlanResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["planCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -470,39 +181,7 @@ export interface paths {
          *     light rate-limit bucket and is not refused by the daily spend cap, since it spends nothing.
          *     The range assumes a healthy model provider; under 429/504 a search can take several times longer.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["PlanRequest"];
-                };
-            };
-            responses: {
-                /** @description Estimate */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            case_id?: string;
-                            estimate?: components["schemas"]["PlanEstimate"];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        post: operations["estimatePlan"];
         delete?: never;
         options?: never;
         head?: never;
@@ -522,52 +201,7 @@ export interface paths {
          * Draft a CBP ruling request for the case (Markdown)
          * @description Two formats, both Markdown text. `markdown` (default) is the short generic draft. `cfr177` is a letter laid out on 19 C.F.R. § 177.2 (parties, port of entry, transaction, merchandise, materials and processing by country, question, position with the earlier rulings, prior consideration, documents, confidential treatment, declaration and signature), with `[FILL IN: ...]` wherever the case does not know the answer. `cfr177` needs EXPORT_CFR177=on on the server (D66); off, it is a 400. 409 `conflict` when the case's inputs, or the stored plan the draft was chosen from, changed during the request (nothing is recorded; draft again). D97. Preview and the pinned-case rule apply to both: a visitor's export of a pinned demo records nothing (D56).
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Index into the latest plan's shown plans; omit both fields to draft for the current setup. */
-                        plan_index?: number;
-                        /** @description With move_key: draft from that country's search in the latest compare-targets call. */
-                        target?: string;
-                        /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
-                        move_key?: string;
-                        /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden. */
-                        preview?: boolean;
-                        /**
-                         * @description markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66).
-                         * @default markdown
-                         * @enum {string}
-                         */
-                        format?: "markdown" | "cfr177";
-                    };
-                };
-            };
-            responses: {
-                /** @description Draft */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ExportResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-            };
-        };
+        post: operations["exportCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -587,44 +221,7 @@ export interface paths {
          * Answer follow-up questions; the answers are appended to the facts and the case is re-analysed. Answers are kept on the case as given; for the re-analysis, sentences that only report missing information ("unknown", "not stated") are left out (answers-v2, D26), while a sentence that states a fact together with something unknown is kept whole and verbatim, unknown part included, so the analysis reads the requester's own uncertainty (D115); conditional, hedged or ambiguous mixed sentences are left out whole; 400 if no answer adds a fact
          * @description When the answers change the facts, the case's plan search, target comparison, watch result and exported mark are cleared (they were worked out from the old facts); history and scenarios stay. 409 `conflict` when the case's inputs (for example a new BOM) changed while the re-analysis ran; the answers are not saved, send them again. D97.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        answers: {
-                            question: string;
-                            answer: string;
-                        }[];
-                    };
-                };
-            };
-            responses: {
-                /** @description The re-analysed case */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["answerCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -656,72 +253,7 @@ export interface paths {
          *     product family columns (a family by its id or name); then, with the family checker, a sure match (confidence >= 0.6) on
          *     the parts and its suggested product name. Leave family empty to let the file or the check choose it.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        /**
-                         * Format: binary
-                         * @description CSV or .xlsx (first sheet)
-                         */
-                        file: string;
-                        name?: string;
-                        description?: string;
-                        /** @description needed for groups and the plan search, e.g. motorised_tools_small_appliances */
-                        family?: string;
-                        /** @description Names the product when the request, the sheet and the family check give no name (e.g. the file's name) */
-                        fallback_name?: string;
-                        /** @description A product name read from the file's name; used after the sheet's column and before the family check's name (name_source file_name) */
-                        name_hint?: string;
-                    };
-                    "application/json": {
-                        csv: string;
-                        name?: string;
-                        description?: string;
-                        family?: string;
-                        fallback_name?: string;
-                        name_hint?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups) */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            product: components["schemas"]["Product"];
-                            family: string;
-                            warnings: string[];
-                            /** @description Only when the sheet has money columns: the prefilled money inputs (illustrative) */
-                            economics?: components["schemas"]["Economics"];
-                            /** @description Which fields came from the file: hts, annual_import_value_usd, group_costs */
-                            economics_sources?: {
-                                [key: string]: "file";
-                            };
-                            /**
-                             * @description Where the product name came from when the request gave none
-                             * @enum {string}
-                             */
-                            name_source?: "file" | "file_name" | "ai";
-                            /** @enum {string} */
-                            family_source?: "given" | "file" | "ai";
-                            /** @description The family check's reason, when family_source is ai */
-                            family_reason?: string;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-            };
-        };
+        post: operations["importProduct"];
         delete?: never;
         options?: never;
         head?: never;
@@ -744,53 +276,7 @@ export interface paths {
          *     live MFN rate plus Section 301 (D65, D90), as a plan search would price it. The user's own rates always win.
          *     Rate-limited as light.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        product: components["schemas"]["Product"];
-                        economics?: components["schemas"]["Economics"];
-                    };
-                };
-            };
-            responses: {
-                /** @description The economics with duty rates filled, and where each rate came from */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            economics: components["schemas"]["Economics"];
-                            /** @description Per country: table (sourced, D52), live (HTS MFN + Section 301), given (the user's) */
-                            duty_sources: {
-                                [key: string]: "table" | "live" | "given";
-                            };
-                            /** @description The HTS number used; absent when there is none */
-                            hts?: string;
-                            /** @enum {string} */
-                            hts_source?: "product" | "suggested";
-                            /** @description The suggestion used, when hts_source is suggested (as in /v1/products/hts-suggest) */
-                            hts_suggestion?: Record<string, never>;
-                            /**
-                             * @description Also set when the product's HTS is given but is not a valid 8- or 10-digit number: nothing is looked up or filled (D108)
-                             * @example suggestion only — confirm the classification with a licensed broker
-                             */
-                            hts_note?: string;
-                            disclaimer: string;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        post: operations["prefillMoney"];
         delete?: never;
         options?: never;
         head?: never;
@@ -812,53 +298,7 @@ export interface paths {
          *     prediction works but the plan search has no template for the product. The product's name and part names, when given, are read
          *     with the text. Nothing is saved. Rate-limited as light. Always registered in production; absent (404) when no checker is wired.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @example hair dryer */
-                        text: string;
-                        product?: components["schemas"]["Product"];
-                    };
-                };
-            };
-            responses: {
-                /** @description The match */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            result: {
-                                /** @description A template family (e.g. motorised_tools_small_appliances) or none */
-                                family: string;
-                                /** @description The family's display name; absent for none */
-                                name?: string;
-                                confidence: number;
-                                reason: string;
-                                /** @description A short name for the product, e.g. Hair dryer */
-                                product_name?: string;
-                                /** @description The typed text alone names no product type (e.g. random letters); a family here comes from the product's parts */
-                                typed_unclear?: boolean;
-                            };
-                            /** @example family-check-v1 */
-                            prompt_version?: string;
-                            llm_provider?: string;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        post: operations["checkFamily"];
         delete?: never;
         options?: never;
         head?: never;
@@ -881,50 +321,7 @@ export interface paths {
          *     and a one-line reason. Needs an anchor: annual_import_value_usd or at least one group cost (400 otherwise). Nothing is
          *     saved; estimates are illustrative. Rate-limited as light.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        product: components["schemas"]["Product"];
-                        economics?: components["schemas"]["Economics"];
-                    };
-                };
-            };
-            responses: {
-                /** @description The estimates */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            estimates: {
-                                group: string;
-                                plant: string;
-                                low: number;
-                                usd: number;
-                                high: number;
-                                reason: string;
-                            }[];
-                            note: string;
-                            illustrative: boolean;
-                            /** @example cost-estimate-v1 */
-                            prompt_version?: string;
-                            llm_provider?: string;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        post: operations["estimateCost"];
         delete?: never;
         options?: never;
         head?: never;
@@ -945,58 +342,7 @@ export interface paths {
          * @description The engine model lists the parts, countries and assembly steps the text states, paragraph by paragraph (paragraphs split on blank lines, cited 1-based). Code then checks groups against the family template, names unnamed plants "<Country> plant" (name_guessed), and asks what else each plant could make (the plan search needs capabilities).
          *     Parts mentioned without a stated country are not guessed: they are listed in one warning. Send the edited product with the facts to POST /v1/cases/predict. ~15 s through the proxy.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        facts: string;
-                        /** @description needed for groups and capability questions */
-                        family?: string;
-                        /** @description product name; defaults to the name in the text */
-                        name?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The draft */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            product?: components["schemas"]["Product"];
-                            plants?: {
-                                id?: string;
-                                name?: string;
-                                country?: string;
-                                capabilities?: string[];
-                                name_guessed?: boolean;
-                            }[];
-                            components?: components["schemas"]["DraftRow"][];
-                            operations?: components["schemas"]["DraftRow"][];
-                            warnings?: string[];
-                            questions?: {
-                                plant_id?: string;
-                                ask?: string;
-                                options?: string[];
-                            }[];
-                            paragraphs?: number;
-                            trace?: Record<string, never>;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["extractProduct"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1020,77 +366,7 @@ export interface paths {
          *     Limits: 1 to 4 files, 8 MB together; images up to 12,000 pixels a side and 40 megapixels; PDFs up to 10 pages together; encrypted PDFs are refused. The type is sniffed from the bytes (the file name and declared Content-Type are ignored). Files are read into memory, sent to the model and dropped: they are not stored, cached or logged, and the response describes them by type, size and pages only.
          *     With LLM_PROVIDER=fake the answer is a fixed example with `simulated: true` and a first warning saying so. Rate-limited as light. Through the web proxy the body limit is 9 MB.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        /** @description repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf */
-                        file: string[];
-                        /** @description needed for groups and capability questions */
-                        family?: string;
-                        /** @description product name; defaults to the name printed in the files */
-                        name?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The draft, to review and edit before predicting */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            product: components["schemas"]["Product"];
-                            plants?: {
-                                id?: string;
-                                name?: string;
-                                country?: string;
-                                capabilities?: string[];
-                                name_guessed?: boolean;
-                            }[];
-                            components: components["schemas"]["DraftRow"][];
-                            operations: components["schemas"]["DraftRow"][];
-                            /** @description what to check, in plain words; includes every unreadable place and unclear row */
-                            warnings: string[];
-                            questions?: {
-                                plant_id?: string;
-                                ask?: string;
-                                options?: string[];
-                            }[];
-                            /** @description always 0 for media */
-                            paragraphs?: number;
-                            /** @enum {string} */
-                            source: "media";
-                            files: components["schemas"]["MediaFile"][];
-                            unreadable: {
-                                /** @description 1-based file position */
-                                file?: number;
-                                /** @description 1-based page; 0 if the model cited a page that does not exist */
-                                page?: number;
-                                /** @description what could not be read, e.g. "row 7, the country is cut off" */
-                                what?: string;
-                            }[];
-                            /** @description true when the local fake model answered: the files were not read and the rows are a fixed example */
-                            simulated?: boolean;
-                            /** @description provider, model_id, prompt_version (extract-image-v1), tokens, latency */
-                            trace?: Record<string, never>;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                413: components["responses"]["Error"];
-                415: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["extractProductFromMedia"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1111,71 +387,7 @@ export interface paths {
          * @description BM25 finds the 10 indexed rulings most like the product (815 rulings whose text states the subheading CBP applied, 449 distinct 8-digit subheadings; `backend/data/hts_index.json`), groups them by subheading and keeps the 3 best (summed scores). One router-model call (constrained JSON) gives each a short reason, citing only rulings retrieved for that subheading. If that call fails the candidates are still returned with `reasons_unavailable: true`.
          *     A suggestion, not a classification: every response carries the note "suggestion only — confirm the classification with a licensed broker". Rate-limited as light. 404 when HTS_SUGGEST is off.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        facts?: string;
-                        product?: components["schemas"]["Product"];
-                    };
-                };
-            };
-            responses: {
-                /** @description Candidates, best first (empty when no indexed ruling shares a term with the product) */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            candidates?: {
-                                /**
-                                 * @description 8-digit subheading
-                                 * @example 8419.89.95
-                                 */
-                                hts?: string;
-                                supporting_rulings?: {
-                                    id?: string;
-                                    /** Format: date */
-                                    date?: string;
-                                    subject?: string;
-                                    url?: string;
-                                }[];
-                                /** @description empty when reasons_unavailable */
-                                reason?: string;
-                                /** @description supporting rulings the reason relies on */
-                                cited?: string[];
-                                /** @description GET /v1/duty-rates?hts= has sourced rates for it */
-                                duty_rates_available?: boolean;
-                            }[];
-                            /** @example suggestion only — confirm the classification with a licensed broker */
-                            note?: string;
-                            reasons_unavailable?: boolean;
-                            trace?: Record<string, never> | null;
-                            llm_provider?: string;
-                            /** @example hts-suggest-v2 */
-                            prompt_version?: string;
-                            /**
-                             * @description cross: candidates from a live CBP rulings search mixed with the local index; index: the local index only (CBP's search was unreachable). D92
-                             * @enum {string}
-                             */
-                            source?: "cross" | "index";
-                            disclaimer?: string;
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        post: operations["suggestHts"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1197,52 +409,7 @@ export interface paths {
          *     Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest. Invalid economics is 400 before pricing (D106).
          *     Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /**
-                         * @example [
-                         *       "Thailand",
-                         *       "Vietnam",
-                         *       "Malaysia"
-                         *     ]
-                         */
-                        targets: string[];
-                        economics?: components["schemas"]["Economics"];
-                    };
-                };
-            };
-            responses: {
-                /** @description Ranked countries */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            case_id?: string;
-                            targets?: components["schemas"]["TargetSummary"][];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["compareTargets"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1261,59 +428,7 @@ export interface paths {
          * Replace the case's money inputs (no model calls)
          * @description Plan, scenarios and compare-targets use the case's economics when their own request omits economics. Duty rates are fractions (0.25 = 25%); values must not be negative. Returns the stored economics. The same validation (rates 0 to 1, no negative annual value, group cost or target cost, no non-finite number) runs on the effective economics of plan, plan/estimate, scenarios and compare-targets, supplied or reused, before any pricing, planner or model call; an invalid value is 400 `invalid_input` and nothing is saved (D106).
          */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["Economics"];
-                };
-            };
-            responses: {
-                /** @description Stored */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            case_id?: string;
-                            economics?: components["schemas"]["Economics"];
-                            /**
-                             * @description Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
-                             * @enum {boolean}
-                             */
-                            plan_economics_stale?: true;
-                            /**
-                             * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
-                             * @enum {boolean}
-                             */
-                            targets_economics_stale?: true;
-                            /** @description The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero. */
-                            scenarios?: {
-                                label?: string;
-                                facts?: string;
-                                product?: components["schemas"]["Product"];
-                                prediction?: components["schemas"]["Prediction"];
-                                triage?: components["schemas"]["Triage"];
-                                precedents_detail?: components["schemas"]["PrecedentRef"][];
-                                comparison?: components["schemas"]["Comparison"];
-                            }[];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-            };
-        };
+        put: operations["putEconomics"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1335,61 +450,7 @@ export interface paths {
          * @description An ADK agent with tools get_case (the first 6000 characters of the facts, with a notice when more exist), get_case_facts (the facts by character offset, at most 4000 per call), search_rulings / read_ruling (rulings dated before the case) and what_if (re-runs the engine on the full revised facts, at most 12,000 characters, at most 2 per question; longer facts are refused with a message and nothing is predicted) (D116).
          *     The conversation is kept on the case (last 20 turns; the last 6 are given as context). {"reset": true} clears it. Typical latency 15–40 s through the proxy.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        question?: string;
-                        reset?: boolean;
-                        /** @description Pinned demos only (D120): the visitor's own completed turns this visit. The demo is never written, so the server cannot remember them. Ignored on every other case, where the saved chat is the only source. More than 6 turns, an empty question or answer, a question over 2000 characters or an answer over 4000 is a 400. The agent sees the seeded demo chat followed by these turns, cut to the last 6, and the answer memo covers exactly that history. A client replaces an entire answer longer than 4000 characters with a short omission marker before sending it. */
-                        history?: {
-                            question: string;
-                            answer: string;
-                        }[];
-                    };
-                };
-            };
-            responses: {
-                /** @description The reply and the conversation */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            case_id?: string;
-                            reply?: {
-                                answer?: string;
-                                /** @description ruling numbers in the answer that the agent saw in a tool result or the case */
-                                cited_rulings?: string[];
-                                /** @description ruling numbers in the answer it never saw (do not show as citations) */
-                                dropped_rulings?: string[];
-                                what_ifs?: components["schemas"]["WhatIf"][];
-                                steps?: components["schemas"]["ChatStep"][];
-                                model_calls?: number;
-                                trace?: Record<string, never>;
-                            };
-                            cited_detail?: components["schemas"]["PrecedentRef"][];
-                            chat?: components["schemas"]["ChatTurn"][];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["askCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1409,48 +470,7 @@ export interface paths {
          * Predict 1–3 alternative production setups side by side (replaces the case's previous scenarios)
          * @description Each scenario gives facts text or a structured product (rendered with the case family's template). Scenarios run the engine, router and triage like predict, without the clarify review. The case's own prediction is unchanged.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        scenarios: {
-                            /** @description defaults to 'Scenario N' */
-                            label?: string;
-                            /** @description Free text, trimmed and stored with one terminal newline; at most 12,000 characters, not counting that newline (400 beyond) (D116) */
-                            facts?: string;
-                            product?: components["schemas"]["Product"];
-                        }[];
-                        /** @description Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used. */
-                        economics?: components["schemas"]["Economics"];
-                    };
-                };
-            };
-            responses: {
-                /** @description The case with scenarios filled */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["runScenarios"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1473,96 +493,7 @@ export interface paths {
          *     When anything changed, the new product is rendered with the family template and predicted like a scenario (router, engine, triage; one engine call). If the case's facts are not the rendered old product (CBP's wording, a drafted description, clarify answers), the old product is rendered and predicted too (a second engine call) so origin_changed compares two BOMs, not two wordings (facts_basis: rendered). With no change, nothing is predicted or saved (applied is false, even with apply) and the case's own origin is returned.
          *     Without `apply` nothing is saved. With `apply: true` the case takes the new product, rendered facts and prediction (with the clarify review, as predict), records a `bom_updated` history event, and drops what was worked out from the old product or facts (plan, target comparison, watch, draft, clarify answers, and current_origin: CBP's ruling was on the old BOM); scenarios stay. Pinned demo cases refuse `apply` without the admin token (403, D57); another visitor's case is a 404 with ownership on (D58). Rate-limited as light.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        /**
-                         * Format: binary
-                         * @description CSV or .xlsx (first sheet)
-                         */
-                        file: string;
-                        /**
-                         * @description default false
-                         * @enum {string}
-                         */
-                        apply?: "true" | "false";
-                    };
-                    "application/json": {
-                        csv: string;
-                        /** @default false */
-                        apply?: boolean;
-                    };
-                };
-            };
-            responses: {
-                /** @description The changes and the comparison of origins */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            case_id: string;
-                            changes: {
-                                /** @enum {string} */
-                                kind: "component_added" | "component_removed" | "country_changed" | "plant_changed" | "operation_added" | "operation_removed" | "operation_moved";
-                                /** @description Component or operation name */
-                                name: string;
-                                from_country?: string;
-                                to_country?: string;
-                                /** @description Plant name */
-                                from_plant?: string;
-                                /** @description Plant name */
-                                to_plant?: string;
-                                /** @example electric motor: made in Thailand, was China (plant Rayong plant, was China suppliers) */
-                                summary: string;
-                            }[];
-                            /** @description What the plan search will lack */
-                            warnings: string[];
-                            product: components["schemas"]["Product"];
-                            /** @description The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered */
-                            old_origin: string;
-                            old_confidence?: number;
-                            /**
-                             * @description case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new.
-                             * @enum {string}
-                             */
-                            facts_basis: "case" | "rendered";
-                            /** @description The case's own predicted origin (equals old_origin when facts_basis is case) */
-                            case_origin: string;
-                            /** @description Predicted origin for the new BOM (old_origin when nothing changed) */
-                            new_origin: string;
-                            new_confidence: number;
-                            /** @description new_origin differs from old_origin (both from the same kind of facts) */
-                            origin_changed: boolean;
-                            triage: components["schemas"]["Triage"];
-                            /** @description The new prediction; absent when nothing changed */
-                            prediction?: components["schemas"]["Prediction"];
-                            /** @description false when no change could affect the origin (no model call) */
-                            repredicted: boolean;
-                            applied: boolean;
-                            /** @description The updated case, when applied */
-                            case?: components["schemas"]["CaseResponse"];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["applyBomVersion"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1582,35 +513,7 @@ export interface paths {
          * Re-check the prediction with every precedent available today
          * @description The original prediction only saw rulings dated before the case date. This re-runs the engine with precedents dated before today and records the result in watch; the case's own prediction and updated_at are unchanged. status is changed when the origin differs. 409 `conflict` when the case's inputs (a new BOM or answers) changed during the re-check: the result is discarded, not saved (D97). In the scheduler run such a case is listed in `failed`.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: components["parameters"]["CaseID"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The case with watch filled */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CaseResponse"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-                502: components["responses"]["Error"];
-            };
-        };
+        post: operations["watchCase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1627,35 +530,27 @@ export interface paths {
         get?: never;
         put?: never;
         /** Re-check every analysed case (for a scheduler; admin token required) */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Counts and the cases whose origin changed */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            checked: number;
-                            changed: string[];
-                            /** @description Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change */
-                            changed_basis?: {
-                                [key: string]: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
-                            };
-                            failed: string[];
-                        };
-                    };
-                };
-                403: components["responses"]["Error"];
-            };
+        post: operations["runWatch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rulings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
+        /**
+         * Search the precedent corpus of earlier CBP rulings by text (no model call)
+         * @description Keyword (BM25) ranking over the facts sections of the rulings Unde predicts from; rulings that share no query word are not returned. Served when the server has the corpus index (always in the deployed server). No model call and no fetch from CBP: it takes from the per-client ruling-lookup limit only (429 when spent). The query is not echoed or logged. Read a ruling in full with `GET /v1/rulings/{id}`. Also the MCP tool `search_rulings` (docs/MCP.md).
+         */
+        get: operations["searchRulings"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1670,30 +565,7 @@ export interface paths {
             cookie?: never;
         };
         /** A CBP ruling's text (proxied from rulings.cbp.gov) with its public link */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Ruling */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Ruling"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-            };
-        };
+        get: operations["getRuling"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1713,54 +585,7 @@ export interface paths {
          * Sourced duty rates by HTS subheading, with every component and source (D52)
          * @description The sourced table always wins. With DUTY_LIVE_MFN=on (default off), a subheading the table does not have is answered with its live MFN (column 1 general) rate from the USITC HTS as `{hts, description, live_mfn}` (D65). A live fetch (not a cached answer) counts against the per-client lookup limit (429). A missing line or a failed fetch is 404, never 5xx. `hts` is checked first (D108): 8 digits, or 10 with a statistical suffix, with one consistent separator (dot, space or dash). Letters, other lengths and mixed separators are 400 `invalid_input` with a short fixed message that does not echo the input. A query string that cannot be parsed at all (for example a raw `;` or a bad %-escape, even in another key) is refused whole with 400. A present but empty `hts` is 400; only an absent `hts` lists every line. With duplicate `hts` parameters the first one wins. A malformed number makes no lookup and no network call.
          */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description 8 digits, or 10 with a statistical suffix; dots, spaces or dashes (one kind) allowed; omit to list every line. Present but empty or malformed is 400 (D108). */
-                    hts?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description One line (with hts) or {lines} (without), or a live MFN rate (D65) */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            hts?: string;
-                            description?: string;
-                            /** Format: date */
-                            checked?: string;
-                            hts_revision?: string;
-                            sources_doc?: string;
-                            rates?: {
-                                origin?: string;
-                                /** @description ad valorem fraction, 0.417 = 41.7% */
-                                total?: number;
-                                unverified?: boolean;
-                                components?: {
-                                    name?: string;
-                                    rate?: number;
-                                    heading?: string;
-                                    source?: string;
-                                    verified?: boolean;
-                                    note?: string;
-                                }[];
-                            }[];
-                            lines?: Record<string, never>[];
-                            live_mfn?: components["schemas"]["LiveMFN"];
-                        };
-                    };
-                };
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        get: operations["getDutyRates"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1777,36 +602,7 @@ export interface paths {
             cookie?: never;
         };
         /** Demo cases for the UI's "load demo" button */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Demo list */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            demos?: {
-                                /** @example heatgun-2022 */
-                                id?: string;
-                                title?: string;
-                                description?: string;
-                                /** @example China (N328954) */
-                                cbp_held?: string;
-                                has_plan?: boolean;
-                            }[];
-                        };
-                    };
-                };
-            };
-        };
+        get: operations["listDemos"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1823,39 +619,7 @@ export interface paths {
             cookie?: never;
         };
         /** One demo with ready request bodies for predict and plan */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Demo */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            id?: string;
-                            order?: number;
-                            title?: string;
-                            description?: string;
-                            source?: string;
-                            cbp_held?: string;
-                            notes?: string;
-                            predict?: components["schemas"]["PredictRequest"];
-                            plan?: components["schemas"]["PlanRequest"] | null;
-                        };
-                    };
-                };
-                404: components["responses"]["Error"];
-            };
-        };
+        get: operations["getDemo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1877,39 +641,7 @@ export interface paths {
          * Create a team workspace (TEAMS=on; sign-in required)
          * @description The caller becomes its admin and only member. A user can be in one workspace (409 conflict if already in one). Served only with TEAMS=on (404 otherwise). D68.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @description Whitespace is collapsed */
-                        name: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The workspace */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Workspace"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-            };
-        };
+        post: operations["createWorkspace"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1924,49 +656,7 @@ export interface paths {
             cookie?: never;
         };
         /** The signed-in user, their workspace and pending invitations (TEAMS=on) */
-        get: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The user's email, workspace (null when they have none) and pending invitations */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** Format: email */
-                            email: string;
-                            workspace: components["schemas"]["Workspace"] | null;
-                            /** @description Workspaces that have invited the user and that they have not joined */
-                            invites: {
-                                workspace_id: string;
-                                name: string;
-                                /**
-                                 * Format: email
-                                 * @description The workspace's admin
-                                 */
-                                invited_by: string;
-                                /**
-                                 * Format: date-time
-                                 * @description When the workspace was created
-                                 */
-                                created_at: string;
-                            }[];
-                        };
-                    };
-                };
-                401: components["responses"]["Error"];
-            };
-        };
+        get: operations["getMyWorkspace"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1988,48 +678,7 @@ export interface paths {
          * Invite a member by email (the workspace's admin only; TEAMS=on)
          * @description Records a pending invitation (listed in `invited`); the invitee is not a member, and their cases are not shared, until they sign in and call `POST /v1/workspaces/{id}/join`. Inviting again is a no-op. Whether the email is in another workspace is not checked (it would leak). 403 for a member who is not an admin (role `admin`,
          */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /**
-                         * Format: email
-                         * @description Lower-cased
-                         */
-                        email: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description The updated workspace */
-                200: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Workspace"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        post: operations["inviteMember"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2048,46 +697,7 @@ export interface paths {
          * Set a member's role (workspace admin only; TEAMS=on)
          * @description Roles are viewer, editor and admin (#283). Idempotent when the role is unchanged. 400 for a bad role, email or unknown field; 401 without a valid token; 403 for a member who is not an admin; 404 for a workspace the caller is not in (identical to an unknown one) or a target who has not joined (an invited-only email has no role); 409 if it would leave the workspace with no admin (the check and the write are atomic).
          */
-        put: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path: {
-                    id: string;
-                    /** @description URL-encoded and lower-cased */
-                    email: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        role: components["schemas"]["WorkspaceRole"];
-                    };
-                };
-            };
-            responses: {
-                /** @description The workspace as the caller sees it */
-                200: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Workspace"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        put: operations["setMemberRole"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2109,44 +719,7 @@ export interface paths {
          * Remove a member, or leave (TEAMS=on)
          * @description An admin may remove any member; any member may remove themself (leave). The removed user loses access to every case carrying the workspace id, including ones they created; they can be invited again and rejoin as an editor. 401 without a valid token; 403 for a non-admin removing someone else; 404 for a workspace the caller is not in or a target who is not a member; 409 if the removal would leave no admin, so a sole admin cannot leave (promote another first). Not supported yet: cancelling a pending invitation.
          */
-        delete: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path: {
-                    id: string;
-                    /** @description URL-encoded and lower-cased */
-                    email: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The removed email and the caller's updated workspace view */
-                200: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** Format: email */
-                            removed: string;
-                            /** @description The caller's updated workspace, or null when the caller left */
-                            workspace: components["schemas"]["Workspace"] | null;
-                        };
-                    };
-                };
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        delete: operations["removeMember"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2165,36 +738,7 @@ export interface paths {
          * Accept an invitation to a workspace (TEAMS=on)
          * @description The caller must have been invited by email (`GET /v1/workspaces/mine` lists invitations). 404 without an invitation or for an unknown workspace; 409 if the caller is already in a workspace or it has 50 members. Only cases created after joining belong to the workspace. No request body.
          */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
-                    "X-User-Token": components["parameters"]["UserToken"];
-                };
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The workspace joined */
-                200: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Workspace"];
-                    };
-                };
-                401: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        post: operations["joinWorkspace"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2212,52 +756,7 @@ export interface paths {
          * List a tenant's audit events (workspace admin or admin token; audit enabled only)
          * @description Registered only when the audit trail is enabled (404 otherwise). The tenant is implied by the caller: a signed-in user whose current stored role is admin reads `ws:<their workspace id>`. The admin token must give `tenant`; any other caller giving `tenant` gets 400. Editors, viewers, users without a workspace, API keys and visitors get 403 `forbidden` (401 `unauthenticated` for an unverified caller under STRICT_AUTH). A personal tenant has no tenant admin: only the admin token can read it. Events are ordered by the per-tenant `seq`. A page may hold fewer than `limit` events and still carry `next_cursor`, so keep following it until it is absent. A cursor is bound to the tenant, order and filters; one from another tenant, order or filter set, or a forged one, is 400. Reading the first page is itself audited. Retention is `retention_days` (default 90); purged events leave a checkpoint.
          */
-        get: {
-            parameters: {
-                query?: {
-                    limit?: number;
-                    /** @description Opaque; at most 512 bytes */
-                    cursor?: string;
-                    order?: "desc" | "asc";
-                    action?: components["schemas"]["AuditAction"];
-                    outcome?: components["schemas"]["AuditOutcome"];
-                    phase?: components["schemas"]["AuditPhase"];
-                    /** @description An actor pseudonym from an event */
-                    actor?: string;
-                    /** @description An opaque object reference from an event */
-                    object?: string;
-                    /** @description RFC 3339 */
-                    from?: string;
-                    /** @description RFC 3339 */
-                    to?: string;
-                    /** @description Admin token only (required for it); 400 for any other caller */
-                    tenant?: string;
-                };
-                header?: {
-                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other. */
-                    "X-User-Token"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description One page of events */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuditPage"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        get: operations["listAudit"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2277,40 +776,7 @@ export interface paths {
          * Verify the hash chain of a tenant's retained audit events (workspace admin or admin token; audit enabled only)
          * @description Same access rules and tenant rules as `GET /v1/audit`. Scans at most 5000 events per call and reports at most 100 findings per call. Verification is a snapshot: the first call freezes the head, and `verified_through_seq` says how far it checked; events appended later are outside it. When `complete` is false, call again with `next_cursor` until `complete` is true. `ok` and `findings` cover only the events checked so far in this call. A retention purge that runs during a multi-call verification answers 409 `conflict`; start again without a cursor (a legitimate purge is never a finding). `unresolved_intents` is present only on the final call (`complete` true) and is absent on every incomplete page, so its absence never means that none were found; it lists intents older than 5 minutes (a cutoff frozen at the first call) with no completion or failure as of `verified_through_seq` (an in-doubt write), at most 50 seqs. A completion that arrived after that snapshot is not read. Its own `complete` is false when more than 64 intents were open at a page boundary, and `count` is then not exact. Verification checks the chain against the stored head and the retention checkpoint, so a legitimate purge is not reported as tampering. This is application-level tamper evidence only (see the audit paragraph above).
          */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Resume token from a previous incomplete call */
-                    cursor?: string;
-                    /** @description Admin token only (required for it); 400 for any other caller */
-                    tenant?: string;
-                };
-                header?: {
-                    /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
-                    "X-User-Token"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The verification result so far */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AuditVerifyResult"];
-                    };
-                };
-                400: components["responses"]["Error"];
-                401: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                409: components["responses"]["Error"];
-                429: components["responses"]["Error"];
-            };
-        };
+        get: operations["verifyAudit"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2327,26 +793,7 @@ export interface paths {
             cookie?: never;
         };
         /** Evaluation numbers for the results page (from eval/RESULTS.md runs) */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Summary */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EvalSummary"];
-                    };
-                };
-            };
-        };
+        get: operations["getEvalSummary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2363,71 +810,13 @@ export interface paths {
             cookie?: never;
         };
         /** List API keys without secrets (admin token required) */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Every key, newest first, disabled ones included */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            api_keys: components["schemas"]["APIKey"][];
-                        };
-                    };
-                };
-                403: components["responses"]["Error"];
-            };
-        };
+        get: operations["listApiKeys"];
         put?: never;
         /**
          * Issue an API key (admin token required; API_KEYS=on only)
          * @description Returns the key once, in `key`. Only its SHA-256 is stored, so it cannot be shown again; issue a new one if it is lost (D69).
          */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @description Who the key is for */
-                        name: string;
-                        /** @description Requests a UTC day */
-                        daily_quota: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description The key, shown once, and its record */
-                201: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @description Send as X-API-Key. Not stored; shown only here. */
-                            key: string;
-                            api_key: components["schemas"]["APIKey"];
-                        };
-                    };
-                };
-                400: components["responses"]["Error"];
-                403: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
-        };
+        post: operations["issueApiKey"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2448,30 +837,27 @@ export interface paths {
          * Disable an API key for good (admin token required)
          * @description The record stays in the list with `disabled` true; requests with the key then get 401.
          */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Disabled */
-                204: {
-                    headers: {
-                        "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                403: components["responses"]["Error"];
-                404: components["responses"]["Error"];
-                503: components["responses"]["Error"];
-            };
+        delete: operations["disableApiKey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mcp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
+        get?: never;
+        put?: never;
+        /**
+         * Model Context Protocol endpoint (Streamable HTTP, stateless JSON-RPC)
+         * @description The Unde API as MCP tools for Claude and other MCP clients; see docs/MCP.md. Public URL: https://undelabs.dev/mcp (the frontend proxies it to the backend). Stateless: no Mcp-Session-Id is issued, and GET and DELETE answer 405. Send `Authorization: Bearer op_...` (or `X-API-Key`) to act as an API key; without one the caller is anonymous with the per-address limits. The admin token is refused (403). Each tool call runs one `/v1` operation in-process, with that operation's rate-limit class, API-key quota, spend cap, case isolation and audit row. docs/MCP.md maps each tool to its operationId (for example predict_origin to predictCase).
+         */
+        post: operations["mcp"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3517,4 +1903,1787 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    getHealth: {
+        parameters: {
+            query?: {
+                deep?: "1";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+            429: components["responses"]["Error"];
+            /** @description A dependency check failed (deep=1) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    predictCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PredictRequest"];
+            };
+        };
+        responses: {
+            /** @description Case created with its prediction */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    triageBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    items: {
+                        name?: string;
+                        facts: string;
+                        /**
+                         * Format: date
+                         * @description Default today
+                         */
+                        date?: string;
+                    }[];
+                };
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description One row per product, in order, and counts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meta"] & {
+                        rows: {
+                            /** @description The given name */
+                            name: string;
+                            case_id?: string;
+                            predicted_origin?: string;
+                            confidence?: number;
+                            /** @enum {string} */
+                            triage_route?: "auto" | "needs_review" | "needs_info";
+                            out_of_scope: boolean;
+                            /** @description triage.reason */
+                            reason?: string;
+                            cost_usd?: number;
+                            /** @description null when the product was analysed */
+                            error: string | null;
+                        }[];
+                        summary: {
+                            total?: number;
+                            auto?: number;
+                            needs_review?: number;
+                            needs_info?: number;
+                            /** @description Included in needs_review */
+                            out_of_scope?: number;
+                            failed?: number;
+                            cost_usd?: number;
+                            latency_ms?: number;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    listCases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Case summaries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        cases: components["schemas"]["CaseSummary"][];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+        };
+    };
+    getCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The case */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    deleteCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    renameCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    display_name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated case row */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseSummary"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    pinCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    pinned: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The case */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    planCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Plan search result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    estimatePlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Estimate */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id?: string;
+                        estimate?: components["schemas"]["PlanEstimate"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    exportCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @description Index into the latest plan's shown plans; omit both fields to draft for the current setup. */
+                    plan_index?: number;
+                    /** @description With move_key: draft from that country's search in the latest compare-targets call. */
+                    target?: string;
+                    /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
+                    move_key?: string;
+                    /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden. */
+                    preview?: boolean;
+                    /**
+                     * @description markdown: the generic draft. cfr177: the 19 C.F.R. § 177.2 letter with [FILL IN: ...] placeholders; 400 unless the server has EXPORT_CFR177=on (D66).
+                     * @default markdown
+                     * @enum {string}
+                     */
+                    format?: "markdown" | "cfr177";
+                };
+            };
+        };
+        responses: {
+            /** @description Draft */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+        };
+    };
+    answerCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    answers: {
+                        question: string;
+                        answer: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The re-analysed case */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    importProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description CSV or .xlsx (first sheet)
+                     */
+                    file: string;
+                    name?: string;
+                    description?: string;
+                    /** @description needed for groups and the plan search, e.g. motorised_tools_small_appliances */
+                    family?: string;
+                    /** @description Names the product when the request, the sheet and the family check give no name (e.g. the file's name) */
+                    fallback_name?: string;
+                    /** @description A product name read from the file's name; used after the sheet's column and before the family check's name (name_source file_name) */
+                    name_hint?: string;
+                };
+                "application/json": {
+                    csv: string;
+                    name?: string;
+                    description?: string;
+                    family?: string;
+                    fallback_name?: string;
+                    name_hint?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The product, plus warnings about what the plan search will lack (no groups, one plant, no extra capabilities, unknown groups) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        product: components["schemas"]["Product"];
+                        family: string;
+                        warnings: string[];
+                        /** @description Only when the sheet has money columns: the prefilled money inputs (illustrative) */
+                        economics?: components["schemas"]["Economics"];
+                        /** @description Which fields came from the file: hts, annual_import_value_usd, group_costs */
+                        economics_sources?: {
+                            [key: string]: "file";
+                        };
+                        /**
+                         * @description Where the product name came from when the request gave none
+                         * @enum {string}
+                         */
+                        name_source?: "file" | "file_name" | "ai";
+                        /** @enum {string} */
+                        family_source?: "given" | "file" | "ai";
+                        /** @description The family check's reason, when family_source is ai */
+                        family_reason?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+        };
+    };
+    prefillMoney: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product: components["schemas"]["Product"];
+                    economics?: components["schemas"]["Economics"];
+                };
+            };
+        };
+        responses: {
+            /** @description The economics with duty rates filled, and where each rate came from */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        economics: components["schemas"]["Economics"];
+                        /** @description Per country: table (sourced, D52), live (HTS MFN + Section 301), given (the user's) */
+                        duty_sources: {
+                            [key: string]: "table" | "live" | "given";
+                        };
+                        /** @description The HTS number used; absent when there is none */
+                        hts?: string;
+                        /** @enum {string} */
+                        hts_source?: "product" | "suggested";
+                        /** @description The suggestion used, when hts_source is suggested (as in /v1/products/hts-suggest) */
+                        hts_suggestion?: Record<string, never>;
+                        /**
+                         * @description Also set when the product's HTS is given but is not a valid 8- or 10-digit number: nothing is looked up or filled (D108)
+                         * @example suggestion only — confirm the classification with a licensed broker
+                         */
+                        hts_note?: string;
+                        disclaimer: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    checkFamily: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @example hair dryer */
+                    text: string;
+                    product?: components["schemas"]["Product"];
+                };
+            };
+        };
+        responses: {
+            /** @description The match */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        result: {
+                            /** @description A template family (e.g. motorised_tools_small_appliances) or none */
+                            family: string;
+                            /** @description The family's display name; absent for none */
+                            name?: string;
+                            confidence: number;
+                            reason: string;
+                            /** @description A short name for the product, e.g. Hair dryer */
+                            product_name?: string;
+                            /** @description The typed text alone names no product type (e.g. random letters); a family here comes from the product's parts */
+                            typed_unclear?: boolean;
+                        };
+                        /** @example family-check-v1 */
+                        prompt_version?: string;
+                        llm_provider?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    estimateCost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product: components["schemas"]["Product"];
+                    economics?: components["schemas"]["Economics"];
+                };
+            };
+        };
+        responses: {
+            /** @description The estimates */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        estimates: {
+                            group: string;
+                            plant: string;
+                            low: number;
+                            usd: number;
+                            high: number;
+                            reason: string;
+                        }[];
+                        note: string;
+                        illustrative: boolean;
+                        /** @example cost-estimate-v1 */
+                        prompt_version?: string;
+                        llm_provider?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    extractProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    facts: string;
+                    /** @description needed for groups and capability questions */
+                    family?: string;
+                    /** @description product name; defaults to the name in the text */
+                    name?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The draft */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        product?: components["schemas"]["Product"];
+                        plants?: {
+                            id?: string;
+                            name?: string;
+                            country?: string;
+                            capabilities?: string[];
+                            name_guessed?: boolean;
+                        }[];
+                        components?: components["schemas"]["DraftRow"][];
+                        operations?: components["schemas"]["DraftRow"][];
+                        warnings?: string[];
+                        questions?: {
+                            plant_id?: string;
+                            ask?: string;
+                            options?: string[];
+                        }[];
+                        paragraphs?: number;
+                        trace?: Record<string, never>;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    extractProductFromMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** @description repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf */
+                    file: string[];
+                    /** @description needed for groups and capability questions */
+                    family?: string;
+                    /** @description product name; defaults to the name printed in the files */
+                    name?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The draft, to review and edit before predicting */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        product: components["schemas"]["Product"];
+                        plants?: {
+                            id?: string;
+                            name?: string;
+                            country?: string;
+                            capabilities?: string[];
+                            name_guessed?: boolean;
+                        }[];
+                        components: components["schemas"]["DraftRow"][];
+                        operations: components["schemas"]["DraftRow"][];
+                        /** @description what to check, in plain words; includes every unreadable place and unclear row */
+                        warnings: string[];
+                        questions?: {
+                            plant_id?: string;
+                            ask?: string;
+                            options?: string[];
+                        }[];
+                        /** @description always 0 for media */
+                        paragraphs?: number;
+                        /** @enum {string} */
+                        source: "media";
+                        files: components["schemas"]["MediaFile"][];
+                        unreadable: {
+                            /** @description 1-based file position */
+                            file?: number;
+                            /** @description 1-based page; 0 if the model cited a page that does not exist */
+                            page?: number;
+                            /** @description what could not be read, e.g. "row 7, the country is cut off" */
+                            what?: string;
+                        }[];
+                        /** @description true when the local fake model answered: the files were not read and the rows are a fixed example */
+                        simulated?: boolean;
+                        /** @description provider, model_id, prompt_version (extract-image-v1), tokens, latency */
+                        trace?: Record<string, never>;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            413: components["responses"]["Error"];
+            415: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    suggestHts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    facts?: string;
+                    product?: components["schemas"]["Product"];
+                };
+            };
+        };
+        responses: {
+            /** @description Candidates, best first (empty when no indexed ruling shares a term with the product) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        candidates?: {
+                            /**
+                             * @description 8-digit subheading
+                             * @example 8419.89.95
+                             */
+                            hts?: string;
+                            supporting_rulings?: {
+                                id?: string;
+                                /** Format: date */
+                                date?: string;
+                                subject?: string;
+                                url?: string;
+                            }[];
+                            /** @description empty when reasons_unavailable */
+                            reason?: string;
+                            /** @description supporting rulings the reason relies on */
+                            cited?: string[];
+                            /** @description GET /v1/duty-rates?hts= has sourced rates for it */
+                            duty_rates_available?: boolean;
+                        }[];
+                        /** @example suggestion only — confirm the classification with a licensed broker */
+                        note?: string;
+                        reasons_unavailable?: boolean;
+                        trace?: Record<string, never> | null;
+                        llm_provider?: string;
+                        /** @example hts-suggest-v2 */
+                        prompt_version?: string;
+                        /**
+                         * @description cross: candidates from a live CBP rulings search mixed with the local index; index: the local index only (CBP's search was unreachable). D92
+                         * @enum {string}
+                         */
+                        source?: "cross" | "index";
+                        disclaimer?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    compareTargets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @example [
+                     *       "Thailand",
+                     *       "Vietnam",
+                     *       "Malaysia"
+                     *     ]
+                     */
+                    targets: string[];
+                    economics?: components["schemas"]["Economics"];
+                };
+            };
+        };
+        responses: {
+            /** @description Ranked countries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id?: string;
+                        targets?: components["schemas"]["TargetSummary"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    putEconomics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Economics"];
+            };
+        };
+        responses: {
+            /** @description Stored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id?: string;
+                        economics?: components["schemas"]["Economics"];
+                        /**
+                         * @description Present, and true, only when the stored plan was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                         * @enum {boolean}
+                         */
+                        plan_economics_stale?: true;
+                        /**
+                         * @description Present, and true, only when a stored target comparison was priced from economics that have since changed; a missing flag means not stale (clear any earlier true)
+                         * @enum {boolean}
+                         */
+                        targets_economics_stale?: true;
+                        /** @description The case's saved scenarios priced with the money just saved (same shape as the case's scenarios, D131); absent when the case has none. A comparison that cannot be priced (no annual import value, or a missing duty rate or cost) is null, never zero. */
+                        scenarios?: {
+                            label?: string;
+                            facts?: string;
+                            product?: components["schemas"]["Product"];
+                            prediction?: components["schemas"]["Prediction"];
+                            triage?: components["schemas"]["Triage"];
+                            precedents_detail?: components["schemas"]["PrecedentRef"][];
+                            comparison?: components["schemas"]["Comparison"];
+                        }[];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    askCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    question?: string;
+                    reset?: boolean;
+                    /** @description Pinned demos only (D120): the visitor's own completed turns this visit. The demo is never written, so the server cannot remember them. Ignored on every other case, where the saved chat is the only source. More than 6 turns, an empty question or answer, a question over 2000 characters or an answer over 4000 is a 400. The agent sees the seeded demo chat followed by these turns, cut to the last 6, and the answer memo covers exactly that history. A client replaces an entire answer longer than 4000 characters with a short omission marker before sending it. */
+                    history?: {
+                        question: string;
+                        answer: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The reply and the conversation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id?: string;
+                        reply?: {
+                            answer?: string;
+                            /** @description ruling numbers in the answer that the agent saw in a tool result or the case */
+                            cited_rulings?: string[];
+                            /** @description ruling numbers in the answer it never saw (do not show as citations) */
+                            dropped_rulings?: string[];
+                            what_ifs?: components["schemas"]["WhatIf"][];
+                            steps?: components["schemas"]["ChatStep"][];
+                            model_calls?: number;
+                            trace?: Record<string, never>;
+                        };
+                        cited_detail?: components["schemas"]["PrecedentRef"][];
+                        chat?: components["schemas"]["ChatTurn"][];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    runScenarios: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    scenarios: {
+                        /** @description defaults to 'Scenario N' */
+                        label?: string;
+                        /** @description Free text, trimmed and stored with one terminal newline; at most 12,000 characters, not counting that newline (400 beyond) (D116) */
+                        facts?: string;
+                        product?: components["schemas"]["Product"];
+                    }[];
+                    /** @description Prices each scenario against the current setup (comparison). When omitted, the case's latest economics from a plan search or scenarios call are used. */
+                    economics?: components["schemas"]["Economics"];
+                };
+            };
+        };
+        responses: {
+            /** @description The case with scenarios filled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    applyBomVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description CSV or .xlsx (first sheet)
+                     */
+                    file: string;
+                    /**
+                     * @description default false
+                     * @enum {string}
+                     */
+                    apply?: "true" | "false";
+                };
+                "application/json": {
+                    csv: string;
+                    /** @default false */
+                    apply?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The changes and the comparison of origins */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        case_id: string;
+                        changes: {
+                            /** @enum {string} */
+                            kind: "component_added" | "component_removed" | "country_changed" | "plant_changed" | "operation_added" | "operation_removed" | "operation_moved";
+                            /** @description Component or operation name */
+                            name: string;
+                            from_country?: string;
+                            to_country?: string;
+                            /** @description Plant name */
+                            from_plant?: string;
+                            /** @description Plant name */
+                            to_plant?: string;
+                            /** @example electric motor: made in Thailand, was China (plant Rayong plant, was China suppliers) */
+                            summary: string;
+                        }[];
+                        /** @description What the plan search will lack */
+                        warnings: string[];
+                        product: components["schemas"]["Product"];
+                        /** @description The origin for the old BOM: the case's prediction when facts_basis is case, the old product rendered and predicted when it is rendered */
+                        old_origin: string;
+                        old_confidence?: number;
+                        /**
+                         * @description case: the case's facts are the rendered product, so its prediction is the before. rendered: the case was predicted from other wording (CBP's facts, a drafted description, clarify answers), which alone can move the origin (D16), so the old product was rendered and predicted too (one more engine call) and origin_changed compares rendered old with rendered new.
+                         * @enum {string}
+                         */
+                        facts_basis: "case" | "rendered";
+                        /** @description The case's own predicted origin (equals old_origin when facts_basis is case) */
+                        case_origin: string;
+                        /** @description Predicted origin for the new BOM (old_origin when nothing changed) */
+                        new_origin: string;
+                        new_confidence: number;
+                        /** @description new_origin differs from old_origin (both from the same kind of facts) */
+                        origin_changed: boolean;
+                        triage: components["schemas"]["Triage"];
+                        /** @description The new prediction; absent when nothing changed */
+                        prediction?: components["schemas"]["Prediction"];
+                        /** @description false when no change could affect the origin (no model call) */
+                        repredicted: boolean;
+                        applied: boolean;
+                        /** @description The updated case, when applied */
+                        case?: components["schemas"]["CaseResponse"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    watchCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["CaseID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The case with watch filled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            502: components["responses"]["Error"];
+        };
+    };
+    runWatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Counts and the cases whose origin changed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        checked: number;
+                        changed: string[];
+                        /** @description Case id -> Watch.basis for each changed case; only basis precedent is a ruling change. Every changed case carries a basis in this run, so a case missing here is not a ruling change */
+                        changed_basis?: {
+                            [key: string]: "precedent" | "regime" | "method" | "specialist_unavailable" | "unverified";
+                        };
+                        failed: string[];
+                    };
+                };
+            };
+            403: components["responses"]["Error"];
+        };
+    };
+    searchRulings: {
+        parameters: {
+            query: {
+                /** @description Search words; at least one word of 3 or more letters. */
+                q: string;
+                limit?: number;
+                /** @description Only rulings dated strictly before this date. */
+                before?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Matching rulings, best first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        rulings: {
+                            /** @example N300001 */
+                            id: string;
+                            /** Format: date */
+                            date: string;
+                            subject?: string;
+                            /** @description CBP's held origin; null when the ruling has no single held origin */
+                            origin: string | null;
+                            url: string;
+                            /** @description The first 300 characters of the ruling's facts section */
+                            snippet: string;
+                            score: number;
+                        }[];
+                        disclaimer: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    getRuling: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ruling */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ruling"];
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    getDutyRates: {
+        parameters: {
+            query?: {
+                /** @description 8 digits, or 10 with a statistical suffix; dots, spaces or dashes (one kind) allowed; omit to list every line. Present but empty or malformed is 400 (D108). */
+                hts?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One line (with hts) or {lines} (without), or a live MFN rate (D65) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        hts?: string;
+                        description?: string;
+                        /** Format: date */
+                        checked?: string;
+                        hts_revision?: string;
+                        sources_doc?: string;
+                        rates?: {
+                            origin?: string;
+                            /** @description ad valorem fraction, 0.417 = 41.7% */
+                            total?: number;
+                            unverified?: boolean;
+                            components?: {
+                                name?: string;
+                                rate?: number;
+                                heading?: string;
+                                source?: string;
+                                verified?: boolean;
+                                note?: string;
+                            }[];
+                        }[];
+                        lines?: Record<string, never>[];
+                        live_mfn?: components["schemas"]["LiveMFN"];
+                    };
+                };
+            };
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    listDemos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Demo list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        demos?: {
+                            /** @example heatgun-2022 */
+                            id?: string;
+                            title?: string;
+                            description?: string;
+                            /** @example China (N328954) */
+                            cbp_held?: string;
+                            has_plan?: boolean;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    getDemo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Demo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id?: string;
+                        order?: number;
+                        title?: string;
+                        description?: string;
+                        source?: string;
+                        cbp_held?: string;
+                        notes?: string;
+                        predict?: components["schemas"]["PredictRequest"];
+                        plan?: components["schemas"]["PlanRequest"] | null;
+                    };
+                };
+            };
+            404: components["responses"]["Error"];
+        };
+    };
+    createWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Whitespace is collapsed */
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The workspace */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+        };
+    };
+    getMyWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user's email, workspace (null when they have none) and pending invitations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                        workspace: components["schemas"]["Workspace"] | null;
+                        /** @description Workspaces that have invited the user and that they have not joined */
+                        invites: {
+                            workspace_id: string;
+                            name: string;
+                            /**
+                             * Format: email
+                             * @description The workspace's admin
+                             */
+                            invited_by: string;
+                            /**
+                             * Format: date-time
+                             * @description When the workspace was created
+                             */
+                            created_at: string;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+        };
+    };
+    inviteMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: email
+                     * @description Lower-cased
+                     */
+                    email: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated workspace */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    setMemberRole: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                /** @description URL-encoded and lower-cased */
+                email: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    role: components["schemas"]["WorkspaceRole"];
+                };
+            };
+        };
+        responses: {
+            /** @description The workspace as the caller sees it */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    removeMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+                /** @description URL-encoded and lower-cased */
+                email: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The removed email and the caller's updated workspace view */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        removed: string;
+                        /** @description The caller's updated workspace, or null when the caller left */
+                        workspace: components["schemas"]["Workspace"] | null;
+                    };
+                };
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    joinWorkspace: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The signed-in user's Google ID token, forwarded by the frontend proxy (D68). Optional on every other endpoint. */
+                "X-User-Token": components["parameters"]["UserToken"];
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workspace joined */
+            200: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspace"];
+                };
+            };
+            401: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    listAudit: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Opaque; at most 512 bytes */
+                cursor?: string;
+                order?: "desc" | "asc";
+                action?: components["schemas"]["AuditAction"];
+                outcome?: components["schemas"]["AuditOutcome"];
+                phase?: components["schemas"]["AuditPhase"];
+                /** @description An actor pseudonym from an event */
+                actor?: string;
+                /** @description An opaque object reference from an event */
+                object?: string;
+                /** @description RFC 3339 */
+                from?: string;
+                /** @description RFC 3339 */
+                to?: string;
+                /** @description Admin token only (required for it); 400 for any other caller */
+                tenant?: string;
+            };
+            header?: {
+                /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. The admin token is the other. */
+                "X-User-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    verifyAudit: {
+        parameters: {
+            query?: {
+                /** @description Resume token from a previous incomplete call */
+                cursor?: string;
+                /** @description Admin token only (required for it); 400 for any other caller */
+                tenant?: string;
+            };
+            header?: {
+                /** @description The signed-in user's Google ID token (D68); the workspace admin's way in. */
+                "X-User-Token"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The verification result so far */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditVerifyResult"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+        };
+    };
+    getEvalSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvalSummary"];
+                };
+            };
+        };
+    };
+    listApiKeys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Every key, newest first, disabled ones included */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        api_keys: components["schemas"]["APIKey"][];
+                    };
+                };
+            };
+            403: components["responses"]["Error"];
+        };
+    };
+    issueApiKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Who the key is for */
+                    name: string;
+                    /** @description Requests a UTC day */
+                    daily_quota: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The key, shown once, and its record */
+            201: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Send as X-API-Key. Not stored; shown only here. */
+                        key: string;
+                        api_key: components["schemas"]["APIKey"];
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    disableApiKey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Disabled */
+            204: {
+                headers: {
+                    "X-Audit-Incomplete": components["headers"]["AuditIncomplete"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    mcp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description The JSON-RPC response, as application/json or a text/event-stream */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Malformed MCP request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The admin token was sent */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Only POST is served */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+}
