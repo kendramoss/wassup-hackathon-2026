@@ -1,0 +1,107 @@
+{
+  "family": "power_supplies_chargers",
+  "version": "1",
+  "name": "Power supplies, adapters and chargers",
+  "note": "For power supplies, adapters, and chargers, CBP generally determines the country of origin by where the main printed circuit board assembly (PCBA), power conversion module, or inductive charging module is manufactured through surface mount and through-hole soldering. Simple assembly operations, such as inserting pre-made PCBAs or power modules into housings, soldering wires and connectors, ultrasonic welding, testing, or retail packaging with cables, do not result in a substantial transformation. Written from 23 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N331901",
+    "N331934",
+    "N331943",
+    "N333268",
+    "N342133",
+    "N344179",
+    "N346631",
+    "N347058",
+    "N348029",
+    "N348708",
+    "N349313",
+    "N349537"
+  ],
+  "groups": [
+    {
+      "id": "pcba_manufacturing",
+      "name": "PCBA (SMT)",
+      "operations": [
+        "populate bare printed circuit boards with integrated circuits, resistors, capacitors, diodes, transistors, and transformers via surface mount technology (SMT) and through-hole insertion",
+        "reflow and wave solder components onto the bare boards to create the main power conversion and control PCBAs"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N331901",
+          "N331934",
+          "N344179",
+          "N346631",
+          "N348708",
+          "N349313"
+        ],
+        "note": "CBP holds that the country where bare PCBs are populated and soldered into functional power conversion and control PCBAs confers origin (N331901, N344179, N346631, N349313)."
+      }
+    },
+    {
+      "id": "power_charging_modules",
+      "name": "Power conversion or charging module",
+      "operations": [
+        "manufacture the inductive or magnetic wireless charging module",
+        "assemble the IGBT module, switching mode power supply (SMPS) module, or inductor kit"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N331943",
+          "N333268",
+          "N342133",
+          "N347058",
+          "N349537"
+        ],
+        "not_enough": [
+          "N349313"
+        ],
+        "note": "Manufacturing the core power conversion module (such as an SMPS or IGBT module) or inductive charging module confers origin when combined with the PCBA or control board (N333268, N342133, N347058, N349537), though a foreign inverter block alone did not outweigh domestic manufacturing of eight PCBAs and system integration in N349313."
+      }
+    },
+    {
+      "id": "housing_cables_parts",
+      "name": "Housing, cables and minor parts",
+      "operations": [
+        "mold plastic housings and module covers",
+        "fabricate or cast metal enclosures, electrical chassis, busbars, and heat sinks",
+        "draw and insulate copper conductors to form electrical cables and wire harnesses",
+        "solder male and female USB connectors, vehicle plugs, or terminal clamps onto cable ends"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N342133",
+          "N347058",
+          "N349537",
+          "N348029"
+        ],
+        "note": "Producing the plastic molded housing, cast aluminum enclosure, or metal chassis and busbars is not enough to confer origin when the core power conversion modules and PCBAs originate in another country (N342133, N347058, N349537)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "program the PCBA and solder internal wires and cables to the PCBA and plug terminals",
+        "mount the PCBA, charging module, fan, and heat sinks into the plastic housing or metal enclosure",
+        "seal the housing via ultrasonic welding or fasten the chassis with bolts and screws",
+        "perform electrical testing, calibration, debugging, visual inspection, and retail packaging with cables"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N342133",
+          "N344179"
+        ],
+        "not_enough": [
+          "N333268",
+          "N347058",
+          "N349537"
+        ],
+        "note": "Final assembly, programming, wire soldering, enclosure sealing, and packaging do not confer origin when the PCBA and power or charging modules are imported (N333268, N347058, N349537)."
+      }
+    }
+  ]
+}

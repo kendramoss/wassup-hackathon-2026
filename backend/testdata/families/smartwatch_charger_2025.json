@@ -1,0 +1,128 @@
+{
+  "_source": "CBP ruling N347058 (8 Apr 2025): inductive smartwatch charger, Chinese PCBA and charging module, assembled in Vietnam with a Vietnamese housing and cable: CBP held China. In the selection pool; excluded. No later ruling on a changed setup.",
+  "case_id": "smartwatch-charger-2025",
+  "date": "2025-04-08",
+  "family": "power_supplies_chargers",
+  "target": "Vietnam",
+  "product": {
+    "name": "Smartwatch Charger (Charger)",
+    "description": "An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam assembly plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "pcba_manufacturing",
+          "power_charging_modules",
+          "housing_cables_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing",
+          "power_charging_modules"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "C962 magnetic charging module",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "power_charging_modules"
+      },
+      {
+        "name": "C962 printed circuit board assembly (PCBA)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Circular plastic molded housing (C962 Module Top Cover)",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "USB electrical cable",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "USB Type C connector",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Manufacture the C962 magnetic charging module",
+        "plant": "cn",
+        "group": "power_charging_modules"
+      },
+      {
+        "name": "Manufacture the C962 printed circuit board assembly (PCBA)",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Program the C962 PCBA",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Solder the PCBA to the electrical cable",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Insert the C962 charging module into the plastic housing",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Solder the individual cable wires to produce a functional inductive charging device",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "mould the plastic housing and make the USB cable with its Type C connector",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_manufacturing": {
+        "cn": 80000,
+        "vn": 100000
+      },
+      "power_charging_modules": {
+        "cn": 70000,
+        "vn": 87500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N347058"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N347058"
+  }
+}

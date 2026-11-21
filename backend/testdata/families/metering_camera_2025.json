@@ -1,0 +1,100 @@
+{
+  "_source": "CBP ruling N348165 (12 May 2025): smart-metering camera, main PCBA made in South Korea, camera module attached and the camera assembled in China: CBP held China. In the selection pool; excluded.",
+  "case_id": "metering-camera-2025",
+  "date": "2025-05-12",
+  "family": "display_camera_modules",
+  "target": "South Korea",
+  "product": {
+    "name": "R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera",
+    "description": "Smart waste-metering cameras optimized for different types of containers and compactors. They consist of a main PCBA, a compact camera module (CCM), a flash flexible printed circuit board (Flash FPC), and a plastic enclosure.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China assembly plant",
+        "country": "China",
+        "capabilities": [
+          "camera_pcba_smt",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "kr",
+        "name": "South Korea PCBA plant",
+        "country": "South Korea",
+        "capabilities": [
+          "camera_pcba_smt"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Compact camera module (CCM)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Flash flexible printed circuit board (Flash FPC)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Main PCBA",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Plastic enclosure",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Assemble compact camera module (CCM) onto the main PCBA",
+        "plant": "cn",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Manufacture main PCBA",
+        "plant": "kr",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Assemble flash flexible printed circuit board (Flash FPC) onto the main PCBA",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Mount camera subassemblies into plastic enclosure",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "South Korea": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "camera_pcba_smt": {
+        "cn": 110000,
+        "kr": 137500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N348165"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348165"
+  }
+}

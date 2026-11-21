@@ -1,0 +1,136 @@
+{
+  "_source": "CBP ruling N331047 (2 Mar 2023), scenario one: Chinese copper wire insulated and shielded into cables in Malaysia, cut, terminated and assembled in China. Scenario three of the same ruling: Malaysian copper wire: CBP held Malaysia. The ruling's holding names no origin for scenario one; the engine predicts it. In the selection pool; excluded. Ribbon cables are left out for brevity.",
+  "case_id": "server-cable-2023",
+  "date": "2023-03-01",
+  "family": "cables_harnesses",
+  "target": "Malaysia",
+  "product": {
+    "name": "YV3 paddle card to silver cable assembly (part number 2358571-3)",
+    "description": "A cable assembly used to connect and transmit data between a motherboard and network card within a network server. It comprises high-speed data cables, ribbon cables, and low-speed power cables bound together and terminated with specialized terminal connectors and connection printed circuit boards (PCBs).",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China plant",
+        "country": "China",
+        "capabilities": [
+          "conductor_core_making",
+          "cable_insulation_jacket",
+          "connectors_and_housings",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "my",
+        "name": "Malaysia cable plant",
+        "country": "Malaysia",
+        "capabilities": [
+          "conductor_core_making",
+          "cable_insulation_jacket",
+          "connectors_and_housings"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Copper wire",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "conductor_core_making"
+      },
+      {
+        "name": "High-speed data cable (insulated wire with mylar tape shield, two copper drain wires, and outer tape)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "Low-speed power cables (three insulated copper wires)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "Connection Printed Circuit Board (PCB)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "connectors_and_housings"
+      },
+      {
+        "name": "Molded pieces for end connectors",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "connectors_and_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Produce copper wire",
+        "plant": "cn",
+        "group": "conductor_core_making"
+      },
+      {
+        "name": "Insulate copper wire, wrap with mylar tape shield, twist two copper drain wires around shielded wire, and coat in tape to create high-speed data cable",
+        "plant": "my",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "Insulate copper wire to create three low-speed power cables",
+        "plant": "my",
+        "group": "cable_insulation_jacket"
+      },
+      {
+        "name": "Cut individual cables to length and cut ends",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Solder cable ends onto connection Printed Circuit Board (PCB)",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Assemble molded pieces for connectors on each end",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Tape cables together and package finished cable assemblies for export",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Malaysia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "conductor_core_making": {
+        "cn": 70000,
+        "my": 87500
+      },
+      "connectors_and_housings": {
+        "cn": 30000,
+        "my": 37500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N331047"
+  ],
+  "actual_change": {
+    "_source": "CBP ruling N331047, scenario three: CBP held Malaysia",
+    "moved_to": "Malaysia",
+    "moved_to_thailand": [
+      "Copper wire"
+    ],
+    "still_from_china": [
+      "Connection Printed Circuit Board (PCB)",
+      "Molded pieces for end connectors"
+    ]
+  }
+}

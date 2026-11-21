@@ -40,15 +40,15 @@ func TestCheckMatchesATemplate(t *testing.T) {
 }
 
 func TestCheckNone(t *testing.T) {
-	c, _ := checker(t, `{"family":"none","confidence":0.8,"reason":"A sofa shares no groups."}`)
-	if r, err := c.Check(context.Background(), "sofa"); err != nil || r.Family != None || r.Name != "" {
+	c, _ := checker(t, `{"family":"none","confidence":0.8,"reason":"A jet engine shares no groups."}`)
+	if r, err := c.Check(context.Background(), "turbofan engine"); err != nil || r.Family != None || r.Name != "" {
 		t.Errorf("none = %+v, %v", r, err)
 	}
 }
 
 func TestCheckRejectsAnInventedFamily(t *testing.T) {
-	c, _ := checker(t, `{"family":"furniture","confidence":0.9,"reason":"x"}`)
-	if _, err := c.Check(context.Background(), "sofa"); !errors.Is(err, llm.ErrBadResponse) {
+	c, _ := checker(t, `{"family":"jet_engines","confidence":0.9,"reason":"x"}`)
+	if _, err := c.Check(context.Background(), "turbofan"); !errors.Is(err, llm.ErrBadResponse) {
 		t.Errorf("err = %v", err)
 	}
 }

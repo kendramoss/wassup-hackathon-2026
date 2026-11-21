@@ -23,12 +23,31 @@ type Template struct {
 	Name    string          `json:"name"`
 	Note    string          `json:"note"`
 	Groups  []TemplateGroup `json:"groups"`
+	// Sources are the CBP rulings the family was written from (D138). Every
+	// ID must be a substantial-transformation ruling in the bundled corpus;
+	// a test checks it.
+	Sources []string `json:"sources,omitempty"`
 }
 
 // TemplateGroup is an operation group with whether the planner may move it.
 type TemplateGroup struct {
 	domain.OperationGroup
 	Movable bool `json:"movable"`
+	// Precedent cites the rulings behind the group (D138). It documents the
+	// template; the planner does not read it, and a plan is still checked by
+	// the verifier against the rulings dated before the case.
+	Precedent *GroupPrecedent `json:"precedent,omitempty"`
+}
+
+// GroupPrecedent is what CBP held about a group's work.
+type GroupPrecedent struct {
+	// ConfersOrigin: rulings where doing this work in a country was part of
+	// what made that country the origin.
+	ConfersOrigin []string `json:"confers_origin,omitempty"`
+	// NotEnough: rulings where this work (or assembly with this group's
+	// output imported) did not change the origin.
+	NotEnough []string `json:"not_enough,omitempty"`
+	Note      string   `json:"note,omitempty"`
 }
 
 // Group returns the group with the given ID.

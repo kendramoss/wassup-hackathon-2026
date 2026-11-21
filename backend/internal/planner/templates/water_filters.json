@@ -1,0 +1,102 @@
+{
+  "family": "water_filters",
+  "version": "1",
+  "name": "Water filters and filtration systems",
+  "note": "For water filters and passive filtration systems, CBP consistently determines that the country of origin is conferred by the primary filtration media, such as the carbon block, because it performs the essential contaminant-removal function and represents the highest cost. Conversely, assembling the filtration media into plastic cartridges, sumps, or non-electric tanks with covers, O-rings, and valves is considered simple assembly that does not result in a substantial transformation, unless the product is an electric dispenser where the pumping unit and electronics dominate. Written from 12 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N347101",
+    "N347698",
+    "N348086",
+    "N348297",
+    "N348298",
+    "N348710",
+    "N348711",
+    "N350079",
+    "N350082"
+  ],
+  "groups": [
+    {
+      "id": "carbon_block",
+      "name": "Carbon block filter media",
+      "operations": [
+        "process carbon granules into a porous carbon block for contaminant adsorption"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N347101",
+          "N347698",
+          "N348086",
+          "N348297",
+          "N350079",
+          "N350082"
+        ],
+        "not_enough": [
+          "N348298"
+        ],
+        "note": "CBP held that manufacturing the carbon block confers origin on replacement cartridges and passive filter tanks (N347101, N347698, N348086, N348297, N350079, N350082), though an imported carbon block did not determine the origin of a complete electric water filter dispenser (N348298)."
+      }
+    },
+    {
+      "id": "cartridge_housings",
+      "name": "Cartridge housings and seals",
+      "operations": [
+        "mold plastic filter bodies, sumps, upper covers, middle covers, and bottom endcaps",
+        "produce O-rings, check valves, flow regulators, non-woven fabrics, pre-filters, and outer wraps"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N347101",
+          "N348086",
+          "N348297",
+          "N348710",
+          "N348711",
+          "N350079"
+        ],
+        "note": "Providing the plastic covers, sumps, O-rings, check valves, and outer wraps in the country of assembly was not enough to confer origin when combined with a foreign carbon block (N347101, N348086, N348297, N348710, N348711, N350079)."
+      }
+    },
+    {
+      "id": "dispenser_electronics",
+      "name": "Tanks, pumps and electronics",
+      "operations": [
+        "manufacture upper and lower water chambers, transparent water tanks, lids, spigots, and stands",
+        "produce water pumping units with circuit boards, batteries, and touch screen panels",
+        "manufacture UV lamp assemblies, lamp PCBAs, quartz tubes, and RFID smart chip assemblies"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N347698",
+          "N350082"
+        ],
+        "note": "Manufacturing non-electric tank chambers (N347698) or secondary UV lamp and PCBA components in a replacement cartridge (N350082) did not overcome the origin of the carbon block."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "glue and attach the outer wrap and pre-filter to the exterior of the carbon block",
+        "insert the carbon block or RO membrane into the sump and attach endcaps, covers, O-rings, and valves using hot melt adhesive, screwing, or pressing",
+        "combine the filter element with water tank chambers or electric pumping units, test, and package the finished product"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N348298"
+        ],
+        "not_enough": [
+          "N347101",
+          "N347698",
+          "N348086",
+          "N348297",
+          "N350079",
+          "N350082"
+        ],
+        "note": "Assembling imported carbon blocks with domestic plastic housings, covers, and valves into finished filters or gravity tanks was held to be a simple assembly that did not confer origin (N347101, N347698, N348086, N348297, N350079, N350082), while assembling complete electric water filter dispensers in the country where the pumping unit and tank components were made conferred origin (N348298)."
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "_source": "CBP ruling N342838 (18 Oct 2024): bulb irrigation syringe, soft bulb moulded in China, barrel and sealing ring moulded and the syringe assembled in Vietnam: CBP held China. In the selection pool; excluded. The barrel and the bulb are both in the moulded group, so moving the group moves the bulb.",
+  "case_id": "bulb-syringe-2024",
+  "date": "2024-10-18",
+  "family": "medical_devices",
+  "target": "Vietnam",
+  "product": {
+    "name": "Bulb irrigation syringes (Items 47394 and 00943)",
+    "description": "Bulb irrigation syringes (in 50 ml and 60 ml capacities) designed for the irrigation of wounds and surgical sites with liquids during medical and surgical procedures. Each syringe consists of a molded clear hard PVC barrel with raised volume graduations, a detachable soft TPE plastic bulb, and a thin molded PVC sealing ring between the barrel and the bulb.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "molded_barrels_chambers",
+          "hubs_clamps_housings",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China bulb supplier",
+        "country": "China",
+        "capabilities": [
+          "molded_barrels_chambers"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Detachable soft plastic (TPE) bulb",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Molded hard PVC plastic barrel body with raised graduations",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Thin molded PVC plastic sealing ring",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "molded_barrels_chambers"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Injection mold soft plastic (TPE) bulbs",
+        "plant": "cn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Injection mold clear hard PVC barrels with raised graduations from PVC resin",
+        "plant": "vn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Injection mold thin PVC sealing rings from PVC resin",
+        "plant": "vn",
+        "group": "molded_barrels_chambers"
+      },
+      {
+        "name": "Place sealing ring at the top neck of the barrel",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Press fit soft plastic bulb into the top neck of the barrel",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Clean, inspect, and test assembled syringes for leaks, and package for shipment",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "molded_barrels_chambers": {
+        "cn": 60000,
+        "vn": 75000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N342838"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N342838"
+  }
+}

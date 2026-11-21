@@ -1,0 +1,148 @@
+{
+  "_source": "CBP ruling N335711 (31 Oct 2023): speaker floor stands, post, stem, platform ring and base cover made in Malaysia, base bottom, weight and small parts made in China, assembled in China: CBP held China. In the selection pool; excluded.",
+  "case_id": "speaker-stand-2023",
+  "date": "2023-10-31",
+  "family": "furniture",
+  "target": "Malaysia",
+  "product": {
+    "name": "Optimo 1 Stand and Optimo 2 Stand",
+    "description": "Two floor stands designed to hold Sonos speakers, each comprised of a base subassembly (plastic base bottom, steel weight, and steel top cover), a vertical aluminum post with a plastic cap, and a top subassembly. The Optimo 1 top subassembly uses a zinc alloy platform ring and plastic bottom cover, while the Optimo 2 uses an aluminum stem with mounting holes.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China assembly plant",
+        "country": "China",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "my",
+        "name": "Malaysia supplier",
+        "country": "Malaysia",
+        "capabilities": [
+          "frame_metal_fabrication"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Base Bottom (plastic)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Base Weight (steel)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Post Cap (plastic)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Washer (aluminum)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Foot (silicone, primer)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Landing Pad (silicone)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Post (aluminum)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Platform Ring (zinc alloy)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Platform Ring Bottom Cover (plastic)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Stem (aluminum)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Base Cover (steel)",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Miscellaneous Fasteners (various)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Manufacture plastic base bottom, steel base weight, plastic post cap, aluminum washer, silicone foot/landing pad, and fasteners",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Manufacture aluminum post, stem, zinc alloy platform ring, plastic platform ring bottom cover, and steel base cover",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Apply powder coating to post, platform ring, and stem",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Assemble base subassembly, vertical post, and top subassembly and package stands",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Malaysia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "frame_metal_fabrication": {
+        "cn": 90000,
+        "my": 112500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N335711"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N335711"
+  }
+}
