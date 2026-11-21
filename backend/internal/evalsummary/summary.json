@@ -1,6 +1,5 @@
 {
-  "generated_at": "2026-11-21T10:09:52Z",
-  "generated_at": "2026-11-21T10:35:13Z",
+  "generated_at": "2026-11-21T10:41:28Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
