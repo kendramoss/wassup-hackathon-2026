@@ -95,6 +95,17 @@ Computed by `python3 -I -B eval/planner/plan_rank.py .` (`--check` in `make repr
 | Second held-out split: calibrated ECE over three runs | 0.037, 0.040, 0.066 | same | Measured, small n |
 | Cost of the four repeat runs | $7.47 gateway-reported, with resumes | same (`gateway_cost_usd`) | Measured |
 
+### Rule check, 19 CFR 102.20 (D360-D362)
+
+Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`) from the committed extractions; no model calls at scoring.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Rule rows encoded | 360 rows of 19 CFR 102.20 in chapters 73, 82, 84, 85, 87, 90, 94; 332 of 515 alternatives encoded, 183 written by goods description and never decided by code | `backend/internal/tariffshift/rules.json` (eCFR, 18 Nov 2026) | Built; a test re-parses the committed text |
+| Coverage from the facts the engine reads | 0 of 117 Part 102 rulings decided (dev 0/72, prompt v1; final 0/32; final2 0/13); 68 of 117 give no code for the good | `eval/tariffshift/summary.json` | Measured; the honest headline for the product. Say "decides none" |
+| Coverage from the full ruling text (CBP's own codes) | dev 2 of 72, final 2 of 32 decided; all 4 agree with CBP (2 of 2 per split, 34.2-100%) and with the model | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure |
+| Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

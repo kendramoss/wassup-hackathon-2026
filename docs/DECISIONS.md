@@ -1628,3 +1628,21 @@ Committed before any extraction call and before any rule result was seen. Nothin
 - **Reported, per split and input:** coverage (decided / n), agreement with CBP among decided (exact Wilson interval), disagreement with the model among decided, the undetermined reasons, out-of-scope count, and a second line "decided if de minimis does not apply". Every run is reported whatever it shows, and every gateway call's cost is logged in RUNLOG.
 - **Expectation stated now:** coverage on facts will be low, because most facts name no codes for the materials.
 - **Cost cap:** $3 for all extraction (estimate: 117 rulings × 2 inputs, about 4k tokens in and 0.5k out each, well under $1).
+
+## D362 — The rule check on the committed Part 102 rulings: results (22 Nov)
+Run as pre-registered in D361. Development runs on 22 Nov; code frozen at commit 89552154 before the held-out extraction; each held-out file extracted and scored once. Rows: `eval/tariffshift/`; recompute with `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`).
+
+| Split | Input | n | Out of scope | Decided | Agrees with CBP | Differs from the model |
+|---|---|---:|---:|---:|---:|---:|
+| dev (development) | facts, prompt v1 | 72 | 5 | 0 | – | – |
+| dev (development) | full ruling text | 72 | 39 | 2 | 2 of 2 | 0 |
+| final (held out) | facts | 32 | 6 | 0 | – | – |
+| final (held out) | full ruling text | 32 | 17 | 2 | 2 of 2 | 0 |
+| final2 (held out) | facts | 13 | 3 | 0 | – | – |
+
+- **Coverage is very low, as expected.** On the facts the engine reads, the rule check decides 0 of 117 rulings: most facts give no HTS code for the good (68 of 117), and no in-scope facts give a code for every foreign material. On the full ruling text, which carries CBP's own classifications, it decides 4 of 104, all four as CBP held and as the model answered. The interval on 2 of 2 is 34.2–100%; nothing about accuracy can be read from it.
+- **Where the full text still does not decide:** the good is outside the seven chapters (56 of 104); a foreign material has no code in the text (23); a material turns on a fact the rule names (simple assembly, GRI 2(a), a goods description) or only "outside heading X" is known (13); the text gives no code for the good (3); the extraction failed (4); one development case turns on a de minimis value the text does not give, and its answer if de minimis does not apply (China) is CBP's.
+- **Changes made on development cases only:** prompt v2 asks for country names, not adjectives, and adds `not_in` for "classified outside heading X", which CBP writes instead of a code; the evaluator accepts that and treats a material of unknown origin as foreign. The output-token limit went from 4,096 to 8,192 after nine v2 rows ran out of tokens; those nine were re-run once (dev only). The v1 rows are kept in `eval/tariffshift/dev-v1/`. The development facts cell is the v1 run (not re-run, to stay within the $3 cap); the held-out facts used v2.
+- **Not run:** the full text of the 13 final2 rulings. Their raw CROSS texts are not in the local corpus, and fetching them would have gone past this change's fetch cap.
+- **Cost:** $2.58 gateway-reported for all seven extraction runs (RUNLOG `tariffshift-extract-*`). Scoring makes no model calls.
+- **What this means for the product:** the rule check can only cross-check cases where the user gives an HTS code for the good and for each material. Real requests rarely do, and the committed rulings mostly do not. It is shown beside the model as a check, never in place of it (D363).
