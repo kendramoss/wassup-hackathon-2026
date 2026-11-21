@@ -87,7 +87,7 @@ In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign
 
 ## Does it work?
 
-Tested on **377 real CBP rulings** from January to September 2026 that were never used to tune prompts or settings (earlier rulings, including earlier test rulings, can be retrieved as precedent for later ones, but never a case's own ruling or a later one):
+Scored once on a **377-ruling temporal test split** of cleaned, single-origin 2026 substantial-transformation rulings. Prompts were not tuned on it; earlier split rulings may serve as precedents, BM25 statistics use the whole corpus, and pretraining exposure cannot be excluded (a case's own ruling and later rulings are never retrieved as precedent):
 
 | Method | Accuracy |
 |---|---|
@@ -105,31 +105,34 @@ On the two demo products, the plan Unde shows matches what really happened:
 - **Heat gun:** Unde's plan (move the motor-fan assembly, circuit board and switch to Thailand) matches CBP's later 2026 ruling holding Thai origin.
 - **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling.
 
-The precedent check that gates every plan has never been wrong at its bar: 182 verdicts cleared it across every run, none wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
+In the historical D86 proxy pool, 182 verdicts cleared the precedent check's 0.92 bar and none was wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). In later post-cutoff gateway scoring, the check was right 9 of 9 times with the starting origin and 5 of 6 without it; one wrong plan is recorded in [eval/RESULTS.md](eval/RESULTS.md). These are proxy and gateway runs, not a guarantee. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Reproduce our numbers
 
-Every number above is recomputed from files in this repository, with no model calls and no credentials:
+The headline evaluation counts above are recomputed from committed result rows, with no model calls and no credentials. Other figures are labelled measured, reported/unverified, external, illustrative, or one-run demo:
 
 ```bash
 make reproduce
 # which runs:
-make verify-data                                        # data files match eval/SHA256SUMS
-cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
-python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
-python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
-python3 -I eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer
-python3 -I eval/charts/build_repeatability.py . --check # three development runs, answers that changed
-python3 -I eval/planner/summarize_addendum.py . --check # the 18 post-cutoff flip pairs
+make verify-data                                           # data files match eval/SHA256SUMS
+cd backend && go run ./cmd/claimscheck && cd ..           # figure ledger and provenance, from committed artifacts
+python3 -I -B eval/charts/build_evaluation.py . --check           # calibration, accuracy-coverage curve, split funnel
+python3 -I -B eval/charts/build_trust_data.py . --check           # failure cases, corpus counts
+python3 -I -B eval/charts/build_accuracy.py . --check             # model sweep, second test set, calibration layer
+python3 -I -B eval/charts/build_repeatability.py . --check        # run-to-run repeatability on dev
+python3 -I -B eval/charts/build_repeatability_heldout.py . --check # two held-out runs, answers that changed
+python3 -I -B eval/planner/summarize.py . --check                 # planner summaries
+python3 -I -B eval/charts/build_adjudicator.py . --check          # adjudicator metrics
+python3 -I -B eval/planner/summarize_addendum.py . --check        # planner addendum
 ```
 
-It needs Go and Python 3 (standard library only). Each step fails if a published number has drifted from its source.
+It needs Go 1.27, Python 3.8+, `make` and `shasum`; the Python scripts use only the standard library. Each check fails if a published figure has drifted from its source. `claimscheck` reconciles a frozen figure ledger and provenance; it does not rerun the model or recompute reported confidence intervals, costs and latencies. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 
 **What it gets wrong.** All 37 held-out misses are listed by ruling, with links to CBP, on the [Accuracy page](https://undelabs.dev/accuracy#misses). It is weakest where CBP held China (77.2%, 44 of 57, interval 64.8–86.2), which is the costly direction for a move out of China. The patterns are in the [model card](docs/MODEL-CARD.md#6-known-failure-modes); the corpus, its sources and its biases are in the [datasheet](docs/DATASHEET.md).
 
 ## Limitations
 
-- **The planner is still the least tested part.** Its precedent check now has a clean test on 18 CBP flip pairs from rulings published after 25 Sep 2026: the 15 of D170 plus 3 added later (D192), each frozen before scoring and scored once. With CBP's starting origin given, 9 of 9 moves shown were real changes (interval 70.1–100) and 9 of 12 real changes were shown (75.0%, interval 46.8–91.1); none of the 6 no-change pairs was shown (0 of 6, interval 0–39.0). That is a small set read by one person, scored through a gateway, and it tests the check, not plan quality. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. Without the starting origin the check showed one wrong plan. The plan search reached CBP's move in both real changes it could express, but can rank a cheaper move CBP never ruled on above it ([docs/EVALUATION.md](docs/EVALUATION.md#7-planner-21-nov-2026), D170, D192).
+- **The planner is still the least tested part.** Its precedent check now has a clean test on **18 frozen CBP flip pairs** from rulings published after 25 Sep 2026: 12 real origin changes and 6 no-change controls (D170 + D192), each frozen before scoring and read by one person and scored once through the gateway. With CBP's starting origin given, 9 of 9 moves shown were real changes (interval 70.1–100) and 9 of 12 real changes were shown (75.0%, interval 46.8–91.1); none of the 6 controls was shown (0 of 6, interval 0–39.0). Denominators matter: precision is over shown moves (9), recall over real-change pairs (12), not all 18. It tests the check, not plan quality. Recompute both frozen summaries with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. Without the starting origin the check showed one wrong plan. The plan search reached CBP's move in both real changes it could express, but can rank a cheaper move CBP never ruled on above it ([docs/EVALUATION.md](docs/EVALUATION.md#7-planner-21-nov-2026), D170, D192).
 - **Benchmark claims are reconciled, with limits.** Every headline number is recomputed from committed files by `cd backend && go run ./cmd/claimscheck`; the research 60.5% baseline cannot be reproduced from this repository (our recomputation gives 60.7%; D155). See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 - **U.S. origin only.** The tool answers U.S. CBP country-of-origin questions under four regimes (substantial transformation, textile 19 CFR 102.21, Part 102 marking origin, pharmaceutical active ingredient). EU Binding Origin Information, USMCA regional value content and preferential-origin claims are not supported, and nothing detects or blocks a question about another country's rules. See [docs/scope-and-jurisdiction.md](docs/scope-and-jurisdiction.md).
 - **Plans count duty and the costs you enter only.** An optional operating-cost mode adds labour, logistics, one-time capex and retooling spread over a horizon you choose, plus lead-time and minimum-order checks. It prices only what you typed, lists what it leaves out (capacity, time value, tax, yield, subsidies) and never calls a plan the cheapest or best possible; see [docs/modelled-operational-costs.md](docs/modelled-operational-costs.md).
@@ -154,7 +157,7 @@ Next.js frontend (Cloud Run)  ──►  Go backend (Cloud Run)  ──►  Gemi
 
 ## Run it locally
 
-You need Go 1.27 and `make`. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
+You need Go 1.27, `make` and Node 24 for the web app. To reproduce the published numbers you also need Python 3.8+ and `shasum`, and an LF checkout (`.gitattributes` sets this; on Windows set `core.autocrlf=input` before cloning). Run `make doctor` first: it checks every prerequisite and the line endings and prints exactly what is missing. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
 
 ```bash
 make run                                # API on :8080, no GCP credentials needed for UI work
@@ -196,3 +199,5 @@ setup still depends on it.
 | `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [EVALUATION.md](docs/EVALUATION.md), [MODEL-CARD.md](docs/MODEL-CARD.md), [DATASHEET.md](docs/DATASHEET.md), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).
+
+Licence: the project source is [MIT](LICENSE); bundled third-party assets and their licences are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

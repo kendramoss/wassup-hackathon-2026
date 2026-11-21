@@ -57,7 +57,7 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 		}
 		// Throttle guessing before the key lookup: a client (its address;
 		// no key is known yet) that has failed too often waits (D137).
-		client := clientKey(r)
+		client := a.clientKey(r)
 		if ok, wait := a.authFails.allowed(client); !ok {
 			a.d.Logger.WarnContext(r.Context(), "api key failures limited", "request_id", requestRef(r.Context()))
 			secs := max(1, int(math.Ceil(wait.Seconds())))

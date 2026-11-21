@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net"
 	"os"
 	"regexp"
 	"strconv"
@@ -75,6 +76,11 @@ type Config struct {
 	// config. They are logged at startup (#420) so a deployment cannot look
 	// fully locked down just because it boots.
 	Warnings []string
+
+	// TrustedProxyCIDRs are the source ranges allowed to set X-Client-IP.
+	// Empty means no one is trusted: the backend keys limits on RemoteAddr,
+	// so a direct caller cannot choose its own bucket (#421).
+	TrustedProxyCIDRs []*net.IPNet
 
 	// Models (IDs depend on the provider; the defaults are served by both).
 	EngineModel string
@@ -440,6 +446,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		defRate, c.RateLimitStoreDefaulted = RateFirestore, true
 	}
 	c.RateLimitStore = strings.ToLower(e.str("RATE_LIMIT_STORE", defRate))
+	// X-Client-IP is only meaningful when it was set by a proxy we control.
+	// A comma-separated CIDR list keeps the trust decision explicit (#421).
+	cidrs, err := parseCIDRs(e.str("TRUSTED_PROXY_CIDRS", ""))
+	if err != nil {
+		e.errs = append(e.errs, fmt.Errorf("TRUSTED_PROXY_CIDRS: %w", err))
+	}
+	c.TrustedProxyCIDRs = cidrs
 	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
 	case "on", "true", "1":
 		c.Teams = true
@@ -825,6 +838,29 @@ func (c Config) String() string {
 type env struct {
 	get  func(string) string
 	errs []error
+}
+
+// parseCIDRs accepts a comma-separated list of IP ranges. An empty list is
+// valid and means "trust no proxy header"; a bad entry is a startup error so
+// a typo cannot silently widen trust (#421).
+func parseCIDRs(s string) ([]*net.IPNet, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil, nil
+	}
+	var out []*net.IPNet
+	for _, part := range strings.Split(s, ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil, fmt.Errorf("empty CIDR in list")
+		}
+		_, n, err := net.ParseCIDR(part)
+		if err != nil {
+			return nil, fmt.Errorf("invalid CIDR %q: %w", part, err)
+		}
+		out = append(out, n)
+	}
+	return out, nil
 }
 
 // fallbackModel treats "off" as disabled. An empty value is not reached:

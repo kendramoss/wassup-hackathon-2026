@@ -39,7 +39,7 @@ When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACT
 
 ## Rate limits
 
-Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fails if a route is registered without one. Limits are per client: the API key when one is sent, otherwise the address the proxy forwards as `X-Client-IP` (IPv6 grouped by /64), otherwise the connection's address.
+Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fails if a route is registered without one. Limits are per client: the API key when one is sent, otherwise the connection's `RemoteAddr` (IPv6 grouped by /64). The header `X-Client-IP` is used **only** when the connection came from a CIDR in `TRUSTED_PROXY_CIDRS`; with no ranges configured the header is ignored, so a direct caller cannot choose its own bucket (#421). The public frontend proxy sets that header from the rightmost `X-Forwarded-For`, so deploying must either configure the proxy's source range deliberately or accept that proxied callers share the connection bucket. A bad CIDR is a startup error. After every deploy, run `scripts/check-backend-private.sh` (or call it from CI): it fails if the backend IAM policy grants `allUsers` or if a bare internet request to `/health` is not refused with 403. That check is part of the safety claim, not decoration.
 
 | Class | Routes | Per client | Counted |
 |---|---|---|---|
@@ -62,7 +62,7 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 - The POST itself takes one token from the caller's basic bucket and carries the RateLimit headers; it has no handler deadline, because a tool call may run a plan search.
 - Each tool call re-enters the API in-process and runs one `/v1` route there, with that route's class, the in-flight cap, the spend share, the API-key quota and the failed-key limit. The POST does not take any of these itself, so each applies once per tool call. Tests: `TestMCPCallsCountOncePerToolCall`, `TestMCPPostLimitsAndHeaders`.
 - Body cap 12 MB (backend and the frontend `/mcp` proxy): room for 8 MB of media in base64. Over it: 413. The frontend proxy passes `Retry-After` and the RateLimit fields through.
-- With `REQUIRE_BEARER=on` the POST needs the bearer; the in-process tool calls are not refused for lacking it (the MCP guard removes `Authorization`).
+- With `REQUIRE_BEARER=on` the POST needs the bearer; the in-process tool calls are not refused for lacking it (the MCP guard removes `Authorization`). The MCP guard fills in `X-Client-IP` from `RemoteAddr` when absent, but a caller-supplied value is still only honoured when the source address is in `TRUSTED_PROXY_CIDRS` (#421).
 
 ## Broker review links (D200)
 

@@ -176,23 +176,45 @@ func bucketState(b *rate.Limiter, now time.Time, d rateDecision) rateDecision {
 	return d
 }
 
-// clientKey identifies the caller. Deployed, only the frontend can invoke the
-// backend (it is not public), and the frontend's proxy forwards the browser's
-// address as X-Client-IP; without it every visitor would share the
-// frontend's bucket. Locally it is the connection's address. A request with
-// an API key gets the key's buckets instead, wherever it comes from (D69).
-func clientKey(r *http.Request) string {
+// clientKey identifies the caller. An API key gets its own buckets wherever
+// the request comes from (D69). Otherwise the connection address is the key:
+// X-Client-IP is honoured only when the connection came from a CIDR listed in
+// TRUSTED_PROXY_CIDRS, so a direct caller cannot choose its own bucket (#421).
+func (a *api) clientKey(r *http.Request) string {
+	return clientKeyWithProxy(r, a.d.TrustedProxyCIDRs)
+}
+
+// clientKeyWithProxy is clientKey with an explicit trust list, so tests can
+// check both a direct request and a request from the frontend's proxy.
+func clientKeyWithProxy(r *http.Request, trusted []*net.IPNet) string {
 	if k, ok := keyFrom(r.Context()); ok {
 		return "apikey:" + k.ID
 	}
-	if ip := strings.TrimSpace(r.Header.Get("X-Client-IP")); ip != "" && len(ip) <= 64 {
-		return ipKey(ip)
+	remote := r.RemoteAddr
+	if host, _, err := net.SplitHostPort(remote); err == nil {
+		remote = host
 	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
+	if trustedProxy(remote, trusted) {
+		if ip := strings.TrimSpace(r.Header.Get("X-Client-IP")); ip != "" && len(ip) <= 64 {
+			return ipKey(ip)
+		}
 	}
-	return ipKey(host)
+	return ipKey(remote)
+}
+
+// trustedProxy reports whether addr falls inside one of the configured proxy
+// ranges. No ranges means no header is trusted, including from localhost.
+func trustedProxy(addr string, cidrs []*net.IPNet) bool {
+	ip := net.ParseIP(addr)
+	if ip == nil {
+		return false
+	}
+	for _, c := range cidrs {
+		if c.Contains(ip) {
+			return true
+		}
+	}
+	return false
 }
 
 // ipKey groups IPv6 addresses by /64, the block one subscriber usually
@@ -222,7 +244,7 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 			h(w, r)
 			return
 		}
-		key := clientKey(r)
+		key := a.clientKey(r)
 		if a.d.Spend != nil {
 			if over, total := a.d.Spend.Over(r.Context()); over {
 				a.overBudget(w, r, total)
@@ -261,7 +283,7 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 func (a *api) rateOnly(c class, h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if a.limiter != nil && !a.isAdmin(r) {
-			d := a.rateCheck(r, clientKey(r), c)
+			d := a.rateCheck(r, a.clientKey(r), c)
 			setRateHeaders(w, d)
 			if !d.ok {
 				a.tooMany(w, d.wait)

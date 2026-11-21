@@ -285,6 +285,7 @@ func TestDutyLookupUsesTheSharedLimiter(t *testing.T) {
 func TestInFlightCap(t *testing.T) {
 	a := &api{d: Deps{Logger: slog.New(slog.DiscardHandler)}, limiter: newLimiter(Limits{LightPerMin: 100, HeavyPerMin: 100}), inflight: newInflight(2)}
 	a.d.AdminToken = testAdmin
+	a.d.TrustedProxyCIDRs = testProxyCIDRs(t)
 	release := make(chan struct{})
 	started := make(chan struct{}, 10)
 	stream := a.limit(light, func(w http.ResponseWriter, r *http.Request) {
@@ -369,7 +370,7 @@ func TestClientSpendShare(t *testing.T) {
 		return llm.Response{Text: "{}", Usage: llm.Usage{OutputTokens: 6000}}, nil
 	}}
 	model := meter.Attempts(fake)
-	a := &api{d: Deps{Logger: slog.New(slog.DiscardHandler), Spend: meter, AdminToken: testAdmin}}
+	a := &api{d: Deps{Logger: slog.New(slog.DiscardHandler), Spend: meter, AdminToken: testAdmin, TrustedProxyCIDRs: testProxyCIDRs(t)}}
 	h := a.limit(light, func(w http.ResponseWriter, r *http.Request) {
 		if _, err := model.Generate(r.Context(), llm.Request{Model: "gemini-4-argon"}); err != nil {
 			t.Error(err)

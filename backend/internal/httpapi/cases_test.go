@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -210,6 +211,10 @@ func newHarnessWith(t *testing.T, regime string, adjust func(*Deps)) harness {
 		},
 		Demos: mustDemos(t), FastPathConf: 0.92, PlanConfidence: 0.92, Provider: "fake", EngineModel: "gemini-4-argon", RouterModel: "gemini-3.8-flash", VerifierModel: "gemini-4-argon",
 		AdminToken: testAdmin, Duty: mustDuty(t),
+		// The harness is the frontend proxy for these tests: keep the old
+		// X-Client-IP behaviour so existing limit tests keep their meaning.
+		// The new #421 test exercises the direct-client path explicitly.
+		TrustedProxyCIDRs: testProxyCIDRs(t),
 	}
 	if adjust != nil {
 		adjust(&d)
@@ -439,6 +444,19 @@ func TestBodyLimit(t *testing.T) {
 	if code != 400 {
 		t.Errorf("oversized body status %d", code)
 	}
+}
+
+func testProxyCIDRs(t *testing.T) []*net.IPNet {
+	t.Helper()
+	var out []*net.IPNet
+	for _, s := range []string{"0.0.0.0/0", "::/0"} {
+		_, n, err := net.ParseCIDR(s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		out = append(out, n)
+	}
+	return out
 }
 
 func mustDemos(t *testing.T) []demos.Demo {

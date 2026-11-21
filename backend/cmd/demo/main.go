@@ -236,6 +236,19 @@ func closestMove(p planResult) *plan {
 	return best
 }
 
+// requireSeedToken stops an unpinned seed before any model call. A missing
+// ADMIN_TOKEN used to make pin() a silent no-op (#417), leaving the demo cases
+// unprotected on the site the presenter was about to show.
+func requireSeedToken(token string, allowUnpinned bool) error {
+	if token != "" {
+		return nil
+	}
+	if allowUnpinned {
+		return nil
+	}
+	return fmt.Errorf("ADMIN_TOKEN is not set: seed would leave demo cases unpinned; set it or pass -allow-unpinned explicitly")
+}
+
 func seed(args []string) error {
 	fl := flag.NewFlagSet("seed", flag.ExitOnError)
 	api := fl.String("api", "http://localhost:8080", "server base URL")
@@ -244,8 +257,13 @@ func seed(args []string) error {
 	retries := fl.Int("retries", 4, "retries per request when the model provider is unavailable (waits 1, 2, 4, 8 min)")
 	dumpDir := fl.String("dump", "", "also write the full heat-gun predict, plan and scenarios responses to this directory")
 	force := fl.Bool("force", false, "seed a demo even when a pinned case with its name already exists (makes duplicates)")
+	allowUnpinned := fl.Bool("allow-unpinned", false, "explicitly allow a seed with no ADMIN_TOKEN (cases will not be pinned or protected)")
 	_ = fl.Parse(args)
-	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: os.Getenv("ADMIN_TOKEN"), idToken: os.Getenv("ID_TOKEN"), dumpDir: *dumpDir}
+	token := os.Getenv("ADMIN_TOKEN")
+	if err := requireSeedToken(token, *allowUnpinned); err != nil {
+		return err
+	}
+	c := client{base: strings.TrimRight(*api, "/"), http: &http.Client{Timeout: 10 * time.Minute}, token: token, idToken: os.Getenv("ID_TOKEN"), dumpDir: *dumpDir}
 	for i := 0; i < *retries; i++ {
 		c.waits = append(c.waits, time.Minute<<i)
 	}

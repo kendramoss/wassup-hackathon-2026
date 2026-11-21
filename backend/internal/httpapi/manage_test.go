@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -360,13 +361,47 @@ func TestLimiterKeepsNewClientsWhenFull(t *testing.T) {
 }
 
 func TestIPv6GroupedBySlash64(t *testing.T) {
+	_, cidr, err := net.ParseCIDR("0.0.0.0/0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	trusted := []*net.IPNet{cidr} // httptest's RemoteAddr is 192.0.2.1
 	a := httptest.NewRequest("GET", "/", nil)
 	a.Header.Set("X-Client-IP", "2001:db8:1:2:aaaa::1")
 	b := httptest.NewRequest("GET", "/", nil)
 	b.Header.Set("X-Client-IP", "2001:db8:1:2:bbbb::9")
 	c := httptest.NewRequest("GET", "/", nil)
 	c.Header.Set("X-Client-IP", "203.0.113.7")
-	if clientKey(a) != clientKey(b) || clientKey(c) != "203.0.113.7" {
-		t.Errorf("keys = %q %q %q", clientKey(a), clientKey(b), clientKey(c))
+	if clientKeyWithProxy(a, trusted) != clientKeyWithProxy(b, trusted) || clientKeyWithProxy(c, trusted) != "203.0.113.7" {
+		t.Errorf("keys = %q %q %q", clientKeyWithProxy(a, trusted), clientKeyWithProxy(b, trusted), clientKeyWithProxy(c, trusted))
+	}
+}
+
+// #421: X-Client-IP is caller-controlled on a direct request. It must not
+// move a client into someone else's rate bucket unless the source address is
+// in the trusted proxy list.
+func TestClientIPOnlyTrustedFromProxy(t *testing.T) {
+	_, proxy, err := net.ParseCIDR("10.0.0.0/8")
+	if err != nil {
+		t.Fatal(err)
+	}
+	direct := httptest.NewRequest("GET", "/", nil)
+	direct.RemoteAddr = "203.0.113.10:4444"
+	direct.Header.Set("X-Client-IP", "198.51.100.99")
+	if got := clientKeyWithProxy(direct, nil); got != "203.0.113.10" {
+		t.Errorf("direct spoof key = %q, want RemoteAddr", got)
+	}
+	if got := clientKeyWithProxy(direct, []*net.IPNet{proxy}); got != "203.0.113.10" {
+		t.Errorf("untrusted source key = %q, want RemoteAddr", got)
+	}
+
+	proxied := httptest.NewRequest("GET", "/", nil)
+	proxied.RemoteAddr = "10.1.2.3:5555"
+	proxied.Header.Set("X-Client-IP", "198.51.100.99")
+	if got := clientKeyWithProxy(proxied, []*net.IPNet{proxy}); got != "198.51.100.99" {
+		t.Errorf("trusted proxy key = %q, want forwarded client", got)
+	}
+	if got := clientKeyWithProxy(proxied, nil); got != "10.1.2.3" {
+		t.Errorf("unconfigured proxy key = %q, want RemoteAddr", got)
 	}
 }

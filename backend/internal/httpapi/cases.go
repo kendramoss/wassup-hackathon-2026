@@ -12,6 +12,7 @@ import (
 	"io"
 	"log/slog"
 	"math"
+	"net"
 	"net/http"
 	"sort"
 	"strings"
@@ -134,6 +135,10 @@ type Deps struct {
 	// RequireBearer refuses requests other than /health without an
 	// "Authorization: Bearer" header (REQUIRE_BEARER, off by default; D137).
 	RequireBearer bool
+	// TrustedProxyCIDRs are the source ranges whose X-Client-IP header may
+	// be used for rate-limit keys. Empty means ignore the header and key on
+	// RemoteAddr, so a direct caller cannot pick its own bucket (#421).
+	TrustedProxyCIDRs []*net.IPNet
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
@@ -824,6 +829,10 @@ type caseSummary struct {
 	WatchRoute           *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
 	Scenarios            int      `json:"scenario_count"`
 	Pinned               bool     `json:"pinned"`
+	// DemoID is the demo fixture this pinned case was seeded from, when it
+	// matches one (#412). It lets the Cases page tell a seeded demo from an
+	// unpinned card without guessing from titles.
+	DemoID string `json:"demo_id,omitempty"`
 	// CanWrite is server-computed for this caller (access.go); nil only in a
 	// row built without a request, so absent means unknown and false means read-only.
 	CanWrite *bool `json:"can_write,omitempty"`
@@ -1655,8 +1664,35 @@ func (a *api) evalSummary(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, s)
 }
 
-func (a *api) listDemos(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]any{"demos": demos.Summaries(a.d.Demos)})
+// demoSummary adds the seeded-case pointer to a demo list row (#412). A demo
+// with no pinned_case_id starts a new live case when loaded; one with an id
+// opens the recorded case already on this site.
+type demoSummary struct {
+	demos.Summary
+	PinnedCaseID string `json:"pinned_case_id,omitempty"`
+}
+
+func (a *api) listDemos(w http.ResponseWriter, r *http.Request) {
+	pinned := map[string]string{}
+	if cs, err := store.ListRecent(r.Context(), a.d.Cases, 0); err == nil {
+		for _, c := range cs {
+			if !c.Pinned {
+				continue
+			}
+			name := c.DisplayName
+			if name == "" && c.Product != nil {
+				name = c.Product.Name
+			}
+			if id := demoIDFor(a.d.Demos, name); id != "" {
+				pinned[id] = c.ID
+			}
+		}
+	}
+	rows := make([]demoSummary, 0, len(a.d.Demos))
+	for _, s := range demos.Summaries(a.d.Demos) {
+		rows = append(rows, demoSummary{Summary: s, PinnedCaseID: pinned[s.ID]})
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"demos": rows})
 }
 
 func (a *api) getDemo(w http.ResponseWriter, r *http.Request) {

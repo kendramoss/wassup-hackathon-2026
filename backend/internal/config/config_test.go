@@ -687,3 +687,18 @@ func TestProductionWarnings(t *testing.T) {
 		t.Errorf("local dev: warnings %q, err %v", c.Warnings, err)
 	}
 }
+
+// #421: the proxy trust list is explicit and a bad range is a startup error,
+// so a typo cannot silently let any caller choose its rate bucket.
+func TestTrustedProxyCIDRs(t *testing.T) {
+	c, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TRUSTED_PROXY_CIDRS": "10.0.0.0/8, 2001:db8::/32"})))
+	if err != nil || len(c.TrustedProxyCIDRs) != 2 {
+		t.Fatalf("cidrs = %d, err = %v", len(c.TrustedProxyCIDRs), err)
+	}
+	if c, err := FromEnv(getenv(vertexEnv())); err != nil || len(c.TrustedProxyCIDRs) != 0 {
+		t.Fatalf("default cidrs = %d, err = %v", len(c.TrustedProxyCIDRs), err)
+	}
+	if _, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"TRUSTED_PROXY_CIDRS": "10.0.0.0/33"}))); err == nil || !strings.Contains(err.Error(), "TRUSTED_PROXY_CIDRS") {
+		t.Errorf("bad cidr: %v", err)
+	}
+}

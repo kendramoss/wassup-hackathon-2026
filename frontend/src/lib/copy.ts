@@ -20,10 +20,12 @@ export const copy = {
     demosNote: "Demos were picked because CBP ruled on the same product, so you can compare the answer with CBP's. They show how it works, not how often it is right.",
     demosMisses: "Every held-out ruling it got wrong →",
     moreDemos: "More demos · not run on this site yet",
-    moreDemosNote: "Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
+    moreDemosNote: "These cards have no pinned case on this site. Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
     // A demo's recorded development run (D191), on its card.
     recorded: {
-      label: "Recorded development run",
+      label: "Development run · not run on this site",
+      recordLink: "View the committed run (JSON) →",
+      unseeded: "No case here · starts a live run",
       engine: "Engine:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",
@@ -115,7 +117,7 @@ export const copy = {
     pcba: { match: /PCBA/, text: "Printed circuit board assembly: the populated circuit board." },
     bar: {
       match: /precedent-check bar/,
-      text: "A plan is shown only when its precedent check is at least 0.92. This bar is for the precedent check on a move. It is separate from the origin auto-accept bar (calibrated 0.90). On every run we scored, no check above it was wrong.",
+      text: "A plan is shown only when its precedent check is at least 0.92. This bar is for the precedent check on a move. It is separate from the origin auto-accept bar (calibrated 0.90). In the historical D86 proxy pool, all 182 shown verdicts at or above it were right; later post-cutoff gateway scoring was right 9 of 9 with the starting origin and 5 of 6 without. These are proxy and gateway runs, not a guarantee.",
     },
     check: {
       match: /precedent check/i,
@@ -289,16 +291,16 @@ export const copy = {
     demo: "Try the heat-gun demo →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real CBP rulings",
-    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. Unde's plan makes those three groups in Thailand, precedent-supported at 0.96, above its 0.92 bar. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
+    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site may instead show no plan above the bar: check the live case before quoting 0.96. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part, where it is made, and which decide the origin." },
-      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Precedent check 0.96, above the 0.92 precedent-check bar", for: "N345938" },
+      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Recorded 18 Oct run: check 0.96, above the 0.92 bar. The pinned demo may show no plan above the bar.", for: "N345938" },
       { title: "2026 setup", body: "The maker moved the same parts, and the outer shells. CBP held Thailand", ruling: "N357771" },
     ],
     stepOf: (n: number) => `Step ${n} of 4`,
     sheetStates: ["2022 setup · isometric", "exploded view", "planned move", "2026 setup · isometric"],
-    planNote: "Unde · plan · check 0.96, above the 0.92 precedent-check bar",
+    planNote: "Unde · recorded 18 Oct plan · check 0.96, above the 0.92 precedent-check bar",
     planMove: "Motor-fan, PCBA, switch + cord → Thailand",
     legendCn: "Made in China",
     legendTh: "Made in Thailand",
@@ -444,7 +446,7 @@ export const copy = {
         {
           key: "misses",
           what: "See where it fails",
-          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute every number on the page from the repository.",
+          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute the headline counts on the page from the repository.",
           link: "Known failure cases →",
         },
       ],
@@ -637,7 +639,7 @@ export const copy = {
   // eval/charts/build_trust_data.py from the committed held-out run.
   trust: {
     reproTitle: "Reproduce these numbers",
-    reproLead: "Every number on this page is recomputed from files in the repository. No model calls, no account, a few minutes on a laptop.",
+    reproLead: "Headline evaluation counts are recomputed from committed result rows. No model calls, no account, a few minutes on a laptop. Other figures are labelled reported or illustrative.",
     reproNote: "Each check fails loudly if a number has drifted from its source file.",
     failTitle: "Known failure cases",
     failLead: (miss: number, auto: number, n: number) =>

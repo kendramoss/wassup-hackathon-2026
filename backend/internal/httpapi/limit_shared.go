@@ -219,6 +219,6 @@ func (a *api) rateCheck(r *http.Request, key string, c class) rateDecision {
 
 // allow is rateCheck for r's own client key, without the header state.
 func (a *api) allow(r *http.Request, c class) (bool, time.Duration) {
-	d := a.rateCheck(r, clientKey(r), c)
+	d := a.rateCheck(r, a.clientKey(r), c)
 	return d.ok, d.wait
 }

@@ -1,6 +1,6 @@
 # How the evaluation is built, traded off and benchmarked
 
-This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every number here comes from a committed file. The figures and the calibration numbers are rebuilt by two scripts with no model calls:
+This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every figure here is either computed from a committed file or explicitly labelled reported. The figures and calibration numbers are rebuilt by two scripts with no model calls:
 
 ```bash
 python3 -I eval/charts/build_evaluation.py .           # writes eval/results/evaluation-metrics.json and docs/img/*.svg
@@ -13,7 +13,7 @@ Status words follow [NUMBERS.md](NUMBERS.md): **measured** means recomputed from
 
 ## 1. What we measure and why
 
-A user gives the engine a product description and gets back a country of origin, a confidence and the earlier CBP rulings it relied on. They make one decision from that answer: **accept it, or send the case to a customs expert.** The product makes that decision with a bar. A case with confidence at or above 0.92 that the router places in scope is auto-accepted (the fast path); everything else goes to expert review.
+A user gives the engine a product description and gets back a country of origin, a confidence and the earlier CBP rulings it relied on. They make one decision from that answer: **accept it, or send the case to a customs expert.** The product makes that decision with two bars. The general engine on Gemini 4 Argon uses **calibrated confidence ≥ 0.90** (D160), which accepts exactly the same cases as the historical stated-confidence ≥ 0.92 rule; other engines use their documented stated-confidence bars and the fallback model never auto-accepts. A case in scope at the applicable bar is auto-accepted (the fast path); everything else goes to expert review.
 
 So we measure three things, in this order:
 
@@ -252,12 +252,19 @@ The rule picks 0.90, the step stated 0.92 maps to, so the product accepts exactl
 
 The model emits about 11 distinct confidence values, so the first ECE uses one bin per value. The standard 10-bin ECE puts every case from 0.90 to 1.00 in one bin and reads lower. ECE on a few hundred cases is biased upward; the intervals show how wide it is.
 
-### 4.3 What we'd add next (planned)
+**What the intervals do and do not include.** The Wilson intervals and the fixed-seed bootstrap resample the same 377 or 463 labelled rows. They describe sampling error conditional on one scored run and approximately independent rows. They do **not** include variance across prompt/model/gateway runs, label error, the fitted calibration map, or the temporal and near-duplicate structure of split construction (the second split has 62 distinct subjects in 83 rulings, and earlier held-out rulings occupy 414 of 1,885 precedent slots in the first). The three development runs of D190 measure run-to-run changes separately, but the official held-out figures remain one run.
+
+### 4.3 Search and multiplicity
+
+The production engine was pre-registered before the held-out runs, but the settings around it were chosen on development data. The 0.92 stated-confidence bar (and its calibrated 0.90 equivalent, D160) came from the dev curve (section 3.1); retrieval, prompt and threshold ablations were tried on dev (sections 3.4 and the decision log D63/D82); the adjudicator variant used in the verifier was selected after variants 1 and 2 (D82/D192). The 377-ruling and 83-ruling held-out splits were not used to search: they were frozen, scored once, and used to report the chosen configuration. Exact McNemar tests are pairwise and **unadjusted**; no family-wise error correction is applied across the ablations or the multiple comparison rows. Treat the p-values as descriptive evidence for each pair, not as a family-wide significance claim.
+
+### 4.4 What we'd add next (planned)
 
 - **Multi-run variance on Vertex AI.** Run-to-run spread is now measured through the gateway on dev (section 8) and on both held-out splits (section 8b). Repeats on the Vertex AI path itself are not run.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
-- **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
+- **A larger clean planner test set.** The engine has a second post-cutoff split (section 6) and the planner now has **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), but they were read by one person and scored once through the gateway (9/9 precision, 9/12 recall). Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. More post-cutoff rulings are needed before the intervals narrow.
 - **The routed path on the first held-out window.** The post-cutoff routed path is now scored (section 6.2); the first window's is not, because it needs an engine run on every misrouted window-1 pair.
+- **The production path for the other regimes, end to end.** The post-cutoff regime runs (section 6.1) send each case to its regime's engine; the router sent 10 of those 24 rulings to the general engine instead, and that path is not scored.
 - **A textile split rule that reads the law, not the boilerplate.** The D51 rule matches any mention of 102.21 (section 6.1).
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
 
@@ -271,7 +278,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
-- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 14 families is checked on development rulings, not evaluated.
+- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7) of **18 frozen pairs** (12 real changes, 6 controls; one reader, one gateway run). Starting-origin-given precision is 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real changes, not all 18, and the intervals are wide. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. Plan quality on the 14 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 - **The other regimes' post-cutoff splits are small** (17, 6 and 13); their routed path is scored once (section 6.2), on 107 rulings.
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
@@ -422,7 +429,7 @@ Two products per family from development or train rulings (never a test split), 
 
 The two "does not" cases cite a ruling that holds China for an all-Chinese setup; both plans leave no Chinese part, so they are likely right on their face, but the citation does not show it. Per-run detail, closest rejected move and notes: `eval/results/planner-families-summary.json`, `eval/planner/spot_checks.json`. These are development checks with illustrative economics, one run each; no later ruling tells whether a shown plan would work.
 
-Recompute both summaries with `python3 -I eval/planner/summarize.py . --check` (part of `make reproduce`); the post-cutoff counts are also recomputed by `go run ./cmd/claimscheck` (`planner_post.*`).
+Recompute both frozen summaries with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check` (both part of `make reproduce`); the combined post-cutoff counts are also reconciled by `go run ./cmd/claimscheck` (`planner_post.*`).
 
 ### 7.3 Post-cutoff flip-pair addendum (D192)
 

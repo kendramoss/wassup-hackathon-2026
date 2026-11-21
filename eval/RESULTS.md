@@ -2,7 +2,7 @@
 
 All runs are listed in `results/RUNLOG.jsonl`; per-case rows are in `results/*.jsonl`. Data: `data/` and `splits/` (sha256 in `SHA256SUMS`).
 
-> **Status (15 Oct 2026): the Vertex AI section is official.** Frozen config: engine-v1, BM25, K = 5, Gemini 4 Argon, router-v2 on Gemini 3.8 Flash, `GOOGLE_CLOUD_LOCATION=global`. The held-out split was scored once. Every section after that is still "proxy, development only" (LiteLLM). Do not put proxy numbers in the README results table or on slides.
+> **Status (15 Oct 2026): the Vertex AI section is official.** Frozen config: engine-v1, BM25, K = 5, Gemini 4 Argon, router-v2 on Gemini 3.8 Flash, `GOOGLE_CLOUD_LOCATION=global`. The held-out split was scored once. Later sections are labelled individually as **measured gateway**, **proxy, development only**, or **reported**; use the status labels in [docs/NUMBERS.md](../docs/NUMBERS.md) for slide eligibility. An unlabelled proxy number is not slide-ready.
 
 ## Origin engine — Vertex AI (official, 15 Oct 2026)
 

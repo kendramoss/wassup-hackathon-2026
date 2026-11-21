@@ -1,6 +1,6 @@
 # Workspace roles, strict auth and anonymous cases (#283)
 
-Scope: the backend only. Roles live inside the existing single-workspace model (D68); there is no multi-workspace membership, no case reassignment and no frontend role UI yet.
+Scope: roles in the existing single-workspace model (D68), with the frontend role UI added in #373. There is still no multi-workspace membership and no case reassignment.
 
 ## 1. What exists (inventory)
 
@@ -71,4 +71,4 @@ Moving a case under a user or into a workspace is not supported yet. If it is bu
 
 - Everything above is exercised against the in-memory stores. The Firestore adapter (`store/workspaces.go`) implements the same operations in transactions, but it was not run here: no emulator. An emulator test is included and skipped unless `FIRESTORE_EMULATOR_HOST` is set. Atomicity under real Firestore contention is unverified.
 - Deployed `CASE_OWNERSHIP`, `TEAMS` and `STRICT_AUTH` values are unverified.
-- Nothing in the frontend uses roles yet. Needed: role display, role selector and remove/leave for admins, disabled write actions and 403 handling for viewers, export-preview-only affordance, a sign-in-required state when strict is on.
+- The frontend uses roles (#373): role display, a role selector and remove/leave for admins, viewer-safe screens with 403 handling, a preview-only draft for viewers, and a sign-in-required state when strict is on. What remains here is multi-workspace membership and case reassignment (section 2), not a role UI.

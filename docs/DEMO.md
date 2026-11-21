@@ -4,23 +4,36 @@ Video: 3:00. Judges first. Every number on screen must trace to `docs/NUMBERS.md
 
 ## Video timeline (3:00)
 
-There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 14 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute every number.
+There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 14 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute the headline counts.
 
 The story follows one decision through the five roles on the landing page ("Who uses it, and who benefits"). They are roles Unde is designed around, not customers: it has none yet.
+
+### Plan screen: one canonical instruction, two branches
+
+The landing's "check 0.96" is a **recorded 18 Oct 2026 production run**, committed in section 6 below. The pinned case on this site came from a different run (section 4) whose plan is below the bar. Never call 0.96 the answer of the pinned case you are about to open.
+
+- **If the Plan screen shows a plan:** "This is the recorded 18 Oct run: motor-fan assembly, PCBA, switch, cord and minor parts in Thailand, check 0.96 on N345938, $285k a year on illustrative economics. The bar held the motor-fan-only move (0.90) back."
+- **If it shows no plan above the bar (the current pinned seed):** "No move cleared the 0.92 bar in this pinned run. The closest below-bar move is PCBA in Thailand at 0.75 on N345938. The landing shows a separate recorded 18 Oct run that did clear it at 0.96; the bar is deliberately conservative, so a below-bar result is not a failed search."
+
+Check which branch applies with `GET /v1/cases` (pinned `case_878d76540b91`) before the talk. The landing copy itself now labels the 0.96 as recorded and warns that the pinned demo may differ.
+
+### Which demo cards are safe to click (#412)
+
+Only the **five pinned cards** (heat gun, LiDAR, both dryer latches, LED tub light) have a seeded case on this site; open those. The newer-family cards under "More demos · not run on this site yet" are **unpinned**: loading one starts a live case and model run. During the talk, do not click them — point at their visible "Development run · not run on this site" chip, then open the linked committed JSON record instead. `GET /v1/demos` marks a seeded card with `pinned_case_id`; `GET /v1/cases` marks its row with `demo_id`. Check both before the talk; a card without those fields is a live run.
 
 | Time | Topic (judging line) | Screen | Say |
 |---|---|---|---|
 | 0:00–0:15 | **Problem** (Impact) | Landing page, hero | "When a factory moves out of China, US Customs decides where the product is *from*. For this heat gun, that's about 41.7% duty from China against 16.7% from Thailand." |
 | 0:15–0:30 | **Who, and why it's hard** (Impact) | Landing page, "Who uses it, and who benefits" | "The compliance lead at a Thai contract manufacturer asks the question. The COO pays for the move, a customs broker files the ruling request, and the U.S. importer carries the duty risk. Each ruling request takes about 20 hours to prepare, and recent origin rulings took a median of 21 days. Unde Labs answers first. *Unde* is Latin for 'from where?'." |
 | 0:30–0:50 | **Predict** (Gen AI) | "Try the heat-gun demo" → Origin | "Gemini reads CBP's own facts with the most similar earlier rulings. China, calibrated 0.60 (the model stated 0.85): under our 0.90 auto-accept bar, so it asks three questions instead of guessing." Open the cited rulings. |
-| 0:50–1:15 | **Plan and agent check** (Innovation, Gen AI) | Plan: shown plan → "How the check found this" → closest below-bar row | "It tries moving each group of work to the Thai plant. An ADK agent then searches real CBP rulings for and against each move. Shown: motor-fan assembly, PCBA, switch and cord in Thailand, 0.96, supported by N345938, $285k a year on illustrative economics. Motor-fan alone scored 0.90, so the 0.92 precedent-check bar held it back." |
+| 0:50–1:15 | **Plan and agent check** (Innovation, Gen AI) | Plan: shown plan → "How the check found this" → closest below-bar row | "It tries moving each group of work to the Thai plant. An ADK agent then searches real CBP rulings for and against each move. Use the two-branch instruction above: quote 0.96 only if the screen shows the recorded 18 Oct plan; if the pinned case shows no plan above the bar, say so and name its closest below-bar move." |
 | 1:15–1:25 | **Backtest** (Innovation, Impact) | Backtest panel | "The manufacturer really made this change. In 2026, CBP ruled Thailand, N357771: the same parts, plus outer shells that were already Thai here." |
 | 1:25–1:35 | **Hand-off** (UX, Impact) | Draft for broker (it opens on the shown plan) | "One click: a draft ruling request for the broker to check and file. Precedent-supported, not a ruling." |
 | 1:35–1:45 | **Photo import** (Gen AI, UX) | New case → Import BOM → click "Photo (synthetic)" (it loads in place) → Parts and plants | "A parts list can come in as a photo or a scan. Gemini reads it into a draft table, and the user checks every row before anything runs. On 20 synthetic images it read 151 of 170 part names, with no wrong country; real photos and scans are not measured yet, so every row is treated as unverified." |
 | 1:45–1:55 | **14 product families** (Impact, Innovation) | Cases → "More demos" → gas grill → Origin | "Plans now cover 14 product families, from heat guns to cables, chargers, pumps, hand tools and gas grills. This gas grill is CBP's own case, N335085: CBP held China." Cut (visible "⏩") to the result the site gives on the day; say it is a live run. |
 | 1:55–2:05 | **Use it from Claude** (Technical merit, UX) | Terminal: `claude mcp add --transport http unde https://undelabs.dev/mcp`, then ask Claude | "The same tools work from Claude over MCP: 13 tools, one line to add. Claude calls predict_origin and plan_production_moves, with the same limits as the API." |
-| 2:05–2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings never used to tune it: 90.2%, against 63.4% for the best simple rule we recomputed. It auto-accepts 79.6% of cases at 96.0%. 182 precedent checks (17 distinct product pairs) reached the bar; none was wrong." |
-| 2:25–2:45 | **Trust** (Technical merit) | Accuracy → "Known failure cases" → "Reproduce these numbers" | "Every held-out miss is listed by ruling: all 37 of the 377, 12 of them auto-accepted. And every number on this page is recomputed from the repository with one command, `make reproduce`: no model calls, no account." |
+| 2:05–2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings not used to tune it: 90.2%, against 63.4% for the best simple rule we recomputed. It auto-accepts 79.6% of cases at 96.0%. In the historical D86 proxy pool, 182 shown verdicts (17 distinct product pairs) cleared the bar and none was wrong; in later post-cutoff gateway scoring it was right 9 of 9 with the starting origin and 5 of 6 without. These are proxy and gateway runs, not a guarantee." |
+| 2:25–2:45 | **Trust** (Technical merit) | Accuracy → "Known failure cases" → "Reproduce these numbers" | "Every held-out miss is listed by ruling: all 37 of the 377, 12 of them auto-accepted. And the headline evaluation counts are recomputed from committed rows with one command, `make reproduce`: no model calls, no account. Other figures are labelled reported, external, illustrative or one-run demo." |
 | 2:45–2:55 | **How it's built** (Gen AI, technical merit) | Accuracy → "How it's built" | "Next.js and Go on Cloud Run, Gemini 4 Argon and 3.8 Flash on Vertex AI, an ADK agent for the precedent check, and cases in Firestore." |
 | 2:55–3:00 | **Close** | Landing page | "Plan the production change before you build it. Unde Labs." |
 
@@ -38,22 +51,28 @@ Rehearse to 2:55. If a screen loads slowly, cut with a visible "⏩"; never spli
 - Gas grill: the demo is `gas-grill-2023` (backend/internal/demos/fixtures). Unless it has been seeded as a pinned case, loading it runs live on production, so the result is that day's run. A development check through an OpenAI-compatible LiteLLM gateway to Gemini predicted China 0.95 and showed one plan at 0.96 on N333420 (eval/results/families-plan-gas-grill-2023-litellm.json). That run is a record, not the production result; say only what the screen shows.
 - Claude connector: run it from a clean Claude Code session. Without an API key it uses the anonymous tier; `predict_origin` returns a `case_access_key` that the next tool calls need.
 
-## 1. Prepare (about 10 minutes, the day of recording)
+## 1. Prepare (the day before, never during the talk)
+
+Talk day uses the committed cases and caches; **do not seed on stage** (#417). Seeding is a separate, credentialed operation that can take far longer than the old "3–5 min" note claimed.
 
 1. Start the backend on Vertex, the only model provider (D49). Local development needs Application Default Credentials (`gcloud auth application-default login`).
    ```bash
    make run   # GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global
    ```
    Keep the verdict cache on (the default: `VERIFIER_CACHE_DIR=../data/verifier-cache` locally; on Cloud Run it is the Firestore collection `verifier_cache`, shared by every instance, D50). Engine predictions are cached beside it (`engine_cache`, D54), so a replayed case and its plan search make no model calls; delete both collections (or both directories locally) to start fresh. Cases are saved under `data/cases`.
-2. Seed every demo:
+2. **Read-only pre-flight first** (no token, no model call): confirm the pinned cases are present and the committed production record says the repeat search agreed.
    ```bash
-   make demo-seed   # ~3–5 min; writes eval/results/demo-seed.json
+   curl -fsS https://undelabs.dev/api/v1/cases | python3 -c 'import json,sys; d=json.load(sys.stdin); print([c["id"] for c in d["cases"]])'
+   grep -F 'repeat plan search: verdicts identical=true' eval/results/demo-seed-vertex-prod.json
    ```
-   `make run` and `make demo-seed` share a local admin token, so the seed is not rate-limited and pins the demo cases (listed first; visitors cannot delete them, D45). Against Cloud Run, set `ADMIN_TOKEN` to the service's token and `ID_TOKEN=$(gcloud auth print-identity-token)`, then `go run ./cmd/demo seed -api <URL>`.
+   `eval/results/demo-seed-vertex-prod.json` is the committed 17–18 Oct production record; `eval/results/demo-seed.json` is **not committed** and only appears if you run the seed locally. Write down what the plan screens show before the talk.
+3. Seeding is optional and needs credentials. `make run` and `make demo-seed` share a local admin token, so the seed is not rate-limited and pins the demo cases (listed first; visitors cannot delete them, D45). Against Cloud Run, set `ADMIN_TOKEN` to the service's token and `ID_TOKEN=$(gcloud auth print-identity-token)`, then `go run ./cmd/demo seed -api <URL>`. The seed now **stops before any model call** if `ADMIN_TOKEN` is missing, unless `-allow-unpinned` is passed deliberately; without it `pin()` used to be a silent no-op and leave the cases unprotected (#417).
+   ```bash
+   make demo-seed   # writes the untracked eval/results/demo-seed.json; remove it before a clean-checkout check
+   ```
    It creates a case for each demo, runs the plan searches, and fills the heat gun's scenarios, ruling watch, one ask and the multi-country comparison. It then repeats the heat-gun plan search and prints `verdicts identical=true`. If it prints a WARNING, the cache is off.
-3. Open `eval/results/demo-seed.json` and write down what the plan screens will show. From now on, replays return these verdicts (in seconds, not ~30 s).
 
-If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavailable`), the seed now waits and retries each request (1, 2, 4 then 8 minutes; `-retries`). To restart a seed that stopped, delete the cases it created (admin token, `DELETE /v1/cases/{id}`) and run it again: every finished prediction and precedent check is cached (D50, D54), so a rerun repeats those answers exactly and only computes what never finished. That is not a re-roll.
+If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavailable`), the seed waits and retries each request (1, 2, 4 then 8 minutes; `-retries`). With the 10-minute HTTP timeout, the worst case is roughly 65 minutes for one request (5 attempts × 10 min + 15 min of sleeps), so the old "3–5 min" estimate only holds when the provider is healthy. Run it the day before and leave time to verify; do not start it during the talk. To restart a seed that stopped, delete the cases it created (admin token, `DELETE /v1/cases/{id}`) and run it again: every finished prediction and precedent check is cached (D50, D54), so a rerun repeats those answers exactly and only computes what never finished. That is not a re-roll.
 
 ## 2. What the first run decides, and what not to do
 
@@ -86,12 +105,12 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
    7. Optional, if a judge asks about money: the duty panel. China 41.7% (MFN 4.2% + Section 301 List 2 25% + 2026 Section 301 12.5%) against Thailand 16.7%.
 7. **Draft for broker.** It opens on the shown plan ("Draft for today's setup instead" is the second choice): a 19 C.F.R. § 177.2 ruling request, in the requester's voice (CBP's reply wording in the pasted facts is left out, D180). Its banner says "generated by Unde… check every fact and citation before filing". Print or download.
 8. **Photo import.** "+ New case" → Import BOM → click the "Photo (synthetic)" sample under the drop zone; it loads straight into the importer. It opens in Parts and plants as a draft to check. Point at the note that photos are read by AI into a draft. If you quote accuracy, say "on 20 synthetic images, illustrative: 151 of 170 part names, no wrong country"; real photos are not measured.
-9. **A newer product family.** Cases → "More demos · not run yet" → "Gas grill, parts formed in China, enamelled and assembled in Indonesia" → Find the likely origin. CBP held China (N335085, scenario 1). Its plan targets Indonesia; the backtest is the same ruling's scenario 2 (lids and fireboxes formed in Indonesia: Indonesia).
+9. **A newer product family (do not click live).** Cases → "More demos · not run on this site yet" → gas grill. Do **not** press "Load demo": point at the "Development run · not run on this site" chip and open its committed JSON record. CBP held China (N335085, scenario 1); the recorded development plan targets Indonesia and the backtest is the same ruling's scenario 2 (lids and fireboxes formed in Indonesia: Indonesia). Say plainly that this is a recorded development run, not this site's answer.
 10. **Claude connector.** /developers ("API · MCP" in the top bar) shows the one-line setup and the 13 tools. In a terminal: `claude mcp add --transport http unde https://undelabs.dev/mcp`, then ask "Where would CBP say a heat gun assembled in Thailand from Chinese motor and PCBA is from?".
 11. **Accuracy.** Say these numbers:
    - **90.2%** on 377 held-out CBP rulings (Vertex, official), against 63.4% for the best simple rule we recomputed (first country named; D155). On 83 newer rulings (Sep–Nov 2026, gateway, scored once): 92.8%. If asked about the gateway: it agrees with Vertex AI on the development set (p = 0.58, D151).
    - The fast path auto-accepts 79.6% of cases at 96.0%.
-   - The "Precedent check" section: **182 checks reached the 0.92 bar across all runs; none was wrong.** Say the denominator too: proxy runs over 54 development pairs and 21 pairs from 2026, 17 pairs when each is counted once.
+   - The "Precedent check" section: **in the historical D86 proxy pool, 182 shown verdicts reached the 0.92 bar and none was wrong** (proxy runs over 54 development pairs and 21 pairs from 2026; 17 pairs counted once). Then say: later post-cutoff gateway scoring was right 9 of 9 with the starting origin and 5 of 6 without it. These are not guarantees.
    - The "Known failure cases" section: every held-out miss, by ruling. Scroll to it; showing the misses is part of the claim.
 
 **Before recording:**

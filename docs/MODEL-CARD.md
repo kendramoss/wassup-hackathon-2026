@@ -64,7 +64,7 @@ The factors that change accuracy, from the evaluation and the failure analysis b
 | Cost and latency per prediction | [NUMBERS.md](NUMBERS.md) | from the same held-out rows |
 | Failure cases, accuracy by origin | section 6 below; the Accuracy page | `python3 -I eval/charts/build_trust_data.py . --check` |
 
-All of these run with `make reproduce`, with no model calls and no credentials.
+The recomputed rows and ledger checks run with `make reproduce`, with no model calls and no credentials. Confidence intervals, label counts by method, cost and latency figures are reported from `eval/RESULTS.md`, not recomputed there.
 
 **Calibration finding (measured).** The engine is overconfident: its mean stated confidence is above its accuracy, by about 4.5 points on the held-out set (the calibration row of [NUMBERS.md](NUMBERS.md)). Selecting by confidence still works: accepted cases are more accurate than the rest. Treat the stated confidence as a ranking, not as a probability. The calibrated confidence the product shows for the general engine on Gemini 4 Argon is fitted to be read as a probability (D160): on the 377 it averages 90.2% against 90.2% right, ECE 0.028. The gap between fast-path accuracy and overall accuracy is not evidence of calibration ([claims-reconciliation.md](claims-reconciliation.md)).
 
@@ -76,7 +76,7 @@ All of these run with `make reproduce`, with no model calls and no credentials.
 - The model's pre-training may have seen some 2026 rulings. This cannot be excluded.
 - Rulings where CBP held two or more countries are left out, so the benchmark is silent on "it depends" answers.
 - The simple-rule baselines were recomputed from committed files with no model (D155): the best, the first country named, is 63.4%; most-mentioned is 60.7%. The research write-up's figures (most-mentioned 60.5%, final assembly 40.6%) are not reproducible here; they are unverified and kept only as history.
-- The planner's precedent check is measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)). A clean post-cutoff test exists but is small: 15 flip pairs, read by one person, scored once through the gateway (D170).
+- The planner's precedent check is also measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)). The clean post-cutoff test exists but is small: **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), read by one person and scored once through the gateway. Starting-origin-given precision was 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real-change pairs, not all 18. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`.
 
 ## 6. Known failure modes
 
@@ -114,7 +114,7 @@ Every held-out ruling the engine got wrong is listed, with a link to CBP's rulin
 - **No jurisdiction guard.** A question about another country's rules gets a U.S. answer.
 - **Planner recall.** The precedent check is strict: about 30% of real origin changes clear its bar on the development pairs. A move that would work may be shown as "below the bar" with its closest ruling.
 - **Run-to-run variation.** Temperature 0 and a seed reduce it but do not remove it; plan verdicts are cached so a repeat search is stable.
-- **Inputs are taken as true.** If the bill of materials is wrong, the answer is wrong. Imports from images and scans are drafts the user must check; their field accuracy is not measured yet ([MULTIMODAL.md](MULTIMODAL.md)).
+- **Inputs are taken as true.** If the bill of materials is wrong, the answer is wrong. Imports from images and scans are drafts the user must check. Measured once on 20 synthetic images: 151/170 part names read exactly and 151/170 countries correct; 15/20 images fully read; gateway, Gemini 4 Argon. Accuracy on real photos, scans and handwriting is not measured ([MULTIMODAL.md](MULTIMODAL.md)).
 
 ## 7. Ethical and legal considerations
 

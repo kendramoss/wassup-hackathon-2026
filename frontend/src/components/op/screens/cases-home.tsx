@@ -35,8 +35,19 @@ export function CasesHome() {
 
   const pinned = cases?.filter((c) => c.pinned) ?? [];
   const yours = cases?.filter((c) => !c.pinned) ?? [];
+  // #412: trust the server's demo_id when present (older seeds only expose
+  // the display name, so keep that as a fallback rather than hiding cards).
   const pinnedTitles = new Set(pinned.map((c) => c.display_name));
-  const unseeded = pinned.length > 0 ? (demos ?? []).filter((d) => d.title && !pinnedTitles.has(d.title)) : [];
+  const unseeded =
+    pinned.length > 0
+      ? (demos ?? []).filter(
+          (d) =>
+            d.title &&
+            !pinned.some((c) =>
+              c.demo_id ? d.id === c.demo_id : pinnedTitles.has(d.title ?? ""),
+            ),
+        )
+      : [];
 
   return (
     <Main>
@@ -166,6 +177,7 @@ function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
       {d.recorded && <RecordedRun r={d.recorded} />}
       <span className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2 text-xs">
         <span className="text-ok">Load demo →</span>
+        <Chip tone="ask">{copy.cases.recorded.unseeded}</Chip>
         {d.has_plan && <Chip tone="ok">Plan included</Chip>}
       </span>
     </Link>
@@ -194,6 +206,16 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
         </span>
       ) : (
         <span className="text-dim">{T.noPlan}</span>
+      )}
+      {r.file && (
+        <a
+          href={`https://github.com/kendramoss/wassup-hackathon-2026/blob/main/${encodeURI(r.file)}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-ok underline underline-offset-2"
+        >
+          {T.recordLink}
+        </a>
       )}
     </span>
   );

@@ -67,3 +67,18 @@ func TestClosestMoveTieKeepsListOrder(t *testing.T) {
 		t.Errorf("closest = %+v", x)
 	}
 }
+
+// #417: an unpinned seed must be an explicit choice, not a silent no-op in
+// client.pin() that leaves the demo cases unprotected.
+func TestRequireSeedToken(t *testing.T) {
+	if err := requireSeedToken("token", false); err != nil {
+		t.Errorf("with a token: %v", err)
+	}
+	if err := requireSeedToken("", true); err != nil {
+		t.Errorf("explicit -allow-unpinned: %v", err)
+	}
+	err := requireSeedToken("", false)
+	if err == nil || !strings.Contains(err.Error(), "ADMIN_TOKEN") {
+		t.Errorf("missing token should fail loudly, got %v", err)
+	}
+}

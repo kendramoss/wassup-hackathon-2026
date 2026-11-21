@@ -392,7 +392,7 @@ func indexOfReview(rvs []store.BrokerReview, id string) int {
 // invalid API key) and is recorded as an anonymous auth denial. A real link
 // that was revoked or has expired is a 410.
 func (a *api) reviewByToken(w http.ResponseWriter, r *http.Request) (store.Case, store.BrokerReview, bool) {
-	client := clientKey(r)
+	client := a.clientKey(r)
 	if ok, wait := a.reviewFails.allowed(client); !ok {
 		secs := max(1, int(math.Ceil(wait.Seconds())))
 		w.Header().Set("Retry-After", fmt.Sprint(secs))
