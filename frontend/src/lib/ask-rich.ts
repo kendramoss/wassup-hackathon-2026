@@ -45,6 +45,11 @@ function card(v: unknown): WhatIf | null {
     if (typeof v.confidence !== "number" || !Number.isFinite(v.confidence)) return null;
     out.confidence = v.confidence;
   }
+  if (v.calibrated_confidence !== undefined && v.calibrated_confidence !== null) {
+    const c = v.calibrated_confidence;
+    if (typeof c !== "number" || !Number.isFinite(c) || c < 0 || c > 1) return null;
+    out.calibrated_confidence = c;
+  }
   return typeof out.change === "string" || typeof out.origin === "string" ? (out as WhatIf) : null;
 }
 

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, opLock, saveEconomics, type CaseResponse, type Economics, type Scenario } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, money, pct } from "@/lib/format";
+import { money, originConf, originConfCaption, pct } from "@/lib/format";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { ErrorBox, Footer, Main, Next } from "../chrome";
 import { MFN_ONLY, liveMfnFetched, liveMfnOrigins, pricedEconomics } from "@/lib/live-mfn";
@@ -351,7 +351,10 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
                 )}
               </p>
             )}
-            <Ruler value={p.confidence} label={`${BAR} auto-accept`} width={220} caption={`confidence ${conf(p.confidence)}`} />
+            {(() => {
+              const o = originConf(p);
+              return <Ruler value={o.value} bar={o.bar} label={`${o.bar.toFixed(2)} auto-accept`} width={220} caption={originConfCaption(o)} />;
+            })()}
             {p.decisive_step && <p className="duo clamp-2 text-[13px]">{p.decisive_step}</p>}
             {cmp?.origin_differs_from_current && cur && (nothingMoves || !s.product) && (
               <p className="duo text-[13px] text-ask">

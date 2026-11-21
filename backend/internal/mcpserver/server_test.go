@@ -139,7 +139,7 @@ func TestPredictForwardsOnlyIdentityAndSummarises(t *testing.T) {
 			t.Errorf("%s forwarded to the API", h)
 		}
 	}
-	if !strings.Contains(txt, "Likely origin: Thailand (confidence 97%)") || !strings.Contains(txt, "N300001") || !strings.Contains(txt, "case_0123456789ab") || !strings.HasSuffix(txt, Disclaimer) {
+	if !strings.Contains(txt, "Likely origin: Thailand (confidence 97% as stated by the model, not calibrated)") || !strings.Contains(txt, "N300001") || !strings.Contains(txt, "case_0123456789ab") || !strings.HasSuffix(txt, Disclaimer) {
 		t.Errorf("summary: %s", txt)
 	}
 	if out["history"] != nil || obj(out["prediction"])["trace"] != nil || out["case_access_key"] != nil {
@@ -218,5 +218,14 @@ func TestGuard(t *testing.T) {
 	}
 	if _, ok := bearerKey("Bearer eyJhbGciOi.identity.token"); ok {
 		t.Error("a platform identity token was read as an API key")
+	}
+}
+
+func TestConfPhraseNamesCalibration(t *testing.T) {
+	if got := confPhrase(map[string]any{"confidence": 0.97, "calibrated_confidence": 0.9355}); got != "calibrated confidence 94%; the model stated 97%" {
+		t.Errorf("calibrated: %q", got)
+	}
+	if got := confPhrase(map[string]any{"confidence": 0.97}); got != "confidence 97% as stated by the model, not calibrated" {
+		t.Errorf("stated only: %q", got)
 	}
 }

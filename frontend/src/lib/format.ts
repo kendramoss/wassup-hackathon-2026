@@ -1,7 +1,29 @@
 // Formatting shared by every screen.
 
-// The auto-accept bar and the plan bar (D32, D35): 0.92 everywhere.
+// The plan bar (D35), and the origin auto-accept bar on the model's stated
+// confidence (D32): 0.92. Stated confidence is used for origin only when the
+// API returns no calibrated value (other engines, the fallback model).
 export const BAR = 0.92;
+
+// The origin auto-accept bar on calibrated probability (D160). On engine-v1
+// with Gemini 4 Argon it accepts exactly the cases a stated 0.92 did.
+export const CAL_BAR = 0.9;
+
+// Which confidence an origin prediction carries: the calibrated probability
+// when the API returned one, else the model's stated value with its own bar.
+export type OriginConf = { value: number | null | undefined; stated: number | null | undefined; bar: number; calibrated: boolean };
+
+export function originConf(p: { confidence?: number | null; calibrated_confidence?: number | null } | null | undefined): OriginConf {
+  const cal = p?.calibrated_confidence;
+  if (cal !== null && cal !== undefined) return { value: cal, stated: p?.confidence, bar: CAL_BAR, calibrated: true };
+  return { value: p?.confidence, stated: p?.confidence, bar: BAR, calibrated: false };
+}
+
+// "calibrated 0.94 · model stated 0.97"; without a calibrated value, the
+// caption as before D160, "confidence 0.97" (the model's own value).
+export function originConfCaption(o: OriginConf): string {
+  return o.calibrated ? `calibrated ${conf(o.value)} · model stated ${conf(o.stated)}` : `confidence ${conf(o.value)}`;
+}
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

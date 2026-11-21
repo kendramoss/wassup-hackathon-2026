@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T07:20:58Z",
+  "generated_at": "2026-11-21T07:34:00Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -35,7 +35,7 @@
     },
     {
       "key": "final_fastpath_accuracy",
-      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "label": "Held-out (377 rulings, Jan–Sep 2026): fast path (calibrated confidence ≥ 0.90, the same cases as stated confidence ≥ 0.92, and in scope) accuracy",
       "value": 0.96,
       "ci_low": 0.9314,
       "ci_high": 0.977,
@@ -111,7 +111,7 @@
     },
     {
       "key": "dev_fastpath_accuracy",
-      "label": "Development (469 rulings, Jul–Dec 2025): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "label": "Development (469 rulings, Jul–Dec 2025): fast path (calibrated confidence ≥ 0.90, the same cases as stated confidence ≥ 0.92, and in scope) accuracy",
       "value": 0.9569,
       "ci_low": 0.9311,
       "ci_high": 0.9733,
@@ -199,6 +199,42 @@
       "source": "eval/results/baselines-final.json (go run ./cmd/eval baselines, no model)"
     },
     {
+      "key": "final_calibration_mean_stated",
+      "label": "Held-out (377 rulings), calibration: mean stated confidence",
+      "value": 0.94748,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"
+    },
+    {
+      "key": "final_calibration_mean_calibrated",
+      "label": "Held-out (377 rulings), calibration: mean calibrated probability",
+      "value": 0.902334,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"
+    },
+    {
+      "key": "final_calibration_ece_stated",
+      "label": "Held-out (377 rulings), calibration: ECE of stated confidence (one bin per value)",
+      "value": 0.058515,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"
+    },
+    {
+      "key": "final_calibration_ece_calibrated",
+      "label": "Held-out (377 rulings), calibration: ECE of calibrated probability (one bin per value)",
+      "value": 0.028468,
+      "n": 377,
+      "split": "final",
+      "development_only": false,
+      "source": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"
+    },
+    {
       "key": "final2_accuracy",
       "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway) accuracy",
       "value": 0.927711,
@@ -211,7 +247,7 @@
     },
     {
       "key": "final2_fastpath_accuracy",
-      "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway): fast path (confidence ≥ 0.92 and in scope) accuracy",
+      "label": "Second held-out (83 rulings, Sep–Nov 2026, gateway): fast path (calibrated confidence ≥ 0.90, the same cases as stated confidence ≥ 0.92, and in scope) accuracy",
       "value": 0.973333,
       "ci_low": 0.907883,
       "ci_high": 0.992656,

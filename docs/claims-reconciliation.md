@@ -119,8 +119,24 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `planner_post.known_a.shown_right` | 8 | of those, real changes with CBP's later origin named |
 | `planner_post.known_a.controls_shown` | 0 | no-change pairs supported at the bar |
 | `planner_post.known_a.recall_pct` | 72.7 | real changes shown and right, percent |
+| `cal.version` | cal-v2 | calibration map version (backend/internal/calibrate/map.json, D160) |
+| `cal.bar` | 0.9 | auto-accept bar on calibrated probability |
+| `final.cal.fast.n` | 300 | auto-accepted at the calibrated bar and in scope |
+| `final.cal.fast.correct` | 288 | of those, correct |
+| `final.cal.fast.accuracy_pct` | 96.0 | accuracy of auto-accepted, percent |
+| `final.cal.mean_stated_pct` | 94.7 | mean stated confidence, percent |
+| `final.cal.mean_calibrated_pct` | 90.2 | mean calibrated probability, percent |
+| `final.cal.ece_stated` | 0.0585 | ECE of stated confidence, one bin per value |
+| `final.cal.ece_calibrated` | 0.0285 | ECE of calibrated probability, one bin per value |
+| `dev.cal.fast.n` | 368 | auto-accepted at the calibrated bar and in scope (development set; the bar was fitted here) |
+| `dev.cal.fast.correct` | 355 | of those, correct |
+| `dev.cal.fast.accuracy_pct` | 96.5 | accuracy of auto-accepted, percent |
+| `dev.cal.mean_stated_pct` | 94.9 | mean stated confidence, percent |
+| `dev.cal.mean_calibrated_pct` | 90.8 | mean calibrated probability, percent (in sample) |
+| `dev.cal.ece_stated` | 0.0498 | ECE of stated confidence |
+| `dev.cal.ece_calibrated` | 0.0031 | ECE of calibrated probability (in sample: the map was fitted here) |
 
-Two further consistency checks run on every invocation: the held-out and development result ids must equal the ids in the split file, and the `global` policy counts in `eval/results/calibration-by-family.json` must equal the fast-path counts recomputed from the rows (a separate program produced that file). The baseline and lift figures discussed in 3.3 are deliberately not in this table: they cannot be recomputed from the repository.
+Two further consistency checks run on every invocation: the held-out and development result ids must equal the ids in the split file, the `global` policy counts in `eval/results/calibration-by-family.json` must equal the fast-path counts recomputed from the rows (a separate program produced that file), and the calibrated bar in `backend/internal/calibrate/map.json` must accept exactly the cases the stated 0.92 bar accepts, on both splits (D160; the `cal.` rows are recomputed in Go from that map, independently of the Python build that wrote it). The baseline and lift figures discussed in 3.3 are deliberately not in this table: they cannot be recomputed from the repository.
 
 ## 3. Benchmark claims
 
@@ -258,6 +274,7 @@ c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/d
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
+7fba593939b585c06e05ba9ee46db38c5fff0896aa8104427e71c273890a0f4b  backend/internal/calibrate/map.json
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl
 6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d  backend/data/labels_usmca.jsonl
 ad7227af446b0412395673de95749d0da1ab2ab54de3bd99c63e49084e4d7d08  names:backend/data/facts

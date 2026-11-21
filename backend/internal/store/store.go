@@ -128,8 +128,11 @@ type ChatWhatIf struct {
 	Change     string  `json:"change"`
 	Origin     string  `json:"origin"`
 	Confidence float64 `json:"confidence"`
-	Decisive   string  `json:"decisive_step"`
-	Facts      string  `json:"facts,omitempty"`
+	// CalibratedConfidence is the calibrated probability when the run had
+	// one (D160).
+	CalibratedConfidence *float64 `json:"calibrated_confidence,omitempty"`
+	Decisive             string   `json:"decisive_step"`
+	Facts                string   `json:"facts,omitempty"`
 	// Regime is the regime that answered; Specialist, Scope, Route and
 	// Reason are the dispatch and triage of that run (#319). Provisional is
 	// set when the result was not regime-confirmed. All are omitted when

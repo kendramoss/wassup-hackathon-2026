@@ -169,7 +169,7 @@ var knownMessages = []string{
 	"USMCA engine on", "api key disabled", "api key failures limited", "api key issued", "api key quota exceeded", "api key quota not counted",
 	"audit retention purge", "audit retention purge failed", "audit trail NOT enabled: no events are recorded and no audit evidence is produced (set AUDIT_ACTOR_KEY, or AUDIT=on with it)",
 	"audit trail is in memory: it is lost on restart and not shared between instances", "audit trail on", "audit write failed",
-	"auto-accept bars by subfamily", "cases persisted in Firestore", "cases persisted",
+	"auto-accept bars by subfamily", "calibrated confidence on", "cases persisted in Firestore", "cases persisted",
 	"clarify failed; staying needs_review", "client daily model budget reached", "config", "corpus loaded", "daily model budget reached",
 	"daily model spend cap", "engine fallback on", "fatal", "following near-miss advice", "health check failed",
 	"hts reasons failed; candidates without reasons", "hts suggest on",

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 	"io"
 	"log/slog"
 	"math"
@@ -171,6 +172,12 @@ type Deps struct {
 	// with the bar of the router's subfamily; the triage reason names it
 	// (D63). Nil keeps the global bar.
 	FamilyBars *triage.FamilyBars
+	// Calibration, when set (CALIBRATION=on, the default), attaches the
+	// calibrated probability to general-engine predictions it was fitted for
+	// and triages those on CalibratedFastPath (D160). Nil: stated confidence
+	// only.
+	Calibration        *calibrate.Map
+	CalibratedFastPath float64
 	// CasesListLimit caps GET /v1/cases at every pinned case plus this many
 	// others, newest first (0: 200; D58).
 	CasesListLimit int
@@ -769,13 +776,16 @@ type caseSummary struct {
 	Origin      *string  `json:"predicted_origin"`
 	Route       *string  `json:"triage_route"`
 	Confidence  *float64 `json:"confidence"`
-	Step        string   `json:"step"`
-	UpdatedAt   string   `json:"updated_at"`
-	Watch       *string  `json:"watch_status"` // null until re-checked; unchanged | changed
-	WatchBasis  *string  `json:"watch_basis"`  // why: store.WatchBasis*; null until re-checked or for a watch saved without provenance
-	WatchRoute  *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
-	Scenarios   int      `json:"scenario_count"`
-	Pinned      bool     `json:"pinned"`
+	// CalibratedConfidence is the prediction's calibrated probability (D160);
+	// null when it has none.
+	CalibratedConfidence *float64 `json:"calibrated_confidence"`
+	Step                 string   `json:"step"`
+	UpdatedAt            string   `json:"updated_at"`
+	Watch                *string  `json:"watch_status"` // null until re-checked; unchanged | changed
+	WatchBasis           *string  `json:"watch_basis"`  // why: store.WatchBasis*; null until re-checked or for a watch saved without provenance
+	WatchRoute           *string  `json:"watch_route"`  // the watch result's triage route; null as watch_basis
+	Scenarios            int      `json:"scenario_count"`
+	Pinned               bool     `json:"pinned"`
 	// CanWrite is server-computed for this caller (access.go); nil only in a
 	// row built without a request, so absent means unknown and false means read-only.
 	CanWrite *bool `json:"can_write,omitempty"`
@@ -931,6 +941,7 @@ func summaryRow(c store.Case) caseSummary {
 	if c.Prediction.Origin != "" {
 		o, route, conf := c.Prediction.Origin, string(c.Triage.Route), c.Prediction.Confidence
 		row.Origin, row.Route, row.Confidence = &o, &route, &conf
+		row.CalibratedConfidence = c.Prediction.CalibratedConfidence
 	}
 	return row
 }

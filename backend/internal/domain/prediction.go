@@ -39,7 +39,14 @@ type Prediction struct {
 	KeyFactors   []string `json:"key_factors"`
 	DecisiveStep string   `json:"decisive_step"`
 	Confidence   float64  `json:"confidence"`
-	Reasoning    string   `json:"reasoning"`
+	// CalibratedConfidence is the probability that Origin is right, from the
+	// calibration map fitted on the development set (internal/calibrate,
+	// D160). Nil when no map was fitted for the engine and model that
+	// answered; Confidence is then the model's own stated value only.
+	CalibratedConfidence *float64 `json:"calibrated_confidence,omitempty"`
+	// Calibration names the map version behind CalibratedConfidence.
+	Calibration string `json:"calibration,omitempty"`
+	Reasoning   string `json:"reasoning"`
 	// CitedRulings are the precedents the model named in its reasoning, in
 	// retrieval order; Precedents are all rulings shown to it.
 	CitedRulings []string `json:"cited_rulings"`
@@ -58,6 +65,9 @@ func (p Prediction) Validate() error {
 	}
 	if p.Confidence < 0 || p.Confidence > 1 {
 		errs.add("confidence %v is outside [0, 1]", p.Confidence)
+	}
+	if c := p.CalibratedConfidence; c != nil && (*c < 0 || *c > 1) {
+		errs.add("calibrated_confidence %v is outside [0, 1]", *c)
 	}
 	for _, id := range p.CitedRulings {
 		if !ValidRulingID(id) {

@@ -58,6 +58,11 @@ export function AccuracyPage() {
   const f2Acc = get("final2_accuracy");
   const f2FpAcc = get("final2_fastpath_accuracy");
   const f2FpCov = get("final2_fastpath_coverage");
+  // D160: the calibration map the server applies, checked on the held-out rows.
+  const calStated = get("final_calibration_mean_stated");
+  const calMean = get("final_calibration_mean_calibrated");
+  const eceStated = get("final_calibration_ece_stated");
+  const eceCal = get("final_calibration_ece_calibrated");
   const change = get("change_detection_heldout");
   const changeBase = get("change_detection_always_change_baseline");
   const movePrec = get("verifier_unknown-a_precision");
@@ -191,8 +196,8 @@ export function AccuracyPage() {
               <Card title="Overall" big={pct(acc.value)}>
                 {right} of {n} right ({ci(acc)}).
               </Card>
-              <Card title="Auto-accepted (confidence ≥ 0.92)" big={pct(fpAcc?.value)}>
-                right, on {pct(fpCov?.value)} of cases ({ci(fpAcc)}). This is the 0.92 bar on every Result screen.
+              <Card title="Auto-accepted (calibrated ≥ 0.90)" big={pct(fpAcc?.value)}>
+                right, on {pct(fpCov?.value)} of cases ({ci(fpAcc)}). This is the auto-accept bar on every Result screen. It takes the same cases as a stated confidence of 0.92.
               </Card>
               <Card title="Sent to review" big={String(review)}>
                 cases, {reviewRight} right ({pct(reviewRight / Math.max(review, 1), 0)}, against {pct(fpAcc?.value, 0)} when it&apos;s sure), so a person checks them.
@@ -282,6 +287,24 @@ export function AccuracyPage() {
                 <Card title="Real changes found" big={pct(postRec.value, 0)}>
                   {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
                   broker as below the bar or without a supporting ruling.
+                </Card>
+              </div>
+            </section>
+          )}
+
+          {calMean && calStated && (
+            <section className="mt-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="eyebrow">Calibrated confidence</h2>
+                <span className="ml-auto text-[11px] text-dim">map fitted on the development set only · checked once on the {calMean.n} held-out rulings · no model calls</span>
+              </div>
+              <div className="mt-3 grid gap-5 md:grid-cols-2">
+                <Card title="What the model says" big={pct(calStated.value)}>
+                  average stated confidence, against {pct(acc?.value)} right. Stated confidence runs high{eceStated?.value !== undefined ? ` (calibration error ${eceStated.value.toFixed(3)})` : ""}.
+                </Card>
+                <Card title="What the screens show" big={pct(calMean.value)}>
+                  average calibrated confidence, against the same {pct(acc?.value)}{eceCal?.value !== undefined ? ` (calibration error ${eceCal.value.toFixed(3)})` : ""}. Results show this value; the textile, Part 102 and pharmaceutical rules show
+                  the model&apos;s own.
                 </Card>
               </div>
             </section>
@@ -410,7 +433,7 @@ export function AccuracyPage() {
 const stages: { n: number; name: string; model: string; does: string }[] = [
   { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and Part 102 marking rulings go to their own rules; other questions outside substantial transformation go to a person." },
   { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
-  { n: 3, name: "Triage", model: "0.92 bar", does: "At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
+  { n: 3, name: "Triage", model: "calibrated 0.90 bar", does: "Maps the model's confidence to a calibrated one (fitted on the development set). At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
   { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },
   { n: 5, name: "Verifier agent", model: "Gemini 4 Argon", does: "For every move, searches for an earlier ruling that supports it and one that contradicts it. Only moves it supports past the bar are shown as plans." },
   { n: 6, name: "Ask agent", model: "Gemini · ADK", does: "Answers questions about the case with tools to read the case and rulings, and re-runs the engine for what-ifs." },

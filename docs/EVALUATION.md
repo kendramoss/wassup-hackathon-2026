@@ -223,20 +223,42 @@ What this says:
 
 ![Held-out calibration before and after the layer](img/calibration-layer.svg)
 
+**In the product since D160 (cal-v2).** The server applies the same kind of map, refitted with one change: a confidence value with fewer than 20 development cases is pooled with its neighbour before the fit. That removes cal-v1's lowest step, one wrong case at 0.65 mapped to 0.0. The map is generated into `backend/internal/calibrate/map.json` by `eval/charts/build_accuracy.py`, embedded in the server, and applied only to engine-v1 answered by Gemini 4 Argon. The API returns it as `calibrated_confidence` beside the stated `confidence`; the MCP tools and the Result screens show it. Held-out, computed once from the committed rows:
+
+| | 377 (Vertex AI) | final2, 83 (gateway) | both, 460 |
+|---|---|---|---|
+| Mean stated → calibrated (accuracy) | 94.7% → 90.2% (90.2%) | 96.1% → 93.8% (92.8%) | 95.0% → 90.9% (90.7%) |
+| ECE, one bin per value, stated → cal-v2 | 0.059 → 0.028 (0.020–0.060) | 0.067 → 0.037 (0.030–0.099) | 0.055 → 0.026 (0.018–0.053) |
+| Brier, stated → cal-v2 | 0.081 → 0.072 (0.056–0.092) | 0.060 → 0.051 (0.020–0.089) | 0.077 → 0.069 (0.053–0.085) |
+
+cal-v2 is level with cal-v1 on every row (cal-v1: ECE 0.030, 0.038 and 0.027); the intervals overlap fully.
+
+**The auto-accept bar on calibrated confidence (D160).** Fitted on dev by a rule written first: the lowest step of the map at which the in-scope cases at or above it are at least 96% right, with at least 100 cases. On dev the steps give:
+
+| Calibrated bar (at or above) | Auto-accepted and in scope (dev, 463) | Right (95% CI) |
+|---|---|---|
+| 0.99 (stated 0.98 and up) | 238 = 51.4% | 99.6% (97.7–99.9) |
+| 0.9355 (stated 0.96–0.97) | 269 = 58.1% | 98.9% (96.8–99.6) |
+| 0.9016 (stated 0.95) | 328 = 70.8% | 97.3% (94.9–98.5) |
+| **0.90 (stated 0.92–0.94), chosen** | 368 = 79.5% | 96.5% (94.1–97.9) |
+| 0.7778 (stated 0.90–0.91) | 412 = 89.0% | 94.4% (91.8–96.3) |
+| 0.60 (stated below 0.90) | 455 = 98.3% | 91.0% (88.0–93.3) |
+
+The rule picks 0.90, the step stated 0.92 maps to, so the product accepts exactly the cases it accepted before. The published auto-accept figures do not change: 377 held-out, 300 = 79.6% at 96.0% (93.1–97.7); final2, 75 = 90.4% at 97.3% (90.8–99.3); dev, 368 at 96.5%. `go run ./cmd/claimscheck` recomputes these from the map and the rows in Go and fails if the calibrated bar and the stated 0.92 bar ever accept different cases.
+
 The model emits about 11 distinct confidence values, so the first ECE uses one bin per value. The standard 10-bin ECE puts every case from 0.90 to 1.00 in one bin and reads lower. ECE on a few hundred cases is biased upward; the intervals show how wide it is.
 
 ### 4.3 What we'd add next (planned)
 
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
-- **Calibrated confidence in the product.** The layer is built and checked on held-out (section 4.2); the API still returns the stated confidence.
 - **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
 - **Scoring the other regimes on post-cutoff rulings.** 18 Part 102 and 12 pharmaceutical rulings after 25 Sep are labelled (`eval/data/labels_final2.jsonl`) but not scored.
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
 
 ## 5. Known gaps
 
-- **Confidence is a self-report.** It is overconfident on average (section 4.2) and is used only as a ranking against a bar.
+- **Stated confidence is a self-report.** It is overconfident on average (section 4.2). The product shows a calibrated confidence for the general engine on Gemini 4 Argon (D160); the textile, Part 102 and pharmaceutical engines and the fallback model still show stated confidence only. The map is fitted on one development window and checked on two held-out splits; it will drift if the model or prompt changes.
 - **One scored run** per configuration on each held-out split. Run-to-run variance is not measured for the official numbers. Two dev runs of the same Argon configuration (Vertex and the gateway) differ by 13 cases (8 one way, 5 the other).
 - **Two baselines are still unverified.** Most-mentioned (60.7%) and majority (12.2%) are recomputed (D155); final-assembly 40.6% and last-mentioned 39.8% come from a research document that is not in this repository and are not reproduced.
 - **The split's cleaning script is not committed.** We reconstructed the rule (section 2.2) and it reproduces the counts exactly, but it is a reconstruction.

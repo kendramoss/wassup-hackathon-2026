@@ -13,6 +13,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 )
 
 // File names are fixed: the official run of record is the frozen Vertex AI
@@ -29,6 +31,7 @@ const (
 	runlogFile = "eval/results/RUNLOG.jsonl"
 	sliceFile  = "eval/results/slice30-baseline.json"
 	calibFile  = "eval/results/calibration-by-family.json"
+	calMapFile = "backend/internal/calibrate/map.json"
 	resultsMD  = "eval/RESULTS.md"
 	sumsFile   = "eval/SHA256SUMS"
 	factsDir   = "backend/data/facts"
@@ -345,6 +348,7 @@ func Compute(root string) (kv []KV, problems []string) {
 
 	fRows, fok := splitMetrics(out, &problems, root, "final", finalRows, finalScope, adj, splitIDs["final"], true)
 	dRows, dok := splitMetrics(out, &problems, root, "dev", devRows, devScope, adj, splitIDs["dev"], false)
+	calibratedMetrics(out, &problems, root, adj, map[string][]engineRow{"final": fRows, "dev": dRows}, map[string]string{"final": finalScope, "dev": devScope})
 	if fok && dok {
 		fmin, dmax := "", ""
 		for _, r := range fRows {
@@ -586,12 +590,80 @@ type ManifestEntry struct{ Hash, Path string }
 
 const factsNamesPath = "names:" + factsDir
 
+// calibratedMetrics recomputes the calibrated figures (D160) from the
+// committed map and rows: the auto-accept set at the calibrated bar, mean
+// stated and calibrated confidence, and ECE (one bin per value) before and
+// after. It also checks that the calibrated bar accepts exactly the cases the
+// stated 0.92 bar does, which the published auto-accept figures rely on.
+func calibratedMetrics(out *kvs, probs *[]string, root string, adj adjustments, rows map[string][]engineRow, scopes map[string]string) {
+	b, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(calMapFile)))
+	if err != nil {
+		*probs = append(*probs, fmt.Sprintf("%s: %v", calMapFile, unwrapPath(err)))
+		return
+	}
+	m, err := calibrate.Parse(b)
+	if err != nil {
+		*probs = append(*probs, err.Error())
+		return
+	}
+	out.add("cal.version", m.Version)
+	out.add("cal.bar", m.Bar)
+	for _, name := range []string{"final", "dev"} {
+		rs := rows[name]
+		if rs == nil {
+			continue
+		}
+		sc, err := readJSONL[scopeRow](root, scopes[name])
+		if err != nil {
+			*probs = append(*probs, err.Error())
+			continue
+		}
+		in := map[string]bool{}
+		for _, s := range sc {
+			in[s.Ruling] = s.InScope
+		}
+		var scored []calibrate.Scored
+		autoN, autoC, differ := 0, 0, 0
+		for _, r := range rs {
+			if _, skip := adj.Exclude[r.Ruling]; skip {
+				continue
+			}
+			ok := adj.rowOK(r)
+			scored = append(scored, calibrate.Scored{Stated: r.Confidence, OK: ok})
+			calAuto := r.Error == "" && in[r.Ruling] && m.Value(r.Confidence) >= m.Bar
+			if calAuto != (r.Error == "" && in[r.Ruling] && r.Confidence >= fastPathBar) {
+				differ++
+			}
+			if calAuto {
+				autoN++
+				if ok {
+					autoC++
+				}
+			}
+		}
+		rep := m.Evaluate(scored)
+		p := name + ".cal."
+		r4 := func(x float64) string { return fmt.Sprintf("%.4f", math.Round(x*1e4)/1e4) }
+		r1 := func(x float64) string { return fmt.Sprintf("%.1f", math.Round(x*1e3)/10) }
+		out.add(p+"fast.n", autoN)
+		out.add(p+"fast.correct", autoC)
+		out.add(p+"fast.accuracy_pct", pct(autoC, autoN))
+		out.add(p+"mean_stated_pct", r1(rep.MeanStated))
+		out.add(p+"mean_calibrated_pct", r1(rep.MeanCalibrated))
+		out.add(p+"ece_stated", r4(rep.ECEStated))
+		out.add(p+"ece_calibrated", r4(rep.ECECalibrated))
+		if differ != 0 {
+			*probs = append(*probs, fmt.Sprintf("%s: the calibrated bar %v and the stated bar %v accept different %s cases (%d differ)", calMapFile, m.Bar, fastPathBar, name, differ))
+		}
+	}
+}
+
 // requiredManifest lists every file the check reads that eval/SHA256SUMS does
 // not already pin.
 var requiredManifest = []string{
 	sumsFile, adjustFile,
 	finalRows, finalScope, devRows, devScope,
-	runlogFile, calibFile, sliceFile, postRows,
+	runlogFile, calibFile, sliceFile, postRows, calMapFile,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
 	factsNamesPath,
 }
@@ -654,6 +726,15 @@ var meanings = map[string]string{
 	"final.fast_conf_only.n":               "confidence >= 0.92 ignoring router scope",
 	"final.date_min":                       "earliest ruling date",
 	"final.date_max":                       "latest ruling date",
+	"cal.version":                          "calibration map version (backend/internal/calibrate/map.json, D160)",
+	"cal.bar":                              "auto-accept bar on calibrated probability",
+	"final.cal.fast.n":                     "auto-accepted at the calibrated bar and in scope",
+	"final.cal.fast.correct":               "of those, correct",
+	"final.cal.fast.accuracy_pct":          "accuracy of auto-accepted, percent",
+	"final.cal.mean_stated_pct":            "mean stated confidence, percent",
+	"final.cal.mean_calibrated_pct":        "mean calibrated probability, percent",
+	"final.cal.ece_stated":                 "ECE of stated confidence, one bin per value",
+	"final.cal.ece_calibrated":             "ECE of calibrated probability, one bin per value",
 	"labels.rows":                          "labelled corpus rows",
 	"pool.union":                           "labelled + Part 102 ruling ids",
 	"facts.files":                          "fact files in backend/data/facts",

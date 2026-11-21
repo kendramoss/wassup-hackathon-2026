@@ -30,6 +30,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 	"log"
 	"log/slog"
 	"net/http"
@@ -511,6 +512,15 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		familyBars = &b
 		logger.Info("auto-accept bars by subfamily", "subfamilies", len(b.Bars), "global", cfg.FastPathConfidence)
 	}
+	var calib *calibrate.Map
+	if cfg.Calibrated() {
+		m, err := calibrate.Load()
+		if err != nil {
+			return httpapi.Deps{}, err
+		}
+		calib = &m
+		logger.Info("calibrated confidence on", "model", m.Model, "prompt", m.EnginePrompt, "fast_path", cfg.CalibratedFastPath)
+	}
 	var htsSuggester httpapi.HTSSuggester
 	if cfg.HTSSuggest {
 		x, err := hts.LoadIndex(cfg.HTSIndex)
@@ -602,6 +612,8 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		Templates:             tmpls,
 		Summary:               evalsummary.Load,
 		FastPathConf:          cfg.FastPathConfidence,
+		Calibration:           calib,
+		CalibratedFastPath:    cfg.CalibratedFastPath,
 		FallbackFastPath:      cfg.FallbackFastPath,
 		PlanConfidence:        cfg.PlanConfidence,
 		Provider:              model.Provider(),

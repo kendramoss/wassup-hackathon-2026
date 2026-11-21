@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, type CaseResponse, type CaseSummary, type DemoList } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, stepIndex, stepNames } from "@/lib/format";
+import { BAR, conf, formatDate, originConf, originConfCaption, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
 import { netText } from "../ops-view";
 import { backtestMatch, checkWords, movePhrase } from "../plan-bits";
@@ -189,7 +189,7 @@ function DemoCard({ c }: { c: CaseSummary }) {
       </span>
       <span className="flex flex-wrap items-center gap-2">
         <StatusChip route={c.triage_route} />
-        <span className="text-xs text-dim">confidence {conf(c.confidence)}</span>
+        <span className="text-xs text-dim">{originConfCaption(originConf(c))}</span>
       </span>
       {cur?.country && (
         <span className="text-xs text-dim">

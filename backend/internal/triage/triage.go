@@ -34,6 +34,26 @@ func decide(p domain.Prediction, threshold float64, bar string, inScope bool, sc
 	}
 }
 
+// DecideCalibrated routes a prediction that carries a calibrated probability
+// (D160): auto only when it is at least bar and the case is in scope. The
+// reason gives the calibrated value, the bar and the stated confidence.
+// Without a calibrated value it falls back to Decide on stated confidence
+// with statedBar.
+func DecideCalibrated(p domain.Prediction, bar, statedBar float64, inScope bool, scopeReason string) domain.Triage {
+	c := p.CalibratedConfidence
+	if c == nil {
+		return Decide(p, statedBar, inScope, scopeReason)
+	}
+	switch {
+	case !inScope:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: "out of scope: " + scopeReason}
+	case *c >= bar:
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("calibrated confidence %.2f ≥ %.2f (%s; model stated %.2f) and in scope", *c, bar, p.Calibration, p.Confidence)}
+	default:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("calibrated confidence %.2f below %.2f (%s; model stated %.2f)", *c, bar, p.Calibration, p.Confidence)}
+	}
+}
+
 // familyBarsJSON is written by `eval calibrate` (D63): the auto-accept bar
 // per router subfamily, fitted on the dev split only.
 //

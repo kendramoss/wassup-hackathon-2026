@@ -961,6 +961,343 @@
    "brier_constant_forecast": 0.0807
   }
  },
+ "calibration_v2": {
+  "version": "cal-v2",
+  "fitted_on": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+  "min_block": 20,
+  "cap": 0.99,
+  "method": "isotonic regression (pool-adjacent-violators) after pooling adjacent confidence values into blocks of at least 20 cases",
+  "map": [
+   {
+    "from": 0.65,
+    "to_incl": 0.85,
+    "n": 45,
+    "correct": 27,
+    "calibrated": 0.6
+   },
+   {
+    "from": 0.9,
+    "to_incl": 0.9,
+    "n": 45,
+    "correct": 35,
+    "calibrated": 0.7778
+   },
+   {
+    "from": 0.92,
+    "to_incl": 0.92,
+    "n": 40,
+    "correct": 36,
+    "calibrated": 0.9
+   },
+   {
+    "from": 0.95,
+    "to_incl": 0.95,
+    "n": 61,
+    "correct": 55,
+    "calibrated": 0.9016
+   },
+   {
+    "from": 0.96,
+    "to_incl": 0.96,
+    "n": 31,
+    "correct": 29,
+    "calibrated": 0.9355
+   },
+   {
+    "from": 0.98,
+    "to_incl": 0.98,
+    "n": 114,
+    "correct": 113,
+    "calibrated": 0.99
+   },
+   {
+    "from": 0.99,
+    "to_incl": 1.0,
+    "n": 127,
+    "correct": 127,
+    "calibrated": 0.99
+   }
+  ],
+  "bar_rule": "lowest step with in-scope dev accuracy >= 96% on at least 100 cases",
+  "bar": 0.9,
+  "dev_curve": [
+   {
+    "bar": 0.99,
+    "auto": 238,
+    "correct": 237,
+    "coverage_pct": 51.4,
+    "accuracy_pct": 99.6,
+    "ci95_pct": [
+     97.7,
+     99.9
+    ]
+   },
+   {
+    "bar": 0.9355,
+    "auto": 269,
+    "correct": 266,
+    "coverage_pct": 58.1,
+    "accuracy_pct": 98.9,
+    "ci95_pct": [
+     96.8,
+     99.6
+    ]
+   },
+   {
+    "bar": 0.9016,
+    "auto": 328,
+    "correct": 319,
+    "coverage_pct": 70.8,
+    "accuracy_pct": 97.3,
+    "ci95_pct": [
+     94.9,
+     98.5
+    ]
+   },
+   {
+    "bar": 0.9,
+    "auto": 368,
+    "correct": 355,
+    "coverage_pct": 79.5,
+    "accuracy_pct": 96.5,
+    "ci95_pct": [
+     94.1,
+     97.9
+    ]
+   },
+   {
+    "bar": 0.7778,
+    "auto": 412,
+    "correct": 389,
+    "coverage_pct": 89.0,
+    "accuracy_pct": 94.4,
+    "ci95_pct": [
+     91.8,
+     96.3
+    ]
+   },
+   {
+    "bar": 0.6,
+    "auto": 455,
+    "correct": 414,
+    "coverage_pct": 98.3,
+    "accuracy_pct": 91.0,
+    "ci95_pct": [
+     88.0,
+     93.3
+    ]
+   }
+  ],
+  "dev": {
+   "at_bar": {
+    "n": 463,
+    "auto": 368,
+    "correct": 355,
+    "wrong": 13,
+    "coverage_pct": 79.5,
+    "accuracy_pct": 96.5,
+    "ci95_pct": [
+     94.1,
+     97.9
+    ]
+   },
+   "raw_092": {
+    "n": 463,
+    "auto": 368,
+    "correct": 355,
+    "wrong": 13,
+    "coverage_pct": 79.5,
+    "accuracy_pct": 96.5,
+    "ci95_pct": [
+     94.1,
+     97.9
+    ]
+   },
+   "in_sample_after": {
+    "mean_confidence_pct": 90.8,
+    "ece_levels": 0.0031,
+    "ece_levels_ci95": [
+     0.0111,
+     0.0403
+    ],
+    "ece_10_bins": 0.0031,
+    "brier": 0.0658,
+    "brier_ci95": [
+     0.0499,
+     0.0824
+    ],
+    "brier_constant_forecast": 0.0807
+   }
+  },
+  "final": {
+   "at_bar": {
+    "n": 377,
+    "auto": 300,
+    "correct": 288,
+    "wrong": 12,
+    "coverage_pct": 79.6,
+    "accuracy_pct": 96.0,
+    "ci95_pct": [
+     93.1,
+     97.7
+    ]
+   },
+   "raw_092": {
+    "n": 377,
+    "auto": 300,
+    "correct": 288,
+    "wrong": 12,
+    "coverage_pct": 79.6,
+    "accuracy_pct": 96.0,
+    "ci95_pct": [
+     93.1,
+     97.7
+    ]
+   },
+   "before": {
+    "mean_confidence_pct": 94.7,
+    "ece_levels": 0.0585,
+    "ece_levels_ci95": [
+     0.0408,
+     0.0912
+    ],
+    "ece_10_bins": 0.0456,
+    "brier": 0.0808,
+    "brier_ci95": [
+     0.0588,
+     0.1046
+    ],
+    "brier_constant_forecast": 0.0885
+   },
+   "after": {
+    "mean_confidence_pct": 90.2,
+    "ece_levels": 0.0285,
+    "ece_levels_ci95": [
+     0.0205,
+     0.0596
+    ],
+    "ece_10_bins": 0.0088,
+    "brier": 0.0724,
+    "brier_ci95": [
+     0.0558,
+     0.0916
+    ],
+    "brier_constant_forecast": 0.0885
+   }
+  },
+  "final2": {
+   "at_bar": {
+    "n": 83,
+    "auto": 75,
+    "correct": 73,
+    "wrong": 2,
+    "coverage_pct": 90.4,
+    "accuracy_pct": 97.3,
+    "ci95_pct": [
+     90.8,
+     99.3
+    ]
+   },
+   "raw_092": {
+    "n": 83,
+    "auto": 75,
+    "correct": 73,
+    "wrong": 2,
+    "coverage_pct": 90.4,
+    "accuracy_pct": 97.3,
+    "ci95_pct": [
+     90.8,
+     99.3
+    ]
+   },
+   "before": {
+    "mean_confidence_pct": 96.1,
+    "ece_levels": 0.0667,
+    "ece_levels_ci95": [
+     0.0387,
+     0.126
+    ],
+    "ece_10_bins": 0.0388,
+    "brier": 0.0603,
+    "brier_ci95": [
+     0.0209,
+     0.1087
+    ],
+    "brier_constant_forecast": 0.0671
+   },
+   "after": {
+    "mean_confidence_pct": 93.8,
+    "ece_levels": 0.0367,
+    "ece_levels_ci95": [
+     0.0296,
+     0.0994
+    ],
+    "ece_10_bins": 0.022,
+    "brier": 0.0511,
+    "brier_ci95": [
+     0.0202,
+     0.0893
+    ],
+    "brier_constant_forecast": 0.0671
+   }
+  },
+  "pooled_final_final2": {
+   "at_bar": {
+    "n": 460,
+    "auto": 375,
+    "correct": 361,
+    "wrong": 14,
+    "coverage_pct": 81.5,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "raw_092": {
+    "n": 460,
+    "auto": 375,
+    "correct": 361,
+    "wrong": 14,
+    "coverage_pct": 81.5,
+    "accuracy_pct": 96.3,
+    "ci95_pct": [
+     93.8,
+     97.8
+    ]
+   },
+   "before": {
+    "mean_confidence_pct": 95.0,
+    "ece_levels": 0.0547,
+    "ece_levels_ci95": [
+     0.0405,
+     0.0849
+    ],
+    "ece_10_bins": 0.0434,
+    "brier": 0.0771,
+    "brier_ci95": [
+     0.0572,
+     0.0979
+    ],
+    "brier_constant_forecast": 0.0847
+   },
+   "after": {
+    "mean_confidence_pct": 90.9,
+    "ece_levels": 0.0259,
+    "ece_levels_ci95": [
+     0.0178,
+     0.0533
+    ],
+    "ece_10_bins": 0.0112,
+    "brier": 0.0685,
+    "brier_ci95": [
+     0.0531,
+     0.0854
+    ],
+    "brier_constant_forecast": 0.0847
+   }
+  }
+ },
  "heldout": {
   "final": {
    "file": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",

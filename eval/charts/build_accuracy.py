@@ -12,7 +12,7 @@
 #         eval/results/scope-{dev,final}-router-v2-vertex.jsonl,
 #         textile/pharma/usmca held-out result files (all-regimes report)
 # Writes: eval/results/accuracy-v2-metrics.json
-#         eval/results/calibration-map.json (isotonic map, fitted on dev only)
+#         backend/internal/calibrate/map.json (cal-v2 map and bar, D160; embedded in the server)
 #         docs/img/accuracy-v2-selective.svg
 
 import json
@@ -245,6 +245,69 @@ def isotonic_fit(rs):
     # Capped at 0.99: no errors in a block of a hundred cases is not certainty.
     return [{"from": b["lo"], "to_incl": b["hi"], "n": b["n"], "correct": b["k"],
              "calibrated": r4(min(CAP, b["k"] / b["n"]))} for b in merged]
+
+
+MIN_BLOCK = 20  # cal-v2 (D160): blocks smaller than this are pooled before the fit
+CAL_TARGET, CAL_MIN_AUTO = 0.96, 100  # calibrated auto-accept bar rule (D160)
+CAL_VERSION = "cal-v2"
+
+
+def isotonic_fit_min(rs, min_n=MIN_BLOCK):
+    """cal-v2: as isotonic_fit, but adjacent confidence values are pooled
+    (lowest first) until each block holds at least min_n cases; a short last
+    block joins the one below. Then pool-adjacent-violators."""
+    levels = sorted({r["conf"] for r in rs})
+    blocks, cur = [], None
+    for c in levels:
+        b = [r for r in rs if r["conf"] == c]
+        if cur is None:
+            cur = {"lo": c, "hi": c, "n": 0, "k": 0}
+        cur["hi"] = c
+        cur["n"] += len(b)
+        cur["k"] += sum(r["ok"] for r in b)
+        if cur["n"] >= min_n:
+            blocks.append(cur)
+            cur = None
+    if cur is not None:
+        if blocks:
+            last = blocks[-1]
+            blocks[-1] = {"lo": last["lo"], "hi": cur["hi"], "n": last["n"] + cur["n"], "k": last["k"] + cur["k"]}
+        else:
+            blocks.append(cur)
+    merged = []
+    for b in blocks:
+        merged.append(dict(b))
+        while len(merged) > 1 and merged[-2]["k"] / merged[-2]["n"] > merged[-1]["k"] / merged[-1]["n"]:
+            x = merged.pop()
+            y = merged.pop()
+            merged.append({"lo": y["lo"], "hi": x["hi"], "n": x["n"] + y["n"], "k": x["k"] + y["k"]})
+    return [{"from": b["lo"], "to_incl": b["hi"], "n": b["n"], "correct": b["k"],
+             "calibrated": r4(min(CAP, b["k"] / b["n"]))} for b in merged]
+
+
+def calibrated_bar(rs):
+    """D160: the lowest calibrated step at which the in-scope cases at or
+    above it are at least CAL_TARGET right, with at least CAL_MIN_AUTO cases.
+    Returns the bar and the dev curve over every step."""
+    curve, bar = [], None
+    for b in sorted({r["cal"] for r in rs}, reverse=True):
+        acc = [r for r in rs if not r["err"] and r["in_scope"] and r["cal"] >= b]
+        k = sum(r["ok"] for r in acc)
+        p, lo, hi = wilson(k, len(acc))
+        curve.append({"bar": b, "auto": len(acc), "correct": k, "coverage_pct": pct(len(acc) / len(rs)),
+                      "accuracy_pct": pct(p), "ci95_pct": [pct(lo), pct(hi)]})
+        if len(acc) >= CAL_MIN_AUTO and p >= CAL_TARGET:
+            bar = b
+    return bar, curve
+
+
+def at_bar(rows, bar, key="cal"):
+    rs = list(rows.values())
+    acc = [r for r in rs if not r["err"] and r["in_scope"] and r[key] >= bar]
+    k = sum(r["ok"] for r in acc)
+    p, lo, hi = wilson(k, len(acc))
+    return {"n": len(rs), "auto": len(acc), "correct": k, "wrong": len(acc) - k, "coverage_pct": pct(len(acc) / len(rs)),
+            "accuracy_pct": pct(p), "ci95_pct": [pct(lo), pct(hi)]}
 
 
 def isotonic_apply(m, c):
@@ -494,6 +557,41 @@ def main():
         "dev_in_sample_after": calib(dev_c, "cal"),
     }
 
+    # cal-v2 and the calibrated auto-accept bar (D160): fitted on dev only,
+    # then applied unchanged to the committed held-out rows.
+    m2 = isotonic_fit_min(list(dev[BASELINE].values()))
+    dev2 = with_calibrated(dev[BASELINE], m2)
+    bar2, curve2 = calibrated_bar(list(dev2.values()))
+    v2 = {"version": CAL_VERSION, "fitted_on": DEV_RUNS[BASELINE], "min_block": MIN_BLOCK, "cap": CAP,
+          "method": "isotonic regression (pool-adjacent-violators) after pooling adjacent confidence values into blocks of at least "
+                    + str(MIN_BLOCK) + " cases",
+          "map": m2, "bar_rule": f"lowest step with in-scope dev accuracy >= {CAL_TARGET:.0%} on at least {CAL_MIN_AUTO} cases",
+          "bar": bar2, "dev_curve": curve2,
+          "dev": {"at_bar": at_bar(dev2, bar2), "raw_092": at_bar(dev[BASELINE], BAR, "conf"),
+                  "in_sample_after": calib(list(dev2.values()), "cal")}}
+    fin2 = with_calibrated(fin, m2)
+    v2["final"] = {"at_bar": at_bar(fin2, bar2), "raw_092": at_bar(fin, BAR, "conf"),
+                   "before": calib(list(fin2.values()), "conf"), "after": calib(list(fin2.values()), "cal")}
+    if exists(FINAL2_RUN):
+        f2r = scored_router(FINAL2_RUN)
+        f2v = with_calibrated(f2r, m2)
+        v2["final2"] = {"at_bar": at_bar(f2v, bar2), "raw_092": at_bar(f2r, BAR, "conf"),
+                        "before": calib(list(f2v.values()), "conf"), "after": calib(list(f2v.values()), "cal")}
+        pv = dict(fin2)
+        pv.update(f2v)
+        pr = dict(fin)
+        pr.update(f2r)
+        v2["pooled_final_final2"] = {"at_bar": at_bar(pv, bar2), "raw_092": at_bar(pr, BAR, "conf"),
+                                     "before": calib(list(pv.values()), "conf"), "after": calib(list(pv.values()), "cal")}
+    metrics["calibration_v2"] = v2
+    calmap = {"_doc": "Calibration map for engine-v1 on gemini-4-argon (substantial transformation), D160. Generated by "
+                      "eval/charts/build_accuracy.py from the development rows only; do not edit by hand.",
+              "version": CAL_VERSION, "engine_prompt": "engine-v1", "model": "gemini-4-argon", "fitted_on": DEV_RUNS[BASELINE],
+              "rule": v2["method"] + f", capped at {CAP}; a value between steps takes the step at or below it; "
+                      "a value under the lowest step takes the lowest step",
+              "bar": bar2, "bar_rule": v2["bar_rule"],
+              "steps": [{"from": b["from"], "calibrated": b["calibrated"], "n": b["n"], "correct": b["correct"]} for b in m2]}
+
     # Held-out: the first split (377, Vertex, official), the second split
     # (D150) when its single scored run exists, and both pooled.
     held = {"final": {"file": R + "final-gemini-4-argon-prec-engine-v1-vertex.jsonl", **summary(fin)}}
@@ -535,7 +633,8 @@ def main():
         metrics["candidate"] = CANDIDATE
     out = {"eval/results/accuracy-v2-metrics.json": json.dumps(metrics, indent=1, ensure_ascii=False) + "\n",
            "docs/img/model-sweep-dev.svg": sweep_svg(metrics),
-           "docs/img/calibration-layer.svg": calibration_svg(fin, m)}
+           "docs/img/calibration-layer.svg": calibration_svg(fin, m),
+           "backend/internal/calibrate/map.json": json.dumps(calmap, indent=1) + "\n"}
     stale = []
     for p, body in out.items():
         cur = open(path(p)).read() if exists(p) else None

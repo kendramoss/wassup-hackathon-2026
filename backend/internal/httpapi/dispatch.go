@@ -139,6 +139,9 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 		res, err := a.d.Engine.Predict(cx, c)
 		if err == nil {
 			st.end(engine.StageEngine) // a cached prediction reports no stages of its own
+			if a.d.Calibration != nil {
+				res.Prediction = a.d.Calibration.Apply(res.Prediction)
+			}
 		}
 		return res, err
 	}
@@ -290,6 +293,9 @@ func (a *api) decide(d Dispatch) (domain.Triage, bool) {
 	}
 	if a.d.FamilyBars != nil {
 		return triage.DecideByFamily(p, *a.d.FamilyBars, subfamily, a.d.FastPathConf, inScope, scopeReason), inScope
+	}
+	if a.d.Calibration != nil {
+		return triage.DecideCalibrated(p, a.d.CalibratedFastPath, a.d.FastPathConf, inScope, scopeReason), inScope
 	}
 	return triage.Decide(p, a.d.FastPathConf, inScope, scopeReason), inScope
 }

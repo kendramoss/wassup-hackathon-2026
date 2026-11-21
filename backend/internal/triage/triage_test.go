@@ -219,3 +219,23 @@ func TestAllGates(t *testing.T) {
 		})
 	}
 }
+
+func TestDecideCalibrated(t *testing.T) {
+	v := func(x float64) *float64 { return &x }
+	p := domain.Prediction{Origin: "China", Confidence: 0.92, CalibratedConfidence: v(0.9), Calibration: "cal-v2"}
+	if got := DecideCalibrated(p, 0.9, 0.92, true, ""); got.Route != domain.RouteAuto || got.Reason != "calibrated confidence 0.90 ≥ 0.90 (cal-v2; model stated 0.92) and in scope" {
+		t.Errorf("at bar: %+v", got)
+	}
+	p.CalibratedConfidence = v(0.7778)
+	if got := DecideCalibrated(p, 0.9, 0.92, true, ""); got.Route != domain.RouteNeedsReview {
+		t.Errorf("below bar: %+v", got)
+	}
+	p.CalibratedConfidence = v(0.99)
+	if got := DecideCalibrated(p, 0.9, 0.92, false, "pharma"); got.Route != domain.RouteNeedsReview || got.Reason != "out of scope: pharma" {
+		t.Errorf("out of scope: %+v", got)
+	}
+	p.CalibratedConfidence = nil
+	if got := DecideCalibrated(p, 0.9, 0.92, true, ""); got != Decide(p, 0.92, true, "") {
+		t.Errorf("no calibrated value must fall back to the stated bar: %+v", got)
+	}
+}
