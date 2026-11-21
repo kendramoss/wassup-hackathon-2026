@@ -42,6 +42,7 @@ doctor: ## check the tools and LF checkout that make reproduce needs
 reproduce: ## recompute every published number from committed files: no model calls, no credentials
 	$(MAKE) verify-data
 	cd $(GO_DIR) && go run ./cmd/claimscheck
+	cd $(GO_DIR) && go run ./cmd/eval summary -check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check
 	python3 -I -B eval/charts/build_accuracy.py . --check
