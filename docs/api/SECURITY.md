@@ -24,7 +24,7 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 | Class | Routes | Per client | Counted |
 |---|---|---|---|
 | basic | case list, get, rename, delete, economics, export; demos; a ruling by number; duty rates; eval summary; workspaces; the `POST /mcp` request itself | 120 a minute (`RATE_BASIC_PER_MIN`) | on each instance |
-| light | predict, answers, ask, extract, import, money prefill, HTS suggest, cost estimate, family check, scenarios, watch, BOM version, plan estimate, audit reads | 20 a minute (`RATE_LIGHT_PER_MIN`) | shared on Cloud Run |
+| light | predict, answers, ask, extract, extract-media, import, money prefill, HTS suggest, cost estimate, family check, scenarios, watch, BOM version, plan estimate, audit reads | 20 a minute (`RATE_LIGHT_PER_MIN`) | shared on Cloud Run |
 | heavy | plan, compare targets | 4 a minute (`RATE_HEAVY_PER_MIN`) | shared on Cloud Run |
 | bulk | batch triage | the whole heavy allowance, once a minute | shared on Cloud Run |
 | lookup | ruling search (`GET /v1/rulings`); ruling and live duty-rate fetches from outside sources (cached answers are free) | 30 a minute (`RATE_LOOKUP_PER_MIN`) | shared on Cloud Run |
@@ -54,7 +54,10 @@ Every `/v1` route has a rate class. A test (`TestEveryV1RouteHasALimitClass`) fa
 | What | Limit |
 |---|---|
 | JSON request body | 256 KB |
-| BOM or portfolio upload (CSV or .xlsx) | 5 MB; the proxy refuses bodies over 6 MB |
+| BOM or portfolio upload (CSV or .xlsx) | 5 MB |
+| BOM photos or scans (`extract-media`) | up to 4 files, 8 MB together |
+| Any body through the frontend `/api` proxy | 9 MB (room for the 8 MB of media plus multipart overhead) |
+| One MCP request (`POST /mcp`, backend and the frontend `/mcp` proxy) | 12 MB (8 MB of media in base64 plus the JSON around it) |
 | Rows read from a CSV or a sheet | 1,000 (a BOM is capped at 500 components) |
 | Columns read | 64; extra columns are ignored |
 | One cell | 2,000 characters |

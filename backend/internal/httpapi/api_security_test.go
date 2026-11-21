@@ -66,11 +66,26 @@ func routeWrappers(t *testing.T) map[string]string {
 	return out
 }
 
+// modelRoutes call the model, so they must go through limit: the spend
+// caps, the per-client spend share and the in-flight cap apply to them.
+var modelRoutes = map[string]bool{
+	"POST /v1/cases/predict": true, "POST /v1/cases/batch": true, "POST /v1/products/import": true,
+	"POST /v1/products/extract": true, "POST /v1/products/extract-media": true, "POST /v1/products/money-prefill": true,
+	"POST /v1/products/hts-suggest": true, "POST /v1/products/cost-estimate": true, "POST /v1/products/family-check": true,
+	"POST /v1/cases/{id}/bom-version": true, "POST /v1/cases/{id}/scenarios": true, "POST /v1/cases/{id}/compare-targets": true,
+	"POST /v1/cases/{id}/ask": true, "POST /v1/cases/{id}/watch": true, "POST /v1/cases/{id}/plan": true, "POST /v1/cases/{id}/answers": true,
+}
+
 // Every /v1 route has a rate class: model-calling routes go through limit,
 // the rest through rateOnly or cheap. Only admin routes may skip it (they
 // refuse anyone without the admin token, who is never limited).
 func TestEveryV1RouteHasALimitClass(t *testing.T) {
 	routes := routeWrappers(t)
+	for p := range modelRoutes {
+		if _, ok := routes[p]; !ok {
+			t.Errorf("modelRoutes lists %q, which server.go does not register", p)
+		}
+	}
 	if len(routes) < 35 {
 		t.Fatalf("found only %d routes; the parse is broken", len(routes))
 	}
@@ -87,6 +102,9 @@ func TestEveryV1RouteHasALimitClass(t *testing.T) {
 		}
 		if !allowed[w] {
 			t.Errorf("route %q is registered without a rate class (wrapper %q): wrap it in a.cheap, a.rateOnly or a.limit", p, w)
+		}
+		if modelRoutes[p] && w != "limit" {
+			t.Errorf("route %q calls the model but is wrapped in %q: it needs a.limit (spend caps and the in-flight cap)", p, w)
 		}
 		if w == "adminOnly" && routeTable[p] != adminRoute {
 			t.Errorf("route %q skips the limits as adminOnly but is not an admin route", p)

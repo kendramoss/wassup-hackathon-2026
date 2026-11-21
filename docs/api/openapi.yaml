@@ -18,7 +18,7 @@ info:
     frontend forwards the browser's address as `X-Client-IP`; an API key has its own
     buckets). Cheap routes with no model call (case reads, rename, delete, economics,
     export, demos, rulings, duty rates, eval summary, workspaces) 120 a minute; light model
-    routes (predict, answers, ask, extract, import, scenarios, watch, bom-version) 20 a
+    routes (predict, answers, ask, extract, extract-media, import, scenarios, watch, bom-version) 20 a
     minute; heavy ones (plan, compare-targets) 4 a minute; plus a global cap. A client may
     have at most 4 model-calling requests running at once (429 `too_many_in_flight`). Over a
     limit: 429 with `Retry-After` and `details.retry_after_s`. Limited responses carry
