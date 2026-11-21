@@ -16,8 +16,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "public", "samples")
-CAPS_TH = "motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; final_assembly"
-CAPS_CN = "motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts"
+CAPS_TH = "motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; cord_knobs_covers; final_assembly"
+CAPS_CN = "motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; cord_knobs_covers"
 
 HEAD = ["Line", "Part no.", "Type", "Name", "Qty", "Country", "Plant", "Group", "Plant capabilities"]
 ROWS = [
@@ -29,10 +29,10 @@ ROWS = [
     ("component", "HG-3003", "motor support", 1, "China", "China suppliers", "motor_fan_assembly", ""),
     ("component", "HG-4001", "printed circuit board assembly (PCBA)", 1, "China", "China suppliers", "pcba", ""),
     ("component", "HG-5001", "switch", 1, "China", "China suppliers", "switch_cord_minor_parts", ""),
-    ("component", "HG-5002", "power cord", 1, "China", "China suppliers", "switch_cord_minor_parts", ""),
+    ("component", "HG-5002", "power cord", 1, "China", "China suppliers", "cord_knobs_covers", ""),
     ("component", "HG-5003", "wiring", 4, "China", "China suppliers", "switch_cord_minor_parts", ""),
-    ("component", "HG-5004", "knob", 1, "China", "China suppliers", "switch_cord_minor_parts", ""),
-    ("component", "HG-5005", "back cover", 1, "China", "China suppliers", "switch_cord_minor_parts", ""),
+    ("component", "HG-5004", "knob", 1, "China", "China suppliers", "cord_knobs_covers", ""),
+    ("component", "HG-5005", "back cover", 1, "China", "China suppliers", "cord_knobs_covers", ""),
     ("component", "HG-5006", "support ring, heat insulator and fasteners", 1, "China", "China suppliers", "switch_cord_minor_parts", ""),
     ("operation", "OP-10", "press fit the fan to the motor spindle and attach the fan cover", "", "Thailand", "Rayong plant", "final_assembly", ""),
     ("operation", "OP-20", "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA", "", "Thailand", "Rayong plant", "final_assembly", ""),

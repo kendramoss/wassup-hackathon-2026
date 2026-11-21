@@ -95,10 +95,10 @@ func TestPlanShowsSupportedMoveAndRejectsTheRest(t *testing.T) {
 			t.Errorf("verifier task = %+v", tk)
 		}
 	}
-	if len(e.cases) != 1+6 || res.Stats.EngineCalls != 7 || res.Stats.VerifierRuns != 1 || res.Stats.ToolCalls != 4 {
+	if len(e.cases) != 1+10 || res.Stats.EngineCalls != 11 || res.Stats.VerifierRuns != 1 || res.Stats.ToolCalls != 4 {
 		t.Errorf("stats = %+v", res.Stats)
 	}
-	if res.Stats.InputTokens != 7*3000+20000 {
+	if res.Stats.InputTokens != 11*3000+20000 {
 		t.Errorf("input tokens = %d", res.Stats.InputTokens)
 	}
 	bt := res.Backtest
@@ -112,17 +112,24 @@ func TestPlanShowsSupportedMoveAndRejectsTheRest(t *testing.T) {
 	}
 }
 
-// CBP's real change kept the switch, wires and fasteners in China; a plan that
-// moves the whole switch/cord group moves them anyway, and the backtest says so.
+// CBP's real change kept the switch, wires and fasteners in China. A plan
+// that moves the switch group and the cord group moves them anyway, and the
+// backtest says so; CBP's own move (the cord group without the switch group,
+// D330) moves every changed part and nothing CBP kept.
 func TestBacktestCountsChangedPartsAndOvershoot(t *testing.T) {
 	r, _ := fixture(t, "heatgun_2022.json")
-	move := domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}, {Group: "switch_cord_minor_parts", ToPlant: "th"}}
-	bt := backtest(r, []domain.Plan{{Description: "triple", Move: move}})
+	move := domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}, {Group: "switch_cord_minor_parts", ToPlant: "th"}, {Group: "cord_knobs_covers", ToPlant: "th"}}
+	bt := backtest(r, []domain.Plan{{Description: "four groups", Move: move}})
 	if len(bt.ActualMoved) != 6 || len(bt.MovedByPlan) != 6 || len(bt.NotMovedByPlan) != 0 {
 		t.Errorf("changed parts = %+v", bt)
 	}
 	if got := strings.Join(bt.AlsoMovesKept, ","); got != "switch,wires,fasteners" {
 		t.Errorf("also moves kept = %q", got)
+	}
+	cbp := domain.Move{{Group: "motor_fan_assembly", ToPlant: "th"}, {Group: "pcba", ToPlant: "th"}, {Group: "cord_knobs_covers", ToPlant: "th"}}
+	exact := backtest(r, []domain.Plan{{Description: "triple", Move: cbp}})
+	if len(exact.MovedByPlan) != 6 || len(exact.NotMovedByPlan) != 0 || len(exact.AlsoMovesKept) != 0 {
+		t.Errorf("CBP's move = %+v", exact)
 	}
 	none := backtest(r, nil)
 	if len(none.NotMovedByPlan) != 6 || len(none.AlsoMovesKept) != 0 {
@@ -231,14 +238,14 @@ func TestPlanWithProgressReportsEveryMove(t *testing.T) {
 		t.Fatal(err)
 	}
 	first, last := events[0], events[len(events)-1]
-	if first.Kind != EventStarted || len(first.Moves) != 6 || first.Target != "Thailand" || last.Kind != EventDone || last.Result == nil || last.Done != 6 {
+	if first.Kind != EventStarted || len(first.Moves) != 10 || first.Target != "Thailand" || last.Kind != EventDone || last.Result == nil || last.Done != 10 {
 		t.Fatalf("first/last = %+v / %+v", first, last)
 	}
 	kinds := map[string]int{}
 	doneKeys := map[string]bool{}
 	for i, e := range events {
 		kinds[e.Kind]++
-		if e.Total != 6 || (i > 0 && e.Done < events[i-1].Done) {
+		if e.Total != 10 || (i > 0 && e.Done < events[i-1].Done) {
 			t.Errorf("event %d = %+v", i, e)
 		}
 		if e.Kind == EventMoveDone {
@@ -251,7 +258,7 @@ func TestPlanWithProgressReportsEveryMove(t *testing.T) {
 			}
 		}
 	}
-	if kinds[EventBaseline] != 1 || kinds[EventMoveStarted] != 6 || len(doneKeys) != 6 {
+	if kinds[EventBaseline] != 1 || kinds[EventMoveStarted] != 10 || len(doneKeys) != 10 {
 		t.Errorf("event kinds = %v", kinds)
 	}
 	if len(res.Plans) != 1 || res.Plans[0].NetYear != 320000 || len(last.Result.Plans) != 1 {
@@ -283,7 +290,7 @@ func TestPlanSurvivesAProviderOutageOnOneMove(t *testing.T) {
 		&llm.APIError{Provider: "vertex", StatusCode: 504},
 		&llm.APIError{Provider: "vertex", StatusCode: 429},
 	} {
-		e := &flakyEngine{fail: "the switch, power cord", err: err}
+		e := &flakyEngine{fail: "fasteners are produced in Thailand", err: err}
 		res, perr := New(tmpls, e, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95, Concurrency: 3}).Plan(context.Background(), r)
 		if perr != nil {
 			t.Fatalf("%v: one failed move should not fail the search: %v", err, perr)
@@ -307,7 +314,7 @@ func TestPlanStillFailsOnBadRequestsAndBaselineOutage(t *testing.T) {
 	r, _ := fixture(t, "heatgun_2022.json")
 	tmpls, _ := LoadTemplates()
 	for name, e := range map[string]*flakyEngine{
-		"400 on a move":      {fail: "the switch, power cord", err: &llm.APIError{Provider: "vertex", StatusCode: 400}},
+		"400 on a move":      {fail: "fasteners are produced in Thailand", err: &llm.APIError{Provider: "vertex", StatusCode: 400}},
 		"outage on baseline": {failBase: true, err: &llm.APIError{Provider: "vertex", StatusCode: 504}},
 	} {
 		if _, err := New(tmpls, e, &fakeVerifier{supported: true, confidence: 0.97}, Options{PlanConfidence: 0.95, Concurrency: 3}).Plan(context.Background(), r); err == nil {

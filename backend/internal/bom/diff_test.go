@@ -65,7 +65,7 @@ func TestDiffHeatGunVersions(t *testing.T) {
 		{"motor from another Chinese plant", replaceOnce("electric motor,China,China suppliers", "electric motor,China,Ningbo motor works"), []string{"plant_changed: electric motor"}},
 		{"case and spacing in names are ignored", replaceOnce("component,fan,China", "component,  FAN ,china"), nil},
 		{"component dropped and added", func(t *testing.T, s string) string {
-			s = replaceOnce("component,knob,China,China suppliers,switch_cord_minor_parts,\n", "")(t, s)
+			s = replaceOnce("component,knob,China,China suppliers,cord_knobs_covers,\n", "")(t, s)
 			return s + "component,thermal fuse,Japan,Japan suppliers,switch_cord_minor_parts,\n"
 		}, []string{"component_removed: knob", "component_added: thermal fuse"}},
 		{"final assembly moved to Vietnam", func(_ *testing.T, s string) string {

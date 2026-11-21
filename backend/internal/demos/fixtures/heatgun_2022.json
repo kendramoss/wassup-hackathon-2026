@@ -20,6 +20,7 @@
             "heating_element",
             "housing_moulding",
             "switch_cord_minor_parts",
+            "cord_knobs_covers",
             "final_assembly"
           ]
         },
@@ -32,7 +33,8 @@
             "pcba",
             "heating_element",
             "housing_moulding",
-            "switch_cord_minor_parts"
+            "switch_cord_minor_parts",
+            "cord_knobs_covers"
           ]
         }
       ],
@@ -89,7 +91,7 @@
           "name": "power cord",
           "made_in": "China",
           "plant": "cn",
-          "group": "switch_cord_minor_parts"
+          "group": "cord_knobs_covers"
         },
         {
           "name": "wiring",
@@ -101,13 +103,13 @@
           "name": "knob",
           "made_in": "China",
           "plant": "cn",
-          "group": "switch_cord_minor_parts"
+          "group": "cord_knobs_covers"
         },
         {
           "name": "back cover",
           "made_in": "China",
           "plant": "cn",
-          "group": "switch_cord_minor_parts"
+          "group": "cord_knobs_covers"
         },
         {
           "name": "support ring, heat insulator and fasteners",
@@ -174,8 +176,12 @@
           "th": 110000
         },
         "switch_cord_minor_parts": {
-          "cn": 70000,
-          "th": 105000
+          "cn": 40000,
+          "th": 60000
+        },
+        "cord_knobs_covers": {
+          "cn": 30000,
+          "th": 45000
         }
       }
     },
