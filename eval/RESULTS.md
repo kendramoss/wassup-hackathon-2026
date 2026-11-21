@@ -632,6 +632,8 @@ One fixture per new family (`backend/testdata/families/`, built from pool ruling
 
 Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed with CBP in 5 of the 8 fixtures where CBP named the origin; it named the assembly or target country where CBP held China, the same direction as the known held-out weakness (D138, MODEL-CARD).
 
+**Facts correction (D264, #392).** These one-run checks used variant facts rendered before the template-default fix. A moved group with no product-supplied operations inherited the template's *union* of processes across products, so the water-dispenser variants also asserted "UV lamp assemblies, lamp PCBAs, quartz tubes, and RFID smart chip assemblies", and its final-assembly line mentioned an "RO membrane". The 11 ruling-grounded families now declare `union_default_operations`: with no supplied operations, `Render` writes a neutral statement naming only this product's components and no process steps. The recorded result files are left untouched as evidence of what was actually run; they are **not** a validation of the corrected facts, and no model call was repeated.
+
 ## Planner: post-cutoff flip pairs and per-family plan checks (gateway, 21 Nov; D170, D171)
 
 ### Precedent check on 15 post-cutoff flip pairs — frozen before scoring, scored once

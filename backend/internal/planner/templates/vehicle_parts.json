@@ -1,6 +1,7 @@
 {
   "family": "vehicle_parts",
   "version": "1",
+  "union_default_operations": true,
   "name": "Vehicle parts (mechanical and electromechanical)",
   "note": "For mechanical and electromechanical vehicle assemblies, CBP generally finds that origin is conferred by the country that manufactures the core functional component or performs extensive precision machining, heat treatment, and coil winding on raw blanks. Conversely, simple assembly operations such as pressing, riveting, soldering leads, or bolting pre-manufactured components into a housing do not result in a substantial transformation. Written from 45 CBP substantial-transformation rulings (of 88 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

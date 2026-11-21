@@ -1,6 +1,7 @@
 {
   "family": "hand_tools",
   "version": "1",
+  "union_default_operations": true,
   "name": "Hand tools and cutting tools",
   "note": "CBP generally holds that the country of origin of non-powered hand tools and cutting tools is where the primary metal working components, such as jaws, blades, shafts, or tool heads, are forged, cast, stamped, or CNC-turned into their recognizable form and shape. Subsequent machining of teeth or holes, heat-treating, polishing, coating, and final assembly with handles, grips, and fasteners are typically treated as finishing and simple assembly operations that do not confer origin unless a major structural jaw or handle is also wholly manufactured in that country. Written from 45 CBP substantial-transformation rulings (of 67 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

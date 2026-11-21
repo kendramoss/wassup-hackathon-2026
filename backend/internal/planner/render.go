@@ -16,7 +16,11 @@ import (
 //
 // The first heat-gun run rendered processing detail for every group, which
 // made the engine call the 2022 setup Thai (CBP held China); see
-// docs/DECISIONS.md D16.
+// docs/DECISIONS.md D16. For families written from many rulings, template
+// operations can be the union of different products' processes; those
+// templates set UnionDefaultOperations, and a product that supplies no
+// operations gets a neutral statement rather than another product's parts
+// (issue #392, D264).
 func Render(p domain.Product, t Template, detail ...string) string {
 	var b strings.Builder
 	final := finalAssemblyCountry(p, t)
@@ -71,14 +75,20 @@ func Render(p domain.Product, t Template, detail ...string) string {
 		if custom := groupOperations(p, g.ID); len(custom) > 0 {
 			ops, note = custom, ""
 		}
-		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house: %s%s.", plant.Country, subject, joinOps(ops), note)
+		if t.UnionDefaultOperations && note != "" {
+			ops = nil
+		}
+		fmt.Fprintf(&b, "\n\nIn %s, the %s will be produced in-house%s.", plant.Country, subject, opsClause(ops, note))
 	}
 	if g, ok := t.Group("final_assembly"); ok && final != "" {
 		ops, note := g.Operations, templateAssumption
 		if custom := groupOperations(p, "final_assembly"); len(custom) > 0 {
 			ops, note = custom, ""
 		}
-		fmt.Fprintf(&b, "\n\nFinal assembly in %s: %s%s.", final, joinOps(ops), note)
+		if t.UnionDefaultOperations && note != "" {
+			ops = nil
+		}
+		fmt.Fprintf(&b, "\n\nFinal assembly in %s%s.", final, opsClause(ops, note))
 	}
 	return strings.TrimSpace(b.String()) + "\n"
 }
@@ -181,3 +191,15 @@ func joinAnd(xs []string) string {
 }
 
 func joinOps(ops []string) string { return strings.Join(ops, "; ") }
+
+// opsClause appends the operations only when there are any. For a family
+// whose template defaults are the union of several products' processes, a
+// product that supplied none gets the assumption label alone: the named
+// components are still said to be made at the target, but no other product's
+// parts or processes are asserted as facts (issue #392, D264).
+func opsClause(ops []string, note string) string {
+	if len(ops) == 0 {
+		return note
+	}
+	return ": " + joinOps(ops) + note
+}

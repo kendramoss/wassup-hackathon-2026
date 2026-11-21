@@ -1,6 +1,7 @@
 {
   "family": "pcba_electronic_devices",
   "version": "1",
+  "union_default_operations": true,
   "name": "PCBA-based electronic devices",
   "note": "For PCBA-based electronic devices, CBP generally holds that the country where the main printed circuit board assembly is manufactured via surface mount technology and through-hole insertion is the country of origin, unless the device is a large electro-mechanical machine where major functional subassemblies and transport frames dominate. Merely enclosing pre-assembled PCBAs into plastic or metal housings, connecting wires or batteries, and flashing firmware is consistently treated as simple assembly that does not confer origin. Written from 45 CBP substantial-transformation rulings (of 86 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

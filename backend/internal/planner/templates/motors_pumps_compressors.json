@@ -1,6 +1,7 @@
 {
   "family": "motors_pumps_compressors",
   "version": "1",
+  "union_default_operations": true,
   "name": "Electric motors, pumps and compressors",
   "note": "For electric motors, pumps, compressors, and related fluid-handling equipment, CBP usually finds that origin is conferred by the manufacture of the core functional mechanism, such as the stator and rotor, impeller, rotary group, compressor unit, or heavy-duty machined fluid-end housing, or by extensive local sheet-metal fabrication combined with multi-stage subassembly. Simple mechanical assembly of pre-manufactured motors, impellers, switches, valves, and control boards into a housing, or minor finishing of imported blanks, does not constitute a substantial transformation. Written from 10 CBP substantial-transformation rulings outside the dev and held-out splits (D212); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
