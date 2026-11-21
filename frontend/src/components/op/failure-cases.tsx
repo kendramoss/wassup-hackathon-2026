@@ -21,7 +21,8 @@ make reproduce
 make verify-data                                         # data files match eval/SHA256SUMS
 cd backend && go run ./cmd/claimscheck && cd ..         # headline counts, from the result rows
 python3 -I eval/charts/build_evaluation.py . --check     # calibration, curves, split funnel
-python3 -I eval/charts/build_trust_data.py . --check     # failure cases, corpus counts`;
+python3 -I eval/charts/build_trust_data.py . --check     # failure cases, corpus counts
+python3 -I eval/charts/build_accuracy.py . --check       # model sweep, second test set, calibration`;
 
 export function Reproduce() {
   return (

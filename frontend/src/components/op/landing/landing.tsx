@@ -358,7 +358,7 @@ export function Landing() {
                         data-k="ruler"
                         viewBox="0 0 700 190"
                         role="img"
-                        aria-label="Origin accuracy 90.2% (86.8 to 92.8) against 60.5% for the best simple rule and 40.6% for final assembly. Auto-accepted cases, 79.6% of all, 96.0% correct (93.1 to 97.7)."
+                        aria-label="Origin accuracy 90.2% (86.8 to 92.8) against 63.4% for the best simple rule we recomputed, the first country named. Auto-accepted cases, 79.6% of all, 96.0% correct (93.1 to 97.7)."
                       />
                       <div className="claims">
                         <p className="duo">

@@ -1296,6 +1296,89 @@ type summaryRun struct {
 	Official        bool
 }
 
+// adjustedDevItem is the development accuracy after the D23 scoring
+// adjustments (463 rulings), the figure docs/EVALUATION.md uses.
+func adjustedDevItem(resultsDir string, run summaryRun) (evalsummary.Item, error) {
+	rows, err := readRows(filepath.Join(resultsDir, run.File), nil)
+	if err != nil {
+		return evalsummary.Item{}, err
+	}
+	adj, err := evalkit.LoadAdjustments(filepath.Join(resultsDir, "..", "data", "scoring_adjustments.json"))
+	if err != nil {
+		return evalsummary.Item{}, err
+	}
+	s := evalkit.Summarize(adj.Apply(rows))
+	return evalsummary.Item{Key: "dev_accuracy_adjusted", Label: fmt.Sprintf("Development (%d rulings after scoring adjustments, D23) accuracy", s.N),
+		Value: round(s.Acc), CILow: round(s.Lo), CIHigh: round(s.Hi), N: s.N, Split: "dev", DevelopmentOnly: true,
+		Source: "eval/results/" + run.File + " + eval/data/scoring_adjustments.json"}, nil
+}
+
+// baselineSummaryItems reads the rule baselines recomputed by
+// `eval baselines` on the first held-out split (D155).
+func baselineSummaryItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "baselines-final.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	var res map[string]json.RawMessage
+	if err := json.Unmarshal(b, &res); err != nil {
+		return nil, err
+	}
+	var majority string
+	_ = json.Unmarshal(res["majority_country"], &majority)
+	var out []evalsummary.Item
+	for _, r := range []struct{ rule, key, label string }{
+		{"first_mentioned", "baseline_first_mentioned", "Baseline: first country named in the facts (recomputed)"},
+		{"most_mentioned", "baseline_most_mentioned", "Baseline: most-mentioned country (recomputed)"},
+		{"majority_origin", "baseline_majority", "Baseline: always the development set's most common origin (recomputed)"},
+	} {
+		var v struct {
+			N        int       `json:"n"`
+			Accuracy float64   `json:"accuracy"`
+			CI       []float64 `json:"ci95"`
+		}
+		if err := json.Unmarshal(res[r.rule], &v); err != nil || len(v.CI) != 2 {
+			return nil, fmt.Errorf("%s: %s: %v", file, r.rule, err)
+		}
+		label := r.label
+		if r.rule == "majority_origin" && majority != "" {
+			label = "Baseline: always " + majority + ", the development set's most common origin (recomputed)"
+		}
+		out = append(out, evalsummary.Item{Key: r.key, Label: label, Value: v.Accuracy, CILow: v.CI[0], CIHigh: v.CI[1], N: v.N, Split: "final",
+			Source: "eval/results/" + file + " (go run ./cmd/eval baselines, no model)"})
+	}
+	return out, nil
+}
+
+// final2SummaryItems are the second held-out split's numbers (D154): one run
+// of the frozen engine through the gateway, with the router.
+func final2SummaryItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+	rows, err := readRows(filepath.Join(resultsDir, file), nil)
+	if err != nil {
+		return nil, err
+	}
+	for i := range rows {
+		rows[i].TriageRoute = "needs_review"
+		if rows[i].InScope && rows[i].Error == "" && rows[i].Confidence >= config.DefaultFastPath {
+			rows[i].TriageRoute = "auto"
+		}
+	}
+	s := evalkit.Summarize(rows)
+	// Six decimals, so a page that rounds to one decimal of a percent shows
+	// the same interval as the docs (96.65 must not become 96.7).
+	r6 := func(x float64) float64 { return math.Round(x*1e6) / 1e6 }
+	src := "eval/results/" + file
+	label := fmt.Sprintf("Second held-out (%d rulings, Sep–Nov 2026, gateway)", s.N)
+	fp, flo, fhi := evalkit.Wilson(s.FastK, s.FastN)
+	return []evalsummary.Item{
+		{Key: "final2_accuracy", Label: label + " accuracy", Value: r6(s.Acc), CILow: r6(s.Lo), CIHigh: r6(s.Hi), N: s.N, Split: "final2", Source: src},
+		{Key: "final2_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r6(fp), CILow: r6(flo), CIHigh: r6(fhi), N: s.FastN, Split: "final2", Source: src},
+		{Key: "final2_fastpath_coverage", Label: label + ": fast path coverage", Value: r6(float64(s.FastN) / float64(s.N)), N: s.N, Split: "final2", Source: src},
+	}, nil
+}
+
 // selectSummaryRun prefers the Vertex AI engine and scope files when both
 // exist, and otherwise the LiteLLM proxy files. A Vertex engine file is never
 // paired with proxy router labels.
@@ -1407,13 +1490,38 @@ func summaryCmd(args []string) error {
 			items[i].DevelopmentOnly = true
 		}
 	}
-	const v2 = "hackathon-research/experiments/origin-proof/RESULTS-v2.md (research run, Python, LiteLLM proxy)"
+	// The research write-up these figures come from is not in this
+	// repository, so the source says it is unavailable (docs/NUMBERS.md).
+	const v2 = "unavailable: research write-up RESULTS-v2.md, not in this repository (research run, Python, LiteLLM proxy)"
+	// Dev after the D23 scoring adjustments (463 rulings), next to the
+	// unadjusted dev rows above, so the page can say which is which.
+	// Each of these is skipped, with a note, when its input file is absent
+	// (the command's tests run on a minimal results directory).
+	if adjDev, err := adjustedDevItem(*resultsDir, devRun); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip adjusted dev: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, adjDev)
+	}
+	if baseItems, err := baselineSummaryItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip baselines: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, baseItems...)
+	}
+	if f2Items, err := final2SummaryItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip second held-out split: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, f2Items...)
+	}
 	items = append(items,
 		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},
-		item{Key: "baseline_most_mentioned", Label: "Baseline: most-mentioned country", Value: 0.605, CILow: 0.555, CIHigh: 0.653, N: 377, Split: "final", Source: v2},
 		item{Key: "baseline_final_assembly", Label: "Baseline: final-assembly country", Value: 0.406, CILow: 0.358, CIHigh: 0.456, N: 377, Split: "final", Source: v2},
-		item{Key: "baseline_last_mentioned", Label: "Baseline: last country mentioned", Value: 0.398, CILow: 0.350, CIHigh: 0.448, N: 377, Split: "final", Source: v2},
-		item{Key: "baseline_majority", Label: "Baseline: majority country (Vietnam)", Value: 0.122, CILow: 0.093, CIHigh: 0.159, N: 377, Split: "final", Source: v2},
+		item{Key: "baseline_last_mentioned", Label: "Baseline: last country mentioned (research definition)", Value: 0.398, CILow: 0.350, CIHigh: 0.448, N: 377, Split: "final", Source: v2},
 		item{Key: "research_argon_facts_only", Label: "Research: Gemini 4 Argon, facts only (no precedents)", Value: 0.859, CILow: 0.821, CIHigh: 0.891, N: 377, Split: "final", Source: v2},
 		item{Key: "change_detection_heldout", Label: "Change detection from scratch, held-out 2026 pairs (weak)", Value: 15.0 / 22, CILow: 0.47, CIHigh: 0.84, N: 22, Split: "final", Source: v2},
 		item{Key: "change_detection_always_change_baseline", Label: "Baseline: always predict a change (same 22 pairs)", Value: 14.0 / 22, N: 22, Split: "final", Source: v2},
@@ -1989,7 +2097,7 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	if err := add("pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", "pharma_final", "Pharmaceutical rules, held-out (2026, pharma-v1)"); err != nil {
 		return nil, err
 	}
-	if err := add("usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "usmca_final", "USMCA rules, held-out (2026, usmca-v1)"); err != nil {
+	if err := add("usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "usmca_final", "Part 102 marking-origin rules, held-out (2026, usmca-v1)"); err != nil {
 		return nil, err
 	}
 	return items, nil
