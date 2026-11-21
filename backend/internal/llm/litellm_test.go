@@ -119,11 +119,46 @@ func TestLiteLLMErrorsHideKeyAndAddress(t *testing.T) {
 	}
 }
 
-func TestLiteLLMRefusesMediaParts(t *testing.T) {
-	_, err := NewLiteLLM("http://unused", testKey, time.Second).Generate(context.Background(), Request{
-		Model: "m", Messages: []Message{{Role: RoleUser, Content: "x", Parts: []Part{{MIMEType: "image/png", Data: []byte{1}}}}},
+func TestLiteLLMSendsMediaPartsAsDataURLs(t *testing.T) {
+	var got map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&got)
+		_, _ = io.WriteString(w, `{"model":"m","choices":[{"message":{"role":"assistant","content":"{}"},"finish_reason":"stop"}],"usage":{}}`)
+	}))
+	defer srv.Close()
+	_, err := NewLiteLLM(srv.URL, testKey, time.Second).Generate(context.Background(), Request{
+		Model: "m", Messages: []Message{{Role: RoleUser, Content: "read", Parts: []Part{
+			{MIMEType: "image/png", Data: []byte{1, 2}},
+			{MIMEType: "application/pdf", Data: []byte{3}},
+		}}},
 	})
-	if !errors.Is(err, ErrBadResponse) {
-		t.Errorf("err = %v", err)
+	if err != nil {
+		t.Fatal(err)
+	}
+	msgs := got["messages"].([]any)
+	parts := msgs[0].(map[string]any)["content"].([]any)
+	if len(parts) != 3 {
+		t.Fatalf("parts = %v", parts)
+	}
+	if p := parts[0].(map[string]any); p["type"] != "text" || p["text"] != "read" {
+		t.Errorf("text part = %v", p)
+	}
+	if p := parts[1].(map[string]any); p["type"] != "image_url" || p["image_url"].(map[string]any)["url"] != "data:image/png;base64,AQI=" {
+		t.Errorf("image part = %v", p)
+	}
+	if p := parts[2].(map[string]any); p["type"] != "file" || p["file"].(map[string]any)["file_data"] != "data:application/pdf;base64,Aw==" {
+		t.Errorf("pdf part = %v", p)
+	}
+}
+
+func TestLiteLLMRefusesBadMediaParts(t *testing.T) {
+	for _, m := range []Message{
+		{Role: RoleUser, Content: "x", Parts: []Part{{MIMEType: "image/png"}}},
+		{Role: RoleAssistant, Content: "x", Parts: []Part{{MIMEType: "image/png", Data: []byte{1}}}},
+	} {
+		_, err := NewLiteLLM("http://unused", testKey, time.Second).Generate(context.Background(), Request{Model: "m", Messages: []Message{m}})
+		if err == nil {
+			t.Errorf("%v: no error", m.Role)
+		}
 	}
 }
