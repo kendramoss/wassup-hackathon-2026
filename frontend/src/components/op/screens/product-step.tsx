@@ -602,7 +602,7 @@ export function ProductStep() {
           )}
 
           <div className="mt-5" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
-            {tab === "parts" && <PartsEditor product={product} family={family} onChange={setProduct} />}
+            {tab === "parts" && <PartsEditor product={product} family={family} economics={economics} onChange={setProduct} />}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
                 <Field label={copy.product.facts}>
@@ -1031,19 +1031,21 @@ function Field({ label, help, children }: { label: string; help?: string; childr
 }
 
 // Plant IDs are made for the user ("p1", "p2", …) and never shown. A new id
-// skips every id a plant, part or step already holds, so it can never adopt a
-// reference left pointing at a plant that no longer exists.
-function plantId(product: Product) {
+// skips every id a plant, part or step already holds, plus every id with a
+// yearly cost in the money inputs (#372). Removing a plant leaves those costs
+// behind, so reusing its id would silently give a later plant its costs.
+function plantId(product: Product, economics?: Economics) {
   const taken = new Set<string>();
   for (const p of product.plants ?? []) taken.add(p.id);
   for (const c of product.components) if (c.plant) taken.add(c.plant);
   for (const o of product.operations ?? []) if (o.plant) taken.add(o.plant);
+  for (const row of Object.values(economics?.group_costs ?? {})) for (const id of Object.keys(row)) taken.add(id);
   let n = (product.plants ?? []).length + 1;
   while (taken.has(`p${n}`)) n++;
   return `p${n}`;
 }
 
-export function PartsEditor({ product, family, onChange }: { product: Product; family?: string; onChange: (p: Product) => void }) {
+export function PartsEditor({ product, family, economics, onChange }: { product: Product; family?: string; economics?: Economics; onChange: (p: Product) => void }) {
   const plants = product.plants ?? [];
   const ops = product.operations ?? [];
   const setPlants = (p: Plant[]) => onChange({ ...product, plants: p });
@@ -1076,7 +1078,7 @@ export function PartsEditor({ product, family, onChange }: { product: Product; f
   // one (18 Oct), in a single change so the new plant and its use land
   // together. A name that matches a plant reuses it.
   const plantByName = (v: string) => plants.find((p) => p.id === v || (p.name ?? "").trim().toLowerCase() === v.trim().toLowerCase());
-  const newPlant = (name: string, country: string): Plant => ({ id: plantId(product), name: name.trim(), country, capabilities: [] });
+  const newPlant = (name: string, country: string): Plant => ({ id: plantId(product, economics), name: name.trim(), country, capabilities: [] });
   const madeAt = (i: number, v: string) => {
     const known = v === "" ? undefined : plantByName(v);
     if (v === "" || known) return pickPlant(i, known?.id ?? "");
@@ -1145,7 +1147,7 @@ export function PartsEditor({ product, family, onChange }: { product: Product; f
             </li>
           ))}
         </ul>
-        <AddButton onClick={() => setPlants([...plants, { id: plantId(product), name: "", country: "", capabilities: [] }])}>+ Add a plant</AddButton>
+        <AddButton onClick={() => setPlants([...plants, { id: plantId(product, economics), name: "", country: "", capabilities: [] }])}>+ Add a plant</AddButton>
       </Panel>
 
       <Panel className="min-w-0">

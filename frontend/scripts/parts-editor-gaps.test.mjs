@@ -26,9 +26,9 @@ const drill = () => ({
 });
 
 // A tiny editor: the product lives here, every handler writes it back.
-function editor(initial) {
+function editor(initial, economics) {
   const ed = { product: initial };
-  const tree = () => PartsEditor({ product: ed.product, onChange: (p) => (ed.product = p) });
+  const tree = () => PartsEditor({ product: ed.product, economics, onChange: (p) => (ed.product = p) });
   ed.remove = (label, index = 0) => findAll(tree(), (e) => byName("RemoveButton")(e) && e.props.label === label)[index].props.onClick();
   ed.add = (text) => findAll(tree(), (e) => byName("AddButton")(e) && JSON.stringify(e.props.children).includes(text))[0].props.onClick();
   ed.combo = (aria, index) => findAll(tree(), (e) => byName("Combobox")(e) && e.props.ariaLabel === aria)[index];
@@ -146,4 +146,26 @@ test("typing a new plant name for a step creates a plant that only that step use
   assert.equal(created.name, "Gdansk works");
   assert.equal(ed.product.operations[0].plant, created.id);
   assert.equal(ed.product.components[0].plant, undefined, "the gearbox, cleared earlier, is not attached to the new plant");
+});
+
+// ---- #372: money inputs must not bind to a removed plant's id ----------
+test("a new plant never inherits yearly costs keyed to a removed plant", () => {
+  const economics = { group_costs: { final_assembly: { p1: 300000, p3: 400000 } } };
+  const ed = editor(drill(), economics);
+  ed.remove("Remove Monterrey assembly");
+  ed.add("Add a plant");
+  const added = ed.product.plants[2];
+  assert.notEqual(added.id, "p3", `new id ${added.id} must not reuse the costed Monterrey id`);
+  assert.equal(economics.group_costs.final_assembly[added.id], undefined, "the new plant has no yearly cost yet");
+  ed.combo("At plant", 0).props.onChange(added.id);
+  assert.equal(ed.product.operations[0].plant, added.id, "the step can still be reassigned to the new plant");
+  assert.equal(economics.group_costs.final_assembly[added.id], undefined, "assigning the step does not adopt the old cost");
+  assert.equal(economics.group_costs.final_assembly.p3, 400000, "the old entry is left untouched for the user to remove or re-enter");
+});
+
+test("a plant with no yearly costs still gets its old id back (control)", () => {
+  const ed = editor(drill());
+  ed.remove("Remove Monterrey assembly");
+  ed.add("Add a plant");
+  assert.equal(ed.product.plants[2].id, "p3", "unchanged behaviour when there is no cost to inherit");
 });
