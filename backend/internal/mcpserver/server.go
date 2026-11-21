@@ -49,6 +49,12 @@ type Options struct {
 	MediaExtract bool
 	// Version is reported in the MCP initialize result.
 	Version string
+	// ClientAddress resolves the outer request's connection address and
+	// X-Client-IP once, before any tool call. httpapi supplies the
+	// TRUSTED_PROXY_CIDRS rule; without one the connection address wins, so
+	// a direct caller cannot choose the rate-limit bucket of its tool calls
+	// (#479). The resolved value is the only client address tools see.
+	ClientAddress func(remoteAddr, clientIP string) string
 }
 
 // maxBody caps one MCP request body: room for extract_product_from_media's
@@ -66,7 +72,7 @@ func New(o Options) http.Handler {
 	// check would only risk refusing the proxy's own requests.
 	h := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return s },
 		&mcp.StreamableHTTPOptions{Stateless: true, MaxRequestBodyBytes: maxBody, DisableLocalhostProtection: true})
-	return guard(h)
+	return guard(o, h)
 }
 
 // NewServer builds the MCP server with its tools, resources and prompt.
@@ -96,10 +102,11 @@ Without an API key, predict_origin returns a case_access_key: pass it to every l
 // Authorization header otherwise holds the platform's identity token, which
 // is ignored). The admin token is refused outright, and the user token and
 // visitor ID are dropped (and a broker review token): an MCP caller is an
-// API key or anonymous. Without
-// X-Client-IP (a direct local call) the connection address is used, so
-// anonymous callers get their own rate-limit bucket.
-func guard(next http.Handler) http.Handler {
+// API key or anonymous. The client address is resolved once with the same
+// trusted-proxy rule as REST (#479): a caller-supplied X-Client-IP is used
+// only when Options.ClientAddress says the connection is a trusted proxy,
+// and the resolved value replaces the header before any tool sees it.
+func guard(o Options, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("X-Admin-Token") != "" {
 			writeHTTPError(w, http.StatusForbidden, "forbidden", "the admin token is not accepted on /mcp; use an API key")
@@ -120,13 +127,18 @@ func guard(next http.Handler) http.Handler {
 		if key != "" {
 			r.Header.Set("X-API-Key", key)
 		}
-		if strings.TrimSpace(r.Header.Get("X-Client-IP")) == "" {
+		addr := ""
+		if o.ClientAddress != nil {
+			addr = strings.TrimSpace(o.ClientAddress(r.RemoteAddr, r.Header.Get("X-Client-IP")))
+		}
+		if addr == "" {
 			host, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
 				host = r.RemoteAddr
 			}
-			r.Header.Set("X-Client-IP", host)
+			addr = host
 		}
+		r.Header.Set("X-Client-IP", addr)
 		next.ServeHTTP(w, r)
 	})
 }

@@ -25,6 +25,10 @@ func (a *api) mcp(root *http.Handler, version string) http.HandlerFunc {
 		RulingSearch: a.d.RulingSearch != nil,
 		MediaExtract: a.d.MediaExtractor != nil,
 		Version:      version,
+		// The MCP guard resolves the address with the same trusted-proxy
+		// rule as clientKey, so a direct caller's header cannot pick the
+		// bucket of its tool calls (#479).
+		ClientAddress: func(remote, ip string) string { return clientAddressWithProxy(remote, ip, a.d.TrustedProxyCIDRs) },
 	})
 	return h.ServeHTTP
 }
