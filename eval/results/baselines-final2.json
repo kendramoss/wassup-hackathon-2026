@@ -1,0 +1,41 @@
+{
+  "facts": "data/facts,../eval/data/facts_final2",
+  "first_mentioned": {
+    "accuracy": 0.6024,
+    "ci95": [
+      0.4948,
+      0.7009
+    ],
+    "correct": 50,
+    "n": 83
+  },
+  "last_mentioned": {
+    "accuracy": 0.3253,
+    "ci95": [
+      0.2342,
+      0.4319
+    ],
+    "correct": 27,
+    "n": 83
+  },
+  "majority_origin": {
+    "accuracy": 0.1807,
+    "ci95": [
+      0.1127,
+      0.277
+    ],
+    "correct": 15,
+    "n": 83
+  },
+  "most_mentioned": {
+    "accuracy": 0.7108,
+    "ci95": [
+      0.6057,
+      0.7973
+    ],
+    "correct": 59,
+    "n": 83
+  },
+  "split": "final2",
+  "splits_file": "../eval/splits/splits_final2.json"
+}

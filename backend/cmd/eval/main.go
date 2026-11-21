@@ -173,7 +173,7 @@ func run(args []string) error {
 	tag := fl.String("tag", "", "appended to the result file name, to keep a repeat run apart from an earlier file with the same configuration")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated; final2 needs ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
-	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
+	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	textilePrompt := fl.String("textile-prompt", "v1", "v1 or v2 (textile-v2: filled made-up guidance; use with -reasoning, D53)")
 	regime := fl.String("regime", "st", "st (substantial transformation), textile (19 CFR 102.21, textile-v1, with -splits ../eval/splits/splits_textile.json; D51), usmca (19 CFR 102.11 / 102.20, usmca-v1, with -labels ../eval/data/labels_usmca.jsonl and -splits ../eval/splits/splits_usmca.json; D61) or pharma (active ingredient, pharma-v1, with -splits ../eval/splits/splits_pharma.json; D62)")
@@ -218,7 +218,7 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	store, err := corpus.Load(labels, *factsDir)
+	store, err := corpus.LoadDirs(labels, splitComma(*factsDir)...)
 	if err != nil {
 		return err
 	}

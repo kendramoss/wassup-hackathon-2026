@@ -33,7 +33,7 @@ func baselinesCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	store, err := corpus.Load(labels, *factsDir)
+	store, err := corpus.LoadDirs(labels, splitComma(*factsDir)...)
 	if err != nil {
 		return err
 	}
