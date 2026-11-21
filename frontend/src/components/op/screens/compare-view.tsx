@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, withStaleFlags, type CaseResponse, type TargetSummary } from "@/lib/api/client";
@@ -165,14 +166,17 @@ function Compare({ id, c, setCase }: CaseCtx) {
         {/* A pinned demo keeps its recorded comparison: a new one wouldn't be
             saved, so its drafts couldn't be made (18 Oct). */}
         {c.pinned ? (
-          <DemoNote
-            title={c.display_name}
-            message={
-              ranked
-                ? "This is a pinned demo: its recorded comparison is shown. To compare other countries and draft from them, start a new case from it."
-                : "This is a pinned demo: comparisons run here aren't saved. Start a new case from it to compare countries and draft from the result."
-            }
-          />
+          <>
+            <DemoNote
+              title={c.display_name}
+              message={
+                ranked
+                  ? "This is a pinned demo: its recorded comparison is shown. To compare other countries and draft from them, start a new case from it."
+                  : "This is a pinned demo: comparisons run here aren't saved. Start a new case from it to compare countries and draft from the result."
+              }
+            />
+            {!ranked && <RecordedCompare c={c} />}
+          </>
         ) : (
           !since && (
             <div>
@@ -295,5 +299,34 @@ function Compare({ id, c, setCase }: CaseCtx) {
         </div>
       </Footer>
     </>
+  );
+}
+
+// A pinned demo with no recorded comparison is a dead end for a visitor, so
+// point to the pinned demo of the same product whose comparison is recorded
+// (judge journey: the heat gun's comparison is its own demo case).
+function RecordedCompare({ c }: { c: CaseResponse }) {
+  const [href, setHref] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    api.listCases().then(
+      (r) => {
+        const other = (r?.cases ?? []).find((x) => x.pinned && x.id !== c.id && x.product_name === c.product?.name && /compare/i.test(x.display_name ?? ""));
+        if (live && other) setHref(`/cases/${encodeURIComponent(other.id)}/compare`);
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [c.id, c.product?.name]);
+  if (!href) return null;
+  return (
+    <p className="duo text-[13.5px]">
+      A comparison of this product is recorded in another demo.{" "}
+      <Link href={href} className="text-ok underline underline-offset-2">
+        See the recorded comparison →
+      </Link>
+    </p>
   );
 }

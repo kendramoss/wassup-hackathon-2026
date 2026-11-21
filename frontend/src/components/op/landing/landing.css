@@ -168,6 +168,18 @@
 .lp .testfoot { align-items: center; }
 .lp .testfoot .endcta > a:first-child { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
 
+/* ---- what you can do ---- */
+.lp .hero .also { max-width: 64ch; color: var(--body); font-size: 13.5px; line-height: 1.5; }
+.lp .hero .also a, .lp .can dd a { color: var(--ok); text-decoration: underline; text-underline-offset: 3px; }
+.lp .can { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; scroll-margin-top: 72px; }
+.lp .canlead { margin-top: 8px; max-width: 78ch; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .can dl { margin: 12px 0 0; border-top: 1px solid var(--edge); }
+.lp .canrow { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr); gap: 6px 32px; padding: 14px 0; border-bottom: 1px dashed var(--guide); }
+.lp .canrow dt { color: var(--ink); font-size: 14.5px; line-height: 1.55; font-weight: 500; }
+.lp .canrow dd { min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .canrow dd a { font-size: 13.5px; min-height: 24px; display: inline-flex; align-items: center; }
+.lp .cancode { box-sizing: border-box; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--edge); background: var(--sheet); padding: 8px 12px; font-size: 12.5px; line-height: 1.5; }
+
 /* ---- who + footer ---- */
 .lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
 .lp .whobox { margin-top: 12px; border: 1px dashed var(--guide); background: var(--sheet); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
@@ -250,6 +262,7 @@
   .lp .crop { display: none; }
   .lp .ruler { display: none; } /* too small to read at phone width; the claims below carry the numbers */
   .lp .panels, .lp .claims, .lp .forag, .lp .whobox, .lp .role { grid-template-columns: 1fr; }
+  .lp .canrow { grid-template-columns: minmax(0, 1fr); }
   .lp .story { padding-top: 36px; }
   .lp .storysheet { padding: 20px 16px 14px; }
   .lp .storyhead, .lp .beat, .lp .bar { grid-template-columns: 1fr; }

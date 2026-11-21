@@ -1,32 +1,42 @@
 # Recording the demo
 
-Video: 2:45. Judges first. Every number on screen must trace to `docs/NUMBERS.md`, and model outputs shown are what the system produced on the recording day.
+Video: 3:00. Judges first. Every number on screen must trace to `docs/NUMBERS.md`, and model outputs shown are what the system produced on the recording day. Anything not measured is said as not measured.
 
-## Video timeline (2:45)
+## Video timeline (3:00)
 
-There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. Screens and numbers are the production heat-gun case in section 3.
+There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 13 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute every number.
+
+The story follows one decision through the five roles on the landing page ("Who uses it, and who benefits"). They are roles Unde is designed around, not customers: it has none yet.
 
 | Time | Topic (judging line) | Screen | Say |
 |---|---|---|---|
-| 0:00ΓÇô0:15 | **Problem** (Impact) | Landing page | "When a factory moves out of China, US Customs decides where the product is *from*. For this heat gun, that's about 41.7% duty from China against 16.7% from Thailand." |
-| 0:15ΓÇô0:25 | **Why it's hard today** (Impact) | Landing page, scroll | "Each ruling request takes about 20 hours to prepare, and recent origin rulings took a median of 21 days. Unde Labs answers first. *Unde* is Latin for 'from where?'." |
-| 0:25ΓÇô0:50 | **Predict** (Gen AI) | Cases ΓåÆ heat gun ΓåÆ Product ΓåÆ Origin | "Gemini reads CBP's own facts with the most similar earlier rulings. China, 0.85: under our 0.92 bar, so it asks three questions instead of guessing." Open the cited rulings. |
-| 0:50ΓÇô1:05 | **Scenarios** (Impact, UX) | Scenarios | "Move the motor-fan assembly to Thailand: Thailand 0.98, about $380k a year net, on illustrative economics you can edit." |
-| 1:05ΓÇô1:40 | **Plan and agent check** (Innovation, Gen AI) | Plan: estimate ΓåÆ run ΓåÆ shown plan ΓåÆ "How the check found this" ΓåÆ closest below-bar row | "It searches where each group of steps could be made. An ADK agent then searches real CBP rulings for each move. Shown: motor-fan assembly, PCBA, switch and cord in Thailand, 0.96, supported by N345938, $285k a year. Motor-fan alone scored 0.90, so the bar held it back, and the advice says what would match." |
-| 1:40ΓÇô1:55 | **Backtest** (Innovation, Impact) | Backtest panel | "The manufacturer really made this change. In 2026, CBP ruled Thailand, N357771: the same parts, plus outer shells that were already Thai here." |
-| 1:55ΓÇô2:05 | **Hand-off** (UX) | Draft for broker | "One click: a draft ruling request for a broker to check and file. Precedent-supported, not a ruling." |
+| 0:00–0:15 | **Problem** (Impact) | Landing page, hero | "When a factory moves out of China, US Customs decides where the product is *from*. For this heat gun, that's about 41.7% duty from China against 16.7% from Thailand." |
+| 0:15–0:30 | **Who, and why it's hard** (Impact) | Landing page, "Who uses it, and who benefits" | "The compliance lead at a Thai contract manufacturer asks the question. The COO pays for the move, a customs broker files the ruling request, and the U.S. importer carries the duty risk. Each ruling request takes about 20 hours to prepare, and recent origin rulings took a median of 21 days. Unde Labs answers first. *Unde* is Latin for 'from where?'." |
+| 0:30–0:50 | **Predict** (Gen AI) | "Try the heat-gun demo" → Origin | "Gemini reads CBP's own facts with the most similar earlier rulings. China, 0.85: under our 0.92 bar, so it asks three questions instead of guessing." Open the cited rulings. |
+| 0:50–1:15 | **Plan and agent check** (Innovation, Gen AI) | Plan: shown plan → "How the check found this" → closest below-bar row | "It tries moving each group of work to the Thai plant. An ADK agent then searches real CBP rulings for and against each move. Shown: motor-fan assembly, PCBA, switch and cord in Thailand, 0.96, supported by N345938, $285k a year on illustrative economics. Motor-fan alone scored 0.90, so the bar held it back." |
+| 1:15–1:25 | **Backtest** (Innovation, Impact) | Backtest panel | "The manufacturer really made this change. In 2026, CBP ruled Thailand, N357771: the same parts, plus outer shells that were already Thai here." |
+| 1:25–1:35 | **Hand-off** (UX, Impact) | Draft for broker → "Draft for the shown plan instead" | "One click: a draft ruling request for the broker to check and file. Precedent-supported, not a ruling." |
+| 1:35–1:45 | **Photo import** (Gen AI, UX) | New case → Import BOM → "Photo (synthetic)" sample → Parts and plants | "A parts list can come in as a photo or a scan. Gemini reads it into a draft table, and the user checks every row before anything runs. We have not measured how accurately it reads photos yet, so every row is treated as unverified." |
+| 1:45–1:55 | **13 product families** (Impact, Innovation) | Cases → "More demos" → gas grill → Origin | "Plans now cover 13 product families, from heat guns to cables, chargers, hand tools and gas grills. This gas grill is CBP's own case, N335085: CBP held China." Cut (visible "⏩") to the result the site gives on the day; say it is a live run. |
+| 1:55–2:05 | **Use it from Claude** (Technical merit, UX) | Terminal: `claude mcp add --transport http unde https://undelabs.dev/mcp`, then ask Claude | "The same tools work from Claude over MCP: 11 tools, one line to add. Claude calls predict_origin and plan_production_moves, with the same limits as the API." |
 | 2:05ΓÇô2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings it had never seen: 90.2%, against 60.5% for the best rule of thumb. It auto-accepts 79.6% of cases at 96.0%. 182 precedent checks reached the bar; none was wrong." |
-| 2:25ΓÇô2:38 | **How it's built** (Gen AI, technical merit) | Accuracy ΓåÆ "How it's built" | "Next.js and Go on Cloud Run, Gemini 4 Argon and 3.8 Flash on Vertex AI, an ADK agent for the precedent check, and cases in Firestore." |
-| 2:38ΓÇô2:45 | **Close** | Landing page | "Plan the production change before you build it. Unde Labs." |
+| 2:25–2:45 | **Trust** (Technical merit) | Accuracy → "Known failure cases" → "Reproduce these numbers" | "Every held-out miss is listed by ruling: all 37 of the 377, 12 of them auto-accepted. And every number on this page is recomputed from the repository with one command, `make reproduce`: no model calls, no account." |
+| 2:45–2:55 | **How it's built** (Gen AI, technical merit) | Accuracy → "How it's built" | "Next.js and Go on Cloud Run, Gemini 4 Argon and 3.8 Flash on Vertex AI, an ADK agent for the precedent check, and cases in Firestore." |
+| 2:55–3:00 | **Close** | Landing page | "Plan the production change before you build it. Unde Labs." |
 
 Every judging line is covered:
-- Problem & Impact: 0:00ΓÇô0:25, 0:50, 1:40, 1:55
-- Gen AI: 0:25, 1:05, 2:25
-- Innovation: 1:05ΓÇô1:55
-- Technical merit: 2:05ΓÇô2:38
-- UX: the whole flow, plus 0:50 and 1:55
+- Problem & Impact: 0:00–0:30 (the problem and the roles), 1:15, 1:25, 1:45
+- Gen AI: 0:30, 0:50, 1:35, 2:45
+- Innovation: 0:50–1:25, 1:45
+- Technical merit: 1:55–2:55
+- UX: the whole flow, plus 1:25, 1:35 and 1:55
 
-Rehearse to 2:40. If a screen loads slowly, cut with a visible "ΓÅ⌐"; never splice in another run.
+Rehearse to 2:55. If a screen loads slowly, cut with a visible "⏩"; never splice in another run.
+
+**What to check on the recording day for the new beats:**
+- Photo import: the sample is `frontend/public/samples/heatgun-bom-photo.png`, a synthetic, tilted rendering of the heat-gun BOM (`eval/media/images/heatgun-photo.png`). It is not a real photo; say "a sample image". Field accuracy on images is not measured (docs/NUMBERS.md, "Image and scan import"), so show no figure.
+- Gas grill: the demo is `gas-grill-2023` (backend/internal/demos/fixtures). Unless it has been seeded as a pinned case, loading it runs live on production, so the result is that day's run. A development check through an OpenAI-compatible LiteLLM gateway to Gemini predicted China 0.95 and showed one plan at 0.96 on N333420 (eval/results/families-plan-gas-grill-2023-litellm.json). That run is a record, not the production result; say only what the screen shows.
+- Claude connector: run it from a clean Claude Code session. Without an API key it uses the anonymous tier; `predict_origin` returns a `case_access_key` that the next tool calls need.
 
 ## 1. Prepare (about 10 minutes, the day of recording)
 
@@ -53,7 +63,7 @@ The precedent check is not fully repeatable from run to run (D31, D33). The heat
 - To start fresh for another reason (new provider, changed code), delete `data/verifier-cache` and `data/cases`, then seed again. Note the reason in the video log.
 - The scenarios screen does not depend on the precedent check, so it is the stable way to show "move X → saves $Y" (heat gun: motor-fan assembly to Thailand, Thailand 0.95, net $380k/yr, illustrative economics).
 
-## 3. Click path (main story, ~2:00 of the 2:45)
+## 3. Click path (main story and new capabilities, ~2:30 of the 3:00)
 
 Checked against production (https://undelabs.dev, also `frontend-88903435351.us-central1.run.app`; heat gun `case_878d76540b91`) on 18 Oct after the rename. Every number below is what that case shows; nothing re-runs a model, because predictions and verdicts are cached.
 
@@ -73,8 +83,11 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
    5. Open the backtest: CBP's real 2026 change (N357771, Thailand) moved the same parts plus the outer shells, which are already Thai in this setup. The page does not claim an exact match, and you shouldn't either.
    6. Point at the closest below-bar row, **motor-fan assembly alone, 0.90 on N325810**, and its advice box: "Would match N325810 if: make the PCBA in Thailand…". The beat: *the bar held a 0.90 back, and the advice points to the parts that cleared it.*
    7. Optional, if a judge asks about money: the duty panel. China 41.7% (MFN 4.2% + Section 301 List 2 25% + 2026 Section 301 12.5%) against Thailand 16.7%.
-7. **Draft for broker.** From the shown plan: a 19 C.F.R. § 177.2 ruling request. Its banner says "generated by Unde… check every fact and citation before filing". Print or download.
-8. **Accuracy.** Say these numbers:
+7. **Draft for broker.** From the shown plan (from the step bar, use "Draft for the shown plan instead"): a 19 C.F.R. § 177.2 ruling request. Its banner says "generated by Unde… check every fact and citation before filing". Print or download.
+8. **Photo import.** "+ New case" → Import BOM → the "Photo (synthetic)" sample link under the drop zone (download it, then drop it back in). It opens in Parts and plants as a draft to check. Point at the note that photos are read by AI into a draft. Do not quote an accuracy figure for it; none is measured.
+9. **A newer product family.** Cases → "More demos · not run yet" → "Gas grill, parts formed in China, enamelled and assembled in Indonesia" → Find the likely origin. CBP held China (N335085, scenario 1). Its plan targets Indonesia; the backtest is the same ruling's scenario 2 (lids and fireboxes formed in Indonesia: Indonesia).
+10. **Claude connector.** /developers ("API · MCP" in the top bar) shows the one-line setup and the 11 tools. In a terminal: `claude mcp add --transport http unde https://undelabs.dev/mcp`, then ask "Where would CBP say a heat gun assembled in Thailand from Chinese motor and PCBA is from?".
+11. **Accuracy.** Say these numbers:
    - **90.2%** on 377 held-out CBP rulings (Vertex, official), against 60.5% for the best rule of thumb.
    - The fast path auto-accepts 79.6% of cases at 96.0%.
    - The "Precedent check" section: **182 checks reached the 0.92 bar across all runs; none was wrong.** Say the denominator too: proxy runs over 54 development pairs and 21 pairs from 2026, 17 pairs when each is counted once.
@@ -87,7 +100,8 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
 **Side stories if time allows:**
 - **LED tub light** (section 5): its LED PCBA plan is shown at 0.94, exactly CBP's next ruling. Its duty rates are labelled illustrative.
 - portfolio triage (`backend/testdata/portfolio_sample.csv`)
-- BOM import (`frontend/public/samples/heatgun-bom.xlsx`)
+- BOM import from a spreadsheet (`frontend/public/samples/heatgun-bom.xlsx`)
+- **Scenarios** (step 5 above): move X, see the origin and the illustrative net per year
 - compare target countries
 - ruling watch
 - the LiDAR template (a second product family)
