@@ -453,8 +453,15 @@ func mustDemos(t *testing.T) []demos.Demo {
 func TestDemoFlowThroughTheAPI(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
 	code, list := hs.do(t, "GET", "/v1/demos", "")
-	if code != 200 || len(list["demos"].([]any)) != 6 {
+	if code != 200 || len(list["demos"].([]any)) != 10 {
 		t.Fatalf("list demos %d: %v", code, list)
+	}
+	// Every demo's predict request is accepted, the new-family demos (D191)
+	// included.
+	for _, d := range mustDemos(t) {
+		if code, out := hs.do(t, "POST", "/v1/cases/predict", string(d.Predict)); code != 201 {
+			t.Errorf("predict from demo %s: %d %v", d.ID, code, out)
+		}
 	}
 	req := httptest.NewRequest("GET", "/v1/demos/heatgun-2022", nil)
 	rec := httptest.NewRecorder()

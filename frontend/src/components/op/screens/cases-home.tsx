@@ -85,7 +85,7 @@ export function CasesHome() {
           {unseeded.length > 0 && (
             <div className="mt-6">
               <h3 className="eyebrow mb-1">{copy.cases.moreDemos}</h3>
-              <p className="read mb-3 max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote}</p>
+              <p className="read mb-3 max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote} {copy.cases.recorded.selection}</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {unseeded.map((d) => (
                   <LoadDemoCard key={d.id} d={d} />
@@ -163,11 +163,36 @@ function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
         </span>
       )}
       {d.description && <span className="duo line-clamp-2 text-xs text-dim" title={d.description}>{d.description}</span>}
+      {d.recorded && <RecordedRun r={d.recorded} />}
       <span className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2 text-xs">
         <span className="text-ok">Load demo →</span>
         {d.has_plan && <Chip tone="ok">Plan included</Chip>}
       </span>
     </Link>
+  );
+}
+
+// A demo's recorded development run (D191): the engine's answer beside CBP's
+// holding, shown whether or not it agreed, so a disagreement is visible
+// before anyone runs the demo here.
+function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[number]["recorded"]> }) {
+  const T = copy.cases.recorded;
+  return (
+    <span className="flex flex-col gap-1 border-t border-line pt-2 text-xs" title={`${r.run}. ${r.file}`}>
+      <span className="eyebrow">{T.label}</span>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span>
+          {T.engine} <Country name={r.engine_origin} />
+        </span>
+        <span className="text-dim">{originConfCaption(originConf({ confidence: r.stated_confidence, calibrated_confidence: r.calibrated_confidence }))}</span>
+        <Chip tone={r.agrees_with_cbp ? "ok" : "fail"}>{r.agrees_with_cbp ? T.agrees : T.disagrees}</Chip>
+      </span>
+      {r.best_plan ? (
+        <span className="text-dim">{T.plan(r.best_plan, conf(r.plan_check), r.plan_ruling ?? "")}</span>
+      ) : (
+        <span className="text-dim">{T.noPlan}</span>
+      )}
+    </span>
   );
 }
 

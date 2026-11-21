@@ -102,6 +102,12 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Precedent check, D170 + addendum (18 pairs), starting origin given | shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls shown 0/6 (0-39.0) | `eval/results/planner-post-addendum-summary.json` | Measured, each pair scored once, gateway, local corpus search. Always with n and the interval |
 | Same, starting origin not given | shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6, one control run failed | same | Measured, gateway. Show beside the known-a row |
 
+### New-family demos (D191)
+
+| New-family demos with a recorded run | 5 (gas grill and four picked by family: vehicle parts, PCBA devices, power supplies, medical devices) | `backend/internal/demos/fixtures/*.json` (`recorded`), checked against the result files by `TestRecordedRunsMatchResultFiles` | Built. Development runs through the gateway, one each; not runs on this site |
+| Recorded runs that disagree with CBP | 1 of 5 (aluminum wheel N349871: engine Thailand, stated 0.85, calibrated 0.60; CBP held China) | `eval/results/planner-families-n349871-litellm.json` | Measured, one run. Show beside CBP's holding |
+| Engine disagreed with CBP on the starting setup, per-family checks | 7 of 23 (D171); 5 of 8 in the D138 live checks | `eval/results/planner-families-summary.json` (`engine_current` vs `cbp_held`); `eval/results/families-live-checks.json` | Measured, development checks, one run each |
+
 ## Claude connector (MCP; built, see `docs/MCP.md`)
 
 | Number | Value | Source | Status |

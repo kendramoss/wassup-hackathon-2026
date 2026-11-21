@@ -1,0 +1,136 @@
+{
+  "id": "speed-sensor-2025",
+  "order": 8,
+  "title": "Washing-machine speed sensor, sensor board from China, housed in Thailand",
+  "description": "A motor speed sensor: a Hall-effect circuit board made in China, a wire harness and a connector, enclosed in a plastic housing in Thailand. CBP held China (N350727): the sensor board decides.",
+  "source": "CBP ruling N350727, rulings.cbp.gov",
+  "cbp_held": "China (N350727)",
+  "notes": "One of the families added in D138 (PCBA electronic devices). Built from the D171 fixture for CBP ruling N350727 (dev split, never a test split): the product was drafted by gemini-4-argon from CBP's facts and reviewed by hand; the target plant's capabilities, duty rates, import value and group costs are illustrative placeholders, not sourced. Precedents are limited to rulings dated before 2025-07-09, and N350727 itself is excluded. Picked by family, not by result (D191): the first D171 fixture of each of four families. Recorded result (eval/results/planner-families-n350727-litellm.json): the engine said China at 0.98 stated, where CBP held China (it agrees with CBP). First plan shown: \"Make PCBA (SMT) in Thailand\", check 0.96 on N344809. That ruling, read by hand: supports (N344809 held Thailand for speed sensors once the sensing IC was made in Thailand.) A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2025-07-09",
+    "product": {
+      "name": "washing machine motor speed sensor (part number 290D1187P006)",
+      "description": "A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end.",
+      "plants": [
+        {
+          "id": "cn",
+          "name": "China Plant",
+          "country": "China",
+          "capabilities": [
+            "pcba_manufacturing",
+            "housing_and_cables"
+          ]
+        },
+        {
+          "id": "th",
+          "name": "Thailand Plant",
+          "country": "Thailand",
+          "capabilities": [
+            "pcba_manufacturing",
+            "housing_and_cables",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "Printed circuit board assembly (PCBA) with Hall Effect sensor",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "pcba_manufacturing"
+        },
+        {
+          "name": "Wire harness",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "housing_and_cables"
+        },
+        {
+          "name": "Specialized electrical connector",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "housing_and_cables"
+        },
+        {
+          "name": "Plastic housing",
+          "made_in": "Thailand",
+          "plant": "th",
+          "group": "housing_and_cables"
+        }
+      ],
+      "operations": [
+        {
+          "name": "Manufacture PCBA with Hall Effect sensor",
+          "plant": "cn",
+          "group": "pcba_manufacturing"
+        },
+        {
+          "name": "Attach wire harness to PCBA",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Enclose PCBA and wire harness within plastic housing",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Attach electrical connector to the end of the wire harness",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Test finished device",
+          "plant": "th",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Package finished device for shipment",
+          "plant": "th",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "pcba_electronic_devices",
+    "exclude_rulings": [
+      "N350727"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N350727"
+    }
+  },
+  "plan": {
+    "target": "Thailand",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.425,
+        "Thailand": 0.125
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "pcba_manufacturing": {
+          "cn": 100000,
+          "th": 125000
+        },
+        "housing_and_cables": {
+          "cn": 100000,
+          "th": 125000
+        }
+      }
+    }
+  },
+  "recorded": {
+    "run": "Development run, 21 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/planner-families-n350727-litellm.json",
+    "engine_origin": "China",
+    "stated_confidence": 0.98,
+    "cbp_origin": "China",
+    "agrees_with_cbp": true,
+    "best_plan": "Make PCBA (SMT) in Thailand",
+    "plan_check": 0.96,
+    "plan_ruling": "N344809"
+  }
+}

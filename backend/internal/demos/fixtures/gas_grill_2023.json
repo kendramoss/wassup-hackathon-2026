@@ -225,5 +225,16 @@
         "Cart frames"
       ]
     }
+  },
+  "recorded": {
+    "run": "Development run, 21 Nov 2026, one run each, engine-v1 and verifier-v2 on gemini-4-argon through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92",
+    "file": "eval/results/families-plan-gas-grill-2023-litellm.json",
+    "engine_origin": "China",
+    "stated_confidence": 0.95,
+    "cbp_origin": "China",
+    "agrees_with_cbp": true,
+    "best_plan": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+    "plan_check": 0.96,
+    "plan_ruling": "N333420"
   }
 }
