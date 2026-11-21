@@ -150,6 +150,8 @@ func main() {
 		err = familyCovCmd(os.Args[2:])
 	case "baselines":
 		err = baselinesCmd(os.Args[2:])
+	case "adjudicate":
+		err = adjudicateCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

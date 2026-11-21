@@ -28,6 +28,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I eval/charts/build_trust_data.py . --check
 	python3 -I eval/charts/build_accuracy.py . --check
 	python3 -I eval/planner/summarize.py . --check
+	python3 -I eval/charts/build_adjudicator.py . --check
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

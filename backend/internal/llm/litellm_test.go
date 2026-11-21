@@ -162,3 +162,13 @@ func TestLiteLLMRefusesBadMediaParts(t *testing.T) {
 		}
 	}
 }
+
+func TestScrubGatewayHost(t *testing.T) {
+	got := ScrubGatewayHost(`dial tcp: lookup gw.example.net: no such host; Post "https://gw.example.net/v1"`, "https://gw.example.net")
+	if strings.Contains(got, "gw.example.net") || !strings.Contains(got, GatewayHostPlaceholder) {
+		t.Errorf("got %q", got)
+	}
+	if got := ScrubGatewayHost("plain", ""); got != "plain" {
+		t.Errorf("no base URL: %q", got)
+	}
+}

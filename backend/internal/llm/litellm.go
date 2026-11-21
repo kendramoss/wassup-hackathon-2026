@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -289,7 +290,21 @@ func (l *LiteLLM) scrub(s string) string {
 	if l.baseURL != "" {
 		s = strings.ReplaceAll(s, l.baseURL, "[gateway]")
 	}
-	return s
+	return ScrubGatewayHost(s, l.baseURL)
+}
+
+// GatewayHostPlaceholder replaces the gateway's host name in any text that
+// may be written to a committed result file or a log.
+const GatewayHostPlaceholder = "litellm-gateway.invalid"
+
+// ScrubGatewayHost replaces the host of baseURL (a DNS lookup or dial error
+// names it without the scheme) with GatewayHostPlaceholder.
+func ScrubGatewayHost(s, baseURL string) string {
+	u, err := url.Parse(baseURL)
+	if err != nil || u.Hostname() == "" {
+		return s
+	}
+	return strings.ReplaceAll(s, u.Hostname(), GatewayHostPlaceholder)
 }
 
 var _ Model = (*LiteLLM)(nil)

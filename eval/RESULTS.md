@@ -114,6 +114,22 @@ cal-v1 on the same rows: ECE 0.030, 0.038, 0.027. The two maps are level.
 
 The next step down (0.7778, stated 0.90) would take 89.0% of dev at 94.4%, under the 96% target; the next up (0.9016, stated 0.95) 70.8% at 97.3%. `go run ./cmd/claimscheck` recomputes the auto-accept counts, means and ECE for dev and final in Go from the map and the rows, and fails if the calibrated and stated bars ever accept different cases.
 
+## China-cluster adjudicator — dev only, not adopted (21 Nov 2026; D163, D164)
+
+A second, focused call for the largest error group: CBP holding China (where components or sub-assemblies were made) against the assembling country. `go run ./cmd/eval adjudicate` reads committed stage-1 rows (engine-v1 on Argon, Vertex AI, dev) and, for triggered cases only, asks Gemini 4 Argon through the gateway one question with contrastive precedents: the 3 closest earlier rulings where CBP held China despite later work elsewhere and the 3 closest where the later work conferred origin (BM25, dated strictly before the case). It sees the two candidate countries, not the engine's answer. Its answer replaces the engine's when it names a candidate. Pass rule written first (D163): net fixed minus broke ≥ +5 on the 463, exact McNemar p < 0.1, cost ≤ 1.5× stage 1. Summary: `results/adjudicator-metrics.json` (`python3 -I eval/charts/build_adjudicator.py .`, no model calls).
+
+| Variant | Triggered | Changed | Accuracy (95% CI) | Fixed / broke vs stage 1 | p | Cost / case (× stage 1) | Fast path (≥ 0.92, in scope) | Passes D163 |
+|---|---:|---:|---|---|---|---|---|---|
+| Stage 1: engine-v1, Vertex AI | — | — | 91.1% (88.2–93.4) | — | — | $0.0079 | 368 at 96.5% | — |
+| 1. Narrow: engine named a non-China country, facts name China, confidence < 0.96 | 105 | 9 | 90.1% (87.0–92.5) | 2 / 7 | 0.18 | $0.0098 (1.24×) | 367 at 96.5% | no |
+| 2. Symmetric: facts name China and another country, confidence < 0.95 | 115 | 19 | 90.9% (88.0–93.2) | 9 / 10 | 1.0 | $0.0100 (1.26×) | 367 at 96.5% | no |
+| 3. Variant 2, only moves away from China kept (computed from its rows; chosen after 1 and 2) | 115 | 10 | 92.0% (89.2–94.1) | 7 / 3 | 0.34 | $0.0100 (1.26×) | 368 at 96.5% | no |
+
+- **What happened.** When the adjudicator moved an answer *to* China it was wrong 7 times in 9 (variant 1) and 7 in 9 (variant 2). Moves *away* from China were right 7 times in 10. On dev, the group it was built for (gold China, engine said the assembling country, under 0.96) has 8 cases; it fixed 2. CBP's own close calls in this group go both ways, and a contrastive prompt did not separate them.
+- **Variant 3** is the best dev result but fails the rule (net +4, p = 0.34), and it was chosen after seeing variants 1 and 2, so its +4 is optimistic. It also points the other way from the held-out error cluster (where CBP held China), so there was no reason to expect it to help there.
+- **No held-out split was scored.** None passed, so by D163 neither the 377 nor final2 was touched, and nothing is wired into the server.
+- Rows: `results/dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-narrow-b096-litellm.jsonl`, `…-symmetric-b095-litellm.jsonl`; a 40-case probe before variant 1 (13 calls, same configuration) is `…-narrow-b096-litellm-probe.jsonl`. Every run is in `RUNLOG.jsonl`. Cost is the gateway-reported cost; calls the gateway answered from its cache (identical requests in variants 1 and 2, and the probe) are priced from their tokens at the promo rate. Gateway spend for all three runs: $1.32.
+
 ## Auto-accept bar by product family (17 Oct 2026; D63) — not adopted
 
 No model calls: the Vertex engine rows (`results/dev-` and `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl`) joined with router-v2's subfamily (`results/scope-*-router-v2-vertex.jsonl`), scoring adjustments applied. Bars fitted **on dev only**: per router subfamily, the lowest confidence at which in-scope dev accuracy stays ≥ 95% at every bar keeping ≥ 20 cases; a subfamily without one keeps the global 0.92 (D32). The frozen bars were then applied **once** to the held-out split. Command: `go run ./cmd/eval calibrate` (writes `results/calibration-by-family.json`, `results/calibration-by-family.md` and `backend/internal/triage/family_bars.json`).

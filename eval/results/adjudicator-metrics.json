@@ -1,0 +1,523 @@
+{
+ "_doc": "Second-stage adjudicator (D163) against its stage-1 rows. Built by python3 -I eval/charts/build_adjudicator.py . from committed rows; no model calls.",
+ "pass_rule_d163": {
+  "net_at_least": 5,
+  "p_below": 0.1,
+  "cost_ratio_at_most": 1.5
+ },
+ "runs": {
+  "dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-narrow-b096-litellm": {
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-narrow-b096-litellm.jsonl",
+   "stage1": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "split": "dev",
+   "n": 463,
+   "stage1_accuracy": {
+    "correct": 422,
+    "pct": 91.1,
+    "ci95": [
+     88.2,
+     93.4
+    ]
+   },
+   "accuracy": {
+    "correct": 417,
+    "pct": 90.1,
+    "ci95": [
+     87.0,
+     92.5
+    ]
+   },
+   "triggered": 105,
+   "changed": 9,
+   "adj_errors": 0,
+   "mcnemar_vs_stage1": {
+    "n": 463,
+    "fixed": 2,
+    "broke": 7,
+    "p": 0.18
+   },
+   "net": -5,
+   "fixed": [
+    {
+     "ruling": "N352230",
+     "gold": "China",
+     "stage1": "Malaysia",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N353655",
+     "gold": "China",
+     "stage1": "Thailand",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    }
+   ],
+   "broke": [
+    {
+     "ruling": "N350306",
+     "gold": "Cambodia",
+     "stage1": "Cambodia",
+     "stage1_conf": 0.92,
+     "adjudicator": "China",
+     "adj_conf": 0.65,
+     "final": "China"
+    },
+    {
+     "ruling": "N350678",
+     "gold": "Vietnam",
+     "stage1": "Vietnam",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N350865",
+     "gold": "Thailand",
+     "stage1": "Thailand",
+     "stage1_conf": 0.9,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N351582",
+     "gold": "Vietnam",
+     "stage1": "Vietnam",
+     "stage1_conf": 0.9,
+     "adjudicator": "China",
+     "adj_conf": 0.75,
+     "final": "China"
+    },
+    {
+     "ruling": "N354493",
+     "gold": "Australia",
+     "stage1": "Australia",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.9,
+     "final": "China"
+    },
+    {
+     "ruling": "N356481",
+     "gold": "Turkey",
+     "stage1": "Turkey",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.9,
+     "final": "China"
+    },
+    {
+     "ruling": "N356663",
+     "gold": "Taiwan",
+     "stage1": "Taiwan",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    }
+   ],
+   "cost_per_case_usd": {
+    "stage1": 0.0079,
+    "adjudicator": 0.00191,
+    "total": 0.00981,
+    "ratio": 1.242
+   },
+   "fast_path_092": {
+    "stage1": {
+     "n": 368,
+     "correct": 355,
+     "coverage_pct": 79.5,
+     "accuracy_pct": 96.5
+    },
+    "with_adjudicator": {
+     "n": 367,
+     "correct": 354,
+     "coverage_pct": 79.3,
+     "accuracy_pct": 96.5
+    }
+   },
+   "passes_d163": false
+  },
+  "dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-symmetric-b095-litellm": {
+   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-symmetric-b095-litellm.jsonl",
+   "stage1": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "split": "dev",
+   "n": 463,
+   "stage1_accuracy": {
+    "correct": 422,
+    "pct": 91.1,
+    "ci95": [
+     88.2,
+     93.4
+    ]
+   },
+   "accuracy": {
+    "correct": 421,
+    "pct": 90.9,
+    "ci95": [
+     88.0,
+     93.2
+    ]
+   },
+   "triggered": 115,
+   "changed": 19,
+   "adj_errors": 0,
+   "mcnemar_vs_stage1": {
+    "n": 463,
+    "fixed": 9,
+    "broke": 10,
+    "p": 1.0
+   },
+   "net": -1,
+   "fixed": [
+    {
+     "ruling": "H323218",
+     "gold": "Vietnam",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Vietnam",
+     "adj_conf": 0.9,
+     "final": "Vietnam"
+    },
+    {
+     "ruling": "N350091",
+     "gold": "India",
+     "stage1": "China",
+     "stage1_conf": 0.65,
+     "adjudicator": "India",
+     "adj_conf": 0.95,
+     "final": "India"
+    },
+    {
+     "ruling": "N350346",
+     "gold": "Vietnam",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Vietnam",
+     "adj_conf": 0.7,
+     "final": "Vietnam"
+    },
+    {
+     "ruling": "N351174",
+     "gold": "Thailand",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.9,
+     "final": "Thailand"
+    },
+    {
+     "ruling": "N351538",
+     "gold": "Malaysia",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Malaysia",
+     "adj_conf": 0.65,
+     "final": "Malaysia"
+    },
+    {
+     "ruling": "N352389",
+     "gold": "Peru",
+     "stage1": "China",
+     "stage1_conf": 0.9,
+     "adjudicator": "Peru",
+     "adj_conf": 0.85,
+     "final": "Peru"
+    },
+    {
+     "ruling": "N352230",
+     "gold": "China",
+     "stage1": "Malaysia",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N353655",
+     "gold": "China",
+     "stage1": "Thailand",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N355929",
+     "gold": "India",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "India",
+     "adj_conf": 0.9,
+     "final": "India"
+    }
+   ],
+   "broke": [
+    {
+     "ruling": "N350306",
+     "gold": "Cambodia",
+     "stage1": "Cambodia",
+     "stage1_conf": 0.92,
+     "adjudicator": "China",
+     "adj_conf": 0.65,
+     "final": "China"
+    },
+    {
+     "ruling": "N350678",
+     "gold": "Vietnam",
+     "stage1": "Vietnam",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N350768",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.72,
+     "adjudicator": "South Korea",
+     "adj_conf": 0.9,
+     "final": "South Korea"
+    },
+    {
+     "ruling": "N350865",
+     "gold": "Thailand",
+     "stage1": "Thailand",
+     "stage1_conf": 0.9,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    },
+    {
+     "ruling": "N351582",
+     "gold": "Vietnam",
+     "stage1": "Vietnam",
+     "stage1_conf": 0.9,
+     "adjudicator": "China",
+     "adj_conf": 0.75,
+     "final": "China"
+    },
+    {
+     "ruling": "N352477",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.85,
+     "final": "Thailand"
+    },
+    {
+     "ruling": "N354493",
+     "gold": "Australia",
+     "stage1": "Australia",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.9,
+     "final": "China"
+    },
+    {
+     "ruling": "N356030",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.85,
+     "final": "Thailand"
+    },
+    {
+     "ruling": "N356481",
+     "gold": "Turkey",
+     "stage1": "Turkey",
+     "stage1_conf": 0.78,
+     "adjudicator": "China",
+     "adj_conf": 0.9,
+     "final": "China"
+    },
+    {
+     "ruling": "N356663",
+     "gold": "Taiwan",
+     "stage1": "Taiwan",
+     "stage1_conf": 0.85,
+     "adjudicator": "China",
+     "adj_conf": 0.85,
+     "final": "China"
+    }
+   ],
+   "cost_per_case_usd": {
+    "stage1": 0.0079,
+    "adjudicator": 0.00206,
+    "total": 0.00995,
+    "ratio": 1.26
+   },
+   "fast_path_092": {
+    "stage1": {
+     "n": 368,
+     "correct": 355,
+     "coverage_pct": 79.5,
+     "accuracy_pct": 96.5
+    },
+    "with_adjudicator": {
+     "n": 367,
+     "correct": 354,
+     "coverage_pct": 79.3,
+     "accuracy_pct": 96.5
+    }
+   },
+   "passes_d163": false
+  },
+  "dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-symmetric-b095-litellm-from-china-only": {
+   "file": "computed from eval/results/dev-gemini-4-argon-prec-engine-v1-vertex+adjudicate-v1-symmetric-b095-litellm.jsonl: only changes away from China kept (variant 3, chosen after variants 1 and 2)",
+   "stage1": "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+   "split": "dev",
+   "n": 463,
+   "stage1_accuracy": {
+    "correct": 422,
+    "pct": 91.1,
+    "ci95": [
+     88.2,
+     93.4
+    ]
+   },
+   "accuracy": {
+    "correct": 426,
+    "pct": 92.0,
+    "ci95": [
+     89.2,
+     94.1
+    ]
+   },
+   "triggered": 115,
+   "changed": 10,
+   "adj_errors": 0,
+   "mcnemar_vs_stage1": {
+    "n": 463,
+    "fixed": 7,
+    "broke": 3,
+    "p": 0.344
+   },
+   "net": 4,
+   "fixed": [
+    {
+     "ruling": "H323218",
+     "gold": "Vietnam",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Vietnam",
+     "adj_conf": 0.9,
+     "final": "Vietnam"
+    },
+    {
+     "ruling": "N350091",
+     "gold": "India",
+     "stage1": "China",
+     "stage1_conf": 0.65,
+     "adjudicator": "India",
+     "adj_conf": 0.95,
+     "final": "India"
+    },
+    {
+     "ruling": "N350346",
+     "gold": "Vietnam",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Vietnam",
+     "adj_conf": 0.7,
+     "final": "Vietnam"
+    },
+    {
+     "ruling": "N351174",
+     "gold": "Thailand",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.9,
+     "final": "Thailand"
+    },
+    {
+     "ruling": "N351538",
+     "gold": "Malaysia",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Malaysia",
+     "adj_conf": 0.65,
+     "final": "Malaysia"
+    },
+    {
+     "ruling": "N352389",
+     "gold": "Peru",
+     "stage1": "China",
+     "stage1_conf": 0.9,
+     "adjudicator": "Peru",
+     "adj_conf": 0.85,
+     "final": "Peru"
+    },
+    {
+     "ruling": "N355929",
+     "gold": "India",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "India",
+     "adj_conf": 0.9,
+     "final": "India"
+    }
+   ],
+   "broke": [
+    {
+     "ruling": "N350768",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.72,
+     "adjudicator": "South Korea",
+     "adj_conf": 0.9,
+     "final": "South Korea"
+    },
+    {
+     "ruling": "N352477",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.85,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.85,
+     "final": "Thailand"
+    },
+    {
+     "ruling": "N356030",
+     "gold": "China",
+     "stage1": "China",
+     "stage1_conf": 0.78,
+     "adjudicator": "Thailand",
+     "adj_conf": 0.85,
+     "final": "Thailand"
+    }
+   ],
+   "cost_per_case_usd": {
+    "stage1": 0.0079,
+    "adjudicator": 0.00206,
+    "total": 0.00995,
+    "ratio": 1.26
+   },
+   "fast_path_092": {
+    "stage1": {
+     "n": 368,
+     "correct": 355,
+     "coverage_pct": 79.5,
+     "accuracy_pct": 96.5
+    },
+    "with_adjudicator": {
+     "n": 368,
+     "correct": 355,
+     "coverage_pct": 79.5,
+     "accuracy_pct": 96.5
+    }
+   },
+   "passes_d163": false
+  }
+ }
+}
