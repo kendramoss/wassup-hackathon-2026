@@ -172,3 +172,32 @@ func TestScrubGatewayHost(t *testing.T) {
 		t.Errorf("no base URL: %q", got)
 	}
 }
+
+func TestLiteLLMSkipCacheSendsNoCache(t *testing.T) {
+	var bodies []map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var got map[string]any
+		b, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(b, &got)
+		bodies = append(bodies, got)
+		_, _ = io.WriteString(w, `{"model":"m","choices":[{"message":{"role":"assistant","content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer srv.Close()
+
+	m := NewLiteLLM(srv.URL, testKey, 5*time.Second)
+	req := Request{Model: "m", Messages: []Message{{Role: RoleUser, Content: "x"}}}
+	if _, err := m.Generate(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	m.SkipCache(true)
+	if _, err := m.Generate(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := bodies[0]["cache"]; ok {
+		t.Errorf("default request has a cache field: %v", bodies[0]["cache"])
+	}
+	c, _ := bodies[1]["cache"].(map[string]any)
+	if c["no-cache"] != true {
+		t.Errorf("SkipCache request cache = %v, want no-cache true", bodies[1]["cache"])
+	}
+}

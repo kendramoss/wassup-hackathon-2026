@@ -25,7 +25,13 @@ type LiteLLM struct {
 	baseURL string
 	apiKey  string
 	client  *http.Client
+	noCache bool
 }
+
+// SkipCache makes every call bypass the gateway's response cache, so a
+// repeat run is a fresh model call and not a replay of an earlier answer
+// (repeatability runs, D190). Off by default.
+func (l *LiteLLM) SkipCache(on bool) { l.noCache = on }
 
 // NewLiteLLM returns a LiteLLM provider. The key is sent only in the
 // Authorization header and is scrubbed from any error text.
@@ -110,6 +116,8 @@ type oaRequest struct {
 	MaxTokens      int            `json:"max_tokens,omitempty"`
 	Tools          []oaTool       `json:"tools,omitempty"`
 	ResponseFormat any            `json:"response_format,omitempty"`
+	// Cache asks LiteLLM not to answer from its cache ({"no-cache": true}).
+	Cache map[string]bool `json:"cache,omitempty"`
 }
 
 type oaTool struct {
@@ -242,6 +250,9 @@ func mediaContent(i int, m Message) ([]map[string]any, error) {
 
 func (l *LiteLLM) buildRequest(req Request) (oaRequest, error) {
 	out := oaRequest{Model: req.Model, Temperature: 0, Seed: Seed, MaxTokens: req.MaxOutputTokens}
+	if l.noCache {
+		out.Cache = map[string]bool{"no-cache": true}
+	}
 	if req.System != "" {
 		out.Messages = append(out.Messages, oaReqMessage{Role: "system", Content: req.System})
 	}

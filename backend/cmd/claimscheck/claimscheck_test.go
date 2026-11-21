@@ -438,6 +438,26 @@ func TestPlannerPostFigures(t *testing.T) {
 	}
 }
 
+// TestRepeatabilityFigures recomputes the D190 figures from three dev runs:
+// scoring adjustments apply, a resumed ruling counts once (its last row),
+// and a flip is any difference from run 1.
+func TestRepeatabilityFigures(t *testing.T) {
+	f := newFixture(t)
+	kv, problems := Compute(f.root)
+	if len(problems) > 0 {
+		t.Fatal(problems)
+	}
+	for k, want := range map[string]string{
+		"repeat.n": "3", "repeat.run1.correct": "2", "repeat.run2.correct": "1", "repeat.run3.correct": "2",
+		"repeat.accuracy_min_pct": "33.3", "repeat.accuracy_max_pct": "66.7",
+		"repeat.answer_flips": "1", "repeat.correctness_flips": "1", "repeat.fast_path_flips": "1",
+	} {
+		if got := lookup(kv, k); got != want {
+			t.Errorf("%s = %q, want %q", k, got, want)
+		}
+	}
+}
+
 // D160: a calibration map whose bar would accept a different set of cases
 // than the stated 0.92 bar is a problem, not a silently new figure.
 func TestCalibratedBarMustMatchStatedBar(t *testing.T) {

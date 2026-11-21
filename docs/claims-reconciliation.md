@@ -119,6 +119,15 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `planner_post.known_a.shown_right` | 8 | of those, real changes with CBP's later origin named |
 | `planner_post.known_a.controls_shown` | 0 | no-change pairs supported at the bar |
 | `planner_post.known_a.recall_pct` | 72.7 | real changes shown and right, percent |
+| `repeat.run1.correct` | 425 | development run 1 of engine-v1 on Argon through the gateway (D152), right after the D23 adjustments (D190) |
+| `repeat.run2.correct` | 422 | repeat run 2, fresh calls (no gateway cache) |
+| `repeat.run3.correct` | 422 | repeat run 3, fresh calls |
+| `repeat.n` | 463 | development rulings scored in each run |
+| `repeat.accuracy_min_pct` | 91.1 | lowest of the three, percent |
+| `repeat.accuracy_max_pct` | 91.8 | highest of the three, percent |
+| `repeat.answer_flips` | 4 | rulings whose answer differs between runs |
+| `repeat.correctness_flips` | 4 | rulings right in one run and wrong in another |
+| `repeat.fast_path_flips` | 8 | rulings in the fast path (in scope, stated 0.92) in one run and not another |
 | `cal.version` | cal-v2 | calibration map version (backend/internal/calibrate/map.json, D160) |
 | `cal.bar` | 0.9 | auto-accept bar on calibrated probability |
 | `final.cal.fast.n` | 300 | auto-accepted at the calibrated bar and in scope |
@@ -275,6 +284,9 @@ c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/d
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
 7fba593939b585c06e05ba9ee46db38c5fff0896aa8104427e71c273890a0f4b  backend/internal/calibrate/map.json
+892ee5b05bb8ca6ff7ce9d0d3b112ff2dbbd5d1357749c8ae29fd217e003fba8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl
+e8490aded389acb9265c7e8ff6af224be3739d8e76ae58bbbde75e65661050c8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl
+23f0e962af0329ade017240fff571e0835cb1b5f7e5f62c75295ea809f492ceb  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl
 6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d  backend/data/labels_usmca.jsonl
 ad7227af446b0412395673de95749d0da1ab2ab54de3bd99c63e49084e4d7d08  names:backend/data/facts

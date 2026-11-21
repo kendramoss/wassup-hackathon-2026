@@ -581,3 +581,10 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
   - known-a: shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls shown 0/6 (0-39.0).
   - unknown-a: shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6 (0-39.0), one control row an error.
 - Core tier unchanged (no core pair was added).
+
+## Repeatability: engine-v1 on Argon, development set, three runs (gateway, 21 Nov; D190)
+- Run 1: `results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl` (D152). Runs 2 and 3: `results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl`, `...-rep3.jsonl`, with `LITELLM_NO_CACHE=1` (fresh calls, every row has a gateway cost). Five gateway timeouts (1 + 4) re-run by resume; RUNLOG has a line for each run and each resume.
+- Adjusted (463): 425 / 422 / 422 = 91.8% / 91.1% / 91.1%; mean 91.3%, spread 0.7 points. Answer flips 4; fast-path membership flips 8; calibrated value changes 50 (mean change 0.005).
+- Unadjusted (469): 425 / 422 / 422 = 90.6% / 90.0% / 90.0%.
+- Gateway cost $4.66 and $4.61 for runs 2 and 3 (engine and router calls).
+- Summary: `results/repeatability-dev-litellm.json`.

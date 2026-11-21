@@ -98,6 +98,17 @@ func newFixture(t *testing.T) *fixture {
 	write(t, root, "eval/results/scope-final-router-v2-vertex.jsonl", finalScope)
 	write(t, root, "eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl", dev)
 	write(t, root, "eval/results/scope-dev-router-v2-vertex.jsonl", devScope)
+	// Repeatability (D190): run 1 is the dev rows; run 2 gets D3 wrong (after
+	// a failed first attempt that a resume replaced); run 3 drops D4 under the
+	// fast-path bar. So 2, 1, 2 correct of 3; D3 flips answer and
+	// correctness, D4 flips fast-path membership.
+	write(t, root, "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl", dev)
+	write(t, root, "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl",
+		strings.Replace(dev, fxEngine("D3", "2025-09-01", true, "China", .8),
+			`{"ruling":"D3","date":"2025-09-01","correct":false,"pred":"","confidence":0,"error":"timeout"}`+"\n"+
+				fxEngine("D3", "2025-09-01", false, "Japan", .8), 1))
+	write(t, root, "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl",
+		strings.Replace(dev, fxEngine("D4", "2025-12-31", false, "China", .99), fxEngine("D4", "2025-12-31", false, "China", .90), 1))
 	write(t, root, "eval/data/scoring_adjustments.json",
 		`{"exclude":{"D1":"multi-scenario"},"alternatives":{"D2":["Indonesia","Malaysia"]}}`)
 	write(t, root, "eval/splits/splits_final.json",

@@ -507,7 +507,11 @@ func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.
 		}
 		base = v
 	case providerLiteLLM:
-		base = llm.NewLiteLLM(os.Getenv("LITELLM_BASE_URL"), os.Getenv("LITELLM_API_KEY"), cfg.LLMTimeout)
+		ll := llm.NewLiteLLM(os.Getenv("LITELLM_BASE_URL"), os.Getenv("LITELLM_API_KEY"), cfg.LLMTimeout)
+		// LITELLM_NO_CACHE=1: fresh calls for repeat runs (D190). Without it
+		// an identical request can come back from the gateway's cache.
+		ll.SkipCache(os.Getenv("LITELLM_NO_CACHE") == "1")
+		base = ll
 	default:
 		return nil, fmt.Errorf("eval needs a real model provider, got %q", cfg.LLMProvider)
 	}
