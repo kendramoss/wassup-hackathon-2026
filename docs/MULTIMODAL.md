@@ -35,7 +35,7 @@ All in `backend/internal/media/media.go`:
 - 1 to 4 files, 8 MB together. The web proxy allows 9 MB per request (`frontend/src/lib/backend.ts`), so the backend limit is the one users meet.
 - The type comes from the file's first bytes. The file name and declared type are ignored.
 - Images: the size is read from the header without decoding pixels. More than 12,000 pixels a side or 40 megapixels is refused, which stops decompression bombs before any large allocation.
-- PDFs: pages are counted without rendering, including pages inside compressed object streams (decompression is capped at 4 MB). More than 10 pages across all PDFs, an encrypted PDF, or a PDF whose pages cannot be counted is refused.
+- PDFs: pages are counted from the document's page tree (the trailer's `/Root` → `/Pages` → `/Kids`, using the latest revision of each object and decoding `#xx` name escapes), without rendering. Pages in compressed object streams are resolved with a 4 MB decompression cap. More than 10 pages across all PDFs, an encrypted PDF, or a PDF whose page tree cannot be resolved is refused; there is no raw-text fallback.
 - In the browser, a photo over 3 MB or over 4,096 pixels on its longest side is re-encoded as a JPEG with its longest side at 3,072 pixels before upload (`frontend/src/lib/media-upload.ts`).
 
 ## Data handling

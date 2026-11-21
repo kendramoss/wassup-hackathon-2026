@@ -3,6 +3,7 @@ package media
 import (
 	"bytes"
 	"compress/zlib"
+	"encoding/ascii85"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -58,35 +59,143 @@ func webpLossless(w, h int) []byte {
 	return b.Bytes()
 }
 
-// pdfWithPages is a minimal uncompressed PDF with n page objects.
-func pdfWithPages(n int) []byte {
-	var b strings.Builder
-	b.WriteString("%PDF-1.4\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
-	fmt.Fprintf(&b, "2 0 obj << /Type /Pages /Kids [] /Count %d >> endobj\n", n)
-	for i := 0; i < n; i++ {
-		fmt.Fprintf(&b, "%d 0 obj << /Type /Page /Parent 2 0 R >> endobj\n", i+3)
+// pdfBuilder writes a classic PDF with correct xref offsets. The page tree
+// helpers below are deliberately small but complete: names, /Kids and the
+// revision chain are all real, so a regex over the bytes is not enough.
+type pdfBuilder struct {
+	bytes.Buffer
+	offsets map[int]int
+}
+
+func newPDFBuilder() *pdfBuilder {
+	return &pdfBuilder{offsets: make(map[int]int)}
+}
+
+func (b *pdfBuilder) obj(num int, body string) {
+	b.offsets[num] = b.Len()
+	fmt.Fprintf(&b.Buffer, "%d 0 obj\n%s\nendobj\n", num, body)
+}
+
+func (b *pdfBuilder) xref(prev int) int {
+	start := b.Len()
+	max := 0
+	for n := range b.offsets {
+		if n > max {
+			max = n
+		}
 	}
-	b.WriteString("trailer << /Root 1 0 R >>\n%%EOF\n")
-	return []byte(b.String())
+	fmt.Fprintf(&b.Buffer, "xref\n0 %d\n0000000000 65535 f \n", max+1)
+	for i := 1; i <= max; i++ {
+		if off, ok := b.offsets[i]; ok {
+			fmt.Fprintf(&b.Buffer, "%010d 00000 n \n", off)
+		} else {
+			b.WriteString("0000000000 65535 f \n")
+		}
+	}
+	fmt.Fprintf(&b.Buffer, "trailer << /Size %d /Root 1 0 R", max+1)
+	if prev >= 0 {
+		fmt.Fprintf(&b.Buffer, " /Prev %d", prev)
+	}
+	fmt.Fprintf(&b.Buffer, " >>\nstartxref\n%d\n%%%%EOF\n", start)
+	return start
+}
+
+func pdfKidsRefs(n int) []string {
+	refs := make([]string, 0, n)
+	for i := 0; i < n; i++ {
+		refs = append(refs, fmt.Sprintf("%d 0 R", i+3))
+	}
+	return refs
+}
+
+// pdfWithPages is a minimal uncompressed PDF with a real n-leaf page tree.
+func pdfWithPages(n int) []byte {
+	b := newPDFBuilder()
+	b.WriteString("%PDF-1.4\n")
+	b.obj(1, "<< /Type /Catalog /Pages 2 0 R >>")
+	b.obj(2, fmt.Sprintf("<< /Type /Pages /Kids [%s] /Count %d >>", strings.Join(pdfKidsRefs(n), " "), n))
+	for i := 0; i < n; i++ {
+		b.obj(i+3, "<< /Type /Page /Parent 2 0 R >>")
+	}
+	b.xref(-1)
+	return b.Bytes()
+}
+
+// pdfIncrementalSaves rewrites every page object saves times, each with its
+// own xref section and /Prev chain, as an annotating PDF editor does.
+func pdfIncrementalSaves(n, saves int) []byte {
+	b := newPDFBuilder()
+	b.WriteString("%PDF-1.4\n")
+	b.obj(1, "<< /Type /Catalog /Pages 2 0 R >>")
+	b.obj(2, fmt.Sprintf("<< /Type /Pages /Kids [%s] /Count %d >>", strings.Join(pdfKidsRefs(n), " "), n))
+	for i := 0; i < n; i++ {
+		b.obj(i+3, "<< /Type /Page /Parent 2 0 R /Rotate 0 >>")
+	}
+	prev := b.xref(-1)
+	for s := 1; s <= saves; s++ {
+		for i := 0; i < n; i++ {
+			b.obj(i+3, fmt.Sprintf("<< /Type /Page /Parent 2 0 R /Rotate %d >>", s*90))
+		}
+		prev = b.xref(prev)
+	}
+	return b.Bytes()
+}
+
+// pdfEscapedPages spells /Page and /Pages with the standard #xx name escapes
+// (ISO 32000-1 §7.3.5) and hides a loose /Type /Page in a comment.
+func pdfEscapedPages(n int) []byte {
+	b := newPDFBuilder()
+	b.WriteString("%PDF-1.5\n% /Type /Page\n")
+	b.obj(1, "<< /Type /Catalog /Pages 2 0 R >>")
+	b.obj(2, fmt.Sprintf("<< /Type /P#61ges /Kids [%s] /Count %d >>", strings.Join(pdfKidsRefs(n), " "), n))
+	for i := 0; i < n; i++ {
+		b.obj(i+3, "<< /Type /P#61ge /Parent 2 0 R /MediaBox [0 0 100 100] >>")
+	}
+	b.xref(-1)
+	return b.Bytes()
 }
 
 // pdfObjStream hides n page objects (and the page tree) in a compressed
-// object stream, as PDF 1.5+ writers do.
+// object stream, with the N/First pair a real PDF 1.5+ writer uses.
 func pdfObjStream(n int) []byte {
-	var inner strings.Builder
-	fmt.Fprintf(&inner, "<< /Type /Pages /Kids [] /Count %d >>\n", n)
-	for i := 0; i < n; i++ {
-		inner.WriteString("<< /Type /Page /Parent 2 0 R >>\n")
+	return pdfObjStreamWithFilter(n, false)
+}
+
+func pdfObjStreamWithFilter(n int, ascii85First bool) []byte {
+	refs := pdfKidsRefs(n)
+	var header, content strings.Builder
+	add := func(id int, body string) {
+		fmt.Fprintf(&header, "%d %d ", id, content.Len())
+		content.WriteString(body)
 	}
+	add(1, "<< /Type /Catalog /Pages 2 0 R >>")
+	add(2, fmt.Sprintf("<< /Type /Pages /Kids [%s] /Count %d >>", strings.Join(refs, " "), n))
+	for i := 0; i < n; i++ {
+		// A nested dictionary in a page proves a filter/stream reader cannot
+		// stop at the first '>' when it looks for the object-stream header.
+		add(i+3, fmt.Sprintf("<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 %d 0 R >> >> >>", 100+i))
+	}
+	plain := append([]byte(header.String()), []byte(content.String())...)
 	var z bytes.Buffer
 	zw := zlib.NewWriter(&z)
-	_, _ = zw.Write([]byte(inner.String()))
+	_, _ = zw.Write(plain)
 	_ = zw.Close()
+	data := z.Bytes()
+	if ascii85First {
+		enc := make([]byte, ascii85.MaxEncodedLen(len(data)))
+		n := ascii85.Encode(enc, data)
+		data = enc[:n]
+	}
+	filter := "/FlateDecode"
+	if ascii85First {
+		filter = "[/ASCII85Decode /FlateDecode]"
+	}
 	var b bytes.Buffer
-	b.WriteString("%PDF-1.5\n5 0 obj\n<< /Type /ObjStm /N 3 /First 10 /Filter /FlateDecode /Length ")
-	fmt.Fprintf(&b, "%d >>\nstream\n", z.Len())
-	b.Write(z.Bytes())
-	b.WriteString("\nendstream\nendobj\n%%EOF\n")
+	b.WriteString("%PDF-1.5\n")
+	fmt.Fprintf(&b, "9 0 obj\n<< /Type /ObjStm /N %d /First %d /Filter %s /Length %d >>\nstream\n",
+		2+n, header.Len(), filter, len(data))
+	b.Write(data)
+	b.WriteString("\nendstream\nendobj\ntrailer << /Root 1 0 R >>\n%%EOF\n")
 	return b.Bytes()
 }
 
@@ -149,9 +258,25 @@ func TestPDFPages(t *testing.T) {
 		if got := PDFPages(pdfObjStream(n)); got != n {
 			t.Errorf("object stream %d pages: got %d", n, got)
 		}
+		if got := PDFPages(pdfObjStreamWithFilter(n, true)); got != n {
+			t.Errorf("ASCII85+Flate object stream %d pages: got %d", n, got)
+		}
 	}
-	if got := PDFPages([]byte("%PDF-1.4\nnothing here\n%%EOF")); got != 0 {
-		t.Errorf("no pages: got %d", got)
+	// The two reproductions from #381.
+	if got := PDFPages(pdfIncrementalSaves(3, 3)); got != 3 {
+		t.Errorf("incrementally saved 3-page PDF: got %d, want 3", got)
+	}
+	if got := PDFPages(pdfEscapedPages(40)); got != 40 {
+		t.Errorf("40 pages with escaped names and a stray comment: got %d, want 40", got)
+	}
+	for name, b := range map[string][]byte{
+		"no objects":  []byte("%PDF-1.4\nnothing here\n%%EOF"),
+		"loose pages": []byte("%PDF-1.4\n1 0 obj << /Type /Page >> endobj\n%%EOF"),
+		"count only":  []byte("%PDF-1.4\n1 0 obj << /Type /Pages /Count 40 >> endobj\n%%EOF"),
+	} {
+		if got := PDFPages(b); got != 0 {
+			t.Errorf("%s: got %d, want a refusal (0)", name, got)
+		}
 	}
 }
 
@@ -159,6 +284,14 @@ func TestCheckPDF(t *testing.T) {
 	info, err := Check(pdfWithPages(3))
 	if err != nil || info.Pages != 3 || info.Kind() != "pdf" {
 		t.Fatalf("pdf: %+v %v", info, err)
+	}
+	info, err = Check(pdfIncrementalSaves(3, 3))
+	if err != nil || info.Pages != 3 {
+		t.Fatalf("incrementally saved pdf: %+v %v", info, err)
+	}
+	info, err = Check(pdfEscapedPages(40))
+	if err != nil || info.Pages != 40 {
+		t.Fatalf("escaped 40-page pdf: %+v %v", info, err)
 	}
 	enc := append(pdfWithPages(1), []byte("trailer << /Encrypt 9 0 R >>")...)
 	if _, err := Check(enc); !errors.Is(err, ErrRejected) || !strings.Contains(err.Error(), "encrypted") {
@@ -169,18 +302,20 @@ func TestCheckPDF(t *testing.T) {
 	}
 }
 
-// A stream that inflates to far more than maxInflate is read only up to it.
-func TestPDFPagesInflateIsCapped(t *testing.T) {
+// A stream that inflates to far more than maxInflate is not expanded into a
+// page count; the file is refused rather than under-counted by a fallback.
+func TestPDFPagesRefusesHugeObjectStream(t *testing.T) {
 	var z bytes.Buffer
 	zw := zlib.NewWriter(&z)
-	_, _ = zw.Write(bytes.Repeat([]byte("0"), 64<<20))
+	_, _ = zw.Write(bytes.Repeat([]byte("0"), 8<<20))
 	_ = zw.Close()
 	var b bytes.Buffer
-	b.WriteString("%PDF-1.5\n<< /Type /ObjStm /N 1 >>\nstream\n")
+	b.WriteString("%PDF-1.5\n9 0 obj\n<< /Type /ObjStm /N 1 /First 8 /Filter /FlateDecode /Length ")
+	fmt.Fprintf(&b, "%d >>\nstream\n", z.Len())
 	b.Write(z.Bytes())
-	b.WriteString("\nendstream\n<< /Type /Page >>\n")
-	if got := PDFPages(b.Bytes()); got != 1 {
-		t.Errorf("got %d pages", got)
+	b.WriteString("\nendstream\nendobj\n%%EOF\n")
+	if got := PDFPages(b.Bytes()); got != 0 {
+		t.Errorf("got %d pages, want a refusal (0)", got)
 	}
 }
 
