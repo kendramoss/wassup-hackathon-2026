@@ -144,3 +144,47 @@ func loadSummary(t *testing.T, path string) evalsummary.Summary {
 	}
 	return s
 }
+
+func TestSummaryCmdCheckDetectsDriftButIgnoresTimestamp(t *testing.T) {
+	dir := t.TempDir()
+	for _, split := range []string{"final", "dev"} {
+		writeSummaryFixture(t, dir, split+"-gemini-4-argon-prec-engine-v1-vertex.jsonl", "vertex", 0.96)
+		writeScopeFixture(t, dir, "scope-"+split+"-router-v2-vertex.jsonl", true)
+	}
+	out := filepath.Join(dir, "summary.json")
+	if err := summaryCmd([]string{"-results", dir, "-out", out}); err != nil {
+		t.Fatal(err)
+	}
+	args := []string{"-results", dir, "-out", out, "-check"}
+	if err := summaryCmd(args); err != nil {
+		t.Fatalf("fresh summary should pass check: %v", err)
+	}
+
+	// generated_at is build metadata: changing it alone must not fail the check.
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var s evalsummary.Summary
+	if err := json.Unmarshal(b, &s); err != nil {
+		t.Fatal(err)
+	}
+	s.GeneratedAt = "2001-02-03T04:05:06Z"
+	b, _ = json.MarshalIndent(s, "", "  ")
+	if err := os.WriteFile(out, append(b, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := summaryCmd(args); err != nil {
+		t.Fatalf("timestamp-only change should pass check: %v", err)
+	}
+
+	// A changed result must fail loudly.
+	s.Items[0].Value += 0.01
+	b, _ = json.MarshalIndent(s, "", "  ")
+	if err := os.WriteFile(out, append(b, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := summaryCmd(args); err == nil || !strings.Contains(err.Error(), "stale") {
+		t.Fatalf("drifted summary should fail with a stale error, got %v", err)
+	}
+}

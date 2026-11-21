@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ARRIVE, PHASE_STOPS, SCREENS, STOPS, arrivalFor, fig2At, fig3At, nextDestination, paneAt, phaseStop, stepAt } from "../src/components/op/landing/timeline.ts";
+import { ARRIVE, FREE_SECTIONS, PHASE_STOPS, SCREENS, STOPS, arrivalFor, fig2At, fig3At, nextDestination, paneAt, phaseStop, stepAt } from "../src/components/op/landing/timeline.ts";
 
 test("each heat-gun phase stop lands inside its own step", () => {
   PHASE_STOPS.forEach((_, i) => {
@@ -45,11 +45,17 @@ test("only fig.2 and fig.3 replay a timed arrival animation", () => {
   STOPS.slice(0, 4).forEach((s) => assert.equal(arrivalFor(s), null));
 });
 
-test("one more down goes to the page bottom, one more up to the page top", () => {
-  assert.deepEqual(nextDestination(ARRIVE[2], 1), { kind: "bottom" });
-  assert.deepEqual(nextDestination(SCREENS, 1), { kind: "bottom" });
+test("one more down from fig.3 enters the first free section, not the page bottom (#409)", () => {
+  assert.deepEqual(nextDestination(ARRIVE[2], 1), { kind: "section", index: 0 });
+  assert.deepEqual(nextDestination(SCREENS, 1), { kind: "section", index: 0 });
+  assert.notDeepEqual(nextDestination(ARRIVE[2], 1), { kind: "bottom" });
+  assert.deepEqual(FREE_SECTIONS.map((s) => s.key), ["can", "who", "story", "footer"]);
+});
+
+test("back from below the stage returns to fig.3; back from the first stop reaches the page top", () => {
+  assert.deepEqual(nextDestination(SCREENS, -1), { kind: "stop", progress: ARRIVE[2] });
+  assert.deepEqual(nextDestination(ARRIVE[2], -1), { kind: "stop", progress: ARRIVE[1] });
   assert.deepEqual(nextDestination(ARRIVE[0], -1), { kind: "top" });
   assert.deepEqual(nextDestination(0, -1), { kind: "top" });
   assert.deepEqual(nextDestination(ARRIVE[0], 1), { kind: "stop", progress: STOPS[1] });
-  assert.deepEqual(nextDestination(SCREENS, -1), { kind: "stop", progress: ARRIVE[2] });
 });

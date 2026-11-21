@@ -2,7 +2,7 @@
 // three figures; each only does work while it is near the viewport, and
 // with prefers-reduced-motion every figure shows its state without tweening.
 import { copy } from "@/lib/copy";
-import { ARRIVE, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
+import { ARRIVE, FREE_SECTIONS, SCREENS, arrivalFor, clamp01, nextDestination, paneAt, ramp, stepAt } from "./timeline";
 import { inControl, isSpaceKey, keyDirection, wheelDirection } from "./input";
 import { advanceScroll, newScrollState, startScroll } from "./arrival";
 import { createHeatGun, type Country } from "./heat-gun";
@@ -84,27 +84,60 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     scrollState = startScroll(scrollState, scrollY, top, now + 2500, arrivalFor(progress), now);
     scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
   };
-  // One input step advances one stop — the four heat-gun phases, then fig.2
-  // and fig.3. From the hero the first down step goes straight to the heat gun;
-  // one more down goes to the page bottom, one more up to the page top.
-  const step = (dir: number) => {
-    const dest = nextDestination(at(), dir > 0 ? 1 : -1);
-    if (dest.kind === "stop") {
-      goTo(dest.progress, true);
-      return true;
-    }
-    // One more down from fig.3 takes in the whole rest of the page; one more
-    // up from the heat gun returns to the very top.
-    const top = dest.kind === "bottom" ? document.documentElement.scrollHeight : 0;
+
+  // ---- the free-scrolling sections below the stage --------------------------
+  // Past fig.3 the guided journey hands over to the page's own content (#409):
+  // one step from the last figure lands on .can's top, and from there wheel and
+  // keys are native so the section can be read at the visitor's own pace. Only
+  // crossing back above .can re-enters the guided path (fig.3 replays). Phones
+  // never enter the guided path (horizontal() is false), so they are untouched.
+  const sectionTop = (index: number): number | null => {
+    const el = root.querySelector<HTMLElement>(FREE_SECTIONS[index].selector);
+    if (!el) return null;
+    const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || barH();
+    return Math.max(0, el.getBoundingClientRect().top + scrollY - margin);
+  };
+  const goToSection = (index: number, smooth: boolean): boolean => {
+    const top = sectionTop(index);
+    if (top === null) return false;
+    const now = performance.now();
+    scrollState = startScroll(scrollState, scrollY, top, now + 2500, null, now);
+    scrollTo({ top, behavior: smooth && !reduce ? "smooth" : "instant" });
+    return true;
+  };
+  const scrollToEdge = (bottom: boolean): boolean => {
+    const top = bottom ? document.documentElement.scrollHeight : 0;
     if (Math.abs(scrollY - top) < 2) return false;
     const now = performance.now();
     scrollState = startScroll(scrollState, scrollY, top, now + 2500, null, now);
     scrollTo({ top, behavior: reduce ? "instant" : "smooth" });
     return true;
   };
+  // Set by the animation loop once the visitor is in the free region, so the
+  // wheel/key handlers can step aside. A smooth scroll into .can does not set
+  // it until the page actually arrives there.
+  let free = false;
+
+  // One input step advances one stop — the four heat-gun phases, then fig.2
+  // and fig.3. From the hero the first down step goes straight to the heat gun;
+  // one more down enters the free-scrolling content at .can, one more up from
+  // the heat gun returns to the page top.
+  const step = (dir: number) => {
+    const dest = nextDestination(at(), dir > 0 ? 1 : -1);
+    if (dest.kind === "stop") {
+      goTo(dest.progress, true);
+      return true;
+    }
+    if (dest.kind === "section" || dest.kind === "bottom") {
+      if (dest.kind === "section") return goToSection(dest.index, true);
+      return scrollToEdge(true);
+    }
+    return scrollToEdge(false);
+  };
   let lastWheel = 0;
   const onWheel = (e: WheelEvent) => {
-    if (!horizontal()) return;
+    // #409: below the stage the page scrolls natively; do not preventDefault.
+    if (!horizontal() || free) return;
     const dir = wheelDirection(e);
     if (!dir) return;
     const now = performance.now();
@@ -117,7 +150,8 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   window.addEventListener("wheel", onWheel, { passive: false });
   let lastKey = 0;
   const onKey = (e: KeyboardEvent) => {
-    if (!horizontal()) return;
+    // #409: below the stage arrow/space are native page scrolling too.
+    if (!horizontal() || free) return;
     const t = e.target as HTMLElement | null;
     if (t && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
     // A focused button (or equivalent control) owns Space: leave keydown
@@ -316,6 +350,25 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
     scrollState = advanced.state;
     const { seeking, interrupted } = advanced;
     const arrival = scrollState.arrival;
+
+    // #409: the guided path ends at .can. Once the visitor is in the free
+    // region, wheel/keys pass through natively (see onWheel/onKey) and the
+    // sections below are read at their own pace. Scrolling back above .can
+    // re-enters the guided path and replays fig.3.
+    if (horizontal()) {
+      const firstTop = sectionTop(0);
+      if (firstTop !== null) {
+        if (free) {
+          if (scrollY < firstTop - 4) {
+            free = false;
+            goTo(ARRIVE[2], true);
+          }
+        } else if (scrollY >= firstTop - 4) {
+          free = true;
+        }
+      }
+    }
+
     const s = horizontal() ? slid() : 0;
     if (horizontal()) {
       track.style.transform = `translateX(${-s * hzpin.clientWidth}px)`;

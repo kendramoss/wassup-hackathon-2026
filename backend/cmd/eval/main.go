@@ -28,9 +28,11 @@
 //	    Run the verifier on the development flip pairs (CBP natural
 //	    experiments dated before 2026; the 2026 items are spent) and report
 //	    precision, recall and specificity. Development-only by construction.
-//	eval summary [-out internal/evalsummary/summary.json]
+//	eval summary [-out internal/evalsummary/summary.json] [-check]
 //	    Build the results-page numbers from the committed result files (plus
 //	    the research baselines, with their source) for GET /v1/eval/summary.
+//	    With -check, verify the embedded file matches the generated summary,
+//	    ignoring generated_at, and fail loudly if it has drifted.
 //	eval multiscenario [-out ../eval/data/multi_scenario.json]
 //	    Flag split rulings whose holding gives different origins for different
 //	    scenarios (a mechanical rule over CBP's analysis text, applied to every
@@ -1541,6 +1543,7 @@ func summaryCmd(args []string) error {
 	fl := flag.NewFlagSet("summary", flag.ExitOnError)
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	outPath := fl.String("out", "internal/evalsummary/summary.json", "output file (embedded in the server)")
+	check := fl.Bool("check", false, "verify the committed summary matches the generated data (ignores generated_at)")
 	_ = fl.Parse(args)
 	type item = evalsummary.Item
 	var items []item
@@ -1765,6 +1768,25 @@ func summaryCmd(args []string) error {
 	out := evalsummary.Summary{GeneratedAt: time.Now().UTC().Format(time.RFC3339),
 		Status: summaryStatus(finalRun.Official, devRun.Official), Items: items, VerifierCalibration: cal}
 	b, _ := json.MarshalIndent(out, "", "  ")
+	if *check {
+		rawExisting, err := os.ReadFile(*outPath)
+		if err != nil {
+			return fmt.Errorf("summary check: read %s: %w", *outPath, err)
+		}
+		var existing evalsummary.Summary
+		if err := json.Unmarshal(rawExisting, &existing); err != nil {
+			return fmt.Errorf("summary check: parse %s: %w", *outPath, err)
+		}
+		// generated_at is build metadata, not a result; compare everything else.
+		out.GeneratedAt = existing.GeneratedAt
+		b, _ = json.MarshalIndent(out, "", "  ")
+		want := append(b, '\n')
+		if string(want) != string(rawExisting) {
+			return fmt.Errorf("summary check: %s is stale — regenerate with `go run ./cmd/eval summary` (make eval-summary) and commit it", *outPath)
+		}
+		fmt.Fprintf(os.Stderr, "summary check: %s matches %d generated items\n", *outPath, len(items))
+		return nil
+	}
 	if err := os.WriteFile(*outPath, append(b, '\n'), 0o644); err != nil {
 		return err
 	}
