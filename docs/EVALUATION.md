@@ -252,7 +252,11 @@ The rule picks 0.90, the step stated 0.92 maps to, so the product accepts exactl
 
 The model emits about 11 distinct confidence values, so the first ECE uses one bin per value. The standard 10-bin ECE puts every case from 0.90 to 1.00 in one bin and reads lower. ECE on a few hundred cases is biased upward; the intervals show how wide it is.
 
-### 4.3 What we'd add next (planned)
+### 4.3 Search and multiplicity
+
+The production engine was pre-registered before the held-out runs, but the settings around it were chosen on development data. The 0.92 stated-confidence bar (and its calibrated 0.90 equivalent, D160) came from the dev curve (section 3.1); retrieval, prompt and threshold ablations were tried on dev (sections 3.4 and the decision log D63/D82); the adjudicator variant used in the verifier was selected after variants 1 and 2 (D82/D192). The 377-ruling and 83-ruling held-out splits were not used to search: they were frozen, scored once, and used to report the chosen configuration. Exact McNemar tests are pairwise and **unadjusted**; no family-wise error correction is applied across the ablations or the multiple comparison rows. Treat the p-values as descriptive evidence for each pair, not as a family-wide significance claim.
+
+### 4.4 What we'd add next (planned)
 
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
