@@ -102,7 +102,7 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 |---|---|---|---|
 | Upload limits | 1–4 files, 8 MB together, 10 PDF pages together, 12,000 px a side, 40 megapixels | `backend/internal/media/media.go` constants | Showable; these are settings, not results |
 | Browser downscale | photos over 3 MB or 4,096 px re-encoded at 3,072 px longest side | `frontend/src/lib/media-upload.ts` | Showable; a setting |
-| Field accuracy reading BOM images | not yet measured | no live run made; `backend/cmd/mediacheck` is the planned check on 5 synthetic images (`eval/media/images`) | Do not show a figure. Any future figure from those 5 images is "n=5, illustrative" |
+| Field accuracy reading BOM images (synthetic) | 20 synthetic images, 170 parts: names read 151 (88.8%), countries right 151 (88.8%); every matched name had the right country; 15 of 20 images fully read. Set 1 (5 plain tables) 45/48; set 2 (15 varied layouts, photos, scans) 106/122. The 19 misses are exact-name mismatches: part numbers appended (13), a multi-part row split (3, one cut short in the image), one row split into two (1), plant rows counted as parts (2). Gateway cost $0.252 | `eval/results/media-v1-gemini-4-argon-litellm.json`, `eval/results/media-varied-gemini-4-argon-litellm.json`, `eval/results/RUNLOG.jsonl` (D167, D168) | Measured once, gateway (not Vertex AI), Gemini 4 Argon. Always say "synthetic images, illustrative" and give the counts. Not a measure of accuracy on real photos or scans; do not show it as one |
 
 ## Market and time (from `hackathon-research/evidence/fees/LEDGER.md`)
 

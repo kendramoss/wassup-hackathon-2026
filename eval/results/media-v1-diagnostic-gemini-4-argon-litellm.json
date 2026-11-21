@@ -1,0 +1,58 @@
+{
+ "git_revision": "863d8f788382a0d5cbac8fde942b45a2b003f8d2-dirty",
+ "model": "gemini-4-argon",
+ "note": "synthetic renderings of illustrative BOMs; illustrative only",
+ "provider": "litellm",
+ "scores": [
+  {
+   "image": "lidar.png",
+   "expected": 7,
+   "name_read": 4,
+   "country_right": 4,
+   "extra_rows": 1,
+   "missed": [
+    "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+    "Vietnam SMT plant",
+    "China suppliers"
+   ],
+   "read": [
+    {
+     "name": "Top Main Board (TMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "Bottom Main Board (BMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "receiver (RX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "transmitter (TX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat si...",
+     "country": "China"
+    }
+   ],
+   "simulated": false,
+   "input_tokens": 2382,
+   "output_tokens": 963,
+   "latency_ms": 665,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon"
+  }
+ ],
+ "summary": {
+  "cost_usd_gateway": 0,
+  "countries_right": 4,
+  "expected_parts": 7,
+  "extra_rows": 1,
+  "failed_calls": 0,
+  "images": 1,
+  "names_read": 4
+ },
+ "time": "2026-11-21T14:56:44+08:00"
+}

@@ -1,0 +1,93 @@
+{
+ "git_revision": "eda3768387bfd1e6e45b2a0f12ec086c2d45429d",
+ "model": "gemini-4-argon",
+ "note": "synthetic renderings of illustrative BOMs; illustrative only",
+ "provider": "litellm",
+ "scores": [
+  {
+   "image": "heatgun.png",
+   "expected": 13,
+   "name_read": 13,
+   "country_right": 13,
+   "extra_rows": 0,
+   "simulated": false,
+   "input_tokens": 2382,
+   "output_tokens": 1556,
+   "latency_ms": 26293,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon",
+   "cost_usd_gateway": 0.020324000000000002
+  },
+  {
+   "image": "heatgun-photo.png",
+   "expected": 13,
+   "name_read": 13,
+   "country_right": 13,
+   "extra_rows": 0,
+   "simulated": false,
+   "input_tokens": 2356,
+   "output_tokens": 1570,
+   "latency_ms": 22111,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon",
+   "cost_usd_gateway": 0.020412000000000003
+  },
+  {
+   "image": "lidar.png",
+   "expected": 7,
+   "name_read": 4,
+   "country_right": 4,
+   "extra_rows": 1,
+   "missed": [
+    "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+    "Vietnam SMT plant",
+    "China suppliers"
+   ],
+   "simulated": false,
+   "input_tokens": 2382,
+   "output_tokens": 963,
+   "latency_ms": 18435,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon",
+   "cost_usd_gateway": 0.014393999999999999
+  },
+  {
+   "image": "template.png",
+   "expected": 2,
+   "name_read": 2,
+   "country_right": 2,
+   "extra_rows": 0,
+   "simulated": false,
+   "input_tokens": 2377,
+   "output_tokens": 164,
+   "latency_ms": 5930,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon",
+   "cost_usd_gateway": 0.0063939999999999995
+  },
+  {
+   "image": "heatgun-supplier.png",
+   "expected": 13,
+   "name_read": 13,
+   "country_right": 13,
+   "extra_rows": 0,
+   "simulated": false,
+   "input_tokens": 2382,
+   "output_tokens": 1257,
+   "latency_ms": 23631,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon",
+   "cost_usd_gateway": 0.017334
+  }
+ ],
+ "summary": {
+  "cost_usd_gateway": 0.078858,
+  "countries_right": 45,
+  "expected_parts": 48,
+  "extra_rows": 1,
+  "failed_calls": 0,
+  "images": 5,
+  "names_read": 45
+ },
+ "time": "2026-11-21T14:50:36+08:00"
+}

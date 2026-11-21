@@ -34,7 +34,7 @@ Every judging line is covered:
 Rehearse to 2:55. If a screen loads slowly, cut with a visible "⏩"; never splice in another run.
 
 **What to check on the recording day for the new beats:**
-- Photo import: the sample is `frontend/public/samples/heatgun-bom-photo.png`, a synthetic, tilted rendering of the heat-gun BOM (`eval/media/images/heatgun-photo.png`). It is not a real photo; say "a sample image". Field accuracy on images is not measured (docs/NUMBERS.md, "Image and scan import"), so show no figure.
+- Photo import: the sample is `frontend/public/samples/heatgun-bom-photo.png`, a synthetic, tilted rendering of the heat-gun BOM (`eval/media/images/heatgun-photo.png`). It is not a real photo; say "a sample image". Field accuracy on images is measured only on 20 synthetic images (docs/NUMBERS.md, "Image and scan import"); if asked, say "on synthetic images, illustrative" with the counts, and show no figure on screen.
 - Gas grill: the demo is `gas-grill-2023` (backend/internal/demos/fixtures). Unless it has been seeded as a pinned case, loading it runs live on production, so the result is that day's run. A development check through an OpenAI-compatible LiteLLM gateway to Gemini predicted China 0.95 and showed one plan at 0.96 on N333420 (eval/results/families-plan-gas-grill-2023-litellm.json). That run is a record, not the production result; say only what the screen shows.
 - Claude connector: run it from a clean Claude Code session. Without an API key it uses the anonymous tier; `predict_origin` returns a `case_access_key` that the next tool calls need.
 

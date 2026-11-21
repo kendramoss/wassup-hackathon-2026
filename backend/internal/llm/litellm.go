@@ -3,6 +3,7 @@ package llm
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,8 +17,9 @@ import (
 // LiteLLM calls an OpenAI-compatible LiteLLM gateway to Gemini:
 // POST {BaseURL}/v1/chat/completions. It exists for offline evaluation only
 // (cmd/eval, D151): the server's config still accepts only vertex and fake
-// (D49), so nothing deployed can use it. Every call sends temperature 0 and
-// the fixed Seed, the same as Vertex.
+// (D49), so nothing deployed can use it. It also carries inline media parts
+// (images, PDFs) for the offline image-import check, cmd/mediacheck (D167).
+// Every call sends temperature 0 and the fixed Seed, the same as Vertex.
 type LiteLLM struct {
 	baseURL string
 	apiKey  string
@@ -79,6 +81,17 @@ type oaMessage struct {
 	Name       string       `json:"name,omitempty"`
 }
 
+// oaReqMessage is a request turn. Content is a string, or for a user turn
+// with media parts a list of OpenAI content parts (text, then each image or
+// PDF as a base64 data URL).
+type oaReqMessage struct {
+	Role       string       `json:"role"`
+	Content    any          `json:"content"`
+	ToolCalls  []oaToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string       `json:"tool_call_id,omitempty"`
+	Name       string       `json:"name,omitempty"`
+}
+
 type oaToolCall struct {
 	ID       string `json:"id"`
 	Type     string `json:"type"`
@@ -89,13 +102,13 @@ type oaToolCall struct {
 }
 
 type oaRequest struct {
-	Model          string      `json:"model"`
-	Messages       []oaMessage `json:"messages"`
-	Temperature    float64     `json:"temperature"`
-	Seed           int         `json:"seed"`
-	MaxTokens      int         `json:"max_tokens,omitempty"`
-	Tools          []oaTool    `json:"tools,omitempty"`
-	ResponseFormat any         `json:"response_format,omitempty"`
+	Model          string         `json:"model"`
+	Messages       []oaReqMessage `json:"messages"`
+	Temperature    float64        `json:"temperature"`
+	Seed           int            `json:"seed"`
+	MaxTokens      int            `json:"max_tokens,omitempty"`
+	Tools          []oaTool       `json:"tools,omitempty"`
+	ResponseFormat any            `json:"response_format,omitempty"`
 }
 
 type oaTool struct {
@@ -121,10 +134,11 @@ const costHeader = "X-Litellm-Response-Cost"
 
 // Generate implements Model.
 func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
-	if hasParts(req.Messages) {
-		return Response{}, fmt.Errorf("litellm: %w: media parts are not supported", ErrBadResponse)
+	oreq, err := l.buildRequest(req)
+	if err != nil {
+		return Response{}, fmt.Errorf("litellm: %w", err)
 	}
-	body, err := json.Marshal(l.buildRequest(req))
+	body, err := json.Marshal(oreq)
 	if err != nil {
 		return Response{}, fmt.Errorf("litellm: encode request: %w", err)
 	}
@@ -200,24 +214,47 @@ func (l *LiteLLM) Generate(ctx context.Context, req Request) (Response, error) {
 	return resp, nil
 }
 
-func hasParts(msgs []Message) bool {
-	for _, m := range msgs {
-		if len(m.Parts) > 0 {
-			return true
+// mediaContent turns a user turn with media parts into OpenAI content parts:
+// the text first, then each part as a base64 data URL (image_url for
+// images, file for a PDF), the order Vertex sends them in.
+func mediaContent(i int, m Message) ([]map[string]any, error) {
+	if m.Role != RoleUser {
+		return nil, fmt.Errorf("message %d: media parts are only allowed on user turns", i)
+	}
+	var parts []map[string]any
+	if m.Content != "" {
+		parts = append(parts, map[string]any{"type": "text", "text": m.Content})
+	}
+	for k, p := range m.Parts {
+		if p.MIMEType == "" || len(p.Data) == 0 {
+			return nil, fmt.Errorf("message %d: part %d: empty media part", i, k)
+		}
+		url := "data:" + p.MIMEType + ";base64," + base64.StdEncoding.EncodeToString(p.Data)
+		if p.MIMEType == "application/pdf" {
+			parts = append(parts, map[string]any{"type": "file", "file": map[string]any{"file_data": url}})
+		} else {
+			parts = append(parts, map[string]any{"type": "image_url", "image_url": map[string]any{"url": url}})
 		}
 	}
-	return false
+	return parts, nil
 }
 
-func (l *LiteLLM) buildRequest(req Request) oaRequest {
+func (l *LiteLLM) buildRequest(req Request) (oaRequest, error) {
 	out := oaRequest{Model: req.Model, Temperature: 0, Seed: Seed, MaxTokens: req.MaxOutputTokens}
 	if req.System != "" {
-		out.Messages = append(out.Messages, oaMessage{Role: "system", Content: ptr(req.System)})
+		out.Messages = append(out.Messages, oaReqMessage{Role: "system", Content: req.System})
 	}
-	for _, m := range req.Messages {
-		om := oaMessage{Role: string(m.Role), ToolCallID: m.ToolCallID, Name: m.Name}
-		if m.Content != "" || len(m.ToolCalls) == 0 {
-			om.Content = ptr(m.Content)
+	for i, m := range req.Messages {
+		om := oaReqMessage{Role: string(m.Role), ToolCallID: m.ToolCallID, Name: m.Name}
+		switch {
+		case len(m.Parts) > 0:
+			parts, err := mediaContent(i, m)
+			if err != nil {
+				return oaRequest{}, err
+			}
+			om.Content = parts
+		case m.Content != "" || len(m.ToolCalls) == 0:
+			om.Content = m.Content
 		}
 		for _, tc := range m.ToolCalls {
 			var otc oaToolCall
@@ -240,7 +277,7 @@ func (l *LiteLLM) buildRequest(req Request) oaRequest {
 			"json_schema": map[string]any{"name": name, "schema": req.JSONSchema, "strict": true},
 		}
 	}
-	return out
+	return out, nil
 }
 
 // scrub removes the API key and the gateway address from text that may be
@@ -254,7 +291,5 @@ func (l *LiteLLM) scrub(s string) string {
 	}
 	return s
 }
-
-func ptr[T any](v T) *T { return &v }
 
 var _ Model = (*LiteLLM)(nil)
