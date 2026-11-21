@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T10:49:46Z",
+  "generated_at": "2026-11-21T12:06:01Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -912,7 +912,7 @@
     },
     {
       "key": "router_final2_routing",
-      "label": "Router (router-v4), post-cutoff held-out (28 Sep–13 Nov 2026): rulings sent to the engine of their legal test",
+      "label": "Router (router-v4), post-cutoff (28 Sep–13 Nov 2026; NOT clean held-out for router-v3/v4: the \"trade programs\" cue came from reading this window's misses, #464): rulings sent to the engine of their legal test",
       "value": 0.9619,
       "ci_low": 0.9061,
       "ci_high": 0.9851,
@@ -923,7 +923,7 @@
     },
     {
       "key": "router_final2_specialist_routing",
-      "label": "Router (router-v4), post-cutoff held-out (28 Sep–13 Nov 2026): pharmaceutical, Part 102 and textile rulings sent to their own engine",
+      "label": "Router (router-v4), post-cutoff (28 Sep–13 Nov 2026; NOT clean held-out for router-v3/v4: the \"trade programs\" cue came from reading this window's misses, #464): pharmaceutical, Part 102 and textile rulings sent to their own engine",
       "value": 0.8636,
       "ci_low": 0.6666,
       "ci_high": 0.9525,
@@ -934,7 +934,7 @@
     },
     {
       "key": "all_regimes_final2_routed_accuracy",
-      "label": "All regimes, post-cutoff held-out (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router (router-v4) picks, each ruling once",
+      "label": "All regimes, post-cutoff (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router (router-v4) picks, each ruling once. NOT clean held-out for router-v3/v4 (#464): without the 6 \"trade programs\" rulings it is 90/101, below router-v2's 91/101",
       "value": 0.8879,
       "ci_low": 0.8141,
       "ci_high": 0.9347,
@@ -945,7 +945,7 @@
     },
     {
       "key": "all_regimes_final2_routed_accuracy_router_v2",
-      "label": "All regimes, post-cutoff held-out, routed path with the previous router (router-v2, as D211 ran it)",
+      "label": "All regimes, post-cutoff, routed path with the previous router (router-v2, as D211 ran it). This is the baseline for router-v4, whose post-cutoff figure is NOT clean held-out (#464): without the 6 \"trade programs\" rulings v2 is 91/101, above v4's 90/101",
       "value": 0.8785,
       "ci_low": 0.8032,
       "ci_high": 0.9276,
