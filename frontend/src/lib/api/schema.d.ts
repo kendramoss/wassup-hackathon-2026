@@ -478,6 +478,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/parts-hts-suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suggest up to 3 HTS codes for each part of a product, for the 19 CFR 102.20 rule check (on unless PARTS_HTS_SUGGEST=off, D380)
+         * @description For each named part (at most 20), BM25 over the part index (`backend/data/part_hts_index.json`: sentences of CBP rulings that classify a named part, such as "The aluminum pegs will be classified in subheading 8302.50") gives up to 4 codes CBP stated for similar parts. One router-model call for the whole product ranks them and, when no ruling fits, may give its own code. Each candidate says where it comes from: `rulings` (an earlier ruling states this code for a similar part; `supporting_rulings` lists them, `cited` the ones the reason relies on) or `model` (the model's own reading of the HTSUS, no supporting ruling). A model code of 8 digits is kept only when it is in today's HTS. When the product has no `hts`, the good's code is suggested in the same call (`good`; candidates from the same search as /v1/products/hts-suggest). Answers per part are cached for a day by the part's and the product's name.
+         *     Nothing is stored or filled in. Accepting a code is the client's step: put it on the part (`components[].hts`) and the rule check runs when the case is read (D363). Every response carries the note "unverified suggestions — check every code with your customs broker before you rely on it". If the model call fails, the ruling candidates come back without reasons (`reasons_unavailable: true`). Rate-limited as light; counts toward the daily spend cap and the client's share of it. 404 when PARTS_HTS_SUGGEST=off.
+         */
+        post: operations["suggestPartsHts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/cases/{id}/compare-targets": {
         parameters: {
             query?: never;
@@ -951,6 +972,30 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PartHtsCandidate: {
+            /**
+             * @description 4, 6 or 8 digits, at the level stated
+             * @example 8501.31
+             */
+            hts?: string;
+            /**
+             * @description rulings: an earlier CBP ruling states this code for a similar part; model: the model's own reading, no supporting ruling
+             * @enum {string}
+             */
+            source?: "rulings" | "model";
+            /** @description empty when reasons_unavailable */
+            reason?: string;
+            supporting_rulings?: {
+                id?: string;
+                /** Format: date */
+                date?: string;
+                part?: string;
+                sentence?: string;
+                subject?: string;
+                url?: string;
+            }[];
+            cited?: string[];
+        };
         Health: {
             /** @enum {string} */
             status?: "ok" | "degraded";
@@ -3260,6 +3305,61 @@ export interface operations {
                          * @enum {string}
                          */
                         source?: "cross" | "index";
+                        disclaimer?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+            503: components["responses"]["Error"];
+        };
+    };
+    suggestPartsHts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product: components["schemas"]["Product"];
+                };
+            };
+        };
+        responses: {
+            /** @description Codes per part, best first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        parts?: {
+                            /** @description position of the part in product.components */
+                            index?: number;
+                            name?: string;
+                            /** @description answered from the one-day cache, no model call */
+                            cached?: boolean;
+                            candidates?: components["schemas"]["PartHtsCandidate"][];
+                        }[];
+                        /** @description null when the product already has an hts */
+                        good?: {
+                            candidates?: components["schemas"]["PartHtsCandidate"][];
+                            /** @enum {string} */
+                            source?: "cross" | "index";
+                        } | null;
+                        /** @example unverified suggestions — check every code with your customs broker before you rely on it */
+                        note?: string;
+                        reasons_unavailable?: boolean;
+                        trace?: Record<string, never> | null;
+                        llm_provider?: string;
+                        /** @example parts-hts-suggest-v1 */
+                        prompt_version?: string;
+                        /** @example 20 */
+                        max_parts?: number;
                         disclaimer?: string;
                     };
                 };

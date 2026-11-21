@@ -38,6 +38,9 @@
 //	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
 //	    List the rulings whose text states the HTS subheading CBP applied
 //	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
+//	corpus part-hts-index [-raw DIR] [-out FILE]
+//	    List every sentence in the raw corpus that classifies a named part
+//	    (data/part_hts_index.json, for POST /v1/products/parts-hts-suggest, D380).
 //	corpus compare -a DIR -b DIR
 //	    Compare two facts directories (port check against the research split).
 //	corpus usmca-fetch [-raw DIR] [-index F] [-since 2015-01-01]
@@ -76,7 +79,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe|label-check|final2-label|supersession [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|part-hts-index|probe|label-check|final2-label|supersession [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -99,6 +102,8 @@ func main() {
 		err = usmcaLabel(os.Args[2:])
 	case "hts-index":
 		err = htsIndex(os.Args[2:])
+	case "part-hts-index":
+		err = partHTSIndex(os.Args[2:])
 	case "probe":
 		err = probe(os.Args[2:])
 	case "label-check":

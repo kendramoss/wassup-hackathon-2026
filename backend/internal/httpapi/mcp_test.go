@@ -120,6 +120,24 @@ func TestMCPListsToolsWithTightSchemas(t *testing.T) {
 			t.Errorf("%s: description does not name its REST operation", tool.Name)
 		}
 	}
+	// suggest_part_hts is listed only when the route is served.
+	ps := partsHarness(t, llm.FakeText(`{"items":[]}`), nil)
+	lp, err := mcpClient(t, ps, nil).ListTools(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed := false
+	for _, tool := range lp.Tools {
+		if tool.Name == "suggest_part_hts" {
+			listed = true
+			if tool.Annotations == nil || !tool.Annotations.ReadOnlyHint || !strings.Contains(tool.Description, "REST:") {
+				t.Errorf("suggest_part_hts = %+v", tool)
+			}
+		}
+	}
+	if !listed {
+		t.Error("suggest_part_hts is not listed although the route is served")
+	}
 	// The family enum comes from the API's templates.
 	for _, tool := range lt.Tools {
 		if tool.Name == "predict_origin" {

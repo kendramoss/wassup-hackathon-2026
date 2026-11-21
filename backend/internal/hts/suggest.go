@@ -145,7 +145,16 @@ func (s *Suggester) Coverage() (rulings, subheadings int) { return s.count, s.su
 // subheading by the sum of its rulings' BM25 scores, and returns the best
 // MaxCandidates (ties: the subheading retrieved first). No model call.
 func (s *Suggester) Candidates(facts string) []Candidate {
-	hits := s.index.Top(facts, K, func(domain.Ruling) bool { return true })
+	return s.candidatesBefore(facts, time.Time{}, "")
+}
+
+// candidatesBefore is Candidates over the rulings dated before before (all
+// when zero), without the ruling exclude: an evaluation must not see the
+// ruling it scores or any later one (D381).
+func (s *Suggester) candidatesBefore(facts string, before time.Time, exclude string) []Candidate {
+	hits := s.index.Top(facts, K, func(r domain.Ruling) bool {
+		return r.ID != exclude && (before.IsZero() || r.Date.Before(before))
+	})
 	score := map[string]float64{}
 	var order []string
 	refs := map[string][]Ref{}
@@ -224,19 +233,8 @@ func (s *Suggester) Suggest(ctx context.Context, facts string) (Result, error) {
 // SuggestNamed is Suggest with the product's name, which the CROSS search
 // tries first (CBP's subjects name the product).
 func (s *Suggester) SuggestNamed(ctx context.Context, facts, name string) (Result, error) {
-	res := Result{Note: Note, Source: SourceIndex}
-	local := s.Candidates(facts)
-	if s.live != nil {
-		if cs, err := crossCandidates(ctx, s.live, s.current, facts, name); err == nil && len(cs) > 0 {
-			// Half the pool from each source, so neither crowds the other out:
-			// CROSS knows every product CBP classified, the local index has
-			// the full facts of recent rulings. The model ranks the pool (D92).
-			res.Candidates, res.Source = interleave(cs, local, crossPool), SourceCROSS
-		}
-	}
-	if res.Source == SourceIndex {
-		res.Candidates = local
-	}
+	res := Result{Note: Note}
+	res.Candidates, res.Source = s.pool(ctx, facts, name, time.Time{}, "")
 	for i := range res.Candidates {
 		if s.rates != nil {
 			res.Candidates[i].DutyRates = s.rates(res.Candidates[i].HTS)
@@ -276,6 +274,22 @@ func (s *Suggester) SuggestNamed(ctx context.Context, facts, name string) (Resul
 		res.Candidates = res.Candidates[:MaxCandidates] // retrieval order: the most-supported first
 	}
 	return res, fmt.Errorf("hts: %w", err)
+}
+
+// pool is the candidates the model ranks for a product, and their source:
+// a CROSS search mixed with the local index, else the index alone. With
+// before set, only rulings dated before it count, and exclude never does.
+func (s *Suggester) pool(ctx context.Context, facts, name string, before time.Time, exclude string) ([]Candidate, string) {
+	local := s.candidatesBefore(facts, before, exclude)
+	if s.live != nil {
+		if cs, err := crossCandidates(ctx, s.live, s.current, facts, name, before, exclude); err == nil && len(cs) > 0 {
+			// Half the pool from each source, so neither crowds the other out:
+			// CROSS knows every product CBP classified, the local index has
+			// the full facts of recent rulings. The model ranks the pool (D92).
+			return interleave(cs, local, crossPool), SourceCROSS
+		}
+	}
+	return local, SourceIndex
 }
 
 // interleave takes candidates from a and b in turn, skipping duplicates,

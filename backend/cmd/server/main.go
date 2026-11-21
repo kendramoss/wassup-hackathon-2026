@@ -19,6 +19,7 @@
 //	GET  /v1/eval/summary        results-page numbers
 //	GET  /v1/demos[/{id}]        demo cases for the UI
 //	POST /v1/products/hts-suggest  candidate HTS subheadings (HTS_SUGGEST=on, D64)
+//	POST /v1/products/parts-hts-suggest  candidate codes per part (on unless PARTS_HTS_SUGGEST=off, D380)
 //	POST|GET /v1/admin/api-keys, DELETE /v1/admin/api-keys/{id}
 //	                             broker API keys (API_KEYS=on, admin token)
 package main
@@ -535,28 +536,52 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		logger.Info("calibrated confidence on", "model", m.Model, "prompt", m.EnginePrompt, "fast_path", cfg.CalibratedFastPath)
 	}
 	var htsSuggester httpapi.HTSSuggester
-	if cfg.HTSSuggest {
-		x, err := hts.LoadIndex(cfg.HTSIndex)
-		if err != nil {
-			return httpapi.Deps{}, err
-		}
-		s, err := hts.New(model, cfg.RouterModel, x, cfg.FactsDir, func(code string) bool { _, ok := dutyTable.Line(code); return ok })
-		if err != nil {
-			return httpapi.Deps{}, err
-		}
-		n, subs := s.Coverage()
-		// Candidates from a live CROSS search, kept to subheadings in today's
-		// HTS (D92); the local index is the fallback.
+	var partsSuggester httpapi.PartsHTSSuggester
+	var current hts.Current
+	var products *hts.Suggester
+	if cfg.HTSSuggest || cfg.PartsHTSSuggest {
+		// Subheadings are kept only when in today's HTS (D92).
 		mfn := liveMFN
 		if mfn == nil {
 			mfn = duty.NewLive(cross.UserAgent, cfg.DutyLiveMFNTTL, cfg.DutyLiveMFNTimeout)
 		}
-		s.WithCROSS(crossClient, func(ctx context.Context, sub string) bool {
+		current = func(ctx context.Context, sub string) bool {
 			_, err := mfn.MFN(ctx, sub)
 			return err == nil || !errors.Is(err, duty.ErrNoRate) // keep it when the HTS is unreachable
-		})
+		}
+		s, err := newProductSuggester(cfg, model, dutyTable)
+		switch {
+		case err != nil && cfg.HTSSuggest:
+			return httpapi.Deps{}, err
+		case err != nil:
+			logger.Warn("parts hts suggest: no product index, so no code for the good", "index", cfg.HTSIndex)
+		default:
+			// Candidates from a live CROSS search, kept to subheadings in
+			// today's HTS (D92); the local index is the fallback.
+			products = s.WithCROSS(crossClient, current)
+		}
+	}
+	if cfg.HTSSuggest {
+		n, subs := products.Coverage()
 		logger.Info("hts suggest on", "source", "cross", "fallback_rulings", n, "fallback_subheadings", subs, "index", cfg.HTSIndex)
-		htsSuggester = s
+		htsSuggester = products
+	}
+	// Per-part codes for the 19 CFR 102.20 rule check (D380): on unless
+	// PARTS_HTS_SUGGEST=off. Rate-limited as light and spend-capped like the
+	// other model routes. Unset, a missing index turns it off with a warning.
+	if cfg.PartsHTSSuggest {
+		x, err := hts.LoadPartIndex(cfg.PartHTSIndex)
+		switch {
+		case err != nil && cfg.PartsHTSSuggestSet:
+			return httpapi.Deps{}, err
+		case err != nil:
+			logger.Warn("parts hts suggest off: index not loaded", "index", cfg.PartHTSIndex)
+		default:
+			ps := hts.NewParts(model, cfg.RouterModel, x, products, current)
+			_, rulings := ps.Coverage()
+			logger.Info("parts hts suggest on", "fallback_rulings", rulings, "index", cfg.PartHTSIndex)
+			partsSuggester = ps
+		}
 	}
 	// Teams (D68): workspaces live next to the cases (Firestore on Cloud Run).
 	var users teams.Verifier
@@ -662,6 +687,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		PharmaFastPath:        cfg.PharmaFastPath,
 		FamilyBars:            familyBars,
 		HTS:                   htsSuggester,
+		PartsHTS:              partsSuggester,
 		ExportCFR177:          cfg.ExportCFR177,
 		Checks:                []httpapi.HealthCheck{httpapi.StoreCheck(cases), httpapi.ModelCheck("model", model, cfg.RouterModel)},
 	}
@@ -765,4 +791,14 @@ func runSmoke(ctx context.Context, model llm.Model, cfg config.Config) error {
 // retriever without one (#316).
 func evidenceBM25(rs []domain.Ruling) *retrieval.BM25 {
 	return retrieval.NewBM25(rs, engine.PrecedentText).WithRevision(corpus.RevisionOf(rs))
+}
+
+// newProductSuggester loads the product-level HTS suggester (D64) over the
+// shipped index and facts.
+func newProductSuggester(cfg config.Config, model llm.Model, dutyTable *duty.Table) (*hts.Suggester, error) {
+	x, err := hts.LoadIndex(cfg.HTSIndex)
+	if err != nil {
+		return nil, err
+	}
+	return hts.New(model, cfg.RouterModel, x, cfg.FactsDir, func(code string) bool { _, ok := dutyTable.Line(code); return ok })
 }
