@@ -40,7 +40,7 @@ const pinned = () => F.caseJson({ product, plan, pinned: true });
 
 // A fake demos API whose list answers only when `release` is called (or
 // fails when `fail` is).
-function lateDemos() {
+function lateDemos({ demoFails = false } = {}) {
   let release, fail;
   const gate = new Promise((res, rej) => {
     release = res;
@@ -49,7 +49,7 @@ function lateDemos() {
   const serve = (u, m) => {
     if (m !== "GET") return null;
     if (u.endsWith("/demos")) return gate.then(() => F.json({ demos: [{ id: "heatgun_2022", has_plan: true }] }), () => F.json({ code: "unavailable", message: "down" }, 503));
-    if (u.endsWith("/demos/heatgun_2022")) return F.json({ id: "heatgun_2022", plan: { actual_change: change } });
+    if (u.endsWith("/demos/heatgun_2022")) return demoFails ? F.json({ code: "unavailable", message: "down" }, 503) : F.json({ id: "heatgun_2022", plan: { actual_change: change } });
     return null;
   };
   return { serve, release: () => release(), fail: () => fail(new Error("down")) };
@@ -93,5 +93,22 @@ test("if the demo lookup fails, the stored backtest is not shown and the page sa
   const text = F.flatText(app);
   assert.match(text, /did not load, so the backtest is not shown/);
   assert.doesNotMatch(text, /7 parts|of the 7|Backtest:/);
+  assert.ok(app.btn(copy.plan.backtestRetry), "a retry button");
+});
+
+// #565: the list loads but the one demo that holds the record does not. That
+// is a failed lookup, not "no record", so the stale 7-part view never draws.
+test("if a demo in the list cannot be read, the lookup fails and offers Try again", async () => {
+  const demos = lateDemos({ demoFails: true });
+  const app = await mount(PlanStep, pinned(), demos.serve);
+  demos.release();
+  await app.flush();
+  await app.flush();
+  await app.flush();
+  const text = F.flatText(app);
+  assert.match(text, /did not load, so the backtest is not shown/);
+  assert.doesNotMatch(text, /7 parts|of the 7/);
+  assert.doesNotMatch(text, /\(not moved by this plan\)/);
+  assert.doesNotMatch(text, /Backtest:/, "the band does not draw it either");
   assert.ok(app.btn(copy.plan.backtestRetry), "a retry button");
 });

@@ -143,13 +143,20 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     };
     api.demos().then(
       async (list) => {
+        // A demo that could not be read might hold the record, so "none" is
+        // only said when every demo was read (#565). Otherwise the lookup
+        // failed and the page offers "Try again" instead of the stale view.
+        let unread = false;
         for (const d of list.demos ?? []) {
           if (!live || !d.has_plan || !d.id) continue;
-          const full = await api.demo(d.id).catch(() => null);
+          const full = await api.demo(d.id).catch(() => {
+            unread = true;
+            return null;
+          });
           const ac = full?.plan?.actual_change as (ActualChangeExtras & { _source?: string }) | undefined;
           if (live && ac?._source === btSource) return settle("found", ac);
         }
-        settle("none");
+        settle(unread ? "failed" : "none");
       },
       () => settle("failed"),
     );

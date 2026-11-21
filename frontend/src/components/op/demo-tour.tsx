@@ -88,7 +88,11 @@ export function DemoTour({ id, tab }: { id: string; tab: CaseTab }) {
     { key: "draft", label: T.steps[2], href: `${base}/draft?tour=1`, on: tab === "draft" },
   ];
   const at = steps.findIndex((s) => s.on);
-  const next = at === -1 ? steps[0] : steps[at + 1];
+  // After the draft, the tour points at a recorded example of the per-part
+  // codes and the rule check: the demo case has no part codes, so its own
+  // pages show neither (judge panel round 8, N11).
+  const example = { label: T.example, href: `/examples/rule-check?tour=1&from=${encodeURIComponent(id)}` };
+  const next = at === -1 ? steps[0] : (steps[at + 1] ?? example);
   return (
     <nav aria-label={T.label} className="no-print z-10 mx-auto w-full max-w-[1240px] px-4 pt-3 sm:sticky sm:top-[60px] sm:px-10">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-edge bg-sheet px-3 py-2 text-[12.5px]">

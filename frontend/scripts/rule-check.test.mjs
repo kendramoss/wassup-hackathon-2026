@@ -88,3 +88,40 @@ test("substantial-transformation case with part codes: shown, labelled for compa
   const info = text(html(RuleCheckPanel, { c: { id: "x", ...st, rule_check: { ...decided, applies: "informational" } } }));
   assert.match(info, /decided under substantial transformation; the Part 102 check is for comparison only/);
 });
+
+// #552: the API also sends a result with no rule when the product HAS a code
+// and the check stopped for another reason. The line names that reason and
+// asks for the product's code only when the product has none.
+const noCountry = { ...decided, country: "", country_from: "not known: add a plant and its operations", result: { status: "undetermined", reason: "the country where the good is produced is not given" } };
+const shortCode = { ...decided, result: { status: "undetermined", reason: "8481 is too short to pick one rule; give the 6-digit subheading" } };
+
+test("codes given but no country of production: asks for a plant, links to the plants", () => {
+  const twoPlants = { ...product("8473.30.5100", ["7616.99"]), plants: [{ id: "a", country: "Mexico" }, { id: "b", country: "China" }] };
+  const noPlants = product("8473.30.5100", ["7616.99"]);
+  for (const p of [twoPlants, noPlants]) {
+    const c = { id: "case_2", ...part102, product: p, rule_check: noCountry };
+    const d = ruleCheckDisplay(c);
+    assert.equal(d.kind, "line");
+    assert.equal(d.jump, "plants");
+    const m = html(RuleCheckPanel, { c });
+    const t = text(m);
+    assert.match(t, /country where the product is made is not known\. Add a plant and its final-assembly step\./);
+    assert.doesNotMatch(t, /add HTS codes/);
+    assert.match(m, /href="\/cases\/new\?from=case_2#field-plants"/);
+    assert.doesNotMatch(m, /field-part-hts-0/);
+  }
+});
+
+test("a heading-only product code: asks for the 6-digit subheading, links to the product code", () => {
+  const c = { id: "case_3", ...part102, product: { ...product("8481", ["7616.99"]), plants: [{ id: "a", country: "Mexico" }] }, rule_check: shortCode };
+  const m = html(RuleCheckPanel, { c });
+  const t = text(m);
+  assert.equal(t, "Rule check (19 CFR 102.20): not run: 8481 is too short to pick one rule; give the 6-digit subheading. Edit the product code");
+  assert.doesNotMatch(t, /add HTS codes/);
+  assert.match(m, /#field-good-hts"/);
+});
+
+test("no rule and no product code: still asks for the product's code", () => {
+  const c = { id: "x", ...part102, product: product("", ["7616.99"]), rule_check: noCountry };
+  assert.deepEqual(ruleCheckDisplay(c), { kind: "line", text: "add HTS codes for the product to run it.", addCodes: true });
+});

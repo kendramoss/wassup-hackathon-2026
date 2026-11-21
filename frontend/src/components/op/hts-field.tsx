@@ -30,6 +30,7 @@ export function HtsField({
   inputClass,
   help,
   onNeedSource,
+  inputId,
 }: {
   value: string;
   onChange: (hts: string) => void;
@@ -40,8 +41,11 @@ export function HtsField({
   help?: string;
   // #546: take the user to the field that unlocks the suggestion.
   onNeedSource?: () => void;
+  // A stable id, so a link can land on this field (#552).
+  inputId?: string;
 }) {
-  const id = useId();
+  const autoId = useId();
+  const id = inputId ?? autoId;
   const whyId = `${id}-why`;
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);

@@ -373,9 +373,17 @@ export function ProductStep() {
       if (c.product?.components?.length) {
         setProduct(c.product);
         setTab("parts");
-        // From the rule check's "Add codes" link: land on the first part's
-        // HTS field once the parts table is drawn (D363).
-        if (window.location.hash === "#field-part-hts-0") setTimeout(() => document.getElementById("field-part-hts-0")?.focus(), 0);
+        // From the rule check's links: land on the first part's HTS field,
+        // the product's code or the plants once the parts table is drawn
+        // (D363, #552).
+        const jump = window.location.hash.slice(1);
+        if (["field-part-hts-0", "field-good-hts", "field-plants"].includes(jump)) {
+          setTimeout(() => {
+            const el = document.getElementById(jump);
+            el?.scrollIntoView?.({ block: "center" });
+            (el?.matches("input, button") ? el : el?.querySelector<HTMLElement>("input, button"))?.focus();
+          }, 0);
+        }
       } else setTab("paste");
     }, setError);
   }, [fromId, demoId]);
@@ -797,6 +805,7 @@ export function ProductStep() {
 
           <div className="mt-6">
             <HtsField
+              inputId="field-good-hts"
               value={hts}
               onChange={(v) => {
                 autoHts.current = false;
@@ -1140,7 +1149,7 @@ export function PartsEditor({
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      <Panel className="min-w-0">
+      <Panel id="field-plants" className="min-w-0">
         <PanelHead right={plants.length ? `${plants.length} plants` : undefined}>Plants</PanelHead>
         {plants.length === 0 && <p className="duo mb-1 text-[13px] text-dim">Where the product, or any part of it, is made: your plants and your suppliers.</p>}
         <ul className="flex flex-col gap-3">

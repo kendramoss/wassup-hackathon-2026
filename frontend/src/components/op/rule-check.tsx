@@ -42,7 +42,7 @@ const statusWords: Record<string, string> = {
 export type RuleCheckDisplay =
   | { kind: "none" }
   | { kind: "panel"; rc: RuleCheck }
-  | { kind: "line"; text: string; addCodes: boolean };
+  | { kind: "line"; text: string; addCodes: boolean; jump?: "plants" | "good" };
 
 function isPart102(c: CaseResponse): boolean {
   if (c.rule_check) return c.rule_check.applies === "part102";
@@ -66,11 +66,26 @@ export function ruleCheckDisplay(c: CaseResponse): RuleCheckDisplay {
   if (rc.result.status === "decided") return { kind: "panel", rc };
   if (rc.result.status === "out_of_scope") return { kind: "line", text: R.outOfScope, addCodes: false };
   const missing = (rc.result.materials ?? []).filter((m) => m.status === "missing_hts").length;
+  // No rule picked although the product has a code: the check stopped for
+  // another reason, so the line names that reason (#552). The country of
+  // production is not known (no plant, or several plants and no operations),
+  // or the product's code does not pick one rule (for example a heading).
+  if (!rc.result.rule && c.product?.hts?.trim()) {
+    if (!rc.country?.trim()) return { kind: "line", text: R.noCountry, addCodes: false, jump: "plants" };
+    return { kind: "line", text: R.goodCode(rc.result.reason), addCodes: false, jump: "good" };
+  }
   if (!rc.result.rule || missing > 0) {
     return { kind: "line", text: R.addCodes(missing, !rc.result.rule), addCodes: true };
   }
   return { kind: "line", text: headline(rc).text, addCodes: false };
 }
+
+// Where each line's link lands on the product step (it focuses the field).
+const jumpTo = {
+  parts: { field: "field-part-hts-0", label: copy.ruleCheck.addCodesLink },
+  plants: { field: "field-plants", label: copy.ruleCheck.plantsLink },
+  good: { field: "field-good-hts", label: copy.ruleCheck.goodCodeLink },
+};
 
 export function RuleCheckPanel({ c }: { c: CaseResponse }) {
   const d = ruleCheckDisplay(c);
@@ -80,11 +95,11 @@ export function RuleCheckPanel({ c }: { c: CaseResponse }) {
     return (
       <p data-rule-check="line" className="duo max-w-[75ch] text-[13px] text-dim">
         <span className="text-body">{R.title}:</span> {d.text}
-        {d.addCodes ? (
+        {d.addCodes || d.jump ? (
           <>
             {" "}
-            <Link href={`/cases/new?from=${encodeURIComponent(c.id ?? "")}#field-part-hts-0`} className="text-ok underline underline-offset-2">
-              {R.addCodesLink}
+            <Link href={`/cases/new?from=${encodeURIComponent(c.id ?? "")}#${jumpTo[d.jump ?? "parts"].field}`} className="text-ok underline underline-offset-2">
+              {jumpTo[d.jump ?? "parts"].label}
             </Link>
           </>
         ) : null}

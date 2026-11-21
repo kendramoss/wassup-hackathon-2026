@@ -540,6 +540,7 @@ export const copy = {
     // count, so there is one counter on screen (judge panel round 5).
     stepOf: (n: number) => `Tour step ${n} of 3`,
     outside: "Outside the tour",
+    example: "Per-part codes and the rule check (recorded example)",
   },
 
   signIn: {
@@ -606,12 +607,41 @@ export const copy = {
     addCodes: (n: number, good: boolean) =>
       `add HTS codes for ${good ? "the product" : ""}${good && n ? " and " : ""}${n ? `${n} part${n === 1 ? "" : "s"}` : ""} to run it.`,
     addCodesLink: "Add codes",
+    noCountry: "not run: the country where the product is made is not known. Add a plant and its final-assembly step.",
+    plantsLink: "Add plants",
+    goodCode: (reason: string) => `not run: ${reason.trim().replace(/[.]$/, "") || "the product's code does not pick one rule"}.`,
+    goodCodeLink: "Edit the product code",
     informational: "This case is decided under substantial transformation; the Part 102 check is for comparison only.",
     note: "A deterministic check from the HTS codes you gave. It does not change the answer above or what is auto-accepted. Not a ruling.",
     parts: "Each part",
     domestic: "same country",
     ruleText: "The rule, as published",
     encoded: (e: number, n: number) => `${e} of ${n} sentences of this rule are encoded; the others name goods in words and are left to a person.`,
+  },
+
+  // /examples/rule-check: a recorded, read-only example of the per-part codes
+  // and the rule check (judge panel round 8, N11). The pinned demo case has no
+  // part codes, so its own pages show neither.
+  ruleCheckExample: {
+    title: "Per-part codes and the rule check",
+    eyebrow: "Recorded example",
+    lede: "The heat-gun demo has no part codes, so its pages show neither feature. This page shows one development ruling from the per-part evaluation (D381, D382): the codes the suggester returned then, and what the rule check decides from them. It is recorded: nothing here calls a model or saves anything.",
+    product: "The product",
+    madeIn: "Made in",
+    goodCode: "CBP's code for the product",
+    fromRuling: "from the ruling",
+    parts: "Suggested code for each part",
+    partsNote: "The first code is the one the check uses. Each is labelled with its source.",
+    stated: (code: string) => `The ruling's text states ${code}.`,
+    noneStated: "The ruling's text states no code for this part.",
+    before: "With only the codes the ruling's text states",
+    after: "With the suggested part codes",
+    cbp: "What CBP held",
+    agrees: "The check agrees with CBP's ruling.",
+    differs: "The check does not agree with CBP's ruling.",
+    honest: "One ruling, picked to show the check deciding. On most Part 102 rulings it still does not decide: the product is outside the encoded chapters, or a part needs a fact the codes cannot show. The method page has the counts.",
+    source: "Rebuilt from committed files, no model call:",
+    tourBack: "Back to the heat-gun tour",
   },
 
   // Per-part HTS suggestions (D380): offered, never filled in by themselves.
