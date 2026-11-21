@@ -266,9 +266,24 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
   ].filter((x) => x.n > 0);
 
   const download = () => {
-    const head = ["name", "case_id", "predicted_origin", "confidence", "calibrated_confidence", "calibration", "triage_route", "out_of_scope", "reason", "cost_usd", "error"];
-    const numeric = new Set(["confidence", "calibrated_confidence", "cost_usd"]);
-    const lines = [head.join(","), ...rows.map((r) => head.map((k) => (numeric.has(k) ? csvNumber : csvText)(r[k as keyof Row])).join(","))];
+    // The first confidence column is the model's own number, not the
+    // calibrated one; name it so a spreadsheet cannot read it as calibrated
+    // (issue #492, D265).
+    const head: [keyof Row, string][] = [
+      ["name", "name"],
+      ["case_id", "case_id"],
+      ["predicted_origin", "predicted_origin"],
+      ["confidence", "stated_confidence"],
+      ["calibrated_confidence", "calibrated_confidence"],
+      ["calibration", "calibration"],
+      ["triage_route", "triage_route"],
+      ["out_of_scope", "out_of_scope"],
+      ["reason", "reason"],
+      ["cost_usd", "cost_usd"],
+      ["error", "error"],
+    ];
+    const numeric = new Set<keyof Row>(["confidence", "calibrated_confidence", "cost_usd"]);
+    const lines = [head.map(([, label]) => label).join(","), ...rows.map((r) => head.map(([k]) => (numeric.has(k) ? csvNumber : csvText)(r[k])).join(","))];
     const url = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
     const a = document.createElement("a");
     a.href = url;

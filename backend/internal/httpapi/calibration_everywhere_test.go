@@ -111,3 +111,55 @@ func TestCalibratedConfidenceInBatchBOMWatchAskAndHistory(t *testing.T) {
 	}
 	assertCal("watch", w["prediction"].(map[string]any), newStated, newCalibrated)
 }
+
+// Issue #492: a scenario's prediction is the same kind of prediction as the
+// case's own, so its history summary and the Ask agent's SCENARIO line must
+// name the calibrated value first, not quote the stated 0.85 alone next to a
+// PREDICTION line that already names both.
+func TestCalibratedConfidenceInScenarioHistoryAndAsk(t *testing.T) {
+	m := calibrate.Must()
+	const stated, calibrated = 0.85, 0.6
+	hs := bomHarness(t, func(d *Deps) {
+		d.Calibration, d.CalibratedFastPath = &m, m.Bar
+	})
+	hs.engine.conf = stated
+	code, out := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
+	if code != http.StatusCreated {
+		t.Fatalf("predict = %d %v", code, out)
+	}
+	id := out["id"].(string)
+	code, out = hs.do(t, "POST", "/v1/cases/"+id+"/scenarios", `{"scenarios":[{"label":"As today","facts":"Heat gun with the motor in China."}]}`)
+	if code != http.StatusOK {
+		t.Fatalf("scenarios = %d %v", code, out)
+	}
+	ss, _ := out["scenarios"].([]any)
+	if len(ss) != 1 {
+		t.Fatalf("scenarios = %v", out["scenarios"])
+	}
+	sp, _ := ss[0].(map[string]any)["prediction"].(map[string]any)
+	if sp["calibrated_confidence"] != calibrated {
+		t.Fatalf("scenario prediction = %v, want calibrated %v", sp, calibrated)
+	}
+
+	_, c := hs.do(t, "GET", "/v1/cases/"+id, "")
+	summary := ""
+	for _, ev := range c["history"].([]any) {
+		e := ev.(map[string]any)
+		if e["kind"] == "scenarios" {
+			summary, _ = e["summary"].(string)
+		}
+	}
+	if !strings.Contains(summary, "calibrated 0.60; model stated 0.85") {
+		t.Errorf("scenarios history = %q", summary)
+	}
+
+	cal := calibrated
+	askText := agentCaseText(store.Case{ID: id, Date: "2026-01-14", Facts: "heat gun",
+		Prediction: domain.Prediction{Origin: "China", Confidence: stated, CalibratedConfidence: &cal},
+		Scenarios: []store.Scenario{{Label: "As today",
+			Prediction: domain.Prediction{Origin: "China", Confidence: stated, CalibratedConfidence: &cal},
+			Triage:     domain.Triage{Route: "needs_review"}}}})
+	if !strings.Contains(askText, `SCENARIO "As today": predicted China, calibrated 0.60; model stated 0.85 (needs_review)`) {
+		t.Errorf("agentCaseText scenario line = %q", askText)
+	}
+}
