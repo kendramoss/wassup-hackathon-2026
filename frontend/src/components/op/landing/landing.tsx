@@ -20,6 +20,7 @@ import "./landing.css";
 
 const L = copy.landing;
 const S = L.story;
+const K = copy.stakeholders;
 const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
 const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   // eslint-disable-next-line @next/next/no-img-element
@@ -403,6 +404,25 @@ export function Landing() {
             <p className="read">{L.who}</p>
             <p className="read">{L.whoFact}</p>
           </div>
+          {/* Who uses it and who benefits (review follow-up): roles the
+              product is designed for, plain text with no numbers. */}
+          <section className="roles" aria-labelledby="rolesh">
+            <h3 id="rolesh" className="eyebrow">
+              {K.title}
+            </h3>
+            <p className="read rolelead">{K.lead}</p>
+            <dl>
+              {K.roles.map((r) => (
+                <div key={r.role} className="role">
+                  <dt>
+                    <span className="eyebrow">{r.role}</span>
+                    <span className="read">{r.who}</span>
+                  </dt>
+                  <dd className="read">{r.gets}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         </section>
 
         {/* fig.4, the impact told as one story (review follow-up). It sits

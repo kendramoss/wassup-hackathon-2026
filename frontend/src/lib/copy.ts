@@ -13,6 +13,8 @@ export const copy = {
     newCase: "+ New case",
     recheckAll: "Re-check all",
     demos: "Demos · real CBP facts",
+    demosNote: "Demos were picked because CBP ruled on the same product, so you can compare the answer with CBP's. They show how it works, not how often it is right.",
+    demosMisses: "Every held-out ruling it got wrong →",
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
   },
@@ -287,7 +289,7 @@ export const copy = {
     cta: "Open the cases →",
     whoTitle: "Who it's for",
     who: "For trade-compliance and industrialisation leads at manufacturers moving production out of China.",
-    whoFact: "The demand is steady: CBP's figure is 3,628 ruling responses a year from its regional rulings office (NCSD), across all ruling subjects, not only origin.",
+    whoFact: "CBP's own figure is 3,628 ruling responses a year from its regional rulings office (NCSD), across all ruling subjects, not only origin.",
     // fig.4, the impact story (review follow-up). Every figure is a row in
     // docs/NUMBERS.md ("Impact story"); the firm is a composite, not a customer.
     story: {
@@ -505,4 +507,75 @@ export const copy = {
   money: "Money · illustrative — editable",
   proxy: "proxy run",
   retry: "Try again",
+
+  // Who uses Unde and who benefits (landing, after "Who it's for"; README).
+  // Roles the product is designed for, not customers: there are none yet.
+  // System properties only, so plain text and no numbers (the numbers are in
+  // fig.4, each a row in docs/NUMBERS.md).
+  stakeholders: {
+    title: "Who uses it, and who benefits",
+    lead: "Five roles meet in one production-move decision. Unde is designed around them. It has no customers or pilots yet, and none of these roles is a named firm.",
+    roles: [
+      {
+        role: "Uses it",
+        who: "The trade-compliance or industrialisation lead at an ASEAN contract manufacturer.",
+        gets: "The origin CBP would likely assign, with the earlier rulings behind it, before work moves. Moves that earlier rulings support, and a draft ruling request.",
+      },
+      {
+        role: "Pays for it",
+        who: "The COO or VP of supply chain at that manufacturer, or the U.S. brand that sources from it.",
+        gets: "A check before capital moves: the duty effect and the added cost of each move side by side, with the moves that no ruling supports set apart.",
+      },
+      {
+        role: "Works with it",
+        who: "Licensed customs brokers and trade lawyers.",
+        gets: "A draft with the facts laid out and the cited rulings linked. They still confirm the classification and file the request. Unde does not replace them.",
+      },
+      {
+        role: "Benefits: importer of record",
+        who: "The U.S. company that declares the origin and pays the duty.",
+        gets: "It carries the duty and the penalty risk if the origin is wrong. It gets an earlier warning when a planned move would leave the product Chinese, and a record of which rulings were read.",
+      },
+      {
+        role: "Benefits: plant operator",
+        who: "The ASEAN plant that would take on the work.",
+        gets: "A clearer case for which operations to bring in, and early notice when a smaller move would not change the origin.",
+      },
+    ],
+  },
+
+  // Accuracy page trust sections: reproduce, and every held-out miss.
+  // Data: frontend/src/lib/failure-cases.json, built by
+  // eval/charts/build_trust_data.py from the committed held-out run.
+  trust: {
+    reproTitle: "Reproduce these numbers",
+    reproLead: "Every number on this page is recomputed from files in the repository. No model calls, no account, a few minutes on a laptop.",
+    reproNote: "Each check fails loudly if a number has drifted from its source file.",
+    failTitle: "Known failure cases",
+    failLead: (miss: number, auto: number, n: number) =>
+      `All ${miss} held-out rulings it got wrong, out of ${n}, not a selection. The ${auto} it auto-accepted come first: nobody checks those, so they are the costly ones. Each links to CBP's ruling.`,
+    byOriginTitle: "Accuracy by the origin CBP held",
+    byOriginNote: "same held-out run · 95% interval · origins with at least 19 rulings",
+    chinaTitle: "Which way the misses go",
+    china: (c: { missed_china: number; missed_china_auto: number; said_china: number; said_china_auto: number; neither: number }) => [
+      `CBP held China, Unde said another country: ${c.missed_china} (${c.missed_china_auto} auto-accepted). This is the costly direction for a move out of China.`,
+      `Unde said China, CBP held another country: ${c.said_china} (${c.said_china_auto} auto-accepted).`,
+      `Neither was China: ${c.neither}.`,
+    ],
+    columns: ["Ruling", "Date", "Product (CBP's subject line)", "CBP held", "Unde said", "Confidence", "Route"],
+    auto: "auto-accepted",
+    review: "sent to review",
+    showAll: (n: number) => `Show all ${n} misses`,
+    showAuto: "Show only the auto-accepted misses",
+    patternsTitle: "What the misses have in common",
+    patternsNote: "Our reading of the rulings above. A description, not a measurement.",
+    patterns: [
+      "Machining or assembly in the last country, where CBP held the imported core part decides. Two near-identical wheel-hub rulings were both missed at 0.95.",
+      "Simple processing of one material credited as a transformation: wax melted and cast into a crayon, worked abalone shells.",
+      "Choosing by the most subassemblies, where CBP held one essential part decides: an air compressor took the origin of its motor.",
+      "Goods outside the product's target, food and natural products, still placed in scope by the router.",
+      "Kits, where CBP rules item by item and the label follows one item.",
+    ],
+    source: "Source: the official held-out run, every row. Rebuilt by eval/charts/build_trust_data.py.",
+  },
 };

@@ -46,6 +46,19 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Plan shown | Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand: check 0.96 (at or above 0.92), supporting N345938 (hair clipper kit, 6 Mar 2025), no counter-ruling, engine Thailand 1.00, net $285k/yr (illustrative economics). 1 of 7 moves cleared the bar; the closest single move, motor-fan assembly alone, is 0.90 on N325810. Backtest against N357771: the plan moves the motor, fan, PCBA, knob, power cord and back cover; only the outer shells from CBP's change are not in it (the housing moulding is already Thai) | Production run, backend-00051-kmk, case_878d76540b91, cached for everyone | One production run, after three-group moves (D84) and the relaxed precedent search (D89). Earlier run (backend-00038-zw2): no plan cleared 0.92, closest move motor-fan assembly 0.90 |
 | Duty effect / added cost on plan cards | $500k/yr and $180k/yr | fixture inputs (illustrative — editable) | Show only as "illustrative — editable" |
 
+## Known failure cases and corpus counts (Accuracy page, MODEL-CARD.md, DATASHEET.md)
+
+Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `--check` fails if the outputs are stale. No model calls.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Held-out misses listed | all 37 of 377; 12 auto-accepted (confidence ≥ 0.92 and in scope), 25 sent to review | `frontend/src/lib/failure-cases.json`, from the final Vertex rows + `eval/results/scope-final-router-v2-vertex.jsonl` | Measured. Every miss is listed, none selected |
+| Accuracy by origin CBP held, held-out | Thailand 60/66 = 90.9% (81.6–95.8); China 44/57 = 77.2% (64.8–86.2); United States 51/53 = 96.2% (87.3–99.0); Vietnam 43/46 = 93.5% (82.5–97.8); Malaysia 34/35 = 97.1% (85.5–99.5); South Korea 20/22 = 90.9% (72.2–97.5); Taiwan 18/19 = 94.7% (75.4–99.1); 26 other countries 70/79 = 88.6% (79.8–93.9). Wilson 95% | same file, `by_origin` | Measured. Small n per origin: always with the interval |
+| Direction of the misses | CBP held China, Unde said another: 13 (7 auto-accepted). Unde said China, CBP held another: 18 (4 auto-accepted). Neither China: 6 | same file, `china` | Measured |
+| Held-out accuracy by collection | NY 328/364; HQ 12/13 | same file, `by_collection` | Measured. HQ n = 13 is too small to compare |
+| Corpus | 2,790 rulings, 2023-01-10 to 2026-09-25; NY 2,619 / HQ 171; by year 354 / 425 / 1,358 / 653; regex 2,696 / manual 94; 3,081 facts files | `eval/results/corpus-stats.json` | Measured |
+| Substantial-transformation pool | 1,703 rulings, 1,593 with a single held origin, 93 countries; China + ASEAN 62.8% of those 1,593 | same file | Measured |
+
 ## Image and scan import (built; see `docs/MULTIMODAL.md`)
 
 | Number | Value | Source | Status |

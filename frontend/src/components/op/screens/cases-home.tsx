@@ -71,6 +71,12 @@ export function CasesHome() {
               <DemoCard key={c.id} c={c} />
             ))}
           </div>
+          <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">
+            {copy.cases.demosNote}{" "}
+            <Link href="/accuracy#misses" className="text-ok underline underline-offset-2">
+              {copy.cases.demosMisses}
+            </Link>
+          </p>
         </section>
       )}
 
@@ -84,6 +90,12 @@ export function CasesHome() {
               <LoadDemoCard key={d.id} d={d} />
             ))}
           </div>
+          <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">
+            {copy.cases.demosNote}{" "}
+            <Link href="/accuracy#misses" className="text-ok underline underline-offset-2">
+              {copy.cases.demosMisses}
+            </Link>
+          </p>
         </section>
       )}
       {cases && (
