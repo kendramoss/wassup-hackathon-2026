@@ -44,6 +44,7 @@ export type CompareResponse = Json<"/v1/cases/{id}/compare-targets", "post">;
 export type AskResponse = Json<"/v1/cases/{id}/ask", "post">;
 export type WatchRunResponse = Json<"/v1/watch/run", "post">;
 export type ExtractResponse = Json<"/v1/products/extract", "post">;
+export type ExtractMediaResponse = Json<"/v1/products/extract-media", "post">;
 export type BatchResponse = Json<"/v1/cases/batch", "post">;
 export type HistoryEvent = NonNullable<CaseResponse["history"]>[number];
 export type PlanEstimate = S["PlanEstimate"];
@@ -294,6 +295,9 @@ export const api = {
   importBom: (form: FormData) => call<ImportResponse>("/products/import", { method: "POST", body: form }),
   importCsv: (body: { csv: string; name?: string; fallback_name?: string; name_hint?: string; family?: string }) => post<ImportResponse>("/products/import", body),
   extract: (body: { facts: string; family?: string; name?: string }, signal?: AbortSignal) => post<ExtractResponse>("/products/extract", body, signal),
+  // Import from an image or scanned document: form fields "file" (1-4 times),
+  // "name", "family". The answer is a draft to review, never a prediction.
+  extractMedia: (form: FormData, signal?: AbortSignal) => call<ExtractMediaResponse>("/products/extract-media", { method: "POST", body: form, signal }),
   batch: (file: File, signal?: AbortSignal) => {
     const form = new FormData();
     form.append("file", file);

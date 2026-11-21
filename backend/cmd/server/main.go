@@ -219,6 +219,11 @@ func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 			if strings.Contains(req.System, "trade-compliance lead") {
 				return llm.Response{Text: "This is the local fake model, so there is no real answer here. With LLM_PROVIDER=vertex the agent reads the case and earlier CBP rulings and answers in plain words."}, nil
 			}
+			// Import from an image or scan: a fixed, clearly labelled draft
+			// (the fake model does not read the file).
+			if req.SchemaName == extract.MediaSchemaName {
+				return llm.Response{Text: extract.SimulatedMediaAnswer, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
+			}
 			// Report some usage so the daily spend cap (D59) can be exercised locally.
 			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
 		}}, nil
@@ -527,6 +532,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		Family:                familycheck.New(model, cfg.RouterModel, tmpls),
 		CostEstimator:         costest.New(model, cfg.RouterModel),
 		Extractor:             extract.New(model, cfg.EngineModel),
+		MediaExtractor:        extract.New(model, cfg.EngineModel),
 		Clarifier:             clarify.New(model, cfg.EngineModel, 3000),
 		Precedents:            precedents,
 		Planner:               planner.New(tmpls, predictor, ver, planOpts),

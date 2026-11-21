@@ -8,6 +8,7 @@ import {
   streamPredict,
   type Component,
   type Economics,
+  type ExtractMediaResponse,
   type ImportResponse,
   type Operation,
   type Plant,
@@ -28,6 +29,7 @@ import { HtsField } from "../hts-field";
 import { PrefillNote, mergeDutyPrefill, prefillMoney, type Filled } from "../money-prefill";
 import { groupName } from "../plan-bits";
 import { PdfTableError, pdfToBomCsv } from "@/lib/pdf-bom";
+import { isImage, mediaBanner, routeFor, scaledSize, tooLarge } from "@/lib/media-upload";
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 import { VIEWER_REASON, canCreate } from "@/lib/roles";
 import { useWorkspaceRole } from "@/lib/use-role";
@@ -329,6 +331,8 @@ export function ProductStep() {
   const [askName, setAskName] = useState(false);
   const [drafting, setDrafting] = useState<{ since: number } | null>(null);
   const [drafted, setDrafted] = useState<string[] | null>(null);
+  // Set when the draft was read from an image or scan (not pasted text).
+  const [draftMedia, setDraftMedia] = useState<{ simulated: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [busySince, setBusySince] = useState(0);
   const [stages, setStages] = useState<PredictStage[]>([]);
@@ -434,6 +438,7 @@ export function ProductStep() {
         if (!name.trim() && r.product.name) setName(r.product.name);
         setExtra((x) => ({ ...x, facts, baseline: productSignature(r.product!) }));
         setDrafted(r.warnings ?? []);
+        setDraftMedia(null);
         setTab("parts");
       }
     } catch (e) {
@@ -598,8 +603,8 @@ export function ProductStep() {
           </div>
 
           {drafted && tab === "parts" && (
-            <div className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
-              <p className="font-medium text-ask">Drafted from your text. Check these before you continue.</p>
+            <div role={draftMedia ? "status" : undefined} className="mt-5 border border-ask-line bg-ask-wash px-4 py-3 text-[13px]">
+              <p className="font-medium text-ask">{draftMedia ? mediaBanner(draftMedia.simulated) : "Drafted from your text. Check these before you continue."}</p>
               {drafted.length > 0 && (
                 <ul className="duo mt-1.5 flex list-disc flex-col gap-1 pl-5 text-ask">
                   {drafted.map((w) => (
@@ -650,6 +655,30 @@ export function ProductStep() {
               <BomImport
                 name={nameIsAuto ? "" : name}
                 family={familyTouched ? family : ""}
+                draftFamily={family}
+                onDrafted={(r) => {
+                  // An image or scan was read into a draft (nothing saved, nothing
+                  // predicted). It opens in Parts and plants with a note to check it.
+                  setProduct(r.product);
+                  const read = r.product.name;
+                  if (read) {
+                    // As for a BOM: a name the user typed stays; an empty or
+                    // filled-in name takes the one read from the document.
+                    const userTyped = !autoName.current && name.trim() !== "";
+                    const prevAuto = autoName.current;
+                    setName((n) => (!n.trim() || n === prevAuto ? read : n));
+                    if (!userTyped) {
+                      autoName.current = read;
+                      setNameIsAuto(true);
+                    }
+                  }
+                  setExtra((x) => ({ ...x, facts: undefined, baseline: undefined }));
+                  // The banner itself says a draft is simulated; do not repeat it.
+                  setDrafted((r.warnings ?? []).filter((w) => !(r.simulated && w.startsWith("Simulated draft:"))));
+                  setDraftMedia({ simulated: Boolean(r.simulated) });
+                  setImportFailed(false);
+                  setTab("parts");
+                }}
                 onPicked={(guess) => {
                   // A new file starts clean: what the last import filled goes,
                   // what the user typed or chose stays (18 Oct).
@@ -673,6 +702,8 @@ export function ProductStep() {
                   setAutoFilled(null);
                   setFilled(null);
                   setImportFailed(false);
+                  setDrafted(null);
+                  setDraftMedia(null);
                 }}
                 onFailed={() => setImportFailed(true)}
                 imported={imported}
@@ -1272,6 +1303,45 @@ function UploadIcon() {
   );
 }
 
+function CameraIcon() {
+  return (
+    <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="square">
+      <path d="M3 8h4l2-3h6l2 3h4v11H3z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+type Preview = { name: string; url: string | null };
+
+// MediaPreviews shows a thumbnail of each picked image (a local blob: URL,
+// made and revoked by BomImport, never uploaded) and a labelled box for each
+// PDF.
+function MediaPreviews({ previews }: { previews: Preview[] }) {
+  return (
+    <ul aria-label="Files to read" className="flex flex-wrap gap-3">
+      {previews.map((f, i) => (
+        <li key={`${f.name}-${i}`} className="flex w-[104px] flex-col gap-1 text-[11.5px] text-dim">
+          <span className="grid size-[104px] place-items-center overflow-hidden border border-line bg-white">
+            {f.url ? (
+              // A local blob: URL; next/image cannot optimise it.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={f.url} alt={`Preview of ${f.name}`} className="size-full object-contain" />
+            ) : (
+              <span aria-hidden="true" className="font-mono text-xs text-ink">
+                PDF
+              </span>
+            )}
+          </span>
+          <span className="truncate" title={f.name}>
+            {f.name}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function StatusBadge({ required }: { required: boolean }) {
   return (
     <span
@@ -1294,11 +1364,38 @@ function DownloadIcon() {
   );
 }
 
+// shrink re-encodes a large photo as a JPEG at most SCALE_TO px on its
+// longest side (lib/media-upload), so a phone photo fits the 8 MB limit and
+// uploads quickly. Anything else, or a browser that cannot decode the image,
+// sends the file as it is; the server checks it either way.
+async function shrink(f: File): Promise<File> {
+  if (!isImage(f) || typeof createImageBitmap !== "function") return f;
+  try {
+    const bmp = await createImageBitmap(f);
+    const size = scaledSize(bmp.width, bmp.height, f.size);
+    if (!size) {
+      bmp.close();
+      return f;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvas.getContext("2d")?.drawImage(bmp, 0, 0, size.width, size.height);
+    bmp.close();
+    const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/jpeg", 0.9));
+    return blob ? new File([blob], f.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }) : f;
+  } catch {
+    return f;
+  }
+}
+
 function BomImport({
   name,
   family,
+  draftFamily,
   imported,
   onImported,
+  onDrafted,
   onEdit,
   onUseText,
   onPicked,
@@ -1306,24 +1403,38 @@ function BomImport({
 }: {
   name: string;
   family: string;
+  // The family an image or scan is read against (as for pasted text).
+  draftFamily: string;
   onPicked?: (nameGuess: string) => void;
   onFailed?: () => void;
   imported: ImportResponse | null;
   onImported: (r: ImportResponse) => void;
+  onDrafted: (r: ExtractMediaResponse) => void;
   onEdit: () => void;
   onUseText: (text: string) => void;
 }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [busy, setBusy] = useState<"import" | "read" | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [pdfText, setPdfText] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
+  const [previews, setPreviews] = useState<Preview[]>([]);
+  // The blob: URLs alive now, revoked when replaced or on unmount.
+  const urls = useRef<string[]>([]);
+  useEffect(
+    () => () => {
+      urls.current.forEach((u) => URL.revokeObjectURL(u));
+    },
+    [],
+  );
   const inputId = useId();
+  const cameraId = useId();
+  const file = files[0] ?? null;
   // Only the latest chosen file owns the import (#346). Every upload takes the
   // next number; each await below checks it is still the newest before it
-  // touches the parent (onImported / onFailed) or this box (busy, error, PDF
-  // text). Leaving the Import tab, a new case or navigation unmounts the box,
-  // which also retires the pending upload.
+  // touches the parent (onImported / onDrafted / onFailed) or this box (busy,
+  // error, PDF text). Leaving the Import tab, a new case or navigation
+  // unmounts the box, which also retires the pending upload.
   const latest = useRef(0);
   useEffect(
     () => () => {
@@ -1332,53 +1443,80 @@ function BomImport({
     [],
   );
 
-  const upload = async (f: File) => {
+  const upload = async (picked: File[]) => {
+    const routed = routeFor(picked);
+    if ("error" in routed) {
+      setError(new Error(routed.error));
+      return;
+    }
+    const f = picked[0];
     const mine = ++latest.current;
     const isLatest = () => latest.current === mine;
     // The typed name, else the file or the AI names it; the file's name is
     // only the last resort (18 Oct).
     const productName = name.trim();
     const fallbackName = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-    const hint = nameFromFile(f.name);
+    const hint = routed.route === "media" ? "" : nameFromFile(f.name);
     onPicked?.(hint);
-    setFile(f);
-    setBusy(true);
+    setFiles(picked);
+    urls.current.forEach((u) => URL.revokeObjectURL(u));
+    const shown = routed.route === "bom" ? [] : picked.map((x) => ({ name: x.name, url: isImage(x) ? URL.createObjectURL(x) : null }));
+    urls.current = shown.flatMap((x) => (x.url ? [x.url] : []));
+    setPreviews(shown);
+    setBusy(routed.route === "media" ? "read" : "import");
     setError(null);
     setPdfText(null);
-    // PDFs are read in the browser: the table becomes CSV for the same import.
-    if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
-      try {
-        const { csv } = await pdfToBomCsv(f);
-        // A newer file was chosen while the table was read: do not send this one.
-        if (!isLatest()) return;
-        const r = await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined });
-        if (isLatest()) onImported(r);
-      } catch (e) {
-        if (!isLatest()) return;
-        if (e instanceof PdfTableError) setPdfText(e.text);
-        setError(e);
-        onFailed?.();
-      } finally {
-        if (isLatest()) setBusy(false);
-      }
-      return;
-    }
-    const form = new FormData();
-    form.append("file", f);
-    if (productName) form.append("name", productName);
-    form.append("fallback_name", fallbackName);
-    if (hint) form.append("name_hint", hint);
-    if (family) form.append("family", family);
     try {
-      const r = await api.importBom(form);
-      if (isLatest()) onImported(r);
+      if (routed.route === "bom") {
+        const form = new FormData();
+        form.append("file", f);
+        if (productName) form.append("name", productName);
+        form.append("fallback_name", fallbackName);
+        if (hint) form.append("name_hint", hint);
+        if (family) form.append("family", family);
+        const r = await api.importBom(form);
+        if (isLatest()) onImported(r);
+        return;
+      }
+      if (routed.route === "pdf") {
+        // A PDF with a table is read in the browser and imported as CSV; a
+        // scan (no table) is read by the model instead.
+        try {
+          const { csv } = await pdfToBomCsv(f);
+          // A newer file was chosen while the table was read: do not send this one.
+          if (!isLatest()) return;
+          const r = await api.importCsv({ csv, name: productName || undefined, fallback_name: fallbackName, name_hint: hint || undefined, family: family || undefined });
+          if (isLatest()) onImported(r);
+          return;
+        } catch (e) {
+          if (!(e instanceof PdfTableError)) throw e;
+          if (!isLatest()) return;
+          setPdfText(e.text);
+          setBusy("read");
+        }
+      }
+      const ready = await Promise.all(picked.map(shrink));
+      if (!isLatest()) return;
+      const big = tooLarge(ready);
+      if (big) throw new Error(big);
+      const form = new FormData();
+      for (const x of ready) form.append("file", x, x.name);
+      if (productName) form.append("name", productName);
+      if (draftFamily) form.append("family", draftFamily);
+      const r = await api.extractMedia(form);
+      if (isLatest()) onDrafted(r);
     } catch (e) {
       if (!isLatest()) return;
       setError(e);
       onFailed?.();
     } finally {
-      if (isLatest()) setBusy(false);
+      if (isLatest()) setBusy(null);
     }
+  };
+
+  const pick = (list: FileList | null | undefined) => {
+    const picked = Array.from(list ?? []);
+    if (picked.length) void upload(picked);
   };
 
   const p = imported?.product;
@@ -1399,8 +1537,7 @@ function BomImport({
         onDrop={(e) => {
           e.preventDefault();
           setDrag(false);
-          const f = e.dataTransfer.files[0];
-          if (f) upload(f);
+          pick(e.dataTransfer.files);
         }}
         className={cx(
           "group flex cursor-pointer flex-col items-center gap-3 border-[1.5px] px-6 py-9 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
@@ -1416,8 +1553,12 @@ function BomImport({
         >
           <UploadIcon />
         </span>
-        <span className="text-[15px] font-medium text-ink">{drag ? copy.product.bomDropActive : file ? file.name : copy.product.bomDrop}</span>
-        <span className="duo text-xs text-dim">{file && !drag ? `${formatSize(file.size)} · ${copy.product.bomFormats}` : copy.product.bomFormats}</span>
+        <span className="text-[15px] font-medium text-ink">
+          {drag ? copy.product.bomDropActive : files.length > 1 ? `${files.length} files` : file ? file.name : copy.product.bomDrop}
+        </span>
+        <span className="duo text-xs text-dim">
+          {file && !drag ? `${formatSize(files.reduce((n, x) => n + x.size, 0))} · ${copy.product.bomFormats}` : copy.product.bomFormats}
+        </span>
         <span className="flex items-center gap-3 text-xs text-dim">
           <span className="h-px w-8 bg-line" />
           or
@@ -1426,13 +1567,50 @@ function BomImport({
         <span className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[2px] border border-ink bg-ink px-5 py-2 text-sm font-medium text-paper shadow-[3px_3px_0_var(--shadow)] group-hover:bg-body">
           {file ? copy.product.bomReplace : copy.product.bomBrowse}
         </span>
-        <input id={inputId} type="file" accept=".csv,.xlsx,.pdf,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        <input
+          id={inputId}
+          type="file"
+          multiple
+          accept=".csv,.xlsx,.pdf,.png,.jpg,.jpeg,.webp,text/csv,application/pdf,image/png,image/jpeg,image/webp,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          aria-describedby={`${inputId}-media`}
+          className="sr-only"
+          onChange={(e) => {
+            pick(e.target.files);
+            e.target.value = "";
+          }}
+        />
       </label>
-      {busy && <Spinner label="Importing…" />}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p id={`${inputId}-media`} className="duo text-xs text-dim">
+          {copy.product.bomMediaHelp}
+        </p>
+        {/* Phones: open the camera straight away. A label, so it is a real control for keyboards and screen readers. */}
+        <label
+          htmlFor={cameraId}
+          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 self-start rounded-[2px] border border-ink bg-paper px-4 text-sm font-medium text-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink hover:bg-wash sm:hidden"
+        >
+          <CameraIcon />
+          {copy.product.bomPhoto}
+          <input
+            id={cameraId}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="sr-only"
+            onChange={(e) => {
+              pick(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </label>
+      </div>
+      {previews.length > 0 && <MediaPreviews previews={previews} />}
+      {busy === "import" && <Spinner label="Importing…" />}
+      {busy === "read" && <Spinner label={copy.product.bomReading} />}
       {error ? <ErrorBox error={error} /> : null}
       {pdfText && pdfText.trim().length > 20 && (
         <p className="duo text-[13px]">
-          No parts table found, but the PDF has text.{" "}
+          No parts table found, so it was read as a scan. The PDF also has text.{" "}
           <button type="button" className="text-ok underline underline-offset-2" onClick={() => onUseText(pdfText)}>
             Use its text as the description
           </button>

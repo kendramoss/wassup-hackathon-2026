@@ -93,8 +93,25 @@ func toGenaiContents(msgs []Message) ([]*genai.Content, error) {
 	for i, m := range msgs {
 		switch m.Role {
 		case RoleUser:
-			out = append(out, genai.NewContentFromText(m.Content, genai.RoleUser))
+			if len(m.Parts) == 0 {
+				out = append(out, genai.NewContentFromText(m.Content, genai.RoleUser))
+				continue
+			}
+			c := &genai.Content{Role: genai.RoleUser}
+			if m.Content != "" {
+				c.Parts = append(c.Parts, genai.NewPartFromText(m.Content))
+			}
+			for k, p := range m.Parts {
+				if p.MIMEType == "" || len(p.Data) == 0 {
+					return nil, fmt.Errorf("message %d: part %d: empty media part", i, k)
+				}
+				c.Parts = append(c.Parts, genai.NewPartFromBytes(p.Data, p.MIMEType))
+			}
+			out = append(out, c)
 		case RoleAssistant:
+			if len(m.Parts) > 0 {
+				return nil, fmt.Errorf("message %d: media parts are only allowed on user turns", i)
+			}
 			c := &genai.Content{Role: genai.RoleModel}
 			if m.Content != "" {
 				c.Parts = append(c.Parts, genai.NewPartFromText(m.Content))
@@ -113,6 +130,9 @@ func toGenaiContents(msgs []Message) ([]*genai.Content, error) {
 			}
 			out = append(out, c)
 		case RoleTool:
+			if len(m.Parts) > 0 {
+				return nil, fmt.Errorf("message %d: media parts are only allowed on user turns", i)
+			}
 			part := &genai.Part{FunctionResponse: &genai.FunctionResponse{
 				ID: m.ToolCallID, Name: m.Name, Response: toolResult(m.Content),
 			}}

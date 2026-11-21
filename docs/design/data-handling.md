@@ -28,6 +28,8 @@ Closed sets and the opaque `Ref` are the only default string rules; shape patter
 
 Root logger, ErrorLog bridge and `slog.Default()` (cmd/server); request log, request id, matched route, audit request id, every `Logger` call in `internal/httpapi`; `llm.WithLogging`; planner rejection reason; health deep; NEW ask/rename history lines; the audit log lines (`audit write failed`, startup audit lines) with their closed fields kept; the Next proxy console lines.
 
+Uploaded images and scanned PDFs (`POST /v1/products/extract-media`, `docs/MULTIMODAL.md`) are model input under rule 2: sent unchanged to the model, never logged. They are read into memory only and not stored or cached; the handler zeroes its buffers when the request ends (the encoded copy the model client sends is left to the garbage collector). `llm.Message.Parts` is never serialised. The route and the model call log under the same allowlist as every other route; `internal/httpapi/media_test.go` checks that no log line holds the bytes, the file names or the parts read.
+
 ## What is not wired, known limits, residual risk
 
 1. Offline CLIs (`cmd/eval`, `cmd/demo`, `cmd/corpus`, `cmd/apikey`, `cmd/readiness-eval`) print to a terminal with their own loggers and `fmt.Fprint(os.Stderr, ...)`; not wired and not covered by the guard. They process public/synthetic eval input only, by protocol.

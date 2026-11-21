@@ -45,6 +45,10 @@
       "version": "engine-v1+reasoning-v1",
       "sha256": "02724b55eb3856638f8d372cfb6f37ca2cf6c445710110f837714191812f0e42"
     },
+    "extract.media_request": {
+      "version": "extract-image-v1",
+      "sha256": "ef45b84630d50b19b25ea2515f78c7c70bab8170a1588f284b7660f5668c21ad"
+    },
     "extract.request": {
       "version": "extract-v3",
       "sha256": "1ebb50b968f0d7ca9be1977490fd13d30090e90712f22465d4826dee338e2235"

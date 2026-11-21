@@ -36,6 +36,14 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Plan shown | Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand: check 0.96 (at or above 0.92), supporting N345938 (hair clipper kit, 6 Mar 2025), no counter-ruling, engine Thailand 1.00, net $285k/yr (illustrative economics). 1 of 7 moves cleared the bar; the closest single move, motor-fan assembly alone, is 0.90 on N325810. Backtest against N357771: the plan moves the motor, fan, PCBA, knob, power cord and back cover; only the outer shells from CBP's change are not in it (the housing moulding is already Thai) | Production run, backend-00051-kmk, case_878d76540b91, cached for everyone | One production run, after three-group moves (D84) and the relaxed precedent search (D89). Earlier run (backend-00038-zw2): no plan cleared 0.92, closest move motor-fan assembly 0.90 |
 | Duty effect / added cost on plan cards | $500k/yr and $180k/yr | fixture inputs (illustrative — editable) | Show only as "illustrative — editable" |
 
+## Image and scan import (built; see `docs/MULTIMODAL.md`)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Upload limits | 1–4 files, 8 MB together, 10 PDF pages together, 12,000 px a side, 40 megapixels | `backend/internal/media/media.go` constants | Showable; these are settings, not results |
+| Browser downscale | photos over 3 MB or 4,096 px re-encoded at 3,072 px longest side | `frontend/src/lib/media-upload.ts` | Showable; a setting |
+| Field accuracy reading BOM images | not yet measured | no live run made; `backend/cmd/mediacheck` is the planned check on 5 synthetic images (`eval/media/images`) | Do not show a figure. Any future figure from those 5 images is "n=5, illustrative" |
+
 ## Market and time (from `hackathon-research/evidence/fees/LEDGER.md`)
 
 | Number | Value | Source | Status |

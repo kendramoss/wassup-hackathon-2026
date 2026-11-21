@@ -224,6 +224,13 @@ func (c *Client) Generate(ctx context.Context, req llm.Request) (llm.Response, e
 	if req.MaxOutputTokens <= 0 {
 		return llm.Response{}, fmt.Errorf("%w: refusing a request without max output tokens", budget.ErrNotSent)
 	}
+	for _, m := range req.Messages {
+		if len(m.Parts) > 0 {
+			// The eval gateway sends text only; dropping media silently would
+			// score a request the model never saw.
+			return llm.Response{}, fmt.Errorf("%w: media parts are not supported by this gateway", budget.ErrNotSent)
+		}
+	}
 	body, err := json.Marshal(build(req))
 	if err != nil {
 		return llm.Response{}, fmt.Errorf("%w: encode request: %v", budget.ErrNotSent, err)

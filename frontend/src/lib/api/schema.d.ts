@@ -1003,6 +1003,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/extract-media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Draft an editable structured product from images or scanned PDFs (nothing is saved, nothing is predicted)
+         * @description "Import from an image or scanned document". Upload a photo or screenshot of a bill of materials, a scanned BOM or spec-sheet PDF, or a product photo with its spec sheet. The engine model (Gemini, multimodal; ENGINE_MODEL) reads the files once and returns the same draft as POST /v1/products/extract, with rows citing the file and page they were read from instead of a paragraph. Parts printed without a country are listed in one warning, never guessed. Rows the model was not sure it read are marked `unclear`; places it could not read are listed in `unreadable` and in `warnings`.
+         *     The draft is for review: show it to a person, let them edit it, then send the product to POST /v1/cases/predict. Never predict from it unreviewed.
+         *     A separate endpoint from /v1/products/extract (JSON text) so each has one content type, one size limit and one schema.
+         *     Limits: 1 to 4 files, 8 MB together; images up to 12,000 pixels a side and 40 megapixels; PDFs up to 10 pages together; encrypted PDFs are refused. The type is sniffed from the bytes (the file name and declared Content-Type are ignored). Files are read into memory, sent to the model and dropped: they are not stored, cached or logged, and the response describes them by type, size and pages only.
+         *     With LLM_PROVIDER=fake the answer is a fixed example with `simulated: true` and a first warning saying so. Rate-limited as light. Through the web proxy the body limit is 9 MB.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf */
+                        file: string[];
+                        /** @description needed for groups and capability questions */
+                        family?: string;
+                        /** @description product name; defaults to the name printed in the files */
+                        name?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The draft, to review and edit before predicting */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            product: components["schemas"]["Product"];
+                            plants?: {
+                                id?: string;
+                                name?: string;
+                                country?: string;
+                                capabilities?: string[];
+                                name_guessed?: boolean;
+                            }[];
+                            components: components["schemas"]["DraftRow"][];
+                            operations: components["schemas"]["DraftRow"][];
+                            /** @description what to check, in plain words; includes every unreadable place and unclear row */
+                            warnings: string[];
+                            questions?: {
+                                plant_id?: string;
+                                ask?: string;
+                                options?: string[];
+                            }[];
+                            /** @description always 0 for media */
+                            paragraphs?: number;
+                            /** @enum {string} */
+                            source: "media";
+                            files: components["schemas"]["MediaFile"][];
+                            unreadable: {
+                                /** @description 1-based file position */
+                                file?: number;
+                                /** @description 1-based page; 0 if the model cited a page that does not exist */
+                                page?: number;
+                                /** @description what could not be read, e.g. "row 7, the country is cut off" */
+                                what?: string;
+                            }[];
+                            /** @description true when the local fake model answered: the files were not read and the rows are a fixed example */
+                            simulated?: boolean;
+                            /** @description provider, model_id, prompt_version (extract-image-v1), tokens, latency */
+                            trace?: Record<string, never>;
+                        };
+                    };
+                };
+                400: components["responses"]["Error"];
+                413: components["responses"]["Error"];
+                415: components["responses"]["Error"];
+                429: components["responses"]["Error"];
+                502: components["responses"]["Error"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/hts-suggest": {
         parameters: {
             query?: never;
@@ -3250,10 +3344,31 @@ export interface components {
             plant?: string;
             /** @description template group id, or omitted */
             group?: string;
-            /** @description 1-based paragraph of the facts; 0 if the model cited none */
+            /** @description 1-based paragraph of the facts; 0 if the model cited none, and always 0 for a draft read from media */
             source_paragraph?: number;
+            /** @description media drafts only: 1-based position of the uploaded file the row was read from; omitted if the model cited a file that was not sent */
+            source_file?: number;
+            /** @description media drafts only: 1-based page within that file (1 for an image); omitted if the page cited does not exist */
+            source_page?: number;
+            /** @description media drafts only: true when the model was not sure it read the name or country correctly; check it against the document */
+            unclear?: boolean;
             /** @description no valid group from the text; pick one */
             group_guessed?: boolean;
+        };
+        /** @description What was checked about one uploaded file. Never its content or file name. */
+        MediaFile: {
+            /**
+             * @description sniffed from the bytes, not the declared type
+             * @enum {string}
+             */
+            mime_type?: "image/png" | "image/jpeg" | "image/webp" | "application/pdf";
+            bytes?: number;
+            /** @description images only, pixels */
+            width?: number;
+            /** @description images only, pixels */
+            height?: number;
+            /** @description PDFs only */
+            pages?: number;
         };
         TargetSummary: {
             rank?: number;

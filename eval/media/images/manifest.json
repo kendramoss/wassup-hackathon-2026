@@ -1,0 +1,224 @@
+[
+ {
+  "image": "heatgun.png",
+  "source": "backend/testdata/heatgun_bom.csv",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun-photo.png",
+  "source": "backend/testdata/heatgun_bom.csv",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "lidar.png",
+  "source": "backend/testdata/lidar_bom.csv",
+  "components": [
+   {
+    "name": "Top Main Board (TMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "Bottom Main Board (BMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "receiver (RX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "transmitter (TX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+    "country": "China"
+   },
+   {
+    "name": "Vietnam SMT plant",
+    "country": "Vietnam"
+   },
+   {
+    "name": "China suppliers",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "template.png",
+  "source": "frontend/public/samples/bom-template.csv",
+  "components": [
+   {
+    "name": "Main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "Motor-fan assembly",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun-supplier.png",
+  "source": "frontend/public/samples/heatgun-bom.csv",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ }
+]

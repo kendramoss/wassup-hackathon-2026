@@ -96,19 +96,22 @@ type RulingSource interface {
 // Deps are the API's collaborators. Router and Planner may be nil (the
 // endpoints then degrade: no scope label / 503 for plans).
 type Deps struct {
-	Engine       Predictor
-	Router       Router
-	Planner      Planner
-	Clarifier    Clarifier
-	Agent        CaseAgent
-	Extractor    ProductExtractor
-	Precedents   PrecedentStore
-	Rulings      RulingSource
-	Cases        store.Cases
-	Templates    map[string]planner.Template
-	Summary      func() (evalsummary.Summary, error)
-	Demos        []demos.Demo
-	FastPathConf float64
+	Engine    Predictor
+	Router    Router
+	Planner   Planner
+	Clarifier Clarifier
+	Agent     CaseAgent
+	Extractor ProductExtractor
+	// MediaExtractor drafts a product from images and scanned PDFs; nil
+	// leaves POST /v1/products/extract-media unregistered.
+	MediaExtractor MediaExtractor
+	Precedents     PrecedentStore
+	Rulings        RulingSource
+	Cases          store.Cases
+	Templates      map[string]planner.Template
+	Summary        func() (evalsummary.Summary, error)
+	Demos          []demos.Demo
+	FastPathConf   float64
 	// FallbackFastPath is the auto-accept bar for a prediction whose
 	// trace.model_id is not EngineModel. 0 always reviews (D56).
 	FallbackFastPath float64
