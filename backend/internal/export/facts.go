@@ -41,9 +41,13 @@ const NoFactsPlaceholder = "[FILL IN: a description of the goods and how they ar
 // to LF). A blank line, or a
 // line break after the end of a sentence, starts a new paragraph; a line
 // break inside a sentence (a wrapped line, a date on its own line) does not.
-// Sentences are not cut at common abbreviations (Mfg., Co., Inc., S.A.,
-// de C.V., U.S.A., No., e.g., single initials), so a dropped sentence never
-// leaves a fragment and never takes a fact sentence with it.
+// A line break before a list marker is also a boundary, whatever ended the
+// previous line (a full stop, a colon or nothing), and the marker stays with
+// its item: a boilerplate item or lead-in is dropped alone and no orphan
+// number is left (#478). Sentences are not cut at common abbreviations
+// (Mfg., Co., Inc., S.A., de C.V., U.S.A., No., e.g., single initials), so a
+// dropped sentence never leaves a fragment and never takes a fact sentence
+// with it.
 //
 // If nothing would be left, the facts are returned with only the
 // boilerplate sentences removed; if they were nothing but boilerplate, a
@@ -130,6 +134,19 @@ func splitSentences(p string) []sentence {
 	i := 0
 	for i < len(p) {
 		c := p[i]
+		if c == '\n' {
+			// A line starting with a list marker is a new sentence whatever
+			// ends the previous line: a full stop, a colon, or nothing (#478).
+			if k := afterIndent(p, i+1); k < len(p) && startsList(p[k:]) {
+				if t := strings.TrimSpace(p[start:i]); t != "" {
+					out = append(out, sentence{text: t, sep: sepPara})
+				}
+				start, i = k, k
+				continue
+			}
+			i++
+			continue
+		}
 		if c != '.' && c != '!' && c != '?' {
 			i++
 			continue
@@ -140,6 +157,13 @@ func splitSentences(p string) []sentence {
 			j++
 		}
 		marks := p[i:j]
+		// The period that ends a numbered or roman list marker belongs to
+		// the item, not to a sentence: "2. You requested..." is one item,
+		// so dropping it cannot leave a bare "2." behind (#478).
+		if marks == "." && isMarkerToken(strings.TrimSpace(p[start:i])) && (j == len(p) || p[j] == ' ' || p[j] == '\t') {
+			i = j
+			continue
+		}
 		for j < len(p) && strings.IndexByte(`)]"'`, p[j]) >= 0 {
 			j++
 		}
@@ -167,13 +191,6 @@ func splitSentences(p string) []sentence {
 			end = sentenceEnd(word, marks, p[k:])
 			if strings.Contains(p[j:k], "\n") {
 				sep = sepPara
-				// A line break followed by a list marker is a sentence
-				// boundary even though the marker is not a capital, digit
-				// or quote (#465). Without this, a boilerplate sentence
-				// absorbs the whole list and the letter loses every fact.
-				if !end && startsList(p[k:]) {
-					end = true
-				}
 			}
 		}
 		if !end {
@@ -257,31 +274,75 @@ func set(ws ...string) map[string]bool {
 }
 
 // startsList reports whether s begins with a bulleted or enumerated list
-// marker. It is only consulted after a line break that follows a sentence end,
-// where a hyphen or a short letter plus bracket is unambiguously a list item
-// rather than prose (#465).
+// marker. It is consulted after any line break, not just after a sentence
+// end: a lead-in ending in a colon, or an unpunctuated item, is still a
+// boundary (#465, #478).
 func startsList(s string) bool {
 	if s == "" {
 		return false
 	}
 	r, n := utf8.DecodeRuneInString(s)
 	switch r {
-	case '-', '•', '*', '–', '—', '·':
+	case '-', '•', '*', '–', '—', '·', '+', '◦', '▪', '‣':
 		return true
+	case 'o':
+		// Word's second-level bullet is a lowercase o followed by space.
+		if len(s) > 1 && (s[1] == ' ' || s[1] == '\t') {
+			return true
+		}
 	}
-	if !unicode.IsLetter(r) {
+	if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
 		return false
 	}
-	rest := s[n:]
-	if strings.HasPrefix(rest, ")") || strings.HasPrefix(rest, "]") {
-		return true // "a)", "i)"
+	// Read the whole token: "ii.", "iii)", "12." — not just its first rune.
+	j := n
+	for j < len(s) {
+		t, size := utf8.DecodeRuneInString(s[j:])
+		if !unicode.IsLetter(t) && !unicode.IsDigit(t) {
+			break
+		}
+		j += size
 	}
-	if strings.HasPrefix(rest, ".") {
-		// "a.", "i." — but not a lowercase word or a company name.
-		tail := rest[1:]
+	if j >= len(s) || !isMarkerToken(s[:j]) {
+		return false
+	}
+	switch s[j] {
+	case ')', ']':
+		return true
+	case '.':
+		// "a.", "ii.", "1." — but not a lowercase word or a company name.
+		tail := s[j+1:]
 		return tail == "" || strings.HasPrefix(tail, " ") || strings.HasPrefix(tail, "\t")
 	}
 	return false
+}
+
+// afterIndent returns the first non-blank byte position on a line, without
+// crossing a further line break.
+func afterIndent(s string, from int) int {
+	for from < len(s) && (s[from] == ' ' || s[from] == '\t') {
+		from++
+	}
+	return from
+}
+
+// isMarkerToken reports whether s is a single letter, an Arabic number or a
+// roman numeral, as used before ")" or "." by an enumerated list (#478).
+func isMarkerToken(s string) bool {
+	if s == "" {
+		return false
+	}
+	allDigits := true
+	allRoman := true
+	for _, r := range s {
+		if !unicode.IsDigit(r) {
+			allDigits = false
+		}
+		if !strings.ContainsRune("IVXLCDMivxlcdm", r) {
+			allRoman = false
+		}
+	}
+	return allDigits || allRoman || (utf8.RuneCountInString(s) == 1 && unicode.IsLetter([]rune(s)[0]))
 }
 
 // sentenceEnd says whether end marks after word, followed by space and then
