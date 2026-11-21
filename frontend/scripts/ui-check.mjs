@@ -14,7 +14,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 const args = process.argv.slice(2);
 const base = (args.find((a) => a.startsWith("http")) ?? "http://localhost:3000").replace(/\/$/, "");
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/cases", "/accuracy");
+if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage");
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 } };
@@ -85,6 +85,33 @@ for (const scheme of ["light", "dark"]) {
       const { violations } = await new AxeBuilder({ page }).analyze();
       for (const v of violations) {
         problems.push({ page: path, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });
+      }
+
+      // #520: the inline "Cases" link below a completed triage only exists in
+      // the results state. Axe must see that state too, or a colour-only link
+      // there passes every base-state check.
+      if (path === "/triage") {
+        // Stub the one heavy batch call so this state is deterministic and
+        // does not spend four of the backend's 4/min triage requests.
+        await page.route("**/api/v1/cases/batch", (route) =>
+          route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              summary: { total: 1, failed: 0, auto: 0, needs_info: 0, needs_review: 1, out_of_scope: 0 },
+              rows: [{ case_id: "case_uicheck", name: "Sample product", predicted_origin: "China", confidence: 0.6, calibrated_confidence: 0.6, triage_route: "needs_review", reason: "scope unavailable", cost_usd: 0.001, out_of_scope: false, error: "" }],
+            }),
+          }),
+        );
+        await page.getByRole("button", { name: /Try the sample/i }).click();
+        await page.getByRole("button", { name: /Triage 5 products/i }).click();
+        await page.getByRole("heading", { name: /Needs a look first/i }).waitFor({ timeout: 120000 });
+        await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+        await page.screenshot({ path: `${out}/triage-results-${vp}-${scheme}.png`, fullPage: true });
+        const { violations: resultViolations } = await new AxeBuilder({ page }).analyze();
+        for (const v of resultViolations) {
+          problems.push({ page: `${path} (results)`, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });
+        }
       }
     }
     await ctx.close();

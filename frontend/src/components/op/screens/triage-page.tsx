@@ -390,7 +390,7 @@ function Results({ file, result, onAgain }: { file: File | null; result: BatchRe
         </Button>
         <span className="text-[13px] text-dim">
           All {total - failed} are saved on{" "}
-          <Link href="/cases" className="text-ok hover:underline">
+          <Link href="/cases" className="text-ok underline underline-offset-2">
             Cases
           </Link>
         </span>
