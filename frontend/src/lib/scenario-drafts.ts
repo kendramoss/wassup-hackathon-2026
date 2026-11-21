@@ -1,5 +1,5 @@
 import type { CaseResponse, Product, Scenario } from "@/lib/api/client";
-import { groupName } from "@/components/op/plan-bits";
+import { groupName, planTemplateVersion } from "@/lib/families";
 
 export type Draft = {
   label: string; mode: "move" | "facts"; groups: string[]; plant: string; facts: string;
@@ -25,6 +25,7 @@ export function variant(product: Product, groups: string[], plantId: string): Pr
 // The example scenarios a new case starts with.
 export function exampleDrafts(c: CaseResponse): Draft[] {
   const product = c.product;
+  const madeWith = planTemplateVersion(c);
   const groups = [...new Set([...(product?.components ?? []), ...(product?.operations ?? [])].map((x) => x.group).filter((x): x is string => Boolean(x)))].filter((g) => g !== "final_assembly");
   const origin = c.prediction?.origin_country;
   const otherPlant = product?.plants?.find((p) => p.country !== origin) ?? product?.plants?.[0];
@@ -38,9 +39,9 @@ export function exampleDrafts(c: CaseResponse): Draft[] {
   return product?.plants?.length
     ? [
         { label: "As today", mode: "move" as const, groups: [], plant: other, facts: "" },
-        ...(movable.length >= 1 ? [{ label: `${groupName(movable[0], product?.family, product)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
+        ...(movable.length >= 1 ? [{ label: `${groupName(movable[0], product?.family, product, madeWith)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
         ...(movable.length >= 2
-          ? [{ label: `${groupName(movable[0], product?.family, product)} + ${groupName(movable[1], product?.family, product)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
+          ? [{ label: `${groupName(movable[0], product?.family, product, madeWith)} + ${groupName(movable[1], product?.family, product, madeWith)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
           : []),
       ]
     : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];

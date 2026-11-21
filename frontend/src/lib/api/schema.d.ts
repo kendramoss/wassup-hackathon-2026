@@ -489,7 +489,7 @@ export interface paths {
         put?: never;
         /**
          * Compare 2–4 target countries (one plan search each, in parallel) and rank them
-         * @description Ranking: countries with a shown plan first (best net per year), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
+         * @description Ranking: countries with a shown plan first (by their best plan's tier, clear margin before at the bar, then net per year; D371), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
          *     Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest. Invalid economics is 400 before pricing (D106).
          *     Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
          */

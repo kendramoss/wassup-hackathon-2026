@@ -9,6 +9,7 @@ import { money, pct } from "@/lib/format";
 import { groupName } from "@/lib/families";
 import { outcomeLabels } from "@/lib/plan-check";
 import { Chip, Country, Flag, Panel, PanelHead, cx } from "./ui";
+import { useGroupName } from "./grouping";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
 
@@ -54,6 +55,7 @@ export function movedParts(product: Product | null | undefined, plan: Plan): { g
 }
 
 export function MoveIncludes({ product, plan, className }: { product: Product | null | undefined; plan: Plan; className?: string }) {
+  const groupLabel = useGroupName();
   const groups = movedParts(product, plan).filter((g) => g.items.length > 0);
   if (groups.length === 0) return null;
   return (
@@ -62,7 +64,7 @@ export function MoveIncludes({ product, plan, className }: { product: Product | 
       {groups.map((g, i) => (
         <span key={g.group}>
           {i > 0 ? " · " : ""}
-          <span className="text-body">{groupName(g.group, product?.family, product)}</span> ({g.items.join("; ")})
+          <span className="text-body">{groupLabel(g.group, product?.family, product)}</span> ({g.items.join("; ")})
         </span>
       ))}
     </p>
@@ -98,7 +100,7 @@ export type BacktestView = { changed: string[]; moved: string[]; missed: string[
 
 export function backtestView(
   bt: unknown,
-  opts: { change?: ActualChangeExtras | null; product?: Product | null; move?: Plan["move"]; recount?: boolean } = {},
+  opts: { change?: ActualChangeExtras | null; product?: Product | null; move?: Plan["move"]; recount?: boolean; madeWith?: string } = {},
 ): BacktestView | undefined {
   const b = (bt ?? {}) as Record<string, unknown>;
   const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
@@ -130,7 +132,7 @@ export function backtestView(
       alsoKept
         .map((w) => comps.find((c) => c.name === kept(w))?.group)
         .filter((g): g is string => Boolean(g))
-        .map((g) => groupName(g, opts.product?.family, opts.product)),
+        .map((g) => groupName(g, opts.product?.family, opts.product, opts.madeWith)),
     ),
   ];
   const ruling = typeof b.source === "string" ? b.source.match(/\b[NH]\d{6}\b/)?.[0] : undefined;
@@ -236,6 +238,7 @@ export const rejectionLabels = outcomeLabels;
 // fig.2: one column per plant, operation groups from the product, moved
 // groups in blue (or amber for a below-bar move) with "moved".
 export function PlantDiagram({ product, plan, below }: { product: Product; plan: Plan; below?: boolean }) {
+  const groupLabel = useGroupName();
   const plants = product.plants ?? [];
   const moved = new Map((plan.move ?? []).map((m) => [m.group, m.to_plant]));
   const groupsAt = new Map<string, Set<string>>();
@@ -260,14 +263,14 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
               {incoming.map((g) => (
                 <li key={`in-${g}`} className={cx("border px-2.5 py-1.5 text-[12.5px]", below ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
                   <b className={cx("mr-1.5 text-[11px] font-medium uppercase tracking-[0.06em]", below ? "text-ask" : "text-ok")}>moved</b>
-                  {groupName(g, product.family, product)}
+                  {groupLabel(g, product.family, product)}
                 </li>
               ))}
               {own.map((g) => {
                 const leaves = moved.has(g) && moved.get(g) !== pl.id;
                 return (
                   <li key={g} className={cx("border px-2.5 py-1.5 text-[12.5px]", leaves ? "border-dashed border-line text-dim line-through" : "border-line bg-white")}>
-                    {groupName(g, product.family, product)}
+                    {groupLabel(g, product.family, product)}
                   </li>
                 );
               })}
@@ -285,6 +288,7 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
 // priced: the case's economics_priced, for the Section 301 breakdown of
 // live rates (D90); the inputs stay the user's own.
 export function EconomicsEditor({ value, onChange, product, countries, priced }: { value: Economics; onChange: (e: Economics) => void; product?: Product; countries: string[]; priced?: Economics | null }) {
+  const groupLabel = useGroupName();
   const id = useId();
   const rates = value.duty_rates ?? {};
   const costs = value.group_costs ?? {};
@@ -355,12 +359,12 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
               {groups.map((g) => (
                 <tr key={g} className="border-t border-line">
                   <th scope="row" className="py-1 pr-2 text-left font-normal">
-                    {groupName(g, product?.family, product)}
+                    {groupLabel(g, product?.family, product)}
                   </th>
                   {plants.map((p) => (
                     <td key={p.id} className="py-1 pr-2">
                       <input
-                        aria-label={`${groupName(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
+                        aria-label={`${groupLabel(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
                         inputMode="numeric"
                         className="w-full min-w-0 rounded-[2px] border border-line bg-white px-2 py-1"
                         value={costs[g]?.[p.id] ?? ""}
@@ -387,7 +391,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
           <p className="eyebrow">Yearly cost of each group, by plant (USD)</p>
           {groups.map((g) => (
             <fieldset key={g} className="border-t border-line pt-2">
-              <legend className="text-[13px] font-medium">{groupName(g, product?.family, product)}</legend>
+              <legend className="text-[13px] font-medium">{groupLabel(g, product?.family, product)}</legend>
               <div className="mt-1 grid grid-cols-2 gap-2">
                 {plants.map((p) => (
                   <label key={p.id} className="flex flex-col gap-0.5 text-[11.5px] text-dim">

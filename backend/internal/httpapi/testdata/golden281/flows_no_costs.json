@@ -912,7 +912,7 @@
    },
    "target": "Thailand",
    "template_versions": {
-    "motorised_tools_small_appliances": "1"
+    "motorised_tools_small_appliances": "2"
    }
   },
   "precedents_detail": [
@@ -2143,7 +2143,7 @@
    },
    "target": "Thailand",
    "template_versions": {
-    "motorised_tools_small_appliances": "1"
+    "motorised_tools_small_appliances": "2"
    }
   },
   "prompt_versions": {
@@ -2937,7 +2937,7 @@
     },
     "target": "Thailand",
     "template_versions": {
-     "motorised_tools_small_appliances": "1"
+     "motorised_tools_small_appliances": "2"
     }
    },
    "prompt_versions": {

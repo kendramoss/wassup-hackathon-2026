@@ -26,9 +26,9 @@ import {
   type GroupNumberField,
   type PlantNumberField,
 } from "@/lib/ops";
-import { groupName } from "./plan-bits";
 import { Button } from "./ui";
 import { Flag, cx } from "./ui";
+import { useGroupName } from "./grouping";
 
 // Optional operating-cost inputs (#281) for the money editors. Off (or nothing
 // entered) sends no `operations` at all, so the request is the legacy one.
@@ -203,6 +203,7 @@ export function OperationalFields({
   // Receives whether any entry here cannot be read (see useOpsValidity).
   validity?: OpsValidity;
 }) {
+  const groupLabel = useGroupName();
   const id = useId();
   // Fields that hold unreadable text; this editor reports one flag under its own id.
   const [badFields] = useState(() => new Set<object>());
@@ -323,7 +324,7 @@ export function OperationalFields({
                 {lost.map((o) => (
                   <li key={`${o.group}|${o.plant ?? ""}`} className="flex flex-wrap items-start gap-2">
                     <span className="min-w-0 flex-1">
-                      {groupName(o.group, product?.family, product)}
+                      {groupLabel(o.group, product?.family, product)}
                       {o.plant ? ` · plant ${o.plant}` : " · whole group"}
                       {orphanMsgs(o).length > 0 && (
                         <span role="alert" className="block text-fail">
@@ -373,7 +374,7 @@ export function OperationalFields({
             const quantities = og?.annual_demand_units !== undefined || og?.orders_per_year !== undefined || entered.some((p) => p.moq_units !== undefined);
             return (
               <fieldset key={g} className="border-t border-line pt-3">
-                <legend className="text-[13px] font-medium">{groupName(g, product?.family, product)}</legend>
+                <legend className="text-[13px] font-medium">{groupLabel(g, product?.family, product)}</legend>
                 <div className="mt-2 grid gap-3 sm:grid-cols-2">
                   <div className="flex flex-col gap-0.5 sm:col-span-2">
                     <label htmlFor={`${id}-${g}-basis`} className="text-[11.5px] text-dim">
@@ -431,7 +432,7 @@ export function OperationalFields({
                       ["moq_units", copy.ops.moq],
                     ];
                     return (
-                      <div key={pl.id} role="group" aria-label={`${groupName(g, product?.family, product)} at ${pl.name || pl.id}`} className="border border-line px-3 py-2.5">
+                      <div key={pl.id} role="group" aria-label={`${groupLabel(g, product?.family, product)} at ${pl.name || pl.id}`} className="border border-line px-3 py-2.5">
                         <p className="mb-2 flex items-center gap-1.5 text-[12.5px] font-medium">
                           <Flag country={pl.country} />
                           {plantRef(pl).name}

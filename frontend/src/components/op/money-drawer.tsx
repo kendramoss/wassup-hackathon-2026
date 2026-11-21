@@ -8,8 +8,8 @@ import { copy } from "@/lib/copy";
 import { money } from "@/lib/format";
 import { opsActive } from "@/lib/ops";
 import { OPS_UNREADABLE, OperationalFields, useOpsValidity } from "./operational-fields";
-import { groupName } from "./plan-bits";
 import { Button, Country, Drawer, Flag, cx } from "./ui";
+import { useGroupName } from "./grouping";
 
 // Money inputs (DESIGN.md step 1, locked 16 Oct, option C of c-money.html;
 // frames p-money-quick, p-money-each): imports a year, a duty rate per
@@ -85,6 +85,7 @@ export function MoneyDrawer({
   readOnly?: boolean;
   serverError?: string;
 }) {
+  const groupLabel = useGroupName();
   const id = useId();
   const plants = product?.plants ?? [];
   const groups = productGroups(product);
@@ -282,7 +283,7 @@ export function MoneyDrawer({
                         .map((g) => {
                           const row = costs?.[g] ?? {};
                           const o = others[0];
-                          return `${groupName(g, product?.family, product).toLowerCase()} ${money(row[base.id])}${o ? ` → ${money(row[o.id])}` : ""}`;
+                          return `${groupLabel(g, product?.family, product).toLowerCase()} ${money(row[base.id])}${o ? ` → ${money(row[o.id])}` : ""}`;
                         })
                         .join(", ")}
                       . Rough; switch to &ldquo;Each group&rdquo; to set them one by one.
@@ -319,12 +320,12 @@ export function MoneyDrawer({
                         return (
                           <tr key={g} className="border-t border-line">
                             <th scope="row" className="py-1.5 pr-2 text-left font-normal">
-                              {groupName(g, product?.family, product)}
+                              {groupLabel(g, product?.family, product)}
                             </th>
                             {plants.map((p) => (
                               <td key={p.id} className="py-1.5 pl-2 text-right">
                                 <input
-                                  aria-label={`${groupName(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
+                                  aria-label={`${groupLabel(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
                                   inputMode="numeric"
                                   className={cx(
                                     "h-9 w-full min-w-0 rounded-[2px] border bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok",

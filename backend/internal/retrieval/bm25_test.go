@@ -84,11 +84,14 @@ func TestSearchHonoursExcludeList(t *testing.T) {
 	}
 }
 
-func TestPrecedentFilterSkipsRulingsRevokedByTheCaseDate(t *testing.T) {
+// A ruling revoked before the case date is skipped; on the revocation's own
+// date it is still CBP's position (D320, D370, #527).
+func TestPrecedentFilterSkipsRulingsRevokedBeforeTheCaseDate(t *testing.T) {
 	revoked := domain.Ruling{ID: "N345891", Date: time.Date(2025, 3, 11, 0, 0, 0, 0, time.UTC)} // revoked by H346161, 2025-05-05 (D320)
 	before := PrecedentFilter(domain.Case{ID: "c", Date: time.Date(2025, 5, 1, 0, 0, 0, 0, time.UTC)})
-	after := PrecedentFilter(domain.Case{ID: "c", Date: time.Date(2025, 5, 5, 0, 0, 0, 0, time.UTC)})
-	if !before(revoked) || after(revoked) {
-		t.Errorf("before=%v after=%v", before(revoked), after(revoked))
+	sameDay := PrecedentFilter(domain.Case{ID: "H346161", Date: time.Date(2025, 5, 5, 0, 0, 0, 0, time.UTC)})
+	after := PrecedentFilter(domain.Case{ID: "c", Date: time.Date(2025, 5, 6, 0, 0, 0, 0, time.UTC)})
+	if !before(revoked) || !sameDay(revoked) || after(revoked) {
+		t.Errorf("before=%v sameDay=%v after=%v", before(revoked), sameDay(revoked), after(revoked))
 	}
 }

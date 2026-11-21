@@ -651,8 +651,9 @@ func eligibleRead(id, out string, before time.Time, exclude map[string]bool) []s
 	return []string{id}
 }
 
-// superseded reports whether CBP revoked or modified ruling id on or before
-// the bound (D320); such a ruling is never citable.
+// superseded reports whether CBP revoked or modified ruling id strictly
+// before the bound (D320, D370), the same rule inBound uses for ruling dates;
+// such a ruling is never citable.
 func superseded(id string, before time.Time) bool {
 	_, ok := domain.SupersededAsOf(id, before)
 	return ok

@@ -723,7 +723,7 @@
  },
  "economics_illustrative": false,
  "template_versions": {
-  "motorised_tools_small_appliances": "1"
+  "motorised_tools_small_appliances": "2"
  },
  "ranking": {
   "rule": "tier_then_net",

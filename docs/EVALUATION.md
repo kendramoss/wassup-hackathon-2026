@@ -91,7 +91,7 @@ One mismatch we found: the tune split's `rule` says "single-origin", but 27 of i
 | Date split | dev ends 2025-12-31; final starts 2026-01-02 | `splits_final.json`; checked by claimscheck (`temporal.final_starts_after_dev_ends`) |
 | Precedents strictly earlier | a retrieved precedent must be dated before the case, and is never the case itself or a ruling the case excludes | `domain.Ruling.UsableAsPrecedentFor`, `retrieval.PrecedentFilter`; claimscheck counts 0 of 1,885 held-out precedent slots on or after their case |
 | Facts only | the engine reads the facts section, cut at the first legal-analysis cue; sentences that state the origin conclusion are redacted | `corpus.SplitFacts` |
-| Not revoked or modified by then (D320) | a precedent CBP revoked or modified on or before the case date is skipped; one revoked later stays, because it was CBP's position at the case date | `domain.SupersededAsOf`, map `backend/internal/domain/supersession.json` from `go run ./cmd/corpus supersession`; effect on committed runs in section 2.5 |
+| Not revoked or modified by then (D320, D370) | a precedent CBP revoked or modified before the case date is skipped; one revoked on the case date or later stays, because it was CBP's position at the case date. This includes a case that is itself the revoking ruling | `domain.SupersededAsOf`, map `backend/internal/domain/supersession.json` from `go run ./cmd/corpus supersession`; effect on committed runs in section 2.5 |
 | Held-out gate | `eval run -split final` refuses to run without `-confirm-final` and prints "do not change prompts, thresholds or retrieval because of its result" | `backend/cmd/eval/main.go` |
 | Run log | every run appends its config, git revision and a `held_out` flag to `eval/results/RUNLOG.jsonl` | `eval/results/RUNLOG.jsonl` |
 
@@ -110,21 +110,23 @@ The label is **CBP's stated holding**: the origin CBP held in the ruling, not ou
 - Six labels the model, acting as a judge, called wrong were checked by hand against the ruling text. All six matched CBP (D23).
 - Data files are pinned by `eval/SHA256SUMS` (`make verify-data`).
 
-### 2.5 Revoked and modified precedents in committed runs (D320)
+### 2.5 Revoked and modified precedents in committed runs (D320, D370)
 
 Before D320 the precedent filter only checked dates, so a ruling CBP had already revoked could be shown to the engine or cited by the verifier. `python3 -I -B eval/supersession/impact.py .` counts, offline, how often that happened in the committed results (`eval/results/supersession-impact.json`). No model calls; nothing was re-scored, so the effect on accuracy is not measured.
 
+A change counts only for cases dated after the revoking ruling's date (D370). On that date itself the earlier ruling was still CBP's position, and when the case being backtested is the revoking ruling, counting its own change would let the label's document decide what evidence the model sees (#527).
+
 | Committed rows | Rows | Showed a superseded precedent | Cited one |
 |---|---:|---:|---:|
-| All result rows with rulings (135 files) | 12,998 | 43 | 10 |
-| Development engine runs (general) | | 21 (20 of them the case H325607) | 2 |
+| All result rows with rulings (148 files) | 13,166 | 23 | 8 |
+| Development engine runs (general) | | 1 (N355148, N331974 shown) | 0 |
 | First held-out split, engine (4 runs) | | 8 (N361172 and N364229, N331974 shown) | 3 |
 | Textile development runs | | 8 (N345891 shown) | 4 |
 | Part 102 development runs | | 6 | 0 |
 | Move verifier, flip pairs | | 0 | 0 |
 | Heat-gun plan runs (bound 14 Jan 2026) | | 0 | 1 |
 
-- **H325607 is the revocation letter itself.** It revoked N331974 on its own date, and every one of the 20 development runs showed N331974 for it. All 20 were wrong: 19 answered Spain and one China, where CBP held Thailand. The guard now hides N331974 for that case. Whether that would fix the answer was not run.
+- **Same-day cases are not counted (D370).** Under D320's first rule ("on or before the case date") the totals were 43 showed and 10 cited, on 135 files and 12,998 rows at the time. 20 of the 43 and 2 of the 10 were development runs of H325607, the letter that revoked N331974 on its own date. N331974 was CBP's position until H325607 was decided, so showing it for that case was not an error, and the guard no longer hides it there. All 20 of those runs were wrong (19 Spain, one China, where CBP held Thailand); N331974 had held Thailand too, so the shown precedent agreed with the label.
 - **The held-out rows were right anyway.** The 8 held-out rows that showed N331974 were all correct. The held-out accuracy figures are unchanged: they are committed runs, and no held-out split was re-scored.
 - **One verifier verdict cited a modified ruling.** In `plan-heatgun-2022-verifier-v2-litellm.json`, a rejected heat-gun move (0.90, below the 0.92 bar) cited N322364, which H323218 modified on 16 Dec 2025, a month before the demo's bound. The shown plan does not cite it. The current flagship plan cites N345938, which is not superseded.
 - 342 plan and demo rows carry no date; none of them names any superseded ruling.
@@ -391,7 +393,7 @@ router-v3, the first variant, failed the general-routing limit on development an
 | Controls: work moved, CBP kept the origin | 4 | same |
 | With a plan template (the product's family check) | 6 | `eval/results/planner-post-familycheck-litellm.jsonl` |
 
-**Precedent check, scored once** (production configuration: verifier-v2 on Gemini 4 Argon, precedent-check bar 0.92, local corpus search, gateway). Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. A move counts as right only if CBP's later ruling changed the origin and the check named that origin.
+**Precedent check, run 1 of 3** (runs 2 and 3 gave the same figures with the starting origin given; without it they showed 5 and 4 moves, 4 right each time; D354 and "Run twice more" below. Production configuration: verifier-v2 on Gemini 4 Argon, precedent-check bar 0.92, local corpus search, gateway). Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. A move counts as right only if CBP's later ruling changed the origin and the check named that origin.
 
 | | CBP's starting origin given | Not given |
 |---|---|---|

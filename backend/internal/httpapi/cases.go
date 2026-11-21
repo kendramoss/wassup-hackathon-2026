@@ -1491,12 +1491,13 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		return draftResult{}, fmt.Errorf("%w: give plan_index or move_key, not both", domain.ErrInvalid)
 	}
 	var chosen *domain.Plan
+	var chosenRes *planner.Result // the plan search chosen came from
 	switch {
 	case in.PlanIndex != nil:
 		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
 			return draftResult{}, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan", domain.ErrInvalid, *in.PlanIndex)
 		}
-		chosen = &c.Plan.Plans[*in.PlanIndex]
+		chosen, chosenRes = &c.Plan.Plans[*in.PlanIndex], c.Plan
 	case in.MoveKey != "":
 		src := c.Plan
 		if in.Target != "" {
@@ -1517,7 +1518,7 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		if err != nil {
 			return draftResult{}, err
 		}
-		chosen = p
+		chosen, chosenRes = p, src
 	}
 	srcTarget := in.Target
 	if in.MoveKey == "" {
@@ -1528,11 +1529,7 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 		chosenFrom = planSourceFingerprint(c, srcTarget)
 	}
 	if p := chosen; p != nil {
-		fam := ""
-		if c.Plan != nil {
-			fam = c.Plan.Family
-		}
-		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, a.planDescription(c, *p, fam), p.Prediction.Origin, p.Prediction
+		ex.Facts, ex.PlanSummary, ex.Requested, ex.Prediction = p.VariantFacts, a.planDescription(c, *p, chosenRes), p.Prediction.Origin, p.Prediction
 		if c.Product != nil { // the letter lists where things are made after the move
 			moved := planner.Apply(*c.Product, p.Move)
 			ex.Product = &moved
@@ -1659,7 +1656,7 @@ type supersededDTO struct {
 	Note string `json:"note"` // e.g. "revoked by H325607 on 2025-08-29"
 }
 
-// supersededAsOf is the supersession of ruling id on or before at (any
+// supersededAsOf is the supersession of ruling id dated before at (any
 // known one when at is zero), or nil.
 func supersededAsOf(id string, at time.Time) *supersededDTO {
 	s, ok := domain.SupersededAsOf(id, at)

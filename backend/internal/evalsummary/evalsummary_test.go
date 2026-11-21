@@ -1,6 +1,9 @@
 package evalsummary
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestEmbeddedSummaryLoads(t *testing.T) {
 	s, err := Load()
@@ -58,5 +61,27 @@ func TestSummaryHasCombinedPairsAndRepeatability(t *testing.T) {
 		if it, ok := by[key]; !ok || !it.DevelopmentOnly || it.N != 463 || it.Value < 0.9 || it.Value > 0.93 {
 			t.Errorf("%s = %+v", key, it)
 		}
+	}
+}
+
+// #543, D373: the post-cutoff flip pairs were run 3 times (D354), so no
+// planner_post_ row may say it was scored once.
+func TestPostCutoffPairSourcesSayThreeRuns(t *testing.T) {
+	s, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	n := 0
+	for _, it := range s.Items {
+		if !strings.HasPrefix(it.Key, "planner_post_") {
+			continue
+		}
+		n++
+		if strings.Contains(it.Source, "scored once") || !strings.Contains(it.Source, "run 1 of 3") {
+			t.Errorf("%s: source %q", it.Key, it.Source)
+		}
+	}
+	if n == 0 {
+		t.Fatal("no planner_post_ rows")
 	}
 }

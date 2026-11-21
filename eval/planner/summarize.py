@@ -18,7 +18,7 @@ notes = json.load(open(R('eval/planner/spot_checks.json')))
 
 # --- post-cutoff pairs: the verifier, both modes --------------------------
 pairs = {p['id']: p for p in jl('eval/data/flips_post.jsonl')}
-post = {"what": "Post-cutoff flip pairs (D170): the production precedent check (verifier-v2, gemini-4-argon, local corpus search, plan bar 0.92) scored once per mode on 15 frozen pairs, through an OpenAI-compatible LiteLLM gateway to Gemini.",
+post = {"what": "Post-cutoff flip pairs (D170): the production precedent check (verifier-v2, gemini-4-argon, local corpus search, plan bar 0.92) on 15 frozen pairs, run 1 of 3 per mode (runs 2 and 3: D354, summarize_repeats.py), through an OpenAI-compatible LiteLLM gateway to Gemini.",
         "pairs_file": "eval/data/flips_post.jsonl", "bar": BAR, "modes": {}}
 for mode in ('known-a', 'unknown-a'):
     rows = jl(f'eval/results/flips-post-verifier-v2-{mode}-litellm.jsonl')

@@ -60,7 +60,7 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 
 - **Follow-up questions** when the prediction is unsure, then a re-check with your answers
 - **Side-by-side scenarios** with yearly duty, savings and added cost
-- **Compare target countries** (e.g. Thailand vs Vietnam), ranked by net savings
+- **Compare target countries** (e.g. Thailand vs Vietnam), ranked by the best plan's tier (clear margin first, then at the bar), then net savings
 - **Ruling watch:** re-check saved cases against rulings CBP issued later
 - **Ask the case:** an agent that explains the prediction and runs what-ifs
 - **API** for ERP and sourcing tools ([docs/api/openapi.yaml](docs/api/openapi.yaml))

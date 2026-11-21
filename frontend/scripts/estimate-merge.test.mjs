@@ -43,6 +43,9 @@ function instance(Component, onDirty) {
     useId() {
       return `:id${inst.i++}`;
     },
+    useContext(ctx) {
+      return ctx._currentValue; // no provider in these tests: the default
+    },
     useEffect(fn, deps) {
       const h = (inst.hooks[inst.i++] ??= { deps: undefined, first: true });
       const changed = h.first || !deps || !h.deps || deps.some((d, k) => !Object.is(d, h.deps[k]));

@@ -2,7 +2,8 @@
 // backend/internal/domain/supersession.json: for each ruling, its earliest
 // revocation or modification in the corpus. scripts/supersession.test.mjs
 // fails when the two drift. The backend never cites such a ruling as support
-// for a case dated on or after the change; the UI says so beside every link.
+// for a case dated after the change (D370: on the change's own date it was
+// still CBP's position); the UI says so beside every link.
 export type Supersession = { by: string; kind: "revoked" | "modified"; date: string };
 
 export const superseded: Record<string, Supersession> = {
@@ -43,11 +44,12 @@ export const superseded: Record<string, Supersession> = {
 };
 
 // The supersession of a ruling, if any. With asOf (the case date,
-// YYYY-MM-DD or ISO), "inForce" says whether CBP had already changed it by
-// then: only then is it barred as precedent for that case.
+// YYYY-MM-DD or ISO), "inForce" says whether CBP had already changed it
+// before then (the day after the change, D370): only then is it barred as
+// precedent for that case.
 export function supersededAsOf(id: string | undefined, asOf?: string | null): (Supersession & { inForce: boolean }) | undefined {
   const s = id ? superseded[id] : undefined;
   if (!s) return undefined;
   const at = asOf ? asOf.slice(0, 10) : "";
-  return { ...s, inForce: !at || s.date <= at };
+  return { ...s, inForce: !at || s.date < at };
 }

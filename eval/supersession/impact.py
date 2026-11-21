@@ -1,8 +1,10 @@
 """Offline effect of the supersession guard (D320) on committed results.
 
 For every committed result row that shows or cites earlier CBP rulings, count
-the rulings that CBP had revoked or modified on or before that row's case date
-(backend/internal/domain/supersession.json). Those are the citations the guard
+the rulings that CBP had revoked or modified before that row's case date
+(backend/internal/domain/supersession.json). A change dated on the case date
+itself does not count (D370): when the case is the revoking ruling, the
+ruling it revokes was still CBP's position until this case was decided. Those are the citations the guard
 would now refuse. No model calls; nothing is re-scored.
 
 Run from the repository root:
@@ -108,7 +110,7 @@ def main(root, check):
                     totals["undated_rows_naming_any_superseded"] += 1
                 continue
             def sup(ids):
-                return [i for i in ids if i in first and first[i]["date"] <= date]
+                return [i for i in ids if i in first and first[i]["date"] < date]
             s_shown, s_cited = sup(shown), sup(cited + support + counter)
             if s_shown:
                 f["rows_showing_superseded"] += 1
@@ -128,7 +130,7 @@ def main(root, check):
             for k in f:
                 totals[k] += f[k]
     out = {
-        "note": "Offline count (D320): committed result rows that showed or cited a CBP ruling revoked or modified on or before the row's case date. "
+        "note": "Offline count (D320, D370): committed result rows that showed or cited a CBP ruling revoked or modified before the row's case date (a change dated on the case date does not count). "
                 "No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured.",
         "map_version": version,
         "files_with_rulings": len(per_file),

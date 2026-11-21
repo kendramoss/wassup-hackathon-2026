@@ -2,11 +2,11 @@
 // lists them. Names and group ids/names mirror
 // backend/internal/planner/templates; scripts/families.test.mjs fails when
 // they drift, including the one family whose final group is "and testing".
-export type Group = { id: string; name: string; former?: { name: string; until: string } };
+export type Group = { id: string; name: string; former?: { name: string; until: string; since: string } };
 export type Family = { id: string; name: string; groups: Group[] };
 
 export const families: Family[] = [
-  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances", groups: [{ id: "motor_fan_assembly", name: "Motor-fan assembly" }, { id: "pcba", name: "PCBA (SMT)" }, { id: "heating_element", name: "Heating element" }, { id: "housing_moulding", name: "Housing moulding" }, { id: "switch_cord_minor_parts", name: "Switch, wiring and minor parts", former: { name: "Switch, cord and minor parts", until: "cord_knobs_covers" } }, { id: "cord_knobs_covers", name: "Power cord, knobs and covers" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances", groups: [{ id: "motor_fan_assembly", name: "Motor-fan assembly" }, { id: "pcba", name: "PCBA (SMT)" }, { id: "heating_element", name: "Heating element" }, { id: "housing_moulding", name: "Housing moulding" }, { id: "switch_cord_minor_parts", name: "Switch, wiring and minor parts", former: { name: "Switch, cord and minor parts", until: "cord_knobs_covers", since: "2" } }, { id: "cord_knobs_covers", name: "Power cord, knobs and covers" }, { id: "final_assembly", name: "Final assembly" }] },
   { id: "led_lights", name: "LED lights and lamps", groups: [{ id: "led_pcba", name: "LED PCBA (SMT)" }, { id: "lens", name: "Lens moulding" }, { id: "base_harness_seals", name: "Base, harness and seals" }, { id: "final_assembly", name: "Final assembly" }] },
   { id: "lidar_modules", name: "LiDAR sensor modules", groups: [{ id: "main_boards", name: "Main boards (TMB and BMB PCBAs)" }, { id: "rx_tx_boards", name: "RX and TX PCBAs" }, { id: "final_assembly", name: "Final assembly" }] },
   { id: "pcba_electronic_devices", name: "PCBA-based electronic devices", groups: [{ id: "pcba_manufacturing", name: "PCBA (SMT)" }, { id: "functional_subassemblies", name: "Functional subassemblies" }, { id: "housing_and_cables", name: "Housing and cables" }, { id: "final_assembly", name: "Final assembly" }] },
@@ -36,20 +36,40 @@ for (const f of families) {
 // final_assembly is "Final assembly and testing" for pumps, and "Final
 // assembly" everywhere else. Acronyms are kept as the template writes them.
 //
-// Pass the product too when the screen has it: a group that another group was
-// later split out of (the heat gun's power cord, knobs and covers, D330) keeps
-// its former name for a product that files nothing under the split-out group,
-// so a case made before the split never reads "Switch, wiring and minor parts"
-// over a list that includes the power cord (D342, planner.GroupNameFor).
+// Pass the product and madeWith (the template version the case's stored plan
+// was made with, planTemplateVersion) when the screen has them: a group that
+// another group was later split out of (the heat gun's power cord, knobs and
+// covers, D330) keeps its former name for a case planned before the split, so
+// the pinned heat gun never reads "Switch, wiring and minor parts" over a list
+// that includes the power cord (D342). The version decides, never the parts
+// alone, so a cordless tool planned today reads the new name (D372, #533;
+// planner.GroupNameAt). A product that files anything under the split-out
+// group was filed after the split and reads the new name.
 type Filed = { components?: { group?: string }[] | null; operations?: { group?: string }[] | null } | null;
 const files = (p: Filed, id: string) => [...(p?.components ?? []), ...(p?.operations ?? [])].some((x) => x.group === id);
 
-export function groupName(id: string | undefined, family?: string, product?: Filed): string {
+// Whether template version a is older than b (whole numbers, as the backend's
+// versionBefore); an empty or unreadable a is not older.
+export function versionBefore(a: string | undefined, b: string): boolean {
+  const [x, y] = [Number(a), Number(b)];
+  return Boolean(a) && Number.isInteger(x) && Number.isInteger(y) && x < y;
+}
+
+export function groupName(id: string | undefined, family?: string, product?: Filed, madeWith?: string): string {
   if (!id) return "Other";
   const scoped = family ? families.find((f) => f.id === family)?.groups.find((g) => g.id === id) : undefined;
   const former = (scoped ?? families.flatMap((f) => f.groups).find((g) => g.id === id))?.former;
-  if (former && product && files(product, id) && !files(product, former.until)) return former.name;
+  if (former && product && versionBefore(madeWith, former.since) && files(product, id) && !files(product, former.until)) return former.name;
   return scoped?.name ?? groupNames[id] ?? id.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+}
+
+// The template version the case's latest plan search was made with, from its
+// stored template_versions (absent when the case has no plan).
+type Planned = { family?: string | null; product?: { family?: string | null } | null; plan?: unknown } | null | undefined;
+export function planTemplateVersion(c: Planned): string | undefined {
+  const plan = (c?.plan ?? undefined) as { family?: string; template_versions?: Record<string, string> } | undefined;
+  const fam = plan?.family || c?.product?.family || c?.family || "";
+  return plan?.template_versions?.[fam] || undefined;
 }
 
 export const familyName = (id: string) => families.find((f) => f.id === id)?.name ?? id;

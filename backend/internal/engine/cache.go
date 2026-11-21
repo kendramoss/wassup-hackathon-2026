@@ -119,7 +119,7 @@ func (c *Cache) Peek(ctx context.Context, k domain.Case) (Result, bool, error) {
 	}
 	p := v.Prediction
 	// A stored answer whose precedents include a ruling CBP revoked or
-	// modified on or before the case date was made from evidence the
+	// modified before the case date (D370) was made from evidence the
 	// precedent filter no longer shows (D320): predict again.
 	for _, id := range p.Precedents {
 		if _, superseded := domain.SupersededAsOf(id, k.Date); superseded {

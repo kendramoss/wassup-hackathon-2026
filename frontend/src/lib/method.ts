@@ -67,6 +67,7 @@ export const DECISIONS: Record<string, string> = {
   D360: "d360--a-deterministic-19-cfr-10220-rule-check-beside-the-part-102-engine-22-nov-judge-panel-round-6-the-main-remaining-larger-build",
   D362: "d362--the-rule-check-on-the-committed-part-102-rulings-results-22-nov",
   D363: "d363--the-rule-check-is-shown-beside-the-model-display-only-22-nov",
+  D370: "d370--a-revocation-counts-from-the-day-after-the-revoking-rulings-date-22-nov-527-judge-panel-round-7-item-1",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;

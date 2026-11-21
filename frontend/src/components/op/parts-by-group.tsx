@@ -1,6 +1,6 @@
 import type { Product } from "@/lib/api/client";
-import { groupName } from "./plan-bits";
 import { Country } from "./ui";
+import { useGroupName } from "./grouping";
 
 type Part = NonNullable<Product["components"]>[number];
 
@@ -8,6 +8,7 @@ type Part = NonNullable<Product["components"]>[number];
 // not single parts (17 Oct audit). A share bar first says how much is made
 // where, which is what the origin turns on; the origin country is dark.
 export function PartsByGroup({ product, origin }: { product: Product; origin?: string }) {
+  const groupLabel = useGroupName();
   const parts = product.components ?? [];
   const groups = new Map<string, Part[]>();
   for (const p of parts) groups.set(p.group ?? "", [...(groups.get(p.group ?? "") ?? []), p]);
@@ -54,7 +55,7 @@ export function PartsByGroup({ product, origin }: { product: Product; origin?: s
             return (
               <tr key={g} className="border-t border-line align-top">
                 <th scope="row" className="py-2.5 pr-4 text-left font-medium">
-                  {groupName(g, product.family, product)} <span className="font-normal text-dim">· {ps.length}</span>
+                  {groupLabel(g, product.family, product)} <span className="font-normal text-dim">· {ps.length}</span>
                   {/* On phones the part list sits under the group name. */}
                   <span className="duo mt-0.5 block font-normal text-dim sm:hidden">{names}</span>
                 </th>
