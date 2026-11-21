@@ -497,6 +497,15 @@ const delayed = async (route, body) => {
     return { text: t?.textContent.trim() ?? null, hidden: Boolean(t?.closest('[aria-hidden="true"]')) };
   });
   if (!tick.text || !tick.hidden) problems.push({ page: "ask (pending)", focus: "ticking elapsed is exposed in a live region", ...tick });
+  // #568: the waiting message must be announced once, not once by the sr-only
+  // answer region and again by the visible role=status.
+  const waiting = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('[role="status"],[aria-live]')].filter((el) =>
+        (el.textContent || "").includes("Reading the case and earlier rulings"),
+      ).length,
+  );
+  if (waiting !== 1) problems.push({ page: "ask (pending)", focus: "waiting message is announced by more than one live region", waiting });
   await ctx.close();
 }
 
