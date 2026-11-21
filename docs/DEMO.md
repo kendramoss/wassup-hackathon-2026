@@ -51,22 +51,28 @@ Rehearse to 2:55. If a screen loads slowly, cut with a visible "⏩"; never spli
 - Gas grill: the demo is `gas-grill-2023` (backend/internal/demos/fixtures). Unless it has been seeded as a pinned case, loading it runs live on production, so the result is that day's run. A development check through an OpenAI-compatible LiteLLM gateway to Gemini predicted China 0.95 and showed one plan at 0.96 on N333420 (eval/results/families-plan-gas-grill-2023-litellm.json). That run is a record, not the production result; say only what the screen shows.
 - Claude connector: run it from a clean Claude Code session. Without an API key it uses the anonymous tier; `predict_origin` returns a `case_access_key` that the next tool calls need.
 
-## 1. Prepare (about 10 minutes, the day of recording)
+## 1. Prepare (the day before, never during the talk)
+
+Talk day uses the committed cases and caches; **do not seed on stage** (#417). Seeding is a separate, credentialed operation that can take far longer than the old "3–5 min" note claimed.
 
 1. Start the backend on Vertex, the only model provider (D49). Local development needs Application Default Credentials (`gcloud auth application-default login`).
    ```bash
    make run   # GOOGLE_CLOUD_PROJECT=wassup-hackathon-2026 GOOGLE_CLOUD_LOCATION=global
    ```
    Keep the verdict cache on (the default: `VERIFIER_CACHE_DIR=../data/verifier-cache` locally; on Cloud Run it is the Firestore collection `verifier_cache`, shared by every instance, D50). Engine predictions are cached beside it (`engine_cache`, D54), so a replayed case and its plan search make no model calls; delete both collections (or both directories locally) to start fresh. Cases are saved under `data/cases`.
-2. Seed every demo:
+2. **Read-only pre-flight first** (no token, no model call): confirm the pinned cases are present and the committed production record says the repeat search agreed.
    ```bash
-   make demo-seed   # ~3–5 min; writes eval/results/demo-seed.json
+   curl -fsS https://undelabs.dev/api/v1/cases | python3 -c 'import json,sys; d=json.load(sys.stdin); print([c["id"] for c in d["cases"]])'
+   grep -F 'repeat plan search: verdicts identical=true' eval/results/demo-seed-vertex-prod.json
    ```
-   `make run` and `make demo-seed` share a local admin token, so the seed is not rate-limited and pins the demo cases (listed first; visitors cannot delete them, D45). Against Cloud Run, set `ADMIN_TOKEN` to the service's token and `ID_TOKEN=$(gcloud auth print-identity-token)`, then `go run ./cmd/demo seed -api <URL>`.
+   `eval/results/demo-seed-vertex-prod.json` is the committed 17–18 Oct production record; `eval/results/demo-seed.json` is **not committed** and only appears if you run the seed locally. Write down what the plan screens show before the talk.
+3. Seeding is optional and needs credentials. `make run` and `make demo-seed` share a local admin token, so the seed is not rate-limited and pins the demo cases (listed first; visitors cannot delete them, D45). Against Cloud Run, set `ADMIN_TOKEN` to the service's token and `ID_TOKEN=$(gcloud auth print-identity-token)`, then `go run ./cmd/demo seed -api <URL>`. The seed now **stops before any model call** if `ADMIN_TOKEN` is missing, unless `-allow-unpinned` is passed deliberately; without it `pin()` used to be a silent no-op and leave the cases unprotected (#417).
+   ```bash
+   make demo-seed   # writes the untracked eval/results/demo-seed.json; remove it before a clean-checkout check
+   ```
    It creates a case for each demo, runs the plan searches, and fills the heat gun's scenarios, ruling watch, one ask and the multi-country comparison. It then repeats the heat-gun plan search and prints `verdicts identical=true`. If it prints a WARNING, the cache is off.
-3. Open `eval/results/demo-seed.json` and write down what the plan screens will show. From now on, replays return these verdicts (in seconds, not ~30 s).
 
-If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavailable`), the seed now waits and retries each request (1, 2, 4 then 8 minutes; `-retries`). To restart a seed that stopped, delete the cases it created (admin token, `DELETE /v1/cases/{id}`) and run it again: every finished prediction and precedent check is cached (D50, D54), so a rerun repeats those answers exactly and only computes what never finished. That is not a re-roll.
+If the model provider fails partway (Vertex 429/504 surface as 502 `model_unavailable`), the seed waits and retries each request (1, 2, 4 then 8 minutes; `-retries`). With the 10-minute HTTP timeout, the worst case is roughly 65 minutes for one request (5 attempts × 10 min + 15 min of sleeps), so the old "3–5 min" estimate only holds when the provider is healthy. Run it the day before and leave time to verify; do not start it during the talk. To restart a seed that stopped, delete the cases it created (admin token, `DELETE /v1/cases/{id}`) and run it again: every finished prediction and precedent check is cached (D50, D54), so a rerun repeats those answers exactly and only computes what never finished. That is not a re-roll.
 
 ## 2. What the first run decides, and what not to do
 
