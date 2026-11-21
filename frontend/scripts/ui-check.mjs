@@ -318,6 +318,62 @@ for (const scheme of ["light", "dark"]) {
   }
 }
 
+// #553: the ⋯ row menu must follow the ARIA menu-button keyboard pattern:
+// keyboard open focuses the first item, arrows move between items, Escape
+// restores focus to the trigger. Stub one writable case so a row exists.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases (row menu)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases (row menu)", console: String(e) }));
+  const summary = {
+    id: "case_ui_check0000001",
+    product_name: "Row menu probe",
+    display_name: "Row menu probe",
+    date: "2026-01-01",
+    predicted_origin: "CN",
+    triage_route: "auto",
+    confidence: 0.9,
+    step: "origin",
+    updated_at: "2026-01-01T00:00:00Z",
+    watch_status: null,
+    scenario_count: 0,
+    pinned: false,
+    can_write: true,
+  };
+  await page.route("**/api/v1/cases", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ cases: [summary] }) }),
+  );
+  await page.route("**/api/v1/demos", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ demos: [] }) }),
+  );
+  await page.goto(base + "/cases", { waitUntil: "networkidle" });
+  const trigger = page.locator('button[aria-label^="Actions for"]').first();
+  if (!(await trigger.count())) {
+    problems.push({ page: "/cases (row menu)", focus: "row menu trigger missing" });
+  } else {
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const opened = await page.evaluate(() => ({
+      label: document.querySelector('div[role="menu"]')?.getAttribute("aria-label") ?? null,
+      text: document.activeElement?.textContent?.trim(),
+      role: document.activeElement?.getAttribute("role"),
+    }));
+    if (opened.text !== "Open" || opened.role !== "menuitem" || !opened.label)
+      problems.push({ page: "/cases (row menu)", focus: "keyboard open did not focus first menuitem", ...opened });
+    await page.keyboard.press("ArrowDown");
+    const arrowed = await page.evaluate(() => document.activeElement?.textContent?.trim());
+    if (arrowed !== "Rename") problems.push({ page: "/cases (row menu)", focus: "ArrowDown did not move to next menuitem", arrowed });
+    await page.keyboard.press("End");
+    const ended = await page.evaluate(() => document.activeElement?.textContent?.trim());
+    if (ended !== "Delete case…") problems.push({ page: "/cases (row menu)", focus: "End did not move to last menuitem", ended });
+    await page.keyboard.press("Escape");
+    const restored = await page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
+    if (!/^Actions for/.test(restored ?? "")) problems.push({ page: "/cases (row menu)", focus: "Escape did not restore focus to trigger", restored });
+  }
+  await ctx.close();
+}
+
 // #548: the elapsed counter in a pending live region must not be announced
 // once a second. Enter both states with a delayed stub, let the counter tick,
 // and fail if the changing text is exposed to assistive tech.
