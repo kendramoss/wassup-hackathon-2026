@@ -26,6 +26,7 @@ CHECK = "--check" in sys.argv[2:]
 SEED = 20261017
 BOOTSTRAP = 2000
 BAR = 0.92
+CAP = 0.99  # highest calibrated probability the layer will state
 
 # Palette tokens from frontend/src/app/globals.css.
 SHEET, GRID, LINE = "#f9fbfe", "#d3dff0", "#c4d0e2"
@@ -239,8 +240,9 @@ def isotonic_fit(rs):
             x = merged.pop()
             y = merged.pop()
             merged.append({"lo": y["lo"], "hi": x["hi"], "n": x["n"] + y["n"], "k": x["k"] + y["k"]})
+    # Capped at 0.99: no errors in a block of a hundred cases is not certainty.
     return [{"from": b["lo"], "to_incl": b["hi"], "n": b["n"], "correct": b["k"],
-             "calibrated": r4(b["k"] / b["n"])} for b in merged]
+             "calibrated": r4(min(CAP, b["k"] / b["n"]))} for b in merged]
 
 
 def isotonic_apply(m, c):
@@ -291,6 +293,140 @@ def vote(runs, ids, order):
     return out
 
 
+# ---------------------------------------------------------------- held-out helpers
+
+FINAL2_RUN = R + "final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+ALL_REGIMES = {
+    "substantial_transformation": (R + "final-gemini-4-argon-prec-engine-v1-vertex.jsonl", "Vertex AI"),
+    "textile_102_21": (R + "textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl", "Vertex AI"),
+    "pharmaceutical": (R + "pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", "proxy"),
+    "part102_marking": (R + "usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "proxy"),
+}
+
+
+def scored_router(p):
+    """A run made with -router: the scope label is on the row itself."""
+    scope = {r["ruling"]: r.get("in_scope", True) for r in jsonl(p)}
+    return scored(p, scope)
+
+
+def final2_composition():
+    sp = json.load(open(path("eval/splits/splits_final2.json")))
+    return {k: sp[k] for k in ("frozen_at", "date_min", "date_max", "funnel", "collections", "label_method")}
+
+
+# ---------------------------------------------------------------- svg
+
+
+def f(x):
+    return f"{x:.1f}"
+
+
+def text(x, y, s, size=12, fill=DIM, anchor="start", weight="400"):
+    return (f'<text x="{f(x)}" y="{f(y)}" font-size="{size}" fill="{fill}" '
+            f'text-anchor="{anchor}" font-weight="{weight}">{s}</text>')
+
+
+def svg_wrap(w, h, title, desc, body):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" '
+            f'role="img" aria-labelledby="t d" font-family="{FONT}">\n'
+            f'<title id="t">{title}</title>\n<desc id="d">{desc}</desc>\n'
+            f'<rect width="{w}" height="{h}" fill="{SHEET}"/>\n' + "\n".join(body) + "\n</svg>\n")
+
+
+SWEEP_LABELS = [
+    ("argon_vertex", "Gemini 4 Argon, Vertex AI (in use)"),
+    ("argon_gateway", "Gemini 4 Argon, gateway"),
+    ("flash38_vertex", "Gemini 3.8 Flash, Vertex AI"),
+    ("pro31_gateway", "Gemini 3.1 Pro preview, gateway"),
+    ("carbon_gateway", "Gemini 4 Carbon, gateway"),
+]
+
+
+def sweep_svg(metrics):
+    """Dev accuracy per model with 95% Wilson intervals (a dot and a bar)."""
+    rows = [(k, lbl, metrics["dev"][k]) for k, lbl in SWEEP_LABELS if k in metrics["dev"]]
+    W, H = 760, 120 + 52 * len(rows)
+    L, R2, T = 300, 40, 96
+    x0, x1 = 80.0, 96.0
+
+    def X(a):
+        return L + (W - L - R2) * (a - x0) / (x1 - x0)
+
+    body = [text(24, 26, "Development set accuracy by model, engine-v1", 15, INK, weight="600"),
+            text(24, 46, "Same prompt, retrieval and K = 5; 463 rulings after scoring adjustments. Bars: 95% Wilson interval.", 11, DIM),
+            text(24, 62, "A failed call (no answer) counts as wrong.", 11, DIM)]
+    for a in range(int(x0), int(x1) + 1, 2):
+        body.append(f'<line x1="{f(X(a))}" x2="{f(X(a))}" y1="{T - 12}" y2="{H - 40}" stroke="{GRID}" stroke-width="1"/>')
+        body.append(text(X(a), H - 22, f"{a}%", 11, FAINT, "middle"))
+    for i, (k, lbl, v) in enumerate(rows):
+        y = T + 52 * i + 16
+        lo, hi = v["ci95_pct"]
+        color = HELD if k == "argon_vertex" else ALT
+        body.append(text(24, y + 4, lbl, 12, INK))
+        extra = f"{v['errors']} failed calls" if v["errors"] else "no failed calls"
+        body.append(text(24, y + 20, f"{v['correct']}/{v['n']} · ${v['cost_per_case_usd']:.4f}/case · {extra}", 10, DIM))
+        body.append(f'<line x1="{f(X(max(lo, x0)))}" x2="{f(X(min(hi, x1)))}" y1="{y}" y2="{y}" stroke="{DEV}" stroke-width="3"/>')
+        body.append(f'<circle cx="{f(X(v["accuracy_pct"]))}" cy="{y}" r="6" fill="{color}" stroke="{SHEET}" stroke-width="2"/>')
+        body.append(text(X(v["accuracy_pct"]), y - 12, f"{v['accuracy_pct']}%", 11, INK, "middle", "600"))
+    return svg_wrap(W, H, "Development set accuracy by model",
+                    "Accuracy of engine-v1 on the 463-ruling development set for each model, with 95% intervals. "
+                    "Gemini 4 Argon is highest; Carbon and 3.1 Pro preview are lower and fail on some calls.", body)
+
+
+def calibration_svg(fin, m):
+    """Held-out reliability before and after the dev-fitted isotonic layer."""
+    W, H = 760, 470
+    L, R2, T, B = 64, 24, 104, 64
+    pw, ph = W - L - R2, H - T - B
+    x0, x1 = 0.55, 1.00
+
+    def X(c):
+        return L + pw * (c - x0) / (x1 - x0)
+
+    def Y(a):
+        return T + ph * (100 - a) / 100
+
+    rs = list(with_calibrated(fin, m).values())
+    before, after = calib(rs, "conf"), calib(rs, "cal")
+    body = [text(L, 26, "Held-out calibration (377 rulings), before and after the layer", 15, INK, weight="600"),
+            text(L, 46, "Calibration map fitted on the development set only (isotonic, one step per emitted confidence).", 11, DIM),
+            text(L, 62, f"Before: ECE {before['ece_levels']:.3f}, Brier {before['brier']:.3f}. "
+                        f"After: ECE {after['ece_levels']:.3f}, Brier {after['brier']:.3f}.", 11, DIM)]
+    for a in range(0, 101, 20):
+        body.append(f'<line x1="{L}" x2="{W - R2}" y1="{f(Y(a))}" y2="{f(Y(a))}" stroke="{GRID}" stroke-width="1"/>')
+        body.append(text(L - 8, Y(a) + 4, f"{a}%", 11, FAINT, "end"))
+    for c in (0.6, 0.7, 0.8, 0.9, 1.0):
+        body.append(text(X(c), T + ph + 18, f"{c:.1f}", 11, FAINT, "middle"))
+    body.append(text(L + pw / 2, H - 18, "Stated confidence, or calibrated probability", 12, DIM, "middle"))
+    body.append(f'<circle cx="{L + 8}" cy="80" r="5" fill="{SHEET}" stroke="{DEV}" stroke-width="2"/>')
+    body.append(text(L + 20, 84, "before: stated confidence (engine-v1)", 11, INK))
+    body.append(f'<circle cx="{L + 330}" cy="80" r="5" fill="{HELD}" stroke="{SHEET}" stroke-width="2"/>')
+    body.append(text(L + 342, 84, "after: calibrated probability", 11, INK))
+    body.append(text(W - R2, T + ph - 8, "points with n &lt; 5 are drawn smaller", 10, FAINT, "end"))
+    body.append(f'<line x1="{f(X(x0))}" y1="{f(Y(x0 * 100))}" x2="{f(X(x1))}" y2="{f(Y(100))}" stroke="{FAINT}" stroke-width="1.5" stroke-dasharray="2 4"/>')
+    body.append(text(X(0.62), Y(62) - 10, "stated = observed", 11, FAINT, "middle"))
+
+    def levels(key):
+        out = []
+        for c in sorted({r[key] for r in rs}):
+            b = [r for r in rs if r[key] == c]
+            out.append((c, len(b), sum(r["ok"] for r in b)))
+        return out
+
+    for c, n, k in levels("conf"):
+        if c < x0:
+            continue
+        body.append(f'<circle cx="{f(X(c))}" cy="{f(Y(100 * k / n))}" r="{5 if n >= 5 else 3}" fill="{SHEET}" stroke="{DEV}" stroke-width="2"/>')
+    for c, n, k in levels("cal"):
+        if c < x0:
+            continue
+        body.append(f'<circle cx="{f(X(c))}" cy="{f(Y(100 * k / n))}" r="{5 if n >= 5 else 3}" fill="{HELD}" stroke="{SHEET}" stroke-width="2"/>')
+    return svg_wrap(W, H, "Calibration layer on the held-out split",
+                    "Observed accuracy against stated confidence before calibration and against calibrated probability after, "
+                    "on the 377 held-out rulings. The map was fitted on the development set.", body)
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -332,9 +468,64 @@ def main():
         m = isotonic_fit(rs)
         metrics["calibration_maps"][name] = m
 
+    # The calibration layer for the engine in production (engine-v1, Argon,
+    # Vertex): fitted on the development rows only, then applied once to the
+    # held-out rows that already exist. No engine or bar changes.
+    scope_final = {r["ruling"]: r["in_scope"] for r in jsonl(R + "scope-final-router-v2-vertex.jsonl")}
+    fin = scored(R + "final-gemini-4-argon-prec-engine-v1-vertex.jsonl", scope_final)
+    m = metrics["calibration_maps"][BASELINE]
+    fin_c = list(with_calibrated(fin, m).values())
+    dev_c = list(with_calibrated(dev[BASELINE], m).values())
+    metrics["calibration_layer_engine_v1"] = {
+        "fitted_on": DEV_RUNS[BASELINE], "applied_to": R + "final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+        "method": "isotonic regression (pool-adjacent-violators), one block per emitted confidence value",
+        "map": m,
+        "heldout_before": calib(fin_c, "conf"), "heldout_after": calib(fin_c, "cal"),
+        "dev_in_sample_after": calib(dev_c, "cal"),
+    }
+
+    # Held-out: the first split (377, Vertex, official), the second split
+    # (D150) when its single scored run exists, and both pooled.
+    held = {"final": {"file": R + "final-gemini-4-argon-prec-engine-v1-vertex.jsonl", **summary(fin)}}
+    f2 = None
+    if exists(FINAL2_RUN):
+        f2 = scored_router(FINAL2_RUN)
+        f2c = list(with_calibrated(f2, m).values())
+        held["final2"] = {"file": FINAL2_RUN, **summary(f2)}
+        held["final2"]["calibration_layer"] = {"before": calib(f2c, "conf"), "after": calib(f2c, "cal")}
+        pooled = dict(fin)
+        pooled.update(f2)
+        held["pooled_final_final2"] = {"file": "both rows above", **summary(pooled)}
+        pc = list(with_calibrated(pooled, m).values())
+        held["pooled_final_final2"]["calibration_layer"] = {"before": calib(pc, "conf"), "after": calib(pc, "cal")}
+        held["final2"]["selective"] = selective(f2)
+        held["final2"]["composition"] = final2_composition()
+    metrics["heldout"] = held
+
+    # Every regime's held-out run, first window, and pooled. The pharmaceutical
+    # and Part 102 runs went through the proxy (docs/NUMBERS.md).
+    regimes = {}
+    tot_n = tot_k = 0
+    for name, (p, via) in ALL_REGIMES.items():
+        rs = jsonl(p)
+        k = sum(1 for r in rs if r["correct"] and not r.get("error"))
+        a, lo, hi = wilson(k, len(rs))
+        regimes[name] = {"file": p, "via": via, "n": len(rs), "correct": k, "accuracy_pct": pct(a), "ci95_pct": [pct(lo), pct(hi)]}
+        tot_n += len(rs)
+        tot_k += k
+    a, lo, hi = wilson(tot_k, tot_n)
+    regimes["pooled"] = {"n": tot_n, "correct": tot_k, "accuracy_pct": pct(a), "ci95_pct": [pct(lo), pct(hi)]}
+    if f2 is not None:
+        k2 = sum(r["ok"] for r in f2.values())
+        a, lo, hi = wilson(tot_k + k2, tot_n + len(f2))
+        regimes["pooled_with_final2"] = {"n": tot_n + len(f2), "correct": tot_k + k2, "accuracy_pct": pct(a), "ci95_pct": [pct(lo), pct(hi)]}
+    metrics["heldout_all_regimes"] = regimes
+
     if CANDIDATE:
         metrics["candidate"] = CANDIDATE
-    out = {"eval/results/accuracy-v2-metrics.json": json.dumps(metrics, indent=1, ensure_ascii=False) + "\n"}
+    out = {"eval/results/accuracy-v2-metrics.json": json.dumps(metrics, indent=1, ensure_ascii=False) + "\n",
+           "docs/img/model-sweep-dev.svg": sweep_svg(metrics),
+           "docs/img/calibration-layer.svg": calibration_svg(fin, m)}
     stale = []
     for p, body in out.items():
         cur = open(path(p)).read() if exists(p) else None

@@ -155,7 +155,7 @@ func main() {
 
 func run(args []string) error {
 	fl := flag.NewFlagSet("run", flag.ExitOnError)
-	split := fl.String("split", "dev", "dev, final or pilot; train or tune_check with -splits ../eval/splits/splits_tune.json")
+	split := fl.String("split", "dev", "dev, final or pilot; final2 with -splits ../eval/splits/splits_final2.json; train or tune_check with -splits ../eval/splits/splits_tune.json")
 	limit := fl.Int("limit", 0, "only the first N cases (0 = all)")
 	workers := fl.Int("workers", 8, "concurrent model calls")
 	useRouter := fl.Bool("router", false, "also run the router; its regime label drives the scope check")
@@ -170,7 +170,7 @@ func run(args []string) error {
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
 	tag := fl.String("tag", "", "appended to the result file name, to keep a repeat run apart from an earlier file with the same configuration")
-	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
+	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated; final2 needs ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build)")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
@@ -213,7 +213,7 @@ func run(args []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	labels, err := corpus.LoadLabels(*labelsPath)
+	labels, err := loadLabelFiles(*labelsPath)
 	if err != nil {
 		return err
 	}
@@ -1510,13 +1510,14 @@ func multiScenarioCmd(args []string) error {
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
 	outPath := fl.String("out", "../eval/data/multi_scenario.json", "output")
+	names := fl.String("split-names", "dev,final", "splits to scan (final2 with -splits ../eval/splits/splits_final2.json)")
 	_ = fl.Parse(args)
 	sp, err := corpus.LoadSplits(*splitsPath)
 	if err != nil {
 		return err
 	}
 	out := map[string]map[string]any{}
-	for _, split := range []string{"dev", "final"} {
+	for _, split := range splitComma(*names) {
 		ids, _ := sp.IDs(split)
 		for _, id := range ids {
 			b, err := os.ReadFile(filepath.Join(*rawDir, id+".json"))
