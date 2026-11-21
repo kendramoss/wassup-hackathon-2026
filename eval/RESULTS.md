@@ -29,6 +29,62 @@ ECE, Brier and a reliability diagram for these rows are in `docs/EVALUATION.md` 
 | 0.80–0.90 | 31 | 18 | 58.1% (40.8–73.6) |
 | < 0.80 | 11 | 7 | 63.6% (35.4–84.8) |
 
+## Second held-out split, model sweep and calibration layer (21 Nov 2026; D150–D157)
+
+All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into `results/accuracy-v2-metrics.json` from the committed rows; no model calls. New runs went through an OpenAI-compatible LiteLLM gateway to Gemini (the "gateway"; `LLM_PROVIDER=litellm`, eval only, D151), with temperature 0, seed 20261017 and a 120 s call timeout. Scoring adjustments (D23) as above.
+
+### Model sweep, development set (n = 463 after adjustments; D152, D153)
+
+| Arm | Accuracy (95% CI) | Failed calls | Fast path (≥ 0.92, in scope) | Cost / case | p50 / p95 | vs Argon on Vertex |
+|---|---|---:|---|---|---|---|
+| Gemini 4 Argon, Vertex AI (in use) | 91.1% (88.2–93.4) | 0 | 79.5% at 96.5% | $0.0079 | 4.8 s / 8.1 s | — |
+| Gemini 4 Argon, gateway | 91.8% (88.9–94.0) | 0 | 81.0% at 95.7% | $0.0079 | 6.8 s / 10.8 s | fixed 8, broke 5, p = 0.58 |
+| Gemini 4 Carbon, gateway | 88.1% (84.9–90.8) | 27 | 81.9% at 96.3% | $0.0155 | 13.0 s / 52.2 s | fixed 6, broke 20, p = 0.009 |
+| Gemini 3.1 Pro preview, gateway | 87.3% (83.9–90.0) | 10 | 83.6% at 92.8% | $0.0178 | 10.6 s / 24.7 s | fixed 12, broke 30, p = 0.008 |
+| Gemini 3.8 Flash, Vertex AI (17 Oct run) | 90.1% (87.0–92.5) | 0 | 87.7% at 93.1% | $0.0050 | 5.5 s / 20.4 s | fixed 13, broke 18, p = 0.47 |
+| Argon + rules-v2 prompt, gateway (D157) | 90.9% (88.0–93.2) | 0 | 77.8% at 96.7% | $0.0086 | — | fixed 9, broke 10, p = 1.0 |
+| Majority of Argon, Carbon, 3.1 Pro (computed) | 91.6% (88.7–93.8) | 0 | 76.2% at 96.3% | $0.0432 | 14.3 s / 55.3 s | fixed 8, broke 6, p = 0.79 |
+
+- Rows: `results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl`, `results/dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl`, `results/dev-gemini-3.1-pro-preview-prec-engine-v1-litellm.jsonl`, `results/dev-gemini-4-argon-prec-engine-v1-litellm-rules-v2.jsonl`. Gateway cost is the cost the gateway reported per case.
+- Carbon's 27 failed calls spent the whole 8,000-token output budget thinking. On the 436 cases it answered it matches Argon on the gateway: 408 against 406 right, p = 0.77. 3.1 Pro returned 10 empty answers and is lower on the cases it answered (404 against 416 on 453, p = 0.05).
+- Against Argon on the gateway: rules-v2 fixed 9, broke 13, p = 0.52.
+- Candidate pre-registered before any held-out scoring (D153): engine-v1 on Argon, unchanged, plus the calibration layer.
+
+### Second held-out split (D150, D154): 83 rulings, 28 Sep to 13 Nov 2026, scored once
+
+| Split | n | Accuracy (95% CI) | Fast path | Fast path accuracy (95% CI) | Path |
+|---|---:|---|---|---|---|
+| final (Jan–Sep 2026) | 377 | 90.2% (86.8–92.8) | 300 = 79.6% | 96.0% (93.1–97.7) | Vertex AI (official, 15 Oct) |
+| **final2 (Sep–Nov 2026)** | 83 | **92.8% (85.1–96.6)** | 75 = 90.4% | 97.3% (90.8–99.3) | gateway, router-v2 on 3.8 Flash |
+| both, pooled | 460 | 90.7% (87.6–93.0) | 375 = 81.5% | 96.3% (93.8–97.8) | mixed (above) |
+
+- Rows: `results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl` (git revision dfc712b, the commit that froze the split). $0.0098 per case (gateway-reported); p50 7.5 s, p95 12.3 s. Labels: regex 75/81, manual 2/2.
+- The 6 errors: CBP held China and the engine named the assembling country in 4 (N365621, N365280, N365997, N366380), the reverse in 1 (N365606), and Costa Rica against the United States in 1 (N365362).
+- The split is easier for simple rules than the first: the most-mentioned country is right on 71.1% (60.6–79.7) of it against 60.7% (55.7–65.5) on the first (`results/baselines-final2.json`, `results/baselines-final.json`). It also has near-duplicate rulings: 83 rulings, 62 distinct subjects, the largest group 7 (wrapping paper). Counting each subject once, accuracy is 91.9%.
+
+### Calibration layer (D156): isotonic map fitted on the dev rows, applied unchanged
+
+| Held-out set | ECE before | ECE after | Brier before | Brier after | Mean stated before → after (accuracy) |
+|---|---|---|---|---|---|
+| final, 377 | 0.059 (0.041–0.091) | 0.030 (0.020–0.059) | 0.081 (0.059–0.105) | 0.072 (0.056–0.092) | 94.7% → 90.4% (90.2%) |
+| final2, 83 | 0.067 (0.039–0.126) | 0.038 (0.030–0.099) | 0.060 (0.021–0.109) | 0.051 (0.020–0.090) | 96.1% → 93.9% (92.8%) |
+| pooled, 460 | 0.055 (0.041–0.085) | 0.027 (0.017–0.053) | 0.077 (0.057–0.098) | 0.069 (0.053–0.085) | 95.0% → 91.0% (90.7%) |
+
+ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). The layer is not in the API; the fast path still uses the 0.92 bar on stated confidence.
+
+### All regimes, held-out (first window, plus final2)
+
+| Regime | n | Accuracy (95% CI) | Path |
+|---|---:|---|---|
+| Substantial transformation | 377 | 90.2% (86.8–92.8) | Vertex AI |
+| Textile (19 CFR 102.21), textile-v1 | 71 | 85.9% (76.0–92.2) | Vertex AI |
+| Pharmaceutical, pharma-v1 | 56 | 89.3% (78.5–95.0) | proxy |
+| Part 102 marking origin, usmca-v1 | 32 | 78.1% (61.2–89.0) | proxy |
+| **All four, pooled** | 536 | 88.8% (85.9–91.2) | mixed |
+| All four plus final2 (substantial transformation) | 619 | 89.3% (86.7–91.5) | mixed |
+
+Post-cutoff rulings of the other regimes were labelled (`data/labels_final2.jsonl`: 18 Part 102, 12 pharmaceutical) but not scored: their engines need their own precedent pools and splits. Planned.
+
 ## Auto-accept bar by product family (17 Oct 2026; D63) — not adopted
 
 No model calls: the Vertex engine rows (`results/dev-` and `results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl`) joined with router-v2's subfamily (`results/scope-*-router-v2-vertex.jsonl`), scoring adjustments applied. Bars fitted **on dev only**: per router subfamily, the lowest confidence at which in-scope dev accuracy stays ≥ 95% at every bar keeping ≥ 20 cases; a subfamily without one keeps the global 0.92 (D32). The frozen bars were then applied **once** to the held-out split. Command: `go run ./cmd/eval calibrate` (writes `results/calibration-by-family.json`, `results/calibration-by-family.md` and `backend/internal/triage/family_bars.json`).
