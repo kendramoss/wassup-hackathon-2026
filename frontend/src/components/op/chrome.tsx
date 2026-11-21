@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useStepLabel } from "./demo-tour";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError, type CaseSummary } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
@@ -124,8 +125,10 @@ export function CaseTabs({
   return (
     <>
     <div className="no-print z-20 flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-paper px-4 py-2 text-[13px] sm:sticky sm:top-0 sm:px-10">
-    <nav aria-label="Case" tabIndex={0} className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
-      <ul className="flex items-center gap-1.5 whitespace-nowrap sm:flex-wrap">
+    {/* The steps wrap onto a second row on a phone instead of scrolling
+        sideways, where "4 Draft for broker" was cut off (judge panel round 5). */}
+    <nav aria-label="Case" className="w-full sm:w-auto">
+      <ul className="flex flex-wrap items-center gap-1.5 whitespace-nowrap">
         {tabs.map((t) => {
           const on = t.key === current;
           const open = Boolean(caseId) && (t.step <= Math.max(reached, 2) || t.key === "plan" || t.key === "draft");
@@ -192,9 +195,10 @@ export function CaseTabs({
 // says it is optional instead.
 export function StepEyebrow({ tab, children }: { tab: CaseTab; children?: ReactNode }) {
   const t = tabs.find((x) => x.key === tab)!;
+  const label = useStepLabel(tab, t.optional ? "Optional" : `Step ${t.step} of 4`);
   return (
     <p className="eyebrow">
-      {t.optional ? "Optional" : `Step ${t.step} of 4`} · {children ?? t.label}
+      {label} · {children ?? t.label}
     </p>
   );
 }

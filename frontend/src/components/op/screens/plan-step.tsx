@@ -8,6 +8,8 @@ import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
 import { demoFor } from "@/lib/demo-store";
 import { BAR, conf, isProxy, money, originShort } from "@/lib/format";
+import { decisionHref } from "@/lib/method";
+import { useStepLabel } from "../demo-tour";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { Elapsed, ErrorBox, Footer, Main, Next, NextSteps } from "../chrome";
 import { hasAnyMoney, moneySummary } from "../money-drawer";
@@ -15,7 +17,7 @@ import { OPS_UNREADABLE, OperationalFields, opsErrorText, useOpsValidity } from 
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
-import { EconomicsEditor, MoveIncludes, PlantDiagram, agreementWords, backtestMatch, checkWords, moveKey, movePhrase, rejectionLabels } from "../plan-bits";
+import { EconomicsEditor, MoveIncludes, PlantDiagram, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, rejectionLabels, type ActualChangeExtras, type BacktestView } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
@@ -37,10 +39,11 @@ function PlanScreen(ctx: CaseCtx) {
 // Textile, USMCA and pharmaceutical cases: moves aren't modelled under those
 // rules (D51, D61, D62), so there's no search to run.
 function NoPlanForRegime({ id, label }: { id: string; label: string }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   return (
     <>
       <Main className="flex flex-col gap-3">
-        <p className="eyebrow">Step 3 of 4 · Plan</p>
+        <p className="eyebrow">{stepNo} · Plan</p>
         <h1 className="text-xl tracking-[-0.04em]">No plan search for {label}</h1>
         <p className="duo max-w-[72ch] text-sm text-dim">
           This case was decided under {label}. The plan search models moves under substantial transformation only, so it doesn&apos;t run here. A broker can review the origin from the
@@ -58,6 +61,7 @@ function NoPlanForRegime({ id, label }: { id: string; label: string }) {
 }
 
 function PlanSearch({ id, c, setCase }: CaseCtx) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   const params = useSearchParams();
   const router = useRouter();
   const target = params.get("target") ?? planTarget(c) ?? "";
@@ -111,6 +115,32 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   }, [id, target, c.economics]);
 
   useEffect(() => () => abort.current?.abort(), []);
+
+  // The demo's record of the real change (which parts were already in the
+  // target, and which CBP's change kept in place). A case loaded in this
+  // browser has it in its plan request; the pinned demo case doesn't, so it is
+  // found by the backtest's source among the demos (D310). Read-only GETs.
+  const [demoChange, setDemoChange] = useState<ActualChangeExtras | null>(null);
+  const btSource = (result?.backtest as { source?: unknown } | undefined)?.source;
+  const reqHasChange = Boolean(req?.actual_change);
+  useEffect(() => {
+    if (reqHasChange || typeof btSource !== "string") return;
+    let live = true;
+    api.demos().then(
+      async (list) => {
+        for (const d of list.demos ?? []) {
+          if (!live || !d.has_plan || !d.id) continue;
+          const full = await api.demo(d.id).catch(() => null);
+          const ac = full?.plan?.actual_change as (ActualChangeExtras & { _source?: string }) | undefined;
+          if (live && ac?._source === btSource) return setDemoChange(ac);
+        }
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [btSource, reqHasChange]);
 
   // What the search will cost and take, before it runs (D87). It reads the
   // caches and calls no model; on any error the usual sentence stays.
@@ -266,7 +296,16 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     return [...s];
   }, [c, target]);
 
-  const draft = (key?: string) => router.push(`/cases/${encodeURIComponent(id)}/draft${key ? `?move=${encodeURIComponent(key)}` : ""}`);
+  // The demo tour (?tour=1) carries on to the draft, its step 3.
+  const tour = params.get("tour") === "1";
+  const draftHref = (key?: string) => {
+    const q = new URLSearchParams();
+    if (key) q.set("move", key);
+    if (tour) q.set("tour", "1");
+    const qs = q.toString();
+    return `/cases/${encodeURIComponent(id)}/draft${qs ? `?${qs}` : ""}`;
+  };
+  const draft = (key?: string) => router.push(draftHref(key));
 
   // Nothing to plan towards yet: a pasted case has no plants, or every plant
   // is in the origin country. A next step, not an error (#81, #98).
@@ -276,7 +315,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
       <>
         <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="flex flex-col gap-3">
-            <p className="eyebrow">Step 3 of 4 · Plan</p>
+            <p className="eyebrow">{stepNo} · Plan</p>
             <h1 className="text-xl tracking-[-0.04em]">Plan a move</h1>
             <p className="duo max-w-[72ch] text-sm text-dim">
               {plants
@@ -309,6 +348,12 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   const best = result?.plans?.[0];
   const closest = !best ? result?.rejected?.filter((p) => p.rejection_kind === "below_confidence_bar").sort((a, b) => (b.verdict?.confidence ?? 0) - (a.verdict?.confidence ?? 0))[0] : undefined;
   const lead = best ?? closest;
+  // The backtest read for people (D310): parts that really changed origin,
+  // which the plan moves, and what it moves that CBP's change kept in place.
+  const bt = result?.backtest
+    ? backtestView(result.backtest, { change: ((req?.actual_change as ActualChangeExtras | undefined) ?? demoChange), product: c.product, move: lead?.move, recount: !best })
+    : undefined;
+  const from = currentOrigin(c)?.country ?? c.prediction?.origin_country ?? "the old country";
 
   return (
     <>
@@ -324,7 +369,8 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           stale={stale}
           demoted={stale ? 0 : demoted}
           objective={result.objective}
-          backtest={result.backtest}
+          backtest={bt}
+          from={from}
           // The search's own count; the "No change" baseline isn't a move.
           total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
         />
@@ -386,16 +432,26 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                     </button>
                   </p>
                 </Fold>
-                {result.backtest ? (
+                {result.backtest && bt ? (
                   // Open by default (judge panel round 4): the backtest is the
                   // strongest evidence on this screen, so it is not behind a click.
                   <Fold
                     id="backtest"
                     title="Backtest against CBP's actual ruling"
-                    meta={best ? backtestShort(result.backtest) : undefined}
+                    meta={best && bt ? backtestShort(bt) : undefined}
                     open
                   >
-                    <BacktestPanel bt={result.backtest as Record<string, unknown>} closest={best ? undefined : closest} product={c.product ?? undefined} />
+                    {bt ? (
+                      <BacktestPanel
+                        v={bt}
+                        source={typeof (result.backtest as Record<string, unknown>).source === "string" ? String((result.backtest as Record<string, unknown>).source) : undefined}
+                        closest={best ? undefined : closest}
+                        target={target}
+                        from={from}
+                        tour={tour}
+                        next={tour && lead ? draftHref(moveKey(lead)) : undefined}
+                      />
+                    ) : null}
                   </Fold>
                 ) : null}
                 {result.stats ? (
@@ -535,10 +591,12 @@ function PlanBand({
   objective,
   product,
   backtest,
+  from,
 }: {
   plan: Plan;
   product?: Product | null;
-  backtest?: unknown;
+  backtest?: BacktestView;
+  from: string;
   target: string;
   below: boolean;
   shown: number;
@@ -547,6 +605,7 @@ function PlanBand({
   demoted?: number;
   objective?: PlanResult["objective"];
 }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   const v = plan.verdict?.confidence;
   return (
     <Band
@@ -558,7 +617,7 @@ function PlanBand({
       }
       right={below ? "closest first: by precedent check" : "precedent-checked"}>
       <div>
-        <p className={cx("eyebrow", below && "text-ask")}>Step 3 of 4 · {below ? copy.plan.none : copy.plan.best}</p>
+        <p className={cx("eyebrow", below && "text-ask")}>{stepNo} · {below ? copy.plan.none : copy.plan.best}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           {below ? "Closest: move " : "Move "}
           <Explained text={sentence(plan)} terms={["pcba"]} /> to <To country={target} />
@@ -579,11 +638,13 @@ function PlanBand({
           <Term explain={copy.terms.check.text}>Precedent check</Term>
         </p>
         <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement), checkWords(v)].filter(Boolean).join(" · ")} />
-        {!below && backtestWords(backtest) ? (
+        {!below && backtest ? (
           // The backtest beside the check (judge panel round 4): what the
-          // manufacturer really changed, from CBP's later ruling.
+          // manufacturer really changed, from CBP's later ruling. Round 5
+          // (D310): count only parts that changed origin, say what the plan
+          // moves beyond that, and that the test is not blind.
           <p className="duo mt-3 text-xs">
-            <span className="text-body">Backtest:</span> {backtestWords(backtest)}.{" "}
+            <span className="text-body">Backtest:</span> {backtestWords(backtest, target, from)}{" "}
             <a href="#backtest" className="whitespace-nowrap text-ok underline underline-offset-2">
               See the parts ↓
             </a>
@@ -595,10 +656,11 @@ function PlanBand({
 }
 
 function NoneBand({ target, demoted, stale }: { target: string; demoted?: boolean; stale?: boolean }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   return (
     <Band>
       <div>
-        <p className="eyebrow text-ask">Step 3 of 4 · No plan reached {target}</p>
+        <p className="eyebrow text-ask">{stepNo} · No plan reached {target}</p>
         {demoted ? (
           <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em]">{stale ? copy.stale.noneBand : copy.opsResult.noneBand}</h1>
         ) : (
@@ -610,11 +672,12 @@ function NoneBand({ target, demoted, stale }: { target: string; demoted?: boolea
 }
 
 function StartBand({ target, c }: { target: string; c: CaseResponse }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   const cur = currentOrigin(c);
   return (
     <Band>
       <div>
-        <p className="eyebrow">Step 3 of 4 · Plan</p>
+        <p className="eyebrow">{stepNo} · Plan</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Which operations would have to move for the origin to become <To country={target} />?
         </h1>
@@ -631,6 +694,7 @@ function StartBand({ target, c }: { target: string; c: CaseResponse }) {
 const SLOW_MS = 3 * 60 * 1000;
 
 function SearchingBand({ target, progress }: { target: string; progress: { done: number; total: number; since: number } }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
   const [slow, setSlow] = useState(() => Date.now() - progress.since > SLOW_MS);
   useEffect(() => {
     if (slow) return;
@@ -640,7 +704,7 @@ function SearchingBand({ target, progress }: { target: string; progress: { done:
   return (
     <Band right="moves run in parallel">
       <div>
-        <p className="eyebrow">Step 3 of 4 · {copy.plan.searching}</p>
+        <p className="eyebrow">{stepNo} · {copy.plan.searching}</p>
         <h1 className="duo mt-1 text-[26px] font-normal leading-tight tracking-[-0.05em] sm:text-[32px]">
           Checking each move to <To country={target} /> against earlier CBP rulings
         </h1>
@@ -969,65 +1033,107 @@ function NearMiss({ nm, fallbackRuling }: { nm: NonNullable<Plan["near_miss"]>; 
 
 const parts = (n: number) => `${n} ${n === 1 ? "part" : "parts"}`;
 
-// The fold's short meta: "6 of 7 parts of the real change".
-function backtestShort(bt: unknown): string | undefined {
-  const b = (bt ?? {}) as Record<string, unknown>;
-  const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
-  const actual = list("actual_moved");
-  if (actual.length === 0) return undefined;
-  if (backtestMatch(b).matches) return "matches the real change";
-  return `${list("moved_by_plan").filter((m) => actual.includes(m)).length} of ${parts(actual.length)} of the real change`;
+// The fold's short meta: "all 6 changed parts · 3 more moved".
+function backtestShort(v: BacktestView): string {
+  const k = v.missed.length === 0 ? `all ${parts(v.changed.length)} that changed` : `${v.moved.length} of ${parts(v.changed.length)} that changed`;
+  return v.alsoKept.length ? `${k} · moves ${v.alsoKept.length} more` : k;
 }
 
-// "moves 6 of the 7 parts CBP's later ruling N357771 records as moved", from
-// the backend's backtest of the shown plan; nothing when there is none.
-function backtestWords(bt: unknown): string | undefined {
-  const b = (bt ?? {}) as Record<string, unknown>;
-  const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
-  const actual = list("actual_moved");
-  if (actual.length === 0) return undefined;
-  const moved = list("moved_by_plan").filter((m) => actual.includes(m)).length;
-  const { ruling } = backtestMatch(b);
-  const of = moved === actual.length ? `all ${parts(actual.length)}` : `${moved} of the ${parts(actual.length)}`;
-  return `moves ${of} the manufacturer really moved${ruling ? `, per CBP's later ruling ${ruling}` : ""}`;
+// The band's sentence: what the comparison is, and that it is not blind.
+function backtestWords(v: BacktestView, target: string, from: string): string {
+  const of = v.missed.length === 0 ? `all ${parts(v.changed.length)}` : `${v.moved.length} of the ${parts(v.changed.length)}`;
+  const kept = v.alsoKept.length ? ` It also moves the ${andList(v.alsoKept)}, which that change kept in ${from}.` : "";
+  return `moves ${of} the manufacturer's real change switched from ${from} to ${target}${v.ruling ? ` (CBP's later ruling ${v.ruling})` : ""}.${kept} Not a blind test.`;
 }
 
 // With no plan over the bar the backend compares CBP's change with nothing,
-// so compare it with the closest move the page highlights instead.
-function BacktestPanel({ bt, closest, product }: { bt: Record<string, unknown>; closest?: Plan; product?: Product }) {
-  const list = (k: string) => (Array.isArray(bt[k]) ? (bt[k] as string[]) : []);
-  const actual = list("actual_moved");
-  const groups = new Set((closest?.move ?? []).map((m) => m.group));
-  const moved = closest
-    ? (product?.components ?? []).filter((c) => c.group && groups.has(c.group)).map((c) => c.name).filter((n) => actual.includes(n))
-    : list("moved_by_plan");
+// so the view compares it with the closest move the page highlights instead.
+function BacktestPanel({
+  v,
+  source,
+  closest,
+  target,
+  from,
+  tour,
+  next,
+}: {
+  tour?: boolean;
+  v: BacktestView;
+  source?: string;
+  closest?: Plan;
+  target: string;
+  from: string;
+  next?: string;
+}) {
   return (
-    <div>
-      {!closest && backtestMatch(bt).matches ? (
-        <p className="mb-2">
+    <div className="flex flex-col gap-2.5">
+      {tour ? (
+        <p className="eyebrow">
+          {copy.tour.stepOf(2)} · {copy.tour.steps[1]}
+        </p>
+      ) : null}
+      {!closest && v.matches ? (
+        <p>
           <Chip tone="ok">Matches CBP&apos;s actual change</Chip>
         </p>
       ) : null}
       <p className="duo text-[13px]">
-        The manufacturer&apos;s real change moved {parts(actual.length)}.{" "}
+        What is compared: the parts whose origin the manufacturer&apos;s real change switched from {from} to {target}
+        {v.ruling ? <> (CBP&apos;s later ruling <RulingLink id={v.ruling} />)</> : null}, against the parts this plan moves. The real change switched {parts(v.changed.length)}.{" "}
         {closest ? (
           <>
-            No plan cleared the bar; the closest move ({movePhrase(closest)}) moves {moved.length} of them.
+            No plan cleared the bar; the closest move ({movePhrase(closest)}) moves {v.moved.length} of them.
           </>
-        ) : moved.length === actual.length ? (
-          <>This plan moves {actual.length === 1 ? "that part" : "all of them"}.</>
+        ) : v.missed.length === 0 ? (
+          <>This plan moves {v.changed.length === 1 ? "that part" : `all ${v.changed.length}`}.</>
         ) : (
-          <>This plan moves {moved.length} of them.</>
+          <>This plan moves {v.moved.length} of them.</>
         )}
       </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {actual.map((a) => (
-          <span key={a} className={cx("border px-2 py-0.5 text-[11.5px]", moved.includes(a) ? "border-ok text-ok" : "border-line")}>
+      <div className="flex flex-wrap gap-1.5" aria-label="Parts the real change switched">
+        {v.changed.map((a) => (
+          <span key={a} className={cx("border px-2 py-0.5 text-[11.5px]", v.moved.includes(a) ? "border-ok text-ok" : "border-line")}>
             {a}
+            {v.moved.includes(a) ? null : <span className="sr-only"> (not moved by this plan)</span>}
           </span>
         ))}
       </div>
-      {typeof bt.source === "string" ? <p className="mt-2 text-xs text-dim">Source: {bt.source}</p> : null}
+      {v.alsoKept.length ? (
+        <>
+          <p className="duo text-[13px]">
+            The plan also moves {v.alsoKept.length === 1 ? "a part" : `${v.alsoKept.length} parts`} that CBP&apos;s real change kept in {from}: the {andList(v.alsoKept)}. A smaller
+            move may have been enough. The search moves parts in template groups, and {v.alsoKept.length === 1 ? "this one sits" : "these sit"} in a group with parts that did switch
+            {v.keptGroups.length ? <> ({andList(v.keptGroups.map((g) => (/^[A-Z][a-z]/.test(g) ? g[0].toLowerCase() + g.slice(1) : g)))})</> : null}.
+          </p>
+          <div className="flex flex-wrap gap-1.5" aria-label={`Parts the real change kept in ${from} that this plan moves`}>
+            {v.alsoKept.map((a) => (
+              <span key={a} className="border border-ask-line px-2 py-0.5 text-[11.5px] text-ask">
+                {a}
+              </span>
+            ))}
+          </div>
+        </>
+      ) : null}
+      {v.already.length ? (
+        <p className="text-xs text-dim">
+          Not counted: the {andList(v.already)}, which the later ruling lists as made in {target} but which were already made there before the change.
+        </p>
+      ) : null}
+      <p className="duo border-l-2 border-ask-line pl-3 text-xs text-body">
+        Not a blind test. Three-group moves were added to the search after the team saw CBP&apos;s 2026 heat-gun change (
+        <a href={decisionHref("D84")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
+          D84
+        </a>
+        ). The date cutoff still holds: the precedent check reads only rulings dated before the case.
+      </p>
+      {source ? <p className="text-xs text-dim">Source: {source}</p> : null}
+      {next ? (
+        <p>
+          <a href={next} className="inline-flex min-h-8 items-center text-[13px] text-ok underline underline-offset-2">
+            {copy.tour.next(copy.tour.steps[2])}
+          </a>
+        </p>
+      ) : null}
     </div>
   );
 }

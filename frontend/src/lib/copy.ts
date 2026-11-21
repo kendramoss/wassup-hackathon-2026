@@ -315,12 +315,12 @@ export const copy = {
     demo: "Try the heat-gun demo →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real CBP rulings",
-    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site shows the same plan at 0.96. The manufacturer moved the same parts, and the outer shells, and in 2026 CBP held Thailand.",
+    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site shows the same plan at 0.96. In its real 2026 change the manufacturer made the motor, fan, PCBA, knob, power cord and back cover in Thailand and kept the switch, wires and fasteners in China, and CBP held Thailand.",
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part, where it is made, and which decide the origin." },
       { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Recorded 18 Oct run: check 0.96, above the 0.92 bar; the pinned demo shows the same.", for: "N345938" },
-      { title: "2026 setup", body: "The maker moved the same parts, and the outer shells. CBP held Thailand", ruling: "N357771" },
+      { title: "2026 setup", body: "The maker moved the motor, fan, PCBA, knob, cord and back cover, and kept the switch, wires and fasteners in China. CBP held Thailand", ruling: "N357771" },
     ],
     stepOf: (n: number) => `Step ${n} of 4`,
     sheetStates: ["2022 setup · isometric", "exploded view", "planned move", "2026 setup · isometric"],
@@ -351,10 +351,10 @@ export const copy = {
       lead: "Every move is checked both ways, for and against, against earlier CBP rulings only. Tested on pairs of CBP rulings on one product before and after a change, at least one of them published after the 377 above, with CBP's starting origin given.",
       rows: [
         { k: 9, n: 9, label: "moves shown were real changes", lo: 70, hi: 100, lowerIsBetter: false },
-        { k: 9, n: 12, label: "real changes found (75%)", lo: 47, hi: 91, lowerIsBetter: false },
+        { k: 9, n: 12, label: "later real changes found, one run, starting origin given (75%)", lo: 47, hi: 91, lowerIsBetter: false },
         { k: 0, n: 6, label: "no-change pairs shown as a plan", lo: 0, hi: 39, lowerIsBetter: true },
       ],
-      foot: "Small samples, so wide intervals. Without the starting origin: 5 of 6 shown were right, 5 of 12 found.",
+      foot: "Small samples, so wide intervals. Without the starting origin: 5 of 6 shown were right, 5 of 12 found. The accuracy page also says about 29%: that is a stricter count on earlier pairs, where a pair counts only if it cleared the bar in every one of several runs, with and without the starting origin (17 of 59).",
       link: "Plan checks on the accuracy page →",
     },
     more: "How accurate is it? →",
@@ -507,6 +507,10 @@ export const copy = {
     steps: ["The plan", "Backtest vs CBP's later ruling", "The broker draft"] as const,
     next: (step: string) => `Next: ${step[0].toLowerCase()}${step.slice(1)} →`,
     origin: "See the origin step first",
+    // With the tour on, the case's own "Step 3 of 4" gives way to the tour's
+    // count, so there is one counter on screen (judge panel round 5).
+    stepOf: (n: number) => `Tour step ${n} of 3`,
+    outside: "Outside the tour",
   },
 
   signIn: {

@@ -319,7 +319,8 @@ export function Landing() {
                             Recorded 18 Oct production run (docs/DEMO.md, section 6). The pinned case on this site shows the same plan at 0.96.
                           </p>
                           <p className="duo small">
-                            Matches CBP&apos;s 2026 change (<RulingLink id="N357771" />), all but the outer shells.
+                            Backtest: moves all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) switched from China to Thailand, and also the switch,
+                            wires and fasteners that change kept in China. Not a blind test: three-group moves were added after the team saw it (D84).
                           </p>
                         </div>
                       </div>

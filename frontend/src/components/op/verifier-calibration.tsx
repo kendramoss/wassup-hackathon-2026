@@ -1,4 +1,5 @@
 import type { EvalSummary } from "@/lib/api/client";
+import { decisionHref } from "@/lib/method";
 import { Chip, ScrollX } from "./ui";
 
 type Calibration = NonNullable<EvalSummary["verifier_calibration"]>;
@@ -27,11 +28,19 @@ export function VerifierCalibration({ c }: { c: Calibration }) {
         <span className="ml-auto text-[11px] text-dim">{c.prompt} · moves that change origin, scored against CBP</span>
       </div>
       <p className="mt-3 text-[22px] leading-snug tracking-[-0.04em]">
-        In the historical D86 proxy pool, {shown} shown verdicts cleared the {bar} bar; {wrong === 0 ? "none was wrong" : `${wrong} ${wrong === 1 ? "was" : "were"} wrong`}. Later gateway scoring was not perfect.
+        In the historical D86 proxy pool, {shown} shown verdicts cleared the {bar} bar; {wrong === 0 ? "none was on a pair where CBP kept the origin" : `${wrong} ${wrong === 1 ? "was" : "were"} on a pair where CBP kept the origin`}.
       </p>
       <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
-        It&apos;s cautious, not thorough: a real change cleared the bar in every run for {every} of {pairs} pairs (about {pct(pairs ? every / pairs : undefined)}). The rest
-        show as below the bar, for a broker to look at, so a missing plan doesn&apos;t mean no move works.
+        {/* D301, docs/NUMBERS.md "Plan bar re-examined on committed rows" and
+            "Precedent check, D170 + addendum (18 pairs)". Judge panel round 5. */}
+        Counted the stricter way, where a check is right only if it also names CBP&apos;s later country (<a href={decisionHref("D301")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">D301</a>), later gateway
+        scoring was not perfect: on the development pairs, 3 of 287 supported verdicts were wrong, all below {bar}; on the 2026 pairs, 21 of the 23 shown at {bar} were right
+        (the two misses name the wrong later country on one pair); on the 18 pairs published after the test set, 9 of 9 shown were right.
+      </p>
+      <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
+        It&apos;s cautious, not thorough: a real change cleared the bar in every run for {every} of {pairs} real-change pairs (about {pct(pairs ? every / pairs : undefined)}; development
+        and 2026 pairs, runs with and without CBP&apos;s starting origin). The rest show as below the bar, for a broker to look at, so a missing plan doesn&apos;t mean no move
+        works. This is not the same measure as the 75% under Plan checks above, which is 9 of 12 later pairs found in a single run with the starting origin given.
       </p>
       <div className="mt-4 flex flex-col gap-6">
         {c.splits.map((s) => (

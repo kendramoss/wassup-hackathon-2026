@@ -115,6 +115,11 @@ export function AccuracyPage() {
   // each frozen before scoring and scored once, CBP's starting origin given.
   const postPrec = get("planner_post_combined_known-a_precision_at_bar");
   const postRec = get("planner_post_combined_known-a_recall_at_bar");
+  // The precedent check's stricter recall (D86 pool): real-change pairs shown
+  // in every run, so the plan-check card can say why it differs (round 5).
+  const calSplits = data?.verifier_calibration?.splits ?? [];
+  const calPairs = calSplits.reduce((n, x) => n + (x.pair_level.real_change_pairs ?? 0), 0);
+  const calEvery = calSplits.reduce((n, x) => n + (x.pair_level.shown_every_run ?? 0), 0);
   const postCtl = get("planner_post_combined_known-a_controls_shown");
   const postPairs = (postRec?.n ?? 0) + (postCtl?.n ?? 0);
   const postCtlShown = Math.round((postCtl?.value ?? 0) * (postCtl?.n ?? 0));
@@ -360,9 +365,14 @@ export function AccuracyPage() {
                   at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `${postCtlShown} of the ${postCtl.n} pairs where CBP kept the origin were shown.` : ""} The 15 pairs of the first set plus 3 added later (D192), each scored once. With so few pairs the interval
                   is wide.
                 </Card>
-                <Card title="Real changes found" big={pct(postRec.value, 0)}>
-                  {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
-                  broker as below the bar or without a supporting ruling.
+                <Card title="Later real changes found, starting origin given" big={pct(postRec.value, 0)}>
+                  {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}), in one run with CBP&apos;s starting
+                  origin given. The rest go to a broker as below the bar or without a supporting ruling.{calPairs ? (
+                    <>
+                      {" "}The precedent check below says about {pct(calEvery / calPairs, 0)} instead ({calEvery} of {calPairs}): that counts earlier pairs (the development pairs and the first 2026 pairs), and only those
+                      that cleared the bar in every one of several runs, with and without the starting origin.
+                    </>
+                  ) : null}
                 </Card>
               </div>
             </section>

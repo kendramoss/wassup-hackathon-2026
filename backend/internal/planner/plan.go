@@ -153,6 +153,12 @@ type Backtest struct {
 	ActualMoved    []string `json:"actual_moved"`
 	MovedByPlan    []string `json:"moved_by_plan"`
 	NotMovedByPlan []string `json:"in_actual_change_not_in_plan"`
+	// AlreadyInTarget: parts the later ruling lists as moved that were already
+	// made in the target before the change; they are left out of ActualMoved.
+	AlreadyInTarget []string `json:"already_in_target,omitempty"`
+	// AlsoMovesKept: parts the real change kept in the old country (the
+	// ruling's words) that the plan moves anyway (D310).
+	AlsoMovesKept []string `json:"plan_also_moves_kept,omitempty"`
 }
 
 // Stats is the full-plan cost: every model call, tokens and wall time.
@@ -524,10 +530,19 @@ func economics(req Request, m domain.Move, fromOrigin, toOrigin string) (dutyEff
 
 func backtest(req Request, plans []domain.Plan) *Backtest {
 	a := req.ActualChange
-	bt := &Backtest{Source: a.Source, ActualMoved: a.MovedComponents}
+	already := map[string]bool{}
+	for _, n := range a.AlreadyInTarget {
+		already[n] = true
+	}
+	bt := &Backtest{Source: a.Source, AlreadyInTarget: a.AlreadyInTarget}
+	for _, n := range a.MovedComponents {
+		if !already[n] {
+			bt.ActualMoved = append(bt.ActualMoved, n)
+		}
+	}
 	if len(plans) == 0 {
 		bt.PlanMoves = "no precedent-supported plan"
-		bt.NotMovedByPlan = a.MovedComponents
+		bt.NotMovedByPlan = bt.ActualMoved
 		return bt
 	}
 	best := plans[0]
@@ -540,11 +555,16 @@ func backtest(req Request, plans []domain.Plan) *Backtest {
 			}
 		}
 	}
-	for _, name := range a.MovedComponents {
+	for _, name := range bt.ActualMoved {
 		if moved[name] {
 			bt.MovedByPlan = append(bt.MovedByPlan, name)
 		} else {
 			bt.NotMovedByPlan = append(bt.NotMovedByPlan, name)
+		}
+	}
+	for _, word := range a.StillImported {
+		if part, ok := a.StillImportedAs[word]; ok && moved[part] {
+			bt.AlsoMovesKept = append(bt.AlsoMovesKept, word)
 		}
 	}
 	return bt
