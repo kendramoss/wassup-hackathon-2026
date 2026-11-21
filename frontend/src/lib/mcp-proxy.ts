@@ -17,8 +17,9 @@ import { clientIP, idToken, logProxyFailure, readCapped } from "./backend";
 // The response body is passed through as a stream (an MCP answer may be a
 // text/event-stream), with the MCP headers and Retry-After.
 
-// MAX_MCP_BODY matches the backend's cap on one MCP request.
-export const MAX_MCP_BODY = 1 << 20;
+// MAX_MCP_BODY matches the backend's cap on one MCP request: room for
+// extract_product_from_media's 8 MB of files in base64 and the JSON around it.
+export const MAX_MCP_BODY = 12 << 20;
 
 const FORWARD = ["content-type", "accept", "mcp-protocol-version", "mcp-session-id", "last-event-id"];
 const RETURN = ["content-type", "mcp-session-id", "mcp-protocol-version", "retry-after", "x-request-id", "allow"];
@@ -55,7 +56,7 @@ export async function proxyMcp(request: Request): Promise<Response> {
     headers.Authorization = `Bearer ${await idToken(process.env.BACKEND_AUDIENCE || backendUrl)}`;
   }
   const body = await readCapped(request, MAX_MCP_BODY);
-  if (body === null) return jsonError(413, "invalid_input", "the MCP request is larger than 1 MB");
+  if (body === null) return jsonError(413, "invalid_input", "the MCP request is larger than 12 MB");
 
   try {
     const res = await fetch(`${backendUrl}/mcp`, { method: "POST", headers, body, signal: request.signal, cache: "no-store" });

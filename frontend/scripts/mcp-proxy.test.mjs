@@ -76,9 +76,9 @@ test("an event stream is passed through chunk by chunk", async () => {
   assert.equal((await reader.read()).done, true);
 });
 
-test("a body over 1 MB is refused", async () => {
+test("a body over 12 MB is refused", async () => {
   backend(() => new Response("{}"));
-  const big = new Request("http://front.test/mcp", { method: "POST", body: "x".repeat((1 << 20) + 1), headers: { "content-type": "application/json" } });
+  const big = new Request("http://front.test/mcp", { method: "POST", body: "x".repeat((12 << 20) + 1), headers: { "content-type": "application/json" } });
   assert.equal((await proxyMcp(big)).status, 413);
   assert.equal(sent.length, 0);
 });

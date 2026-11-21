@@ -40,13 +40,17 @@ type Options struct {
 	// RulingSearch reports that GET /v1/rulings?q= is served; without it the
 	// search_rulings tool is not listed.
 	RulingSearch bool
+	// MediaExtract reports that POST /v1/products/extract-media is served;
+	// without it extract_product_from_media is not listed.
+	MediaExtract bool
 	// Version is reported in the MCP initialize result.
 	Version string
 }
 
-// maxBody caps one MCP request body. Tool inputs are small (the largest is
-// 12,000 characters of facts or a product of a few hundred rows).
-const maxBody = 1 << 20
+// maxBody caps one MCP request body: room for extract_product_from_media's
+// 8 MB of files in base64 (about 11.2 MB) and the JSON around it. Other tool
+// inputs are small.
+const maxBody = 12 << 20
 
 // New returns the Streamable HTTP handler for POST /mcp.
 func New(o Options) http.Handler {
@@ -70,6 +74,9 @@ func NewServer(o Options) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: "unde", Title: "Unde Labs", Version: v}, &mcp.ServerOptions{Instructions: instructions})
 	t := tools{api: o.API, families: o.Families}
 	t.register(s, o.RulingSearch)
+	if o.MediaExtract {
+		t.registerMedia(s)
+	}
 	t.registerResources(s)
 	t.registerPrompts(s)
 	return s
@@ -140,6 +147,8 @@ type apiCall struct {
 	method, path string
 	query        url.Values
 	body         any    // JSON-encoded when not nil
+	raw          []byte // sent as is with contentType, instead of body
+	contentType  string
 	access       string // case access key (anonymous callers): sent as X-Visitor-ID
 }
 
@@ -158,7 +167,9 @@ func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult
 		return apiResult{}, fmt.Errorf("mcpserver: %q is not an API path", c.path)
 	}
 	var body io.Reader = http.NoBody
-	if c.body != nil {
+	if c.raw != nil {
+		body = bytes.NewReader(c.raw)
+	} else if c.body != nil {
 		b, err := json.Marshal(c.body)
 		if err != nil {
 			return apiResult{}, err
@@ -176,7 +187,9 @@ func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult
 	req.RequestURI = ""
 	req.Host = "mcp.local"
 	req.Header.Set("Accept", "application/json")
-	if c.body != nil {
+	if c.raw != nil {
+		req.Header.Set("Content-Type", c.contentType)
+	} else if c.body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	if from != nil {

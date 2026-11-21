@@ -51,7 +51,18 @@ func (s *stubAPI) last() *http.Request {
 // headers on every request.
 func connect(t *testing.T, api http.Handler, search bool, headers map[string]string) *mcp.ClientSession {
 	t.Helper()
-	srv := httptest.NewServer(New(Options{API: api, Families: []string{"motorised_tools_small_appliances"}, RulingSearch: search}))
+	return connectWith(t, Options{API: api, Families: []string{"motorised_tools_small_appliances"}, RulingSearch: search}, headers)
+}
+
+func connectOpts(t *testing.T, o Options) *mcp.ClientSession {
+	t.Helper()
+	o.Families = []string{"motorised_tools_small_appliances"}
+	return connectWith(t, o, nil)
+}
+
+func connectWith(t *testing.T, o Options, headers map[string]string) *mcp.ClientSession {
+	t.Helper()
+	srv := httptest.NewServer(New(o))
 	t.Cleanup(srv.Close)
 	hc := &http.Client{Transport: rt(func(r *http.Request) (*http.Response, error) {
 		r = r.Clone(r.Context())

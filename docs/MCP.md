@@ -67,6 +67,7 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 |---|---|---|---|
 | `predict_origin` | `POST /v1/cases/predict` (`predictCase`) | light | writes a new case |
 | `extract_product` | `POST /v1/products/extract` (`extractProduct`) | light | read-only |
+| `extract_product_from_media` | `POST /v1/products/extract-media` (`extractProductFromMedia`) | light | read-only |
 | `plan_production_moves` | `POST /v1/cases/{id}/plan` (`planCase`) | heavy | writes the case's plan |
 | `compare_target_countries` | `POST /v1/cases/{id}/compare-targets` (`compareTargets`) | heavy | writes the case's comparison |
 | `search_rulings` | `GET /v1/rulings?q=` (`searchRulings`) | ruling lookup | read-only |
@@ -75,6 +76,8 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 | `get_case` | `GET /v1/cases/{id}` (`getCase`) | none | read-only |
 | `list_cases` | `GET /v1/cases` (`listCases`) | none | read-only |
 | `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | none | read-only (a preview records nothing) |
+
+`extract_product_from_media` takes 1 to 4 files, 8 MB together (PNG, JPEG, WebP or scanned PDF), each as `{data, mime_type}` with base64 data, as an MCP image content block (`{type: "image", data, mimeType}`), or as an MCP embedded resource (`{type: "resource", resource: {mimeType, blob}}`). The tool decodes them and sends one multipart upload to the REST route, which checks the bytes and its other limits again. As on the website, the files are not stored and the draft must be reviewed before `predict_origin`.
 
 No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. Countries are free text with a length and character check, because the API has no country enum.
 
@@ -88,7 +91,7 @@ The hosted server is stateless (several instances serve it), so two MCP requests
 
 ## Limits
 
-The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file): per-client buckets (by API key, else by the caller's address), light and heavy classes, a separate ruling-lookup bucket, a global cap and the daily spend cap. Over a limit, the tool result is an error with `rate_limited`, `quota_exceeded` or `budget_reached` and when to retry. One MCP request body is capped at 1 MB. Plan search and target comparison take about as long as on the website (tens of seconds).
+The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file): per-client buckets (by API key, else by the caller's address), light and heavy classes, a separate ruling-lookup bucket, a global cap and the daily spend cap. Over a limit, the tool result is an error with `rate_limited`, `quota_exceeded` or `budget_reached` and when to retry. One MCP request body is capped at 12 MB (room for 8 MB of files in base64). Plan search and target comparison take about as long as on the website (tens of seconds).
 
 ## Privacy
 
@@ -103,4 +106,4 @@ What you send through a tool is what the REST API receives: product facts, parts
 
 Why in the Go backend rather than in Next.js: tools then share the API's rate limits, quotas, spend cap, isolation and audit natively, instead of re-implementing them, and the proxy stays a thin pass-through.
 
-Adding a tool is one `add(...)` call and one handler in `internal/mcpserver/tools.go`. Planned: `extract_product_from_media`, once `POST /v1/products/extract-media` (images and PDFs) is merged.
+Adding a tool is one `add(...)` call and one handler in `internal/mcpserver` (`extract_product_from_media` in `media.go` is an example). A tool is listed only when its REST route is served.
