@@ -244,25 +244,6 @@ func (f *authFailures) begin(client string) (release func(), ok bool, wait time.
 	}, true, 0
 }
 
-// allowed reports whether client may try a key now, and if not how long
-// until it may.
-func (f *authFailures) allowed(client string) (bool, time.Duration) {
-	if f == nil {
-		return true, 0
-	}
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	now := f.now()
-	fb, ok := f.clients[client]
-	if !ok {
-		return true, 0
-	}
-	if t := fb.b.TokensAt(now); t < 1 {
-		return false, time.Duration((1 - t) / float64(fb.b.Limit()) * float64(time.Second))
-	}
-	return true, 0
-}
-
 // fail records one invalid key from client.
 func (f *authFailures) fail(client string) {
 	if f == nil {
