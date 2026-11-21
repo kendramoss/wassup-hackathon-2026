@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 
 // #291: PUT /cases/{id}/economics returns only {case_id, economics}. The
 // client must type it that way and the money save must merge it into the
 // current case instead of replacing the case. client.ts uses TypeScript
 // parameter properties, so it runs in a child node with type transforms.
-const client = fileURLToPath(new URL("../src/lib/api/client.ts", import.meta.url));
+const client = new URL("../src/lib/api/client.ts", import.meta.url).href;
+const registerTs = new URL("./register-ts-loader.mjs", import.meta.url).href;
 
 function run(body) {
   const code = `
@@ -27,7 +27,7 @@ function run(body) {
     };
     ${body}
   `;
-  const r = spawnSync(process.execPath, ["--experimental-transform-types", "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
+  const r = spawnSync(process.execPath, ["--import", registerTs, "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr || r.stdout);
   return JSON.parse(r.stdout);
 }

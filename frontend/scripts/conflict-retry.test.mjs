@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 
 // D97: a plan, comparison or export refused because the case changed answers
 // 409 {code: "conflict"}. The JSON client must mark it retryable, as the
 // streamed error event is, and must not widen retry to other 4xx codes.
-const client = fileURLToPath(new URL("../src/lib/api/client.ts", import.meta.url));
+const client = new URL("../src/lib/api/client.ts", import.meta.url).href;
+const registerTs = new URL("./register-ts-loader.mjs", import.meta.url).href;
 
 function errorFor(status, body) {
   const code = `
@@ -15,7 +15,7 @@ function errorFor(status, body) {
     try { await api.plan("c1", {}); console.log(JSON.stringify({ threw: false })); }
     catch (e) { console.log(JSON.stringify({ threw: true, name: e.name, message: e.message, status: e.status, code: e.code, retryable: e.retryable })); }
   `;
-  const r = spawnSync(process.execPath, ["--experimental-transform-types", "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
+  const r = spawnSync(process.execPath, ["--import", registerTs, "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr || r.stdout);
   return JSON.parse(r.stdout);
 }
