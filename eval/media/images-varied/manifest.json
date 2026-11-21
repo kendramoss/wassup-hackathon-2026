@@ -1,0 +1,610 @@
+[
+ {
+  "image": "heatgun-list.png",
+  "source": "backend/testdata/heatgun_bom.csv",
+  "style": "bulleted spec list",
+  "font": "paper-mono-regular",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun-scan.jpg",
+  "source": "backend/testdata/heatgun_bom.csv",
+  "style": "low-resolution grey scan of a table",
+  "font": "pillow-default-sans",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "lidar-serif.png",
+  "source": "backend/testdata/lidar_bom.csv",
+  "style": "serif table, long names wrapped",
+  "font": "serif (Times New Roman.ttf)",
+  "components": [
+   {
+    "name": "Top Main Board (TMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "Bottom Main Board (BMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "receiver (RX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "transmitter (TX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "lidar-photo.jpg",
+  "source": "backend/testdata/lidar_bom.csv",
+  "style": "phone-photo style: rotated 6 degrees, shaded, blurred, JPEG",
+  "font": "serif (Times New Roman.ttf)",
+  "components": [
+   {
+    "name": "Top Main Board (TMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "Bottom Main Board (BMB) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "receiver (RX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "transmitter (TX) PCBA",
+    "country": "Thailand"
+   },
+   {
+    "name": "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "template-sideways.png",
+  "source": "frontend/public/samples/bom-template.csv",
+  "style": "table on a page turned 90 degrees",
+  "font": "paper-mono-light",
+  "components": [
+   {
+    "name": "Main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "Motor-fan assembly",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "supplier-reordered.png",
+  "source": "frontend/public/samples/heatgun-bom.csv",
+  "style": "grid table, country first, part numbers and quantities",
+  "font": "paper-mono-regular",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "supplier-photo.jpg",
+  "source": "frontend/public/samples/heatgun-bom.csv",
+  "style": "phone-photo style: rotated -4 degrees, shaded, blurred, JPEG",
+  "font": "paper-mono-regular",
+  "components": [
+   {
+    "name": "main housing",
+    "country": "Thailand"
+   },
+   {
+    "name": "front cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "heating element",
+    "country": "Thailand"
+   },
+   {
+    "name": "electric motor",
+    "country": "China"
+   },
+   {
+    "name": "fan",
+    "country": "China"
+   },
+   {
+    "name": "motor support",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "China"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "power cord",
+    "country": "China"
+   },
+   {
+    "name": "wiring",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "China"
+   },
+   {
+    "name": "back cover",
+    "country": "China"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "grill-table.png",
+  "source": "backend/internal/demos/fixtures/gas_grill_2023.json",
+  "style": "plain table",
+  "font": "paper-mono-light",
+  "components": [
+   {
+    "name": "Deep draw main lids",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Formed and punched fireboxes",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Burners",
+    "country": "China"
+   },
+   {
+    "name": "Control panels",
+    "country": "China"
+   },
+   {
+    "name": "Cart frames",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "grill-list.png",
+  "source": "backend/internal/demos/fixtures/gas_grill_2023.json",
+  "style": "bulleted spec list",
+  "font": "serif (Times New Roman.ttf)",
+  "components": [
+   {
+    "name": "Deep draw main lids",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Formed and punched fireboxes",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Burners",
+    "country": "China"
+   },
+   {
+    "name": "Control panels",
+    "country": "China"
+   },
+   {
+    "name": "Cart frames",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "grill-scan.jpg",
+  "source": "backend/internal/demos/fixtures/gas_grill_2023.json",
+  "style": "low-resolution grey scan of a table",
+  "font": "pillow-default-sans",
+  "components": [
+   {
+    "name": "Deep draw main lids",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Formed and punched fireboxes",
+    "country": "Indonesia"
+   },
+   {
+    "name": "Burners",
+    "country": "China"
+   },
+   {
+    "name": "Control panels",
+    "country": "China"
+   },
+   {
+    "name": "Cart frames",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun2026-grid.png",
+  "source": "backend/internal/demos/fixtures/heatgun_2022.json",
+  "style": "grid table, rows in shuffled order",
+  "font": "pillow-default-sans",
+  "components": [
+   {
+    "name": "electric motor",
+    "country": "Thailand"
+   },
+   {
+    "name": "back cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "wires",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "Thailand"
+   },
+   {
+    "name": "power cord",
+    "country": "Thailand"
+   },
+   {
+    "name": "outer shells",
+    "country": "Thailand"
+   },
+   {
+    "name": "terminal blocks",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "Thailand"
+   },
+   {
+    "name": "fan",
+    "country": "Thailand"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun2026-small.png",
+  "source": "backend/internal/demos/fixtures/heatgun_2022.json",
+  "style": "dense small print (11 px)",
+  "font": "paper-mono-regular",
+  "components": [
+   {
+    "name": "electric motor",
+    "country": "Thailand"
+   },
+   {
+    "name": "back cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "wires",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "Thailand"
+   },
+   {
+    "name": "power cord",
+    "country": "Thailand"
+   },
+   {
+    "name": "outer shells",
+    "country": "Thailand"
+   },
+   {
+    "name": "terminal blocks",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "Thailand"
+   },
+   {
+    "name": "fan",
+    "country": "Thailand"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "heatgun2026-photo.jpg",
+  "source": "backend/internal/demos/fixtures/heatgun_2022.json",
+  "style": "phone-photo style: rotated 9 degrees, shaded, blurred, JPEG",
+  "font": "pillow-default-sans",
+  "components": [
+   {
+    "name": "electric motor",
+    "country": "Thailand"
+   },
+   {
+    "name": "back cover",
+    "country": "Thailand"
+   },
+   {
+    "name": "wires",
+    "country": "China"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "country": "Thailand"
+   },
+   {
+    "name": "power cord",
+    "country": "Thailand"
+   },
+   {
+    "name": "outer shells",
+    "country": "Thailand"
+   },
+   {
+    "name": "terminal blocks",
+    "country": "China"
+   },
+   {
+    "name": "knob",
+    "country": "Thailand"
+   },
+   {
+    "name": "fan",
+    "country": "Thailand"
+   },
+   {
+    "name": "switch",
+    "country": "China"
+   },
+   {
+    "name": "fasteners",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "tublight-list.png",
+  "source": "backend/internal/demos/fixtures/tublight_2025.json",
+  "style": "bulleted spec list",
+  "font": "paper-mono-regular",
+  "components": [
+   {
+    "name": "LED printed circuit board assembly (PCBA), populated with a South Korean LED",
+    "country": "Thailand"
+   },
+   {
+    "name": "lens",
+    "country": "China"
+   },
+   {
+    "name": "lamp base",
+    "country": "China"
+   },
+   {
+    "name": "wiring harness",
+    "country": "China"
+   },
+   {
+    "name": "PVC sealing and O-ring",
+    "country": "China"
+   }
+  ]
+ },
+ {
+  "image": "tublight-scan.jpg",
+  "source": "backend/internal/demos/fixtures/tublight_2025.json",
+  "style": "low-resolution grey scan of a table",
+  "font": "serif (Times New Roman.ttf)",
+  "components": [
+   {
+    "name": "LED printed circuit board assembly (PCBA), populated with a South Korean LED",
+    "country": "Thailand"
+   },
+   {
+    "name": "lens",
+    "country": "China"
+   },
+   {
+    "name": "lamp base",
+    "country": "China"
+   },
+   {
+    "name": "wiring harness",
+    "country": "China"
+   },
+   {
+    "name": "PVC sealing and O-ring",
+    "country": "China"
+   }
+  ]
+ }
+]
