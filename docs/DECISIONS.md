@@ -1630,7 +1630,7 @@ Committed before any extraction call and before any rule result was seen. Nothin
 - **Cost cap:** $3 for all extraction (estimate: 117 rulings × 2 inputs, about 4k tokens in and 0.5k out each, well under $1).
 
 ## D362 — The rule check on the committed Part 102 rulings: results (22 Nov)
-Run as pre-registered in D361. Development runs on 22 Nov; code frozen at commit 89552154 before the held-out extraction; each held-out file extracted and scored once. Rows: `eval/tariffshift/`; recompute with `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`).
+Run as pre-registered in D361. Development runs on 22 Nov; code frozen at commit 89552154 before the held-out extraction (kept as branch `improve/tariff-shift-prereg`, with the D361 commit 65b1cb2f); each held-out file extracted and scored once. Rows: `eval/tariffshift/`; recompute with `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`).
 
 | Split | Input | n | Out of scope | Decided | Agrees with CBP | Differs from the model |
 |---|---|---:|---:|---:|---:|---:|

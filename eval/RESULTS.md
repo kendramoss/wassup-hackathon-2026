@@ -754,7 +754,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - `eval/results/plan-rank-analysis.json`, `python3 -I -B eval/planner/plan_rank.py . --check`. No RUNLOG line: nothing ran against a model.
 
 ## 19 CFR 102.20 rule check on the Part 102 rulings (offline scoring, gateway extraction, 22 Nov; D360, D361, D362)
-- The deterministic rule layer (`backend/internal/tariffshift`, chapters 73, 82, 84, 85, 87, 90, 94) applied to the Part 102 splits. A model (Gemini 3.8 Flash through the gateway, prompt `tariffshift-extract-v2`) copies the HTS codes, origins and country of production out of each text, with a verbatim quote that code checks; it classifies nothing. Pre-registered in D361 (commit 65b1cb2f); code frozen at 89552154 before the held-out extraction; each held-out file extracted and scored once.
+- The deterministic rule layer (`backend/internal/tariffshift`, chapters 73, 82, 84, 85, 87, 90, 94) applied to the Part 102 splits. A model (Gemini 3.8 Flash through the gateway, prompt `tariffshift-extract-v2`) copies the HTS codes, origins and country of production out of each text, with a verbatim quote that code checks; it classifies nothing. Pre-registered in D361 (commit 65b1cb2f); code frozen at 89552154 before the held-out extraction (both commits kept as branch `improve/tariff-shift-prereg`; the merged history has new hashes); each held-out file extracted and scored once.
 - "facts" is the text the engine reads. "full ruling text" includes CBP's own classifications and analysis: it checks the encoding given CBP's codes, not the product.
 
 | Split | Input | n | Out of scope | Decided | Agrees with CBP | Differs from the model |
