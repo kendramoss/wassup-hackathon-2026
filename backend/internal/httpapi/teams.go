@@ -73,6 +73,16 @@ func record(ctx context.Context, c *store.Case, e store.Event) {
 // their cases outside their workspace.
 func (a *api) withUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// MCP callers are an API key or anonymous (docs/MCP.md): the
+		// MCP guard drops X-User-Token before the tools run. Dropping the
+		// header alone is not enough when this middleware runs first in the
+		// outer chain — the verified identity would still be in the context
+		// that every in-process tool request inherits (issue #385). Skip
+		// verification on /mcp itself; the token is ignored, not refused.
+		if r.URL.Path == "/mcp" {
+			next.ServeHTTP(w, r)
+			return
+		}
 		tok := strings.TrimSpace(r.Header.Get("X-User-Token"))
 		tok = strings.TrimSpace(strings.TrimPrefix(tok, "Bearer "))
 		if tok == "" {

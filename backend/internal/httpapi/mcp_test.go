@@ -387,3 +387,48 @@ func TestMCPBrokerReviewTools(t *testing.T) {
 		}
 	}
 }
+
+// A signed-in identity sent to POST /mcp must not reach the in-process tool
+// calls through the request context (issue #385). The guard drops the header,
+// but withUser ran earlier in the outer chain; skipping it on /mcp is what
+// makes "an MCP caller is an API key or anonymous" true.
+func TestMCPUserTokenDoesNotReachToolContext(t *testing.T) {
+	hs, _, _ := teamsHarness(t, nil)
+	alice := user("alice")
+	id := hs.newCase(t, alice)
+	if got := hs.listIDs(t, alice); !got[id] {
+		t.Fatalf("REST as Alice cannot see her case: %v", got)
+	}
+
+	cs := mcpClient(t, hs, alice)
+	if res, _ := callTool(t, cs, "get_case", map[string]any{"case_id": id}); !res.IsError || !strings.Contains(text(res), "404") {
+		t.Errorf("MCP get_case with a user token = %s, want 404", text(res))
+	}
+	_, list := callTool(t, cs, "list_cases", nil)
+	if strings.Contains(mustJSON(list), id) {
+		t.Error("MCP list_cases with a user token listed Alice's case")
+	}
+}
+
+// With both credentials, the API key owns the case and is billed for the
+// call; the user token is ignored on /mcp (issue #385).
+func TestMCPUserTokenWithKeyStillUsesTheKey(t *testing.T) {
+	hs, _, _ := teamsHarness(t, func(d *Deps) { withKeys(d) })
+	key, _ := issueKey(t, hs, "Acme", 10)
+
+	cs := mcpClient(t, hs, with(user("alice"), map[string]string{"X-API-Key": key}))
+	res, out := callTool(t, cs, "predict_origin", heatGunArgs(t))
+	if res.IsError {
+		t.Fatalf("predict_origin: %s", text(res))
+	}
+	id, _ := out["id"].(string)
+	if id == "" {
+		t.Fatalf("no case id in %v", out)
+	}
+	if code, got := hs.doAs(t, "GET", "/v1/cases/"+id, "", map[string]string{"X-API-Key": key}); code != http.StatusOK {
+		t.Errorf("the API key cannot read the case its MCP call made: %d %v", code, got)
+	}
+	if code, _ := hs.doAs(t, "GET", "/v1/cases/"+id, "", user("alice")); code != http.StatusNotFound {
+		t.Errorf("the ignored user token owns the MCP case: %d", code)
+	}
+}
