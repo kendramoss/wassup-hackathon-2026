@@ -9,7 +9,7 @@ Every answer is a prediction, not a ruling. Confirm it with a licensed customs b
 
 ## Set it up
 
-The Gemini CLI and ADK formats below follow their documentation as read on 21 Nov 2026 ([Gemini CLI MCP servers](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md), [ADK MCP tools](https://adk.dev/tools-custom/mcp-tools/)). The team has not run them end to end; they reach the same Streamable HTTP endpoint as Claude Code.
+The Gemini CLI and ADK formats below follow their documentation as read on 21 Nov 2026 ([Gemini CLI MCP servers](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md), [ADK MCP tools](https://adk.dev/tools-custom/mcp-tools/)). We ran both end to end once on 21 Nov 2026, with the model reached through an OpenAI-compatible LiteLLM gateway to Gemini rather than a Google API key, and the read-only tools `search_rulings` and `get_ruling`: [ADK transcript](mcp-transcripts/adk-search-rulings-2026-11-21.md), [Gemini CLI transcript](mcp-transcripts/gemini-cli-search-rulings-2026-11-21.md). The other tools were listed but not called from these clients. They reach the same Streamable HTTP endpoint as Claude Code.
 
 ### Gemini CLI
 
@@ -17,7 +17,7 @@ The Gemini CLI and ADK formats below follow their documentation as read on 21 No
 gemini mcp add --transport http unde https://undelabs.dev/mcp
 ```
 
-With an API key: `gemini mcp add --transport http --header "Authorization: Bearer op_..." unde https://undelabs.dev/mcp`. Or in `~/.gemini/settings.json` (user) or `.gemini/settings.json` (project):
+Gemini CLI turns MCP servers off in folders it does not trust; trust the folder first (it asks, or see the transcript). With an API key: `gemini mcp add --transport http --header "Authorization: Bearer op_..." unde https://undelabs.dev/mcp`. Or in `~/.gemini/settings.json` (user) or `.gemini/settings.json` (project):
 
 ```json
 {
@@ -33,6 +33,8 @@ With an API key: `gemini mcp add --transport http --header "Authorization: Beare
 Leave out `headers` for the anonymous tier.
 
 ### Google ADK agent (Python)
+
+Install `google-adk` and `mcp` (`pip install google-adk mcp`): ADK's MCP tools import nothing without the `mcp` package. A runnable version with a tool filter is [`mcp-transcripts/adk_unde_agent.py`](mcp-transcripts/adk_unde_agent.py).
 
 ```python
 from google.adk.agents import LlmAgent
