@@ -96,6 +96,22 @@ export function keptPart(change: ActualChangeExtras | null | undefined, product:
   const w = word.trim().toLowerCase();
   return (product?.components ?? []).find((c) => (c.name ?? "").trim().toLowerCase() === w)?.name;
 }
+// The demo's record of the real change, looked up by the backtest's source
+// (plan-step): found, not among the demos, or the lookup failed.
+export type DemoChangeLookup = { source: string; state: "found" | "none" | "failed" };
+
+// Whether a stored backtest can be drawn yet (judge panel round 7, N1). A
+// backtest that carries already_in_target, or a case whose plan request has
+// the real change, needs nothing more. A stored one without it reads the
+// demo's record, so it waits for the lookup for its own source: "loading"
+// until it settles, "failed" if it could not run, "ready" otherwise.
+export function backtestState(bt: unknown, reqHasChange: boolean, lookup: DemoChangeLookup | null | undefined): "ready" | "loading" | "failed" {
+  const b = (bt ?? {}) as Record<string, unknown>;
+  if (!bt || reqHasChange || Array.isArray(b.already_in_target) || typeof b.source !== "string") return "ready";
+  if (!lookup || lookup.source !== b.source) return "loading";
+  return lookup.state === "failed" ? "failed" : "ready";
+}
+
 export type BacktestView = { changed: string[]; moved: string[]; missed: string[]; already: string[]; alsoKept: string[]; keptGroups: string[]; ruling?: string; matches: boolean };
 
 export function backtestView(

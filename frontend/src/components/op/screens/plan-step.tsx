@@ -21,6 +21,7 @@ import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, 
 import { planTemplateVersion } from "@/lib/families";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
+import { backtestState, type DemoChangeLookup } from "../plan-bits";
 import { regimeOf } from "@/lib/regime";
 import { pricedEconomics } from "@/lib/live-mfn";
 import { Button, ButtonLink, Chip, Country, Dimension, Drawer, Flag, Fold, MiniRuler, Panel, PanelHead, RulingLink, Ruler, cx } from "../ui";
@@ -121,27 +122,39 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   // target, and which CBP's change kept in place). A case loaded in this
   // browser has it in its plan request; the pinned demo case doesn't, so it is
   // found by the backtest's source among the demos (D310). Read-only GETs.
+  // The lookup is keyed by the backtest's source. Until it settles for that
+  // source, a stored backtest that needs it is not drawn (judge panel round 7,
+  // N1): without the record the outer shells count as changed and the kept
+  // parts are missing.
   const [demoChange, setDemoChange] = useState<ActualChangeExtras | null>(null);
+  const [lookup, setLookup] = useState<DemoChangeLookup | null>(null);
+  const [lookupTry, setLookupTry] = useState(0);
   const btSource = (result?.backtest as { source?: unknown } | undefined)?.source;
   const reqHasChange = Boolean(req?.actual_change);
   useEffect(() => {
     if (reqHasChange || typeof btSource !== "string") return;
     let live = true;
+    const settle = (state: DemoChangeLookup["state"], ac: ActualChangeExtras | null = null) => {
+      if (!live) return;
+      setDemoChange(ac);
+      setLookup({ source: btSource, state });
+    };
     api.demos().then(
       async (list) => {
         for (const d of list.demos ?? []) {
           if (!live || !d.has_plan || !d.id) continue;
           const full = await api.demo(d.id).catch(() => null);
           const ac = full?.plan?.actual_change as (ActualChangeExtras & { _source?: string }) | undefined;
-          if (live && ac?._source === btSource) return setDemoChange(ac);
+          if (live && ac?._source === btSource) return settle("found", ac);
         }
+        settle("none");
       },
-      () => {},
+      () => settle("failed"),
     );
     return () => {
       live = false;
     };
-  }, [btSource, reqHasChange]);
+  }, [btSource, reqHasChange, lookupTry]);
 
   // What the search will cost and take, before it runs (D87). It reads the
   // caches and calls no model; on any error the usual sentence stays.
@@ -355,6 +368,9 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
     ? backtestView(result.backtest, { change: ((req?.actual_change as ActualChangeExtras | undefined) ?? demoChange), product: c.product, move: lead?.move, recount: !best, madeWith: planTemplateVersion(c) })
     : undefined;
   const from = currentOrigin(c)?.country ?? c.prediction?.origin_country ?? "the old country";
+  // Drawn only once the demo's record has been looked up (N1).
+  const btState = backtestState(result?.backtest, reqHasChange, lookup);
+  const btShown = btState === "ready" ? bt : undefined;
 
   return (
     <>
@@ -371,7 +387,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           demoted={stale ? 0 : demoted}
           objective={result.objective}
           result={result}
-          backtest={bt}
+          backtest={btShown}
           from={from}
           // The search's own count; the "No change" baseline isn't a move.
           total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
@@ -434,18 +450,40 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                     </button>
                   </p>
                 </Fold>
-                {result.backtest && bt ? (
+                {result.backtest && btState !== "ready" ? (
+                  <Fold id="backtest" title="Backtest against CBP's actual ruling" open>
+                    <p role="status" className="duo text-[13px] text-dim">
+                      {btState === "loading" ? (
+                        copy.plan.backtestLoading
+                      ) : (
+                        <>
+                          {copy.plan.backtestFailed}{" "}
+                          <button
+                            type="button"
+                            className="inline-flex min-h-6 items-center text-ok underline underline-offset-2"
+                            onClick={() => {
+                              setLookup(null);
+                              setLookupTry((n) => n + 1);
+                            }}
+                          >
+                            {copy.plan.backtestRetry}
+                          </button>
+                        </>
+                      )}
+                    </p>
+                  </Fold>
+                ) : result.backtest && btShown ? (
                   // Open by default (judge panel round 4): the backtest is the
                   // strongest evidence on this screen, so it is not behind a click.
                   <Fold
                     id="backtest"
                     title="Backtest against CBP's actual ruling"
-                    meta={best && bt ? backtestShort(bt) : undefined}
+                    meta={best && btShown ? backtestShort(btShown) : undefined}
                     open
                   >
-                    {bt ? (
+                    {btShown ? (
                       <BacktestPanel
-                        v={bt}
+                        v={btShown}
                         source={typeof (result.backtest as Record<string, unknown>).source === "string" ? String((result.backtest as Record<string, unknown>).source) : undefined}
                         closest={best ? undefined : closest}
                         target={target}
