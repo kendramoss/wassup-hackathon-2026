@@ -285,6 +285,60 @@ func TestMCPToolCallsConsumeTheRESTLimiter(t *testing.T) {
 	}
 }
 
+// #479: with no trusted proxy, a direct /mcp caller must not be able to
+// choose a fresh light or heavy bucket by changing X-Client-IP. Each client
+// below is a separate connection with a different header.
+func TestMCPIgnoresACallerChosenClientAddress(t *testing.T) {
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.TrustedProxyCIDRs = nil
+		d.Limits = Limits{LightPerMin: 1, HeavyPerMin: 1, GlobalPerMin: 1000}
+	})
+	for i, ip := range []string{"203.0.113.1", "203.0.113.2", "203.0.113.3"} {
+		res, _ := callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": ip}), "predict_origin", heatGunArgs(t))
+		if i == 0 && res.IsError {
+			t.Fatalf("first predict_origin: %s", text(res))
+		}
+		if i > 0 && (!res.IsError || !strings.Contains(text(res), "429 rate_limited")) {
+			t.Errorf("predict_origin with header %s: %s, want 429", ip, text(res))
+		}
+	}
+
+	// The same rule applies to the heavy class. A wide light allowance lets
+	// the first tool call create the case without using up the light bucket.
+	hs = newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.TrustedProxyCIDRs = nil
+		d.Limits = Limits{LightPerMin: 100, HeavyPerMin: 1, GlobalPerMin: 1000}
+	})
+	res, out := callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": "203.0.113.10"}), "predict_origin", heatGunArgs(t))
+	if res.IsError {
+		t.Fatalf("predict_origin for the plan: %s", text(res))
+	}
+	id, key := out["id"].(string), out["case_access_key"].(string)
+	plan := map[string]any{"case_id": id, "target_country": "Thailand", "case_access_key": key}
+	if res, _ = callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": "203.0.113.11"}), "plan_production_moves", plan); res.IsError {
+		t.Fatalf("first plan: %s", text(res))
+	}
+	if res, _ = callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": "203.0.113.12"}), "plan_production_moves", plan); !res.IsError || !strings.Contains(text(res), "429 rate_limited") {
+		t.Errorf("third plan with a rotated header: %s, want 429", text(res))
+	}
+}
+
+func TestMCPHonoursTheHeaderFromATrustedProxy(t *testing.T) {
+	hs := newHarnessWith(t, "substantial_transformation", func(d *Deps) {
+		d.Limits = Limits{LightPerMin: 1, HeavyPerMin: 1, GlobalPerMin: 1000}
+	})
+	// The harness trusts every source range (testProxyCIDRs): two different
+	// proxy-supplied addresses get two buckets, as SECURITY.md promises.
+	for i, ip := range []string{"203.0.113.1", "203.0.113.2"} {
+		if res, _ := callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": ip}), "predict_origin", heatGunArgs(t)); res.IsError {
+			t.Errorf("predict %d from trusted proxy: %s", i, text(res))
+		}
+	}
+	if res, _ := callTool(t, mcpClient(t, hs, map[string]string{"X-Client-IP": "203.0.113.1"}), "predict_origin", heatGunArgs(t)); !res.IsError || !strings.Contains(text(res), "429 rate_limited") {
+		t.Errorf("reused trusted address: %s, want 429", text(res))
+	}
+}
+
 func TestMCPRefusesTheAdminToken(t *testing.T) {
 	hs := newHarness(t, "substantial_transformation")
 	srv := httptest.NewServer(hs.h)

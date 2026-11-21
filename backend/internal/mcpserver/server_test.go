@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -62,6 +63,19 @@ func connectOpts(t *testing.T, o Options) *mcp.ClientSession {
 
 func connectWith(t *testing.T, o Options, headers map[string]string) *mcp.ClientSession {
 	t.Helper()
+	if o.ClientAddress == nil {
+		// These tests act as the frontend proxy: a caller-supplied address
+		// is honoured. The direct-client default is pinned separately.
+		o.ClientAddress = func(remote, ip string) string {
+			if ip = strings.TrimSpace(ip); ip != "" {
+				return ip
+			}
+			if host, _, err := net.SplitHostPort(remote); err == nil {
+				return host
+			}
+			return remote
+		}
+	}
 	srv := httptest.NewServer(New(o))
 	t.Cleanup(srv.Close)
 	hc := &http.Client{Transport: rt(func(r *http.Request) (*http.Response, error) {
@@ -103,6 +117,34 @@ func call(t *testing.T, cs *mcp.ClientSession, name string, args map[string]any)
 }
 
 const predicted = `{"id":"case_0123456789ab","prediction":{"origin_country":"Thailand","confidence":0.97,"cited_rulings":["N300001"],"trace":{"tokens":9}},"triage":{"route":"auto","reason":"fast path"},"history":[{"kind":"predicted"}],"disclaimer":"Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling."}`
+
+// #479: the guard must decide the client address before tools copy it into
+// their in-process requests. Without a trusted-proxy rule the connection
+// wins; with one, the header is used and is the only value tools see.
+func TestGuardResolvesTheClientAddressOnce(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		o    Options
+		want string
+	}{
+		{"direct caller without a trusted proxy", Options{}, "203.0.113.9"},
+		{"trusted proxy header", Options{ClientAddress: func(_, ip string) string { return ip }}, "198.51.100.1"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var seen *http.Request
+			h := guard(tc.o, http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+				seen = r.Clone(r.Context())
+			}))
+			req := httptest.NewRequest("POST", "/mcp", nil)
+			req.RemoteAddr = "203.0.113.9:4567"
+			req.Header.Set("X-Client-IP", "198.51.100.1")
+			h.ServeHTTP(httptest.NewRecorder(), req)
+			if got := seen.Header.Get("X-Client-IP"); got != tc.want {
+				t.Errorf("tool client address = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
 
 func TestToolsListedAndSearchOptional(t *testing.T) {
 	for _, search := range []bool{false, true} {

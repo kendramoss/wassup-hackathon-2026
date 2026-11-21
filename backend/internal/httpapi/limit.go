@@ -190,16 +190,23 @@ func clientKeyWithProxy(r *http.Request, trusted []*net.IPNet) string {
 	if k, ok := keyFrom(r.Context()); ok {
 		return "apikey:" + k.ID
 	}
-	remote := r.RemoteAddr
+	return ipKey(clientAddressWithProxy(r.RemoteAddr, r.Header.Get("X-Client-IP"), trusted))
+}
+
+// clientAddressWithProxy is the client-address rule shared by REST keys and
+// the MCP guard (#479): the header is honoured only from a trusted proxy,
+// and otherwise the connection address is the client. It is exported to MCP
+// as Options.ClientAddress by (*api).mcp.
+func clientAddressWithProxy(remote, ip string, trusted []*net.IPNet) string {
 	if host, _, err := net.SplitHostPort(remote); err == nil {
 		remote = host
 	}
 	if trustedProxy(remote, trusted) {
-		if ip := strings.TrimSpace(r.Header.Get("X-Client-IP")); ip != "" && len(ip) <= 64 {
-			return ipKey(ip)
+		if ip = strings.TrimSpace(ip); ip != "" && len(ip) <= 64 {
+			return ip
 		}
 	}
-	return ipKey(remote)
+	return remote
 }
 
 // trustedProxy reports whether addr falls inside one of the configured proxy
