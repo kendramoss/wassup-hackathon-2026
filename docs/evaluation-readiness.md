@@ -10,6 +10,10 @@ Results are labelled **LiteLLM/gateway-backed**. They are not native Vertex vali
 
 The proposed #275 task is a **precedent-verifier check on CBP before/after natural experiments**: given the machine-extracted facts of an earlier ruling A and a later ruling B, does the existing verifier say the origin changes? It does not exercise move enumeration, ranking or economics, so it is not planner validation. Planner enumeration, ranking and cost estimates remain untested unless a separate estimand is defined and run. Origin accuracy on new single-origin rulings is a separate, secondary estimate. The protocol (eligibility, gold, leakage controls, hashes, reporting tiers) is kept with the evidence ledger and is reviewed independently before it is frozen. Public ruling retrieval was denied (HTTP 403) when attempted; the number of eligible rulings is unknown, not zero.
 
+## Fixture dates and the leakage gate
+
+The pre-call leakage hook in `readiness-eval eval` parses `ruling_date` and every `retrieved[].date` as a strict ISO `YYYY-MM-DD` date and compares them with the frozen `retrieval_cutoff_exclusive` as dates, not strings. A case date that is missing or unreadable, or a retrieved item whose date is missing or unreadable (including `""`, `10/01/2026` or `1 Oct 2026`), is recorded as `excluded_leak` with a reason and is never sent to the model or scored. The same applies to a non-ISO cutoff in the frozen config. This closes the gap where a raw string comparison let any date beginning below `2` appear to precede the cutoff (issue #375, D263). Fixture authors must write ISO dates; there is no silent fallback to an assumed earlier date.
+
 ## Budget guard in short
 
 - One raw HTTP attempt is one reservation, and all attempts (retries, tool turns, smoke) share the $20 cap.

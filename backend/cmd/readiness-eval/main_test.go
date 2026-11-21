@@ -376,3 +376,75 @@ func TestAckFailuresClearsOnlyTheStreak(t *testing.T) {
 		t.Fatal("ack-failures with no streak")
 	}
 }
+
+// Issue #375: a retrieved item's date must be a readable ISO date. A raw
+// string comparison let "", "10/01/2026" and "1 Oct 2026" sort before the
+// cutoff and pass the leakage gate.
+func TestLeakCheckFailsClosedOnUnreadableDates(t *testing.T) {
+	const cutoff = "2026-09-26"
+	fx := func(rulingDate, retrieved string) Fixture {
+		t.Helper()
+		doc := `{"id":"X","ruling_date":"` + rulingDate + `","facts":"f","gold":"China"`
+		if retrieved != "" {
+			doc += `,"retrieved":` + retrieved
+		}
+		doc += `}`
+		var f Fixture
+		if err := json.Unmarshal([]byte(doc), &f); err != nil {
+			t.Fatal(err)
+		}
+		return f
+	}
+
+	for _, tc := range []struct {
+		name, retrieved, want string
+	}{
+		{"iso before cutoff", `[{"id":"N1","date":"2026-09-25"}]`, ""},
+		{"iso on cutoff", `[{"id":"N1","date":"2026-09-26"}]`, "on or after the cutoff"},
+		{"absent date", `[{"id":"N1"}]`, "missing or non-ISO"},
+		{"empty date", `[{"id":"N1","date":""}]`, "missing or non-ISO"},
+		{"us format", `[{"id":"N1","date":"10/01/2026"}]`, "missing or non-ISO"},
+		{"day month name", `[{"id":"N1","date":"1 Oct 2026"}]`, "missing or non-ISO"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := leakCheck(fx("2026-10-05", tc.retrieved), cutoff, nil)
+			if tc.want == "" {
+				if got != "" {
+					t.Fatalf("leakCheck = %q, want pass", got)
+				}
+			} else if !strings.Contains(got, tc.want) {
+				t.Fatalf("leakCheck = %q, want %q", got, tc.want)
+			}
+		})
+	}
+
+	for _, bad := range []string{"", "10/05/2026", "5 Oct 2026"} {
+		if got := leakCheck(fx(bad, ""), cutoff, nil); !strings.Contains(got, "case ruling_date") {
+			t.Errorf("case date %q: leakCheck = %q, want a rejection", bad, got)
+		}
+	}
+	if got := leakCheck(fx("2026-10-05", ""), "not-a-date", nil); !strings.Contains(got, "cutoff is not an ISO date") {
+		t.Errorf("bad config cutoff: leakCheck = %q", got)
+	}
+}
+
+func TestEvalDryRunExcludesUnreadableRetrievedDate(t *testing.T) {
+	d := t.TempDir()
+	fx := write(t, d, "bad.jsonl", `{"id":"B1","ruling_date":"2026-10-05","facts":"f","gold":"China","fake":"ok:China","retrieved":[{"id":"N9","date":"10/02/2026"}]}`+"\n")
+	cfg := write(t, d, "cfg.json", cfgJSON)
+	res := filepath.Join(d, "res.jsonl")
+	code, out, er := do(t, nil, "eval", "--dry-run", "--fixtures", fx, "--config", cfg, "--out", res)
+	if code != 0 {
+		t.Fatalf("%d %s %s", code, out, er)
+	}
+	if !strings.Contains(out, "excluded_leak=1") || strings.Contains(out, "ok=1") {
+		t.Fatalf("case was scored instead of excluded: %s", out)
+	}
+	rows := readRows(t, res)
+	if len(rows) != 1 || rows[0].Status != "excluded_leak" || rows[0].Correct {
+		t.Fatalf("%+v", rows)
+	}
+	if !strings.Contains(rows[0].Detail, "non-ISO") {
+		t.Fatalf("exclusion without a date reason: %+v", rows[0])
+	}
+}

@@ -432,16 +432,37 @@ type Row struct {
 	Detail     string `json:"detail,omitempty"`
 }
 
+// parseDay reads a strict ISO calendar date. Datetimes, regional formats and
+// empty strings are all rejected: the leakage gate must never guess a date,
+// because an unreadable date cannot be proven to be before the cutoff.
+func parseDay(s string) (time.Time, error) {
+	return time.Parse(time.DateOnly, s)
+}
+
 // leakCheck is the pre-call hook: the case must be dated at or after the
 // cutoff, and nothing retrievable for it may be dated on or after the cutoff
-// or be any test case.
+// or be any test case. Dates are parsed, never compared as raw strings: a
+// missing or unreadable date fails closed and excludes the case (issue #375),
+// the same way the claims check counts undated precedent slots separately.
 func leakCheck(f Fixture, cutoff string, testIDs map[string]bool) string {
-	if f.Date < cutoff {
+	cut, err := parseDay(cutoff)
+	if err != nil {
+		return "frozen config cutoff is not an ISO date"
+	}
+	day, err := parseDay(f.Date)
+	if err != nil {
+		return "case ruling_date is missing or not ISO YYYY-MM-DD"
+	}
+	if day.Before(cut) {
 		return "case dated before the cutoff"
 	}
 	for _, r := range f.Retrieved {
+		rd, err := parseDay(r.Date)
+		if err != nil {
+			return "retrieved " + r.ID + " has a missing or non-ISO date"
+		}
 		switch {
-		case r.Date >= cutoff:
+		case !rd.Before(cut):
 			return "retrieved " + r.ID + " dated on or after the cutoff"
 		case testIDs[r.ID]:
 			return "retrieved " + r.ID + " is a test case"
