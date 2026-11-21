@@ -76,7 +76,7 @@ All of these run with `make reproduce`, with no model calls and no credentials.
 - The model's pre-training may have seen some 2026 rulings. This cannot be excluded.
 - Rulings where CBP held two or more countries are left out, so the benchmark is silent on "it depends" answers.
 - The simple-rule baselines were recomputed from committed files with no model (D155): the best, the first country named, is 63.4%; most-mentioned is 60.7%. The research write-up's figures (most-mentioned 60.5%, final assembly 40.6%) are not reproducible here; they are unverified and kept only as history.
-- The planner's precedent check is measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)). A clean post-cutoff test exists but is small: 15 flip pairs, read by one person, scored once through the gateway (D170).
+- The planner's precedent check is also measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)). The clean post-cutoff test exists but is small: **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), read by one person and scored once through the gateway. Starting-origin-given precision was 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real-change pairs, not all 18. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`.
 
 ## 6. Known failure modes
 

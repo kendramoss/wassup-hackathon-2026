@@ -256,7 +256,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
-- **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
+- **A larger clean planner test set.** The engine has a second post-cutoff split (section 6) and the planner now has **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), but they were read by one person and scored once through the gateway (9/9 precision, 9/12 recall). Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. More post-cutoff rulings are needed before the intervals narrow.
 - **The production path for the other regimes, end to end.** The post-cutoff regime runs (section 6.1) send each case to its regime's engine; the router sent 10 of those 24 rulings to the general engine instead, and that path is not scored.
 - **A textile split rule that reads the law, not the boilerplate.** The D51 rule matches any mention of 102.21 (section 6.1).
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
@@ -271,7 +271,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
-- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 14 families is checked on development rulings, not evaluated.
+- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7) of **18 frozen pairs** (12 real changes, 6 controls; one reader, one gateway run). Starting-origin-given precision is 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real changes, not all 18, and the intervals are wide. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. Plan quality on the 14 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 - **The other regimes' post-cutoff splits are small** (17, 6 and 13), and their router path is not scored (section 6.1).
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
@@ -403,7 +403,7 @@ Two products per family from development or train rulings (never a test split), 
 
 The two "does not" cases cite a ruling that holds China for an all-Chinese setup; both plans leave no Chinese part, so they are likely right on their face, but the citation does not show it. Per-run detail, closest rejected move and notes: `eval/results/planner-families-summary.json`, `eval/planner/spot_checks.json`. These are development checks with illustrative economics, one run each; no later ruling tells whether a shown plan would work.
 
-Recompute both summaries with `python3 -I eval/planner/summarize.py . --check` (part of `make reproduce`); the post-cutoff counts are also recomputed by `go run ./cmd/claimscheck` (`planner_post.*`).
+Recompute both frozen summaries with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check` (both part of `make reproduce`); the combined post-cutoff counts are also reconciled by `go run ./cmd/claimscheck` (`planner_post.*`).
 
 ### 7.3 Post-cutoff flip-pair addendum (D192)
 
