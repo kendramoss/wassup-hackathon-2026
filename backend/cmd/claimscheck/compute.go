@@ -556,6 +556,7 @@ func Compute(root string) (kv []KV, problems []string) {
 	plannerPost(out, &problems, root)
 	repeatability(out, &problems, root, adj)
 	allRegimes(out, &problems, root)
+	routerChecks(out, &problems, root)
 
 	var calib struct {
 		Splits []struct {
@@ -695,6 +696,10 @@ var requiredManifest = []string{
 	textileRows, pharmaRows, usmcaRows, final2Rows, textile2Rows, pharma2Rows, usmca2Rows,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
 	factsNamesPath,
+	routedV2File, routedV2General, routedV2USMCA,
+	"eval/results/route-dev-router-v2-gemini-3.8-flash-litellm.jsonl",
+	"eval/results/route-dev-router-v3-gemini-3.8-flash-litellm.jsonl",
+	"eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl",
 }
 
 func fileSum(path string) (string, error) {
@@ -1036,4 +1041,141 @@ func allRegimes(out *kvs, probs *[]string, root string) {
 	out.add("regimes.all.dedup.correct", dedK)
 	out.add("regimes.all.dedup.n", dedN)
 	out.add("regimes.all.dedup.pct", pct(dedK, dedN))
+}
+
+// Router files (D230, D231).
+const (
+	routerSplitsFile = "eval/splits/splits_router.json"
+	routedV2File     = "eval/results/route-final2-router-v2-d211.jsonl"
+	routedV2General  = "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-routed-v2.jsonl"
+	routedV2USMCA    = "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-routed-v2.jsonl"
+)
+
+// routerDevFiles are the dev route runs by key (D230, D231).
+var routerDevFiles = []struct{ key, file string }{
+	{"v2", "eval/results/route-dev-router-v2-gemini-3.8-flash-litellm.jsonl"},
+	{"v3", "eval/results/route-dev-router-v3-gemini-3.8-flash-litellm.jsonl"},
+	{"v4", "eval/results/route-dev-router-v4-gemini-3.8-flash-litellm.jsonl"},
+}
+
+type routeCheckRow struct {
+	Ruling     string `json:"ruling"`
+	GoldEngine string `json:"gold_engine"`
+	Engine     string `json:"engine"`
+	Error      string `json:"error"`
+}
+
+// routerChecks recomputes the router's dev routing per gold engine, with the
+// gold engine taken from the frozen router splits (not the row), and the
+// routed end-to-end path of router-v2 on the post-cutoff rulings (D231):
+// each ruling scored with the engine its label picks. An errored route counts
+// as wrong.
+func routerChecks(out *kvs, probs *[]string, root string) {
+	var sp struct {
+		Dev    []string          `json:"dev"`
+		Final2 []string          `json:"final2"`
+		Gold   map[string]string `json:"gold"`
+	}
+	if err := readJSON(root, routerSplitsFile, &sp); err != nil {
+		*probs = append(*probs, err.Error())
+		return
+	}
+	lastRoute := func(rel string) (map[string]routeCheckRow, bool) {
+		rows, err := readJSONL[routeCheckRow](root, rel)
+		if err != nil {
+			*probs = append(*probs, err.Error())
+			return nil, false
+		}
+		m := map[string]routeCheckRow{}
+		for _, r := range rows {
+			m[r.Ruling] = r
+		}
+		return m, true
+	}
+	for _, f := range routerDevFiles {
+		m, ok := lastRoute(f.file)
+		if !ok {
+			return
+		}
+		k, n := map[string]int{}, map[string]int{}
+		for _, id := range sp.Dev {
+			g := sp.Gold[id]
+			if g == "none" {
+				continue
+			}
+			r, seen := m[id]
+			if !seen {
+				if f.key == "v2" || f.key == "v3" {
+					continue // run before the four "none" rulings were added (D230)
+				}
+				*probs = append(*probs, fmt.Sprintf("%s: %s of the dev router split is not routed", f.file, id))
+				return
+			}
+			right := r.Error == "" && r.Engine == g
+			keys := []string{"all", g}
+			if g != "general" {
+				keys = append(keys, "specialist")
+			}
+			for _, key := range keys {
+				n[key]++
+				if right {
+					k[key]++
+				}
+			}
+		}
+		for _, key := range []string{"all", "specialist", "general", "pharma_api", "usmca_part102", "textile_102_21"} {
+			p := "router.dev." + f.key + "." + key
+			out.add(p+".correct", k[key])
+			out.add(p+".n", n[key])
+			out.add(p+".pct", pct(k[key], n[key]))
+		}
+	}
+	// Routed path, router-v2, post-cutoff.
+	routes, ok := lastRoute(routedV2File)
+	if !ok {
+		return
+	}
+	pred := map[string]map[string]bool{}
+	for eng, files := range map[string][]string{
+		"general":        {final2Rows, routedV2General},
+		"textile_102_21": {textile2Rows},
+		"pharma_api":     {pharma2Rows},
+		"usmca_part102":  {usmca2Rows, routedV2USMCA},
+	} {
+		pred[eng] = map[string]bool{}
+		for _, rel := range files {
+			rows, err := readJSONL[engineRow](root, rel)
+			if err != nil {
+				*probs = append(*probs, err.Error())
+				return
+			}
+			for _, r := range rows {
+				pred[eng][r.Ruling] = r.Correct && r.Error == ""
+			}
+		}
+	}
+	var k, n, sent int
+	for _, id := range sp.Final2 {
+		r, seen := routes[id]
+		if !seen {
+			*probs = append(*probs, fmt.Sprintf("%s: %s is not routed", routedV2File, id))
+			return
+		}
+		right, scored := pred[r.Engine][id]
+		if !scored {
+			*probs = append(*probs, fmt.Sprintf("routed path: no %s prediction for %s", r.Engine, id))
+			return
+		}
+		n++
+		if right {
+			k++
+		}
+		if g := sp.Gold[id]; g != r.Engine {
+			sent++
+		}
+	}
+	out.add("router.w2.routed.v2.correct", k)
+	out.add("router.w2.routed.v2.n", n)
+	out.add("router.w2.routed.v2.pct", pct(k, n))
+	out.add("router.w2.routed.v2.sent_elsewhere", sent)
 }
