@@ -1195,6 +1195,66 @@ export interface components {
             plant?: string;
             /** @description Operation group that produces it */
             group?: string;
+            /**
+             * @description Optional HTS heading or subheading of the part. Read only by the 19 CFR 102.20 rule check (rule_check, D363); not part of the facts.
+             * @example 7616.99
+             */
+            hts?: string;
+        };
+        /** @description The deterministic 19 CFR 102.20 tariff-shift check (D360, D363), present only when the product gives an HTS code for the good and at least one part. Computed when the case is read; display only: it never changes the prediction, the triage or auto-accept. RULE_CHECK=off removes it. */
+        RuleCheck: {
+            /** @enum {string} */
+            rules: "19 CFR 102.20";
+            /**
+             * @description part102 when the router sent the case to the Part 102 rules; informational when it is decided under substantial transformation
+             * @enum {string}
+             */
+            applies: "part102" | "informational";
+            /** @description Country of production the check used; empty when not known */
+            country: string;
+            /** @description How the country was read from the product (final assembly plant, plant of the last operation, the only plant) */
+            country_from: string;
+            model_origin?: string;
+            /** @description Present only when the check decided: whether it names the model's origin */
+            agrees?: boolean;
+            /** @description True when the decided check differs from the model: worth a person's look. Does not change the triage route */
+            review: boolean;
+            note: string;
+            result: {
+                /** @enum {string} */
+                status: "decided" | "undetermined" | "out_of_scope";
+                origin?: string;
+                /** @description The paragraphs and 102.20 row that decided it */
+                basis?: string;
+                reason: string;
+                assumes?: string[];
+                /** @description When only the 102.13 de minimis value is open: the answer if the materials that do not shift are worth more than 7% of the good */
+                if_not_de_minimis?: {
+                    origin?: string;
+                    basis?: string;
+                    condition?: string;
+                };
+                rule?: {
+                    /** @example 19 CFR 102.20(o), 8473 */
+                    id?: string;
+                    hts?: string;
+                    /** @description Verbatim eCFR text of the row */
+                    text?: string;
+                    alternatives?: number;
+                    encoded?: number;
+                };
+                materials?: {
+                    name: string;
+                    hts?: string;
+                    origin: string;
+                    foreign: boolean;
+                    /** @enum {string} */
+                    status: "shift" | "no_shift" | "needs_fact" | "missing_hts";
+                    /** @description 1-based alternative of the row the part satisfies */
+                    alternative?: number;
+                    needs?: string[];
+                }[];
+            };
         };
         Operation: {
             name: string;
@@ -1379,6 +1439,7 @@ export interface components {
              * @enum {string}
              */
             facts_source?: "parts_list" | "pasted";
+            rule_check?: components["schemas"]["RuleCheck"];
             /** @description latest economics given for the case, if any */
             economics?: components["schemas"]["Economics"];
             /**

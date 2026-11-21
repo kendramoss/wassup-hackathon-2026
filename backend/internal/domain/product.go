@@ -1,10 +1,15 @@
 package domain
 
 import (
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
 )
+
+// componentHTS accepts a heading ("7616") to a full 10-digit code
+// ("8504.40.9580"), with dots or spaces.
+var componentHTS = regexp.MustCompile(`^[0-9]{4}(?:[. ]?[0-9]{2}){0,3}$`)
 
 // Plant is a site where operations can be performed.
 type Plant struct {
@@ -36,6 +41,10 @@ type Component struct {
 	// Group is the operation group that produces this component (e.g.
 	// "motor_fan_assembly"), so moving the group moves the component.
 	Group string `json:"group,omitempty"`
+	// HTS is the component's own tariff code (heading or subheading),
+	// optional. Only the 19 CFR 102.20 rule check reads it (D363); it is not
+	// part of the facts the engine reads.
+	HTS string `json:"hts,omitempty"`
 }
 
 // Operation is a processing step performed at one of the product's plants.
@@ -101,6 +110,9 @@ func (p Product) Validate() error {
 		}
 		if c.Plant != "" && !seen[c.Plant] {
 			errs.add("components[%d]: unknown plant %q", i, c.Plant)
+		}
+		if h := strings.TrimSpace(c.HTS); h != "" && !componentHTS.MatchString(h) {
+			errs.add("components[%d]: hts %q is not an HTS heading or subheading", i, c.HTS)
 		}
 	}
 	for i, o := range p.Operations {

@@ -67,6 +67,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
@@ -420,6 +421,13 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 			MaxOutputTokens: cfg.MaxOutputTokens, System: engine.PharmaSystem, Version: engine.PharmaVersion})
 		logger.Info("pharma engine on", "precedents", len(ppool), "prompt", engine.PharmaVersion, "fast_path", cfg.PharmaFastPath)
 	}
+	// The 19 CFR 102.20 rule check (D363): display only, on by default.
+	var ruleCheck *tariffshift.Rules
+	if cfg.RuleCheck {
+		if ruleCheck, err = tariffshift.Default(); err != nil {
+			return httpapi.Deps{}, err
+		}
+	}
 	dutyTable, err := duty.Load()
 	if err != nil {
 		return httpapi.Deps{}, err
@@ -649,6 +657,7 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 		TextileFastPath:       cfg.TextileFastPath,
 		USMCA:                 usmca,
 		USMCAFastPath:         cfg.USMCAFastPath,
+		RuleCheck:             ruleCheck,
 		Pharma:                pharma,
 		PharmaFastPath:        cfg.PharmaFastPath,
 		FamilyBars:            familyBars,

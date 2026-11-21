@@ -370,6 +370,9 @@ export function ProductStep() {
       if (c.product?.components?.length) {
         setProduct(c.product);
         setTab("parts");
+        // From the rule check's "Add codes" link: land on the first part's
+        // HTS field once the parts table is drawn (D363).
+        if (window.location.hash === "#field-part-hts-0") setTimeout(() => document.getElementById("field-part-hts-0")?.focus(), 0);
       } else setTab("paste");
     }, setError);
   }, [fromId, demoId]);
@@ -1155,10 +1158,10 @@ export function PartsEditor({ product, family, economics, onChange }: { product:
         {product.components.length === 0 && <p className="duo mb-1 text-[13px] text-dim">Each component and where it&apos;s made.</p>}
         {product.components.length > 0 && (
           <div className="relative overflow-x-auto">
-            <table className="w-full min-w-[620px] border-collapse text-sm">
+            <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr>
-                  {["Part", "Made at", "Country", "Group"].map((h) => (
+                  {["Part", "Made at", "Country", "HTS (optional)", "Group"].map((h) => (
                     <th key={h} scope="col" className="pb-2 pr-2 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
                       {h}
                     </th>
@@ -1198,6 +1201,19 @@ export function PartsEditor({ product, family, economics, onChange }: { product:
                         options={countryOptions}
                         allowCustom
                         flags
+                      />
+                    </td>
+                    <td className="py-1 pr-2">
+                      {/* Only the 19 CFR 102.20 rule check reads a part's
+                          code (D363); it is not part of the facts. */}
+                      <input
+                        id={`field-part-hts-${i}`}
+                        aria-label={`HTS code of ${c.name || "this part"} (optional)`}
+                        placeholder="e.g. 7616.99"
+                        inputMode="decimal"
+                        className={cx(cell, "w-[7.5rem]")}
+                        value={c.hts ?? ""}
+                        onChange={(e) => setComps(product.components.map((x, j) => (j === i ? { ...x, hts: e.target.value.trim() ? e.target.value : undefined } : x)))}
                       />
                     </td>
                     <td className="py-1 pr-2">

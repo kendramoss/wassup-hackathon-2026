@@ -248,6 +248,11 @@ type Config struct {
 	// precedent, from TextileReasoning, plus filled made-up guidance; D53).
 	TextilePrompt    string
 	TextileReasoning string
+	// RuleCheck (on|off, default on) adds the deterministic 19 CFR 102.20
+	// rule check (internal/tariffshift, D363) to a case's answer when its
+	// product gives HTS codes for the good and its parts. Display only: it
+	// never changes the prediction, the triage or auto-accept.
+	RuleCheck bool
 	// USMCAEngine (on|off, default off) predicts cases the router labels
 	// usmca_part102 under the Part 102 rules (19 CFR 102.11 / 102.20,
 	// usmca-v1) with precedents from USMCALabels (a copy of
@@ -473,6 +478,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("TEXTILE_ENGINE must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("RULE_CHECK", "on")); v {
+	case "on", "true", "1":
+		c.RuleCheck = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("RULE_CHECK must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("USMCA_ENGINE", "off")); v {
 	case "on", "true", "1":

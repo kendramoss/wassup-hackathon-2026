@@ -38,6 +38,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/spend"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/teams"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/verifier"
@@ -167,6 +168,9 @@ type Deps struct {
 	// USMCA case to review.
 	USMCA         Predictor
 	USMCAFastPath float64
+	// RuleCheck, when set, adds the 19 CFR 102.20 rule check to a case
+	// that gives HTS codes (D363). Display only: nothing reads it back.
+	RuleCheck *tariffshift.Rules
 	// Pharma, when set, predicts cases the router labels pharma_api with the
 	// pharmaceutical prompt (origin follows the active ingredient) instead of
 	// leaving them out of scope (D62). PharmaFastPath is its auto-accept bar;
@@ -699,6 +703,11 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 	// What the case's own prediction read (D220), present only when known.
 	if src := a.factsSource(c); src != "" {
 		f["facts_source"] = src
+	}
+	// The rule check, only on a case that gives the codes it needs (D363),
+	// so every other case reads byte for byte as before.
+	if rc := a.ruleCheck(c); rc != nil {
+		f["rule_check"] = rc
 	}
 	return f
 }
