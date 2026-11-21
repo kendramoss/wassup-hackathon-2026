@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -359,15 +358,6 @@ func writeShared(path string, s *shared, spent, reserved, attempts, failures int
 	return syncDir(filepath.Dir(path))
 }
 
-func syncDir(dir string) error {
-	d, err := os.Open(dir)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	return d.Sync()
-}
-
 // CheckLocalPath refuses locations where advisory flock and fsync cannot be
 // trusted: cloud-synced folders and (on darwin) network or FUSE filesystems.
 func CheckLocalPath(path string) error {
@@ -375,8 +365,11 @@ func CheckLocalPath(path string) error {
 	if err != nil {
 		return err
 	}
+	// Compare separator-agnostically: the refused locations are written with
+	// forward slashes, but filepath.Abs uses \ on Windows.
+	norm := strings.ReplaceAll(abs, string(filepath.Separator), "/")
 	for _, bad := range []string{"/Mobile Documents/", "/Library/CloudStorage/", "/Dropbox/", "/OneDrive"} {
-		if strings.Contains(abs+"/", bad) {
+		if strings.Contains(norm+"/", bad) {
 			return fmt.Errorf("%w: %s", ErrNonLocalFS, bad)
 		}
 	}
@@ -555,7 +548,7 @@ func Open(attemptsPath, sharedPath string) (*Ledger, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := syscall.Flock(int(lf.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+	if err := lockExclusive(lf); err != nil {
 		lf.Close()
 		return nil, ErrLocked
 	}

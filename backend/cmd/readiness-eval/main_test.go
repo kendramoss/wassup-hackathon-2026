@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 
@@ -267,6 +267,11 @@ func TestVerifyFreezeBindsHashesAndCommit(t *testing.T) {
 // C5: the real main path (built binary) locks the default HTTP client down.
 func TestBuiltBinaryLocksDownDefaultHTTP(t *testing.T) {
 	bin := filepath.Join(t.TempDir(), "readiness-eval")
+	if runtime.GOOS == "windows" {
+		// go build does not append .exe to an explicit -o name; Windows
+		// cannot execute a file without it.
+		bin += ".exe"
+	}
 	c := exec.Command("go", "build", "-o", bin, ".")
 	c.Env = append(os.Environ(), "GOFLAGS=-mod=readonly")
 	if b, err := c.CombinedOutput(); err != nil {
@@ -296,9 +301,18 @@ func TestLockDownDefaultHTTPFunction(t *testing.T) {
 
 // C8: Ctrl-C cancels the run context instead of killing the process mid-settle.
 func TestSignalContextCancelsOnInterrupt(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("os.Process.Signal(os.Interrupt) is not supported on Windows")
+	}
 	ctx, stop := signalContext()
 	defer stop()
-	if err := syscall.Kill(os.Getpid(), syscall.SIGINT); err != nil {
+	// os.Process.Signal(os.Interrupt) works on both Unix and Windows and
+	// delivers the same signal the handler above subscribes to.
+	p, err := os.FindProcess(os.Getpid())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Signal(os.Interrupt); err != nil {
 		t.Fatal(err)
 	}
 	select {
