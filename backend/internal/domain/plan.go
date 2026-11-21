@@ -149,7 +149,26 @@ type Plan struct {
 	// FromAdvice marks the one move per search added by following a near
 	// miss's advice (D85): checked once like any other move.
 	FromAdvice bool `json:"from_advice,omitempty"`
+	// Tier is a shown plan's ranking tier (D340, D341): "clear_margin" when
+	// its check is at least the bar plus the clear margin and names no
+	// counter-ruling, "at_bar" otherwise. Shown plans sort by tier, then net.
+	// Empty on rejected moves and on plans stored before D341.
+	Tier PlanTier `json:"tier,omitempty"`
+	// PartsMoved counts the components whose country the move changes.
+	PartsMoved int `json:"parts_moved,omitempty"`
+	// SmallestSupported marks the shown plan that moves the fewest parts when
+	// two or more are shown (D340): a label, not a sort key.
+	SmallestSupported bool `json:"smallest_supported,omitempty"`
 }
+
+// PlanTier is a shown plan's ranking tier (D341).
+type PlanTier string
+
+// Ranking tiers.
+const (
+	TierClearMargin PlanTier = "clear_margin"
+	TierAtBar       PlanTier = "at_bar"
+)
 
 // NearMiss explains a move whose precedent check is just under the bar.
 type NearMiss struct {

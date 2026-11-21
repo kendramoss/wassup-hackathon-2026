@@ -420,8 +420,11 @@ export function MethodPage() {
           <li>
             <b className="font-medium text-ink">A verifier checks it against earlier rulings.</b> An ADK agent on Gemini searches CBP rulings dated before the case for one that
             supports the move and for one against it, and states a confidence tied to what it read (<D id="D74" />). A move is shown only with a supporting ruling at 0.92 or
-            above. A supported move below the bar is listed as below the bar; the closest one can still go to a broker, labelled as such. Shown moves are ranked by the
-            net per year on the duty and cost inputs.
+            above. A supported move below the bar is listed as below the bar; the closest one can still go to a broker, labelled as such. Shown moves rank in two tiers
+            (<D id="D341" />): first those with a clear margin, a check of 0.93 or more and no counter-ruling, then those at the bar, which may not hold on a re-check. Within
+            a tier they rank by the net per year on the duty and cost inputs. The move that changes the fewest parts is labelled the smallest supported move. A ruling CBP
+            later revoked or modified is never cited for a case dated on or after the change, and the site marks it &quot;superseded by&quot; (<D id="D320" />): the corpus
+            records 35 such changes to 34 rulings, and before the guard 43 of 12,998 committed rows had shown one and 10 had cited one.
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker
@@ -442,7 +445,8 @@ export function MethodPage() {
           kept in China, so a smaller move may have been enough. The outer shells, which N357771 also lists as Thai, were already Thai in 2022 and are not counted. This is
           not a blind test: three-group moves were added to the search after the team saw this change (<D id="D84" />). The date cutoff still holds. Also after seeing it,
           the power cord, knobs and covers were split from the switch and wiring, so the search can propose CBP&apos;s smaller move (<D id="D330" />). In two later gateway
-          runs that move was shown, with a check of 0.94, but cheaper moves that move fewer parts ranked above it (<D id="D332" />). The plan step still shows the stored
+          runs that move was shown, with a check of 0.94, but cheaper moves that move fewer parts ranked above it (<D id="D332" />). Re-ranked by tier, it ranks first in
+          run 2 and 6th of 7 in run 1, where its check named a counter-ruling; the tier rule was set after seeing these runs (<D id="D341" />). The plan step still shows the stored
           production plan, made before the split, until it is re-pinned. In the per-family checks, 23
           products across the families, {PLAN_FAMILIES.k} of {PLAN_FAMILIES.n} showed a supported plan ({PLAN_FAMILIES.lo}–{PLAN_FAMILIES.hi}); read by hand, the cited ruling
           supports the move in {PLAN_FAMILIES.supports} of those {PLAN_FAMILIES.k}, partly in {PLAN_FAMILIES.partial} and not in {PLAN_FAMILIES.not} (<D id="D171" />). The

@@ -196,7 +196,7 @@ for label, pattern, fixture_of in SETS:
             v = p.get("verdict") or {}
             mv = moved_parts(d["baseline"]["variant_facts"], p["variant_facts"], names)
             rows.append({"key": key(p), "description": p["description"], "check": v.get("confidence"),
-                         "counter_ruling": v.get("counter_ruling") or None, "supporting": v.get("supporting_ruling"),
+                         "counter": v.get("counter_ruling") or None,  # not "counter_ruling": impact.py counts that key as a result row "supporting": v.get("supporting_ruling"),
                          "net_per_year": p.get("net_per_year"), "parts_moved": len(mv), "tier": tier(p),
                          "old_rank": i + 1, "_moved": mv})
         new = sorted(rows, key=lambda r: (r["tier"], -(r["net_per_year"] or 0), r["old_rank"]))

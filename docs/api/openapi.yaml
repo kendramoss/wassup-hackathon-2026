@@ -2403,6 +2403,17 @@ components:
             Only with FOLLOW_ADVICE=on (D85): true on the one move per search added by following a near miss's advice. It is the
             advised move plus the groups its would_match names, searched because no earlier move covered it, and checked once like
             any other move (engine, then precedent check). It may be shown, below the bar or rejected. Absent otherwise.
+        tier:
+          type: string
+          enum: [clear_margin, at_bar]
+          description: |
+            Shown plans only (D341): clear_margin when the precedent check is at least ranking.clear_from and names no
+            counter-ruling; at_bar otherwise (borderline, may not hold on re-check). Shown plans sort by tier, then net.
+            Absent on rejected moves and on plans stored before D341.
+        parts_moved: { type: integer, description: "Shown plans only: how many components the move changes the country of" }
+        smallest_supported:
+          type: boolean
+          description: True on the shown plan that moves the fewest parts when two or more are shown (D340). A label, not a sort key.
 
     Range:
       type: object
@@ -2433,7 +2444,7 @@ components:
         target: { type: string }
         current_origin: { type: object, properties: { country: { type: string }, ruling: { type: string } } }
         baseline: { $ref: "#/components/schemas/Plan" }
-        plans: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE); best-ranked within the searched moves and your cost inputs first" }
+        plans: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE). Ranked by tier (clear margin first, then at the bar; D341), then net a year, best first" }
         rejected: { type: array, items: { $ref: "#/components/schemas/Plan" }, description: "Greyed rows, closest first: current setup, below_confidence_bar, no_supporting_precedent, engine_other_origin" }
         backtest: { type: object }
         stats: { type: object, description: "Full-plan cost: engine calls, verifier model and tool calls, tokens, wall seconds" }
@@ -2441,6 +2452,13 @@ components:
         duty_rates_note: { type: string }
         objective: { $ref: "#/components/schemas/PlanObjective" }
         economics_basis: { type: string, description: "Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not." }
+        ranking:
+          type: object
+          description: How shown plans were ordered (D341). Absent on results stored before it, which were ranked by net alone.
+          properties:
+            rule: { type: string, enum: [tier_then_net] }
+            bar: { type: number, example: 0.92 }
+            clear_from: { type: number, example: 0.93, description: "Lowest check in the clear-margin tier: the bar plus the clear margin" }
     PlanResponse:
       allOf:
         - $ref: "#/components/schemas/Meta"

@@ -375,6 +375,11 @@ export function AccuracyPage() {
                   ) : null}
                 </Card>
               </div>
+              <p className="duo mt-3 max-w-[80ch] text-xs text-dim">
+                Revoked rulings are not cited. A ruling CBP later revoked or modified is never cited as support for a case dated on or after the change, and every ruling link on
+                the site says &quot;superseded by&quot; when one is known (D320). The corpus records 35 such changes to 34 rulings. Before the guard, 43 of 12,998 committed rows
+                had shown one and 10 had cited one; the effect on accuracy has not been measured.
+              </p>
             </section>
           )}
 

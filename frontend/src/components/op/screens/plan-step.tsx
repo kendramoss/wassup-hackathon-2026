@@ -17,7 +17,7 @@ import { OPS_UNREADABLE, OperationalFields, opsErrorText, useOpsValidity } from 
 import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
-import { EconomicsEditor, MoveIncludes, PlantDiagram, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, rejectionLabels, type ActualChangeExtras, type BacktestView } from "../plan-bits";
+import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
@@ -369,6 +369,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           stale={stale}
           demoted={stale ? 0 : demoted}
           objective={result.objective}
+          result={result}
           backtest={bt}
           from={from}
           // The search's own count; the "No change" baseline isn't a move.
@@ -412,11 +413,11 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
             comes after. Money inputs open in a drawer. */}
         {/* Top to bottom: the decision (band), every move searched, then why
             (left) beside what to do next (right); the rest folds (17 Oct). */}
-        {result && <AllMoves result={result} onDraft={draft} stale={stale} product={c.product} />}
+        {result && <AllMoves result={result} onDraft={draft} stale={stale} product={c.product} asOf={c.date} />}
         {result && (
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="flex min-w-0 flex-col gap-6">
-              {lead && <WhySupported plan={lead} />}
+              {lead && <WhySupported plan={lead} asOf={c.date} />}
               <div>
                 {lead && c.product && (
                   <Fold title={`${best ? "Best plan" : "Closest move"}, by plant`} meta={best ? "moved in blue" : "below the bar"}>
@@ -592,7 +593,9 @@ function PlanBand({
   product,
   backtest,
   from,
+  result,
 }: {
+  result?: PlanResult;
   plan: Plan;
   product?: Product | null;
   backtest?: BacktestView;
@@ -607,6 +610,7 @@ function PlanBand({
 }) {
   const stepNo = useStepLabel("plan", "Step 3 of 4");
   const v = plan.verdict?.confidence;
+  const small = smallestSupported(result?.plans ?? [], product);
   return (
     <Band
       left={
@@ -625,10 +629,15 @@ function PlanBand({
         <MoveIncludes product={product} plan={plan} className="mt-2 max-w-[80ch]" />
         <div className="mt-4 flex flex-wrap gap-2">
           {below ? <Chip tone="ask">△ Below the bar · {conf(v)}</Chip> : <Chip tone="ok">{copy.plan.supported}</Chip>}
+          {!below && <TierChip plan={plan} result={result} />}
+          {!below && small === plan && <Chip>{copy.plan.tier.smallest}</Chip>}
           <Chip>
             Reaches <Country name={plan.prediction?.origin_country} /> · origin {originShort(plan.prediction)}
           </Chip>
         </div>
+        {!below && small && small !== plan ? (
+          <p className="duo mt-2 max-w-[80ch] text-xs text-dim">{copy.plan.tier.smallestLine(movePhrase(small, product?.family), partsMoved(small, product))}</p>
+        ) : null}
       </div>
       <div>
         <BandNet plan={plan} below={below} stale={stale} objective={objective} />
@@ -776,7 +785,7 @@ function LiveTable({ rows, baseline, lit }: { rows: Row[]; baseline: Plan | null
 
 // Why the lead move is (or nearly is) supported: flat, summarised; the
 // verifier's full reasoning folds behind "Read the full check".
-function WhySupported({ plan }: { plan: Plan }) {
+function WhySupported({ plan, asOf }: { plan: Plan; asOf?: string | null }) {
   const v = plan.verdict ?? {};
   return (
     <section aria-label="Precedent check" className="text-[13px]">
@@ -787,7 +796,7 @@ function WhySupported({ plan }: { plan: Plan }) {
           {[conf(v.confidence), agreementWords(v.agreement), checkWords(v.confidence)].filter(Boolean).join(" · ")}
         </dd>
         <dt className="text-dim">Supports</dt>
-        <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} /> : "none found"}</dd>
+        <dd>{v.supporting_ruling ? <RulingLink id={v.supporting_ruling} asOf={asOf} support /> : "none found"}</dd>
         <dt className="text-dim">Counter</dt>
         <dd>{v.counter_ruling ? <RulingLink id={v.counter_ruling} /> : "none found"}</dd>
       </dl>
@@ -830,7 +839,7 @@ function Reasoning({ text }: { text: string }) {
   );
 }
 
-function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onDraft: (key: string) => void; stale?: boolean; product?: Product | null }) {
+function AllMoves({ result, onDraft, stale, product, asOf }: { result: PlanResult; onDraft: (key: string) => void; stale?: boolean; product?: Product | null; asOf?: string | null }) {
   const rejected = result.rejected ?? [];
   // Shown plans first, then the rest closest first (precedent check, then
   // net), matching the band (DESIGN.md: "every row greyed, closest first");
@@ -848,11 +857,16 @@ function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onD
   const moves = every.length - noChange.length;
   const [open, setOpen] = useState(false);
   const all = open ? every : every.slice(0, 3);
+  const small = smallestSupported(result.plans ?? [], product);
+  // A result stored before D341 keeps its net-only order (it is the order
+  // the stored backtest read); say so when that could differ.
+  const storedOrder = !result.ranking && (result.plans?.length ?? 0) > 1;
   return (
     <section className="min-w-0">
       <h2 className="eyebrow mb-2.5">
-        Moves searched · {moves} · {result.plans?.length ? "best first" : "closest first by precedent check"}
+        Moves searched · {moves} · {result.plans?.length ? (storedOrder ? "best net first" : copy.plan.tier.order) : "closest first by precedent check"}
       </h2>
+      {storedOrder ? <p className="duo mb-2 text-xs text-dim">{copy.plan.tier.stored}</p> : null}
       {/* A table from sm up; on phones each move is a card, so the precedent
           check and net per year stay in view (#96). */}
       <div className="relative overflow-x-auto">
@@ -878,7 +892,7 @@ function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onD
                     <span className="mt-0.5 block text-xs text-dim">
                       {p.shown ? (
                         <>
-                          Supported by {p.verdict?.supporting_ruling ? <RulingLink id={p.verdict.supporting_ruling} /> : "an earlier ruling"}
+                          Supported by {p.verdict?.supporting_ruling ? <RulingLink id={p.verdict.supporting_ruling} asOf={asOf} support /> : "an earlier ruling"}
                           {p.verdict?.counter_ruling ? (
                             <>
                               ; counter <RulingLink id={p.verdict.counter_ruling} />
@@ -890,7 +904,7 @@ function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onD
                           {copy.plan.belowBarRow(conf(p.verdict?.confidence))}
                           {p.verdict?.supporting_ruling ? (
                             <>
-                              {" "}· supported by <RulingLink id={p.verdict.supporting_ruling} />
+                              {" "}· supported by <RulingLink id={p.verdict.supporting_ruling} asOf={asOf} support />
                             </>
                           ) : null}
                         </>
@@ -903,6 +917,12 @@ function AllMoves({ result, onDraft, stale, product }: { result: PlanResult; onD
                       )}
                     </span>
                     {p.operations && !stale && <OpsDetail ops={p.operations} objective={result.objective} className="mt-1.5" />}
+                    {p.shown ? (
+                      <span className="mt-1 flex flex-wrap gap-1.5">
+                        <TierChip plan={p} result={result} />
+                        {small === p ? <Chip>{copy.plan.tier.smallest}</Chip> : null}
+                      </span>
+                    ) : null}
                     {p.from_advice && <span className="mt-0.5 block text-xs text-ask">{copy.plan.advice.tried}</span>}
                     {p.near_miss && <NearMiss nm={p.near_miss} fallbackRuling={p.verdict?.supporting_ruling} />}
                     <CheckTrail trail={p.verdict?.trail} />

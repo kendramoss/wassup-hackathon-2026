@@ -9,7 +9,7 @@ import { copy } from "@/lib/copy";
 import { BAR, conf, formatDate, originConf, originConfCaption, stepIndex, stepNames } from "@/lib/format";
 import { currentOrigin } from "../case-shell";
 import { netText } from "../ops-view";
-import { backtestMatch, checkWords, movePhrase } from "../plan-bits";
+import { backtestMatch, checkWords, movePhrase, type ActualChangeExtras } from "../plan-bits";
 import { ErrorBox, Main } from "../chrome";
 import { Button, ButtonLink, Chip, Country, ScrollX, Spinner, StatusChip, cx } from "../ui";
 import { WorkspacePanel } from "../workspace-panel";
@@ -242,9 +242,26 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
   useEffect(() => {
     api.getCase(c.id).then(setFull, () => {});
   }, [c.id]);
+  // The demo's record of CBP's real change, so the card's "matches" reads
+  // the kept-in-place parts the same way the plan step does (#519).
+  const [change, setChange] = useState<ActualChangeExtras | null>(null);
+  useEffect(() => {
+    if (!demo?.id || !demo.has_plan) return;
+    let live = true;
+    api.demo(demo.id).then(
+      (d) => {
+        if (live) setChange((d?.plan?.actual_change as ActualChangeExtras | undefined) ?? null);
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [demo?.id, demo?.has_plan]);
   const own = full ? currentOrigin(full) : undefined;
   const cur = own?.country ? own : heldOf(demo?.cbp_held);
   const best = full?.plan?.plans?.[0];
+  const match = backtestMatch(full?.plan?.backtest, { change, product: full?.product, move: best?.move });
   const compared = (full as (CaseResponse & { targets?: { ranked?: unknown[] } }) | null)?.targets?.ranked?.length ?? 0;
   const differs = Boolean(cur?.country && c.predicted_origin && cur.country.toLowerCase() !== c.predicted_origin.toLowerCase());
   return (
@@ -290,7 +307,7 @@ export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoL
                 {best.operations ? " · modelled terms only" : ""}
               </>
             )}
-            {backtestMatch(full?.plan?.backtest).matches ? <> · matches CBP&apos;s real change{backtestMatch(full?.plan?.backtest).ruling ? ` (${backtestMatch(full?.plan?.backtest).ruling})` : ""}</> : null}
+            {match.matches ? <> · matches CBP&apos;s real change{match.ruling ? ` (${match.ruling})` : ""}</> : null}
           </>
         ) : full?.plan ? (
           <span className="text-ask">No plan cleared the {BAR} precedent-check bar</span>

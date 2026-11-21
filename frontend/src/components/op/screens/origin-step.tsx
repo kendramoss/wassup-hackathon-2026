@@ -311,7 +311,7 @@ function RulingsSummary({ c }: { c: CaseResponse }) {
   const [open, setOpen] = useState(shown.length === 0);
   return (
     <section aria-label={copy.result.rulings}>
-      <RulingsList rulings={open ? all : shown} cited={cited} />
+      <RulingsList rulings={open ? all : shown} cited={cited} asOf={c.date} />
       {all.length > shown.length && (
         <button type="button" className="mt-1.5 inline-flex min-h-6 items-center text-[13px] text-ok hover:underline" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? "Show cited only" : `Show all ${all.length}`}

@@ -271,14 +271,18 @@ func usd(p *float64) string {
 // num prints a check value without trailing zeros.
 func num(f float64) string { return strconv.FormatFloat(f, 'f', -1, 64) }
 
-// orderOps is the operations-mode ranking (contract 7): shown plans sort
-// fully priced before not priced, then modelled net, best first; rejected
+// orderOps is the operations-mode ranking (contract 7): shown plans sort by
+// tier (D341), then fully priced before not priced, then modelled net, best
+// first; rejected
 // plans keep the current setup first, then the cost demotions, then the
 // existing kinds in their existing order.
 func orderOps(res *Result) {
 	pricedOf := func(p domain.Plan) bool { return p.NetPriced != nil && *p.NetPriced }
 	sort.SliceStable(res.Plans, func(i, j int) bool {
 		a, b := res.Plans[i], res.Plans[j]
+		if a.Tier != b.Tier {
+			return a.Tier == domain.TierClearMargin
+		}
 		if pa, pb := pricedOf(a), pricedOf(b); pa != pb {
 			return pa
 		}

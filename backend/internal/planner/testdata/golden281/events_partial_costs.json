@@ -111,7 +111,10 @@
      "added_cost_per_year": -150000,
      "net_per_year": 650000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 1,
+     "smallest_supported": true
     },
     {
      "move": [
@@ -161,7 +164,9 @@
      "added_cost_per_year": -150000,
      "net_per_year": 650000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 4
     },
     {
      "move": [
@@ -211,7 +216,9 @@
      "added_cost_per_year": -150000,
      "net_per_year": 650000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 4
     },
     {
      "move": [
@@ -261,7 +268,9 @@
      "added_cost_per_year": -30000,
      "net_per_year": 530000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 4
     },
     {
      "move": [
@@ -315,7 +324,9 @@
      "added_cost_per_year": -30000,
      "net_per_year": 530000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 7
     },
     {
      "move": [
@@ -369,7 +380,9 @@
      "added_cost_per_year": -30000,
      "net_per_year": 530000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 7
     },
     {
      "move": [
@@ -415,7 +428,9 @@
      "added_cost_per_year": 120000,
      "net_per_year": 380000,
      "net_priced": true,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 3
     },
     {
      "move": [
@@ -465,7 +480,9 @@
      "added_cost_per_year": 120000,
      "net_per_year": 380000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 6
     },
     {
      "move": [
@@ -515,7 +532,9 @@
      "added_cost_per_year": 120000,
      "net_per_year": 380000,
      "net_priced": false,
-     "shown": true
+     "shown": true,
+     "tier": "clear_margin",
+     "parts_moved": 6
     }
    ],
    "rejected": [
@@ -740,6 +759,11 @@
    "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
    "template_versions": {
     "motorised_tools_small_appliances": "1"
+   },
+   "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.85,
+    "clear_from": 0.86
    }
   },
   "done": 12,

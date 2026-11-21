@@ -43,6 +43,16 @@ type TemplateGroup struct {
 	// template; the planner does not read it, and a plan is still checked by
 	// the verifier against the rulings dated before the case.
 	Precedent *GroupPrecedent `json:"precedent,omitempty"`
+	// Former is the group's name before another group was split out of it
+	// (D330, D342). A product that files nothing under the split-out group
+	// still holds the old contents under this id, so it reads the old name.
+	Former *FormerName `json:"former,omitempty"`
+}
+
+// FormerName is a group's name before the group Until was split out of it.
+type FormerName struct {
+	Name  string `json:"name"`
+	Until string `json:"until"`
 }
 
 // GroupPrecedent is what CBP held about a group's work.
@@ -80,6 +90,11 @@ func (t Template) Validate() error {
 			return fmt.Errorf("planner: template %s: duplicate group %q", t.Family, g.ID)
 		}
 		seen[g.ID] = true
+	}
+	for _, g := range t.Groups {
+		if f := g.Former; f != nil && (f.Name == "" || !seen[f.Until] || f.Until == g.ID) {
+			return fmt.Errorf("planner: template %s: group %q: former name needs a name and another group it was split from", t.Family, g.ID)
+		}
 	}
 	return nil
 }

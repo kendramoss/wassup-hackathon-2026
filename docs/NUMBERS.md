@@ -64,11 +64,22 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Number | Value | Source | Status |
 |---|---|---|---|
 | Heat-gun moves searched after the split | 10 singles and pairs plus 2 of 4 triples (12, `PLAN_MAX_MOVES`); CBP's move (motor-fan, PCBA, power cord, knobs and covers) is the 12th | `backend/internal/planner/split_switch_test.go`, `planner_core_test.go` | Offline, built |
-| CBP's own 2026 move, two runs, production verifier settings | shown in 2 of 2 runs; check 0.94 both times, supporting N347421; ranked 5 of 7 and 4 of 6 by net a year | `eval/results/plan-stability-heatgun.json` (`d331`), rows `eval/results/plan-heatgun-2022-relaxed-verifier-v2-split-run{1,2}-litellm.json` | Measured, 2 runs. Not a blind test: the split was made after seeing N357771 (D330) |
+| CBP's own 2026 move, two runs, production verifier settings | shown in 2 of 2 runs; check 0.94 both times, supporting N347421; ranked 5 of 7 and 4 of 6 by net a year (6 of 7 and 1 of 6 by tier, D341) | `eval/results/plan-stability-heatgun.json` (`d331`), rows `eval/results/plan-heatgun-2022-relaxed-verifier-v2-split-run{1,2}-litellm.json` | Measured, 2 runs. Not a blind test: the split was made after seeing N357771 (D330) |
 | The four-group move in the same runs | check 0.96 both times, followed from near-miss advice; net $285k/yr, ranked last | same files | Measured, 2 runs |
 | Top-ranked plan after the split | run 1 motor-fan alone, moves 2 of the 6 changed parts; run 2 motor-fan + power cord, knobs and covers, moves 5 of 6 and nothing CBP kept | same files (`backtest`) | Measured, 2 runs. The product's backtest reads this plan, so it did not get closer to CBP's change |
 | Cost of the two runs | $1.78 gateway-reported | same file (`d331.gateway_cost_usd`) | Measured |
 | Heat-gun group costs after the split | switch, wiring and minor parts $40k China / $60k Thailand a year; power cord, knobs and covers $30k / $45k (was one group, $70k / $105k) | `backend/testdata/heatgun_2022.json`, `backend/internal/demos/fixtures/heatgun_2022.json` (`group_costs`) | Illustrative, editable; the split is not sourced |
+
+### Plan ranking by tier (D340, D341)
+
+Computed by `python3 -I -B eval/planner/plan_rank.py .` (`--check` in `make reproduce`). No model calls.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Clear margin | 0.01: the clear-margin tier starts at a check of 0.93, with no counter-ruling | `eval/results/plan-rank-analysis.json` (`dev.chosen_margin`, `dev.tier1_from`); `planner.DefaultClearMargin` | Chosen on development rows only by the D340 rule; the need was noticed on the heat gun |
+| Development verdicts that held on another run | clear-margin tier 644 of 644 (100%); every shown verdict 906 of 994 (91.1%); at the bar 262 of 350 (74.9%) | same file (`dev.by_margin`, `dev.tier2_at_chosen`) | Measured offline, eight known-a dev runs with differing settings |
+| Committed plan runs re-ranked | 44 runs, 30 with a shown plan, 13 with two or more; the top plan changes in 6; in 2 of those 6 the new top backtests worse (D332 run 1, the post-cutoff stove heater) | same file (`totals`, `rerank`) | Offline re-rank of committed rows; not a test |
+| CBP's heat-gun move after the split, ranked by tier | 6th of 7 in run 1 (its check named counter-ruling N345859), 1st of 6 in run 2 | same file (`rerank`, `cbp_move`) | Offline re-rank of D332's rows; the rule was set after seeing them |
 
 ### Repeatability on held-out (D240, D241)
 

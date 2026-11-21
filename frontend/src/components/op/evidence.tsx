@@ -4,7 +4,7 @@ import { formatDate, shortSubject } from "@/lib/format";
 import { Country, RulingLink, cx } from "./ui";
 
 // Earlier rulings from precedents_detail, cited ones first and marked.
-export function RulingsList({ rulings, cited = [] }: { rulings: PrecedentRef[]; cited?: string[] }) {
+export function RulingsList({ rulings, cited = [], asOf }: { rulings: PrecedentRef[]; cited?: string[]; asOf?: string | null }) {
   const isCited = new Set(cited);
   const ordered = [...rulings].sort((a, b) => Number(isCited.has(b.id)) - Number(isCited.has(a.id)));
   return (
@@ -30,7 +30,7 @@ export function RulingsList({ rulings, cited = [] }: { rulings: PrecedentRef[]; 
             ) : null}
           </div>
           <span className="shrink-0 text-right">
-            <RulingLink id={r.id} className={cx(isCited.has(r.id) ? "" : "text-ink")} />
+            <RulingLink id={r.id} className={cx(isCited.has(r.id) ? "" : "text-ink")} asOf={asOf} support={isCited.has(r.id)} />
             {isCited.has(r.id) && <em className="block text-[11px] not-italic uppercase tracking-[0.06em] text-ok">cited</em>}
           </span>
         </li>

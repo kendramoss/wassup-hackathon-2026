@@ -85,6 +85,11 @@ export function Stability() {
     top: get(`plan_split_heatgun_run${i}_top_plan_changed_parts`),
   }));
   const hasSplit = splitShown?.value !== undefined && splitRuns.every((r) => r.check?.value !== undefined && r.rank?.value !== undefined && r.top?.value !== undefined);
+  // The same runs re-ranked offline by tier, then net (D340, D341).
+  const tierRank = [1, 2].map((i) => get(`plan_rank_heatgun_split_run${i}_cbp_move_rank`));
+  const clearFrom = get("plan_rank_clear_from");
+  const hasTier = clearFrom?.value !== undefined && tierRank.every((r) => r?.value !== undefined);
+  const sameShownAfter = splitRuns.every((r) => r.rank?.n === splitRuns[0].rank?.n) && splitRuns.every((r) => r.top?.value === splitRuns[0].top?.value);
 
   return (
     <figure
@@ -153,13 +158,14 @@ export function Stability() {
         <div className="mt-3 grid gap-x-4 gap-y-2 border-t border-dashed border-line py-3 text-[12.5px] md:grid-cols-[200px_minmax(0,1fr)_230px]">
           <div>
             <p className="font-medium text-ink">
-              Plan check, heat gun <span className="tabular-nums font-normal text-dim">· {planShown?.n} runs</span>
+              Plan check, heat gun, before the split <span className="tabular-nums font-normal text-dim">· {planShown?.n} runs</span>
             </p>
-            <p className="text-[11.5px] text-dim">production settings, gateway, every call fresh</p>
+            <p className="text-[11.5px] text-dim">production settings, gateway, every call fresh; the template before the cord was split from the switch (retired)</p>
           </div>
           <p className="self-center text-[12px] text-dim">
-            A plan was shown in <b className="font-medium text-ink">{planShown?.value} of {planShown?.n}</b> runs
-            {planSame?.value === 1 ? ", the same moves each time" : ", with different moves"}. Earlier recorded runs, with older settings, showed one in {earlier?.value} of {earlier?.n}.
+            With that template, a plan was shown in <b className="font-medium text-ink">{planShown?.value} of {planShown?.n}</b> runs
+            {planSame?.value === 1 ? ", the same moves each time" : ", with different moves"}. Earlier recorded runs, with older settings, showed one in {earlier?.value} of {earlier?.n}. This
+            describes the old template, not the one searched today.
           </p>
           <div className="text-[12px] text-dim md:text-right">
             <ul className="tabular-nums">
@@ -188,20 +194,38 @@ export function Stability() {
             <b className="font-medium text-ink">
               {splitShown?.value} of {splitShown?.n}
             </b>{" "}
-            runs. It was not ranked first: plans that move less cost less and rank above it. The top-ranked plan moved{" "}
-            {splitRuns.map((r) => r.top?.value).join(" and ")} of the {splitRuns[0].top?.n} parts CBP&apos;s change switched.
+            runs. With the current template the runs did not agree: {splitRuns.map((r) => r.rank?.n).join(" and ")} moves were shown,
+            {sameShownAfter ? " and the top-ranked plan was the same." : " and, ranked by net as the runs were made, the top-ranked plan differed and sat at the 0.92 bar."} That top plan moved{" "}
+            {splitRuns.map((r) => r.top?.value).join(" and ")} of the {splitRuns[0].top?.n} parts CBP&apos;s change switched, and CBP&apos;s move ranked{" "}
+            {splitRuns.map((r) => r.rank?.value).join(" and ")}.
+            {hasTier ? (
+              <>
+                {" "}
+                Plans now rank by tier, then net (D341): a check of {clearFrom?.value?.toFixed(2)} or more with no counter-ruling first. Re-ranked offline, CBP&apos;s move ranks{" "}
+                {tierRank.map((r) => r?.value).join(" and ")}; in run 1 its check named a counter-ruling, so it stays at the bar. This rule was set after seeing these runs.
+              </>
+            ) : null}
           </p>
           <div className="text-[12px] text-dim md:text-right">
             <ul className="tabular-nums">
               {splitRuns.map((r) => (
                 <li key={r.i}>
-                  run {r.i}: check <b className="font-medium text-ink">{r.check?.value?.toFixed(2)}</b>, rank {r.rank?.value} of {r.rank?.n}
+                  run {r.i}: check <b className="font-medium text-ink">{r.check?.value?.toFixed(2)}</b>, rank {r.rank?.value} of {r.rank?.n} by net
+                  {hasTier ? `, ${tierRank[r.i - 1]?.value} by tier` : ""}
                 </li>
               ))}
             </ul>
             <a href={decisionHref("D332")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
               D332
             </a>
+            {hasTier ? (
+              <>
+                {", "}
+                <a href={decisionHref("D341")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
+                  D341
+                </a>
+              </>
+            ) : null}
           </div>
         </div>
       )}

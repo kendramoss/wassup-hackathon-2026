@@ -7,7 +7,8 @@ import { copy } from "@/lib/copy";
 import { Term } from "./term";
 import { useEffect, useRef, type ComponentProps, type ReactNode } from "react";
 import { flagCodes } from "@/lib/countries";
-import { BAR, conf } from "@/lib/format";
+import { BAR, conf, formatDate } from "@/lib/format";
+import { supersededAsOf } from "@/lib/supersession";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
@@ -236,16 +237,32 @@ export function Spinner({ label }: { label: string }) {
   );
 }
 
-export function RulingLink({ id, className }: { id: string; className?: string }) {
+// A ruling number, linked to CBP. When a later ruling in the corpus revoked
+// or modified it (D320), the link says so: "superseded by H… (date)". With
+// support (the ruling is cited as support) and asOf (the case date), a ruling
+// changed on or before that date is marked as not counted: the precedent
+// check never cites one, so it can only appear on results stored before the
+// guard.
+export function RulingLink({ id, className, asOf, support }: { id: string; className?: string; asOf?: string | null; support?: boolean }) {
+  const s = supersededAsOf(id, asOf);
   return (
-    <a
-      href={`https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`}
-      target="_blank"
-      rel="noreferrer"
-      className={cx("font-mono text-ok underline decoration-1 underline-offset-2", className)}
-    >
-      {id}
-    </a>
+    <>
+      <a
+        href={`https://rulings.cbp.gov/ruling/${encodeURIComponent(id)}`}
+        target="_blank"
+        rel="noreferrer"
+        className={cx("font-mono text-ok underline decoration-1 underline-offset-2", className)}
+      >
+        {id}
+      </a>
+      {s ? (
+        <span className="text-xs text-ask" title={`${s.kind === "revoked" ? "Revoked" : "Modified"} by ${s.by} on ${s.date} (D320)`}>
+          {" "}
+          ({copy.supersession.by(s.by, formatDate(s.date))}
+          {support && s.inForce ? `; ${copy.supersession.notSupport}` : ""})
+        </span>
+      ) : null}
+    </>
   );
 }
 
