@@ -403,7 +403,13 @@ function RateLimitNote({ seconds, onRetry }: { seconds: number; onRetry?: () => 
       <span className="duo">
         {left > 0 ? (
           <>
-            Too many requests. Try again in <span className="font-mono">{left} s</span>. Nothing is lost.
+            Too many requests. Try again in{" "}
+            {/* #564: role=status is a live region; hide the ticking seconds
+                so the message is announced once, not once a second (#548). */}
+            <span aria-hidden="true" className="font-mono">
+              {left} s
+            </span>
+            <span className="sr-only">a moment</span>. Nothing is lost.
           </>
         ) : (
           "Ready to try again."
