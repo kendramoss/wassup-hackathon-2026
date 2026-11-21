@@ -8,7 +8,7 @@ import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
 import { groupName } from "@/lib/families";
 import { outcomeLabels } from "@/lib/plan-check";
-import { Country, Flag, Panel, PanelHead, cx } from "./ui";
+import { Chip, Country, Flag, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
 
@@ -62,7 +62,7 @@ export function MoveIncludes({ product, plan, className }: { product: Product | 
       {groups.map((g, i) => (
         <span key={g.group}>
           {i > 0 ? " · " : ""}
-          <span className="text-body">{groupName(g.group, product?.family)}</span> ({g.items.join("; ")})
+          <span className="text-body">{groupName(g.group, product?.family, product)}</span> ({g.items.join("; ")})
         </span>
       ))}
     </p>
@@ -84,6 +84,16 @@ export type ActualChangeExtras = {
   still_from_china?: string[];
   still_from_china_as?: Record<string, string>;
 };
+
+// The product component that holds a part the real change kept in the old
+// country: the still_from_china_as entry, else a component of the same name,
+// ignoring case (#519). undefined when neither.
+export function keptPart(change: ActualChangeExtras | null | undefined, product: Product | null | undefined, word: string): string | undefined {
+  const mapped = change?.still_from_china_as?.[word];
+  if (mapped) return mapped;
+  const w = word.trim().toLowerCase();
+  return (product?.components ?? []).find((c) => (c.name ?? "").trim().toLowerCase() === w)?.name;
+}
 export type BacktestView = { changed: string[]; moved: string[]; missed: string[]; already: string[]; alsoKept: string[]; keptGroups: string[]; ruling?: string; matches: boolean };
 
 export function backtestView(
@@ -102,19 +112,25 @@ export function backtestView(
   // so the closest move is compared from its groups instead.
   const moved = opts.recount ? changed.filter(inMove) : list("moved_by_plan").filter((m) => changed.includes(m));
   const missed = changed.filter((a) => !moved.includes(a));
-  const alsoKept =
-    !opts.recount && Array.isArray(b.plan_also_moves_kept)
-      ? list("plan_also_moves_kept")
-      : Object.entries(opts.change?.still_from_china_as ?? {})
-          .filter(([, part]) => inMove(part))
-          .map(([word]) => word);
+  // A kept part is found through the demo's still_from_china_as map, else by
+  // a component of the same name (#519), as planner.ActualChange.KeptPart does.
+  const kept = (word: string) => keptPart(opts.change, opts.product, word);
+  // A stored backtest that lists none could predate the generic match, so a
+  // non-empty list is trusted and an empty one is worked out again.
+  const stored = !opts.recount && Array.isArray(b.plan_also_moves_kept) ? list("plan_also_moves_kept") : [];
+  const alsoKept = stored.length
+    ? stored
+    : (opts.change?.still_from_china ?? []).filter((w) => {
+        const part = kept(w);
+        return part !== undefined && inMove(part);
+      });
   // The template groups that hold those parts, for "they sit in one group".
   const keptGroups = [
     ...new Set(
       alsoKept
-        .map((w) => comps.find((c) => c.name === opts.change?.still_from_china_as?.[w])?.group)
+        .map((w) => comps.find((c) => c.name === kept(w))?.group)
         .filter((g): g is string => Boolean(g))
-        .map((g) => groupName(g, opts.product?.family)),
+        .map((g) => groupName(g, opts.product?.family, opts.product)),
     ),
   ];
   const ruling = typeof b.source === "string" ? b.source.match(/\b[NH]\d{6}\b/)?.[0] : undefined;
@@ -123,10 +139,75 @@ export function backtestView(
 
 // Whether the backend's backtest says the top plan moves exactly the parts
 // the manufacturer really moved, and nothing CBP's change kept where it was.
-export function backtestMatch(bt: unknown): { matches: boolean; ruling?: string } {
-  const v = backtestView(bt);
+// The cases list passes the demo's change, product and top move when it has
+// them, so a stored backtest that predates plan_also_moves_kept gets the same
+// answer as the plan step (#519).
+export function backtestMatch(
+  bt: unknown,
+  opts: { change?: ActualChangeExtras | null; product?: Product | null; move?: Plan["move"] } = {},
+): { matches: boolean; ruling?: string } {
+  const v = backtestView(bt, opts);
   const ruling = typeof (bt as Record<string, unknown> | undefined)?.source === "string" ? String((bt as Record<string, unknown>).source).match(/\b[NH]\d{6}\b/)?.[0] : undefined;
   return { matches: Boolean(v?.matches), ruling };
+}
+
+// Ranking tiers (D340, D341). A shown plan is "clear_margin" when its check
+// is at least the bar plus the clear margin and names no counter-ruling, and
+// "at_bar" otherwise. New results carry the tier and the threshold; a result
+// stored before D341 has neither, so the tier is worked out with the same
+// rule and its order is left as stored (net alone).
+export const CLEAR_FROM = 0.93;
+export type Tier = "clear_margin" | "at_bar";
+type Ranked = { ranking?: { clear_from?: number } | null };
+
+export function clearFrom(result?: Ranked | null): number {
+  return result?.ranking?.clear_from ?? CLEAR_FROM;
+}
+
+export function planTier(p: Plan, result?: Ranked | null): Tier | undefined {
+  if (!p.shown) return undefined;
+  if (p.tier === "clear_margin" || p.tier === "at_bar") return p.tier;
+  const v = p.verdict;
+  return (v?.confidence ?? 0) >= clearFrom(result) - 1e-9 && !v?.counter_ruling ? "clear_margin" : "at_bar";
+}
+
+// How many of the product's components a move changes the plant of: the
+// stored parts_moved, else counted from the product (planner.PartsMoved).
+export function partsMoved(p: Plan, product?: Product | null): number {
+  if (typeof p.parts_moved === "number") return p.parts_moved;
+  const to = new Map((p.move ?? []).map((m) => [m.group, m.to_plant]));
+  return (product?.components ?? []).filter((c) => c.group !== undefined && to.has(c.group) && c.plant !== to.get(c.group)).length;
+}
+
+// The shown plan that moves the fewest parts, when two or more are shown
+// (D340): the stored mark, else the same rule (ties: higher check, higher
+// net, earlier rank). A label, never the sort key.
+export function smallestSupported(plans: Plan[], product?: Product | null): Plan | undefined {
+  if (plans.length < 2) return undefined;
+  const marked = plans.find((p) => p.smallest_supported);
+  if (marked || plans.some((p) => p.tier)) return marked;
+  let best = plans[0];
+  for (const p of plans.slice(1)) {
+    const [a, b] = [partsMoved(p, product), partsMoved(best, product)];
+    const [ca, cb] = [p.verdict?.confidence ?? 0, best.verdict?.confidence ?? 0];
+    if (a < b || (a === b && (ca > cb || (ca === cb && (p.net_per_year ?? 0) > (best.net_per_year ?? 0))))) best = p;
+  }
+  return best;
+}
+
+export function TierChip({ plan, result }: { plan: Plan; result?: Ranked | null }) {
+  const t = planTier(plan, result);
+  if (!t) return null;
+  const T = copy.plan.tier;
+  return t === "clear_margin" ? (
+    <Chip tone="ok" className="whitespace-normal">
+      {T.clear} · {T.clearWhy(clearFrom(result).toFixed(2))}
+    </Chip>
+  ) : (
+    <Chip tone="ask" className="whitespace-normal">
+      {T.atBar} · {T.atBarWhy}
+    </Chip>
+  );
 }
 
 // A list said in words: "a, b and c".
@@ -179,14 +260,14 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
               {incoming.map((g) => (
                 <li key={`in-${g}`} className={cx("border px-2.5 py-1.5 text-[12.5px]", below ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
                   <b className={cx("mr-1.5 text-[11px] font-medium uppercase tracking-[0.06em]", below ? "text-ask" : "text-ok")}>moved</b>
-                  {groupName(g, product.family)}
+                  {groupName(g, product.family, product)}
                 </li>
               ))}
               {own.map((g) => {
                 const leaves = moved.has(g) && moved.get(g) !== pl.id;
                 return (
                   <li key={g} className={cx("border px-2.5 py-1.5 text-[12.5px]", leaves ? "border-dashed border-line text-dim line-through" : "border-line bg-white")}>
-                    {groupName(g, product.family)}
+                    {groupName(g, product.family, product)}
                   </li>
                 );
               })}
@@ -274,12 +355,12 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
               {groups.map((g) => (
                 <tr key={g} className="border-t border-line">
                   <th scope="row" className="py-1 pr-2 text-left font-normal">
-                    {groupName(g, product?.family)}
+                    {groupName(g, product?.family, product)}
                   </th>
                   {plants.map((p) => (
                     <td key={p.id} className="py-1 pr-2">
                       <input
-                        aria-label={`${groupName(g, product?.family)} at ${p.name || p.id}, USD a year`}
+                        aria-label={`${groupName(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
                         inputMode="numeric"
                         className="w-full min-w-0 rounded-[2px] border border-line bg-white px-2 py-1"
                         value={costs[g]?.[p.id] ?? ""}
@@ -306,7 +387,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
           <p className="eyebrow">Yearly cost of each group, by plant (USD)</p>
           {groups.map((g) => (
             <fieldset key={g} className="border-t border-line pt-2">
-              <legend className="text-[13px] font-medium">{groupName(g, product?.family)}</legend>
+              <legend className="text-[13px] font-medium">{groupName(g, product?.family, product)}</legend>
               <div className="mt-1 grid grid-cols-2 gap-2">
                 {plants.map((p) => (
                   <label key={p.id} className="flex flex-col gap-0.5 text-[11.5px] text-dim">

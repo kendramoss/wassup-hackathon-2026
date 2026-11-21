@@ -48,6 +48,11 @@ type Options struct {
 	FollowAdvice bool
 	Mapper       GroupMapper
 
+	// ClearMargin is how far above PlanConfidence a check must be, with no
+	// counter-ruling, for a shown plan to rank in the clear-margin tier
+	// (D340, D341). 0 means DefaultClearMargin.
+	ClearMargin float64
+
 	// Panel and MaxInFlight tell Estimate how the server's checker and model
 	// gate are set up (VERIFIER_PANEL, LLM_MAX_IN_FLIGHT; D83, D79, D87).
 	// Plan does not read them.
@@ -60,6 +65,11 @@ type Options struct {
 type GroupMapper interface {
 	MapGroups(ctx context.Context, advice string, groups []domain.OperationGroup) ([]string, llm.Usage, error)
 }
+
+// DefaultClearMargin is the margin chosen on development rows by the D340
+// rule (D341): a check at least 0.01 above the bar, with no counter-ruling,
+// held on every repeat development run.
+const DefaultClearMargin = 0.01
 
 // DefaultMaxMoves is PLAN_MAX_MOVES' default (D84).
 const DefaultMaxMoves = 12
@@ -118,6 +128,9 @@ func New(templates map[string]Template, e Predictor, v Checker, opts Options) *P
 	if opts.NearMissMax <= 0 {
 		opts.NearMissMax = DefaultNearMissMax
 	}
+	if opts.ClearMargin <= 0 {
+		opts.ClearMargin = DefaultClearMargin
+	}
 	return &Planner{templates: templates, engine: e, verifier: v, opts: opts}
 }
 
@@ -144,7 +157,22 @@ type Result struct {
 	// stored result from other money.
 	Objective      *Objective `json:"objective,omitempty"`
 	EconomicsBasis string     `json:"economics_basis,omitempty"`
+	// Ranking says how shown plans were ordered (D341). Absent on results
+	// stored before it, which were ranked by net alone.
+	Ranking *Ranking `json:"ranking,omitempty"`
 }
+
+// Ranking is the rule shown plans were ordered by.
+type Ranking struct {
+	Rule string `json:"rule"`
+	// Bar is the plan bar; ClearFrom is the lowest check in the clear-margin
+	// tier (bar plus margin).
+	Bar       float64 `json:"bar"`
+	ClearFrom float64 `json:"clear_from"`
+}
+
+// RankingRule names the D341 order.
+const RankingRule = "tier_then_net"
 
 // Backtest compares the best plan with a real change.
 type Backtest struct {
@@ -327,7 +355,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 			res.Rejected = append(res.Rejected, pl)
 		}
 	}
-	order(&res)
+	p.order(req, &res)
 	if baseOrigin != target {
 		b := res.Baseline
 		b.RejectionReason = fmt.Sprintf("current setup: engine predicts origin %s", b.Prediction.Origin)
@@ -356,7 +384,7 @@ func (p *Planner) PlanWithProgress(ctx context.Context, req Request, progress fu
 					res.Rejected = append(res.Rejected, pl)
 				}
 				res.Stats.AdviceFollowed++
-				order(&res)
+				p.order(req, &res)
 				mu.Lock()
 				done++
 				emit(Event{Kind: EventMoveDone, Move: key, Plan: &pl})
@@ -425,27 +453,99 @@ func (p *Planner) check(ctx context.Context, req Request, tm Template, m domain.
 	return pl, nil
 }
 
-// order sorts shown plans by net (best first) and rejected ones closest call
-// first: precedent-supported but below the confidence bar (best net first),
-// then other verified moves, then moves the engine says miss the target. The
+// order ranks shown plans by tier, then net (D340, D341): plans whose check
+// clears the bar by the clear margin with no counter-ruling first, then the
+// plans at the bar, each by net (best first). It marks the smallest supported
+// move when two or more are shown. Rejected ones go closest call first:
+// precedent-supported but below the confidence bar (best net first), then
+// other verified moves, then moves the engine says miss the target. The
 // current setup, when present, stays first.
-func order(res *Result) {
+func (p *Planner) order(req Request, res *Result) {
+	clearFrom := math.Round((p.opts.PlanConfidence+p.opts.ClearMargin)*100) / 100
+	res.Ranking = &Ranking{Rule: RankingRule, Bar: p.opts.PlanConfidence, ClearFrom: clearFrom}
+	for i := range res.Plans {
+		pl := &res.Plans[i]
+		pl.Tier = TierOf(*pl, clearFrom)
+		pl.PartsMoved = PartsMoved(req.Product, pl.Move)
+		pl.SmallestSupported = false
+	}
 	if res.Objective != nil { // operations mode (#281): its own comparator
 		orderOps(res)
-		return
-	}
-	sort.SliceStable(res.Plans, func(i, j int) bool { return res.Plans[i].NetYear > res.Plans[j].NetYear })
-	rank := map[domain.RejectionKind]int{domain.RejectCurrentSetup: -1, domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
-	sort.SliceStable(res.Rejected, func(i, j int) bool {
-		a, b := res.Rejected[i], res.Rejected[j]
-		if rank[a.RejectionKind] != rank[b.RejectionKind] {
-			return rank[a.RejectionKind] < rank[b.RejectionKind]
-		}
-		if a.RejectionKind == domain.RejectBelowConfidence {
+	} else {
+		sort.SliceStable(res.Plans, func(i, j int) bool {
+			a, b := res.Plans[i], res.Plans[j]
+			if a.Tier != b.Tier {
+				return a.Tier == domain.TierClearMargin
+			}
 			return a.NetYear > b.NetYear
+		})
+		rank := map[domain.RejectionKind]int{domain.RejectCurrentSetup: -1, domain.RejectBelowConfidence: 0, domain.RejectNoPrecedent: 1, domain.RejectCheckFailed: 2, domain.RejectOtherOrigin: 3}
+		sort.SliceStable(res.Rejected, func(i, j int) bool {
+			a, b := res.Rejected[i], res.Rejected[j]
+			if rank[a.RejectionKind] != rank[b.RejectionKind] {
+				return rank[a.RejectionKind] < rank[b.RejectionKind]
+			}
+			if a.RejectionKind == domain.RejectBelowConfidence {
+				return a.NetYear > b.NetYear
+			}
+			return false
+		})
+	}
+	if i := SmallestSupported(res.Plans); i >= 0 {
+		res.Plans[i].SmallestSupported = true
+	}
+}
+
+// TierOf is a shown plan's tier: clear margin when its check is at least
+// clearFrom and names no counter-ruling, at the bar otherwise.
+func TierOf(pl domain.Plan, clearFrom float64) domain.PlanTier {
+	if v := pl.Verdict; v != nil && v.Confidence >= clearFrom-1e-9 && v.CounterRuling == "" {
+		return domain.TierClearMargin
+	}
+	return domain.TierAtBar
+}
+
+// PartsMoved counts the product's components whose country the move changes.
+func PartsMoved(p domain.Product, m domain.Move) int {
+	n := 0
+	for i, c := range Apply(p, m).Components {
+		if c.MadeIn != p.Components[i].MadeIn {
+			n++
 		}
-		return false
-	})
+	}
+	return n
+}
+
+// SmallestSupported is the index of the ranked shown plan that moves the
+// fewest parts, or -1 when fewer than two are shown. Ties go to the higher
+// check, then the higher net, then the earlier rank (D340).
+func SmallestSupported(plans []domain.Plan) int {
+	if len(plans) < 2 {
+		return -1
+	}
+	conf := func(pl domain.Plan) float64 {
+		if pl.Verdict == nil {
+			return 0
+		}
+		return pl.Verdict.Confidence
+	}
+	best := 0
+	for i := 1; i < len(plans); i++ {
+		a, b := plans[i], plans[best]
+		switch {
+		case a.PartsMoved != b.PartsMoved:
+			if a.PartsMoved < b.PartsMoved {
+				best = i
+			}
+		case conf(a) != conf(b):
+			if conf(a) > conf(b) {
+				best = i
+			}
+		case a.NetYear > b.NetYear:
+			best = i
+		}
+	}
+	return best
 }
 
 // adviseNearMisses adds near-miss advice to the closest below-bar moves:
@@ -563,7 +663,7 @@ func backtest(req Request, plans []domain.Plan) *Backtest {
 		}
 	}
 	for _, word := range a.StillImported {
-		if part, ok := a.StillImportedAs[word]; ok && moved[part] {
+		if part, ok := a.KeptPart(req.Product, word); ok && moved[part] {
 			bt.AlsoMovesKept = append(bt.AlsoMovesKept, word)
 		}
 	}

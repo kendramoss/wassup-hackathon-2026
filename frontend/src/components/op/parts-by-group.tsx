@@ -54,7 +54,7 @@ export function PartsByGroup({ product, origin }: { product: Product; origin?: s
             return (
               <tr key={g} className="border-t border-line align-top">
                 <th scope="row" className="py-2.5 pr-4 text-left font-medium">
-                  {groupName(g, product.family)} <span className="font-normal text-dim">· {ps.length}</span>
+                  {groupName(g, product.family, product)} <span className="font-normal text-dim">· {ps.length}</span>
                   {/* On phones the part list sits under the group name. */}
                   <span className="duo mt-0.5 block font-normal text-dim sm:hidden">{names}</span>
                 </th>

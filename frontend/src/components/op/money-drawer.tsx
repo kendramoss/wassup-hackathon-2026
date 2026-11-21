@@ -282,7 +282,7 @@ export function MoneyDrawer({
                         .map((g) => {
                           const row = costs?.[g] ?? {};
                           const o = others[0];
-                          return `${groupName(g, product?.family).toLowerCase()} ${money(row[base.id])}${o ? ` → ${money(row[o.id])}` : ""}`;
+                          return `${groupName(g, product?.family, product).toLowerCase()} ${money(row[base.id])}${o ? ` → ${money(row[o.id])}` : ""}`;
                         })
                         .join(", ")}
                       . Rough; switch to &ldquo;Each group&rdquo; to set them one by one.
@@ -319,12 +319,12 @@ export function MoneyDrawer({
                         return (
                           <tr key={g} className="border-t border-line">
                             <th scope="row" className="py-1.5 pr-2 text-left font-normal">
-                              {groupName(g, product?.family)}
+                              {groupName(g, product?.family, product)}
                             </th>
                             {plants.map((p) => (
                               <td key={p.id} className="py-1.5 pl-2 text-right">
                                 <input
-                                  aria-label={`${groupName(g, product?.family)} at ${p.name || p.id}, USD a year`}
+                                  aria-label={`${groupName(g, product?.family, product)} at ${p.name || p.id}, USD a year`}
                                   inputMode="numeric"
                                   className={cx(
                                     "h-9 w-full min-w-0 rounded-[2px] border bg-white px-2 text-right text-[13px] tabular-nums focus:border-ok",

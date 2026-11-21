@@ -60,3 +60,51 @@ test("andList", () => {
   assert.equal(andList(["a"]), "a");
   assert.equal(andList(["a", "b", "c"]), "a, b and c");
 });
+
+// #519: demos other than the heat gun have no still_from_china_as map; a kept
+// part is then found by a component of the same name, in the plan step and in
+// the cases-list badge alike.
+const demo = (name) => JSON.parse(readFileSync(fileURLToPath(new URL(`../../backend/internal/demos/fixtures/${name}.json`, import.meta.url)), "utf8"));
+const live = JSON.parse(readFileSync(fileURLToPath(new URL("../../eval/results/families-live-checks.json", import.meta.url)), "utf8"));
+
+test("the committed gas-grill plan moves parts CBP kept in China, so it is not a match", () => {
+  const g = demo("gas_grill_2023");
+  const bt = live.runs.find((r) => r.case_id === "gas-grill-2023").backtest;
+  const move = ["lid_and_firebox", "burners_and_gas_train", "cooking_surface_frame"].map((group) => ({ group, to_plant: "id" }));
+  const opts = { change: g.plan.actual_change, product: g.predict.product, move };
+  const v = backtestView(bt, opts);
+  assert.deepEqual(v.moved, ["Deep draw main lids", "Formed and punched fireboxes"]);
+  assert.deepEqual(v.alsoKept, ["Burners", "Control panels", "Cart frames"]);
+  assert.equal(v.matches, false);
+  assert.equal(backtestMatch(bt, opts).matches, false, "the cases-list badge agrees with the plan step");
+  // The exact move, the lids and fireboxes alone, still matches.
+  const exact = { ...opts, move: [{ group: "lid_and_firebox", to_plant: "id" }] };
+  assert.equal(backtestView(bt, exact).matches, true);
+  assert.equal(backtestMatch(bt, exact).matches, true);
+});
+
+test("the tub light: the LED PCBA alone matches; all three groups do not", () => {
+  const t = demo("tublight_2025");
+  const bt = { source: "CBP ruling", actual_moved: t.plan.actual_change.moved_to_thailand, moved_by_plan: t.plan.actual_change.moved_to_thailand };
+  const opts = { change: t.plan.actual_change, product: t.predict.product };
+  assert.equal(backtestView(bt, { ...opts, move: [{ group: "led_pcba", to_plant: "th" }] }).matches, true);
+  const all = ["led_pcba", "lens", "base_harness_seals"].map((group) => ({ group, to_plant: "th" }));
+  const v = backtestView(bt, { ...opts, move: all });
+  assert.deepEqual(v.alsoKept, ["lens", "lamp base", "wiring harness", "PVC sealing and O-ring"]);
+  assert.equal(v.matches, false);
+});
+
+test("every demo with a kept-in-China list resolves each part, but the heat gun's terminal blocks", async () => {
+  const { keptPart } = await import("../src/components/op/plan-bits.tsx");
+  const { readdirSync } = await import("node:fs");
+  const names = readdirSync(fileURLToPath(new URL("../../backend/internal/demos/fixtures/", import.meta.url))).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5));
+  const withChange = names.filter((n) => demo(n).plan?.actual_change);
+  assert.ok(withChange.length >= 3, String(withChange));
+  for (const name of withChange) {
+    const d = demo(name);
+    for (const w of d.plan.actual_change.still_from_china ?? []) {
+      if (w === "terminal blocks") continue;
+      assert.ok(keptPart(d.plan.actual_change, d.predict.product, w), `${name}: ${w}`);
+    }
+  }
+});

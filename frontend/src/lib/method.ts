@@ -58,6 +58,12 @@ export const DECISIONS: Record<string, string> = {
   D322: "d322--the-heat-gun-plan-run-again-three-times-results-21-nov-judge-panel-round-5-item-5",
   D330: "d330--the-heat-gun-template-splits-the-power-cord-knobs-and-covers-from-the-switch-and-wiring-22-nov-judge-panel-round-5-510-backlog",
   D332: "d332--the-heat-gun-plan-after-the-split-results-22-nov",
+  D320: "d320--revoked-and-modified-rulings-are-not-cited-as-precedent-after-cbp-changes-them-21-nov-judge-panel-round-5-item-6",
+  D340: "d340--pre-registration-rank-shown-plans-by-a-clear-margin-tier-then-net-label-the-smallest-supported-move-22-nov-judge-panel-round-6-item-1",
+  D341: "d341--plans-rank-by-a-clear-margin-tier-then-net-the-dev-rule-picks-a-margin-of-001-22-nov-judge-panel-round-6-item-1",
+  D342: "d342--a-template-group-split-later-keeps-its-former-name-for-a-product-made-before-the-split-22-nov-judge-panel-round-6-item-4",
+  D343: "d343--revoked-and-modified-rulings-are-marked-wherever-the-site-shows-a-ruling-22-nov-judge-panel-round-6-item-2",
+  D344: "d344--the-backtest-finds-kept-parts-by-component-name-when-a-demo-has-no-map-519-22-nov",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;

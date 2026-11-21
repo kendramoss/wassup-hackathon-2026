@@ -1,0 +1,1420 @@
+{
+ "dev": {
+  "by_margin": [
+   {
+    "counted": 994,
+    "held": 906,
+    "margin": 0.0,
+    "note": "every shown verdict (baseline)",
+    "rate": 0.9115,
+    "tier1_from": 0.92
+   },
+   {
+    "counted": 644,
+    "held": 644,
+    "margin": 0.01,
+    "rate": 1.0,
+    "tier1_from": 0.93
+   },
+   {
+    "counted": 644,
+    "held": 644,
+    "margin": 0.02,
+    "rate": 1.0,
+    "tier1_from": 0.94
+   },
+   {
+    "counted": 433,
+    "held": 433,
+    "margin": 0.03,
+    "rate": 1.0,
+    "tier1_from": 0.95
+   },
+   {
+    "counted": 363,
+    "held": 363,
+    "margin": 0.04,
+    "rate": 1.0,
+    "tier1_from": 0.96
+   },
+   {
+    "counted": 63,
+    "held": 63,
+    "margin": 0.05,
+    "rate": 1.0,
+    "tier1_from": 0.97
+   }
+  ],
+  "chosen_margin": 0.01,
+  "error_rows_left_out": 1,
+  "pairs": 54,
+  "rule_met": true,
+  "runs": [
+   "eval/results/flips-dev-verifier-v2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-panel-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-panel-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-run2-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-vote3-run1-known-a-litellm.jsonl",
+   "eval/results/flips-dev-verifier-v2-seed-vote3-run2-known-a-litellm.jsonl"
+  ],
+  "tier1_from": 0.93,
+  "tier2_at_chosen": {
+   "counted": 350,
+   "held": 262,
+   "rate": 0.7486
+  }
+ },
+ "rerank": [
+  {
+   "backtest_new_top": {
+    "changed": 6,
+    "changed_moved": 6,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 6,
+    "changed_moved": 5,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "net_given_up": 60000,
+   "new_top": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+   "old_top": "motor_fan_assembly+switch_cord_minor_parts",
+   "plans": [
+    {
+     "check": 0.95,
+     "counter": null,
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 285000,
+     "new_rank": 1,
+     "old_rank": 3,
+     "parts_moved": 10,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": "N351503",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 345000,
+     "new_rank": 2,
+     "old_rank": 1,
+     "parts_moved": 9,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+     "key": "motor_fan_assembly+pcba",
+     "net_per_year": 320000,
+     "new_rank": 3,
+     "old_rank": 2,
+     "parts_moved": 4,
+     "tier": 2
+    }
+   ],
+   "set": "heat gun, D322 (before the split)",
+   "shown": 3,
+   "smallest_supported": "motor_fan_assembly+pcba",
+   "source": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run1-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 6,
+    "changed_moved": 5,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 6,
+    "changed_moved": 5,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "net_given_up": 0,
+   "new_top": "motor_fan_assembly+switch_cord_minor_parts",
+   "old_top": "motor_fan_assembly+switch_cord_minor_parts",
+   "plans": [
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 345000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 9,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+     "key": "motor_fan_assembly+pcba",
+     "net_per_year": 320000,
+     "new_rank": 2,
+     "old_rank": 2,
+     "parts_moved": 4,
+     "tier": 2
+    },
+    {
+     "check": 0.96,
+     "counter": "N351503",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 285000,
+     "new_rank": 3,
+     "old_rank": 3,
+     "parts_moved": 10,
+     "tier": 2
+    }
+   ],
+   "set": "heat gun, D322 (before the split)",
+   "shown": 3,
+   "smallest_supported": "motor_fan_assembly+pcba",
+   "source": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run2-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 6,
+    "changed_moved": 6,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 6,
+    "changed_moved": 5,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "net_given_up": 60000,
+   "new_top": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+   "old_top": "motor_fan_assembly+switch_cord_minor_parts",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 285000,
+     "new_rank": 1,
+     "old_rank": 3,
+     "parts_moved": 10,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the switch, cord and minor parts to Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 345000,
+     "new_rank": 2,
+     "old_rank": 1,
+     "parts_moved": 9,
+     "tier": 2
+    },
+    {
+     "check": 0.94,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+     "key": "motor_fan_assembly+pcba",
+     "net_per_year": 320000,
+     "new_rank": 3,
+     "old_rank": 2,
+     "parts_moved": 4,
+     "tier": 2
+    }
+   ],
+   "set": "heat gun, D322 (before the split)",
+   "shown": 3,
+   "smallest_supported": "motor_fan_assembly+pcba",
+   "source": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-stability-run3-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 6,
+    "changed_moved": 6,
+    "kept_moved": [
+     "support ring, heat insulator and fasteners",
+     "switch",
+     "wiring"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 6,
+    "changed_moved": 2,
+    "kept_moved": []
+   },
+   "cbp_move": {
+    "new_rank": 6,
+    "old_rank": 5
+   },
+   "net_given_up": 95000,
+   "new_top": "cord_knobs_covers+motor_fan_assembly+pcba+switch_cord_minor_parts",
+   "old_top": "motor_fan_assembly",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Move the motor-fan assembly, the PCBA (SMT), the switch, wiring and minor parts and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 285000,
+     "new_rank": 1,
+     "old_rank": 7,
+     "parts_moved": 10,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly to Thailand",
+     "key": "motor_fan_assembly",
+     "net_per_year": 380000,
+     "new_rank": 2,
+     "old_rank": 1,
+     "parts_moved": 3,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly",
+     "net_per_year": 365000,
+     "new_rank": 3,
+     "old_rank": 2,
+     "parts_moved": 6,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the switch, wiring and minor parts to Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 360000,
+     "new_rank": 4,
+     "old_rank": 3,
+     "parts_moved": 6,
+     "tier": 2
+    },
+    {
+     "check": 0.93,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+     "key": "motor_fan_assembly+pcba",
+     "net_per_year": 320000,
+     "new_rank": 5,
+     "old_rank": 4,
+     "parts_moved": 4,
+     "tier": 2
+    },
+    {
+     "check": 0.94,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly+pcba",
+     "net_per_year": 305000,
+     "new_rank": 6,
+     "old_rank": 5,
+     "parts_moved": 7,
+     "tier": 2
+    },
+    {
+     "check": 0.94,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, wiring and minor parts to Thailand",
+     "key": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 300000,
+     "new_rank": 7,
+     "old_rank": 6,
+     "parts_moved": 7,
+     "tier": 2
+    }
+   ],
+   "set": "heat gun, D332 (after the split)",
+   "shown": 7,
+   "smallest_supported": "motor_fan_assembly",
+   "source": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-split-run1-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": true
+  },
+  {
+   "backtest_new_top": {
+    "changed": 6,
+    "changed_moved": 6,
+    "kept_moved": []
+   },
+   "backtest_old_top": {
+    "changed": 6,
+    "changed_moved": 5,
+    "kept_moved": []
+   },
+   "cbp_move": {
+    "new_rank": 1,
+    "old_rank": 4
+   },
+   "net_given_up": 60000,
+   "new_top": "cord_knobs_covers+motor_fan_assembly+pcba",
+   "old_top": "cord_knobs_covers+motor_fan_assembly",
+   "plans": [
+    {
+     "check": 0.94,
+     "counter": null,
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly+pcba",
+     "net_per_year": 305000,
+     "new_rank": 1,
+     "old_rank": 4,
+     "parts_moved": 7,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Move the motor-fan assembly, the PCBA (SMT), the switch, wiring and minor parts and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 285000,
+     "new_rank": 2,
+     "old_rank": 6,
+     "parts_moved": 10,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the power cord, knobs and covers to Thailand",
+     "key": "cord_knobs_covers+motor_fan_assembly",
+     "net_per_year": 365000,
+     "new_rank": 3,
+     "old_rank": 1,
+     "parts_moved": 6,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the switch, wiring and minor parts to Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 360000,
+     "new_rank": 4,
+     "old_rank": 2,
+     "parts_moved": 6,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+     "key": "motor_fan_assembly+pcba",
+     "net_per_year": 320000,
+     "new_rank": 5,
+     "old_rank": 3,
+     "parts_moved": 4,
+     "tier": 2
+    },
+    {
+     "check": 0.93,
+     "counter": "N345859",
+     "description": "Move the motor-fan assembly, the PCBA (SMT) and the switch, wiring and minor parts to Thailand",
+     "key": "motor_fan_assembly+pcba+switch_cord_minor_parts",
+     "net_per_year": 300000,
+     "new_rank": 6,
+     "old_rank": 5,
+     "parts_moved": 7,
+     "tier": 2
+    }
+   ],
+   "set": "heat gun, D332 (after the split)",
+   "shown": 6,
+   "smallest_supported": "motor_fan_assembly+pcba",
+   "source": "eval/results/plan-heatgun-2022-relaxed-verifier-v2-split-run2-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "led_pcba",
+   "old_top": "led_pcba",
+   "plans": [
+    {
+     "check": 0.92,
+     "counter": null,
+     "description": "Make LED PCBA (SMT) in Cambodia",
+     "key": "led_pcba",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 3,
+     "tier": 2
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-h304679-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-h339955-litellm.json"
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-h345343-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "pcba_and_sensors",
+   "old_top": "pcba_and_sensors",
+   "plans": [
+    {
+     "check": 0.92,
+     "counter": "H304677",
+     "description": "Make PCBA and sensors in Japan",
+     "key": "pcba_and_sensors",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 5,
+     "tier": 2
+    },
+    {
+     "check": 0.94,
+     "counter": "H304677",
+     "description": "Make PCBA and sensors and Hubs, clamps and housings in Japan",
+     "key": "hubs_clamps_housings+pcba_and_sensors",
+     "net_per_year": 250000,
+     "new_rank": 2,
+     "old_rank": 2,
+     "parts_moved": 10,
+     "tier": 2
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 2,
+   "smallest_supported": "pcba_and_sensors",
+   "source": "eval/results/planner-families-n333453-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n335263-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "housings_and_structures",
+   "old_top": "housings_and_structures",
+   "plans": [
+    {
+     "check": 0.94,
+     "counter": null,
+     "description": "Make Housings and structural parts in Thailand",
+     "key": "housings_and_structures",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n349871-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "cable_insulation_jacket+connectors_and_housings",
+   "old_top": "cable_insulation_jacket+connectors_and_housings",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Cable insulation and jacket and Connectors and housings in Thailand",
+     "key": "cable_insulation_jacket+connectors_and_housings",
+     "net_per_year": 250000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 4,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n350058-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "metal_cannula_forging",
+   "old_top": "metal_cannula_forging",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Needle cannula or metal blank in China",
+     "key": "metal_cannula_forging",
+     "net_per_year": -325000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n350152-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n350310-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "pcba_manufacturing",
+   "old_top": "pcba_manufacturing",
+   "plans": [
+    {
+     "check": 0.98,
+     "counter": null,
+     "description": "Make PCBA (SMT) in China",
+     "key": "pcba_manufacturing",
+     "net_per_year": -325000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 6,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n350383-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n350678-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "pcba_manufacturing",
+   "old_top": "pcba_manufacturing",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make PCBA (SMT) in Thailand",
+     "key": "pcba_manufacturing",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    },
+    {
+     "check": 0.98,
+     "counter": null,
+     "description": "Make PCBA (SMT) and Housing and cables in Thailand",
+     "key": "housing_and_cables+pcba_manufacturing",
+     "net_per_year": 250000,
+     "new_rank": 2,
+     "old_rank": 2,
+     "parts_moved": 3,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 2,
+   "smallest_supported": "pcba_manufacturing",
+   "source": "eval/results/planner-families-n350727-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "cable_insulation_jacket+connectors_and_housings",
+   "old_top": "cable_insulation_jacket+connectors_and_housings",
+   "plans": [
+    {
+     "check": 0.98,
+     "counter": null,
+     "description": "Make Cable insulation and jacket and Connectors and housings in Thailand",
+     "key": "cable_insulation_jacket+connectors_and_housings",
+     "net_per_year": 250000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 6,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n350769-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 25000,
+   "new_top": "carbon_block+cartridge_housings",
+   "old_top": "carbon_block",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Carbon block filter media and Cartridge housings and seals in China",
+     "key": "carbon_block+cartridge_housings",
+     "net_per_year": -475000,
+     "new_rank": 1,
+     "old_rank": 2,
+     "parts_moved": 4,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": null,
+     "description": "Make Carbon block filter media in China",
+     "key": "carbon_block",
+     "net_per_year": -450000,
+     "new_rank": 2,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 2
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 2,
+   "smallest_supported": "carbon_block",
+   "source": "eval/results/planner-families-n350826-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "housing_moulding+switch_cord_minor_parts",
+   "old_top": "housing_moulding+switch_cord_minor_parts",
+   "plans": [
+    {
+     "check": 0.92,
+     "counter": null,
+     "description": "Make Housing moulding and Switch, cord and minor parts in Thailand",
+     "key": "housing_moulding+switch_cord_minor_parts",
+     "net_per_year": 250000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 17,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N351901",
+     "description": "Make PCBA (SMT), Housing moulding and Switch, cord and minor parts in Thailand",
+     "key": "housing_moulding+pcba+switch_cord_minor_parts",
+     "net_per_year": 225000,
+     "new_rank": 2,
+     "old_rank": 2,
+     "parts_moved": 19,
+     "tier": 2
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 2,
+   "smallest_supported": "housing_moulding+switch_cord_minor_parts",
+   "source": "eval/results/planner-families-n351922-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "housings_and_structures",
+   "old_top": "housings_and_structures",
+   "plans": [
+    {
+     "check": 0.95,
+     "counter": null,
+     "description": "Make Housings and structural parts in Philippines",
+     "key": "housings_and_structures",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n352073-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n352223-litellm.json"
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n352230-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "power_charging_modules",
+   "old_top": "power_charging_modules",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Power conversion or charging module in Vietnam",
+     "key": "power_charging_modules",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n352355-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "handles_and_hardware",
+   "old_top": "handles_and_hardware",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Handles and hardware in Taiwan",
+     "key": "handles_and_hardware",
+     "net_per_year": 275000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 3,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n352429-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "display_cell_fab",
+   "old_top": "display_cell_fab",
+   "plans": [
+    {
+     "check": 0.97,
+     "counter": null,
+     "description": "Make Display cell fabrication in China",
+     "key": "display_cell_fab",
+     "net_per_year": -325000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 5,
+     "tier": 1
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n354175-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "per-family checks (D171)",
+   "shown": 0,
+   "source": "eval/results/planner-families-n354220-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "lid_and_firebox",
+   "old_top": "lid_and_firebox",
+   "plans": [
+    {
+     "check": 0.92,
+     "counter": "N344475",
+     "description": "Make Lid and firebox forming in China",
+     "key": "lid_and_firebox",
+     "net_per_year": -325000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 5,
+     "tier": 2
+    }
+   ],
+   "set": "per-family checks (D171)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/planner-families-n354448-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "molded_barrels_chambers",
+   "old_top": "molded_barrels_chambers",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Moulded barrels, chambers and tubing in Vietnam",
+     "key": "molded_barrels_chambers",
+     "net_per_year": 285000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-bulb-syringe-2024-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "motor_stator_rotor",
+   "old_top": "motor_stator_rotor",
+   "plans": [
+    {
+     "check": 0.94,
+     "counter": null,
+     "description": "Make Motor stator and rotor in Thailand",
+     "key": "motor_stator_rotor",
+     "net_per_year": 277500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    },
+    {
+     "check": 0.95,
+     "counter": null,
+     "description": "Make Motor stator and rotor and Impeller and rotary mechanism in Thailand",
+     "key": "fluid_rotary_mechanism+motor_stator_rotor",
+     "net_per_year": 267500,
+     "new_rank": 2,
+     "old_rank": 3,
+     "parts_moved": 2,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Motor stator and rotor, Impeller and rotary mechanism and Housing, chassis and machined block in Thailand",
+     "key": "fluid_rotary_mechanism+housing_and_chassis+motor_stator_rotor",
+     "net_per_year": 267500,
+     "new_rank": 3,
+     "old_rank": 4,
+     "parts_moved": 3,
+     "tier": 1
+    },
+    {
+     "check": 0.94,
+     "counter": "N347081",
+     "description": "Make Motor stator and rotor and Housing, chassis and machined block in Thailand",
+     "key": "housing_and_chassis+motor_stator_rotor",
+     "net_per_year": 277500,
+     "new_rank": 4,
+     "old_rank": 2,
+     "parts_moved": 2,
+     "tier": 2
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 4,
+   "smallest_supported": "motor_stator_rotor",
+   "source": "eval/results/families-plan-condensate-pump-2025-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 2,
+    "changed_moved": 2,
+    "kept_moved": [
+     "Burners",
+     "Cart frames",
+     "Control panels"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 2,
+    "changed_moved": 2,
+    "kept_moved": [
+     "Burners",
+     "Cart frames",
+     "Control panels"
+    ]
+   },
+   "net_given_up": 0,
+   "new_top": "burners_and_gas_train+cooking_surface_frame+lid_and_firebox",
+   "old_top": "burners_and_gas_train+cooking_surface_frame+lid_and_firebox",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+     "key": "burners_and_gas_train+cooking_surface_frame+lid_and_firebox",
+     "net_per_year": 182500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 13,
+     "tier": 1
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-gas-grill-2023-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "camera_pcba_smt",
+   "old_top": "camera_pcba_smt",
+   "plans": [
+    {
+     "check": 0.95,
+     "counter": null,
+     "description": "Make Camera PCBA (SMT) in South Korea",
+     "key": "camera_pcba_smt",
+     "net_per_year": 272500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 1
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-metering-camera-2025-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "backtest_old_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "net_given_up": 0,
+   "new_top": "primary_metal_forming",
+   "old_top": "primary_metal_forming",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Forged or stamped working part in Vietnam",
+     "key": "primary_metal_forming",
+     "net_per_year": 277500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Forged or stamped working part and Machining, heat treatment and finishing in Vietnam",
+     "key": "machining_and_treatment+primary_metal_forming",
+     "net_per_year": 262500,
+     "new_rank": 2,
+     "old_rank": 3,
+     "parts_moved": 1,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Forged or stamped working part, Machining, heat treatment and finishing and Handles and hardware in Vietnam",
+     "key": "handles_and_hardware+machining_and_treatment+primary_metal_forming",
+     "net_per_year": 255000,
+     "new_rank": 3,
+     "old_rank": 4,
+     "parts_moved": 2,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": "N339039",
+     "description": "Make Forged or stamped working part and Handles and hardware in Vietnam",
+     "key": "handles_and_hardware+primary_metal_forming",
+     "net_per_year": 270000,
+     "new_rank": 4,
+     "old_rank": 2,
+     "parts_moved": 2,
+     "tier": 2
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 4,
+   "smallest_supported": "primary_metal_forming",
+   "source": "eval/results/families-plan-ratchet-wrench-2025-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "new-family live checks (D138)",
+   "shown": 0,
+   "source": "eval/results/families-plan-server-cable-2023-litellm.json"
+  },
+  {
+   "backtest_new_top": null,
+   "backtest_old_top": null,
+   "net_given_up": 0,
+   "new_top": "pcba_manufacturing+power_charging_modules",
+   "old_top": "pcba_manufacturing+power_charging_modules",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make PCBA (SMT) and Power conversion or charging module in Vietnam",
+     "key": "pcba_manufacturing+power_charging_modules",
+     "net_per_year": 262500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 1
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-smartwatch-charger-2025-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "new-family live checks (D138)",
+   "shown": 0,
+   "source": "eval/results/families-plan-speaker-stand-2023-litellm.json"
+  },
+  {
+   "backtest_new_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "backtest_old_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "net_given_up": 0,
+   "new_top": "electromechanical_core",
+   "old_top": "electromechanical_core",
+   "plans": [
+    {
+     "check": 0.98,
+     "counter": "N335213",
+     "description": "Make Electromechanical core (motor, coil, sensor) in Thailand",
+     "key": "electromechanical_core",
+     "net_per_year": 270000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 2
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-speed-sensor-2024-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "backtest_new_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "backtest_old_top": {
+    "changed": 1,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "net_given_up": 0,
+   "new_top": "pcba_manufacturing",
+   "old_top": "pcba_manufacturing",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make PCBA (SMT) in Taiwan",
+     "key": "pcba_manufacturing",
+     "net_per_year": 262500,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 1,
+     "tier": 1
+    }
+   ],
+   "set": "new-family live checks (D138)",
+   "shown": 1,
+   "smallest_supported": null,
+   "source": "eval/results/families-plan-usb-hub-2024-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  },
+  {
+   "set": "new-family live checks (D138)",
+   "shown": 0,
+   "source": "eval/results/families-plan-water-dispenser-2025-litellm.json"
+  },
+  {
+   "set": "post-cutoff plan searches (D170)",
+   "shown": 0,
+   "source": "eval/results/planner-post-plan-purifier-champ-2026-litellm.json"
+  },
+  {
+   "set": "post-cutoff plan searches (D170)",
+   "shown": 0,
+   "source": "eval/results/planner-post-plan-purifier-mighty-2026-litellm.json"
+  },
+  {
+   "set": "post-cutoff plan searches (D170)",
+   "shown": 0,
+   "source": "eval/results/planner-post-plan-purifier-waffle-2026-litellm.json"
+  },
+  {
+   "backtest_new_top": {
+    "changed": 2,
+    "changed_moved": 1,
+    "kept_moved": [
+     "wiring, switches and connectors"
+    ]
+   },
+   "backtest_old_top": {
+    "changed": 2,
+    "changed_moved": 1,
+    "kept_moved": []
+   },
+   "net_given_up": 7500,
+   "new_top": "motor_fan_assembly+switch_cord_minor_parts",
+   "old_top": "motor_fan_assembly",
+   "plans": [
+    {
+     "check": 0.95,
+     "counter": null,
+     "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+     "key": "motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 262500,
+     "new_rank": 1,
+     "old_rank": 2,
+     "parts_moved": 3,
+     "tier": 1
+    },
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Motor-fan assembly, Housing moulding and Switch, cord and minor parts in Thailand",
+     "key": "housing_moulding+motor_fan_assembly+switch_cord_minor_parts",
+     "net_per_year": 247500,
+     "new_rank": 2,
+     "old_rank": 4,
+     "parts_moved": 4,
+     "tier": 1
+    },
+    {
+     "check": 0.92,
+     "counter": null,
+     "description": "Make Motor-fan assembly in Thailand",
+     "key": "motor_fan_assembly",
+     "net_per_year": 270000,
+     "new_rank": 3,
+     "old_rank": 1,
+     "parts_moved": 2,
+     "tier": 2
+    },
+    {
+     "check": 0.92,
+     "counter": "N345859",
+     "description": "Make Motor-fan assembly and Housing moulding in Thailand",
+     "key": "housing_moulding+motor_fan_assembly",
+     "net_per_year": 255000,
+     "new_rank": 4,
+     "old_rank": 3,
+     "parts_moved": 3,
+     "tier": 2
+    }
+   ],
+   "set": "post-cutoff plan searches (D170)",
+   "shown": 4,
+   "smallest_supported": "motor_fan_assembly",
+   "source": "eval/results/planner-post-plan-stove-heater-2026-litellm.json",
+   "top_changed": true,
+   "worse_by_backtest": true
+  },
+  {
+   "backtest_new_top": {
+    "changed": 2,
+    "changed_moved": 2,
+    "kept_moved": []
+   },
+   "backtest_old_top": {
+    "changed": 2,
+    "changed_moved": 2,
+    "kept_moved": []
+   },
+   "net_given_up": 0,
+   "new_top": "precision_machined_parts",
+   "old_top": "precision_machined_parts",
+   "plans": [
+    {
+     "check": 0.96,
+     "counter": null,
+     "description": "Make Machined and heat-treated metal parts in Thailand",
+     "key": "precision_machined_parts",
+     "net_per_year": 280000,
+     "new_rank": 1,
+     "old_rank": 1,
+     "parts_moved": 3,
+     "tier": 1
+    },
+    {
+     "check": 0.98,
+     "counter": null,
+     "description": "Make Machined and heat-treated metal parts and Housings and structural parts in Thailand",
+     "key": "housings_and_structures+precision_machined_parts",
+     "net_per_year": 270000,
+     "new_rank": 2,
+     "old_rank": 2,
+     "parts_moved": 4,
+     "tier": 1
+    }
+   ],
+   "set": "post-cutoff plan searches (D170)",
+   "shown": 2,
+   "smallest_supported": "precision_machined_parts",
+   "source": "eval/results/planner-post-plan-strut-assembly-2025-litellm.json",
+   "top_changed": false,
+   "worse_by_backtest": false
+  }
+ ],
+ "rule": {
+  "bar": 0.92,
+  "candidates": [
+   0.01,
+   0.02,
+   0.03,
+   0.04,
+   0.05
+  ],
+  "fallback": 0.05,
+  "min_counted": 50,
+  "min_hold_rate": 0.95,
+  "order": "tier, then net a year",
+  "smallest_supported": "fewest parts moved among two or more shown plans; ties: higher check, higher net, rank",
+  "tier1": "shown, check >= bar + margin, no counter-ruling"
+ },
+ "totals": {
+  "runs": 44,
+  "runs_with_shown_plans": 30,
+  "runs_with_two_or_more": 13,
+  "top_changed": 6,
+  "worse_top": 2
+ },
+ "what": "Plan ranking by a clear-margin tier, then net a year (D340, D341). No model calls: the margin is chosen on development precedent-check rows only, then every committed plan run with shown plans is re-ranked offline. The need for a margin was noticed on the heat gun (D332); the heat-gun runs are not used to choose it."
+}

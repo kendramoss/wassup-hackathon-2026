@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T16:12:24Z",
+  "generated_at": "2026-11-21T16:48:33Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -653,6 +653,68 @@
       "split": "demo",
       "development_only": true,
       "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_rank_clear_from",
+      "label": "Plan ranking: lowest precedent check in the clear-margin tier (bar plus the D341 margin)",
+      "value": 0.93,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_dev_tier1_held",
+      "label": "Plan ranking: clear-margin development verdicts still shown on another run of the same pair",
+      "value": 1,
+      "n": 644,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_dev_tier2_held",
+      "label": "Plan ranking: at-the-bar development verdicts still shown on another run of the same pair",
+      "value": 0.7486,
+      "n": 350,
+      "split": "dev",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_runs_top_changed",
+      "label": "Plan ranking: committed plan runs whose top plan changes under the tier rule (a count)",
+      "value": 6,
+      "n": 30,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_runs_worse_top",
+      "label": "Plan ranking: of those, runs where the new top plan backtests worse (a count)",
+      "value": 2,
+      "n": 6,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_heatgun_split_run1_cbp_move_rank",
+      "label": "Plan ranking: rank of CBP's own heat-gun move after the split, run 1, under the tier rule (1 is first)",
+      "value": 6,
+      "n": 7,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+    },
+    {
+      "key": "plan_rank_heatgun_split_run2_cbp_move_rank",
+      "label": "Plan ranking: rank of CBP's own heat-gun move after the split, run 2, under the tier rule (1 is first)",
+      "value": 1,
+      "n": 6,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-rank-analysis.json (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
     },
     {
       "key": "research_final_accuracy",

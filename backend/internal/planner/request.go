@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -52,6 +53,21 @@ type ActualChange struct {
 	// the product component that holds it, so a backtest can say which of them
 	// the plan moves anyway (D310).
 	StillImportedAs map[string]string `json:"still_from_china_as,omitempty"`
+}
+
+// KeptPart is the product component that holds a part the real change kept
+// in the old country: the StillImportedAs entry when there is one, else a
+// component of the same name, ignoring case (#519). False when neither.
+func (a ActualChange) KeptPart(p domain.Product, word string) (string, bool) {
+	if part, ok := a.StillImportedAs[word]; ok {
+		return part, true
+	}
+	for _, c := range p.Components {
+		if strings.EqualFold(strings.TrimSpace(c.Name), strings.TrimSpace(word)) {
+			return c.Name, true
+		}
+	}
+	return "", false
 }
 
 // Economics are user inputs. Defaults in fixtures are illustrative and must be

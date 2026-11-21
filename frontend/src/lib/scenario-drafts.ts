@@ -38,9 +38,9 @@ export function exampleDrafts(c: CaseResponse): Draft[] {
   return product?.plants?.length
     ? [
         { label: "As today", mode: "move" as const, groups: [], plant: other, facts: "" },
-        ...(movable.length >= 1 ? [{ label: `${groupName(movable[0], product?.family)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
+        ...(movable.length >= 1 ? [{ label: `${groupName(movable[0], product?.family, product)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 1), plant: other, facts: "" }] : []),
         ...(movable.length >= 2
-          ? [{ label: `${groupName(movable[0], product?.family)} + ${groupName(movable[1], product?.family)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
+          ? [{ label: `${groupName(movable[0], product?.family, product)} + ${groupName(movable[1], product?.family, product)} moved${to}`, mode: "move" as const, groups: movable.slice(0, 2), plant: other, facts: "" }]
           : []),
       ]
     : [{ label: "Scenario 1", mode: "facts", groups: [], plant: "", facts: c.facts ?? "" }];

@@ -376,3 +376,79 @@ func planStabilityItems(resultsDir string) ([]evalsummary.Item, error) {
 	}
 	return append(items, evalsummary.Item{Key: "plan_stability_heatgun_earlier_runs_shown", Label: "Plan check: earlier recorded heat-gun runs, other configurations, that showed a plan (a count)", Value: float64(s.Before.Shown), N: s.Before.Runs, Split: "demo", DevelopmentOnly: true, Source: src}), nil
 }
+
+// planRankItems are the D340/D341 plan-ranking figures, from
+// eval/planner/plan_rank.py's summary: the clear margin the development rule
+// chose and how often a verdict in each tier held on a repeat development
+// run; and, re-ranked offline, where CBP's own heat-gun move lands after the
+// split and how many committed plan runs got a different top plan.
+func planRankItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "plan-rank-analysis.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	type hold struct {
+		Counted int      `json:"counted"`
+		Held    int      `json:"held"`
+		Rate    *float64 `json:"rate"`
+	}
+	var s struct {
+		Dev struct {
+			Margin   float64 `json:"chosen_margin"`
+			From     float64 `json:"tier1_from"`
+			Met      bool    `json:"rule_met"`
+			ByMargin []struct {
+				Margin float64 `json:"margin"`
+				hold
+			} `json:"by_margin"`
+			Tier2 hold `json:"tier2_at_chosen"`
+		} `json:"dev"`
+		Rerank []struct {
+			Source string `json:"source"`
+			CBP    *struct {
+				Old int `json:"old_rank"`
+				New int `json:"new_rank"`
+			} `json:"cbp_move"`
+			Shown int `json:"shown"`
+		} `json:"rerank"`
+		Totals struct {
+			Shown   int `json:"runs_with_shown_plans"`
+			Changed int `json:"top_changed"`
+			Worse   int `json:"worse_top"`
+		} `json:"totals"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	if !s.Dev.Met {
+		return nil, fmt.Errorf("%s: the D340 rule was not met", file)
+	}
+	var tier1 *hold
+	for i := range s.Dev.ByMargin {
+		if s.Dev.ByMargin[i].Margin == s.Dev.Margin {
+			tier1 = &s.Dev.ByMargin[i].hold
+		}
+	}
+	if tier1 == nil || tier1.Rate == nil || s.Dev.Tier2.Rate == nil {
+		return nil, fmt.Errorf("%s: no hold rate at the chosen margin", file)
+	}
+	src := "eval/results/" + file + " (eval/planner/plan_rank.py; D340 rule, D341 result; margin chosen on development rows only, re-rank offline)"
+	items := []evalsummary.Item{
+		{Key: "plan_rank_clear_from", Label: "Plan ranking: lowest precedent check in the clear-margin tier (bar plus the D341 margin)", Value: s.Dev.From, Split: "dev", DevelopmentOnly: true, Source: src},
+		{Key: "plan_rank_dev_tier1_held", Label: "Plan ranking: clear-margin development verdicts still shown on another run of the same pair", Value: *tier1.Rate, N: tier1.Counted, Split: "dev", DevelopmentOnly: true, Source: src},
+		{Key: "plan_rank_dev_tier2_held", Label: "Plan ranking: at-the-bar development verdicts still shown on another run of the same pair", Value: *s.Dev.Tier2.Rate, N: s.Dev.Tier2.Counted, Split: "dev", DevelopmentOnly: true, Source: src},
+		{Key: "plan_rank_runs_top_changed", Label: "Plan ranking: committed plan runs whose top plan changes under the tier rule (a count)", Value: float64(s.Totals.Changed), N: s.Totals.Shown, Split: "demo", DevelopmentOnly: true, Source: src},
+		{Key: "plan_rank_runs_worse_top", Label: "Plan ranking: of those, runs where the new top plan backtests worse (a count)", Value: float64(s.Totals.Worse), N: s.Totals.Changed, Split: "demo", DevelopmentOnly: true, Source: src},
+	}
+	for _, r := range s.Rerank {
+		for i := 1; i <= 2; i++ {
+			if r.CBP != nil && strings.HasSuffix(r.Source, fmt.Sprintf("split-run%d-litellm.json", i)) {
+				items = append(items, evalsummary.Item{Key: fmt.Sprintf("plan_rank_heatgun_split_run%d_cbp_move_rank", i),
+					Label: fmt.Sprintf("Plan ranking: rank of CBP's own heat-gun move after the split, run %d, under the tier rule (1 is first)", i),
+					Value: float64(r.CBP.New), N: r.Shown, Split: "demo", DevelopmentOnly: true, Source: src})
+			}
+		}
+	}
+	return items, nil
+}

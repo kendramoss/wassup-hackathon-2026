@@ -1777,6 +1777,17 @@ export interface components {
              *     any other move (engine, then precedent check). It may be shown, below the bar or rejected. Absent otherwise.
              */
             from_advice?: boolean;
+            /**
+             * @description Shown plans only (D341): clear_margin when the precedent check is at least ranking.clear_from and names no
+             *     counter-ruling; at_bar otherwise (borderline, may not hold on re-check). Shown plans sort by tier, then net.
+             *     Absent on rejected moves and on plans stored before D341.
+             * @enum {string}
+             */
+            tier?: "clear_margin" | "at_bar";
+            /** @description Shown plans only: how many components the move changes the country of */
+            parts_moved?: number;
+            /** @description True on the shown plan that moves the fewest parts when two or more are shown (D340). A label, not a sort key. */
+            smallest_supported?: boolean;
         };
         Range: {
             min?: number;
@@ -1813,7 +1824,7 @@ export interface components {
                 ruling?: string;
             };
             baseline?: components["schemas"]["Plan"];
-            /** @description Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE); best-ranked within the searched moves and your cost inputs first */
+            /** @description Precedent-supported, verifier confidence >= 0.92 (PLAN_CONFIDENCE). Ranked by tier (clear margin first, then at the bar; D341), then net a year, best first */
             plans?: components["schemas"]["Plan"][];
             /** @description Greyed rows, closest first: current setup, below_confidence_bar, no_supporting_precedent, engine_other_origin */
             rejected?: components["schemas"]["Plan"][];
@@ -1825,6 +1836,18 @@ export interface components {
             objective?: components["schemas"]["PlanObjective"];
             /** @description Operations mode only: SHA-256 of the canonical raw money inputs this result was priced from (before table or live rates are filled in). A later edit of a cost, rate, constraint or the annual value changes it; note and sources do not. */
             economics_basis?: string;
+            /** @description How shown plans were ordered (D341). Absent on results stored before it, which were ranked by net alone. */
+            ranking?: {
+                /** @enum {string} */
+                rule?: "tier_then_net";
+                /** @example 0.92 */
+                bar?: number;
+                /**
+                 * @description Lowest check in the clear-margin tier: the bar plus the clear margin
+                 * @example 0.93
+                 */
+                clear_from?: number;
+            };
         };
         PlanResponse: components["schemas"]["Meta"] & {
             case_id?: string;

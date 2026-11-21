@@ -77,7 +77,10 @@
    "added_cost_per_year": 60000,
    "net_per_year": 440000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 1,
+   "smallest_supported": true
   },
   {
    "move": [
@@ -127,7 +130,9 @@
    "added_cost_per_year": 75000,
    "net_per_year": 425000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 4
   },
   {
    "move": [
@@ -177,7 +182,9 @@
    "added_cost_per_year": 80000,
    "net_per_year": 420000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 4
   },
   {
    "move": [
@@ -223,7 +230,9 @@
    "added_cost_per_year": 120000,
    "net_per_year": 380000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 3
   },
   {
    "move": [
@@ -273,7 +282,9 @@
    "added_cost_per_year": 135000,
    "net_per_year": 365000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 6
   },
   {
    "move": [
@@ -323,7 +334,9 @@
    "added_cost_per_year": 140000,
    "net_per_year": 360000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 6
   },
   {
    "move": [
@@ -373,7 +386,9 @@
    "added_cost_per_year": 180000,
    "net_per_year": 320000,
    "net_priced": true,
-   "shown": true
+   "shown": true,
+   "tier": "clear_margin",
+   "parts_moved": 4
   }
  ],
  "rejected": [
@@ -598,5 +613,10 @@
  "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
  "template_versions": {
   "motorised_tools_small_appliances": "1"
+ },
+ "ranking": {
+  "rule": "tier_then_net",
+  "bar": 0.85,
+  "clear_from": 0.86
  }
 }

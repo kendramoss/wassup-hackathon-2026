@@ -730,3 +730,11 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 - CBP's move ranked 5 of 7 (run 1) and 4 of 6 (run 2): above the bigger moves, below the cheaper ones. The backtest reads the top-ranked plan: run 1 motor-fan alone (2 of 6 changed parts moved), run 2 motor-fan + power cord, knobs and covers (5 of 6, nothing CBP kept). Before the split (D322) the top-ranked plan moved 5 of 6 plus the switch, wires and fasteners, and the nearest move to CBP's checked 0.95–0.96.
 - Gateway cost $0.96, $0.82 ($1.78); wall time 154 s, 206 s; 13 moves each (12 searched, 1 followed). No run failed or was retried.
+
+## Plan ranking by tier, re-ranked on committed rows (no model calls, 22 Nov; D340, D341)
+
+### Rule written first (D340, commit 61fbd0f7), margin chosen on development rows only
+- Data: the eight known-a verifier-v2 dev flip runs (54 pairs). For each pair and ordered pair of runs (a, b), a tier-1 verdict in a (supported, check ≥ 0.92 + m, no counter-ruling) holds when b shows the pair at 0.92. Chosen m = the smallest of 0.01–0.05 that, with every larger one, holds ≥ 95% over ≥ 50 run pairs.
+- Dev: every shown verdict held 906/994 (91.1%); tier 1 held 644/644 at m = 0.01 and 0.02, 433/433 at 0.03, 363/363 at 0.04, 63/63 at 0.05. **Chosen m = 0.01** (tier 1 from 0.93). At-the-bar verdicts held 262/350 (74.9%).
+- Re-ranked after the choice (offline): 44 committed plan runs, 30 with a shown plan; the top plan changes in 6 (heat gun D322 runs 1 and 3, D332 runs 1 and 2, per-family N350826, post-cutoff stove heater). The new top backtests worse in 2 (D332 run 1, the stove heater). CBP's heat-gun move after the split ranks 6th of 7 (run 1, counter-ruling N345859) and 1st of 6 (run 2).
+- `eval/results/plan-rank-analysis.json`, `python3 -I -B eval/planner/plan_rank.py . --check`. No RUNLOG line: nothing ran against a model.

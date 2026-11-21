@@ -33,6 +33,7 @@
       "name": "Switch, wiring and minor parts",
       "operations": ["make the switch, wiring, supports and fasteners"],
       "movable": true,
+      "former": { "name": "Switch, cord and minor parts", "until": "cord_knobs_covers" },
       "precedent": {
         "not_enough": ["N347421"],
         "note": "Kept apart from the power cord (D330). In the third space heater of N347421 the switches came from China with the fan blades and thermostat, while the housing, heating element, motor and power cord came from Vietnam; CBP held Vietnam. The id keeps its old name so stored plans, fixtures and BOM imports still load."

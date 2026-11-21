@@ -1718,6 +1718,13 @@ func summaryCmd(args []string) error {
 	} else {
 		items = append(items, psItems...)
 	}
+	if prItems, err := planRankItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip plan ranking: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, prItems...)
+	}
 	items = append(items,
 		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},
 		item{Key: "baseline_final_assembly", Label: "Baseline: final-assembly country", Value: 0.406, CILow: 0.358, CIHigh: 0.456, N: 377, Split: "final", Source: v2},

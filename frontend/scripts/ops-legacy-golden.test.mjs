@@ -13,6 +13,9 @@ import { html } from "./render-support.mjs";
 //   OPS_GOLDEN_WRITE=1 node --test scripts/ops-legacy-golden.test.mjs   (in a copy of the base tree)
 // The only difference allowed in the money forms is the new, collapsed-by-
 // default "Operating costs" section, which is removed before comparing.
+// D341 re-captured the plan screen once, on purpose: the only changes are the
+// added tier and smallest-move chips, the stored-order note and the list
+// heading ("best net first"); every other piece is unchanged.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });

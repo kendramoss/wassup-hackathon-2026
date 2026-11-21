@@ -157,6 +157,11 @@ export const copy = {
     },
   },
 
+  // Revoked and modified rulings (D320): said beside every ruling link.
+  supersession: {
+    by: (ruling: string, date: string) => `superseded by ${ruling}, ${date}`,
+    notSupport: "not counted as support for this case",
+  },
   plan: {
     best: "Best plan",
     none: `No plan cleared the 0.92 precedent-check bar`,
@@ -207,6 +212,18 @@ export const copy = {
       pending: "The move the advice suggested",
     },
     belowBarRow: (check: string) => `Check ${check}, under the 0.92 precedent-check bar`,
+    // Ranking tiers (D340, D341): shown plans with a clear margin over the
+    // bar rank first, then the plans at the bar, each by net a year.
+    tier: {
+      clear: "Clear margin",
+      clearWhy: (from: string) => `check ${from} or more, no counter-ruling`,
+      atBar: "At the bar",
+      atBarWhy: "borderline: may not hold on re-check",
+      smallest: "Smallest supported move",
+      smallestLine: (phrase: string, n: number) => `Smallest supported move: ${phrase} (${n} ${n === 1 ? "part" : "parts"}).`,
+      order: "clear margin first, then net",
+      stored: "Stored before plans were ranked by tier (D341): this list is ranked by net alone. Search again to re-rank.",
+    },
   },
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or

@@ -19,7 +19,7 @@ test("the picker lists every template family once", () => {
 test("each family carries its template's group ids and names (#391)", () => {
   for (const t of templates) {
     const f = families.find((x) => x.id === t.family);
-    assert.deepEqual(f.groups, t.groups.map((g) => ({ id: g.id, name: g.name })), t.family);
+    assert.deepEqual(f.groups, t.groups.map((g) => ({ id: g.id, name: g.name, ...(g.former ? { former: g.former } : {}) })), t.family);
   }
 });
 
@@ -61,4 +61,14 @@ test("move phrases come from template names, not a hard-coded legacy map (#391)"
     }),
     "the lid and firebox forming, the burners and gas train and the cooking surface, panels and frame",
   );
+});
+
+test("a group split later keeps its former name for a product made before the split (D342)", () => {
+  const fam = "motorised_tools_small_appliances";
+  const pre = { components: [{ name: "switch", group: "switch_cord_minor_parts" }, { name: "power cord", group: "switch_cord_minor_parts" }] };
+  const post = { components: [{ name: "switch", group: "switch_cord_minor_parts" }, { name: "power cord", group: "cord_knobs_covers" }] };
+  assert.equal(groupName("switch_cord_minor_parts", fam, pre), "Switch, cord and minor parts");
+  assert.equal(groupName("switch_cord_minor_parts", fam, post), "Switch, wiring and minor parts");
+  assert.equal(groupName("switch_cord_minor_parts", fam), "Switch, wiring and minor parts");
+  assert.equal(groupName("pcba", fam, pre), "PCBA (SMT)");
 });

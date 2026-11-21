@@ -155,7 +155,7 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 // conversion or charging module" read "the two cylindrical lithium-ion
 // battery cells", not a module the product does not have.
 func groupPhrase(p domain.Product, t Template, id string) string {
-	name := GroupName(t, id)
+	name := GroupNameFor(p, t, id)
 	comps := groupComponents(p, id)
 	if len(comps) == 0 {
 		return "the " + lowerWord(name)
@@ -267,6 +267,35 @@ func GroupName(t Template, id string) string {
 		return g.Name
 	}
 	return strings.ReplaceAll(id, "_", " ")
+}
+
+// GroupNameFor is a group's name as this product files its parts: the
+// template's name, or the group's former name when the product files nothing
+// under the group later split out of it (D342). The pinned heat-gun case was
+// made before the power cord, knobs and covers left "Switch, cord and minor
+// parts" (D330); its cord is still in that group, so it keeps that name.
+func GroupNameFor(p domain.Product, t Template, id string) string {
+	g, ok := t.Group(id)
+	if ok && g.Former != nil && g.Former.Name != "" && usesGroup(p, id) && !usesGroup(p, g.Former.Until) {
+		return g.Former.Name
+	}
+	return GroupName(t, id)
+}
+
+// usesGroup says whether the product files any component or operation under
+// the group.
+func usesGroup(p domain.Product, id string) bool {
+	for _, c := range p.Components {
+		if c.Group == id {
+			return true
+		}
+	}
+	for _, o := range p.Operations {
+		if o.Group == id {
+			return true
+		}
+	}
+	return false
 }
 
 // lowerWord lower-cases the first letter of an ordinary word ("Motor-fan
