@@ -87,7 +87,7 @@ func startupValues(cfg config.Config) map[string][]string {
 		"map_prompt":         {nearmiss.MapPromptVersion},
 		"source":             {duty.DefaultHTSBaseURL, "cross"},
 		"collection":         {store.RateLimitCollection},
-		"index":              {cfg.HTSIndex},
+		"index":              {cfg.HTSIndex, cfg.PartHTSIndex},
 		"audience":           {cfg.TeamsAudience},
 		"project":            {cfg.GCPProject},
 		"database":           {cfg.FirestoreDatabase},

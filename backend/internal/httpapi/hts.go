@@ -59,3 +59,62 @@ func (a *api) htsSuggest(w http.ResponseWriter, r *http.Request) {
 		"reasons_unavailable": res.ReasonsUnavailable, "trace": res.Trace, "source": res.Source, "llm_provider": a.d.Provider,
 		"prompt_version": hts.PromptVersion, "disclaimer": domain.Disclaimer})
 }
+
+// PartsHTSSuggester suggests codes for a product's parts (hts.PartsSuggester).
+type PartsHTSSuggester interface {
+	Suggest(ctx context.Context, prod domain.Product, opt hts.PartsOptions) (hts.PartsResult, error)
+}
+
+// maxPartNameRunes caps one part's name.
+const maxPartNameRunes = 200
+
+// partsHTSSuggest answers POST /v1/products/parts-hts-suggest {product}: up
+// to three codes for each named part (at most hts.MaxParts), each from an
+// earlier CBP ruling that classified a similar part ("rulings") or from the
+// model ("model"), with a short reason; and, when the product has no HTS
+// code, for the good. One model call per request; answers per part are
+// cached for a day (D380). Nothing is stored or filled in: the user accepts
+// codes in the parts table, and the 19 CFR 102.20 rule check reads them when
+// the case is read (D363). Rate-limited as light; counts toward the spend cap.
+func (a *api) partsHTSSuggest(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Product *domain.Product `json:"product"`
+	}
+	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if in.Product == nil || strings.TrimSpace(in.Product.Name) == "" {
+		a.fail(w, r, fmt.Errorf("%w: a product with a name is required", domain.ErrInvalid))
+		return
+	}
+	p := *in.Product
+	named := 0
+	for _, c := range p.Components {
+		if n := utf8.RuneCountInString(strings.TrimSpace(c.Name)); n > maxPartNameRunes {
+			a.fail(w, r, fmt.Errorf("%w: a part name is at most %d characters", domain.ErrInvalid, maxPartNameRunes))
+			return
+		} else if n > 0 {
+			named++
+		}
+	}
+	if named == 0 || named > hts.MaxParts {
+		a.fail(w, r, fmt.Errorf("%w: give 1 to %d named parts (send the parts still without a code)", domain.ErrInvalid, hts.MaxParts))
+		return
+	}
+	if utf8.RuneCountInString(p.Name)+utf8.RuneCountInString(p.Description) > domain.MaxFactsRunes {
+		a.fail(w, r, fmt.Errorf("%w: the product name and description are at most %d characters", domain.ErrInvalid, domain.MaxFactsRunes))
+		return
+	}
+	res, err := a.d.PartsHTS.Suggest(r.Context(), p, hts.PartsOptions{Good: strings.TrimSpace(p.HTS) == ""})
+	if err != nil {
+		if !res.ReasonsUnavailable {
+			a.fail(w, r, err)
+			return
+		}
+		a.d.Logger.WarnContext(r.Context(), "parts hts reasons failed; ruling candidates without reasons", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"parts": res.Parts, "good": res.Good, "note": res.Note,
+		"reasons_unavailable": res.ReasonsUnavailable, "trace": res.Trace, "llm_provider": a.d.Provider,
+		"prompt_version": hts.PartsPromptVersion, "max_parts": hts.MaxParts, "disclaimer": domain.Disclaimer})
+}

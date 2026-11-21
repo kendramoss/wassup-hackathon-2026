@@ -47,6 +47,9 @@ type Options struct {
 	// MediaExtract reports that POST /v1/products/extract-media is served;
 	// without it extract_product_from_media is not listed.
 	MediaExtract bool
+	// PartsHTS reports that POST /v1/products/parts-hts-suggest is served;
+	// without it suggest_part_hts is not listed.
+	PartsHTS bool
 	// Version is reported in the MCP initialize result.
 	Version string
 	// ClientAddress resolves the outer request's connection address and
@@ -86,6 +89,9 @@ func NewServer(o Options) *mcp.Server {
 	t.register(s, o.RulingSearch)
 	if o.MediaExtract {
 		t.registerMedia(s)
+	}
+	if o.PartsHTS {
+		t.registerPartsHTS(s)
 	}
 	t.registerResources(s)
 	t.registerPrompts(s)

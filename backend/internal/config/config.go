@@ -285,6 +285,16 @@ type Config struct {
 	// HTSIndex (written by "corpus hts-index"; D64). Off: the endpoint is a 404.
 	HTSSuggest bool
 	HTSIndex   string
+	// PartsHTSSuggest (on|off, default ON) serves POST
+	// /v1/products/parts-hts-suggest: up to 3 codes per part of a product,
+	// from the part classifications in PartHTSIndex (written by "corpus
+	// part-hts-index") and one model call, rate-limited and spend-capped like
+	// every model route (D380). PartsHTSSuggestSet is true when the variable
+	// was given: unset, a missing index only turns the route off (with a
+	// warning); set to on, it stops the server.
+	PartsHTSSuggest    bool
+	PartsHTSSuggestSet bool
+	PartHTSIndex       string
 	// DutyLiveMFN (on|off, default off) looks up the MFN (column 1 general)
 	// rate on the USITC HTS for subheadings the sourced duty table does not
 	// cover, caching each answer for DutyLiveMFNTTL; each fetch waits at most
@@ -405,6 +415,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		Calibration:            strings.ToLower(e.str("CALIBRATION", "on")),
 		CalibratedFastPath:     e.float("CALIBRATED_FAST_PATH", DefaultCalibratedFastPath),
 		HTSIndex:               e.str("HTS_INDEX", "data/hts_index.json"),
+		PartHTSIndex:           e.str("PART_HTS_INDEX", "data/part_hts_index.json"),
+		PartsHTSSuggestSet:     strings.TrimSpace(e.get("PARTS_HTS_SUGGEST")) != "",
 		DutyLiveMFNTTL:         e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
 		DutyLiveMFNTimeout:     e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
 		EvalSliceMaxDrop:       e.integer("EVAL_SLICE_MAX_DROP", 2),
@@ -506,6 +518,13 @@ func FromEnv(getenv func(string) string) (Config, error) {
 	case "off", "false", "0":
 	default:
 		e.errs = append(e.errs, fmt.Errorf("HTS_SUGGEST must be on or off, got %q", v))
+	}
+	switch v := strings.ToLower(e.str("PARTS_HTS_SUGGEST", "on")); v {
+	case "on", "true", "1":
+		c.PartsHTSSuggest = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("PARTS_HTS_SUGGEST must be on or off, got %q", v))
 	}
 	switch v := strings.ToLower(e.str("DUTY_LIVE_MFN", "off")); v {
 	case "on", "true", "1":
@@ -692,6 +711,9 @@ func (c Config) validate() error {
 	}
 	if c.FastPathByFamily != "on" && c.FastPathByFamily != "off" {
 		bad("FAST_PATH_BY_FAMILY must be on or off, got %q", c.FastPathByFamily)
+	}
+	if c.PartsHTSSuggest && !strings.HasSuffix(c.PartHTSIndex, ".json") {
+		bad("PART_HTS_INDEX must be a .json file written by \"corpus part-hts-index\", got %q", c.PartHTSIndex)
 	}
 	if c.HTSSuggest && !strings.HasSuffix(c.HTSIndex, ".json") {
 		bad("HTS_INDEX must be a .json file written by \"corpus hts-index\", got %q", c.HTSIndex)

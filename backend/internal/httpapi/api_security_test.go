@@ -71,7 +71,7 @@ func routeWrappers(t *testing.T) map[string]string {
 var modelRoutes = map[string]bool{
 	"POST /v1/cases/predict": true, "POST /v1/cases/batch": true, "POST /v1/products/import": true,
 	"POST /v1/products/extract": true, "POST /v1/products/extract-media": true, "POST /v1/products/money-prefill": true,
-	"POST /v1/products/hts-suggest": true, "POST /v1/products/cost-estimate": true, "POST /v1/products/family-check": true,
+	"POST /v1/products/hts-suggest": true, "POST /v1/products/parts-hts-suggest": true, "POST /v1/products/cost-estimate": true, "POST /v1/products/family-check": true,
 	"POST /v1/cases/{id}/bom-version": true, "POST /v1/cases/{id}/scenarios": true, "POST /v1/cases/{id}/compare-targets": true,
 	"POST /v1/cases/{id}/ask": true, "POST /v1/cases/{id}/watch": true, "POST /v1/cases/{id}/plan": true, "POST /v1/cases/{id}/answers": true,
 }
