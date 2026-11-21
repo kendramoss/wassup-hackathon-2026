@@ -23,23 +23,30 @@ const geminiSettings = `{
     }
   }
 }`;
+// The toolset and model lines of examples/adk-agent/unde_agent/agent.py,
+// which ran one whole case against the live server (D391).
 const adkAgent = `from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 
 root_agent = LlmAgent(
-    model="gemini-flash-latest",
-    name="origin_planner",
-    instruction="Use the Unde tools to find the likely US origin and the production moves that would change it.",
+    model="gemini-flash-latest",  # Google API key or Vertex AI
+    name="unde_trade_compliance",
+    instruction=INSTRUCTION,  # extract, predict, plan, draft; "Not a ruling"
     tools=[
         McpToolset(
             connection_params=StreamableHTTPConnectionParams(
                 url="https://undelabs.dev/mcp",
+                sse_read_timeout=900,  # plan search can take minutes
                 # With an API key: headers={"Authorization": "Bearer op_…"},
             ),
+            tool_filter=["extract_product", "predict_origin", "suggest_part_hts",
+                         "plan_production_moves", "export_ruling_request_draft", "get_ruling"],
         )
     ],
 )`;
+const adkExample = `${copy.landing.repo}/tree/main/examples/adk-agent`;
+const adkTranscript = `${copy.landing.repo}/blob/main/docs/mcp-transcripts/adk-full-flow.md`;
 const desktopRelay = `{
   "mcpServers": {
     "unde": {
@@ -148,8 +155,24 @@ export default function Page() {
             <Code label="Gemini CLI settings.json">{geminiSettings}</Code>
           </div>
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-[13.5px] font-medium">Google ADK agent (Python)</h3>
+            <h3 className="text-[13.5px] font-medium">Agents (Google ADK)</h3>
+            <p className="duo max-w-[72ch] text-[13.5px]">
+              A Python agent built with Google&apos;s Agent Development Kit works a whole case through the MCP server: from a product description it drafts the parts,
+              predicts the origin with the CBP rulings it cites, plans production moves to a target country and drafts the ruling request for a broker. It runs on Gemini
+              with a Google API key or Vertex AI. Each answer ends with &ldquo;Not a ruling&rdquo; and a pointer to a licensed customs broker.
+            </p>
             <Code label="Google ADK agent in Python">{adkAgent}</Code>
+            <p className="duo max-w-[72ch] text-[13px] text-dim">
+              Run once on 22 Nov 2026 against undelabs.dev, anonymously, with Gemini 3.8 Flash through a LiteLLM gateway to Gemini: one heat-gun case, predicted China,
+              one supported plan to Thailand, a draft for the broker. One plan call passed ADK&apos;s default read timeout and was retried, hence the longer timeout above.{" "}
+              <a href={adkExample} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+                The agent and exact commands
+              </a>
+              {" · "}
+              <a href={adkTranscript} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+                The run&apos;s transcript
+              </a>
+            </p>
             <p className="duo max-w-[72ch] text-[13px] text-dim">
               The Gemini CLI and ADK formats follow their documentation (
               <a href={geminiDocs} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
@@ -159,7 +182,7 @@ export default function Page() {
               <a href={adkDocs} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 ADK MCP tools
               </a>
-              , read 21 Nov 2026). We ran both once on 21 Nov 2026 with the read-only tools (search_rulings, get_ruling), the model reached through a LiteLLM gateway to Gemini; transcripts are in docs/mcp-transcripts/. The server they reach is the same one Claude Code uses.
+              , read 21 Nov 2026). We first ran both on 21 Nov 2026 with the read-only tools (search_rulings, get_ruling), the model reached through a LiteLLM gateway to Gemini; transcripts are in docs/mcp-transcripts/. The server they reach is the same one Claude Code uses.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">

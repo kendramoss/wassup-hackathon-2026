@@ -14,7 +14,7 @@ export LITELLM_API_KEY=...
 ./venv/bin/python -I docs/mcp-transcripts/adk_unde_agent.py
 ```
 
-The script is [`adk_unde_agent.py`](adk_unde_agent.py). It lists the server's tools with one toolset, then runs the agent with a second toolset filtered to `search_rulings` and `get_ruling`, and prints every tool call and result. With all 13 tools offered, the gateway refused the request with a 400 before any tool ran; filtering to the tools the task needs avoided it. We did not find which tool schema it objected to.
+The script is [`adk_unde_agent.py`](adk_unde_agent.py). It lists the server's tools with one toolset, then runs the agent with a second toolset filtered to `search_rulings` and `get_ruling`, and prints every tool call and result. With all 13 tools offered, the gateway refused the request with a 400 before any tool ran; filtering to the tools the task needs avoided it. We did not find which tool schema it objected to. (Found on 22 Nov: `predict_origin`'s root `anyOf`, removed in D390; the full-flow run is [adk-full-flow.md](adk-full-flow.md).)
 
 With a Google API key instead of a gateway, use `model="gemini-flash-latest"` as in [docs/MCP.md](../MCP.md) and drop the `LiteLlm` wrapper.
 

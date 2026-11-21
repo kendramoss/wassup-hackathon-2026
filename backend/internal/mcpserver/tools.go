@@ -60,8 +60,11 @@ Input: facts (plain-language description of parts, where each is made and where 
 Returns: predicted origin, confidence (0-1; calibrated_confidence is the calibrated probability when one applies, else only the model's stated value), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predict (operationId predictCase).`,
 		InputSchema: &jsonschema.Schema{
+			// "facts or product" is checked in predict, not with a top-level
+			// anyOf: an OpenAI-compatible gateway to Gemini refused the whole
+			// tool list over that anyOf (D390), so no input schema has
+			// anyOf, oneOf or allOf at its root (TestInputSchemasHaveNoRootComposition).
 			Type: "object", AdditionalProperties: &jsonschema.Schema{Not: &jsonschema.Schema{}},
-			AnyOf: []*jsonschema.Schema{{Required: []string{"facts"}}, {Required: []string{"product"}}},
 			Properties: map[string]*jsonschema.Schema{
 				"facts":   str("The product facts in plain language: what it is, each part and the country it is made in, and where it is assembled or processed. Up to 12,000 characters.", 20, 12000),
 				"product": t.product(),
@@ -315,6 +318,9 @@ type createReviewIn struct {
 // ---- handlers ----
 
 func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp.CallToolResult, any, error) {
+	if strings.TrimSpace(in.Facts) == "" && in.Product == nil {
+		return toolError("Give facts (a plain-language description) or a structured product.")
+	}
 	date := in.Date
 	if date == "" {
 		date = time.Now().UTC().Format(time.DateOnly)

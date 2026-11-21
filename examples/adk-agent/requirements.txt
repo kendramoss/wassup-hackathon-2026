@@ -1,0 +1,4 @@
+# Versions used for the committed run (docs/mcp-transcripts/adk-full-flow.md).
+google-adk==2.14.1
+mcp==2.3.0          # ADK's MCP tools import it; without it the import fails
+litellm==1.110.2    # only for the OpenAI-compatible gateway path
