@@ -1,0 +1,921 @@
+{
+  "case_id": "post-stove-heater-2026",
+  "target": "Thailand",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire) and printed circuit board (PCB) are produced in Thailand. The electric motor, fan, metal housing and wiring, switches and connectors are produced in China. \n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The combination of the electric motor, fan, metal housing, and final assembly operations."
+      ],
+      "decisive_step": "Production of the motor, fan, and metal housing combined with final assembly in China.",
+      "confidence": 0.85,
+      "reasoning": "While the heating element and PCB are made in Thailand, China produces the electric motor, fan, metal housing, wiring, and switches, and performs the final assembly. Unlike simple screwdriver assembly of entirely foreign parts, the Chinese operations include manufacturing key functional and structural components (motor, fan, housing) and integrating them with the Thai components. Under the totality of the circumstances (similar to N357771 and N347272), the components become a new article of commerce in China.",
+      "cited_rulings": [
+        "N357771",
+        "N347272"
+      ],
+      "precedents": [
+        "N341204",
+        "N347271",
+        "N347272",
+        "N351504",
+        "N357771"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2609,
+        "output_tokens": 226,
+        "latency_ms": 9588
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N357855"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor-fan assembly in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB), electric motor and fan are produced in Thailand. The metal housing and wiring, switches and connectors are produced in China. \n\nIn Thailand, the electric motor and fan will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor, fan, and PCB"
+        ],
+        "decisive_step": "Manufacturing of the core functional components (electric motor, fan, heating element, and PCB) in Thailand",
+        "confidence": 0.9,
+        "reasoning": "Consistent with CBP precedent for electric heating appliances (e.g., N357771 and N328954), the essential character of the electric stove heater is imparted by its core functional components: the heating element, electric motor, fan, and PCB, which are all produced in Thailand. The final assembly in China—installing these key subassemblies into a Chinese metal housing with wiring and switches—constitutes simple assembly that does not substantially transform the Thai components.",
+        "cited_rulings": [
+          "N357771"
+        ],
+        "precedents": [
+          "H342833",
+          "H354721",
+          "N341204",
+          "N351922",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2535,
+          "output_tokens": 214,
+          "latency_ms": 10401
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In N345859 (electric garage heater), N347396 (electric fireplace), and N357771 (heat gun), CBP consistently held that the heating element, electric motor, fan, and control electronics/PCBA collectively impart the essential character and basic nature of electric fan-forced heating appliances, while metal housing fabrication and simple final assembly merely enclose the components and do not effect a substantial transformation. In Variant A, the motor, fan, housing, and assembly are in China (origin China). In Variant B, moving the electric motor and fan to Thailand places all key functional components (heating element, PCB, motor, fan) in Thailand, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "space heater heating element motor fan assembly origin",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N351503",
+              "N351504",
+              "N342861",
+              "N357771",
+              "N351596",
+              "N351597"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric stove heater fireplace heating element origin",
+            "rulings": [
+              "N345265",
+              "N347396",
+              "N346613",
+              "N345859",
+              "N351504",
+              "N347421",
+              "N341204",
+              "N351596"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric heater heating element PCB motor fan China Thailand",
+            "rulings": [
+              "N345859",
+              "N347421",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N335508",
+              "N351596",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N357771",
+            "rulings": [
+              "N357771"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13463,
+          "output_tokens": 455,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 270000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB), electric motor, fan and wiring, switches and connectors are produced in Thailand. The metal housing are produced in China. \n\nIn Thailand, the electric motor and fan will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the wiring, switches and connectors will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor, fan, and PCB"
+        ],
+        "decisive_step": "Manufacturing of the core functional components (heating element, electric motor, fan, PCB) in Thailand",
+        "confidence": 0.92,
+        "reasoning": "Consistent with N357771 (and its underlying ruling N328954), the essential character of an electric heating appliance is imparted by its core functional components: the heating element, electric motor, fan, and PCB. Here, all of these critical components, along with the switches and wiring, are produced in Thailand. The final assembly in China—installing the Thai functional components into a Chinese metal housing and connecting wires—constitutes mere simple assembly that does not substantially transform the Thai components.",
+        "cited_rulings": [
+          "N357771"
+        ],
+        "precedents": [
+          "H354721",
+          "N338945",
+          "N341204",
+          "N351922",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2637,
+          "output_tokens": 217,
+          "latency_ms": 8694
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "confidence": 0.95,
+        "reasoning": "In rulings on electric space heaters and heat guns (N347421, N345859, N347396, N357771), CBP consistently holds that final assembly into the outer housing is simple assembly that does not result in a substantial transformation, and that origin is determined by the country producing the key functional components: the heating element, electric motor, fan, switches/controls, and PCB. In Variant A, the motor, fan, switches, wiring, housing, and final assembly are in China (origin China). In Variant B, moving the motor, fan, switches, and wiring to Thailand means all essential functional components are produced in Thailand, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electric stove heater fireplace heating element motor assembly",
+            "rulings": [
+              "N345265",
+              "N347396",
+              "N346613",
+              "N345859",
+              "N347421",
+              "N357771",
+              "N351504",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric heater heating element motor fan PCB Thailand China",
+            "rulings": [
+              "N345859",
+              "N347421",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N335508",
+              "N351596",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N357771",
+            "rulings": [
+              "N357771"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14741,
+          "output_tokens": 434,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 37500,
+      "net_per_year": 262500,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Housing moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB), electric motor, fan and metal housing are produced in Thailand. The wiring, switches and connectors are produced in China. \n\nIn Thailand, the electric motor and fan will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the metal housing will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, electric motor, fan, PCB, and metal housing"
+        ],
+        "decisive_step": "Manufacturing the core functional components (heating element, electric motor, fan, PCB, and housing) in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Under the totality of the circumstances (see N357771 and N328954), all primary functional and structural components imparting the essential character of the electric stove heater—the heating element, electric motor, fan, PCB, and metal housing—are manufactured in Thailand. The final assembly in China, which consists of fastening, wiring, and installing pre-made core subassemblies with minor Chinese components (switches, connectors, wiring), constitutes simple assembly and does not result in a substantial transformation.",
+        "cited_rulings": [
+          "N357771"
+        ],
+        "precedents": [
+          "H354721",
+          "N341204",
+          "N351504",
+          "N351922",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2614,
+          "output_tokens": 225,
+          "latency_ms": 8867
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N357771",
+        "counter_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In N345859 and N347396, CBP held that the heating element, electric motor, fan, and control components (thermostat/PCBA) impart the essential character and basic nature to electric space heaters, and simple final assembly does not substantially transform them. In N357771 (contrasted with N328954), shifting the production of the electric motor, fan, PCBA, heating element, and outer housing to Thailand changed the origin from China to Thailand because those components collectively enable the device to deliver hot air. Here, moving the motor, fan, and housing to Thailand consolidates all key components in Thailand, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electric stove heater space heater fireplace assembly China Thailand",
+            "rulings": [
+              "N345265",
+              "N347396",
+              "N335163",
+              "N335819",
+              "N347421",
+              "N346613",
+              "N347272",
+              "N347271"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric heater heating element motor fan PCB Thailand China",
+            "rulings": [
+              "N345859",
+              "N347421",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N335508",
+              "N351596",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heater heating element motor fan housing assembly origin",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N357771",
+              "N345859",
+              "N351596",
+              "N351597",
+              "N351503",
+              "N350867"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N357771",
+            "rulings": [
+              "N357771"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13593,
+          "output_tokens": 464,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 45000,
+      "net_per_year": 255000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor-fan assembly, Housing moulding and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB), electric motor, fan, metal housing and wiring, switches and connectors are produced in Thailand. \n\nIn Thailand, the electric motor and fan will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the metal housing will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the wiring, switches and connectors will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The heating element, electric motor, fan, PCB, and housing produced in Thailand"
+        ],
+        "decisive_step": "Manufacturing of the core functional components (heating element, motor, fan, PCB, and housing) in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with the underlying rationale in N357771 (and N328954 referenced therein), the essential character of the electric stove heater is imparted by its core functional components—specifically the heating element, electric motor, fan, and PCB—all of which are completely manufactured in Thailand. The operations performed in China consist solely of final assembly (mounting, wiring, and fastening pre-made components) which is not complex or meaningful enough to result in a substantial transformation.",
+        "cited_rulings": [
+          "N357771"
+        ],
+        "precedents": [
+          "N338945",
+          "N341204",
+          "N351504",
+          "N351922",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2726,
+          "output_tokens": 209,
+          "latency_ms": 9417
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347421",
+        "confidence": 0.96,
+        "reasoning": "In N347421, N345859, and N347396, CBP held that simple final assembly of electric heaters does not constitute a substantial transformation, and that the country of origin is conferred by the key functional components (specifically the heating element, electric motor, fan, switches/controls, and housing). In Variant A, only the heating element and PCB are from Thailand while the motor, fan, housing, switches, and final assembly are in China (origin China). In Variant B, all components—heating element, PCB, motor, fan, housing, switches, and wiring—are manufactured in Thailand, with only simple final assembly in China, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "appliance all components one country final assembly another country simple assembly",
+            "rulings": [
+              "N350963",
+              "N348764",
+              "N357062",
+              "H338116",
+              "N351460",
+              "H326072",
+              "N354470",
+              "N352061"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric heater heating element fan motor PCB assembly China Thailand",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N351596",
+              "N335508",
+              "N347306"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"electric heater\" OR \"stove heater\" OR \"space heater\" origin assembly",
+            "rulings": [
+              "N345265",
+              "N335163",
+              "N335819",
+              "N347421",
+              "N342861",
+              "N345859",
+              "N347396",
+              "N346005"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13784,
+          "output_tokens": 469,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 52500,
+      "net_per_year": 247500,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire) and printed circuit board (PCB) are produced in Thailand. The electric motor, fan, metal housing and wiring, switches and connectors are produced in China. \n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The combination of the electric motor, fan, metal housing, and final assembly operations."
+        ],
+        "decisive_step": "Production of the motor, fan, and metal housing combined with final assembly in China.",
+        "confidence": 0.85,
+        "reasoning": "While the heating element and PCB are made in Thailand, China produces the electric motor, fan, metal housing, wiring, and switches, and performs the final assembly. Unlike simple screwdriver assembly of entirely foreign parts, the Chinese operations include manufacturing key functional and structural components (motor, fan, housing) and integrating them with the Thai components. Under the totality of the circumstances (similar to N357771 and N347272), the components become a new article of commerce in China.",
+        "cited_rulings": [
+          "N357771",
+          "N347272"
+        ],
+        "precedents": [
+          "N341204",
+          "N347271",
+          "N347272",
+          "N351504",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2609,
+          "output_tokens": 226,
+          "latency_ms": 9588
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N357855); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB) and metal housing are produced in Thailand. The electric motor, fan and wiring, switches and connectors are produced in China. \n\nIn Thailand, the metal housing will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, printed circuit board (PCB), and metal housing"
+        ],
+        "decisive_step": "Production of the heating element, PCB, and housing in Thailand",
+        "confidence": 0.85,
+        "reasoning": "The core components imparting the essential character of the electric stove heater—specifically the heating element, PCB, and metal housing—are produced in Thailand. Although the motor and fan originate in China, the final assembly in China consists of simple mounting, wiring, and fastening of pre-manufactured components. Similar to the underlying principle in N357771 (and original N328954), mere assembly of a heating appliance without complex subassembly manufacturing does not result in a substantial transformation.",
+        "cited_rulings": [
+          "N357771"
+        ],
+        "precedents": [
+          "N341204",
+          "N347272",
+          "N351504",
+          "N351922",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2600,
+          "output_tokens": 193,
+          "latency_ms": 8474
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N345859",
+        "confidence": 0.92,
+        "reasoning": "In Variant A, CBP held origin is China where the motor, fan, switches, wiring, and final assembly are in China, despite the heating element and PCB coming from Thailand. Variant B moves only the metal housing to Thailand. In space heater rulings N345859 and N347421 (Scenario 1), CBP explicitly held that the outer metal housing merely 'encloses and enhances' the functional heater components (motor, fan, switches) and does not confer origin, even when combined with final assembly. Moving the housing to Thailand while the motor, fan, switches, and final assembly remain in China does not alter origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electric stove heater fireplace heater heating element assembly China",
+            "rulings": [
+              "N345265",
+              "N347396",
+              "N346613",
+              "N345859",
+              "N351504",
+              "N347421",
+              "N341204",
+              "N335163"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric heater heating element PCB motor fan housing China Thailand",
+            "rulings": [
+              "N347421",
+              "N345859",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N346397",
+              "N335508",
+              "N351596"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "heater heating element PCB housing assembly origin",
+            "rulings": [
+              "N347421",
+              "N351504",
+              "N350867",
+              "N345859",
+              "N333598",
+              "N339798",
+              "N341204",
+              "N351596"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13206,
+          "output_tokens": 444,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 15000,
+      "net_per_year": 285000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing moulding and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB), metal housing and wiring, switches and connectors are produced in Thailand. The electric motor and fan are produced in China. \n\nIn Thailand, the metal housing will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the wiring, switches and connectors will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Heating element, PCB, and housing manufactured in Thailand"
+        ],
+        "decisive_step": "Manufacturing of key components (heating element, PCB, housing) in Thailand",
+        "confidence": 0.78,
+        "reasoning": "Consistent with CBP precedent on heat-generating appliances (e.g., N357771, N351504), the country of origin is determined by where the core functional components—specifically the heating element, PCB, and housing—are manufactured. Here, Thailand produces the heating element, PCB, housing, and switches/wiring, which collectively impart the essential character of the electric stove heater. The final assembly in China, consisting of mounting the Chinese motor/fan and connecting the Thai components via fasteners and wiring, is simple assembly that does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N357771",
+          "N351504"
+        ],
+        "precedents": [
+          "N338945",
+          "N341204",
+          "N341251",
+          "N351504",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2684,
+          "output_tokens": 212,
+          "latency_ms": 9045
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N345859",
+        "confidence": 0.85,
+        "reasoning": "In electric fan-forced heaters and heat guns (N345859, N347421, N347396, N357771), CBP holds that the heating element, electric motor, fan, and PCB/controls collectively impart the essential character and functionality, while housings, cords, and fasteners merely enclose and support them. In Variant A, origin was China where the motor, fan, housing, wiring/switches, and final assembly were in China (with the heating element and PCB from Thailand). Moving only the housing and wiring/switches/connectors to Thailand in Variant B leaves the motor, fan, and final assembly in China. Under N345859 and N347421, shifting housing and wiring/switches alone does not change origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "electric heater heating element fan motor PCB Thailand China",
+            "rulings": [
+              "N345859",
+              "N347421",
+              "N357771",
+              "N351504",
+              "N351597",
+              "N335508",
+              "N351596",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electric stove heater fireplace heater origin Thailand China",
+            "rulings": [
+              "N345265",
+              "N347396",
+              "N346613",
+              "N345859",
+              "N342916",
+              "N335163",
+              "N334104",
+              "N347272"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347396",
+            "rulings": [
+              "N347396"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345859",
+            "rulings": [
+              "N345859"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347421",
+            "rulings": [
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N357771",
+            "rulings": [
+              "N357771"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14694,
+          "output_tokens": 454,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 22500,
+      "net_per_year": 277500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Electric stove heater. A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors. The Electric stove heater is assembled in China using components sourced from Thailand and China.\n\nThe heating element (calibrated resistance wire), printed circuit board (PCB) and wiring, switches and connectors are produced in Thailand. The electric motor, fan and metal housing are produced in China. \n\nIn Thailand, the wiring, switches and connectors will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: install the heating element and PCB with fasteners and electrical connections; wire the unit and mount the fan and motor; install the housing and pack the finished heater.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Combined core components (electric motor, fan, metal housing, heating element, PCB) integrated through final assembly"
+        ],
+        "decisive_step": "Final assembly in China combining Chinese-made electric motor, fan, and metal housing with Thai heating element and PCB",
+        "confidence": 0.85,
+        "reasoning": "Consistent with CBP precedent for electro-thermic appliances (e.g., N357771, N353023), when key functional components are split between countries, the country of final assembly confers origin if it also produces major structural and functional parts. Here, China produces the electric motor, fan, and metal housing, and performs the final assembly integrating the Thai heating element, PCB, and wiring into a finished electric stove heater, resulting in a substantial transformation in China.",
+        "cited_rulings": [
+          "N357771",
+          "N353023"
+        ],
+        "precedents": [
+          "N338945",
+          "N341204",
+          "N341251",
+          "N353023",
+          "N357771"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2640,
+          "output_tokens": 223,
+          "latency_ms": 8796
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 7500,
+      "net_per_year": -7500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N365344 (9 Oct 2026): CBP held Thailand. Final assembly also moved to Thailand, which the planner cannot move; the heating element came from Vietnam instead of Thailand.",
+    "plan": "Make Motor-fan assembly in Thailand",
+    "actual_moved": [
+      "electric motor",
+      "metal housing"
+    ],
+    "moved_by_plan": [
+      "electric motor"
+    ],
+    "in_actual_change_not_in_plan": [
+      "metal housing"
+    ]
+  },
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 6,
+    "verifier_cached": 0,
+    "verifier_model_calls": 24,
+    "verifier_tool_calls": 36,
+    "input_tokens": 104526,
+    "output_tokens": 4439,
+    "engine_input_tokens": 21045,
+    "engine_output_tokens": 1719,
+    "verifier_input_tokens": 83481,
+    "verifier_output_tokens": 2720,
+    "wall_seconds": 36.499502916
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.253442,
+  "cost_usd_list": 0.506884,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:08:48+08:00"
+}

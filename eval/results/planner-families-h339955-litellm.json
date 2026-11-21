@@ -1,0 +1,232 @@
+{
+  "case_id": "fam-h339955",
+  "target": "South Korea",
+  "family": "water_filters",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372). A non-electric residential drinking water filtration system designed to be installed underneath a household sink for contaminant removal. It contains a carbon block filter, a reverse osmosis membrane filter, O-rings, flow controllers/regulators, plastic filter bodies/cartridges, and caps. The A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372) is assembled in China using components sourced from United States, South Korea and China.\n\nThe Carbon block filter are produced in United States. The Permeate collection material, Membrane, Feed channel spacer, Outer wrap and Reverse osmosis (RO) membrane filter are sourced from South Korea. The O-rings, Flow controllers/regulators, Filter bodies/cartridges and Caps are produced in China. \n\nFinal assembly in China: Combine RO membrane filter and carbon block with O-rings, flow controllers/regulators, filter bodies/cartridges, and caps via screwing, gluing, and pressing/inserting; Test and pack finished water filters.\n",
+    "prediction": {
+      "origin_country": "South Korea",
+      "key_factors": [
+        "Reverse osmosis (RO) membrane filter"
+      ],
+      "decisive_step": "Manufacturing of the reverse osmosis membrane filter in South Korea",
+      "confidence": 0.78,
+      "reasoning": "The assembly in China—combining pre-made filter elements with plastic housings, caps, and O-rings via screwing, gluing, and pressing—is a simple assembly operation that does not constitute a substantial transformation. For a water filtration system, the filtering media impart the essential character. In a reverse osmosis system, the South Korean RO membrane filter provides the primary, advanced contaminant-removal functionality that defines the article's identity and use, taking precedence over the US carbon block pre-filter and Chinese housings.",
+      "cited_rulings": [],
+      "precedents": [
+        "H329195",
+        "H333407",
+        "N329847",
+        "N333853",
+        "N336445"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2701,
+        "output_tokens": 204,
+        "latency_ms": 7045
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "H339955"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372). A non-electric residential drinking water filtration system designed to be installed underneath a household sink for contaminant removal. It contains a carbon block filter, a reverse osmosis membrane filter, O-rings, flow controllers/regulators, plastic filter bodies/cartridges, and caps. The A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372) is assembled in China using components sourced from United States, South Korea and China.\n\nThe Carbon block filter are produced in United States. The Permeate collection material, Membrane, Feed channel spacer, Outer wrap and Reverse osmosis (RO) membrane filter are sourced from South Korea. The O-rings, Flow controllers/regulators, Filter bodies/cartridges and Caps are produced in China. \n\nFinal assembly in China: Combine RO membrane filter and carbon block with O-rings, flow controllers/regulators, filter bodies/cartridges, and caps via screwing, gluing, and pressing/inserting; Test and pack finished water filters.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Reverse osmosis (RO) membrane filter"
+        ],
+        "decisive_step": "Manufacturing of the reverse osmosis membrane filter in South Korea",
+        "confidence": 0.78,
+        "reasoning": "The assembly in China—combining pre-made filter elements with plastic housings, caps, and O-rings via screwing, gluing, and pressing—is a simple assembly operation that does not constitute a substantial transformation. For a water filtration system, the filtering media impart the essential character. In a reverse osmosis system, the South Korean RO membrane filter provides the primary, advanced contaminant-removal functionality that defines the article's identity and use, taking precedence over the US carbon block pre-filter and Chinese housings.",
+        "cited_rulings": [],
+        "precedents": [
+          "H329195",
+          "H333407",
+          "N329847",
+          "N333853",
+          "N336445"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2701,
+          "output_tokens": 204,
+          "latency_ms": 7045
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (H339955); engine predicts South Korea",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "carbon_block",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Make Carbon block filter media in South Korea",
+      "variant_facts": "The merchandise under consideration is a A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372). A non-electric residential drinking water filtration system designed to be installed underneath a household sink for contaminant removal. It contains a carbon block filter, a reverse osmosis membrane filter, O-rings, flow controllers/regulators, plastic filter bodies/cartridges, and caps. The A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372) is assembled in China using components sourced from South Korea and China.\n\nThe Carbon block filter, Permeate collection material, Membrane, Feed channel spacer, Outer wrap and Reverse osmosis (RO) membrane filter are produced in South Korea. The O-rings, Flow controllers/regulators, Filter bodies/cartridges and Caps are produced in China. \n\nIn South Korea, the Carbon block filter will be produced in-house: Manufacture carbon block filter.\n\nFinal assembly in China: Combine RO membrane filter and carbon block with O-rings, flow controllers/regulators, filter bodies/cartridges, and caps via screwing, gluing, and pressing/inserting; Test and pack finished water filters.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Carbon block filter and reverse osmosis (RO) membrane filter"
+        ],
+        "decisive_step": "Manufacture of the carbon block filter and RO membrane filter in South Korea",
+        "confidence": 0.92,
+        "reasoning": "The essential character of the residential water filtration system is imparted by the functional filtering elements—the carbon block filter and the reverse osmosis membrane filter—both of which are entirely manufactured in South Korea. The subsequent processing in China consists merely of combining these pre-made filtering cores with plastic housings, caps, O-rings, and flow regulators via simple screwing, gluing, and pressing. This simple assembly does not substantially transform the South Korean filtration media.",
+        "cited_rulings": [],
+        "precedents": [
+          "H329195",
+          "H333407",
+          "N329847",
+          "N336445",
+          "N337718"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2713,
+          "output_tokens": 182,
+          "latency_ms": 9509
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333554",
+        "confidence": 0.9,
+        "reasoning": "In N333554 (an A.O. Smith under-sink water filtration system assembled in China via screwing, gluing, and pressing) and N337204/N336927 (water filters assembled in China with South Korean carbon blocks), CBP held that simple assembly of housings, caps, and O-rings in China does not effect a substantial transformation, and origin is conferred by the filtration media (carbon block). In Variant A, the two filtration media were split between the U.S. (carbon block) and South Korea (RO membrane), resulting in China origin. Moving the carbon block production to South Korea consolidates all active filtration media in South Korea, shifting origin to South Korea.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"carbon block\" \"reverse osmosis\" filter origin China",
+            "rulings": [
+              "N333554",
+              "N339971",
+              "H336031",
+              "N340517",
+              "N333849",
+              "H329195",
+              "N333247",
+              "N333853"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"reverse osmosis\" membrane filter origin",
+            "rulings": [
+              "N339971",
+              "H336031",
+              "N340517",
+              "H329195",
+              "N333247",
+              "N333853",
+              "N331243",
+              "N333554"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"water filter\" \"carbon block\" origin assembly China",
+            "rulings": [
+              "N333554",
+              "N340517",
+              "H329195",
+              "N328973",
+              "H327732",
+              "N333849",
+              "N337204",
+              "N336927"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333554",
+            "rulings": [
+              "N333554"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N336927",
+            "rulings": [
+              "N336927"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N337204",
+            "rulings": [
+              "N337204"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15112,
+          "output_tokens": 481,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20526,
+    "output_tokens": 867,
+    "engine_input_tokens": 5414,
+    "engine_output_tokens": 386,
+    "verifier_input_tokens": 15112,
+    "verifier_output_tokens": 481,
+    "wall_seconds": 64.002058125
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "water_filters": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.049722,
+  "cost_usd_list": 0.099444,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:12:57+08:00"
+}

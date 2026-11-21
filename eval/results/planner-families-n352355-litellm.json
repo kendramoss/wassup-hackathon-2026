@@ -1,0 +1,236 @@
+{
+  "case_id": "fam-n352355",
+  "target": "Vietnam",
+  "family": "power_supplies_chargers",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Deal Worthy 4,000 mAh power bank, model number PB41. A portable battery for charging electronic devices with a nominal capacity of 4,000 mAh and a nominal energy of 14.8 Wh. It consists of two cylindrical lithium-ion battery cells and a printed circuit board assembly enclosed in an injection molded plastic case with a plastic button, light guide, light shield, USB-A output connector, and micro-USB input connector, packaged with a charging cable. The Deal Worthy 4,000 mAh power bank, model number PB41 is assembled in China using components sourced from Vietnam and China.\n\nThe Printed circuit board assembly (with a USB-A and a micro-USB connector), Light guide, Light shield, Plastic button and Injection molded case (bottom and top cases) are produced in Vietnam. The Two cylindrical lithium-ion battery cells and Charging cable are produced in China. \n\nFinal assembly in China: Inspect each component; Solder wires to the printed circuit board assembly; Weld a nickel strip to two battery cells; Weld the wires from the printed circuit board assembly to the battery cells; Place the PCBA and battery cell assembly inside the bottom case with a pre-installed button, light guide, and light shield; Install the top case; Test, inspect, and package the device with the charging cable.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Lithium-ion battery cells"
+      ],
+      "decisive_step": "Manufacturing of the lithium-ion battery cells and final assembly in China",
+      "confidence": 0.95,
+      "reasoning": "Consistent with CBP precedent on power banks (e.g., N346403, N346317, N352014), the lithium-ion battery cells impart the essential character to a portable power bank because their primary function is storing and providing electrical energy. Although the PCBA and plastic housing are produced in Vietnam, the battery cells are manufactured in China, and final assembly (welding cells, connecting the PCBA, and casing) also occurs in China. Therefore, the country of origin is China.",
+      "cited_rulings": [
+        "N346403",
+        "N346317",
+        "N352014"
+      ],
+      "precedents": [
+        "N346317",
+        "N346403",
+        "N350800",
+        "N351341",
+        "N352014"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2694,
+        "output_tokens": 229,
+        "latency_ms": 7389
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352355"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "power_charging_modules",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Power conversion or charging module in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Deal Worthy 4,000 mAh power bank, model number PB41. A portable battery for charging electronic devices with a nominal capacity of 4,000 mAh and a nominal energy of 14.8 Wh. It consists of two cylindrical lithium-ion battery cells and a printed circuit board assembly enclosed in an injection molded plastic case with a plastic button, light guide, light shield, USB-A output connector, and micro-USB input connector, packaged with a charging cable. The Deal Worthy 4,000 mAh power bank, model number PB41 is assembled in China using components sourced from Vietnam and China.\n\nThe Printed circuit board assembly (with a USB-A and a micro-USB connector), Light guide, Light shield, Plastic button, Injection molded case (bottom and top cases) and Two cylindrical lithium-ion battery cells are produced in Vietnam. The Charging cable are produced in China. \n\nIn Vietnam, the Two cylindrical lithium-ion battery cells will be produced in-house: manufacture the inductive or magnetic wireless charging module; assemble the IGBT module, switching mode power supply (SMPS) module, or inductor kit (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Inspect each component; Solder wires to the printed circuit board assembly; Weld a nickel strip to two battery cells; Weld the wires from the printed circuit board assembly to the battery cells; Place the PCBA and battery cell assembly inside the bottom case with a pre-installed button, light guide, and light shield; Install the top case; Test, inspect, and package the device with the charging cable.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Lithium-ion battery cells (and PCBA)"
+        ],
+        "decisive_step": "Manufacturing of the lithium-ion battery cells and PCBA in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent on power banks (e.g., N346403, N346317, N352014), the essential character of a portable lithium-ion power bank is imparted by its battery cells, which store and provide electrical power. Here, both the lithium-ion battery cells and the PCBA are manufactured in Vietnam. The final operations in China—soldering wires, welding nickel strips to the cells, and enclosing the components in the housing—constitute simple assembly that does not substantially transform the Vietnamese components.",
+        "cited_rulings": [
+          "N346403",
+          "N346317",
+          "N352014"
+        ],
+        "precedents": [
+          "N333268",
+          "N346317",
+          "N346403",
+          "N350800",
+          "N352014"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2706,
+          "output_tokens": 223,
+          "latency_ms": 6649
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N352014",
+        "confidence": 0.96,
+        "reasoning": "In N352014, N346403, and N346317, CBP held that assembling a power bank (welding battery cells to a PCBA and installing them in a plastic housing) does not substantially transform the battery cells, because the essential character and function of the cells—storing and providing power—remain unchanged. Specifically, in Scenario 5 of N352014, final assembly in China using foreign-sourced battery cells and PCBA resulted in the country of origin being the country where the battery cells were produced. Moving the production of the two cylindrical lithium-ion battery cells from China to Vietnam therefore shifts the power bank's origin from China to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "power bank lithium-ion battery cells PCBA origin",
+            "rulings": [
+              "N352014",
+              "N346403",
+              "N346317",
+              "N351893",
+              "N329847",
+              "N347193",
+              "N340825",
+              "N341307"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "battery pack lithium-ion battery cells assembled PCBA origin",
+            "rulings": [
+              "N329847",
+              "N347193",
+              "N346403",
+              "N352014",
+              "N340825",
+              "N341307",
+              "N346317",
+              "N342514"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346317",
+            "rulings": [
+              "N346317"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346403",
+            "rulings": [
+              "N346403"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N352014",
+            "rulings": [
+              "N352014"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351893",
+            "rulings": [
+              "N351893"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10464,
+          "output_tokens": 381,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Deal Worthy 4,000 mAh power bank, model number PB41. A portable battery for charging electronic devices with a nominal capacity of 4,000 mAh and a nominal energy of 14.8 Wh. It consists of two cylindrical lithium-ion battery cells and a printed circuit board assembly enclosed in an injection molded plastic case with a plastic button, light guide, light shield, USB-A output connector, and micro-USB input connector, packaged with a charging cable. The Deal Worthy 4,000 mAh power bank, model number PB41 is assembled in China using components sourced from Vietnam and China.\n\nThe Printed circuit board assembly (with a USB-A and a micro-USB connector), Light guide, Light shield, Plastic button and Injection molded case (bottom and top cases) are produced in Vietnam. The Two cylindrical lithium-ion battery cells and Charging cable are produced in China. \n\nFinal assembly in China: Inspect each component; Solder wires to the printed circuit board assembly; Weld a nickel strip to two battery cells; Weld the wires from the printed circuit board assembly to the battery cells; Place the PCBA and battery cell assembly inside the bottom case with a pre-installed button, light guide, and light shield; Install the top case; Test, inspect, and package the device with the charging cable.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Lithium-ion battery cells"
+        ],
+        "decisive_step": "Manufacturing of the lithium-ion battery cells and final assembly in China",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent on power banks (e.g., N346403, N346317, N352014), the lithium-ion battery cells impart the essential character to a portable power bank because their primary function is storing and providing electrical energy. Although the PCBA and plastic housing are produced in Vietnam, the battery cells are manufactured in China, and final assembly (welding cells, connecting the PCBA, and casing) also occurs in China. Therefore, the country of origin is China.",
+        "cited_rulings": [
+          "N346403",
+          "N346317",
+          "N352014"
+        ],
+        "precedents": [
+          "N346317",
+          "N346403",
+          "N350800",
+          "N351341",
+          "N352014"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2694,
+          "output_tokens": 229,
+          "latency_ms": 7389
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N352355); engine predicts China",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 15864,
+    "output_tokens": 833,
+    "engine_input_tokens": 5400,
+    "engine_output_tokens": 452,
+    "verifier_input_tokens": 10464,
+    "verifier_output_tokens": 381,
+    "wall_seconds": 22.434712
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "power_supplies_chargers": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.040057999999999996,
+  "cost_usd_list": 0.08011599999999999,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:17:17+08:00"
+}

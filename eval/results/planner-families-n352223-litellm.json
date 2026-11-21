@@ -1,0 +1,248 @@
+{
+  "case_id": "fam-n352223",
+  "target": "Japan",
+  "family": "display_camera_modules",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a LumiFree. A liquid crystal (LC) device installed within an LED light source to alter the shape and distribution of light when connected to a smart device via a control board. It consists of multiple layered liquid crystal panels on a glass substrate with attached flexible printed circuits (FPC) and a separate driving board. The LumiFree is assembled in Philippines using components sourced from Japan, Philippines and China.\n\nThe Liquid crystal panel on glass substrate are produced in Japan. The Flexible printed circuits (FPC) are produced in Philippines. The Driving board (control board) are sourced from China. \n\nFinal assembly in Philippines: Cut liquid crystal panel to the necessary size; Attach flexible printed circuits (FPC) to panels; Perform optical bonding process on modules; Tape modules together in the correct configuration; Package driving board and LumiFree module together for shipment.\n",
+    "prediction": {
+      "origin_country": "Japan",
+      "key_factors": [
+        "Liquid crystal panel on glass substrate"
+      ],
+      "decisive_step": "Production of the liquid crystal panel on glass substrate in Japan",
+      "confidence": 0.95,
+      "reasoning": "Consistent with CBP precedents (e.g., N343835, N345963), the essential character of a liquid crystal device is imparted by the liquid crystal panel on the glass substrate, which performs the core light-altering function. The panel is produced in Japan. The subsequent processing in the Philippines—cutting the panel to size, attaching FPCs, optical bonding, taping modules, and packaging with the Chinese driving board—constitutes mere assembly and finishing that does not substantially transform the Japanese LC panel.",
+      "cited_rulings": [
+        "N343835",
+        "N345963"
+      ],
+      "precedents": [
+        "N335871",
+        "N337202",
+        "N343835",
+        "N345963",
+        "N345991"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2686,
+        "output_tokens": 194,
+        "latency_ms": 5295
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Philippines",
+    "ruling": "N352223"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a LumiFree. A liquid crystal (LC) device installed within an LED light source to alter the shape and distribution of light when connected to a smart device via a control board. It consists of multiple layered liquid crystal panels on a glass substrate with attached flexible printed circuits (FPC) and a separate driving board. The LumiFree is assembled in Philippines using components sourced from Japan, Philippines and China.\n\nThe Liquid crystal panel on glass substrate are produced in Japan. The Flexible printed circuits (FPC) are produced in Philippines. The Driving board (control board) are sourced from China. \n\nFinal assembly in Philippines: Cut liquid crystal panel to the necessary size; Attach flexible printed circuits (FPC) to panels; Perform optical bonding process on modules; Tape modules together in the correct configuration; Package driving board and LumiFree module together for shipment.\n",
+      "prediction": {
+        "origin_country": "Japan",
+        "key_factors": [
+          "Liquid crystal panel on glass substrate"
+        ],
+        "decisive_step": "Production of the liquid crystal panel on glass substrate in Japan",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedents (e.g., N343835, N345963), the essential character of a liquid crystal device is imparted by the liquid crystal panel on the glass substrate, which performs the core light-altering function. The panel is produced in Japan. The subsequent processing in the Philippines—cutting the panel to size, attaching FPCs, optical bonding, taping modules, and packaging with the Chinese driving board—constitutes mere assembly and finishing that does not substantially transform the Japanese LC panel.",
+        "cited_rulings": [
+          "N343835",
+          "N345963"
+        ],
+        "precedents": [
+          "N335871",
+          "N337202",
+          "N343835",
+          "N345963",
+          "N345991"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2686,
+          "output_tokens": 194,
+          "latency_ms": 5295
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Philippines (N352223); engine predicts Japan",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "camera_pcba_smt",
+          "to_plant": "jp"
+        }
+      ],
+      "description": "Make Camera PCBA (SMT) in Japan",
+      "variant_facts": "The merchandise under consideration is a LumiFree. A liquid crystal (LC) device installed within an LED light source to alter the shape and distribution of light when connected to a smart device via a control board. It consists of multiple layered liquid crystal panels on a glass substrate with attached flexible printed circuits (FPC) and a separate driving board. The LumiFree is assembled in Philippines using components sourced from Japan and Philippines.\n\nThe Liquid crystal panel on glass substrate and Driving board (control board) are produced in Japan. The Flexible printed circuits (FPC) are produced in Philippines. \n\nIn Japan, the Driving board (control board) will be produced in-house: Create driving board via surface mount technology (SMT).\n\nFinal assembly in Philippines: Cut liquid crystal panel to the necessary size; Attach flexible printed circuits (FPC) to panels; Perform optical bonding process on modules; Tape modules together in the correct configuration; Package driving board and LumiFree module together for shipment.\n",
+      "prediction": {
+        "origin_country": "Japan",
+        "key_factors": [
+          "Liquid crystal panel on glass substrate and SMT-populated driving (control) board"
+        ],
+        "decisive_step": "Manufacturing of the liquid crystal panel on glass substrate and SMT production of the driving board in Japan",
+        "confidence": 0.96,
+        "reasoning": "Consistent with CBP precedents N343835 and N344252, the essential character of the LumiFree device is imparted by both the liquid crystal panel on glass substrate (which alters light distribution) and the SMT-populated driving board (which controls the device), both produced in Japan. The subsequent operations in the Philippines—cutting the panel to size, attaching FPCs, optical bonding, taping modules together, and packaging—constitute mere assembly and finishing that do not substantially transform the Japanese components.",
+        "cited_rulings": [
+          "N343835",
+          "N344252"
+        ],
+        "precedents": [
+          "N337202",
+          "N343835",
+          "N344252",
+          "N345963",
+          "N345991"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2671,
+          "output_tokens": 231,
+          "latency_ms": 6327
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N345991",
+        "confidence": 0.78,
+        "reasoning": "In Variant A, CBP held that cutting the Japanese liquid crystal panels, attaching Philippine-made FPCs, and performing optical bonding in the Philippines substantially transformed the components, conferring Philippine origin (even though the LC panels were from Japan and the separate driving board was from China). In Variant B, all Philippine manufacturing and optical bonding operations remain identical; the only change is that the separate driving board (which is merely packaged with the module) is produced via SMT in Japan instead of China. Shifting the origin of a separately packaged control board does not alter the substantial transformation in the Philippines.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LumiFree liquid crystal device LED light source driving board",
+            "rulings": [
+              "N344910",
+              "N345899",
+              "N342388",
+              "N335573",
+              "N338577",
+              "N344188",
+              "N350710",
+              "N350433"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "liquid crystal panel glass substrate flexible printed circuit optical bonding",
+            "rulings": [
+              "N343835",
+              "N345991",
+              "N335871",
+              "N335873",
+              "N345963",
+              "N343377",
+              "N337202",
+              "N345328"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LCD module optical bonding flexible printed circuit driving board origin",
+            "rulings": [
+              "N345963",
+              "N345991",
+              "N343835",
+              "N343377",
+              "N335871",
+              "N335873",
+              "N342247",
+              "N349107"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Philippines Japan liquid crystal",
+            "rulings": [
+              "N343835",
+              "N345991",
+              "N345963",
+              "N335871",
+              "N335873",
+              "N343377",
+              "N337202",
+              "N348702"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345991",
+            "rulings": [
+              "N345991"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343835",
+            "rulings": [
+              "N343835"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13501,
+          "output_tokens": 401,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 18858,
+    "output_tokens": 826,
+    "engine_input_tokens": 5357,
+    "engine_output_tokens": 425,
+    "verifier_input_tokens": 13501,
+    "verifier_output_tokens": 401,
+    "wall_seconds": 26.281255917
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "display_camera_modules": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.045976,
+  "cost_usd_list": 0.091952,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:16:54+08:00"
+}

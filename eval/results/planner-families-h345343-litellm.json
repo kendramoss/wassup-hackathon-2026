@@ -1,0 +1,232 @@
+{
+  "case_id": "fam-h345343",
+  "target": "China",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Item 10364-SF, Stack Chair 14. A single-person metal and plastic stacking seat without upholstery or armrests. It consists of stainless steel metal legs affixed to a unitary polyolefin plastic seat foundation and backrest shell, along with glides, washers, rivets, glue, labels, and packaging. The Item 10364-SF, Stack Chair 14 is assembled in Mexico using components sourced from China, United States, Portugal and Mexico.\n\nThe Stainless steel metal leg assembly, Leg post swivel glides, Washers and Rivets are produced in China. The Polyolefin plastic seat foundation and backrest shell, Corrugated fanfold and US labels are sourced from United States. The Glue are sourced from Portugal. The Local labels are produced in Mexico. \n\nFinal assembly in Mexico: Affix unitary plastic seat foundation and backrest shell to stainless steel metal legs; Assemble incomplete, unassembled, and unfinished seating components with glides, washers, rivets, and glue; Inspect and package finished stacking chair with labels and corrugated fanfold.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Stainless steel metal leg assembly"
+      ],
+      "decisive_step": "Manufacturing of the stainless steel metal leg assembly in China",
+      "confidence": 0.75,
+      "reasoning": "The assembly in Mexico—affixing a pre-formed US plastic shell to a pre-fabricated Chinese metal leg frame using rivets, washers, glides, and glue—is a simple assembly operation that does not result in a substantial transformation. Under CBP precedent for metal-framed seating, when simple assembly does not confer origin, the structural metal frame/leg assembly imparts the essential character and structural support to the chair, making China the country of origin.",
+      "cited_rulings": [],
+      "precedents": [
+        "N343545",
+        "N345935",
+        "N347182",
+        "N348265",
+        "N348726"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2460,
+        "output_tokens": 175,
+        "latency_ms": 7944
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "United States",
+    "ruling": "H345343"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Item 10364-SF, Stack Chair 14. A single-person metal and plastic stacking seat without upholstery or armrests. It consists of stainless steel metal legs affixed to a unitary polyolefin plastic seat foundation and backrest shell, along with glides, washers, rivets, glue, labels, and packaging. The Item 10364-SF, Stack Chair 14 is assembled in Mexico using components sourced from China, United States, Portugal and Mexico.\n\nThe Stainless steel metal leg assembly, Leg post swivel glides, Washers and Rivets are produced in China. The Polyolefin plastic seat foundation and backrest shell, Corrugated fanfold and US labels are sourced from United States. The Glue are sourced from Portugal. The Local labels are produced in Mexico. \n\nFinal assembly in Mexico: Affix unitary plastic seat foundation and backrest shell to stainless steel metal legs; Assemble incomplete, unassembled, and unfinished seating components with glides, washers, rivets, and glue; Inspect and package finished stacking chair with labels and corrugated fanfold.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Stainless steel metal leg assembly"
+        ],
+        "decisive_step": "Manufacturing of the stainless steel metal leg assembly in China",
+        "confidence": 0.75,
+        "reasoning": "The assembly in Mexico—affixing a pre-formed US plastic shell to a pre-fabricated Chinese metal leg frame using rivets, washers, glides, and glue—is a simple assembly operation that does not result in a substantial transformation. Under CBP precedent for metal-framed seating, when simple assembly does not confer origin, the structural metal frame/leg assembly imparts the essential character and structural support to the chair, making China the country of origin.",
+        "cited_rulings": [],
+        "precedents": [
+          "N343545",
+          "N345935",
+          "N347182",
+          "N348265",
+          "N348726"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2460,
+          "output_tokens": 175,
+          "latency_ms": 7944
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held United States (H345343); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "tabletop_fabrication",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Tabletop and panels in China",
+      "variant_facts": "The merchandise under consideration is a Item 10364-SF, Stack Chair 14. A single-person metal and plastic stacking seat without upholstery or armrests. It consists of stainless steel metal legs affixed to a unitary polyolefin plastic seat foundation and backrest shell, along with glides, washers, rivets, glue, labels, and packaging. The Item 10364-SF, Stack Chair 14 is assembled in Mexico using components sourced from China, United States, Portugal and Mexico.\n\nThe Stainless steel metal leg assembly, Leg post swivel glides, Washers, Rivets and Polyolefin plastic seat foundation and backrest shell are produced in China. The Corrugated fanfold and US labels are sourced from United States. The Glue are sourced from Portugal. The Local labels are produced in Mexico. \n\nIn China, the Polyolefin plastic seat foundation and backrest shell will be produced in-house: press laminate or wood veneer sheets onto particleboard or MDF substrate; precision cut panels to shape and apply hot melt glue edge banding; mold, cast, and finish engineered stone or quartz tabletops from stone powder and resin (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Mexico: Affix unitary plastic seat foundation and backrest shell to stainless steel metal legs; Assemble incomplete, unassembled, and unfinished seating components with glides, washers, rivets, and glue; Inspect and package finished stacking chair with labels and corrugated fanfold.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Unitary polyolefin plastic seat foundation/backrest shell and stainless steel leg assembly"
+        ],
+        "decisive_step": "Manufacturing of the plastic seat shell and metal leg assembly in China",
+        "confidence": 0.95,
+        "reasoning": "The essential character of the stacking chair is imparted by its primary structural components: the unitary plastic seat/backrest shell and the stainless steel leg assembly, both entirely produced in China. Under CBP precedent, simple assembly of pre-fabricated furniture components using rivets, washers, glides, and glue does not constitute a substantial transformation. Because the Mexican operations are mere simple assembly and packaging of components whose form and use are predetermined in China, the country of origin remains China.",
+        "cited_rulings": [],
+        "precedents": [
+          "H338728",
+          "N334531",
+          "N345935",
+          "N348265",
+          "N348726"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2565,
+          "output_tokens": 194,
+          "latency_ms": 6521
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N345246",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP determined the origin was the United States because the simple assembly in Mexico of affixing the unitary polyolefin plastic seat foundation and backrest shell (from the US) to the stainless steel legs (from China) did not result in a substantial transformation, and the US-origin seat and backrest shell imparted the essential character of the chair. In Variant B, production of the polyolefin plastic seat foundation and backrest shell moves to China. With both the seat/backrest shell and the metal leg assembly made in China, the country of origin shifts to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "stacking chair plastic seat shell steel legs origin",
+            "rulings": [
+              "H338482",
+              "N343545",
+              "N349666",
+              "N348265",
+              "N343992",
+              "N349047",
+              "N348726",
+              "N345935"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "chair seat shell metal legs assembly Mexico origin",
+            "rulings": [
+              "H338482",
+              "N343545",
+              "N335274",
+              "N345246",
+              "N332384",
+              "N349666",
+              "N343992",
+              "N349047"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "chair seat foundation backrest shell origin",
+            "rulings": [
+              "N345935",
+              "N343545",
+              "N348265",
+              "N348726",
+              "N343992",
+              "N349047",
+              "N345246",
+              "N347182"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345935",
+            "rulings": [
+              "N345935"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H338482",
+            "rulings": [
+              "H338482"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345246",
+            "rulings": [
+              "N345246"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15954,
+          "output_tokens": 829,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -425000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -450000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20979,
+    "output_tokens": 1198,
+    "engine_input_tokens": 5025,
+    "engine_output_tokens": 369,
+    "verifier_input_tokens": 15954,
+    "verifier_output_tokens": 829,
+    "wall_seconds": 33.130938416
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.053938,
+  "cost_usd_list": 0.107876,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:12:56+08:00"
+}

@@ -1,0 +1,120 @@
+{
+ "_what": "Hand spot checks (D170, D171): for each shown or supported verdict, whether the ruling the check cited supports the move, read from that ruling's facts and holding. 'supports' = the cited ruling held origin where the same kind of part or step was done; 'partial' = right direction but a different product or an extra difference; 'does not support' = the cited ruling does not show the move works. One reader (the agent that built the set), not a customs expert.",
+ "verifier": {
+  "known-a:BA-N366512-N366513": "supports: N353724 (same filter maker, 2025) held China 'where the filter media is manufactured'.",
+  "known-a:BA-N364414-N365093": "partial: N361370 held Vietnam for a windchime even with Chinese top pieces, so it backs the later origin but also contradicts CBP's holding on the starting setup.",
+  "known-a:BA-N364386-N365094": "partial: N345085 is a ceiling light whose canopy and lamp holder were made in Vietnam (held Vietnam); right principle, different product.",
+  "known-a:BA-N357855-N365344": "partial: N347421 is a three-scenario space-heater ruling; the scenario with a Vietnamese-made heating element held Vietnam. No single held origin.",
+  "known-a:BA-N356030-N364865": "supports: N339174 held Thailand for strut assemblies whose piston rod, reservoir tube and working cylinder were made in Thailand from Chinese steel.",
+  "known-a:SP-N341280-N366550": "supports: N339405 held the Philippines for a USB hub whose PCBA was made there.",
+  "known-a:SP-N365961-N366717": "supports: N347656 held China for plywood whose cores were pressed in China.",
+  "known-a:SP-N355546-N365797": "supports: N344105 held South Korea for transistors made front-end in Korea and packaged in China.",
+  "unknown-a:BA-N366512-N366513": "supports: N353725 (same maker) held Thailand 'where the filter media is manufactured'.",
+  "unknown-a:SP-N341280-N366550": "supports: N339405, as in known-a.",
+  "unknown-a:SP-N365961-N366717": "supports: N347656, as in known-a.",
+  "unknown-a:SP-N355546-N365797": "supports: N344105, as in known-a.",
+  "unknown-a:BA-N365280-N360430": "does not support: N357930 (same product, Chinese trailer, held China) was cited as both support and counter, and the check named the wrong later origin. Counted as wrong."
+ },
+ "post_plans": {
+  "BA-N357855-N365344": {
+   "file": "eval/results/planner-post-plan-stove-heater-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/stove_heater_2026.json",
+   "cbp_move": "motor (coil wound in Thailand), metal housing and final assembly to Thailand; the planner cannot move final assembly",
+   "outcome": "CBP's move shown (motor-fan + housing, check 0.92); best-ranked plan is a cheaper subset (motor-fan alone, 0.92) that CBP did not rule on",
+   "note": "Four plans shown. The motor-fan-alone plan cites N345859, which held China because the motor, fan and heating element were Chinese: the converse, so partial support at best."
+  },
+  "BA-N356030-N364865": {
+   "file": "eval/results/planner-post-plan-strut-assembly-2025-litellm.json",
+   "fixture": "backend/testdata/planner_post/strut_assembly_2025.json",
+   "cbp_move": "shock absorber tube and piston rod made in Thailand",
+   "outcome": "CBP's move is the best-ranked shown plan (check 0.96, N353886); backtest: plan moved exactly the parts CBP's ruling moved",
+   "note": "N353886 held Thailand for a strut whose shock was made in Thailand: supports."
+  },
+  "NEG-N366164-N366163": {
+   "file": "eval/results/planner-post-plan-purifier-champ-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_champ_2026.json",
+   "cbp_move": "motor from China instead of Vietnam: still Vietnam (N366164)",
+   "outcome": "no plan shown; the motor-fan move to China was predicted Vietnam by the engine (agrees with CBP)",
+   "note": "Two larger moves were supported below the bar (0.85, 0.75); none shown."
+  },
+  "NEG-N366166-N366165": {
+   "file": "eval/results/planner-post-plan-purifier-mighty-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_mighty_2026.json",
+   "cbp_move": "HEPA filter and motor from China instead of Vietnam: still Vietnam (N366166)",
+   "outcome": "no plan shown; the motor-fan move (motor and HEPA filter) was predicted Vietnam by the engine (agrees with CBP)",
+   "note": "One three-group move's precedent check failed (provider unavailable) and was not retried."
+  },
+  "NEG-N366168-N366167": {
+   "file": "eval/results/planner-post-plan-purifier-waffle-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_waffle_2026.json",
+   "cbp_move": "motor and filters from China instead of Indonesia: still Indonesia (N366168)",
+   "outcome": "no plan shown, but close: the engine predicted China for the motor-fan move (wrong per CBP) and the check supported it at 0.85, below the bar",
+   "note": "The fixture's motor-fan group also holds the Indonesian fan, which CBP's ruling kept Indonesian, so the move is slightly larger than CBP's. The 0.92 bar is what kept this off the screen."
+  }
+ },
+ "post_no_plan": {
+  "SP-N341280-N366550": "no plan search: the target country (Philippines) has no plant in the starting setup"
+ },
+ "families": {
+  "H304679": {
+   "verdict": "supports",
+   "note": "N338577 held Vietnam for an LED light whose LED PCBA was made in Vietnam and the rest came from China."
+  },
+  "N333453": {
+   "verdict": "partial",
+   "note": "N330296 held Vietnam for a camera whose PCBAs were made in the assembling country; right principle, different product."
+  },
+  "N349871": {
+   "verdict": "partial",
+   "note": "N346803 held Italy for a copper shield finished from an Italian forged blank (a single-country ruling): forging location decides, different product."
+  },
+  "N350058": {
+   "verdict": "does not support",
+   "note": "N350050 held China for oven lamps made of Chinese parts; it shows the starting origin, not that the move works. The plan makes every part in Thailand, so it is likely right on its face."
+  },
+  "N350152": {
+   "verdict": "supports",
+   "note": "N343712 held South Korea for needles whose cannula was made in Korea and hubbed in China."
+  },
+  "N350383": {
+   "verdict": "supports",
+   "note": "N340825 held Malaysia for battery chargers whose PCBA was made in Malaysia and assembled in China."
+  },
+  "N350727": {
+   "verdict": "supports",
+   "note": "N344809 held Thailand for speed sensors once the sensing IC was made in Thailand."
+  },
+  "N350769": {
+   "verdict": "supports",
+   "note": "N335078 held Japan for harnesses built in China from Japanese insulated wire assemblies: the wire decides."
+  },
+  "N350826": {
+   "verdict": "supports",
+   "note": "N350082 held the United States for a filter whose carbon block was made there."
+  },
+  "N351922": {
+   "verdict": "partial",
+   "note": "N348913 holds heat pumps by where the cooling components (compressor, condenser) are made; the plan moves those in the minor-parts group with the housing. Different product."
+  },
+  "N352073": {
+   "verdict": "does not support",
+   "note": "N343372 held China for a brake assembly of Chinese parts; it shows the starting origin, not the move. The plan leaves no Chinese part, so it is likely right on its face."
+  },
+  "N352355": {
+   "verdict": "supports",
+   "note": "N352014 (power bank) holds origin by where the battery cells are made."
+  },
+  "N352429": {
+   "verdict": "partial",
+   "note": "N350719 held Vietnam for a utility knife whose blades and handle were made in Vietnam, but it was also assembled there; here assembly stays in China."
+  },
+  "N354175": {
+   "verdict": "supports",
+   "note": "N345991 held Japan for a TFT-LCD module whose cell was made in Japan."
+  },
+  "N354448": {
+   "verdict": "supports",
+   "note": "N335086 held Indonesia for gas grills whose lids and fireboxes were formed in Indonesia."
+  }
+ }
+}

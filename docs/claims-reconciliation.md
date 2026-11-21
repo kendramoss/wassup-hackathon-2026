@@ -110,6 +110,15 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `slice.baseline.correct` | 27 | slice baseline correct |
 | `slice.baseline.band95_n` | 22 | slice baseline cases at confidence >= 0.95 |
 | `slice.baseline.band95_correct` | 21 | of those, correct |
+| `planner_post.pairs` | 15 | frozen post-cutoff flip pairs (D170) |
+| `planner_post.real_changes` | 11 | pairs where CBP's two holdings differ |
+| `planner_post.controls` | 4 | pairs where work moved and the origin did not |
+| `planner_post.core_pairs` | 10 | pairs tiered core |
+| `planner_post.known_a.error_rows` | 0 | precedent-check rows with an error |
+| `planner_post.known_a.shown` | 8 | moves the check supported at the 0.92 plan bar |
+| `planner_post.known_a.shown_right` | 8 | of those, real changes with CBP's later origin named |
+| `planner_post.known_a.controls_shown` | 0 | no-change pairs supported at the bar |
+| `planner_post.known_a.recall_pct` | 72.7 | real changes shown and right, percent |
 
 Two further consistency checks run on every invocation: the held-out and development result ids must equal the ids in the split file, and the `global` policy counts in `eval/results/calibration-by-family.json` must equal the fast-path counts recomputed from the rows (a separate program produced that file). The baseline and lift figures discussed in 3.3 are deliberately not in this table: they cannot be recomputed from the repository.
 
@@ -174,7 +183,7 @@ Two further consistency checks run on every invocation: the held-out and develop
 
 ### 4.3 Planner evidence is not origin-prediction accuracy
 
-- Latest evaluation AVAILABILITY: the latest official origin-engine run is the held-out run at the timestamp in `runlog.final.time`; the latest ruling in any committed evaluation artifact is dated 2026-09-25. No committed artifact evaluates the planner on rulings published after 2026-09-25, and the follow-up evaluation tracked in #275 has not produced one. The README already states that the planner is the least tested part.
+- Latest evaluation AVAILABILITY: the latest official origin-engine run is the held-out run at the timestamp in `runlog.final.time`; the latest ruling in any committed evaluation artifact is dated 2026-09-25. Since D170 one committed artifact does: the production precedent check, scored once on 15 frozen flip pairs with at least one ruling published after 2026-09-25 (`eval/data/flips_post.jsonl`, rows `eval/results/flips-post-verifier-v2-known-a-litellm.jsonl`, figures `planner_post.*`). It is a small set (11 real changes, 4 controls), so it is evidence about the check, not a planner accuracy figure. The README still says the planner is the least tested part.
 - ACCURACY: no planner accuracy figure exists in the repository and none is claimed here. The heat-gun and LED tub-light plans in `docs/NUMBERS.md` and `docs/DETAILS.md` are single demonstration runs; the verifier has development-set pair evidence reported in `docs/NUMBERS.md` (development set, proxy runs, not recomputed here). Neither is origin-prediction accuracy, and neither is a held-out planner result.
 - A pull-request eval slice (`.github/workflows/eval-slice.yml`, baseline `eval/results/slice30-baseline.json`: 27 of 30 correct, 21 of 22 at confidence 0.95 or higher, cut from the development run, `slice.baseline.*`) is a regression smoke test. Its latest observed run (Actions run 44677154743, reported from the run logs, not reproducible from the repository) was incomplete: 9 of 30 rows were Vertex HTTP 504 errors, 21 were answered and 17 of those correct. Three of the four wrong answers were already wrong in the committed baseline. An incomplete run on a provider outage supports no overall accuracy claim and no new-regression claim, and its 0.95-band check ran on a truncated sample.
 
@@ -239,15 +248,16 @@ The same proposed replacements, as exact strings for the integrator, are in the 
 `eval/SHA256SUMS` already pins the labelled corpora and the splits, and `claimscheck` verifies it. The block below pins the other files the check reads (the facts directory is pinned by the digest of its sorted file-name list instead of repeating 3,081 hashes). A changed file fails the check until a person reviews it and refreshes the line. Regenerate with `cd backend && go run ./cmd/claimscheck -print-manifest`.
 
 ```
-b17ddf2168e66c507600ab7a36edef3fcadb6c558abb6a364a9b8c1ec7461009  eval/SHA256SUMS
+96c74a7c92bca202775ed7486519b29e20a56789f304db9d760a73effe1f785d  eval/SHA256SUMS
 727918a055ad3bb10d13392c7859da004f2d8cea2b90fd4a564e71a326d326ad  eval/data/scoring_adjustments.json
 2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81  eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
 c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl
 48e86727d5bbc59c415c8b7ae84325a86ce008492f8c7a8711077718d9948f9d  eval/results/scope-dev-router-v2-vertex.jsonl
-27e86a1f5fba0bad69a797e1c80108ece7d24cdbc57ceb168325256093dee6fe  eval/results/RUNLOG.jsonl
+9bda94aebe1834ff978c74017088a946ee0d82bd594219b96031ae9a52425b70  eval/results/RUNLOG.jsonl
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
+777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl
 6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d  backend/data/labels_usmca.jsonl
 ad7227af446b0412395673de95749d0da1ab2ab54de3bd99c63e49084e4d7d08  names:backend/data/facts

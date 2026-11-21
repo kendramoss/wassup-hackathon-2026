@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T06:04:32Z",
+  "generated_at": "2026-11-21T07:20:58Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -228,6 +228,37 @@
       "split": "final2",
       "development_only": false,
       "source": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "planner_post_known-a_precision_at_bar",
+      "label": "Precedent check on post-cutoff flip pairs (15 pairs from rulings after 25 Sep 2026, gateway): moves shown at the 0.92 bar that were real changes",
+      "value": 1,
+      "ci_low": 0.6756,
+      "ci_high": 1,
+      "n": 8,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+    },
+    {
+      "key": "planner_post_known-a_recall_at_bar",
+      "label": "Precedent check on post-cutoff flip pairs (15 pairs from rulings after 25 Sep 2026, gateway): real changes shown at the 0.92 bar",
+      "value": 0.7273,
+      "ci_low": 0.4344,
+      "ci_high": 0.9025,
+      "n": 11,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+    },
+    {
+      "key": "planner_post_known-a_controls_shown",
+      "label": "Precedent check on post-cutoff flip pairs (15 pairs from rulings after 25 Sep 2026, gateway): no-change pairs shown as plans",
+      "value": 0,
+      "n": 4,
+      "split": "post",
+      "development_only": false,
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
     },
     {
       "key": "research_final_accuracy",

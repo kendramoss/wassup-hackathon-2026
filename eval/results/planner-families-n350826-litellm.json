@@ -1,0 +1,418 @@
+{
+  "case_id": "fam-n350826",
+  "target": "China",
+  "family": "water_filters",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems. Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings. The Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems is assembled in China using components sourced from United States and China.\n\nThe Non-woven electro-adsorptive filter media, Alumina/glass continuous fibers, Cellulose pulp and Activated carbon fibers are produced in United States. The Polypropylene plastic end caps and Silicone O-rings are produced in China. \n\nFinal assembly in China: Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs; Insert pleat packs into polypropylene plastic end caps, glue, and cure; Affix two silicone O-rings to complete the cartridge.\n",
+    "prediction": {
+      "origin_country": "United States",
+      "key_factors": [
+        "Non-woven electro-adsorptive filter media"
+      ],
+      "decisive_step": "Manufacturing of the electro-adsorptive filter media in the United States",
+      "confidence": 0.98,
+      "reasoning": "Consistent with CBP precedents N350082, N350079, N348710, and N348297, the essential character of a replacement water filter cartridge is imparted by its active filtration media. Here, the non-woven electro-adsorptive filter media and its constituent fibers are produced in the United States and perform the primary purifying function. The processing in China—pleating, hot-sealing, gluing into plastic end caps, and adding O-rings—constitutes simple assembly and finishing that does not substantially transform the U.S.-origin filter media.",
+      "cited_rulings": [
+        "N350082",
+        "N350079",
+        "N348710",
+        "N348297"
+      ],
+      "precedents": [
+        "N348297",
+        "N348298",
+        "N348710",
+        "N350079",
+        "N350082"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2777,
+        "output_tokens": 245,
+        "latency_ms": 7466
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "United States",
+    "ruling": "N350826"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "carbon_block",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Carbon block filter media in China",
+      "variant_facts": "The merchandise under consideration is a Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems. Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings. The Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems is assembled in China using components sourced from China and United States.\n\nThe Non-woven electro-adsorptive filter media, Activated carbon fibers, Polypropylene plastic end caps and Silicone O-rings are produced in China. The Alumina/glass continuous fibers and Cellulose pulp are sourced from United States. \n\nIn China, the Non-woven electro-adsorptive filter media and Activated carbon fibers will be produced in-house: Blend slurry with cellulose pulp and activated carbon fibers in a precise weight ratio; Treat surface with proprietary compounds to increase electropositive charge density; Cut filter media and perform quality control testing and bio-testing.\n\nFinal assembly in China: Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs; Insert pleat packs into polypropylene plastic end caps, glue, and cure; Affix two silicone O-rings to complete the cartridge.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Non-woven electro-adsorptive filter media"
+        ],
+        "decisive_step": "Manufacturing the electro-adsorptive filter media (blending slurry, surface treating, pleating) and final assembly in China",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedents N350082, N350079, and N348297, the country of origin of a replacement water filter cartridge is imparted by the primary filtration media. Here, raw U.S.-origin alumina/glass fibers and cellulose pulp undergo a substantial transformation in China when blended with Chinese activated carbon fibers and chemically surface-treated to create the proprietary non-woven electro-adsorptive filter media. Because both the essential filtration media manufacture and final cartridge assembly occur in China, the country of origin is China.",
+        "cited_rulings": [
+          "N350082",
+          "N350079",
+          "N348297"
+        ],
+        "precedents": [
+          "N348297",
+          "N348298",
+          "N348710",
+          "N350079",
+          "N350082"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2843,
+          "output_tokens": 251,
+          "latency_ms": 9055
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350082",
+        "confidence": 0.92,
+        "reasoning": "In water filter cartridge rulings (N350082, N348297, H339955), CBP consistently holds that final cartridge assembly (pleating, gluing, inserting into end caps, and attaching O-rings) is a simple assembly that does not substantially transform the components, so origin is imparted by the filtration media performing the essential contaminant-removal function. In Variant A, the non-woven electro-adsorptive filter media is produced in the United States, making the origin United States. In Variant B, the activated carbon fibers and non-woven electro-adsorptive filter media are manufactured in China from raw U.S. pulp/fibers via slurry blending and chemical surface treatment, shifting origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "filter media cellulose pulp activated carbon origin substantial transformation",
+            "rulings": [
+              "H329195",
+              "N348297",
+              "N348086",
+              "N348711",
+              "N347698",
+              "N348710",
+              "N347101",
+              "N350079"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter cartridge filter media origin pleat end caps",
+            "rulings": [
+              "N350082",
+              "N333554",
+              "H339955",
+              "N350079",
+              "N350920",
+              "H333407",
+              "N348298",
+              "N347698"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water purification filtration cartridge filter media China United States",
+            "rulings": [
+              "N333554",
+              "N350082",
+              "N348710",
+              "N348298",
+              "N350079",
+              "H333407",
+              "N348711",
+              "H339955"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350082",
+            "rulings": [
+              "N350082"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348297",
+            "rulings": [
+              "N348297"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H339955",
+            "rulings": [
+              "H339955"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16085,
+          "output_tokens": 470,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -425000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -450000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "carbon_block",
+          "to_plant": "cn"
+        },
+        {
+          "group": "cartridge_housings",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Carbon block filter media and Cartridge housings and seals in China",
+      "variant_facts": "The merchandise under consideration is a Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems. Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings. The Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems is assembled in China using components sourced from China.\n\nThe Non-woven electro-adsorptive filter media, Alumina/glass continuous fibers, Cellulose pulp, Activated carbon fibers, Polypropylene plastic end caps and Silicone O-rings are produced in China. \n\nIn China, the Non-woven electro-adsorptive filter media and Activated carbon fibers will be produced in-house: Blend slurry with cellulose pulp and activated carbon fibers in a precise weight ratio; Treat surface with proprietary compounds to increase electropositive charge density; Cut filter media and perform quality control testing and bio-testing.\n\nIn China, the Alumina/glass continuous fibers, Cellulose pulp, Polypropylene plastic end caps and Silicone O-rings will be produced in-house: Perform melt-blown fiber extrusion to create high-aspect-ratio alumina/glass continuous fibers; Form web on a flat wire fourdrinier paper machine to produce a uniform composite; Laminate multiple fiber layers under heat, tension, and time controls; Produce polypropylene plastic end caps and silicone O-rings.\n\nFinal assembly in China: Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs; Insert pleat packs into polypropylene plastic end caps, glue, and cure; Affix two silicone O-rings to complete the cartridge.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Non-woven electro-adsorptive filter media"
+        ],
+        "decisive_step": "Manufacturing of the electro-adsorptive filter media and final cartridge assembly in China",
+        "confidence": 0.95,
+        "reasoning": "Under CBP precedents N350082 and N348710, the country of origin of a replacement water filter cartridge is imparted by the filtration media that performs the primary purifying function. Here, the non-woven electro-adsorptive filter media, activated carbon fibers, alumina/glass fibers, plastic end caps, and O-rings are all produced in China, where final assembly also occurs. Because both the essential filtration media and the finished cartridge are wholly manufactured and assembled in China, the country of origin is China.",
+        "cited_rulings": [
+          "N350082",
+          "N348710"
+        ],
+        "precedents": [
+          "H329195",
+          "N348298",
+          "N348710",
+          "N350082",
+          "N350920"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2913,
+          "output_tokens": 242,
+          "latency_ms": 7281
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350082",
+        "confidence": 0.96,
+        "reasoning": "In water filter cartridge rulings such as N350082 and N348711, CBP holds that assembling filter media with plastic end caps and O-rings by gluing and pressing in China is a simple assembly that does not substantially transform the components. Instead, origin is determined by the country where the active filtration media (e.g., carbon block or electro-adsorptive media) is manufactured, as it imparts the essential filtering function. In Variant A, the filter media and fibers are made in the United States (origin US). In Variant B, all components—including the filter media and fibers—and final assembly are in China (origin China).",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "filtration cartridge filter media assembly China United States",
+            "rulings": [
+              "N333554",
+              "H333407",
+              "N350082",
+              "N350920",
+              "N350079",
+              "H339955",
+              "N348086",
+              "N348710"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter media essential character origin",
+            "rulings": [
+              "H327732",
+              "N350079",
+              "N350082",
+              "N348298",
+              "N347698",
+              "N333554",
+              "N348711",
+              "N348086"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water filter cartridge filter media pleated end caps origin",
+            "rulings": [
+              "N350082",
+              "N333554",
+              "H339955",
+              "N350079",
+              "N350920",
+              "H333407",
+              "N348298",
+              "N347698"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350082",
+            "rulings": [
+              "N350082"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348711",
+            "rulings": [
+              "N348711"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H339955",
+            "rulings": [
+              "H339955"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16503,
+          "output_tokens": 421,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -425000,
+      "added_cost_per_year": 50000,
+      "net_per_year": -475000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems. Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings. The Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems is assembled in China using components sourced from United States and China.\n\nThe Non-woven electro-adsorptive filter media, Alumina/glass continuous fibers, Cellulose pulp and Activated carbon fibers are produced in United States. The Polypropylene plastic end caps and Silicone O-rings are produced in China. \n\nFinal assembly in China: Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs; Insert pleat packs into polypropylene plastic end caps, glue, and cure; Affix two silicone O-rings to complete the cartridge.\n",
+      "prediction": {
+        "origin_country": "United States",
+        "key_factors": [
+          "Non-woven electro-adsorptive filter media"
+        ],
+        "decisive_step": "Manufacturing of the electro-adsorptive filter media in the United States",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedents N350082, N350079, N348710, and N348297, the essential character of a replacement water filter cartridge is imparted by its active filtration media. Here, the non-woven electro-adsorptive filter media and its constituent fibers are produced in the United States and perform the primary purifying function. The processing in China—pleating, hot-sealing, gluing into plastic end caps, and adding O-rings—constitutes simple assembly and finishing that does not substantially transform the U.S.-origin filter media.",
+        "cited_rulings": [
+          "N350082",
+          "N350079",
+          "N348710",
+          "N348297"
+        ],
+        "precedents": [
+          "N348297",
+          "N348298",
+          "N348710",
+          "N350079",
+          "N350082"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2777,
+          "output_tokens": 245,
+          "latency_ms": 7466
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held United States (N350826); engine predicts United States",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "cartridge_housings",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Cartridge housings and seals in China",
+      "variant_facts": "The merchandise under consideration is a Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems. Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings. The Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems is assembled in China using components sourced from United States and China.\n\nThe Non-woven electro-adsorptive filter media and Activated carbon fibers are produced in United States. The Alumina/glass continuous fibers, Cellulose pulp, Polypropylene plastic end caps and Silicone O-rings are produced in China. \n\nIn China, the Alumina/glass continuous fibers, Cellulose pulp, Polypropylene plastic end caps and Silicone O-rings will be produced in-house: Perform melt-blown fiber extrusion to create high-aspect-ratio alumina/glass continuous fibers; Form web on a flat wire fourdrinier paper machine to produce a uniform composite; Laminate multiple fiber layers under heat, tension, and time controls; Produce polypropylene plastic end caps and silicone O-rings.\n\nFinal assembly in China: Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs; Insert pleat packs into polypropylene plastic end caps, glue, and cure; Affix two silicone O-rings to complete the cartridge.\n",
+      "prediction": {
+        "origin_country": "United States",
+        "key_factors": [
+          "Non-woven electro-adsorptive filter media"
+        ],
+        "decisive_step": "Manufacture of the non-woven electro-adsorptive filter media and activated carbon fibers in the United States",
+        "confidence": 0.85,
+        "reasoning": "Following N350082 and N348710, the country of origin of a replacement water filter cartridge is imparted by the filtration media that performs the primary contaminant-removal function. Here, the U.S.-origin non-woven electro-adsorptive filter media and activated carbon fibers impart the essential character of the cartridge. The subsequent operations in China—pleating the U.S. filter media, sealing it into packs, and assembling it with plastic end caps and O-rings—constitute minor finishing and assembly that do not substantially transform the U.S. media.",
+        "cited_rulings": [
+          "N350082",
+          "N348710"
+        ],
+        "precedents": [
+          "H339955",
+          "N348298",
+          "N348710",
+          "N350082",
+          "N350920"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2895,
+          "output_tokens": 247,
+          "latency_ms": 6376
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin United States, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 8,
+    "verifier_tool_calls": 12,
+    "input_tokens": 44016,
+    "output_tokens": 1876,
+    "engine_input_tokens": 11428,
+    "engine_output_tokens": 985,
+    "verifier_input_tokens": 32588,
+    "verifier_output_tokens": 891,
+    "wall_seconds": 35.377407708
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "water_filters": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.106792,
+  "cost_usd_list": 0.213584,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:16:04+08:00"
+}

@@ -1,0 +1,247 @@
+{
+  "case_id": "fam-h304679",
+  "target": "Cambodia",
+  "family": "led_lights",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a LED Light Sets (WICs 150119, 150554, and 155564). Miniature LED string lights connected to a battery box used for Christmas decorations. They consist of LED light bulbs, shrink sleeves, copper clips, switches, integrated circuits, battery/control boxes, electric wires, lamp bases/sleeves, and lamp covers. The LED Light Sets (WICs 150119, 150554, and 155564) is assembled in Cambodia using components sourced from China and Cambodia.\n\nThe LED light bulbs, Shrink sleeves, Copper clips, Color boxes, Switches and Integrated circuits are produced in China. The Battery/control boxes, Electric wires, Lamp covers, Label and Instruction manual are produced in Cambodia. \n\nFinal assembly in Cambodia: Connect the light bulbs to lamp bases/sleeves to make the lamps; Manually assemble the lighting string with the lamp covers from Cambodia; Connect the incomplete light string to the battery/control box; Test and re-lamp the light sets; Perform the final inspection.\n",
+    "prediction": {
+      "origin_country": "Cambodia",
+      "key_factors": [
+        "Assembly of the wiring harness, lamps, and battery/control box into a functional lighting string"
+      ],
+      "decisive_step": "Manufacturing the electric wires and battery/control boxes and assembling the complete light string in Cambodia",
+      "confidence": 0.78,
+      "reasoning": "Unlike single-fixture LED rulings (e.g., N338577, N335263) where a complex SMT-populated LED PCBA imparts origin, decorative string lights derive their character from the wired harness assembly. Although the LED bulbs and ICs come from China, the electric wires, battery/control boxes, and lamp covers are produced in Cambodia. In Cambodia, individual bulbs are connected to bases, wired into a string, and integrated with the control box, substantially transforming the loose components into a new article of commerce.",
+      "cited_rulings": [
+        "N338577",
+        "N335263"
+      ],
+      "precedents": [
+        "H332752",
+        "N332358",
+        "N334072",
+        "N335263",
+        "N338577"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2793,
+        "output_tokens": 246,
+        "latency_ms": 7773
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "H304679"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "led_pcba",
+          "to_plant": "kh"
+        }
+      ],
+      "description": "Make LED PCBA (SMT) in Cambodia",
+      "variant_facts": "The merchandise under consideration is a LED Light Sets (WICs 150119, 150554, and 155564). Miniature LED string lights connected to a battery box used for Christmas decorations. They consist of LED light bulbs, shrink sleeves, copper clips, switches, integrated circuits, battery/control boxes, electric wires, lamp bases/sleeves, and lamp covers. The LED Light Sets (WICs 150119, 150554, and 155564) is assembled in Cambodia using components sourced from Cambodia and China.\n\nThe LED light bulbs, Switches, Integrated circuits, Battery/control boxes, Electric wires, Lamp covers, Label and Instruction manual are produced in Cambodia. The Shrink sleeves, Copper clips and Color boxes are sourced from China. \n\nIn Cambodia, the LED light bulbs, Switches and Integrated circuits will be produced in-house: SMT placement of the LED chip and other electronic components on the printed circuit board; reflow and test the LED PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Cambodia: Connect the light bulbs to lamp bases/sleeves to make the lamps; Manually assemble the lighting string with the lamp covers from Cambodia; Connect the incomplete light string to the battery/control box; Test and re-lamp the light sets; Perform the final inspection.\n",
+      "prediction": {
+        "origin_country": "Cambodia",
+        "key_factors": [
+          "LED light bulbs, integrated circuit PCBA, and electric wires"
+        ],
+        "decisive_step": "Manufacturing the LED light bulbs, PCBAs via SMT, and assembling the complete string light sets in Cambodia",
+        "confidence": 0.99,
+        "reasoning": "Consistent with CBP precedent for lighting products (e.g., N338577, N335573), the country of origin is determined by where the essential light-producing and electronic components are manufactured and substantially transformed. Here, the critical components—LED light bulbs, switches, integrated circuits/PCBAs (produced via SMT), battery/control boxes, and electric wires—are all manufactured in Cambodia, where final assembly also occurs. The minor Chinese components (shrink sleeves, copper clips) undergo a substantial transformation when integrated into the finished light sets in Cambodia.",
+        "cited_rulings": [
+          "N338577",
+          "N335573"
+        ],
+        "precedents": [
+          "H332752",
+          "N334072",
+          "N334327",
+          "N335573",
+          "N338577"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2762,
+          "output_tokens": 233,
+          "latency_ms": 7699
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N338577",
+        "confidence": 0.92,
+        "reasoning": "In Variant A, CBP held origin was China because the critical electronic and light-emitting components (LED light bulbs, integrated circuits, switches) were produced in China, and final assembly in Cambodia was not a substantial transformation. In N338577 and N335573, CBP held that the country of origin of an LED light is where the LED light source and PCBA are manufactured via SMT (mounting LEDs and integrated circuits). In Variant B, the LED light bulbs, switches, and integrated circuits are produced via SMT in Cambodia alongside the wires, battery box, and final assembly, leaving only minor parts from China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED string light sets Cambodia China bulbs wire",
+            "rulings": [
+              "H331515",
+              "N336168",
+              "N339699",
+              "N338577",
+              "N335573",
+              "H332752",
+              "N335263",
+              "N335974"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "string lights Christmas light sets origin LED bulbs",
+            "rulings": [
+              "N338577",
+              "N335263",
+              "N335573",
+              "H332752",
+              "N335974",
+              "N336168",
+              "H331515",
+              "N339699"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "string lights Christmas tree lighting sets Cambodia",
+            "rulings": [
+              "N332062",
+              "N332358",
+              "N335263",
+              "N334327",
+              "N334072",
+              "N335829",
+              "N331459",
+              "N339971"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338577",
+            "rulings": [
+              "N338577"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335573",
+            "rulings": [
+              "N335573"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Christmas light sets string lights Cambodia China",
+            "rulings": [
+              "N338577",
+              "N335263",
+              "N335573",
+              "N335974",
+              "N333392",
+              "H332752",
+              "N335829",
+              "N336527"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13126,
+          "output_tokens": 413,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a LED Light Sets (WICs 150119, 150554, and 155564). Miniature LED string lights connected to a battery box used for Christmas decorations. They consist of LED light bulbs, shrink sleeves, copper clips, switches, integrated circuits, battery/control boxes, electric wires, lamp bases/sleeves, and lamp covers. The LED Light Sets (WICs 150119, 150554, and 155564) is assembled in Cambodia using components sourced from China and Cambodia.\n\nThe LED light bulbs, Shrink sleeves, Copper clips, Color boxes, Switches and Integrated circuits are produced in China. The Battery/control boxes, Electric wires, Lamp covers, Label and Instruction manual are produced in Cambodia. \n\nFinal assembly in Cambodia: Connect the light bulbs to lamp bases/sleeves to make the lamps; Manually assemble the lighting string with the lamp covers from Cambodia; Connect the incomplete light string to the battery/control box; Test and re-lamp the light sets; Perform the final inspection.\n",
+      "prediction": {
+        "origin_country": "Cambodia",
+        "key_factors": [
+          "Assembly of the wiring harness, lamps, and battery/control box into a functional lighting string"
+        ],
+        "decisive_step": "Manufacturing the electric wires and battery/control boxes and assembling the complete light string in Cambodia",
+        "confidence": 0.78,
+        "reasoning": "Unlike single-fixture LED rulings (e.g., N338577, N335263) where a complex SMT-populated LED PCBA imparts origin, decorative string lights derive their character from the wired harness assembly. Although the LED bulbs and ICs come from China, the electric wires, battery/control boxes, and lamp covers are produced in Cambodia. In Cambodia, individual bulbs are connected to bases, wired into a string, and integrated with the control box, substantially transforming the loose components into a new article of commerce.",
+        "cited_rulings": [
+          "N338577",
+          "N335263"
+        ],
+        "precedents": [
+          "H332752",
+          "N332358",
+          "N334072",
+          "N335263",
+          "N338577"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2793,
+          "output_tokens": 246,
+          "latency_ms": 7773
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (H304679); engine predicts Cambodia",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 18681,
+    "output_tokens": 892,
+    "engine_input_tokens": 5555,
+    "engine_output_tokens": 479,
+    "verifier_input_tokens": 13126,
+    "verifier_output_tokens": 413,
+    "wall_seconds": 29.643342584
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "led_lights": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.046282000000000004,
+  "cost_usd_list": 0.09256400000000001,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:12:23+08:00"
+}

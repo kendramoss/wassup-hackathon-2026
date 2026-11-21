@@ -15,6 +15,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalsummary"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/familycheck"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
@@ -102,4 +103,46 @@ func readFlipItems(path string) ([]flipItem, error) {
 		items = append(items, it)
 	}
 	return items, sc.Err()
+}
+
+// plannerPostSummaryItems are the post-cutoff flip-pair numbers (D170): the
+// production precedent check, scored once on 15 frozen pairs, with CBP's
+// holding on the starting setup given (known-a, how the plan search runs
+// when a ruling is on file). Read from the summary built by
+// eval/planner/summarize.py.
+func plannerPostSummaryItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "planner-post-summary.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	type frac struct {
+		K     int       `json:"k"`
+		N     int       `json:"n"`
+		Value float64   `json:"value"`
+		CI    []float64 `json:"ci95"`
+	}
+	var s struct {
+		Modes map[string]struct {
+			All struct {
+				Precision frac `json:"precision_at_bar"`
+				Recall    frac `json:"recall_at_bar"`
+				Controls  frac `json:"controls_shown"`
+			} `json:"all"`
+		} `json:"modes"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	m, ok := s.Modes["known-a"]
+	if !ok || len(m.All.Precision.CI) != 2 || len(m.All.Recall.CI) != 2 {
+		return nil, fmt.Errorf("%s: no known-a metrics", file)
+	}
+	src := "eval/results/" + file + " (eval/data/flips_post.jsonl, frozen; scored once)"
+	label := fmt.Sprintf("Precedent check on post-cutoff flip pairs (%d pairs from rulings after 25 Sep 2026, gateway)", m.All.Recall.N+m.All.Controls.N)
+	return []evalsummary.Item{
+		{Key: "planner_post_known-a_precision_at_bar", Label: label + ": moves shown at the 0.92 bar that were real changes", Value: m.All.Precision.Value, CILow: m.All.Precision.CI[0], CIHigh: m.All.Precision.CI[1], N: m.All.Precision.N, Split: "post", Source: src},
+		{Key: "planner_post_known-a_recall_at_bar", Label: label + ": real changes shown at the 0.92 bar", Value: m.All.Recall.Value, CILow: m.All.Recall.CI[0], CIHigh: m.All.Recall.CI[1], N: m.All.Recall.N, Split: "post", Source: src},
+		{Key: "planner_post_known-a_controls_shown", Label: label + ": no-change pairs shown as plans", Value: m.All.Controls.Value, N: m.All.Controls.N, Split: "post", Source: src},
+	}, nil
 }

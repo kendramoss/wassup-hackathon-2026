@@ -1,0 +1,240 @@
+{
+  "case_id": "fam-n350152",
+  "target": "China",
+  "family": "medical_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Spinal needle (SN22G351, 22G x 3.5”). A spinal needle used to inject local anesthetics into a patient to provide regional anesthesia. It consists of a stainless-steel shaft with a bevel (cannula), a stainless-steel stylet, a plastic cannula hub, a plastic stylet hub, and a needle protector. The Spinal needle (SN22G351, 22G x 3.5”) is assembled in China using components sourced from Japan and China.\n\nThe Stainless-steel cannula, Stainless-steel stylet and Adhesive glue are produced in Japan. The Plastic cannula hub, Plastic stylet hub, Needle protector, Plastic bags and Cardboard cartons are produced in China. \n\nFinal assembly in China: Affix plastic hubs to the cannula and stylet using adhesive glue; Assemble needle protector onto the cannula; Package completed needles in units of 100 into plastic bags and cardboard cartons.\n",
+    "prediction": {
+      "origin_country": "Japan",
+      "key_factors": [
+        "Stainless-steel cannula and stylet"
+      ],
+      "decisive_step": "Manufacture of the pre-cut, beveled stainless-steel cannula and stylet in Japan",
+      "confidence": 0.98,
+      "reasoning": "Under CBP precedent (e.g., H322967, N343771), the stainless-steel cannula (and stylet) imparts the essential character of a medical needle. The cannula and stylet are fully manufactured to their predetermined form and use in Japan. The operations in China—gluing plastic hubs onto the cannula and stylet, attaching the needle protector, and packaging—constitute simple assembly and do not result in a substantial transformation. Therefore, the country of origin is Japan.",
+      "cited_rulings": [
+        "H322967",
+        "N343771"
+      ],
+      "precedents": [
+        "H322967",
+        "N343771",
+        "N343773",
+        "N343774",
+        "N344695"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2703,
+        "output_tokens": 220,
+        "latency_ms": 6449
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Japan",
+    "ruling": "N350152"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "metal_cannula_forging",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Needle cannula or metal blank in China",
+      "variant_facts": "The merchandise under consideration is a Spinal needle (SN22G351, 22G x 3.5”). A spinal needle used to inject local anesthetics into a patient to provide regional anesthesia. It consists of a stainless-steel shaft with a bevel (cannula), a stainless-steel stylet, a plastic cannula hub, a plastic stylet hub, and a needle protector. The Spinal needle (SN22G351, 22G x 3.5”) is assembled in China using components sourced from China and Japan.\n\nThe Stainless-steel cannula, Stainless-steel stylet, Plastic cannula hub, Plastic stylet hub, Needle protector, Plastic bags and Cardboard cartons are produced in China. The Adhesive glue are sourced from Japan. \n\nIn China, the Stainless-steel cannula and Stainless-steel stylet will be produced in-house: Cut stainless-steel hollow tubes to length and sharpen to form the cannula; Etch cannulas with depth markings; Apply silicone coating to the cannula surface; Sand-blast the blunt end of the cannula; Manufacture stylet from solid stainless-steel wire.\n\nFinal assembly in China: Affix plastic hubs to the cannula and stylet using adhesive glue; Assemble needle protector onto the cannula; Package completed needles in units of 100 into plastic bags and cardboard cartons.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Stainless-steel cannula and stylet"
+        ],
+        "decisive_step": "Cutting, sharpening, etching, and manufacturing the stainless-steel cannula and stylet, along with final assembly in China",
+        "confidence": 1,
+        "reasoning": "Almost all components—including the critical stainless-steel cannula, stylet, and plastic hubs—are manufactured in China, with only the adhesive glue sourced from Japan. Consistent with CBP precedent (e.g., N343712 and N343771), the stainless-steel cannula/needle imparts the essential character to the needle assembly. Because the cutting, sharpening, etching, and final assembly all occur in China, the Japanese adhesive undergoes a substantial transformation, making China the country of origin.",
+        "cited_rulings": [
+          "N343771",
+          "N343712"
+        ],
+        "precedents": [
+          "N343712",
+          "N343771",
+          "N343774",
+          "N344211",
+          "N344695"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2374,
+          "output_tokens": 227,
+          "latency_ms": 7530
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N343712",
+        "confidence": 0.96,
+        "reasoning": "In rulings on needles consisting of a stainless-steel cannula, plastic hub, and protective cap (such as N343712, H322967, and N343771), CBP consistently holds that the stainless-steel cannula imparts the essential character and determines the country of origin, while gluing plastic hubs and packaging are minor assembly operations. In Variant A, the cannula and stylet are made in Japan, conferring Japanese origin. In Variant B, the cannula (cutting hollow tubes to length, sharpening, etching, coating, sand-blasting) and stylet are manufactured in China, alongside the plastic components and final assembly, leaving only the adhesive glue from Japan. Thus, origin shifts to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "cannula stainless steel tube sharpen needle origin",
+            "rulings": [
+              "N343773",
+              "H322967",
+              "N343771",
+              "N343774",
+              "N343775",
+              "N343161",
+              "N344930",
+              "N341204"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "needle cannula hub adhesive assembly origin",
+            "rulings": [
+              "N343771",
+              "H322967",
+              "N343775",
+              "N343774",
+              "N343773",
+              "N344695",
+              "N343712",
+              "N343161"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "spinal needle cannula stylet hub assembly origin",
+            "rulings": [
+              "N343771",
+              "H322967",
+              "N343775",
+              "N343774",
+              "N343773",
+              "N344695",
+              "N343712",
+              "N343161"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343712",
+            "rulings": [
+              "N343712"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343771",
+            "rulings": [
+              "N343771"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H322967",
+            "rulings": [
+              "H322967"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9990,
+          "output_tokens": 397,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Spinal needle (SN22G351, 22G x 3.5”). A spinal needle used to inject local anesthetics into a patient to provide regional anesthesia. It consists of a stainless-steel shaft with a bevel (cannula), a stainless-steel stylet, a plastic cannula hub, a plastic stylet hub, and a needle protector. The Spinal needle (SN22G351, 22G x 3.5”) is assembled in China using components sourced from Japan and China.\n\nThe Stainless-steel cannula, Stainless-steel stylet and Adhesive glue are produced in Japan. The Plastic cannula hub, Plastic stylet hub, Needle protector, Plastic bags and Cardboard cartons are produced in China. \n\nFinal assembly in China: Affix plastic hubs to the cannula and stylet using adhesive glue; Assemble needle protector onto the cannula; Package completed needles in units of 100 into plastic bags and cardboard cartons.\n",
+      "prediction": {
+        "origin_country": "Japan",
+        "key_factors": [
+          "Stainless-steel cannula and stylet"
+        ],
+        "decisive_step": "Manufacture of the pre-cut, beveled stainless-steel cannula and stylet in Japan",
+        "confidence": 0.98,
+        "reasoning": "Under CBP precedent (e.g., H322967, N343771), the stainless-steel cannula (and stylet) imparts the essential character of a medical needle. The cannula and stylet are fully manufactured to their predetermined form and use in Japan. The operations in China—gluing plastic hubs onto the cannula and stylet, attaching the needle protector, and packaging—constitute simple assembly and do not result in a substantial transformation. Therefore, the country of origin is Japan.",
+        "cited_rulings": [
+          "H322967",
+          "N343771"
+        ],
+        "precedents": [
+          "H322967",
+          "N343771",
+          "N343773",
+          "N343774",
+          "N344695"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2703,
+          "output_tokens": 220,
+          "latency_ms": 6449
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Japan (N350152); engine predicts Japan",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 15067,
+    "output_tokens": 844,
+    "engine_input_tokens": 5077,
+    "engine_output_tokens": 447,
+    "verifier_input_tokens": 9990,
+    "verifier_output_tokens": 397,
+    "wall_seconds": 27.874111584
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "medical_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.038574,
+  "cost_usd_list": 0.077148,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:31+08:00"
+}

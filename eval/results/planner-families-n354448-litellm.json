@@ -1,0 +1,241 @@
+{
+  "case_id": "fam-n354448",
+  "target": "China",
+  "family": "gas_grills_cooking",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a propane gas island grills. Propane gas island grills designed for grilling, griddling, and general food preparation. They each consist of a stainless steel lid, firebox, control panel, doors, drawers, side shelves, and a metal cart frame. The propane gas island grills is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe steel sheets (for main lid), lid handle, badges, thermometer, sheet steel (for firebox), sheet steel (for drawer), drawer handle, perforated tube steel, burner, control panel, cart frame, side shelf, door, exterior cement decorative stones, cooking area and knobs are produced in China. The middle lid panel, grill lid and griddle lid, completed lid assembly, firebox panels, firebox assembly, stainless-steel drawer front, drawer three-side steel panels and bottom panel, full functional drawer, manifold tube, regulator hose, fittings, gas valves, LP regulator sub-assembly and gas train assembly are produced in Indonesia. \n\nFinal assembly in Indonesia: installing burner into the firebox and performing fire testing on completed firebox sub-assembly; installing control panel, knobs, and gas train assembly onto the firebox, mounting gas train assembly onto the grill, and testing for gas tightness, proper ignition, and combustion; attaching remaining components using screws, bolts, and nuts, installing labels, cleaning product surfaces, and packaging finished products.\n",
+    "prediction": {
+      "origin_country": "Indonesia",
+      "key_factors": [
+        "Fabrication of key sub-assemblies (lid, firebox, gas train, drawers) and complex final assembly"
+      ],
+      "decisive_step": "Transforming Chinese raw steel sheets into the lid, firebox, and drawer panels, manufacturing the gas train, and final assembly/testing in Indonesia",
+      "confidence": 0.95,
+      "reasoning": "Following N335086 and N340363, the Chinese components and raw steel sheets undergo a substantial transformation in Indonesia. In Indonesia, raw steel sheets are fabricated into key structural sub-assemblies—including the main lid, firebox, and functional drawers—and the critical gas train assembly (manifold, valves, regulator) is produced domestically. Combining these Indonesian-made core sub-assemblies with Chinese components through complex final assembly and safety testing creates a new article of commerce with a distinct name, character, and use.",
+      "cited_rulings": [
+        "N335086",
+        "N340363"
+      ],
+      "precedents": [
+        "N335086",
+        "N339984",
+        "N340363",
+        "N341188",
+        "N344475"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2796,
+        "output_tokens": 253,
+        "latency_ms": 7236
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N354448"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "lid_and_firebox",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Lid and firebox forming in China",
+      "variant_facts": "The merchandise under consideration is a propane gas island grills. Propane gas island grills designed for grilling, griddling, and general food preparation. They each consist of a stainless steel lid, firebox, control panel, doors, drawers, side shelves, and a metal cart frame. The propane gas island grills is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe steel sheets (for main lid), middle lid panel, grill lid and griddle lid, lid handle, badges, thermometer, completed lid assembly, sheet steel (for firebox), firebox panels, firebox assembly, sheet steel (for drawer), drawer handle, perforated tube steel, burner, control panel, cart frame, side shelf, door, exterior cement decorative stones, cooking area and knobs are produced in China. The stainless-steel drawer front, drawer three-side steel panels and bottom panel, full functional drawer, manifold tube, regulator hose, fittings, gas valves, LP regulator sub-assembly and gas train assembly are produced in Indonesia. \n\nIn China, the steel sheets (for main lid), middle lid panel, grill lid and griddle lid, lid handle, badges, thermometer, completed lid assembly, sheet steel (for firebox), firebox panels and firebox assembly will be produced in-house: transforming steel sheets into middle lid panel through forming, bending, and punching; refining lid panel and side panel through sharp edge grinding and welding into a grill lid and griddle lid; staging and assembling lid handle, badges, and thermometer onto the lid; forming, bending, and punching sheet steel into firebox panels; refining firebox panels through sharp edge grinding and combining through welding operations to form a firebox assembly.\n\nFinal assembly in Indonesia: installing burner into the firebox and performing fire testing on completed firebox sub-assembly; installing control panel, knobs, and gas train assembly onto the firebox, mounting gas train assembly onto the grill, and testing for gas tightness, proper ignition, and combustion; attaching remaining components using screws, bolts, and nuts, installing labels, cleaning product surfaces, and packaging finished products.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Completed lid assembly, firebox assembly, burners, cooking area, and cart frame"
+        ],
+        "decisive_step": "Metal forming, bending, punching, and welding of steel sheets into the completed lid assembly and firebox assembly in China",
+        "confidence": 0.92,
+        "reasoning": "Unlike N335086 and N340363—where raw steel sheets were formed, bent, punched, and welded into the main lid and firebox sub-assemblies in Indonesia—here the completed lid assembly, firebox assembly, burners, control panel, cooking area, and cart frame are all fabricated in China. These core structural and heating components impart the essential character of the grill. Processing in Indonesia is limited to making the drawer and gas train and performing simple fastener-based final assembly and testing, which does not substantially transform the Chinese components.",
+        "cited_rulings": [
+          "N335086",
+          "N340363"
+        ],
+        "precedents": [
+          "N335086",
+          "N339984",
+          "N340363",
+          "N341188",
+          "N344475"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2926,
+          "output_tokens": 261,
+          "latency_ms": 6027
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335086",
+        "counter_ruling": "N344475",
+        "confidence": 0.92,
+        "reasoning": "In N335086 and N340363 (involving nearly identical gas grill manufacturing scenarios), CBP explicitly held that the main lids and fireboxes are the 'key components' of a gas grill, and that forming, bending, punching, grinding, and welding them from Chinese sheet steel in Indonesia was the decisive substantial transformation conferring Indonesian origin. In Variant B, production of both the main lid assembly and firebox assembly moves to China (joining the burner, control panel, cart frame, doors, shelves, and cooking area). Unlike N344475 (where lids, carts, control panels, and doors were made in Thailand), only drawers, gas train, and final assembly remain in Indonesia, shifting origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "propane gas grill griddle firebox burner",
+            "rulings": [
+              "N335086",
+              "N340363",
+              "N339984",
+              "N341188",
+              "N339983",
+              "N335085",
+              "N344475",
+              "N344477"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas island grill origin",
+            "rulings": [
+              "N341188",
+              "N339983",
+              "N335085",
+              "N335086",
+              "N347421",
+              "N353124",
+              "H328382",
+              "N345976"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas grill firebox lid assembly origin China",
+            "rulings": [
+              "N335086",
+              "N340363",
+              "N339983",
+              "N335085",
+              "N339984",
+              "N341188",
+              "N344477",
+              "N344475"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344475",
+            "rulings": [
+              "N344475"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335086",
+            "rulings": [
+              "N335086"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340363",
+            "rulings": [
+              "N340363"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16604,
+          "output_tokens": 1034,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a propane gas island grills. Propane gas island grills designed for grilling, griddling, and general food preparation. They each consist of a stainless steel lid, firebox, control panel, doors, drawers, side shelves, and a metal cart frame. The propane gas island grills is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe steel sheets (for main lid), lid handle, badges, thermometer, sheet steel (for firebox), sheet steel (for drawer), drawer handle, perforated tube steel, burner, control panel, cart frame, side shelf, door, exterior cement decorative stones, cooking area and knobs are produced in China. The middle lid panel, grill lid and griddle lid, completed lid assembly, firebox panels, firebox assembly, stainless-steel drawer front, drawer three-side steel panels and bottom panel, full functional drawer, manifold tube, regulator hose, fittings, gas valves, LP regulator sub-assembly and gas train assembly are produced in Indonesia. \n\nFinal assembly in Indonesia: installing burner into the firebox and performing fire testing on completed firebox sub-assembly; installing control panel, knobs, and gas train assembly onto the firebox, mounting gas train assembly onto the grill, and testing for gas tightness, proper ignition, and combustion; attaching remaining components using screws, bolts, and nuts, installing labels, cleaning product surfaces, and packaging finished products.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Fabrication of key sub-assemblies (lid, firebox, gas train, drawers) and complex final assembly"
+        ],
+        "decisive_step": "Transforming Chinese raw steel sheets into the lid, firebox, and drawer panels, manufacturing the gas train, and final assembly/testing in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Following N335086 and N340363, the Chinese components and raw steel sheets undergo a substantial transformation in Indonesia. In Indonesia, raw steel sheets are fabricated into key structural sub-assemblies—including the main lid, firebox, and functional drawers—and the critical gas train assembly (manifold, valves, regulator) is produced domestically. Combining these Indonesian-made core sub-assemblies with Chinese components through complex final assembly and safety testing creates a new article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N335086",
+          "N340363"
+        ],
+        "precedents": [
+          "N335086",
+          "N339984",
+          "N340363",
+          "N341188",
+          "N344475"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2796,
+          "output_tokens": 253,
+          "latency_ms": 7236
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Indonesia (N354448); engine predicts Indonesia",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 22326,
+    "output_tokens": 1548,
+    "engine_input_tokens": 5722,
+    "engine_output_tokens": 514,
+    "verifier_input_tokens": 16604,
+    "verifier_output_tokens": 1034,
+    "wall_seconds": 36.582944625
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "gas_grills_cooking": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.060132000000000005,
+  "cost_usd_list": 0.12026400000000001,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:18:19+08:00"
+}

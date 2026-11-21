@@ -498,3 +498,18 @@ One fixture per new family (`backend/testdata/families/`, built from pool ruling
 | Cables and harnesses | Server cable (N331047, scenario 1 → 3) | none given | Malaysia | no move supported (only rulings before Mar 2023 are evidence): send to a broker | $0.090 |
 
 Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed with CBP in 5 of the 8 fixtures where CBP named the origin; it named the assembly or target country where CBP held China, the same direction as the known held-out weakness (D138, MODEL-CARD).
+
+## Planner: post-cutoff flip pairs and per-family plan checks (gateway, 21 Nov; D170, D171)
+
+### Precedent check on 15 post-cutoff flip pairs — frozen before scoring, scored once
+- Set: `eval/data/flips_post.jsonl` (11 real changes, 4 controls; frozen in 6f58d54). Production configuration: verifier-v2 on gemini-4-argon, plan bar 0.92, local corpus search, OpenAI-compatible LiteLLM gateway to Gemini. `go run ./cmd/eval flips -post [-known-a]`.
+- CBP's starting origin given: shown 8, right 8/8 (67.6–100); recall 8/11 = 72.7% (43.4–90.3); controls shown 0/4. $0.58. `flips-post-verifier-v2-known-a-litellm.jsonl`.
+- Not given: shown 5, right 4/5 (37.6–96.4), one wrong plan shown (fracking unit, wrong later origin, 0.92); recall 4/11 = 36.4% (15.2–64.6); controls shown 0/4. $0.59. `flips-post-verifier-v2-unknown-a-litellm.jsonl`.
+- Every pair's outcome: `planner-post-summary.json`; docs/EVALUATION.md section 7.1.
+
+### Plan search on the post-cutoff pairs with a template — once each
+- Strut (target Thailand): CBP's move is the top plan, 0.96. Stove heater (Thailand): CBP's move shown at 0.92, ranked below a cheaper untested subset (motor alone). Three air-purifier reverse probes (China): no plan shown; one move supported at 0.85, below the bar. $0.76. `planner-post-plan-*-litellm.json`.
+
+### Per-family plan checks — development and train rulings, not an evaluation
+- 23 searches, one each: 15 of 23 (65.2%, 44.9–81.2) show a precedent-supported plan, 8 go to a broker. Cited ruling, read by hand: supports 9, partial 4, does not 2. $1.90 ($0.083 a search). `planner-families-summary.json`; docs/EVALUATION.md section 7.2.
+

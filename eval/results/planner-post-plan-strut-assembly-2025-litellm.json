@@ -1,0 +1,480 @@
+{
+  "case_id": "post-strut-assembly-2025",
+  "target": "Thailand",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Strut assembly. A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield. The Strut assembly is assembled in Thailand using components sourced from China and Thailand.\n\nThe shock absorber tube, connecting rod (piston), lubricating oil and coil spring, bumper stop and strut dust shield are produced in China. The strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs are produced in Thailand. \n\nFinal assembly in Thailand: assemble the shock absorber components into a complete shock absorber; insert the shock absorber into the coil spring and fit the remaining components.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Shock absorber core components (tube, piston rod) and coil spring"
+      ],
+      "decisive_step": "Production of the core shock absorber components and coil spring in China",
+      "confidence": 0.72,
+      "reasoning": "Unlike N353886 and N352111 where the core shock absorber tubes and piston rods were manufactured in the country of final assembly, here both the core shock components (tube, piston rod) and the coil spring are produced in China. These components impart the essential damping and suspension character to the strut assembly. Assembling the Chinese shock parts and combining them with the Chinese coil spring and Thai mounts/seats in Thailand does not substantially transform the Chinese components.",
+      "cited_rulings": [
+        "N353886",
+        "N352111"
+      ],
+      "precedents": [
+        "N338747",
+        "N339174",
+        "N352111",
+        "N353886",
+        "N355045"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2146,
+        "output_tokens": 209,
+        "latency_ms": 7034
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N356030"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "precision_machined_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Machined and heat-treated metal parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Strut assembly. A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield. The Strut assembly is assembled in Thailand using components sourced from Thailand and China.\n\nThe shock absorber tube, connecting rod (piston), lubricating oil and strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs are produced in Thailand. The coil spring, bumper stop and strut dust shield are sourced from China. \n\nIn Thailand, the shock absorber tube, connecting rod (piston) and lubricating oil will be produced in-house: turning, drilling, chamfering, tapping, and splining forged steel blanks or cut metal pipes; quenching, tempering, and induction hardening of bearing rings, wheel hub flanges, and ball joint studs; cNC rough grinding and super-fine grinding of bearing raceways, inner rings, and outer flanges; manufacturing primary mechanical functional elements such as pump impellers, brake friction linings, and worm gears (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: assemble the shock absorber components into a complete shock absorber; insert the shock absorber into the coil spring and fit the remaining components.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The shock absorber (tube, piston rod, internal components) and strut mount produced in Thailand"
+        ],
+        "decisive_step": "Manufacturing of the core shock absorber components and final assembly of the complete strut assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Following N353886, the essential character of a strut assembly is imparted by the core damping components, specifically the shock absorber (tube, piston rod) and strut mount. Here, the shock absorber components, strut mount, and spring seats are manufactured in Thailand, while only the coil spring, bumper stop, and dust shield come from China. Producing the core shock absorber components and assembling them with the Chinese components in Thailand substantially transforms the parts into a Thai-origin strut assembly.",
+        "cited_rulings": [
+          "N353886"
+        ],
+        "precedents": [
+          "N339091",
+          "N340438",
+          "N340512",
+          "N340515",
+          "N353886"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2675,
+          "output_tokens": 215,
+          "latency_ms": 5921
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N353886",
+        "confidence": 0.96,
+        "reasoning": "In N353886, N338747, and N339174 (citing N307541 and HQ H310543), CBP consistently held that the shock absorber imparts the essential character of a complete vehicle strut assembly, and simple final assembly with a coil spring, dust shield, and bumpers does not substantially transform the components. In Variant A, the shock absorber components (tube, piston rod, oil) are produced in China, making China the origin. In Variant B, manufacturing of the shock absorber tube, piston rod, and oil moves to Thailand alongside final assembly, shifting the origin of the shock absorber—and thus the entire strut assembly—to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "shock absorber piston tube coil spring origin",
+            "rulings": [
+              "N353886",
+              "N352111",
+              "N338747",
+              "N339174",
+              "N340493",
+              "N344002",
+              "N348322",
+              "N347207"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "strut assembly shock absorber coil spring origin",
+            "rulings": [
+              "N353886",
+              "N338747",
+              "N340493",
+              "N339174",
+              "N352111",
+              "N348322",
+              "N347207",
+              "N345996"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N353886",
+            "rulings": [
+              "N353886"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338747",
+            "rulings": [
+              "N338747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339174",
+            "rulings": [
+              "N339174"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340493",
+            "rulings": [
+              "N340493"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14662,
+          "output_tokens": 447,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 20000,
+      "net_per_year": 280000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "precision_machined_parts",
+          "to_plant": "th"
+        },
+        {
+          "group": "housings_and_structures",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Machined and heat-treated metal parts and Housings and structural parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Strut assembly. A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield. The Strut assembly is assembled in Thailand using components sourced from Thailand.\n\nThe shock absorber tube, connecting rod (piston), lubricating oil, coil spring, bumper stop and strut dust shield and strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs are produced in Thailand. \n\nIn Thailand, the shock absorber tube, connecting rod (piston) and lubricating oil will be produced in-house: turning, drilling, chamfering, tapping, and splining forged steel blanks or cut metal pipes; quenching, tempering, and induction hardening of bearing rings, wheel hub flanges, and ball joint studs; cNC rough grinding and super-fine grinding of bearing raceways, inner rings, and outer flanges; manufacturing primary mechanical functional elements such as pump impellers, brake friction linings, and worm gears (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the coil spring, bumper stop and strut dust shield and strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs will be produced in-house: sawing, stamping, washing, and heat treating metal profiles, structural brackets, and radiator cores; casting or molding metal and plastic housings, bells, enclosures, and mounting plates; assembling ancillary PCBAs, cutting cables or hoses to length, and crimping fittings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: assemble the shock absorber components into a complete shock absorber; insert the shock absorber into the coil spring and fit the remaining components.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Shock absorber and coil spring"
+        ],
+        "decisive_step": "Manufacturing of all components, including the shock absorber and coil spring, and final assembly in Thailand",
+        "confidence": 1,
+        "reasoning": "Consistent with NY N353886, the essential character of a strut assembly is imparted by its primary suspension components, particularly the shock absorber and coil spring. Here, every component—including the shock absorber tube, piston rod, coil spring, and strut mount—is wholly manufactured in Thailand, and the final assembly also occurs in Thailand. Because all production and assembly steps take place entirely within Thailand, the country of origin is unequivocally Thailand.",
+        "cited_rulings": [
+          "N353886"
+        ],
+        "precedents": [
+          "N339091",
+          "N340438",
+          "N340512",
+          "N340515",
+          "N353886"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2776,
+          "output_tokens": 189,
+          "latency_ms": 6944
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N353886",
+        "confidence": 0.98,
+        "reasoning": "In N353886 (and N339174), CBP held that the shock absorber (comprising the cylinder/tube and piston rod) imparts the essential character of a complete automotive strut assembly. In Variant A, the shock absorber tube, piston rod, oil, and coil spring are produced in China, resulting in Chinese origin despite assembly in Thailand. In Variant B, production of the shock absorber tube, piston rod, coil spring, and all other components moves to Thailand, where they are manufactured from blanks/pipes and assembled into the complete strut assembly, conferring Thai origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "strut assembly shock absorber coil spring country of origin",
+            "rulings": [
+              "N353886",
+              "N338747",
+              "N340493",
+              "N339174",
+              "N352111",
+              "N348322",
+              "N347207",
+              "N345996"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "shock absorber piston tube coil spring origin assembly",
+            "rulings": [
+              "N353886",
+              "N352111",
+              "N338747",
+              "N339174",
+              "N340493",
+              "N344002",
+              "N348322",
+              "N347207"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N353886",
+            "rulings": [
+              "N353886"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338747",
+            "rulings": [
+              "N338747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339174",
+            "rulings": [
+              "N339174"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H310543"
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13208,
+          "output_tokens": 719,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 30000,
+      "net_per_year": 270000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Strut assembly. A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield. The Strut assembly is assembled in Thailand using components sourced from China and Thailand.\n\nThe shock absorber tube, connecting rod (piston), lubricating oil and coil spring, bumper stop and strut dust shield are produced in China. The strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs are produced in Thailand. \n\nFinal assembly in Thailand: assemble the shock absorber components into a complete shock absorber; insert the shock absorber into the coil spring and fit the remaining components.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Shock absorber core components (tube, piston rod) and coil spring"
+        ],
+        "decisive_step": "Production of the core shock absorber components and coil spring in China",
+        "confidence": 0.72,
+        "reasoning": "Unlike N353886 and N352111 where the core shock absorber tubes and piston rods were manufactured in the country of final assembly, here both the core shock components (tube, piston rod) and the coil spring are produced in China. These components impart the essential damping and suspension character to the strut assembly. Assembling the Chinese shock parts and combining them with the Chinese coil spring and Thai mounts/seats in Thailand does not substantially transform the Chinese components.",
+        "cited_rulings": [
+          "N353886",
+          "N352111"
+        ],
+        "precedents": [
+          "N338747",
+          "N339174",
+          "N352111",
+          "N353886",
+          "N355045"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2146,
+          "output_tokens": 209,
+          "latency_ms": 7034
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N356030); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "housings_and_structures",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housings and structural parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Strut assembly. A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield. The Strut assembly is assembled in Thailand using components sourced from China and Thailand.\n\nThe shock absorber tube, connecting rod (piston) and lubricating oil are produced in China. The coil spring, bumper stop and strut dust shield and strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs are produced in Thailand. \n\nIn Thailand, the coil spring, bumper stop and strut dust shield and strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs will be produced in-house: sawing, stamping, washing, and heat treating metal profiles, structural brackets, and radiator cores; casting or molding metal and plastic housings, bells, enclosures, and mounting plates; assembling ancillary PCBAs, cutting cables or hoses to length, and crimping fittings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: assemble the shock absorber components into a complete shock absorber; insert the shock absorber into the coil spring and fit the remaining components.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The complete shock absorber subassembly, coil spring, and strut mount manufactured and assembled in Thailand"
+        ],
+        "decisive_step": "Fabrication of key structural components (coil spring, strut mount, seats, covers) and full assembly of both the shock absorber and final strut assembly in Thailand",
+        "confidence": 0.92,
+        "reasoning": "Consistent with NY N339174, NY N353886, and NY N338747, the country of origin of a complete strut assembly is where its major structural components are produced and assembled into a functional unit. Here, although the shock tube, piston rod, and oil originate in China, they are assembled into a functional shock absorber in Thailand using Thai-made covers/seats, and then combined with a Thai-manufactured coil spring, strut mount, and bumpers, resulting in a substantial transformation in Thailand.",
+        "cited_rulings": [
+          "N353886",
+          "N339174",
+          "N338747"
+        ],
+        "precedents": [
+          "H335139",
+          "N338747",
+          "N339174",
+          "N352111",
+          "N353886"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2262,
+          "output_tokens": 244,
+          "latency_ms": 7867
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N353886",
+        "confidence": 0.96,
+        "reasoning": "In N353886 and N338747 (citing N307541 and HQ H310543), CBP consistently held that the shock absorber imparts the essential character to a complete passenger-vehicle strut assembly, and that combining it with the coil spring, strut mount, bumper stop, and dust shield does not effect a substantial transformation. In Variant A, CBP held origin is China because the core shock absorber components (tube, piston rod, oil) are made in China. In Variant B, moving the coil spring, bumper stop, and dust shield to Thailand leaves the shock absorber components in China, so origin remains China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "strut assembly shock absorber coil spring country of origin",
+            "rulings": [
+              "N353886",
+              "N338747",
+              "N340493",
+              "N339174",
+              "N352111",
+              "N348322",
+              "N347207",
+              "N345996"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "shock absorber piston tube coil spring origin",
+            "rulings": [
+              "N353886",
+              "N352111",
+              "N338747",
+              "N339174",
+              "N340493",
+              "N344002",
+              "N348322",
+              "N347207"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N353886",
+            "rulings": [
+              "N353886"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339174",
+            "rulings": [
+              "N339174"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N338747",
+            "rulings": [
+              "N338747"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340493",
+            "rulings": [
+              "N340493"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14604,
+          "output_tokens": 421,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 10000,
+      "net_per_year": 290000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N364865 (1 Oct 2026): CBP held Thailand",
+    "plan": "Make Machined and heat-treated metal parts in Thailand",
+    "actual_moved": [
+      "shock absorber tube",
+      "connecting rod (piston)"
+    ],
+    "moved_by_plan": [
+      "shock absorber tube",
+      "connecting rod (piston)"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 12,
+    "verifier_tool_calls": 18,
+    "input_tokens": 52333,
+    "output_tokens": 2444,
+    "engine_input_tokens": 9859,
+    "engine_output_tokens": 857,
+    "verifier_input_tokens": 42474,
+    "verifier_output_tokens": 1587,
+    "wall_seconds": 44.276462333
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.129106,
+  "cost_usd_list": 0.258212,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:09:33+08:00"
+}

@@ -1,0 +1,413 @@
+{
+  "case_id": "fam-n350727",
+  "target": "Thailand",
+  "family": "pcba_electronic_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a washing machine motor speed sensor (part number 290D1187P006). A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end. The washing machine motor speed sensor (part number 290D1187P006) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Printed circuit board assembly (PCBA) with Hall Effect sensor, Wire harness and Specialized electrical connector are produced in China. The Plastic housing are produced in Thailand. \n\nFinal assembly in Thailand: Attach wire harness to PCBA; Enclose PCBA and wire harness within plastic housing; Attach electrical connector to the end of the wire harness; Test finished device; Package finished device for shipment.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+      ],
+      "decisive_step": "Manufacturing of the Hall Effect sensor and PCBA in China",
+      "confidence": 0.98,
+      "reasoning": "Per N343953 and N344809, the essential character of a Hall Effect speed sensor is imparted by the Hall Effect sensor IC/PCBA, which performs the core sensing and transduction function. Here, the PCBA with the Hall Effect sensor, wire harness, and connector are all produced in China. The operations in Thailand (attaching the wire harness and connector, enclosing in a Thai plastic housing, and testing) constitute simple assembly and do not substantially transform the Chinese PCBA.",
+      "cited_rulings": [
+        "N343953",
+        "N344809"
+      ],
+      "precedents": [
+        "N343952",
+        "N343953",
+        "N344808",
+        "N344809",
+        "N346000"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2645,
+        "output_tokens": 198,
+        "latency_ms": 7149
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350727"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT) in Thailand",
+      "variant_facts": "The merchandise under consideration is a washing machine motor speed sensor (part number 290D1187P006). A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end. The washing machine motor speed sensor (part number 290D1187P006) is assembled in Thailand using components sourced from Thailand and China.\n\nThe Printed circuit board assembly (PCBA) with Hall Effect sensor and Plastic housing are produced in Thailand. The Wire harness and Specialized electrical connector are sourced from China. \n\nIn Thailand, the Printed circuit board assembly (PCBA) with Hall Effect sensor will be produced in-house: Manufacture PCBA with Hall Effect sensor.\n\nFinal assembly in Thailand: Attach wire harness to PCBA; Enclose PCBA and wire harness within plastic housing; Attach electrical connector to the end of the wire harness; Test finished device; Package finished device for shipment.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+        ],
+        "decisive_step": "Manufacture of the PCBA with Hall Effect sensor and final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP rulings N344808 and N344809, the essential character of a Hall Effect speed sensor is imparted by the active sensing element—here, the PCBA with the Hall Effect sensor. Because the PCBA with the Hall Effect sensor is manufactured in Thailand, and the Chinese-origin wire harness and connector are merely subordinate components attached during final assembly in Thailand, the country of origin of the finished motor speed sensor is Thailand.",
+        "cited_rulings": [
+          "N344808",
+          "N344809"
+        ],
+        "precedents": [
+          "N343952",
+          "N343953",
+          "N344808",
+          "N344809",
+          "N346000"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2677,
+          "output_tokens": 195,
+          "latency_ms": 7104
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344809",
+        "confidence": 0.96,
+        "reasoning": "In paired rulings N343953 and N344809 on Hall Effect speed sensors, CBP held that the Hall Effect sensor IC and PCBA impart the essential character of the finished sensor. When the Hall Effect IC was made in China and assembled with a PCB and plastic housing in Thailand (N343953), origin was China. When production of the Hall Effect IC and PCBA moved to Thailand with only ancillary components from China (N344809), origin changed to Thailand. Here, moving the manufacture of the PCBA with the Hall Effect sensor from China to Thailand likewise changes the country of origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"speed sensor\" OR \"Hall Effect sensor\" PCBA origin",
+            "rulings": [
+              "N343952",
+              "N343953",
+              "N344809",
+              "N343950",
+              "N344808",
+              "N338985",
+              "N346000",
+              "N335974"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "sensor printed circuit board assembly SMT origin China Thailand Vietnam Mexico",
+            "rulings": [
+              "N335974",
+              "N349107",
+              "N345397",
+              "N339727",
+              "H338116",
+              "N330296",
+              "N335213",
+              "N349893"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "sensor PCBA wire harness housing Thailand China origin",
+            "rulings": [
+              "N343952",
+              "N346435",
+              "N350085",
+              "N335213",
+              "N346000",
+              "N342924",
+              "N349869",
+              "N335974"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346000",
+            "rulings": [
+              "N346000"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344809",
+            "rulings": [
+              "N344809"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343953",
+            "rulings": [
+              "N343953"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9198,
+          "output_tokens": 372,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_and_cables",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Housing and cables in Thailand",
+      "variant_facts": "The merchandise under consideration is a washing machine motor speed sensor (part number 290D1187P006). A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end. The washing machine motor speed sensor (part number 290D1187P006) is assembled in Thailand using components sourced from Thailand.\n\nThe Printed circuit board assembly (PCBA) with Hall Effect sensor, Wire harness, Specialized electrical connector and Plastic housing are produced in Thailand. \n\nIn Thailand, the Printed circuit board assembly (PCBA) with Hall Effect sensor will be produced in-house: Manufacture PCBA with Hall Effect sensor.\n\nIn Thailand, the Wire harness, Specialized electrical connector and Plastic housing will be produced in-house: injection mold plastic shells, frames, buttons, and structural covers; laser cut, punch, bend, and coat sheet metal or aluminum enclosures; cut insulated conductors, twist wires, extrude outer cable jackets, and attach terminal connectors (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Attach wire harness to PCBA; Enclose PCBA and wire harness within plastic housing; Attach electrical connector to the end of the wire harness; Test finished device; Package finished device for shipment.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+        ],
+        "decisive_step": "Manufacture of the PCBA with Hall Effect sensor and complete assembly of the speed sensor in Thailand",
+        "confidence": 1,
+        "reasoning": "All components—including the PCBA with the Hall Effect sensor (which imparts the essential character of the speed sensor), the wire harness, the plastic housing, and the electrical connector—are entirely produced and assembled into the finished washing machine motor speed sensor in Thailand. Consistent with CBP precedent in N343952 and N344808 for similar Hall Effect speed sensors, because all manufacturing and assembly operations occur in Thailand, the country of origin is Thailand.",
+        "cited_rulings": [
+          "N343952",
+          "N344808"
+        ],
+        "precedents": [
+          "N340244",
+          "N343697",
+          "N343952",
+          "N344808",
+          "N346000"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2751,
+          "output_tokens": 207,
+          "latency_ms": 6553
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344809",
+        "confidence": 0.98,
+        "reasoning": "In N343953 and N344809 (as well as N343952), CBP held that the country of origin of Hall Effect speed sensors is determined by the origin of the Hall Effect sensor IC/PCBA that imparts the essential character of the device, as simple housing and wire assembly in Thailand does not substantially transform Chinese sensor components. Moving the production of the PCBA with Hall Effect sensor, wire harness, and electrical connector from China to Thailand (rendering all components and assembly Thai in Variant B) shifts the country of origin from China to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "speed sensor PCBA SMT assembly origin",
+            "rulings": [
+              "N330296",
+              "N335974",
+              "H338116",
+              "N345088",
+              "N339727",
+              "N335213",
+              "N343952",
+              "H331939"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Hall Effect sensor PCBA wire harness origin",
+            "rulings": [
+              "N343952",
+              "N343950",
+              "N343953",
+              "N344809",
+              "N344808",
+              "N346435",
+              "N343697",
+              "N340243"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "motor speed sensor Hall Effect PCBA wire harness plastic housing",
+            "rulings": [
+              "N343952",
+              "N343953",
+              "N344809",
+              "N343950",
+              "N344808",
+              "H322161",
+              "N346000",
+              "N343697"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344809",
+            "rulings": [
+              "N344809"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343953",
+            "rulings": [
+              "N343953"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343952",
+            "rulings": [
+              "N343952"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15968,
+          "output_tokens": 682,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a washing machine motor speed sensor (part number 290D1187P006). A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end. The washing machine motor speed sensor (part number 290D1187P006) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Printed circuit board assembly (PCBA) with Hall Effect sensor, Wire harness and Specialized electrical connector are produced in China. The Plastic housing are produced in Thailand. \n\nFinal assembly in Thailand: Attach wire harness to PCBA; Enclose PCBA and wire harness within plastic housing; Attach electrical connector to the end of the wire harness; Test finished device; Package finished device for shipment.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+        ],
+        "decisive_step": "Manufacturing of the Hall Effect sensor and PCBA in China",
+        "confidence": 0.98,
+        "reasoning": "Per N343953 and N344809, the essential character of a Hall Effect speed sensor is imparted by the Hall Effect sensor IC/PCBA, which performs the core sensing and transduction function. Here, the PCBA with the Hall Effect sensor, wire harness, and connector are all produced in China. The operations in Thailand (attaching the wire harness and connector, enclosing in a Thai plastic housing, and testing) constitute simple assembly and do not substantially transform the Chinese PCBA.",
+        "cited_rulings": [
+          "N343953",
+          "N344809"
+        ],
+        "precedents": [
+          "N343952",
+          "N343953",
+          "N344808",
+          "N344809",
+          "N346000"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2645,
+          "output_tokens": 198,
+          "latency_ms": 7149
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N350727); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_and_cables",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing and cables in Thailand",
+      "variant_facts": "The merchandise under consideration is a washing machine motor speed sensor (part number 290D1187P006). A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end. The washing machine motor speed sensor (part number 290D1187P006) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Printed circuit board assembly (PCBA) with Hall Effect sensor are produced in China. The Wire harness, Specialized electrical connector and Plastic housing are produced in Thailand. \n\nIn Thailand, the Wire harness, Specialized electrical connector and Plastic housing will be produced in-house: injection mold plastic shells, frames, buttons, and structural covers; laser cut, punch, bend, and coat sheet metal or aluminum enclosures; cut insulated conductors, twist wires, extrude outer cable jackets, and attach terminal connectors (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Attach wire harness to PCBA; Enclose PCBA and wire harness within plastic housing; Attach electrical connector to the end of the wire harness; Test finished device; Package finished device for shipment.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA) with Hall Effect sensor"
+        ],
+        "decisive_step": "Manufacture of the PCBA with the Hall Effect sensor in China",
+        "confidence": 0.92,
+        "reasoning": "Consistent with CBP precedent on Hall Effect speed sensors (e.g., N344808, N343952), the essential character of the motor speed sensor is imparted by the PCBA with the Hall Effect sensor, which performs the core sensing and signal generation function. Because the PCBA with the Hall Effect sensor is completely produced in China, and the operations in Thailand consist merely of producing the housing/harness and simple assembly (attaching wires and enclosing the PCBA), no substantial transformation occurs in Thailand.",
+        "cited_rulings": [
+          "N343952",
+          "N344808"
+        ],
+        "precedents": [
+          "N340244",
+          "N343697",
+          "N343952",
+          "N344808",
+          "N346000"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2726,
+          "output_tokens": 206,
+          "latency_ms": 9603
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 7,
+    "verifier_tool_calls": 12,
+    "input_tokens": 35965,
+    "output_tokens": 1860,
+    "engine_input_tokens": 10799,
+    "engine_output_tokens": 806,
+    "verifier_input_tokens": 25166,
+    "verifier_output_tokens": 1054,
+    "wall_seconds": 29.763634166
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "pcba_electronic_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.09053,
+  "cost_usd_list": 0.18106,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:15:28+08:00"
+}

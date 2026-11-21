@@ -244,7 +244,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
-- **The planner is the least tested part.** Its precedent check has only development pairs and 2026 pairs that informed its prompt. There is no post-25-Sep test yet.
+- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 13 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path.
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
 
@@ -277,3 +277,83 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 
 **What it shows, and what it does not.** The engine holds up on rulings published after everything it was built and tuned on. It does not show an improvement: the intervals overlap, the second split is easier for simple rules (most-mentioned country 71.1% against 60.7%; `eval/results/baselines-final2.json`), and it has near-duplicates (62 distinct subjects among 83 rulings; counting each subject once gives 91.9%). Four of its six errors are CBP holding China where the engine named the assembling country, the same weakness as before. Production is unchanged.
 
+## 7. Planner (21 Nov 2026)
+
+**Why.** A plan is shown only when the precedent check finds an earlier ruling where CBP treated the same kind of change as decisive (section 3.2). Until now that check was measured on development pairs and on 2026 pairs that informed its prompt. CBP rulings published after the 25 Sep 2026 cut-off make a clean test possible (D170). Separately, each of the 13 plan families had been tried on one product (D171).
+
+### 7.1 Post-cutoff flip pairs (D170)
+
+**How the set was built.** A cheap model proposed candidate pairs for the 85 post-cutoff substantial-transformation rulings; each kept pair was read by hand (facts and holding of both rulings) and frozen before scoring (`eval/data/flips_post.jsonl`, rule and rejected candidates in `eval/data/flips_post_meta.json`, pinned in `eval/SHA256SUMS`).
+
+| | Pairs | Source |
+|---|---:|---|
+| Real origin changes (core / edge) | 11 (6 / 5) | `eval/data/flips_post.jsonl` |
+| Controls: work moved, CBP kept the origin | 4 | same |
+| With a plan template (the product's family check) | 6 | `eval/results/planner-post-familycheck-litellm.jsonl` |
+
+**Precedent check, scored once** (production configuration: verifier-v2 on Gemini 4 Argon, plan bar 0.92, local corpus search, gateway). A move counts as right only if CBP's later ruling changed the origin and the check named that origin.
+
+| | CBP's starting origin given | Not given |
+|---|---|---|
+| Shown at the 0.92 bar that were right | 8 of 8 (67.6–100) | 4 of 5 (37.6–96.4) |
+| Real changes shown and right | 8 of 11 = 72.7% (43.4–90.3) | 4 of 11 = 36.4% (15.2–64.6) |
+| Core pairs only | 5 of 6 shown, all right | 1 of 2 shown right |
+| Controls shown | 0 of 4 | 0 of 4 |
+| Cost | $0.58 for 15 checks | $0.59 |
+
+Rows: `eval/results/flips-post-verifier-v2-{known-a,unknown-a}-litellm.jsonl`; every pair's outcome, with the cited rulings and a hand note on whether the cited ruling supports the move, is in `eval/results/planner-post-summary.json`.
+
+| Pair | Product | Tier | CBP: start → later | Check, starting origin given | Not given |
+|---|---|---|---|---|---|
+| BA-N366512-N366513 | Cabin air filter | core | China → Thailand | shown, right, 0.96 (N353724) | shown, right, 0.97 |
+| BA-N364414-N365093 | Metal windchime | core | China → Vietnam | shown, right, 0.96 (N361370) | below the bar, 0.85 |
+| BA-N364386-N365094 | Lantern wax warmer | core | China → Vietnam | shown, right, 0.92 (N345085) | below the bar, 0.90 |
+| BA-N357855-N365344 | Electric stove heater | core | China → Thailand | shown, right, 0.92 (N347421) | below the bar, 0.90 |
+| BA-N356030-N364865 | Strut assembly | core | China → Thailand | shown, right, 0.94 (N339174) | missed |
+| BA-N365280-N360430 | Fracking unit | core | China → UAE | missed (no change seen) | **shown, wrong later origin, 0.92** |
+| SP-N341280-N366550 | USB / SD card hub | edge | China → Philippines | shown, right, 0.97 (N339405) | shown, right, 0.96 |
+| SP-N339156-N365363 | Wrapping paper | edge | Finland → Germany | missed | below the bar, 0.75 |
+| SP-N365961-N366717 | Plywood | edge | Malaysia → Tanzania | shown, right, 0.96 (N347656) | shown, right, 0.96 |
+| SP-N365621-N365615 | Pneumatic wrench | edge | China → Malaysia | below the bar, 0.78 | missed |
+| SP-N355546-N365797 | Power MOSFET | edge | United States → South Korea | shown, right, 0.97 (N344105) | shown, right, 0.96 |
+| NEG-N365621-N366380 | Pneumatic ratchet wrench | control | China → China | not supported | supported below the bar, 0.78 (wrong) |
+| NEG-N366164-N366163 | Champ air purifier | control | Vietnam → Vietnam | not supported | not supported |
+| NEG-N366166-N366165 | Mighty air purifier | control | Vietnam → Vietnam | not supported | not supported |
+| NEG-N366168-N366167 | Waffle Cone air purifier | control | Indonesia → Indonesia | not supported | not supported |
+
+Read by hand, the ruling cited for each of the 8 shown moves supports it in 5; in 3 (windchime, wax warmer, heater) it points the right way with a different product, several scenarios, or a conflict with CBP's holding on the starting setup.
+
+**Plan search on the pairs with a template, once each** (`eval/results/planner-post-plan-*-litellm.json`, $0.76):
+
+| Fixture | CBP's later setup | Result |
+|---|---|---|
+| Strut assembly, target Thailand | shock absorber tube and piston rod made in Thailand | CBP's move is the top plan (0.96); backtest: it moves exactly those parts |
+| Stove heater, target Thailand | motor and housing made, and the unit assembled, in Thailand | CBP's move is shown (0.92), but the top-ranked plan is a cheaper subset, the motor alone (0.92), which CBP never ruled on. The planner cannot move final assembly |
+| Three air purifiers, reverse probe to China | a Chinese motor (and filters) kept the local origin | no plan shown. For the Waffle Cone the engine predicted China for the motor move and the check supported it at 0.85: only the bar kept a wrong plan off the screen |
+
+**What it shows, and what it does not.** On rulings published after everything the check was written from, nothing wrong cleared the bar when CBP's starting origin was given, and about three in four real changes did. Without the starting origin the check is weaker and showed one wrong plan. The set is small (11 real changes), read by one person, scored through the gateway with local search, and a few pairs repeat patterns the check has seen. It is evidence about the precedent check, not about plan quality in general. The plan search reached CBP's move in both real changes it could express, and can rank an untested cheaper subset above it.
+
+### 7.2 Per-family plan checks (D171)
+
+Two products per family from development or train rulings (never a test split), picked by a fixed rule (`eval/planner/family_picks.py`); one predict + plan search each through the gateway. China-held setups first; families with none use a reverse probe. The ruling each shown plan cites was read by hand.
+
+| Family | Products (CBP held → target) | Precedent-supported plan | Cited ruling supports the move | Cost |
+|---|---|---|---|---|
+| PCBA-based devices | N350727 (China → Thailand), N352230 (China → Malaysia) | 1 of 2 | 1 supports | $0.14 |
+| Vehicle parts | N349871 (China → Thailand), N352073 (China → Philippines) | 2 of 2 | 1 partial, 1 does not | $0.08 |
+| Cables and harnesses | N350058, N350769 (China → Thailand) | 2 of 2 | 1 supports, 1 does not | $0.23 |
+| Motorised tools and appliances | N350310 (China → United States), N351922 (China → Thailand) | 1 of 2 | 1 partial | $0.53 |
+| Power supplies | N352355 (China → Vietnam), N350383 (Indonesia → China) | 2 of 2 | 2 support | $0.09 |
+| Hand tools | N352429 (China → Taiwan), N354220 (China → Vietnam) | 1 of 2 | 1 partial | $0.16 |
+| LED lights | N335263 (China → Hong Kong), H304679 (China → Cambodia) | 1 of 2 | 1 supports | $0.14 |
+| Medical devices | N333453 (China → Japan), N350152 (Japan → China) | 2 of 2 | 1 supports, 1 partial | $0.12 |
+| Water filters | H339955 (China → South Korea), N350826 (United States → China) | 1 of 2 | 1 supports | $0.16 |
+| Displays and cameras | N352223 (Philippines → Japan), N354175 (Taiwan → China) | 1 of 2 | 1 supports | $0.09 |
+| Furniture | N350678 (Vietnam → China), H345343 (United States → China) | 0 of 2 | — | $0.10 |
+| Gas grills | N354448 (Indonesia → China), the only eligible ruling | 1 of 1 | 1 supports | $0.06 |
+| LiDAR modules | no eligible ruling | — | — | — |
+| **All** | 23 | **15 of 23 = 65.2% (44.9–81.2)**; 8 to a broker | 9 support, 4 partial, 2 do not | $1.90 ($0.083 a search) |
+
+The two "does not" cases cite a ruling that holds China for an all-Chinese setup; both plans leave no Chinese part, so they are likely right on their face, but the citation does not show it. Per-run detail, closest rejected move and notes: `eval/results/planner-families-summary.json`, `eval/planner/spot_checks.json`. These are development checks with illustrative economics, one run each; no later ruling tells whether a shown plan would work.
+
+Recompute both summaries with `python3 -I eval/planner/summarize.py . --check` (part of `make reproduce`); the post-cutoff counts are also recomputed by `go run ./cmd/claimscheck` (`planner_post.*`).

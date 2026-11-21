@@ -1,0 +1,486 @@
+{
+  "case_id": "fam-n350058",
+  "target": "Thailand",
+  "family": "cables_harnesses",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Oven spark plug assembly. An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire. The Oven spark plug assembly is assembled in Thailand using components sourced from China.\n\nThe Connector, Terminal, Ceramic and Electric wire are produced in China. \n\nFinal assembly in Thailand: Assembling the electric wire and the terminal; Gluing the ceramic; Cutting the ignition head; Polishing; Test and package.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Pre-manufactured Chinese components (ceramic, terminal, connector, and electric wire)"
+      ],
+      "decisive_step": "Manufacturing of the underlying spark plug components in China",
+      "confidence": 0.92,
+      "reasoning": "All components (connector, terminal, ceramic, wire) are entirely manufactured in China with predetermined end-uses. Similar to N350059, where assembling Chinese gas range components in Thailand did not result in a substantial transformation, the operations in Thailand here—connecting wire and terminal, gluing ceramic, cutting/polishing the tip, and testing—constitute simple assembly and minor finishing. Because no complex manufacturing occurs in Thailand to change the fundamental character of the Chinese parts, the country of origin remains China.",
+      "cited_rulings": [
+        "N350059"
+      ],
+      "precedents": [
+        "N344129",
+        "N344657",
+        "N345996",
+        "N347207",
+        "N350059"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2541,
+        "output_tokens": 201,
+        "latency_ms": 7191
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350058"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "cable_insulation_jacket",
+          "to_plant": "th"
+        },
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Cable insulation and jacket and Connectors and housings in Thailand",
+      "variant_facts": "The merchandise under consideration is a Oven spark plug assembly. An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire. The Oven spark plug assembly is assembled in Thailand using components sourced from Thailand.\n\nThe Connector, Terminal, Ceramic and Electric wire are produced in Thailand. \n\nIn Thailand, the Electric wire will be produced in-house: extrude PVC or polymer insulation around conducting cores; wrap insulated cores with aluminum-mylar tape, drain wires, and braided metal shielding; extrude outer protective jacket and wind bulk unterminated cable onto reels (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Connector, Terminal and Ceramic will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assembling the electric wire and the terminal; Gluing the ceramic; Cutting the ignition head; Polishing; Test and package.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "All components (electric wire, ceramic, terminal, connector) and assembly operations"
+        ],
+        "decisive_step": "Component manufacturing and complete assembly into the oven spark plug assembly in Thailand",
+        "confidence": 1,
+        "reasoning": "All components of the oven spark plug assembly—including the electric wire, connector, terminal, and ceramic—are manufactured in Thailand, and the final assembly, cutting, gluing, polishing, and testing also take place entirely in Thailand. Because the product is wholly produced and assembled in a single country from domestic components, the country of origin is unambiguously Thailand.",
+        "cited_rulings": [],
+        "precedents": [
+          "N344129",
+          "N346532",
+          "N347166",
+          "N347207",
+          "N348567"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2565,
+          "output_tokens": 179,
+          "latency_ms": 7676
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350050",
+        "confidence": 0.96,
+        "reasoning": "In companion oven-component rulings N350050 (oven lamps with ceramic sockets, wires, and connectors) and N350059 (oven latch assembly), CBP held that when all components are produced in China and undergoes simple final assembly in Thailand, the components have a pre-determined end-use and are not substantially transformed, making China the country of origin (matching Variant A). In Variant B, all four components (connector, terminal, ceramic, and electric wire) are manufactured from the ground up in Thailand (extruding wire, stamping/forming terminals, molding connectors) and assembled in Thailand. Because both component production and final assembly occur in Thailand, origin is Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "connector terminal ceramic electric wire assembly origin",
+            "rulings": [
+              "N345085",
+              "N347638",
+              "H305940",
+              "N341204",
+              "N344129",
+              "N344657",
+              "N333598",
+              "N338935"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"spark plug\" OR \"igniter\" oven gas range assembly origin",
+            "rulings": [
+              "N350059",
+              "N340198",
+              "N341188",
+              "N340202",
+              "N340153",
+              "N331814",
+              "N338935",
+              "N350050"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350059",
+            "rulings": [
+              "N350059"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347638",
+            "rulings": [
+              "N347638"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350050",
+            "rulings": [
+              "N350050"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N341204",
+            "rulings": [
+              "N341204"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14219,
+          "output_tokens": 414,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Oven spark plug assembly. An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire. The Oven spark plug assembly is assembled in Thailand using components sourced from China.\n\nThe Connector, Terminal, Ceramic and Electric wire are produced in China. \n\nFinal assembly in Thailand: Assembling the electric wire and the terminal; Gluing the ceramic; Cutting the ignition head; Polishing; Test and package.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Pre-manufactured Chinese components (ceramic, terminal, connector, and electric wire)"
+        ],
+        "decisive_step": "Manufacturing of the underlying spark plug components in China",
+        "confidence": 0.92,
+        "reasoning": "All components (connector, terminal, ceramic, wire) are entirely manufactured in China with predetermined end-uses. Similar to N350059, where assembling Chinese gas range components in Thailand did not result in a substantial transformation, the operations in Thailand here—connecting wire and terminal, gluing ceramic, cutting/polishing the tip, and testing—constitute simple assembly and minor finishing. Because no complex manufacturing occurs in Thailand to change the fundamental character of the Chinese parts, the country of origin remains China.",
+        "cited_rulings": [
+          "N350059"
+        ],
+        "precedents": [
+          "N344129",
+          "N344657",
+          "N345996",
+          "N347207",
+          "N350059"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2541,
+          "output_tokens": 201,
+          "latency_ms": 7191
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N350058); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Connectors and housings in Thailand",
+      "variant_facts": "The merchandise under consideration is a Oven spark plug assembly. An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire. The Oven spark plug assembly is assembled in Thailand using components sourced from Thailand and China.\n\nThe Connector, Terminal and Ceramic are produced in Thailand. The Electric wire are sourced from China. \n\nIn Thailand, the Connector, Terminal and Ceramic will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assembling the electric wire and the terminal; Gluing the ceramic; Cutting the ignition head; Polishing; Test and package.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The ceramic insulator, metal terminal, and connector that form the functional spark plug igniter."
+        ],
+        "decisive_step": "Manufacturing the ceramic, terminal, and connector, and assembling them with the wire in Thailand.",
+        "confidence": 0.95,
+        "reasoning": "Three of the four main components—the connector, terminal, and ceramic insulator—are wholly manufactured in Thailand through stamping, forming, and molding. These components impart the essential character of the spark plug assembly as a gas igniter, whereas the Chinese electric wire merely conducts current. Furthermore, the final assembly, gluing, cutting of the ignition head, and polishing in Thailand substantially transform the Chinese wire and Thai components into a new article of commerce.",
+        "cited_rulings": [],
+        "precedents": [
+          "N335581",
+          "N344129",
+          "N344657",
+          "N345996",
+          "N350059"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2618,
+          "output_tokens": 202,
+          "latency_ms": 8647
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350050",
+        "counter_ruling": "N335078",
+        "confidence": 0.78,
+        "reasoning": "In Variant A (and companion rulings N350050 and N350059), origin was China because all components were produced in China and merely assembled in Thailand. In Variant B, the functional spark-plug components—the connector, terminal, and ceramic—are manufactured in Thailand, leaving only the electric wire sourced from China. Unlike wire harnesses (N335078) where the wire itself is the primary functional component, the functional character of an oven spark plug assembly is imparted by the terminal, ceramic insulator, and connector that create the spark, plus final assembly in Thailand. Thus, origin shifts to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "igniter oven gas range wire ceramic assembly",
+            "rulings": [
+              "N350059",
+              "N340198",
+              "N341188",
+              "N340202",
+              "N350050",
+              "N340153",
+              "N335581",
+              "N335508"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "spark plug assembly wire ceramic terminal connector",
+            "rulings": [
+              "H305940",
+              "N344129",
+              "N344657",
+              "H304419",
+              "N347638",
+              "H354721",
+              "N345085",
+              "N347139"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire harness connector terminal assembly China Thailand",
+            "rulings": [
+              "N335078",
+              "N340244",
+              "N347638",
+              "N341204",
+              "N346435",
+              "N350050",
+              "N348743",
+              "H354721"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350059",
+            "rulings": [
+              "N350059"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350050",
+            "rulings": [
+              "N350050"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335078",
+            "rulings": [
+              "N335078"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13720,
+          "output_tokens": 451,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.78 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "cable_insulation_jacket",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Cable insulation and jacket in Thailand",
+      "variant_facts": "The merchandise under consideration is a Oven spark plug assembly. An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire. The Oven spark plug assembly is assembled in Thailand using components sourced from China and Thailand.\n\nThe Connector, Terminal and Ceramic are produced in China. The Electric wire are produced in Thailand. \n\nIn Thailand, the Electric wire will be produced in-house: extrude PVC or polymer insulation around conducting cores; wrap insulated cores with aluminum-mylar tape, drain wires, and braided metal shielding; extrude outer protective jacket and wind bulk unterminated cable onto reels (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assembling the electric wire and the terminal; Gluing the ceramic; Cutting the ignition head; Polishing; Test and package.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Electric wire and spark plug assembly operations"
+        ],
+        "decisive_step": "Production of the electric wire and final assembly with terminals, ceramic, and connectors in Thailand",
+        "confidence": 0.85,
+        "reasoning": "Consistent with CBP precedent on wire/cable products (e.g., N347166), the conducting electric wire is a critical functional component produced in Thailand. Furthermore, in Thailand, the Chinese components (connector, terminal, ceramic) are combined with the Thai-origin electric wire through assembling, gluing the ceramic, cutting the ignition head, and polishing. Because both the key conducting wire production and the complete assembly of the oven spark plug assembly occur in Thailand, the country of origin is Thailand.",
+        "cited_rulings": [
+          "N347166"
+        ],
+        "precedents": [
+          "N344129",
+          "N346532",
+          "N347166",
+          "N347207",
+          "N348567"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2504,
+          "output_tokens": 201,
+          "latency_ms": 8647
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N350050",
+        "confidence": 0.75,
+        "reasoning": "In Variant A (N350058) and companion ruling N350050 (oven lamps assembled in Thailand from Chinese components), CBP held that simple assembly in Thailand does not substantially transform the Chinese components because they have a predetermined end-use and retain their character. In Variant B, only the electric wire is produced in Thailand, while the core spark plug components (ceramic, terminal, and connector) remain produced in China with a predetermined end-use as an oven spark plug assembly. Moving only the wire production to Thailand does not alter the essential character imparted by the Chinese spark plug components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "wire harness cable connector terminal extrude wire origin",
+            "rulings": [
+              "N335078",
+              "N340244",
+              "N340243",
+              "N347638",
+              "N343543",
+              "N342924",
+              "N343808",
+              "N348743"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"spark plug\" OR igniter oven gas range wire ceramic terminal origin",
+            "rulings": [
+              "N331814",
+              "N350059",
+              "N344129",
+              "N344657",
+              "H304419",
+              "N340198",
+              "N335508",
+              "N350050"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "igniter electrode ceramic wire assembly origin",
+            "rulings": [
+              "H342702",
+              "N348490",
+              "N345085",
+              "N341875",
+              "N336445",
+              "N333598",
+              "N339798",
+              "H304419"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire extruded connector terminal assembly origin",
+            "rulings": [
+              "N347638",
+              "N348679",
+              "N348743",
+              "N348305",
+              "N348304",
+              "H354721",
+              "N341204",
+              "H305940"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350050",
+            "rulings": [
+              "N350050"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347638",
+            "rulings": [
+              "N347638"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8812,
+          "output_tokens": 407,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 11,
+    "verifier_tool_calls": 18,
+    "input_tokens": 46979,
+    "output_tokens": 2055,
+    "engine_input_tokens": 10228,
+    "engine_output_tokens": 783,
+    "verifier_input_tokens": 36751,
+    "verifier_output_tokens": 1272,
+    "wall_seconds": 31.899502125
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "cables_harnesses": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.114508,
+  "cost_usd_list": 0.229016,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:12+08:00"
+}
