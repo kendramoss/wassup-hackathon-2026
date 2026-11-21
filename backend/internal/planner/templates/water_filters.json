@@ -1,6 +1,7 @@
 {
   "family": "water_filters",
   "version": "1",
+  "union_default_operations": true,
   "name": "Water filters and filtration systems",
   "note": "For water filters and passive filtration systems, CBP consistently determines that the country of origin is conferred by the primary filtration media, such as the carbon block, because it performs the essential contaminant-removal function and represents the highest cost. Conversely, assembling the filtration media into plastic cartridges, sumps, or non-electric tanks with covers, O-rings, and valves is considered simple assembly that does not result in a substantial transformation, unless the product is an electric dispenser where the pumping unit and electronics dominate. Written from 12 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

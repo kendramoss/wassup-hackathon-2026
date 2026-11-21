@@ -27,6 +27,12 @@ type Template struct {
 	// ID must be a substantial-transformation ruling in the bundled corpus;
 	// a test checks it.
 	Sources []string `json:"sources,omitempty"`
+	// UnionDefaultOperations marks families written from many rulings whose
+	// group operations are the union of processes across different products.
+	// With no product-level operations supplied, Render must not assert all of
+	// them for one product: it writes a neutral "made in" line instead
+	// (issue #392, D264). The three earlier templates leave this false.
+	UnionDefaultOperations bool `json:"union_default_operations,omitempty"`
 }
 
 // TemplateGroup is an operation group with whether the planner may move it.

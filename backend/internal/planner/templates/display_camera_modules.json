@@ -1,6 +1,7 @@
 {
   "family": "display_camera_modules",
   "version": "1",
+  "union_default_operations": true,
   "name": "Display modules and cameras",
   "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or grinding and milling of optical lens blanks. Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

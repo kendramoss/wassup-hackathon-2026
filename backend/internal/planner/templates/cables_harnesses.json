@@ -1,6 +1,7 @@
 {
   "family": "cables_harnesses",
   "version": "1",
+  "union_default_operations": true,
   "name": "Cables, cord sets and wire harnesses",
   "note": "For electrical cables, cord sets, and wire harnesses, CBP consistently holds that the country of origin is determined by the country where the underlying metal wire conductor or optical fiber is manufactured, or where single strands are wound, twisted, and extruded into multi-strand conducting cores. Downstream operations such as applying insulation and shielding to pre-existing cores, cutting bulk cable to length, stripping ends, soldering or crimping connectors, and bundling into harnesses or housings are treated as simple assembly that does not confer origin. Written from 45 CBP substantial-transformation rulings (of 59 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

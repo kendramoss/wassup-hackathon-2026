@@ -1,6 +1,7 @@
 {
   "family": "medical_devices",
   "version": "1",
+  "union_default_operations": true,
   "name": "Medical devices and disposables",
   "note": "For medical devices and disposables, CBP usually finds that origin is conferred where the primary functional component, such as the stainless steel needle cannula, syringe barrel or bulb, main fluid chamber or tubing, forged surgical blank, or printed circuit board assembly and optical sensor array, is manufactured. Conversely, CBP treats attaching plastic hubs, bonding connectors and clamps onto tubing, inserting plungers into barrels, putting components into blister trays, and sterilizing and packaging as simple assembly that does not confer origin. Written from 26 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [

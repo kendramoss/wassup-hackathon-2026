@@ -1,6 +1,7 @@
 {
   "family": "gas_grills_cooking",
   "version": "1",
+  "union_default_operations": true,
   "name": "Gas grills and outdoor cooking appliances",
   "note": "CBP generally finds that origin is conferred where raw sheet metal and tubing are substantially transformed through stamping, forming, bending, welding, and porcelain enameling into the main structural subassemblies such as the lid, firebox, cooking area, and frame. Conversely, merely enameling pre-formed enclosures or joining pre-manufactured burner assemblies, gas trains, housings, and minor local brackets through fastener assembly and testing does not confer origin. Written from 11 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
   "sources": [
