@@ -90,6 +90,36 @@ func TestCleanFacts(t *testing.T) {
 			want: "- The motor is wound in China.\n\n- The heat gun is assembled in Thailand.",
 		},
 		{
+			name: "unpunctuated list items are separate sentences (#478)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\n- The motor is wound in China\n- You requested a ruling on the origin of the heat gun\n- The heat gun is assembled in Thailand",
+			want: "- The motor is wound in China\n\n- The heat gun is assembled in Thailand",
+		},
+		{
+			name: "an unpunctuated list needs no lead-in (#478)",
+			in:   "- The motor is wound in China\n- You requested a ruling on the origin of the heat gun\n- The heat gun is assembled in Thailand",
+			want: "- The motor is wound in China\n\n- The heat gun is assembled in Thailand",
+		},
+		{
+			name: "other common bullet characters (#478)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\n+ The motor is wound in China.\n+ You requested a ruling on the origin of the heat gun.\n+ The heat gun is assembled in Thailand.",
+			want: "+ The motor is wound in China.\n\n+ The heat gun is assembled in Thailand.",
+		},
+		{
+			name: "a colon lead-in does not take the first item (#478)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun, which is described as follows:\n- The motor is wound in China.\n- The heat gun is assembled in Thailand.",
+			want: "- The motor is wound in China.\n\n- The heat gun is assembled in Thailand.",
+		},
+		{
+			name: "a dropped numbered item leaves no number (#478)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\n1. The motor is wound in China.\n2. You requested a ruling on the origin.\n3. The heat gun is assembled in Thailand.",
+			want: "1. The motor is wound in China.\n\n3. The heat gun is assembled in Thailand.",
+		},
+		{
+			name: "multi-letter roman numerals stay with their items (#478)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\nii. The motor is wound in China.\niii. You requested a ruling on the origin.\niv) The heat gun is assembled in Thailand.",
+			want: "ii. The motor is wound in China.\n\niv) The heat gun is assembled in Thailand.",
+		},
+		{
 			name: "nothing but boilerplate gives a placeholder",
 			in:   "In your letter dated 1 May, you requested a ruling.",
 			want: NoFactsPlaceholder,
@@ -105,6 +135,20 @@ func TestCleanFacts(t *testing.T) {
 				t.Errorf("CleanFacts =\n%q\nwant\n%q", got, tc.want)
 			}
 		})
+	}
+}
+
+// Every common pasted bullet marker separates items (#478), including Word's
+// second-level "o" and the small square/diamond markers.
+func TestCleanFactsBulletMarkers(t *testing.T) {
+	lead := "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun."
+	for _, b := range []string{"+", "o", "◦", "▪", "‣"} {
+		in := lead + "\n" + b + " The motor is wound in China.\n" + b +
+			" You requested a ruling on the origin of the heat gun.\n" + b + " The heat gun is assembled in Thailand."
+		want := b + " The motor is wound in China.\n\n" + b + " The heat gun is assembled in Thailand."
+		if got := CleanFacts(in); got != want {
+			t.Errorf("marker %q: CleanFacts =\n%q\nwant\n%q", b, got, want)
+		}
 	}
 }
 
@@ -166,6 +210,33 @@ func TestDraftHeatGunFactsAnyLineBreaks(t *testing.T) {
 		}
 		if got, want := CleanFacts(in.Facts), CleanFacts(f); got != want {
 			t.Errorf("%s: CleanFacts differs from the blank-line facts:\n%q\nwant\n%q", name, got, want)
+		}
+	}
+}
+
+// #465 asked for the heat-gun demo facts as a bulleted list too: the pasted
+// lead-in is dropped alone and every fact survives, with LF or CRLF breaks.
+func TestDraftHeatGunFactsAsBullets(t *testing.T) {
+	lead := "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun."
+	items := []string{
+		"The item under consideration is the Kobalt 12.5-amp heat gun, model number 5208257.",
+		"Each heat gun is assembled in Thailand using 24 components sourced from China and Thailand.",
+		"Each heat gun is tested before it is labeled and packaged.",
+	}
+	for _, bullet := range []string{"-", "•"} {
+		for _, br := range []string{"\n", "\r\n"} {
+			facts := lead + br + bullet + " " + strings.Join(items, br+bullet+" ")
+			in := Input{ProductName: "heat gun", Facts: facts, Requested: "Thailand"}
+			for format, out := range map[string]string{"markdown": Markdown(in), "cfr": CFR177(in)} {
+				if strings.Contains(out, "you requested") {
+					t.Errorf("%q/%s: draft contains the lead-in: %s", bullet, format, out)
+				}
+				for _, s := range items {
+					if !strings.Contains(out, s) {
+						t.Errorf("%q/%s: draft lost %q: %s", bullet, format, s, out)
+					}
+				}
+			}
 		}
 	}
 }
