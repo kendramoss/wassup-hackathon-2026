@@ -19,7 +19,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
   // The sections read as buttons, not loose text (18 Oct): one segmented
   // group, the current one filled.
   const item = (on: boolean) =>
-    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors lg:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
+    // At 320 px the four links plus their padding overflow the viewport, so
+    // tighten only that narrowest band; hit heights stay at 40 px (#509).
+    cx("flex min-h-10 items-center rounded-[2px] px-3 transition-colors max-[359px]:px-2 lg:px-5", on ? "bg-ink text-paper" : "text-ink hover:bg-wash");
   return (
     // From md up the bar is three columns, so the section buttons sit in the
     // true middle on one row: logo and case breadcrumb left, actions right.
@@ -55,9 +57,9 @@ export function AppBar({ active = "cases", sticky = false }: { active?: "cases" 
       {/* Below md (phones) the buttons take their own centred row under the logo. */}
       <nav
         aria-label="Main"
-        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] md:order-none md:w-auto lg:text-[15px]"
+        className="order-3 flex w-full justify-center whitespace-nowrap text-[13px] max-[359px]:text-[12px] md:order-none md:w-auto lg:text-[15px]"
       >
-        <div className="flex gap-1 rounded-[2px] border border-edge bg-sheet p-1 shadow-btn sm:gap-1.5">
+        <div className="flex gap-1 rounded-[2px] border border-edge bg-sheet p-1 shadow-btn max-[359px]:gap-0.5 max-[359px]:p-0.5 sm:gap-1.5">
           <Link href="/cases" aria-current={active === "cases" ? "page" : undefined} className={item(active === "cases")}>
             {copy.nav.cases}
           </Link>
