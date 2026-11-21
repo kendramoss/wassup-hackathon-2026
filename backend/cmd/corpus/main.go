@@ -110,6 +110,8 @@ func main() {
 		err = labelCheck(os.Args[2:])
 	case "final2-label":
 		err = final2Label(os.Args[2:])
+	case "bulletins":
+		err = bulletins(os.Args[2:])
 	case "supersession":
 		err = supersession(os.Args[2:])
 	default:
