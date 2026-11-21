@@ -1,5 +1,7 @@
 import type { CaseResponse } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
+import Link from "next/link";
+import { regimeOf } from "@/lib/regime";
 import { Country, Fold, cx } from "./ui";
 
 type RuleCheck = NonNullable<CaseResponse["rule_check"]>;
@@ -8,7 +10,10 @@ type RuleCheck = NonNullable<CaseResponse["rule_check"]>;
 // the HTS codes on the parts list, shown beside the model's answer. It is
 // display only; the verdict above, the route and auto-accept never read it.
 // The backend sends it only when the product gives codes, so most cases show
-// nothing here.
+// nothing here. What the screen shows (coordinator review of #544): the full
+// panel only when the check decided; a compact, calm line when it did not;
+// on a Part 102 case without part codes, a line saying how to run it; on a
+// substantial-transformation case without part codes, nothing.
 export function headline(rc: RuleCheck): { text: string; tone?: "ask" } {
   const R = copy.ruleCheck;
   const r = rc.result;
@@ -34,10 +39,59 @@ const statusWords: Record<string, string> = {
   missing_hts: "no HTS code",
 };
 
-export function RuleCheckPanel({ c }: { c: CaseResponse }) {
-  const rc = c.rule_check;
-  if (!rc) return null;
+export type RuleCheckDisplay =
+  | { kind: "none" }
+  | { kind: "panel"; rc: RuleCheck }
+  | { kind: "line"; text: string; addCodes: boolean };
+
+function isPart102(c: CaseResponse): boolean {
+  if (c.rule_check) return c.rule_check.applies === "part102";
+  return c.router?.regime === "usmca_part102" || regimeOf(c)?.key === "usmca";
+}
+
+// ruleCheckDisplay picks the display state from the case as the API sends it.
+export function ruleCheckDisplay(c: CaseResponse): RuleCheckDisplay {
   const R = copy.ruleCheck;
+  const rc = c.rule_check;
+  if (!rc) {
+    // No check: on a Part 102 case with a parts list, say how to run it.
+    const parts = c.product?.components ?? [];
+    if (!isPart102(c) || parts.length === 0) return { kind: "none" };
+    const missing = parts.filter((p) => !p.hts?.trim()).length;
+    const noGood = !c.product?.hts?.trim();
+    // Every code given but no check: it is switched off on this server.
+    if (missing === 0 && !noGood) return { kind: "none" };
+    return { kind: "line", text: R.addCodes(missing, noGood), addCodes: true };
+  }
+  if (rc.result.status === "decided") return { kind: "panel", rc };
+  if (rc.result.status === "out_of_scope") return { kind: "line", text: R.outOfScope, addCodes: false };
+  const missing = (rc.result.materials ?? []).filter((m) => m.status === "missing_hts").length;
+  if (!rc.result.rule || missing > 0) {
+    return { kind: "line", text: R.addCodes(missing, !rc.result.rule), addCodes: true };
+  }
+  return { kind: "line", text: headline(rc).text, addCodes: false };
+}
+
+export function RuleCheckPanel({ c }: { c: CaseResponse }) {
+  const d = ruleCheckDisplay(c);
+  if (d.kind === "none") return null;
+  const R = copy.ruleCheck;
+  if (d.kind === "line") {
+    return (
+      <p data-rule-check="line" className="duo max-w-[75ch] text-[13px] text-dim">
+        <span className="text-body">{R.title}:</span> {d.text}
+        {d.addCodes ? (
+          <>
+            {" "}
+            <Link href={`/cases/new?from=${encodeURIComponent(c.id ?? "")}#field-part-hts-0`} className="text-ok underline underline-offset-2">
+              {R.addCodesLink}
+            </Link>
+          </>
+        ) : null}
+      </p>
+    );
+  }
+  const rc = d.rc;
   const r = rc.result;
   const h = headline(rc);
   return (
@@ -48,7 +102,7 @@ export function RuleCheckPanel({ c }: { c: CaseResponse }) {
     >
       <h2 className="eyebrow mb-1.5">{R.title}</h2>
       <p className="read text-[15px]">
-        {r.status === "decided" && r.origin ? (
+        {r.origin ? (
           <>
             <Country name={r.origin} />{" "}
           </>

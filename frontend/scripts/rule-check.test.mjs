@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { html, text } from "./render-support.mjs";
 
-// D363: the 19 CFR 102.20 rule check panel. Absent unless the API sends it;
-// says it is display only; flags a decided check that differs from the model.
-const { RuleCheckPanel, headline } = await import("../src/components/op/rule-check.tsx");
+// D363 display states (coordinator review of #544): the full panel only when
+// the check decided; a compact line otherwise; on a Part 102 case without
+// part codes, a line saying how to run it; on a substantial-transformation
+// case without part codes, nothing.
+const { RuleCheckPanel, ruleCheckDisplay, headline } = await import("../src/components/op/rule-check.tsx");
 
-const base = {
+const decided = {
   rules: "19 CFR 102.20",
   applies: "part102",
   country: "Mexico",
@@ -23,36 +25,66 @@ const base = {
     materials: [{ name: "aluminum fins", hts: "7616.99", origin: "China", foreign: true, status: "shift", alternative: 1 }],
   },
 };
+const rule = decided.result.rule;
+const product = (hts, parts) => ({ name: "p", hts, components: parts.map((h, i) => ({ name: `part ${i}`, made_in: "China", ...(h ? { hts: h } : {}) })) });
+const part102 = { router: { regime: "usmca_part102" } };
+const st = { router: { regime: "substantial_transformation" } };
 
-test("nothing without a rule_check", () => {
-  assert.equal(html(RuleCheckPanel, { c: { id: "x" } }), "");
-});
-
-test("a decided check names the rule, the basis and that it changes nothing", () => {
-  const m = html(RuleCheckPanel, { c: { id: "x", rule_check: base } });
+test("decided and agreeing: the full panel, calm", () => {
+  const c = { id: "x", rule_check: decided };
+  assert.equal(ruleCheckDisplay(c).kind, "panel");
+  const m = html(RuleCheckPanel, { c });
   const t = text(m);
   assert.match(t, /Rule check \(19 CFR 102\.20\)/);
   assert.match(t, /Mexico under the tariff-shift rules, from the codes given\./);
   assert.match(t, /19 CFR 102\.11\(a\)\(3\)/);
   assert.match(t, /does not change the answer above or what is auto-accepted/);
   assert.match(t, /aluminum fins · 7616\.99 · China · shifts/);
-  assert.match(m, /aria-label="Rule check \(19 CFR 102\.20\)"/);
   assert.doesNotMatch(m, /bg-ask-wash/);
 });
 
-test("a decided check that differs from the model is flagged, in the ask tone", () => {
-  const rc = { ...base, review: true, agrees: false, model_origin: "China" };
+test("decided and differing from the model: the full panel, flagged", () => {
+  const rc = { ...decided, review: true, agrees: false, model_origin: "China" };
   const m = html(RuleCheckPanel, { c: { id: "x", rule_check: rc } });
   assert.match(text(m), /The model said China: worth a broker's look\./);
   assert.match(m, /bg-ask-wash/);
   assert.equal(headline(rc).tone, "ask");
 });
 
-test("undetermined and de minimis read as open, never as an answer", () => {
-  const open = { ...base, result: { status: "undetermined", reason: "the shift cannot be decided for fins; see what each needs", materials: [] } };
-  assert.equal(headline(open).text, "Not decided from the codes given.");
-  const dm = { ...base, result: { status: "undetermined", reason: "r", if_not_de_minimis: { origin: "China", basis: "b", condition: "c" } } };
-  assert.match(headline(dm).text, /Open on value: Mexico if the parts that do not shift are worth no more than 7% of the good, otherwise China\./);
-  const info = text(html(RuleCheckPanel, { c: { id: "x", rule_check: { ...base, applies: "informational" } } }));
+test("undetermined for missing part codes: one line with a link to add them", () => {
+  const rc = { ...decided, result: { status: "undetermined", reason: "r", rule, materials: [
+    { name: "a", hts: "7616.99", origin: "China", foreign: true, status: "shift" },
+    { name: "b", origin: "China", foreign: true, status: "missing_hts" },
+    { name: "c", origin: "China", foreign: true, status: "missing_hts" },
+  ] } };
+  const m = html(RuleCheckPanel, { c: { id: "case_1", rule_check: rc } });
+  assert.match(text(m), /^Rule check \(19 CFR 102\.20\): add HTS codes for 2 parts to run it\. Add codes$/);
+  assert.match(m, /href="\/cases\/new\?from=case_1#field-part-hts-0"/);
+  assert.doesNotMatch(m, /<section|bg-ask-wash/);
+});
+
+test("undetermined on a fact or a value: one calm line, no panel", () => {
+  const fact = { ...decided, result: { status: "undetermined", reason: "r", rule, materials: [{ name: "fan", hts: "8414.59", origin: "China", foreign: true, status: "needs_fact" }] } };
+  assert.equal(text(html(RuleCheckPanel, { c: { id: "x", rule_check: fact } })), "Rule check (19 CFR 102.20): not decided from the codes given; it needs a fact the codes cannot show.");
+  const dm = { ...decided, result: { status: "undetermined", reason: "r", rule, if_not_de_minimis: { origin: "China", basis: "b", condition: "c" } } };
+  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: dm } })), /: open on value: Mexico if the parts that do not shift are worth no more than 7% of the good, otherwise China\.$/);
+  const oos = { ...decided, result: { status: "out_of_scope", reason: "r" } };
+  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: oos } })), /not encoded for this product's chapter yet\./);
+});
+
+test("Part 102 case with only the good's code: a line to add the part codes", () => {
+  const c = { id: "x", ...part102, product: product("8473.30", ["", ""]) };
+  assert.deepEqual(ruleCheckDisplay(c), { kind: "line", text: "add HTS codes for 2 parts to run it.", addCodes: true });
+  const noGood = { id: "x", ...part102, product: product("", [""]) };
+  assert.equal(ruleCheckDisplay(noGood).text, "add HTS codes for the product and 1 part to run it.");
+});
+
+test("substantial-transformation case without part codes: nothing", () => {
+  assert.equal(html(RuleCheckPanel, { c: { id: "x", ...st, product: product("8516.31", ["", ""]) } }), "");
+  assert.equal(html(RuleCheckPanel, { c: { id: "x" } }), "");
+});
+
+test("substantial-transformation case with part codes: shown, labelled for comparison", () => {
+  const info = text(html(RuleCheckPanel, { c: { id: "x", ...st, rule_check: { ...decided, applies: "informational" } } }));
   assert.match(info, /decided under substantial transformation; the Part 102 check is for comparison only/);
 });

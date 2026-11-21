@@ -370,6 +370,9 @@ export function ProductStep() {
       if (c.product?.components?.length) {
         setProduct(c.product);
         setTab("parts");
+        // From the rule check's "Add codes" link: land on the first part's
+        // HTS field once the parts table is drawn (D363).
+        if (window.location.hash === "#field-part-hts-0") setTimeout(() => document.getElementById("field-part-hts-0")?.focus(), 0);
       } else setTab("paste");
     }, setError);
   }, [fromId, demoId]);
