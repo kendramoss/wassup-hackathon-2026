@@ -168,6 +168,13 @@ func rankTargets(ts []store.TargetSummary) {
 		if a.Best == nil || b.Best == nil {
 			return false
 		}
+		// With a shown plan, a clear-margin best plan beats an at-the-bar one,
+		// the same tier rule that ranks plans inside a target (D341, D371).
+		if a.Status == TargetPlan {
+			if ca, cb := a.Best.Tier == domain.TierClearMargin, b.Best.Tier == domain.TierClearMargin; ca != cb {
+				return ca
+			}
+		}
 		// Below the bar, a stronger precedent check beats more money.
 		if a.Status == TargetBelowBar {
 			if ca, cb := verdictConf(*a.Best), verdictConf(*b.Best); ca != cb {

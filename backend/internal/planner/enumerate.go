@@ -123,6 +123,12 @@ func allComponentsIn(p domain.Product, group, country string) bool {
 // starts with a capital mid-sentence, while acronyms ("PCBA (SMT)", "LED
 // PCBA") keep theirs (D220). The verifier never reads it: it reads the facts.
 func Describe(p domain.Product, t Template, m domain.Move) string {
+	return DescribeAt(p, t, m, t.Version)
+}
+
+// DescribeAt is Describe for a stored plan made with template version
+// madeWith, so a group keeps the name it had then (GroupNameAt, D372).
+func DescribeAt(p domain.Product, t Template, m domain.Move, madeWith string) string {
 	if len(m) == 0 {
 		return "No change: keep the current setup"
 	}
@@ -130,7 +136,7 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 	country := ""
 	sameCountry := true
 	for i, gm := range m {
-		names = append(names, groupPhrase(p, t, gm.Group))
+		names = append(names, groupPhrase(p, t, gm.Group, madeWith))
 		pl, _ := p.PlantByID(gm.ToPlant)
 		if i > 0 && pl.Country != country {
 			sameCountry = false
@@ -154,8 +160,8 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 // (D270): a power bank's battery cells filed under the template's "Power
 // conversion or charging module" read "the two cylindrical lithium-ion
 // battery cells", not a module the product does not have.
-func groupPhrase(p domain.Product, t Template, id string) string {
-	name := GroupNameFor(p, t, id)
+func groupPhrase(p domain.Product, t Template, id, madeWith string) string {
+	name := GroupNameAt(p, t, id, madeWith)
 	comps := groupComponents(p, id)
 	if len(comps) == 0 {
 		return "the " + lowerWord(name)
@@ -269,14 +275,23 @@ func GroupName(t Template, id string) string {
 	return strings.ReplaceAll(id, "_", " ")
 }
 
-// GroupNameFor is a group's name as this product files its parts: the
-// template's name, or the group's former name when the product files nothing
-// under the group later split out of it (D342). The pinned heat-gun case was
-// made before the power cord, knobs and covers left "Switch, cord and minor
-// parts" (D330); its cord is still in that group, so it keeps that name.
+// GroupNameFor is a group's name for a plan made now: the template's name.
 func GroupNameFor(p domain.Product, t Template, id string) string {
+	return GroupNameAt(p, t, id, t.Version)
+}
+
+// GroupNameAt is a group's name for a plan made with template version
+// madeWith (the stored plan's template_versions entry). The group's former
+// name applies only when that version is older than the split (D342, D372):
+// the pinned heat-gun case was planned before the power cord, knobs and
+// covers left "Switch, cord and minor parts" (D330), and its cord is still
+// in that group. It is never inferred from the parts alone, so a cordless
+// tool planned today reads "Switch, wiring and minor parts". A product that
+// files anything under the split-out group was filed after the split and
+// reads the new name whatever the version.
+func GroupNameAt(p domain.Product, t Template, id, madeWith string) string {
 	g, ok := t.Group(id)
-	if ok && g.Former != nil && g.Former.Name != "" && usesGroup(p, id) && !usesGroup(p, g.Former.Until) {
+	if ok && g.Former != nil && g.Former.Name != "" && versionBefore(madeWith, g.Former.Since) && usesGroup(p, id) && !usesGroup(p, g.Former.Until) {
 		return g.Former.Name
 	}
 	return GroupName(t, id)
@@ -310,7 +325,8 @@ func lowerWord(s string) string {
 }
 
 // Redescribe rewrites every move's description in a stored plan search with
-// Describe, so a result saved before D220 reads the same as a new one. The
+// DescribeAt at the template version it was made with, so a result saved
+// before D220 reads the same as a new one. The
 // move, verdict and money are untouched. A result whose family has no
 // template, or a case with no product, is left as stored.
 func Redescribe(r *Result, p *domain.Product, templates map[string]Template) {
@@ -321,17 +337,18 @@ func Redescribe(r *Result, p *domain.Product, templates map[string]Template) {
 	if !ok {
 		return
 	}
+	madeWith := r.Templates[r.Family]
 	fix := func(ps []domain.Plan) []domain.Plan {
 		if ps == nil {
 			return nil
 		}
 		out := append([]domain.Plan(nil), ps...)
 		for i := range out {
-			out[i].Description = Describe(*p, t, out[i].Move)
+			out[i].Description = DescribeAt(*p, t, out[i].Move, madeWith)
 		}
 		return out
 	}
-	r.Baseline.Description = Describe(*p, t, r.Baseline.Move)
+	r.Baseline.Description = DescribeAt(*p, t, r.Baseline.Move, madeWith)
 	r.Plans, r.Rejected = fix(r.Plans), fix(r.Rejected)
 	if r.Backtest != nil && len(r.Plans) > 0 {
 		bt := *r.Backtest

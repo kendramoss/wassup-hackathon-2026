@@ -106,7 +106,8 @@ func readFlipItems(path string) ([]flipItem, error) {
 }
 
 // plannerPostSummaryItems are the post-cutoff flip-pair numbers (D170): the
-// production precedent check, scored once on 15 frozen pairs, with CBP's
+// production precedent check on 15 frozen pairs (run 1 of 3; runs 2 and 3
+// gave the same figures, D354), with CBP's
 // holding on the starting setup given (known-a, how the plan search runs
 // when a ruling is on file). Read from the summary built by
 // eval/planner/summarize.py.
@@ -138,7 +139,7 @@ func plannerPostSummaryItems(resultsDir string) ([]evalsummary.Item, error) {
 	if !ok || len(m.All.Precision.CI) != 2 || len(m.All.Recall.CI) != 2 {
 		return nil, fmt.Errorf("%s: no known-a metrics", file)
 	}
-	src := "eval/results/" + file + " (eval/data/flips_post.jsonl, frozen; scored once)"
+	src := "eval/results/" + file + " (eval/data/flips_post.jsonl, frozen; run 1 of 3, runs 2 and 3 gave the same figures, D354)"
 	label := fmt.Sprintf("Precedent check on post-cutoff flip pairs (%d pairs from rulings after 25 Sep 2026, gateway)", m.All.Recall.N+m.All.Controls.N)
 	return []evalsummary.Item{
 		{Key: "planner_post_known-a_precision_at_bar", Label: label + ": moves shown at the 0.92 bar that were real changes", Value: m.All.Precision.Value, CILow: m.All.Precision.CI[0], CIHigh: m.All.Precision.CI[1], N: m.All.Precision.N, Split: "post", Source: src},

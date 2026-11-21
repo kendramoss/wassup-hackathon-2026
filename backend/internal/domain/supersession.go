@@ -87,15 +87,18 @@ func ParseSupersession(b []byte) (map[string]time.Time, map[string]Supersession,
 }
 
 // SupersededAsOf returns the earliest revocation or modification of ruling
-// id dated on or before at. A zero at means "today": any known supersession
-// counts. A ruling revoked after at was still CBP's position at that date
-// and is not reported.
+// id dated strictly before at (D370). A zero at means "today": any known
+// supersession counts. A ruling revoked on or after at was still CBP's
+// position at that date and is not reported. The same-day case matters: when
+// the case being backtested is itself the revoking ruling, its own change
+// must not hide the ruling it revokes, just as a ruling dated on the case
+// date is never usable as its precedent.
 func SupersededAsOf(id string, at time.Time) (Supersession, bool) {
 	d, ok := supersededAt[id]
 	if !ok {
 		return Supersession{}, false
 	}
-	if !at.IsZero() && d.After(at) {
+	if !at.IsZero() && !d.Before(at) {
 		return Supersession{}, false
 	}
 	return supersededBy[id], true

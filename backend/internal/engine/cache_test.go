@@ -233,14 +233,14 @@ func TestCacheProductionWrappers(t *testing.T) {
 }
 
 // A stored answer made from a precedent CBP has since revoked is not
-// replayed for a case dated on or after the revocation (D320).
+// replayed for a case dated after the revocation (D320, D370).
 func TestCachePeekMissesRevokedPrecedents(t *testing.T) {
 	dir := blob.Dir{Dir: t.TempDir()}
 	c := NewCache(New(citeFirst(), verRetr{nil, "r1"}, Options{Model: "m", K: 2}), dir)
 	for _, tc := range []struct {
 		date string
 		hit  bool
-	}{{"2025-05-01", true}, {"2025-05-05", false}, {"2026-01-01", false}} {
+	}{{"2025-05-01", true}, {"2025-05-05", true}, {"2025-05-06", false}, {"2026-01-01", false}} {
 		d, _ := time.Parse(time.DateOnly, tc.date)
 		k := domain.Case{ID: "case_r", Date: d, Facts: "pillow cover sewn in Thailand"}
 		b, _ := json.Marshal(cached{Prediction: domain.Prediction{Origin: "Thailand", Confidence: 0.9, Precedents: []string{"N100001", "N345891"}}})

@@ -724,7 +724,7 @@
  "economics_illustrative": true,
  "duty_rates_note": "HTS 8419.89.95 (classification inferred, unverified for this model): MFN 4.2% + Section 301 List 2 25% (China) + Section 301 forced-labor 12.5% (both); IEEPA invalidated. Sources and caveats: docs/DUTY-SOURCES.md, checked 15 Oct 2026.",
  "template_versions": {
-  "motorised_tools_small_appliances": "1"
+  "motorised_tools_small_appliances": "2"
  },
  "ranking": {
   "rule": "tier_then_net",

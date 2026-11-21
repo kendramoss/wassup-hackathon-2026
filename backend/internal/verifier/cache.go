@@ -163,7 +163,7 @@ func cachedViolation(r Result, t Task) string {
 }
 
 // blocked reports whether task t may never cite ruling id: it is excluded,
-// or CBP revoked or modified it on or before t.Before (D320).
+// or CBP revoked or modified it before t.Before (D320, D370).
 func blocked(t Task, id string) bool {
 	return slices.Contains(t.Exclude, id) || superseded(id, t.Before)
 }

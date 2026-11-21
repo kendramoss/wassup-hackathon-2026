@@ -240,7 +240,7 @@ export function Spinner({ label }: { label: string }) {
 // A ruling number, linked to CBP. When a later ruling in the corpus revoked
 // or modified it (D320), the link says so: "superseded by H… (date)". With
 // support (the ruling is cited as support) and asOf (the case date), a ruling
-// changed on or before that date is marked as not counted: the precedent
+// changed before that date (D370) is marked as not counted: the precedent
 // check never cites one, so it can only appear on results stored before the
 // guard.
 export function RulingLink({ id, className, asOf, support }: { id: string; className?: string; asOf?: string | null; support?: boolean }) {

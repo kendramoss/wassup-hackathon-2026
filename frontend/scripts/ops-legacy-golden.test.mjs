@@ -16,6 +16,9 @@ import { html } from "./render-support.mjs";
 // D341 re-captured the plan screen once, on purpose: the only changes are the
 // added tier and smallest-move chips, the stored-order note and the list
 // heading ("best net first"); every other piece is unchanged.
+// D371 re-captured the compare screen once, on purpose: the only changes are
+// the caption and fold text saying countries rank by their best plan's tier,
+// and the tier chip under each shown plan's check.
 globalThis.window = new EventTarget();
 globalThis.document = Object.assign(new EventTarget(), { body: { style: {} }, activeElement: null });
 stubNavigation({ id: "c1", search: "target=Thailand" });

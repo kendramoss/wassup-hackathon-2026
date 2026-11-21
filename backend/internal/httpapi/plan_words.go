@@ -36,13 +36,19 @@ func (a *api) redescribed(c store.Case) store.Case {
 			if b == nil {
 				continue
 			}
-			fam := c.Family
-			if r, ok := c.Targets.Results[t.Ranked[i].Target]; ok && r.Family != "" {
-				fam = r.Family
+			fam, madeWith := c.Family, ""
+			if r, ok := c.Targets.Results[t.Ranked[i].Target]; ok {
+				if r.Family != "" {
+					fam = r.Family
+				}
+				madeWith = r.Templates[fam]
 			}
 			if tm, ok := a.d.Templates[fam]; ok {
 				cp := *b
-				cp.Description = planner.Describe(*c.Product, tm, cp.Move)
+				if madeWith == "" {
+					madeWith = tm.Version
+				}
+				cp.Description = planner.DescribeAt(*c.Product, tm, cp.Move, madeWith)
 				t.Ranked[i].Best = &cp
 			}
 		}
@@ -51,13 +57,20 @@ func (a *api) redescribed(c store.Case) store.Case {
 	return c
 }
 
-// planDescription is the description of a stored plan as the case reads now.
-func (a *api) planDescription(c store.Case, p domain.Plan, family string) string {
-	if family == "" {
-		family = c.Family
+// planDescription is the description of a stored plan as the case reads now,
+// with group names as they were when res (the plan search it came from) was
+// made (D372).
+func (a *api) planDescription(c store.Case, p domain.Plan, res *planner.Result) string {
+	family := c.Family
+	if res != nil && res.Family != "" {
+		family = res.Family
 	}
 	if tm, ok := a.d.Templates[family]; ok && c.Product != nil {
-		return planner.Describe(*c.Product, tm, p.Move)
+		madeWith := tm.Version
+		if res != nil && res.Templates[family] != "" {
+			madeWith = res.Templates[family]
+		}
+		return planner.DescribeAt(*c.Product, tm, p.Move, madeWith)
 	}
 	return p.Description
 }
@@ -88,7 +101,7 @@ func (a *api) scenarioCheck(c store.Case, s store.Scenario) *scenarioPlanCheck {
 		return nil
 	}
 	out := &scenarioPlanCheck{Shown: p.Shown, Bar: a.d.PlanConfidence, RejectionKind: p.RejectionKind, RejectionReason: p.RejectionReason,
-		Description: a.planDescription(c, *p, c.Plan.Family), NetPerYear: p.NetYear, Target: c.Plan.Target}
+		Description: a.planDescription(c, *p, c.Plan), NetPerYear: p.NetYear, Target: c.Plan.Target}
 	if p.Verdict != nil {
 		v := p.Verdict.Confidence
 		out.Confidence = &v

@@ -9,6 +9,8 @@ import { copy } from "@/lib/copy";
 import { caseReadOnly } from "@/lib/roles";
 import { caseTitle, useCase } from "@/lib/use-case";
 import { ActionSlotProvider } from "./action-bar";
+import { GroupingProvider } from "./grouping";
+import { planTemplateVersion } from "@/lib/families";
 import { AskDrawer } from "./ask-drawer";
 import { BrokerReviewStatus } from "./broker-reviews";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
@@ -82,7 +84,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
           )}
           <DemoTour id={id} tab={tab} />
           <BrokerReviewStatus id={id} c={data} />
-          {children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}
+          <GroupingProvider madeWith={planTemplateVersion(data)}>{children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}</GroupingProvider>
         </>
       )}
       {asking && data && <AskDrawer c={data} onClose={() => setAsking(false)} onChat={(chat) => setData((d) => (d ? ({ ...d, chat } as CaseResponse) : d))} />}

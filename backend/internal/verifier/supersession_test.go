@@ -115,3 +115,23 @@ func TestEligibilityChecksSupersession(t *testing.T) {
 		t.Errorf("eligibleRead before the revocation = %v", got)
 	}
 }
+
+// #527, D370: a flip pair whose bound is the revoking ruling's own date
+// (MS-H305371: H305371 modified N303338 on 2024-07-12) still sees the
+// ruling it changes; the day after, it does not.
+func TestEligibilityOnTheRevocationDate(t *testing.T) {
+	bound := time.Date(2024, 7, 12, 0, 0, 0, 0, time.UTC)
+	hits := []Hit{{ID: "N303338", Date: time.Date(2019, 4, 1, 0, 0, 0, 0, time.UTC)}}
+	if got := eligibleHits(hits, bound, nil); len(got) != 1 {
+		t.Errorf("eligibleHits on the bound = %v", got)
+	}
+	if got := eligibleRead("N303338", "[N303338 | 2019-04-01] x", bound, nil); len(got) != 1 {
+		t.Errorf("eligibleRead on the bound = %v", got)
+	}
+	if got := eligibleHits(hits, bound.AddDate(0, 0, 1), nil); len(got) != 0 {
+		t.Errorf("eligibleHits the day after = %v", got)
+	}
+	if supersessionNote("N303338", bound) != "" || supersessionNote("N303338", bound.AddDate(0, 0, 1)) == "" {
+		t.Error("read_ruling note does not follow the day-after rule")
+	}
+}

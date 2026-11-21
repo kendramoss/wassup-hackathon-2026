@@ -18,6 +18,7 @@ import { BandNet, OpsDetail, OpsScope, StaleMoneyBanner } from "../ops-result";
 import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
 import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
+import { planTemplateVersion } from "@/lib/families";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { regimeOf } from "@/lib/regime";
@@ -351,7 +352,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
   // The backtest read for people (D310): parts that really changed origin,
   // which the plan moves, and what it moves that CBP's change kept in place.
   const bt = result?.backtest
-    ? backtestView(result.backtest, { change: ((req?.actual_change as ActualChangeExtras | undefined) ?? demoChange), product: c.product, move: lead?.move, recount: !best })
+    ? backtestView(result.backtest, { change: ((req?.actual_change as ActualChangeExtras | undefined) ?? demoChange), product: c.product, move: lead?.move, recount: !best, madeWith: planTemplateVersion(c) })
     : undefined;
   const from = currentOrigin(c)?.country ?? c.prediction?.origin_country ?? "the old country";
 

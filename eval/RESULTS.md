@@ -644,7 +644,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 
 ## Planner: post-cutoff flip pairs and per-family plan checks (gateway, 21 Nov; D170, D171)
 
-### Precedent check on 15 post-cutoff flip pairs — frozen before scoring, scored once
+### Precedent check on 15 post-cutoff flip pairs — frozen before scoring, run 1 of 3 (runs 2 and 3: D354)
 - Set: `eval/data/flips_post.jsonl` (11 real changes, 4 controls; frozen in 6f58d54). Production configuration: verifier-v2 on gemini-4-argon, plan bar 0.92, local corpus search, OpenAI-compatible LiteLLM gateway to Gemini. `go run ./cmd/eval flips -post [-known-a]`.
 - CBP's starting origin given: shown 8, right 8/8 (67.6–100); recall 8/11 = 72.7% (43.4–90.3); controls shown 0/4. $0.58. `flips-post-verifier-v2-known-a-litellm.jsonl`.
 - Not given: shown 5, right 4/5 (37.6–96.4), one wrong plan shown (fracking unit, wrong later origin, 0.92); recall 4/11 = 36.4% (15.2–64.6); controls shown 0/4. $0.59. `flips-post-verifier-v2-unknown-a-litellm.jsonl`.

@@ -39,7 +39,7 @@ type Hit struct {
 	Superseded string
 }
 
-// withSupersession marks a hit CBP revoked or modified on or before the
+// withSupersession marks a hit CBP revoked or modified before the
 // bound.
 func withSupersession(h Hit, before time.Time) Hit {
 	if s, ok := domain.SupersededAsOf(h.ID, before); ok {
@@ -49,7 +49,7 @@ func withSupersession(h Hit, before time.Time) Hit {
 }
 
 // supersessionNote is the line read_ruling puts above a ruling CBP revoked
-// or modified on or before the bound, or "".
+// or modified before the bound (D370), or "".
 func supersessionNote(id string, before time.Time) string {
 	s, ok := domain.SupersededAsOf(id, before)
 	if !ok {

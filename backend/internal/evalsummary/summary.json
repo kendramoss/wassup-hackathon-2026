@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T17:18:07Z",
+  "generated_at": "2026-11-21T19:29:10Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -283,7 +283,7 @@
       "n": 8,
       "split": "post",
       "development_only": false,
-      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; run 1 of 3, runs 2 and 3 gave the same figures, D354)"
     },
     {
       "key": "planner_post_known-a_recall_at_bar",
@@ -294,7 +294,7 @@
       "n": 11,
       "split": "post",
       "development_only": false,
-      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; run 1 of 3, runs 2 and 3 gave the same figures, D354)"
     },
     {
       "key": "planner_post_known-a_controls_shown",
@@ -303,7 +303,7 @@
       "n": 4,
       "split": "post",
       "development_only": false,
-      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"
+      "source": "eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; run 1 of 3, runs 2 and 3 gave the same figures, D354)"
     },
     {
       "key": "planner_post_combined_known-a_precision_at_bar",

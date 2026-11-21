@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path"
+	"strconv"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
@@ -44,15 +45,18 @@ type TemplateGroup struct {
 	// the verifier against the rulings dated before the case.
 	Precedent *GroupPrecedent `json:"precedent,omitempty"`
 	// Former is the group's name before another group was split out of it
-	// (D330, D342). A product that files nothing under the split-out group
-	// still holds the old contents under this id, so it reads the old name.
+	// (D330, D342, D372). A case whose stored plan was made with a template
+	// version older than Former.Since still holds the old contents under this
+	// id, so it reads the old name.
 	Former *FormerName `json:"former,omitempty"`
 }
 
 // FormerName is a group's name before the group Until was split out of it.
+// Since is the first template version with the split (D372).
 type FormerName struct {
 	Name  string `json:"name"`
 	Until string `json:"until"`
+	Since string `json:"since"`
 }
 
 // GroupPrecedent is what CBP held about a group's work.
@@ -92,8 +96,8 @@ func (t Template) Validate() error {
 		seen[g.ID] = true
 	}
 	for _, g := range t.Groups {
-		if f := g.Former; f != nil && (f.Name == "" || !seen[f.Until] || f.Until == g.ID) {
-			return fmt.Errorf("planner: template %s: group %q: former name needs a name and another group it was split from", t.Family, g.ID)
+		if f := g.Former; f != nil && (f.Name == "" || !seen[f.Until] || f.Until == g.ID || f.Since == "" || versionBefore(t.Version, f.Since)) {
+			return fmt.Errorf("planner: template %s: group %q: former name needs a name, another group it was split from and the template version that split it", t.Family, g.ID)
 		}
 	}
 	return nil
@@ -121,4 +125,12 @@ func LoadTemplates() (map[string]Template, error) {
 		out[t.Family] = t
 	}
 	return out, nil
+}
+
+// versionBefore reports whether template version a is older than b. Versions
+// are whole numbers ("1", "2"); an empty or unreadable a is not older.
+func versionBefore(a, b string) bool {
+	x, errA := strconv.Atoi(a)
+	y, errB := strconv.Atoi(b)
+	return errA == nil && errB == nil && x < y
 }
