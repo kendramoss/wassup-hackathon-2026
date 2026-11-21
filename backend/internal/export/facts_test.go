@@ -75,6 +75,21 @@ func TestCleanFacts(t *testing.T) {
 			want: "The motor is wound in China.\n\nThe PCBA is populated in Thailand.",
 		},
 		{
+			name: "a list after one line break keeps its items (#465)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\n- The motor is wound in China.\n- The heat gun is assembled in Thailand.",
+			want: "- The motor is wound in China.\n\n- The heat gun is assembled in Thailand.",
+		},
+		{
+			name: "a bulleted list with CRLF breaks (#465)",
+			in:   "In your letter dated May 1, 2024, you requested a country of origin ruling on a heat gun.\r\n• The motor is wound in China.\r\n• The heat gun is assembled in Thailand.",
+			want: "• The motor is wound in China.\n\n• The heat gun is assembled in Thailand.",
+		},
+		{
+			name: "a boilerplate item inside a list is dropped alone (#465)",
+			in:   "- The motor is wound in China.\n- You requested a ruling on the origin of the heat gun.\n- The heat gun is assembled in Thailand.",
+			want: "- The motor is wound in China.\n\n- The heat gun is assembled in Thailand.",
+		},
+		{
 			name: "nothing but boilerplate gives a placeholder",
 			in:   "In your letter dated 1 May, you requested a ruling.",
 			want: NoFactsPlaceholder,

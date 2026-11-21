@@ -167,6 +167,13 @@ func splitSentences(p string) []sentence {
 			end = sentenceEnd(word, marks, p[k:])
 			if strings.Contains(p[j:k], "\n") {
 				sep = sepPara
+				// A line break followed by a list marker is a sentence
+				// boundary even though the marker is not a capital, digit
+				// or quote (#465). Without this, a boilerplate sentence
+				// absorbs the whole list and the letter loses every fact.
+				if !end && startsList(p[k:]) {
+					end = true
+				}
 			}
 		}
 		if !end {
@@ -247,6 +254,34 @@ func set(ws ...string) map[string]bool {
 		m[w] = true
 	}
 	return m
+}
+
+// startsList reports whether s begins with a bulleted or enumerated list
+// marker. It is only consulted after a line break that follows a sentence end,
+// where a hyphen or a short letter plus bracket is unambiguously a list item
+// rather than prose (#465).
+func startsList(s string) bool {
+	if s == "" {
+		return false
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	switch r {
+	case '-', '•', '*', '–', '—', '·':
+		return true
+	}
+	if !unicode.IsLetter(r) {
+		return false
+	}
+	rest := s[n:]
+	if strings.HasPrefix(rest, ")") || strings.HasPrefix(rest, "]") {
+		return true // "a)", "i)"
+	}
+	if strings.HasPrefix(rest, ".") {
+		// "a.", "i." — but not a lowercase word or a company name.
+		tail := rest[1:]
+		return tail == "" || strings.HasPrefix(tail, " ") || strings.HasPrefix(tail, "\t")
+	}
+	return false
 }
 
 // sentenceEnd says whether end marks after word, followed by space and then
