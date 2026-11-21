@@ -150,18 +150,24 @@ export function CasesHome() {
 
 // A demo not yet run here (no pinned case): the same card shape as DemoCard,
 // with what CBP held as the headline instead of a prediction.
-function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
+export function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
   // cbp_held reads "China (N328954)" or "Thailand (N359371, scenario I)".
   const held = d.cbp_held ?? "";
   const cut = held.indexOf(" (");
   const m = held ? [held, cut < 0 ? held : held.slice(0, cut), cut < 0 ? "" : held.slice(cut + 2).replace(/\)$/, "")] : null;
+  // Not one big link: the card holds its own link to the committed run, and
+  // a link inside a link is invalid HTML. The title link stretches over the
+  // card (after:inset-0) so the whole card still opens the demo; the run link
+  // sits above it (relative z-10).
   return (
-    <Link
-      href={`/cases/new?demo=${encodeURIComponent(d.id ?? "")}`}
-      className="flex flex-col gap-2.5 rounded-[2px] border border-edge bg-sheet p-4 text-sm shadow-[4px_4px_0_var(--shadow)] hover:bg-white"
-    >
+    <article className="relative flex min-w-0 flex-col gap-2.5 rounded-[2px] border border-edge bg-sheet p-4 text-sm shadow-[4px_4px_0_var(--shadow)] hover:bg-white">
       <span className="flex items-start justify-between gap-2">
-        <b className="font-medium leading-snug">{d.title}</b>
+        <Link
+          href={`/cases/new?demo=${encodeURIComponent(d.id ?? "")}`}
+          className="font-medium leading-snug after:absolute after:inset-0 after:rounded-[2px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
+        >
+          {d.title}
+        </Link>
         <Chip className="shrink-0">Demo</Chip>
       </span>
       {m && (
@@ -175,12 +181,14 @@ function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] }) {
       )}
       {d.description && <span className="duo line-clamp-2 text-xs text-dim" title={d.description}>{d.description}</span>}
       {d.recorded && <RecordedRun r={d.recorded} />}
-      <span className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2 text-xs">
+      <span className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-2 text-xs">
         <span className="text-ok">Load demo →</span>
-        <Chip tone="ask">{copy.cases.recorded.unseeded}</Chip>
+        <Chip tone="ask" className="whitespace-normal">
+          {copy.cases.recorded.unseeded}
+        </Chip>
         {d.has_plan && <Chip tone="ok">Plan included</Chip>}
       </span>
-    </Link>
+    </article>
   );
 }
 
@@ -212,7 +220,7 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
           href={`https://github.com/kendramoss/wassup-hackathon-2026/blob/main/${encodeURI(r.file)}`}
           target="_blank"
           rel="noreferrer"
-          className="text-ok underline underline-offset-2"
+          className="relative z-10 self-start text-ok underline underline-offset-2"
         >
           {T.recordLink}
         </a>
@@ -221,7 +229,7 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
   );
 }
 
-function DemoCard({ c }: { c: CaseSummary }) {
+export function DemoCard({ c }: { c: CaseSummary }) {
   const [full, setFull] = useState<CaseResponse | null>(null);
   useEffect(() => {
     api.getCase(c.id).then(setFull, () => {});
