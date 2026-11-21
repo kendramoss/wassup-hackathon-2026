@@ -468,7 +468,15 @@ function RowMenu({ c, onRename, onDelete }: { c: CaseSummary; onRename: () => vo
     };
   }, [open]);
   return (
-    <div className="relative inline-block" ref={ref}>
+    <div
+      className="relative inline-block"
+      ref={ref}
+      // #539: close the ⋯ menu when keyboard focus leaves the whole widget,
+      // not only on Escape or an outside mouse click.
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
       <button type="button" aria-label={`Actions for ${c.display_name}`} aria-expanded={open} className="px-2 py-1 text-base text-dim hover:text-ink" onClick={() => setOpen((o) => !o)}>
         ⋯
       </button>
