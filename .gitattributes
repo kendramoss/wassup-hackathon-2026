@@ -1,2 +1,6 @@
-# Shell scripts must keep LF endings or bash fails on Windows checkouts.
+# Everything text must stay LF in the working tree: eval/SHA256SUMS and
+# docs/claims-reconciliation.md hash committed bytes, so a CRLF checkout
+# (Git for Windows' default core.autocrlf=true) fails claimscheck with 200
+# checksum mismatches on an otherwise clean clone.
+* text=auto eol=lf
 *.sh text eol=lf
