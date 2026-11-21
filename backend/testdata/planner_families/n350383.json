@@ -1,0 +1,141 @@
+{
+  "_source": "Built from the facts of CBP ruling N350383 (2025-07-09, dev split; picked: no second China-held ruling; earliest other): CBP held Indonesia. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350383",
+  "date": "2025-07-09",
+  "family": "power_supplies_chargers",
+  "target": "China",
+  "product": {
+    "name": "Battery Charger (Models IC, ICL, RC, RQ, and XV)",
+    "description": "A battery charger used in industrial and recreational machinery such as electric pallet jacks, scissor lifts, golf carts, and e-mobility scooters. It consists of a printed circuit board assembly (PCBA) housed within a cast enclosure with a lid and various electrical connectors.",
+    "plants": [
+      {
+        "id": "id",
+        "name": "Indonesia Plant",
+        "country": "Indonesia",
+        "capabilities": [
+          "pcba_manufacturing"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing",
+          "housing_cables_parts",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Bare printed circuit board",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Integrated circuits",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Resistors",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Transistors",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Capacitors",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Printed circuit board assembly (PCBA)",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Cast enclosure",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Electrical connectors",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Enclosure lid",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Add electrical components including integrated circuits, resistors, transistors, and capacitors to the bare printed circuit board via soldering, through-hole, and surface mount technology (SMT) processes to create the PCBA",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Test the finished PCBA for functionality",
+        "plant": "id",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Glue the PCBA within the cast enclosure",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Add the electrical connectors",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Attach the lid to the enclosure",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test the finished device and package for shipment",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Indonesia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_manufacturing": {
+        "id": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350383"
+  ],
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N350383"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "_source": "Built from the facts of CBP ruling H345343 (2025-07-21, dev split; picked: no China-held ruling; second earliest dev): CBP held United States. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-h345343",
+  "date": "2025-07-21",
+  "family": "furniture",
+  "target": "China",
+  "product": {
+    "name": "Item 10364-SF, Stack Chair 14",
+    "description": "A single-person metal and plastic stacking seat without upholstery or armrests. It consists of stainless steel metal legs affixed to a unitary polyolefin plastic seat foundation and backrest shell, along with glides, washers, rivets, glue, labels, and packaging.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "tabletop_fabrication",
+          "frame_metal_fabrication",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "us",
+        "name": "United States Plant",
+        "country": "United States",
+        "capabilities": [
+          "tabletop_fabrication",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "pt",
+        "name": "Portugal Plant",
+        "country": "Portugal",
+        "capabilities": [
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "mx",
+        "name": "Mexico Plant",
+        "country": "Mexico",
+        "capabilities": [
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Stainless steel metal leg assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Leg post swivel glides",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Washers",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Rivets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Polyolefin plastic seat foundation and backrest shell",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "tabletop_fabrication"
+      },
+      {
+        "name": "Corrugated fanfold",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "final_assembly"
+      },
+      {
+        "name": "US labels",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Glue",
+        "made_in": "Portugal",
+        "plant": "pt",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Local labels",
+        "made_in": "Mexico",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Affix unitary plastic seat foundation and backrest shell to stainless steel metal legs",
+        "plant": "mx",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Assemble incomplete, unassembled, and unfinished seating components with glides, washers, rivets, and glue",
+        "plant": "mx",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Inspect and package finished stacking chair with labels and corrugated fanfold",
+        "plant": "mx",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Mexico": 0.125,
+      "Portugal": 0.125,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "tabletop_fabrication": {
+        "us": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "H345343"
+  ],
+  "current_origin": {
+    "country": "United States",
+    "ruling": "H345343"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "_source": "Built from the facts of CBP ruling H304679 (2024-06-11, train split; picked: no dev China-held ruling; train China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Cambodia; plant capabilities for Cambodia are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-h304679",
+  "date": "2024-06-11",
+  "family": "led_lights",
+  "target": "Cambodia",
+  "product": {
+    "name": "LED Light Sets (WICs 150119, 150554, and 155564)",
+    "description": "Miniature LED string lights connected to a battery box used for Christmas decorations. They consist of LED light bulbs, shrink sleeves, copper clips, switches, integrated circuits, battery/control boxes, electric wires, lamp bases/sleeves, and lamp covers.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "led_pcba",
+          "base_harness_seals",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "kh",
+        "name": "Cambodia Plant",
+        "country": "Cambodia",
+        "capabilities": [
+          "led_pcba",
+          "lens",
+          "base_harness_seals",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "LED light bulbs",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Shrink sleeves",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Copper clips",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Color boxes",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Switches",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Integrated circuits",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Battery/control boxes",
+        "made_in": "Cambodia",
+        "plant": "kh",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Electric wires",
+        "made_in": "Cambodia",
+        "plant": "kh",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Lamp covers",
+        "made_in": "Cambodia",
+        "plant": "kh",
+        "group": "lens"
+      },
+      {
+        "name": "Label",
+        "made_in": "Cambodia",
+        "plant": "kh",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Instruction manual",
+        "made_in": "Cambodia",
+        "plant": "kh",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Assemble the battery/control boxes",
+        "plant": "kh",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Cut the electric wires to specific length and peel the wires",
+        "plant": "kh",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Connect the light bulbs to lamp bases/sleeves to make the lamps",
+        "plant": "kh",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Manually assemble the lighting string with the lamp covers from Cambodia",
+        "plant": "kh",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Connect the incomplete light string to the battery/control box",
+        "plant": "kh",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test and re-lamp the light sets",
+        "plant": "kh",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Perform the final inspection",
+        "plant": "kh",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Cambodia": 0.125,
+      "China": 0.425
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "led_pcba": {
+        "cn": 100000,
+        "kh": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "H304679"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "H304679"
+  }
+}

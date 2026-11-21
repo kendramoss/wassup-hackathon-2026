@@ -1,0 +1,111 @@
+{
+  "_source": "Built from the facts of CBP ruling N350058 (2025-07-08, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Thailand; plant capabilities for Thailand are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350058",
+  "date": "2025-07-08",
+  "family": "cables_harnesses",
+  "target": "Thailand",
+  "product": {
+    "name": "Oven spark plug assembly",
+    "description": "An oven spark plug assembly used in a gas range with a burner and spark module to ignite gas. It consists of four bundled spark plugs of varying length and color, each made of a connector, terminal, and ceramic attached to an electric wire.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "cable_insulation_jacket",
+          "connectors_and_housings"
+        ]
+      },
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "cable_insulation_jacket",
+          "connectors_and_housings",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Connector",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "connectors_and_housings"
+      },
+      {
+        "name": "Terminal",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "connectors_and_housings"
+      },
+      {
+        "name": "Ceramic",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "connectors_and_housings"
+      },
+      {
+        "name": "Electric wire",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cable_insulation_jacket"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Assembling the electric wire and the terminal",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Gluing the ceramic",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Cutting the ignition head",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Polishing",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test and package",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "cable_insulation_jacket": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "connectors_and_housings": {
+        "cn": 100000,
+        "th": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350058"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350058"
+  }
+}

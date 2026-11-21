@@ -1,0 +1,193 @@
+{
+  "_source": "Built from the facts of CBP ruling N350310 (2025-07-17, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target United States; plant capabilities for United States are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350310",
+  "date": "2025-07-17",
+  "family": "motorised_tools_small_appliances",
+  "target": "United States",
+  "product": {
+    "name": "ColdSnap System freeze-on-demand food mixer",
+    "description": "A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Manufacturing and Assembly Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba",
+          "motor_fan_assembly",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "us",
+        "name": "United States Engineering and Programming Facility",
+        "country": "United States",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Printed circuit board assemblies (PCBAs) including main control board",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba"
+      },
+      {
+        "name": "Slide subassembly (slide plate, belt retainer, bearings, motors, scanner)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Evaporator subassembly (evaporator body, end covers, handles, copper tubes)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "heating_element"
+      },
+      {
+        "name": "Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "heating_element"
+      },
+      {
+        "name": "Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Plastic housings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Wiring harnesses, power supply, QR scanner, and touch screen",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Populate various electrical components onto a PCB via surface mount technology (SMT)",
+        "plant": "cn",
+        "group": "pcba"
+      },
+      {
+        "name": "Permanently load U.S.-developed proprietary software onto the PCBAs",
+        "plant": "us",
+        "group": "pcba"
+      },
+      {
+        "name": "Provision cellular connection on the PCBAs with cloud services provider and test",
+        "plant": "us",
+        "group": "pcba"
+      },
+      {
+        "name": "Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly",
+        "plant": "cn",
+        "group": "heating_element"
+      },
+      {
+        "name": "Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly",
+        "plant": "cn",
+        "group": "heating_element"
+      },
+      {
+        "name": "Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Injection mold plastic housings, remove flashing, inspect, and screen-print logo",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Install frames and wiring harnesses",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Install and connect power supply, PCBAs, QR scanner, and touch screen",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Install and align slide assembly",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Calibrate and test, install housings, apply stickers, and final packaging",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_fan_assembly": {
+        "cn": 100000,
+        "us": 125000
+      },
+      "pcba": {
+        "cn": 100000,
+        "us": 125000
+      },
+      "heating_element": {
+        "cn": 100000,
+        "us": 125000
+      },
+      "housing_moulding": {
+        "cn": 100000,
+        "us": 125000
+      },
+      "switch_cord_minor_parts": {
+        "cn": 100000,
+        "us": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350310"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350310"
+  }
+}

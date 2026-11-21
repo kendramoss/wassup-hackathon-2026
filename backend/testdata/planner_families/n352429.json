@@ -1,0 +1,117 @@
+{
+  "_source": "Built from the facts of CBP ruling N352429 (2025-09-10, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Taiwan; plant capabilities for Taiwan are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n352429",
+  "date": "2025-09-10",
+  "family": "hand_tools",
+  "target": "Taiwan",
+  "product": {
+    "name": "Snap-off blade utility knife",
+    "description": "A snap-off blade style utility knife consisting of a stamped and ground steel blade, an injection-molded plastic blade slide button, a stamped steel blade sleeve, and an injection-molded plastic handle.",
+    "plants": [
+      {
+        "id": "tw",
+        "name": "Taiwan Plant",
+        "country": "Taiwan",
+        "capabilities": [
+          "primary_metal_forming",
+          "machining_and_treatment",
+          "handles_and_hardware"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "handles_and_hardware",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Steel blade",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "primary_metal_forming"
+      },
+      {
+        "name": "Plastic blade slide button",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      },
+      {
+        "name": "Steel blade sleeve",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      },
+      {
+        "name": "Plastic handle material",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Stamping steel blade",
+        "plant": "tw",
+        "group": "primary_metal_forming"
+      },
+      {
+        "name": "Grinding steel blade",
+        "plant": "tw",
+        "group": "machining_and_treatment"
+      },
+      {
+        "name": "Injection molding plastic blade slide button",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      },
+      {
+        "name": "Stamping steel blade sleeve",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      },
+      {
+        "name": "Injection molding plastic handle material",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      },
+      {
+        "name": "Assembly of components",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Packaging",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Taiwan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "handles_and_hardware": {
+        "cn": 100000,
+        "tw": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N352429"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352429"
+  }
+}

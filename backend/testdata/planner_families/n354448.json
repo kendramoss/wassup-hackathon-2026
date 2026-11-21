@@ -1,0 +1,300 @@
+{
+  "_source": "Built from the facts of CBP ruling N354448 (2025-10-17, dev split; picked: the only eligible ruling): CBP held Indonesia. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n354448",
+  "date": "2025-10-17",
+  "family": "gas_grills_cooking",
+  "target": "China",
+  "product": {
+    "name": "propane gas island grills",
+    "description": "Propane gas island grills designed for grilling, griddling, and general food preparation. They each consist of a stainless steel lid, firebox, control panel, doors, drawers, side shelves, and a metal cart frame.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Factory",
+        "country": "China",
+        "capabilities": [
+          "lid_and_firebox",
+          "burners_and_gas_train",
+          "cooking_surface_frame"
+        ]
+      },
+      {
+        "id": "id",
+        "name": "Indonesia Factory",
+        "country": "Indonesia",
+        "capabilities": [
+          "lid_and_firebox",
+          "burners_and_gas_train",
+          "cooking_surface_frame",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "steel sheets (for main lid)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "middle lid panel",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "grill lid and griddle lid",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "lid handle",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "badges",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "thermometer",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "completed lid assembly",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "sheet steel (for firebox)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "firebox panels",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "firebox assembly",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "sheet steel (for drawer)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "stainless-steel drawer front",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "drawer three-side steel panels and bottom panel",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "drawer handle",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "full functional drawer",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "manifold tube",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "regulator hose",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "fittings",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "gas valves",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "LP regulator sub-assembly",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "gas train assembly",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "perforated tube steel",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "burner",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "control panel",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "cart frame",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "side shelf",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "door",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "exterior cement decorative stones",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "cooking area",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "knobs",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "burners_and_gas_train"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cutting perforated tube steel to size, pressing and sealing ends to create a venturi funnel, adding fuel mixer screw, punching breather hole, and welding spider mesh and cap to form burner",
+        "plant": "cn",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "manufacturing control panel, cart frame, side shelf, door, exterior cement decorative stones, and cooking area",
+        "plant": "cn",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "transforming steel sheets into middle lid panel through forming, bending, and punching",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "refining lid panel and side panel through sharp edge grinding and welding into a grill lid and griddle lid",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "staging and assembling lid handle, badges, and thermometer onto the lid",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "forming, bending, and punching sheet steel into firebox panels",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "refining firebox panels through sharp edge grinding and combining through welding operations to form a firebox assembly",
+        "plant": "id",
+        "group": "lid_and_firebox"
+      },
+      {
+        "name": "transforming sheet steel into a full drawer through forming, bending, and punching, refining drawer front through sharp-edge grinding, prepping panels for porcelain enamel coating, and affixing drawer handle",
+        "plant": "id",
+        "group": "cooking_surface_frame"
+      },
+      {
+        "name": "adding gas valve port holes to manifold, bending into shape, fitting threaded connectors, assembling gas valves onto manifold, performing gas tightness test, assembling onto LP regulator sub-assembly, and fire testing gas train assembly",
+        "plant": "id",
+        "group": "burners_and_gas_train"
+      },
+      {
+        "name": "installing burner into the firebox and performing fire testing on completed firebox sub-assembly",
+        "plant": "id",
+        "group": "final_assembly"
+      },
+      {
+        "name": "installing control panel, knobs, and gas train assembly onto the firebox, mounting gas train assembly onto the grill, and testing for gas tightness, proper ignition, and combustion",
+        "plant": "id",
+        "group": "final_assembly"
+      },
+      {
+        "name": "attaching remaining components using screws, bolts, and nuts, installing labels, cleaning product surfaces, and packaging finished products",
+        "plant": "id",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Indonesia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "lid_and_firebox": {
+        "id": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N354448"
+  ],
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N354448"
+  }
+}

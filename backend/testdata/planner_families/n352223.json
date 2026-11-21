@@ -1,0 +1,118 @@
+{
+  "_source": "Built from the facts of CBP ruling N352223 (2025-08-22, dev split; picked: no China-held ruling; earliest dev): CBP held Philippines. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Japan (reverse probe: away from a non-China origin); plant capabilities for Japan are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n352223",
+  "date": "2025-08-22",
+  "family": "display_camera_modules",
+  "target": "Japan",
+  "product": {
+    "name": "LumiFree",
+    "description": "A liquid crystal (LC) device installed within an LED light source to alter the shape and distribution of light when connected to a smart device via a control board. It consists of multiple layered liquid crystal panels on a glass substrate with attached flexible printed circuits (FPC) and a separate driving board.",
+    "plants": [
+      {
+        "id": "jp",
+        "name": "Japan Plant",
+        "country": "Japan",
+        "capabilities": [
+          "display_cell_fab",
+          "camera_pcba_smt"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "camera_pcba_smt"
+        ]
+      },
+      {
+        "id": "ph",
+        "name": "Philippines Plant",
+        "country": "Philippines",
+        "capabilities": [
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Liquid crystal panel on glass substrate",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Flexible printed circuits (FPC)",
+        "made_in": "Philippines",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Driving board (control board)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "camera_pcba_smt"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Create liquid crystal panel by depositing a thin film of crystals onto a glass substrate",
+        "plant": "jp",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Create driving board via surface mount technology (SMT)",
+        "plant": "cn",
+        "group": "camera_pcba_smt"
+      },
+      {
+        "name": "Cut liquid crystal panel to the necessary size",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Attach flexible printed circuits (FPC) to panels",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Perform optical bonding process on modules",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Tape modules together in the correct configuration",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Package driving board and LumiFree module together for shipment",
+        "plant": "ph",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Japan": 0.125,
+      "Philippines": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "camera_pcba_smt": {
+        "cn": 100000,
+        "jp": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N352223"
+  ],
+  "current_origin": {
+    "country": "Philippines",
+    "ruling": "N352223"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "_source": "Built from the facts of CBP ruling N333453 (2023-07-05, train split; picked: no dev China-held ruling; train China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Japan; plant capabilities for Japan are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n333453",
+  "date": "2023-07-05",
+  "family": "medical_devices",
+  "target": "Japan",
+  "product": {
+    "name": "QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C)",
+    "description": "An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Subassembly and Component Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_and_sensors",
+          "hubs_clamps_housings"
+        ]
+      },
+      {
+        "id": "jp",
+        "name": "Japan Assembly Plant",
+        "country": "Japan",
+        "capabilities": [
+          "pcba_and_sensors",
+          "hubs_clamps_housings",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Power supply",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "Support",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Power supply fixing plate",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Power supply switch",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "Main printed circuit board",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "Monitor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "Wires",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Guide rail assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Temperature control module",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_and_sensors"
+      },
+      {
+        "name": "External components",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Attach power supply to support with screws",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Press power supply fixing plate against power supply switch and affix with glue",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Fasten main board to the device with screws",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Attach monitor with screws and plug wires into allocated slots",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Press all wires into place on the main printed circuit board",
+        "plant": "jp",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Fasten external components with screws and zip tie wires in place",
+        "plant": "jp",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Japan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_and_sensors": {
+        "cn": 100000,
+        "jp": 125000
+      },
+      "hubs_clamps_housings": {
+        "cn": 100000,
+        "jp": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N333453"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N333453"
+  }
+}
