@@ -13,7 +13,7 @@ Status words follow [NUMBERS.md](NUMBERS.md): **measured** means recomputed from
 
 ## 1. What we measure and why
 
-A user gives the engine a product description and gets back a country of origin, a confidence and the earlier CBP rulings it relied on. They make one decision from that answer: **accept it, or send the case to a customs expert.** The product makes that decision with a bar. A case with confidence at or above 0.92 that the router places in scope is auto-accepted (the fast path); everything else goes to expert review.
+A user gives the engine a product description and gets back a country of origin, a confidence and the earlier CBP rulings it relied on. They make one decision from that answer: **accept it, or send the case to a customs expert.** The product makes that decision with two bars. The general engine on Gemini 4 Argon uses **calibrated confidence ≥ 0.90** (D160), which accepts exactly the same cases as the historical stated-confidence ≥ 0.92 rule; other engines use their documented stated-confidence bars and the fallback model never auto-accepts. A case in scope at the applicable bar is auto-accepted (the fast path); everything else goes to expert review.
 
 So we measure three things, in this order:
 
