@@ -15,7 +15,7 @@ These are the foundations the later phases build on. Each is built, but most are
 | Item | What it is | Why it matters to an enterprise | Status |
 |---|---|---|---|
 | Google sign-in and workspaces | Sign in with a Google account; share cases inside one workspace | Cases belong to a team, not a browser | shipped |
-| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped (backend only; no role UI) |
+| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; role display, role management and viewer-safe screens in the UI; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped |
 | Case isolation | One request principal, existence-hiding 404s, no trust in client headers ([case-isolation.md](design/case-isolation.md)) | One team cannot see another's products | shipped |
 | Audit trail | Append-only, tenant-scoped events with a hash chain, `verify`, and retention ([audit-trail.md](design/audit-trail.md)) | Evidence of who did what; input to a SOC 2 program | shipped (off unless a key is set) |
 | Log policy | A closed allowlist for log fields; case data never logged ([data-handling.md](design/data-handling.md)) | Product data does not leak into logs | shipped |
@@ -37,7 +37,6 @@ The work that stands between the prototype and a first paid pilot: identity, ten
 |---|---|---|---|---|---|
 | SSO with SAML and OIDC | Sign in through the customer's identity provider (Okta, Entra ID, Google Workspace) | Security teams require their own IdP, MFA and offboarding | Google sign-in is the only identity; "company sign-in would need work" (README) | M | planned |
 | SCIM provisioning | Users and groups created, changed and removed from the IdP, mapped to roles | Access ends when someone leaves, without a manual step | Membership is invite-by-email only (roles-and-strict-auth.md, section 2) | M | planned |
-| Role UI | Role display and selector, remove and leave, viewer-safe screens, a sign-in-required state | Roles exist in the backend but nobody can see or manage them | "Nothing in the frontend uses roles yet" (roles-and-strict-auth.md, section 5) | S | planned |
 | Multiple workspaces per user | A user in more than one workspace, with case moves between them | Business units and brokers work across teams | A user is in at most one workspace; case reassignment is not supported | M | planned |
 | Public API, versioned | A stable `/v1` contract with deprecation rules, SDK examples and webhooks for long jobs | ERP and PLM integrations need a contract that will not move | The API exists but carries no stability promise | M | planned |
 | Per-user limits and drawing input | Per-user (signed-in) rate limits, and shared in-flight and failed-key caps; reading engineering drawings and PDF datasheets, measured on real documents | Limits that follow a person across devices; facts that live in drawings | The basic class and some caps are per instance (D137); image import is measured on synthetic BOM images only (D167, D168) | M | planned |
