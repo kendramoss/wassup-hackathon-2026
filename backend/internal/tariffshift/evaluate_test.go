@@ -182,3 +182,101 @@ func TestUnknownOrigin(t *testing.T) {
 		t.Fatalf("%+v", res)
 	}
 }
+
+// #550: a limitation that follows the last listed source with no comma
+// ("from any other heading, or from subheading 8481.90 except when resulting
+// from a simple assembly") limits that source only. A material from any
+// other heading shifts whatever the facts.
+func TestTrailingLimitationAttachesToTheLastSource(t *testing.T) {
+	r := mustDefault(t)
+	cases := []struct {
+		name, good, country, mat string
+		sa, gri                  *bool
+		want                     string
+	}{
+		{"8481 fitting, no fact", "8481.80", "Mexico", "7307.99", nil, nil, MatShift},
+		{"8481 fitting, simple assembly", "8481.80", "Mexico", "7307.99", b(true), nil, MatShift},
+		{"8481 valve part, simple assembly", "8481.80", "Mexico", "8481.90", b(true), nil, MatNoShift},
+		{"8481 valve part, not simple assembly", "8481.80", "Mexico", "8481.90", b(false), nil, MatShift},
+		{"8481 valve part, no fact", "8481.80", "Mexico", "8481.90", nil, nil, MatNeedsFact},
+		{"8716 frame, no fact", "8716.39", "Canada", "7308.90", nil, nil, MatShift},
+		{"8716 frame, GRI 2(a)", "8716.39", "Canada", "7308.90", nil, b(true), MatShift},
+		{"8716 trailer part, GRI 2(a)", "8716.39", "Canada", "8716.90", nil, b(true), MatNoShift},
+		{"8716 trailer part, not GRI 2(a)", "8716.39", "Canada", "8716.90", nil, b(false), MatShift},
+	}
+	for _, c := range cases {
+		res := r.Evaluate(Input{GoodHTS: c.good, Country: c.country, SimpleAssembly: c.sa, GRI2a: c.gri,
+			Materials: []Material{{Name: "material", HTS: c.mat, Origin: "China"}}})
+		if got := res.Materials[0].Status; got != c.want {
+			t.Errorf("%s: material %s, want %s (%+v)", c.name, got, c.want, res)
+		}
+	}
+	// With a value share above de minimis the old reading decided China;
+	// the material shifts, so the good is the producing country's.
+	for _, c := range []struct {
+		good, country string
+		in            Input
+	}{
+		{"8481.80", "Mexico", Input{SimpleAssembly: b(true)}},
+		{"8716.39", "Canada", Input{GRI2a: b(true)}},
+	} {
+		mat := map[string]string{"8481.80": "7307.99", "8716.39": "7308.90"}[c.good]
+		in := c.in
+		in.GoodHTS, in.Country = c.good, c.country
+		in.Materials = []Material{{Name: "material", HTS: mat, Origin: "China", ValueShare: f(0.40)}}
+		res := r.Evaluate(in)
+		if res.Status != Decided || res.Origin != c.country || !strings.Contains(res.Basis, "102.11(a)(3)") {
+			t.Errorf("%s: %+v, want %s under 102.11(a)(3)", c.good, res, c.country)
+		}
+	}
+	// The parse: a source condition, no whole-alternative flag.
+	a := ParseAlternative("A change to subheading 8481.10 through 8481.80 from any other heading, or from subheading 8481.90 except when resulting from a simple assembly")
+	if !a.Encoded || a.NotSimpleAssembly || len(a.Also) != 1 || a.Also[0].Condition != CondNotSimpleAssembly || a.From != 4 {
+		t.Errorf("8481 parse = %+v", a)
+	}
+	a = ParseAlternative("A change to subheading 8716.10 through 8716.80 from any other heading, or from subheading 8716.90 except when that change is pursuant to General Rule of Interpretation 2(a)")
+	if !a.Encoded || a.NotGRI2a || len(a.Also) != 1 || a.Also[0].Condition != CondNotGRI2a {
+		t.Errorf("8716 parse = %+v", a)
+	}
+	// A limitation set off by a comma, or after the only source, still
+	// limits the whole alternative.
+	for _, s := range []string{
+		"A change to subheading 8409.91 through 8409.99 from any other heading, except a change resulting from a simple assembly",
+		"A change to subheading 8544.11 through 8544.70 from any other subheading, including another subheading within that group, except when resulting from simple assembly",
+	} {
+		if a := ParseAlternative(s); !a.Encoded || !a.NotSimpleAssembly {
+			t.Errorf("whole-alternative limitation lost: %+v", a)
+		}
+	}
+	if a := ParseAlternative("A change to subheading 7315.11 through 7315.12 from subheading 7315.19 or 7315.90, except when that change is pursuant to General Rule of Interpretation 2(a)"); !a.Encoded || !a.NotGRI2a {
+		t.Errorf("7315 = %+v", a)
+	}
+}
+
+// #551: each "from ..." of an exception list is its own exception, with or
+// without the comma, so a code-only exception decides.
+func TestExceptionListsSplitWithoutAComma(t *testing.T) {
+	r := mustDefault(t)
+	for _, c := range []struct{ good, mat, want string }{
+		{"9002.11", "9001.90", MatNoShift},
+		{"9030.89", "9030.90", MatNoShift},
+		{"9030.90", "9030.89", MatNoShift},
+		{"8485.10", "8486.20", MatNoShift},
+		{"8485.30", "8475.21", MatNoShift},
+		{"8485.30", "8486.30", MatNoShift},
+		{"8485.80", "8486.40", MatNoShift},
+		{"9030.32", "9030.82", MatNoShift},   // control: the comma form
+		{"9002.11", "7014.00", MatNeedsFact}, // lens blanks of 7014: described
+		{"9030.89", "9030.20", MatNeedsFact}, // non-CRT oscilloscopes of 9030.20: described
+		{"8485.10", "8456.90", MatNeedsFact}, // water-jet cutting machines of 8456.90: described
+	} {
+		res := r.Evaluate(Input{GoodHTS: c.good, Country: "Mexico", Materials: []Material{{Name: "material", HTS: c.mat, Origin: "China"}}})
+		if got := res.Materials[0].Status; got != c.want {
+			t.Errorf("good %s, material %s: %s, want %s (%+v)", c.good, c.mat, got, c.want, res.Materials[0])
+		}
+	}
+	a := ParseAlternative("A change to subheading 9030.89 from any other subheading, except from non-cathode ray tube oscilloscopes or oscillographs of subheading 9030.20 or from subheading 9030.90")
+	if len(a.Except) != 2 || !a.Except[0].Described || a.Except[1].Described || a.Except[1].From[0].Lo != "903090" {
+		t.Errorf("9030.89 except = %+v", a.Except)
+	}
+}

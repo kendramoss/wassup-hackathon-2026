@@ -101,9 +101,9 @@ Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make rep
 
 | Number | Value | Source | Status |
 |---|---|---|---|
-| Rule rows encoded | 360 rows of 19 CFR 102.20 in chapters 73, 82, 84, 85, 87, 90, 94; 332 of 515 alternatives encoded, 183 written by goods description and never decided by code | `backend/internal/tariffshift/rules.json` (eCFR, 18 Nov 2026) | Built; a test re-parses the committed text |
+| Rule rows encoded | 360 rows of 19 CFR 102.20 in chapters 73, 82, 84, 85, 87, 90, 94; 332 of 515 alternatives encoded, 183 written by goods description and never decided by code | `backend/internal/tariffshift/rules.json` (eCFR, 18 Nov 2026) | Built; a test re-parses the committed text. Unchanged by the D412 parser fix (12 alternatives re-encoded, none newly encoded) |
 | Coverage from the facts the engine reads | 0 of 117 Part 102 rulings decided (dev 0/72, prompt v1; final 0/32; final2 0/13); 68 of 117 give no code for the good | `eval/tariffshift/summary.json` | Measured; the honest headline for the product. Say "decides none" |
-| Coverage from the full ruling text (CBP's own codes) | dev 2 of 72, final 2 of 32 decided; all 4 agree with CBP (2 of 2 per split, 34.2-100%) and with the model | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure |
+| Coverage from the full ruling text (CBP's own codes) | dev 2 of 72, final 2 of 32 decided; all 4 agree with CBP (2 of 2 per split, 34.2-100%) and with the model | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure. Same before and after the D412 parser fix |
 | Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
 
 ### Per-part HTS suggestions (D380-D382)

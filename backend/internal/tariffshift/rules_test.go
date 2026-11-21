@@ -32,30 +32,15 @@ func rule(t *testing.T, hts string) Rule {
 // committed verbatim text, so rules.json cannot drift from the code.
 func TestRulesJSONMatchesParser(t *testing.T) {
 	tab := mustDefault(t).Table()
-	var notes []note
-	seen := map[string]bool{}
-	for _, r := range tab.Rules {
-		for _, n := range r.Notes {
-			if k := r.Paragraph + n; !seen[k] {
-				seen[k] = true
-				notes = append(notes, note{para: r.Paragraph, text: n})
-			}
-		}
-	}
-	re := make([]Rule, len(tab.Rules))
-	for i, r := range tab.Rules {
-		re[i] = r
-		re[i].Notes, re[i].FallbackNote = nil, false
-		re[i].Alternatives = ParseRule(r.Text)
-	}
-	if err := applyNotes(re, notes); err != nil {
+	re, err := Reparse(tab)
+	if err != nil {
 		t.Fatal(err)
 	}
-	for i := range re {
-		if !reflect.DeepEqual(re[i], tab.Rules[i]) {
-			a, _ := json.Marshal(re[i])
+	for i := range re.Rules {
+		if !reflect.DeepEqual(re.Rules[i], tab.Rules[i]) {
+			a, _ := json.Marshal(re.Rules[i])
 			b, _ := json.Marshal(tab.Rules[i])
-			t.Fatalf("rule %s: parser gives\n%s\ncommitted\n%s", tab.Rules[i].HTS, a, b)
+			t.Fatalf("rule %s: parser gives\n%s\ncommitted\n%s\n(regenerate: go run ./cmd/tariffshift rules -reparse)", tab.Rules[i].HTS, a, b)
 		}
 	}
 }

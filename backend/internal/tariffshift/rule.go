@@ -18,6 +18,10 @@ const (
 	// CondGRI2a: the exception applies when the change is pursuant to General
 	// Rule of Interpretation 2(a) (102.18(a)).
 	CondGRI2a Condition = "gri_2a"
+	// CondNotGRI2a: the source is allowed only when the change is not
+	// pursuant to General Rule of Interpretation 2(a) ("or from subheading
+	// 8716.90 except when that change is pursuant to ...", #550).
+	CondNotGRI2a Condition = "not_gri_2a"
 )
 
 // Exception is one "except from ..." clause of an alternative.

@@ -421,8 +421,11 @@ func alternative(a Alternative, g string, m mcode, in Input, needs map[string]bo
 		if s.Described {
 			c = and(c, describe(needs))
 		}
-		if s.Condition == CondNotSimpleAssembly {
+		switch s.Condition {
+		case CondNotSimpleAssembly:
 			c = and(c, fact(in.SimpleAssembly, needSimple, needs).not())
+		case CondNotGRI2a:
+			c = and(c, fact(in.GRI2a, needGRI, needs).not())
 		}
 		pass = or(pass, c)
 	}
