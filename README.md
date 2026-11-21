@@ -36,6 +36,20 @@ When parts come from several countries, CBP asks where the product became a new 
 
 It's built for the trade-compliance or industrialisation lead at a contract manufacturer moving work to Thailand, Vietnam, Malaysia, Korea or Taiwan.
 
+## Who uses it and who benefits
+
+Five roles meet in one production-move decision. These are the roles Unde is designed around. It has no customers or pilots yet, and none of these is a named firm.
+
+| Role | Who | What they get |
+|---|---|---|
+| **Uses it** | The trade-compliance or industrialisation lead at an ASEAN contract manufacturer | The origin CBP would likely assign, with the earlier rulings behind it, before work moves; moves that earlier rulings support; a draft ruling request |
+| **Pays for it** | The COO or VP of supply chain at that manufacturer, or the U.S. brand that sources from it | A check before capital moves: the duty effect and added cost of each move side by side, with the moves no ruling supports set apart |
+| **Works with it** | Licensed customs brokers and trade lawyers | A draft with the facts laid out and the cited rulings linked. They still confirm the classification and file the request; Unde does not replace them |
+| **Benefits** | The U.S. importer of record | It carries the duty and the penalty risk if the origin is wrong. It gets an earlier warning when a planned move would leave the product Chinese, and a record of which rulings were read |
+| **Benefits** | The ASEAN plant that would take on the work | A clearer case for which operations to bring in, and early notice when a smaller move would not change the origin |
+
+What one such decision looks like in numbers (time, cost and duty, each sourced in [docs/NUMBERS.md](docs/NUMBERS.md#impact-story-landing-fig4-illustrative)) is fig.4 on the [landing page](https://undelabs.dev), an illustrative composite labelled as such.
+
 ## Why it matters
 
 - **Duty:** for our demo heat gun, China vs Thailand origin is about a **25-point** difference in duty. Unde uses live U.S. rates, including Section 301 duties, for every HTS line.
@@ -88,7 +102,24 @@ On the two demo products, the plan Unde shows matches what really happened:
 - **Heat gun:** Unde's plan (move the motor-fan assembly, circuit board and switch to Thailand) matches CBP's later 2026 ruling holding Thai origin.
 - **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling.
 
-Across 182 precedent checks that cleared the bar, none was wrong. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
+The precedent check that gates every plan has never been wrong at its bar: 182 verdicts cleared it across every run, none wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
+
+## Reproduce our numbers
+
+Every number above is recomputed from files in this repository, with no model calls and no credentials:
+
+```bash
+make reproduce
+# which runs:
+make verify-data                                        # data files match eval/SHA256SUMS
+cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
+python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
+python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
+```
+
+It needs Go and Python 3 (standard library only). Each step fails if a published number has drifted from its source.
+
+**What it gets wrong.** All 37 held-out misses are listed by ruling, with links to CBP, on the [Accuracy page](https://undelabs.dev/accuracy#misses). It is weakest where CBP held China (77.2%, 44 of 57, interval 64.8–86.2), which is the costly direction for a move out of China. The patterns are in the [model card](docs/MODEL-CARD.md#6-known-failure-modes); the corpus, its sources and its biases are in the [datasheet](docs/DATASHEET.md).
 
 ## Limitations
 
@@ -156,6 +187,6 @@ setup still depends on it.
 | `backend/` | Go API, origin engine, planner, verifier, eval tools |
 | `frontend/` | Next.js web app |
 | `eval/` | Test sets and results ([eval/RESULTS.md](eval/RESULTS.md)) |
-| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
+| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [EVALUATION.md](docs/EVALUATION.md), [MODEL-CARD.md](docs/MODEL-CARD.md), [DATASHEET.md](docs/DATASHEET.md), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).

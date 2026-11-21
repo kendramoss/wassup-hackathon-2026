@@ -77,7 +77,8 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
 8. **Accuracy.** Say these numbers:
    - **90.2%** on 377 held-out CBP rulings (Vertex, official), against 60.5% for the best rule of thumb.
    - The fast path auto-accepts 79.6% of cases at 96.0%.
-   - The "Precedent check" section: **182 checks reached the 0.92 bar across all runs; none was wrong.**
+   - The "Precedent check" section: **182 checks reached the 0.92 bar across all runs; none was wrong.** Say the denominator too: proxy runs over 54 development pairs and 21 pairs from 2026, 17 pairs when each is counted once.
+   - The "Known failure cases" section: every held-out miss, by ruling. Scroll to it; showing the misses is part of the claim.
 
 **Before recording:**
 - Run the smoke test once. The backend is private, so on production it runs through the frontend's `/api` proxy (`scripts/smoke.sh <frontend URL>/api`, health checks skipped).

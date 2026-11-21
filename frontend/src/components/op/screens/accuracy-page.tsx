@@ -6,6 +6,7 @@ import { copy } from "@/lib/copy";
 import { ErrorBox, Main } from "../chrome";
 import { Chip, ScrollX, Spinner, cx } from "../ui";
 import { VerifierCalibration } from "../verifier-calibration";
+import { KnownFailures, Reproduce } from "../failure-cases";
 
 // "How accurate is it?" (DESIGN.md, locked 16 Oct, frame p-accuracy.html):
 // every held-out ruling as a square beside the three headline cards, then
@@ -98,14 +99,14 @@ export function AccuracyPage() {
     { label: "Always the most common origin", it: get("baseline_majority") },
   ].filter((b) => b.it);
 
-  const status = (it: Item): { label: string; tone?: "ok" | "ask" } =>
-    it.key?.startsWith("baseline")
-      ? { label: "baseline, no model" }
-      : it.key?.startsWith("change_detection")
-        ? { label: "weak" }
-        : it.development_only
-          ? { label: "development set", tone: undefined }
-          : { label: "official", tone: "ok" };
+  // Rows whose source is the research write-up cannot be recomputed from this
+  // repository (docs/NUMBERS.md), so they never read "official".
+  const status = (it: Item): { label: string; tone?: "ok" | "ask" } => {
+    const kind = it.key?.startsWith("baseline") ? "baseline, no model" : it.key?.startsWith("change_detection") ? "weak" : "research run";
+    if (it.source?.startsWith("hackathon-research/")) return { label: `${kind} · reported, unverified` };
+    if (it.key?.startsWith("change_detection")) return { label: "weak" };
+    return it.development_only ? { label: "development set" } : { label: "official", tone: "ok" };
+  };
   const lead = ["final_accuracy", "final_fastpath_coverage", "final_fastpath_accuracy", "baseline_most_mentioned", "dev_accuracy", "final_cost_per_case_usd", "final_latency_p50_s", "textile_final_accuracy", "router_out_of_scope_recall", "change_detection_heldout", "verifier_unknown-a_precision"];
   const rows = all ? items : lead.map(get).filter((x): x is Item => Boolean(x));
   const value = (it: Item) =>
@@ -115,9 +116,14 @@ export function AccuracyPage() {
     <Main>
       <h1 className="text-[34px] tracking-[-0.05em]">How accurate is it?</h1>
       <p className="read mt-2 max-w-[68ch] text-[15px] text-dim">
-        We gave Unde {n} real CBP origin rulings from January to September 2026, none of which it had seen, and compared its answer with CBP&apos;s. Every number below has
-        its interval and its source.
+        We gave Unde {n} real CBP origin rulings from January to September 2026, none of them used to tune it, and compared its answer with CBP&apos;s. As in real use, it
+        could read earlier 2026 rulings as precedent, never the case&apos;s own ruling or a later one. Every number below has its interval and its source, and the{" "}
+        <a href="#misses" className="text-ok underline underline-offset-2">
+          rulings it got wrong
+        </a>{" "}
+        are listed by name.
       </p>
+      <Reproduce />
       {error ? (
         <div className="mt-6">
           <ErrorBox error={error} onRetry={load} />
@@ -180,7 +186,7 @@ export function AccuracyPage() {
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="eyebrow">Against rules of thumb</h2>
-              <span className="ml-auto text-[11px] text-dim">same {n} rulings · 95% interval</span>
+              <span className="ml-auto text-[11px] text-dim">same {n} rulings · 95% interval · baselines reported, unverified: their scoring script is not in the repository</span>
             </div>
             <div className="mt-4 flex flex-col gap-2.5">
               {bars.map(({ label, it, ours }) => (
@@ -249,8 +255,8 @@ export function AccuracyPage() {
                   </Card>
                 )}
                 {routeOut && (
-                  <Card title="Knows what it can't answer" big={pct(routeOut.value)}>
-                    of pharmaceutical and USMCA rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}). Those go to their own rules, or to a person.
+                  <Card title="Kept out of the general engine" big={pct(routeOut.value)}>
+                    of pharmaceutical and Part 102 marking rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}). Those go to their own rules, or to a person.
                   </Card>
                 )}
                 {routeTex && (
@@ -263,6 +269,8 @@ export function AccuracyPage() {
           )}
 
           {data?.verifier_calibration?.splits?.length ? <VerifierCalibration c={data.verifier_calibration} /> : null}
+
+          <KnownFailures />
 
           <section className="mt-6 border border-edge bg-sheet px-5 py-4 shadow-[4px_4px_0_var(--shadow)]">
             <h2 className="eyebrow">What we don&apos;t claim</h2>
@@ -375,7 +383,7 @@ function HowBuilt() {
       </ol>
       <p className="read mt-4 max-w-[95ch] text-[13.5px] text-dim">
         Product facts in, a broker-ready plan out: every answer cites the rulings it read, nothing reads rulings dated after the case, and a daily spend cap keeps model costs
-        bounded. The engine, router and verifier are measured above; the held-out numbers use rulings the system never saw.
+        bounded. The engine, router and verifier are measured above; the held-out rulings were never used to tune prompts, thresholds or retrieval.
       </p>
     </section>
   );

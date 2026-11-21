@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: demo-seed test lint fmt run smoke verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
+.PHONY: demo-seed test lint fmt run smoke reproduce verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -20,6 +20,12 @@ run: ## local server on :8080
 
 smoke: ## one live Vertex call (Application Default Credentials and GOOGLE_CLOUD_PROJECT)
 	cd $(GO_DIR) && go run ./cmd/server -smoke
+
+reproduce: ## recompute every published number from committed files: no model calls, no credentials
+	$(MAKE) verify-data
+	cd $(GO_DIR) && go run ./cmd/claimscheck
+	python3 -I eval/charts/build_evaluation.py . --check
+	python3 -I eval/charts/build_trust_data.py . --check
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

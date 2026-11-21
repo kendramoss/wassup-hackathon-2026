@@ -172,6 +172,14 @@
 .lp .who { max-width: 1240px; margin: 0 auto; padding: 56px var(--gutter) 0; }
 .lp .whobox { margin-top: 12px; border: 1px dashed var(--guide); background: var(--sheet); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
 .lp .whobox p { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .roles { margin-top: 28px; }
+.lp .rolelead { margin-top: 8px; max-width: 78ch; color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .roles dl { margin: 12px 0 0; border-top: 1px solid var(--edge); }
+.lp .role { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 6px 32px; padding: 14px 0; border-bottom: 1px dashed var(--guide); }
+.lp .role dt { display: flex; flex-direction: column; gap: 4px; }
+.lp .role dt .read, .lp .role dd { color: var(--body); font-size: 14.5px; line-height: 1.55; }
+.lp .role dt .read { color: var(--ink); }
+.lp .role dd { margin: 0; }
 /* ---- fig.4, the impact story ----
    A drawing sheet like fig.3: numbered beats down the left, bars only for
    measured figures (values written on them), plain text for the rest. */
@@ -241,7 +249,7 @@
   .lp .endcta { flex-wrap: wrap; gap: 12px 20px; }
   .lp .crop { display: none; }
   .lp .ruler { display: none; } /* too small to read at phone width; the claims below carry the numbers */
-  .lp .panels, .lp .claims, .lp .forag, .lp .whobox { grid-template-columns: 1fr; }
+  .lp .panels, .lp .claims, .lp .forag, .lp .whobox, .lp .role { grid-template-columns: 1fr; }
   .lp .story { padding-top: 36px; }
   .lp .storysheet { padding: 20px 16px 14px; }
   .lp .storyhead, .lp .beat, .lp .bar { grid-template-columns: 1fr; }
