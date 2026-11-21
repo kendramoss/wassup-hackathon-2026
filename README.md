@@ -76,7 +76,7 @@ On the two demo products, the plan Unde shows matches what really happened:
 - **Heat gun:** Unde's plan (move the motor-fan assembly, circuit board and switch to Thailand) matches CBP's later 2026 ruling holding Thai origin.
 - **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling.
 
-Across 182 precedent checks that cleared the bar, none was wrong. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results).
+Across 182 precedent checks that cleared the bar, none was wrong. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Limitations
 
