@@ -1,6 +1,9 @@
 package main
 
 import (
+	"regexp"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/hts"
@@ -48,30 +51,83 @@ func TestCodeMatch(t *testing.T) {
 	}
 }
 
+// leakLike finds what is left of an HTS number after stripCodes, written
+// independently of it: a dotted code anywhere, a number next to a heading
+// word or before ", HTSUS", or a number listed right after a removed code.
+var leakLike = regexp.MustCompile(`(?i)\d{4}\.\d{2}|headings?\s*\d{4}|\b\d{4}\b,\s+HTSU?S?\b|\[code removed\],?\s*(?:and\s+|or\s+)?\d{4}\b`)
+
+// No committed dev or held-out product reaches the suggester with an HTS
+// number in its name or description (D381; #576).
 func TestEvalProductsHideCodes(t *testing.T) {
 	t.Chdir("../..")
-	ps, err := evalProducts("dev")
-	if err != nil {
-		t.Fatal(err)
-	}
-	usmca, fam := 0, 0
-	for _, p := range ps {
-		if p.Set == "usmca" {
-			usmca++
-		} else {
-			fam++
+	for _, split := range []string{"dev", "final"} {
+		ps, err := evalProducts(split)
+		if err != nil {
+			t.Fatal(err)
 		}
-		if codeLike.MatchString(p.Product.Description) || p.Product.HTS != "" {
-			t.Errorf("%s: a code reaches the suggester", p.Ruling)
-		}
-		for _, c := range p.Product.Components {
-			if c.HTS != "" {
-				t.Errorf("%s: part code given", p.Ruling)
+		usmca, fam := 0, 0
+		for _, p := range ps {
+			if p.Set == "usmca" {
+				usmca++
+			} else {
+				fam++
+			}
+			if m := leakLike.FindString(p.Product.Description + " " + p.Product.Name); m != "" || p.Product.HTS != "" {
+				t.Errorf("%s %s: a code reaches the suggester: %q", split, p.Ruling, m)
+			}
+			for _, c := range p.Product.Components {
+				if c.HTS != "" {
+					t.Errorf("%s: part code given", p.Ruling)
+				}
 			}
 		}
+		t.Logf("%s products: %d Part 102, %d family", split, usmca, fam)
+		if split == "dev" && (usmca < 50 || fam != 23) || split == "final" && (usmca != 29 || fam != 0) {
+			t.Errorf("%s products = %d, %d", split, usmca, fam)
+		}
 	}
-	t.Logf("dev products: %d Part 102, %d family", usmca, fam)
-	if usmca < 50 || fam != 23 {
-		t.Errorf("products = %d, %d", usmca, fam)
+}
+
+// #576: codes glued to "heading"/"subheading" and every code of a list are
+// removed.
+func TestStripCodes(t *testing.T) {
+	for in, want := range map[string]string{
+		"is classifiable under subheading8419.34.0000, Harmonized": "is classifiable under [code removed], Harmonized",
+		"outside of headings 8539 and 8540, Harmonized":            "outside of [code removed], Harmonized",
+		"headings 3926, 4015, 4016, and 8484, HTSUS":               "[code removed], HTSUS",
+		"or 4015, 4016, and 8484, HTSUS":                           "or [code removed], HTSUS",
+		"classified in subheading 8501.31.4000, HTSUS":             "classified in [code removed], HTSUS",
+		"under HTSUS8419.34 and":                                   "under HTSUS[code removed] and",
+		"subheadings 8486.10 through 8486.40.":                     "[code removed].",
+		"a 1200 watt motor, 2024 model, 3 heading angles":          "a 1200 watt motor, 2024 model, 3 heading angles",
+		"not part of the 2024 HTSUS.":                              "not part of the 2024 HTSUS.",
+	} {
+		if got := stripCodes(in); got != want {
+			t.Errorf("stripCodes(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// The committed inputs that carried an HTS number (#576): exactly these,
+// found by comparing the v1 stripper with the current one.
+func TestInputCodesOfTheCommittedRuns(t *testing.T) {
+	t.Chdir("../..")
+	want := map[string]string{
+		"dev":   "H342474:8540 N339851:4421 N343893:4016,8484 N352810:3914",
+		"final": "H351116:9802.00.40,9802.00.80,5405 H355020:3914,3914 N357063:3914 N363600:8419.34.0000 N364586:3914",
+	}
+	for split, w := range want {
+		m, err := inputCodes(split)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []string
+		for id, cs := range m {
+			got = append(got, id+":"+strings.Join(cs, ","))
+		}
+		sort.Strings(got)
+		if g := strings.Join(got, " "); g != w {
+			t.Errorf("%s: %s, want %s", split, g, w)
+		}
 	}
 }

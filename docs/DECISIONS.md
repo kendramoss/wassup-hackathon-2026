@@ -1727,6 +1727,7 @@ Rule check on the Part 102 rulings, the same products (69 of the 72 dev and 29 o
 - **Not measured:** the production path adds a live CROSS search for the good and drops model codes that are not in today's HTS. The evaluation ran neither, to make no web fetches. Origins came from the full-text extraction, as a user would type them.
 - **After the freeze** only the local fake answer, the eval's per-ruling disagreement list and docs changed; the suggestion code the held-out run used is unchanged.
 - **Cost:** $1.42 gateway-reported for all three runs (RUNLOG `parts-hts-*`), about one cent per product.
+- **Correction after the freeze (D413, #576):** the v1 code stripper let HTS numbers through in 5 held-out and 4 dev inputs. One matters for a decided figure: held-out N363600's facts kept the importer's "subheading8419.34.0000" (glued to the word), and its top good suggestion was 8419.34.00. Without the 5 held-out products the row "top suggestion for the good and every part" is 7 decided of 24, 6 agree (8 of 29, 7 agree, as run). The row with CBP's good code is unchanged at 7 of 24 decided, 6 agree. The held-out run is not re-run or re-tuned; both figures are reported.
 
 ## D390 — No tool input schema has anyOf, oneOf, allOf or not at its root (22 Nov, judge panel round 7)
 - **Problem:** #514 (D323) found that an ADK agent offered all 13 MCP tools through an OpenAI-compatible LiteLLM gateway to Gemini got a 400 for the whole request, so it ran with two tools only. The cause was not known.
@@ -1786,4 +1787,25 @@ Run as pre-registered in D400. The rules were frozen at commit 0ec6b447 and the 
 - **Evidence:** `TestTrailingLimitationAttachesToTheLastSource` (the five #550 rows and the two decided cases, which now give Mexico and Canada under 102.11(a)(3); the whole-alternative rows still flagged) and `TestExceptionListsSplitWithoutAComma` (the six #551 materials give "no shift", the 9030.32 comma control still does, and materials in described segments stay "needs a fact"). With the old `rules.json` 13 of their checks fail. `TestRulesJSONMatchesParser` uses the same re-parse.
 - **Re-run of the offline evaluations (no model calls, committed extractions and suggestions):** `go run ./cmd/tariffshift eval -check` (D362) and `go run ./cmd/tariffshift parts-eval -check` (D382) were run before and after the fix. Their output is identical. D362 stays: full ruling text, dev 2 of 72 and final 2 of 32 decided, all agreeing with CBP; facts 0 of 117. D382 stays: dev 9 of 69 decided with CBP's good code and the top part suggestions (9 agree), 10 of 69 with the suggested good code (9 agree); held-out 7 of 29 (6 agree) and 8 of 29 (7 agree); with CBP's stated codes 2 and 2. No committed row has a good of 8481.10–8481.80, 8716.10–8716.80, 9002, 9030.89, 9030.90 or 8485, and the extractions state no simple-assembly or GRI 2(a) facts, so no decision could change.
 - **Held-out integrity:** this is a bug fix in the rule encoding, made from the regulation's text and synthetic cases, not from any held-out result. Both results are reported and are the same.
+
+## D413 — Code stripping for the per-part evaluation; the leaked inputs reported (22 Nov, #576; post-freeze correction)
+- **Problem:** D381 states that the suggester sees the facts "with every HTS number replaced" and that "no product carries a code". The v1 stripper (`stripCodes` in `cmd/tariffshift/parts.go`) needed a space between "subheading" and the number, removed only the first code of a list ("headings 8539 and 8540"), left the last two digits of a 10-digit code ("[code removed]00"), and did not touch the product name taken from the ruling's subject.
+- **Change:** `stripCodes` now removes a code glued to the word before it, every code of a list after a heading word or before ", HTSUS", and whole 10-digit codes; it also runs on the product name. "The 2024 HTSUS" keeps its year. The frozen v1 stripper is kept as `stripCodesV1`; `parts-eval` rebuilds the inputs the committed runs saw and lists, per cell, the products whose input still carried a number of 4 digits or more (`input_codes` in `parts/summary.json`), and reports each cell without them (`without_input_codes`). The two last digits v1 left behind are not counted: they carry no heading or subheading.
+- **Which inputs carried a code:** held out (5 of 29): N363600 "8419.34.0000" (the importer's code, which the model then proposed for the good), H351116 "9802.00.40", "9802.00.80" (in the name; chapter 98, which the suggester never returns) and "5405", and H355020, N357063, N364586 "3914" (the end of "headings 3901 to 3914" in the quoted text of heading 3926). Dev (4 of 69): H342474 "8540", N339851 "4421", N343893 "4016", "8484", N352810 "3914". The family fixtures carried none.
+- **Re-scored without them (offline, no model calls; the committed suggestions are not re-run):**
+
+| Split | Figure | As run | Without inputs that carried a code |
+|---|---|---:|---:|
+| final (held out) | rule check, top suggestion for the good and every part | 8 of 29 decided, 7 agree | 7 of 24, 6 agree |
+| final (held out) | rule check, CBP's good code and top part suggestions | 7 of 29, 6 agree | 7 of 24, 6 agree |
+| final (held out) | good's code, top-1 / top-3 | 14 / 15 of 27 | 12 / 12 of 23 |
+| final (held out) | part top-1 / top-3 | 2 / 2 of 3 | 2 / 2 of 3 |
+| dev | rule check, CBP's good code and top part suggestions | 9 of 69, 9 agree | 8 of 65, 8 agree |
+| dev | rule check, top suggestion for the good and every part | 10 of 69, 9 agree | 10 of 65, 9 agree |
+| dev | good's code, top-1 / top-3 | 36 / 42 of 68 | 34 / 39 of 64 |
+| dev | part top-1 / top-3 | 20 / 22 of 27 | 20 / 21 of 26 |
+
+- **Reading:** only N363600 is a clear leak into a decided rule-check figure. The three plastics products saw "3914", the last code of a range quoted from heading 3926's text, not the good's own code; their good top-3 hits are left out above to be safe, which is why held-out good top-3 drops from 15 to 12. We cannot tell offline what the model would have proposed without the leaks. Re-suggesting the 5 held-out products (about $0.06) was not done: it would be a second score on the held-out split.
+- **On /method:** the pooled "16 of 98, 15 agree" is now given per split, as pre-registered: development 9 of 69 (9 agree), held out 7 of 29 (6 agree), with CBP's code for the good and the top part suggestions. That held-out row is unchanged by this correction.
+- **Evidence:** `TestStripCodes`, `TestEvalProductsHideCodes` (every dev and held-out product's name and description, checked with a detector written apart from the stripper), `TestInputCodesOfTheCommittedRuns` (pins the list above); `parts-eval -check` in `make reproduce`.
 

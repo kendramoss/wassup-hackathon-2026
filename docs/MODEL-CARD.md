@@ -66,7 +66,7 @@ The factors that change accuracy, from the evaluation and the failure analysis b
 | Cost and latency per prediction | [NUMBERS.md](NUMBERS.md) | from the same held-out rows |
 | Failure cases, accuracy by origin | section 6 below; the Accuracy page | `python3 -I eval/charts/build_trust_data.py . --check` |
 | Rule check coverage and agreement on the Part 102 rulings | [EVALUATION.md §9](EVALUATION.md#9-rule-check-19-cfr-10220-tariff-shift-offline-22-nov-2026-d360-d362); decides 0 of 117 from the facts, 4 of 104 from the full ruling text | `cd backend && go run ./cmd/tariffshift eval -check` |
-| Per-part HTS suggestions: top-1 against CBP's stated part codes, and how often the rule check then decides | [EVALUATION.md §10](EVALUATION.md#10-hts-codes-suggested-for-each-part-and-the-rule-check-they-unlock-22-nov-2026-d380-d382); dev 20 of 27, held out 2 of 3; the rule check decides 16 of 98 rulings with suggested part codes (4 without) | `cd backend && go run ./cmd/tariffshift parts-eval -check` |
+| Per-part HTS suggestions: top-1 against CBP's stated part codes, and how often the rule check then decides | [EVALUATION.md §10](EVALUATION.md#10-hts-codes-suggested-for-each-part-and-the-rule-check-they-unlock-22-nov-2026-d380-d382); dev 20 of 27, held out 2 of 3; with suggested part codes the rule check decides dev 9 of 69 and held out 7 of 29 (2 and 2 without); D413 corrects one held-out input | `cd backend && go run ./cmd/tariffshift parts-eval -check` |
 
 The recomputed rows and ledger checks run with `make reproduce`, with no model calls and no credentials. Confidence intervals, label counts by method, cost and latency figures are reported from `eval/RESULTS.md`, not recomputed there.
 

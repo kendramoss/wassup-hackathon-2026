@@ -781,5 +781,6 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 | final (held out, once) | Part 102 | 29 | 225 of 245 | 3 | 2 | 2 | 14 of 27 | $0.3577 |
 
 - Rule check with CBP's good code and the top part suggestions: dev 9 of 69 decided (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only (D362): 2 and 2. With every code suggested: dev 10 (9 agree), final 8 (7 agree).
+- Post-freeze correction (D413, #576): the v1 code stripper let HTS numbers into 5 held-out inputs (N363600 kept the importer's 8419.34.0000; H351116 9802.00.40, 9802.00.80 in the name and 5405; H355020, N357063, N364586 3914) and 4 dev inputs (H342474, N339851, N343893, N352810). Without them: held out, every code suggested 7 of 24 decided (6 agree), CBP's good code 7 of 24 (6 agree), good top-1 / top-3 12 / 12 of 23; dev, CBP's good code 8 of 65 (8 agree), good 34 / 39 of 64, parts 20 / 21 of 26. Not re-run; `summary.json` `input_codes` and `without_input_codes`.
 - Post hoc, by reading the sentences: 4 of the 29 dev gold codes look wrong (vinyl skin, adhesive, brake caliper core, pressure switch); without them dev top-1 is 19 of 23.
 - Rows: `tariffshift/parts/` (gold, suggestions, `summary.json`). `cd backend && go run ./cmd/tariffshift parts-eval -check` recomputes them (in `make reproduce`). Cost $1.42 gateway-reported; RUNLOG `parts-hts-*`.
