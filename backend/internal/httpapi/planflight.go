@@ -137,6 +137,11 @@ func (f *planFlights) do(ctx context.Context, key, inputs string, keep bool, run
 		}
 		joined = true
 	} else {
+		// The search may outlive this request (grace period), so it takes
+		// over the caller's in-flight slot and gives it back when run
+		// returns, not when the handler does (D410, #581). Joiners and
+		// replays keep their own slot only while they wait.
+		held := slotFrom(ctx).detach()
 		runCtx, cancel := context.WithCancel(context.WithoutCancel(ctx))
 		fl = &planFlight{inputs: inputs, ready: make(chan struct{}), waiters: 1, cancel: cancel}
 		f.inflight[key] = fl
@@ -160,6 +165,7 @@ func (f *planFlights) do(ctx context.Context, key, inputs string, keep bool, run
 			}
 			f.mu.Unlock()
 			cancel()
+			held.release()
 			close(fl.ready)
 		}()
 	}

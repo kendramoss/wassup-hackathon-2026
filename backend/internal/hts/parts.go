@@ -2,6 +2,8 @@ package hts
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"slices"
@@ -103,11 +105,15 @@ type PartsResult struct {
 
 // PartsOptions bound a suggestion. Before and Exclude are for the
 // evaluation (D381): only rulings dated before Before, never Exclude.
+// Scope is who asks (a workspace, a user, an API key, a visitor or a client
+// address); answers are cached only within one scope, and an empty Scope
+// caches nothing (D410).
 type PartsOptions struct {
 	Good    bool // also suggest the good's code
 	Before  time.Time
 	Exclude string
 	NoCache bool
+	Scope   string
 }
 
 // PartsSuggester suggests codes for a product's parts.
@@ -159,11 +165,20 @@ func (p *PartsSuggester) Coverage() (sentences, rulings int) {
 	return len(p.entries), len(seen)
 }
 
-// CacheKey is how a part's answer is cached: the part's words and the
-// product's name, lower case, punctuation dropped. The product name is in
-// the key because a part's code depends on what it is part of ("housing").
-func CacheKey(part, product string) string {
-	return normWords(part) + "\x00" + normWords(product)
+// CacheKey is how a part's answer is cached (D410): a hash of who asks
+// (scope) and of everything about the part that goes into the prompt: the
+// prompt version, the part's words and where it is made, and the product's
+// name and description (as sent, lower case, punctuation dropped). The model
+// writes its reasons from the description, so a cached answer is served only
+// to the same caller asking about the same product; it never carries one
+// caller's text to another.
+func CacheKey(scope, part, madeIn string, prod domain.Product) string {
+	h := sha256.New()
+	for _, s := range []string{PartsPromptVersion, scope, normWords(part), normWords(madeIn), normWords(prod.Name),
+		normWords(corpus.Truncate(strings.TrimSpace(prod.Description), descRunes))} {
+		fmt.Fprintf(h, "%d:%s\x00", len(s), s)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func normWords(s string) string {
@@ -279,7 +294,7 @@ func partsSchema(items []*item) map[string]any {
 // too, for logging.
 func (p *PartsSuggester) Suggest(ctx context.Context, prod domain.Product, opt PartsOptions) (PartsResult, error) {
 	res := PartsResult{Note: UnverifiedNote, Parts: []PartSuggestion{}}
-	useCache := !opt.NoCache && opt.Before.IsZero()
+	useCache := !opt.NoCache && opt.Before.IsZero() && opt.Scope != ""
 	byKey := map[string]*item{}
 	var items []*item
 	for i, c := range prod.Components {
@@ -288,7 +303,7 @@ func (p *PartsSuggester) Suggest(ctx context.Context, prod domain.Product, opt P
 			continue
 		}
 		res.Parts = append(res.Parts, PartSuggestion{Index: i, Name: name, Candidates: []PartCandidate{}})
-		ck := CacheKey(name, prod.Name)
+		ck := CacheKey(opt.Scope, name, c.MadeIn, prod)
 		if useCache {
 			if cs, ok := p.cached(ck); ok {
 				res.Parts[len(res.Parts)-1].Candidates, res.Parts[len(res.Parts)-1].Cached = cs, true

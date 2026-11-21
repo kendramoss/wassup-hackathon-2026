@@ -73,7 +73,8 @@ const maxPartNameRunes = 200
 // earlier CBP ruling that classified a similar part ("rulings") or from the
 // model ("model"), with a short reason; and, when the product has no HTS
 // code, for the good. One model call per request; answers per part are
-// cached for a day (D380). Nothing is stored or filled in: the user accepts
+// cached for a day, only for the same caller and the same product words
+// (D380, D410). Nothing is stored or filled in: the user accepts
 // codes in the parts table, and the 19 CFR 102.20 rule check reads them when
 // the case is read (D363). Rate-limited as light; counts toward the spend cap.
 func (a *api) partsHTSSuggest(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +107,7 @@ func (a *api) partsHTSSuggest(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: the product name and description are at most %d characters", domain.ErrInvalid, domain.MaxFactsRunes))
 		return
 	}
-	res, err := a.d.PartsHTS.Suggest(r.Context(), p, hts.PartsOptions{Good: strings.TrimSpace(p.HTS) == ""})
+	res, err := a.d.PartsHTS.Suggest(r.Context(), p, hts.PartsOptions{Good: strings.TrimSpace(p.HTS) == "", Scope: a.cacheScope(r)})
 	if err != nil {
 		if !res.ReasonsUnavailable {
 			a.fail(w, r, err)
@@ -117,4 +118,22 @@ func (a *api) partsHTSSuggest(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"parts": res.Parts, "good": res.Good, "note": res.Note,
 		"reasons_unavailable": res.ReasonsUnavailable, "trace": res.Trace, "llm_provider": a.d.Provider,
 		"prompt_version": hts.PartsPromptVersion, "max_parts": hts.MaxParts, "disclaimer": domain.Disclaimer})
+}
+
+// cacheScope is who a cached model answer belongs to (D410): a signed-in
+// user's workspace (else the user), an API key, a visitor ID, else the
+// client address bucket. A cached answer is never served outside its scope.
+func (a *api) cacheScope(r *http.Request) string {
+	p := a.principalOf(r)
+	switch {
+	case p.signedIn() && p.Workspace != "":
+		return "workspace:" + p.Workspace
+	case p.signedIn():
+		return "user:" + p.UserOwner
+	case p.HasKey:
+		return "apikey:" + p.KeyID
+	case p.Owner != "":
+		return "owner:" + p.Owner
+	}
+	return "client:" + a.clientKey(r)
 }

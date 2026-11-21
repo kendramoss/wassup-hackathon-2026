@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -269,8 +270,11 @@ func (a *api) limit(c class, h http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 			// Released when the handler returns, which for a stream is when
-			// the stream ends.
-			defer a.inflight.release(key)
+			// the stream ends, unless a plan search that outlives the
+			// request took the slot over (D410): then when that search ends.
+			s := &slot{f: a.inflight, key: key}
+			r = r.WithContext(context.WithValue(r.Context(), slotCtxKey{}, s))
+			defer s.handlerDone()
 		}
 		if a.limiter != nil {
 			d := a.rateCheck(r, key, c)
@@ -394,6 +398,48 @@ func (f *inflight) acquire(key string) bool {
 	}
 	f.n[key]++
 	return true
+}
+
+// slot is one in-flight slot taken by limit. The handler gives it back
+// when it returns, unless work that outlives the request (a detached plan
+// search, D402) took it over with detach; then that work gives it back when
+// it ends (D410, #581). It is given back exactly once.
+type slot struct {
+	f        *inflight
+	key      string
+	detached atomic.Bool
+	once     sync.Once
+}
+
+type slotCtxKey struct{}
+
+// slotFrom is the in-flight slot limit took for this request, or nil.
+func slotFrom(ctx context.Context) *slot {
+	s, _ := ctx.Value(slotCtxKey{}).(*slot)
+	return s
+}
+
+// detach hands the slot to work that may outlive the request: the handler
+// no longer gives it back, and the caller must call release. nil-safe.
+func (s *slot) detach() *slot {
+	if s != nil {
+		s.detached.Store(true)
+	}
+	return s
+}
+
+// handlerDone gives the slot back unless it was detached.
+func (s *slot) handlerDone() {
+	if !s.detached.Load() {
+		s.release()
+	}
+}
+
+// release gives the slot back once. nil-safe.
+func (s *slot) release() {
+	if s != nil {
+		s.once.Do(func() { s.f.release(s.key) })
+	}
 }
 
 func (f *inflight) release(key string) {
