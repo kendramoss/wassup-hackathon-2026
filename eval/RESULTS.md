@@ -643,7 +643,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Every pair's outcome: `planner-post-summary.json`; docs/EVALUATION.md section 7.1.
 
 ### Plan search on the post-cutoff pairs with a template — once each
-- Strut (target Thailand): CBP's move is the top plan, 0.96. Stove heater (Thailand): CBP's move shown at 0.92, ranked below a cheaper untested subset (motor alone). Three air-purifier reverse probes (China): no plan shown; one move supported at 0.85, below the bar. $0.76. `planner-post-plan-*-litellm.json`.
+- Strut (target Thailand): CBP's move is the top plan, 0.96. Stove heater (Thailand): CBP's move shown at 0.92, ranked below a cheaper untested subset (motor alone). Three air-purifier reverse probes (China): no plan shown; two had moves supported at 0.85, below the bar (Champ one, Waffle Cone two; corrected in D301). $0.76. `planner-post-plan-*-litellm.json`.
 
 ### Per-family plan checks — development and train rulings, not an evaluation
 - 23 searches, one each: 15 of 23 (65.2%, 44.9–81.2) show a precedent-supported plan, 8 go to a broker. Cited ruling, read by hand: supports 9, partial 4, does not 2. $1.90 ($0.083 a search). `planner-families-summary.json`; docs/EVALUATION.md section 7.2.
@@ -660,6 +660,14 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
   - known-a: shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls shown 0/6 (0-39.0).
   - unknown-a: shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6 (0-39.0), one control row an error.
 - Core tier unchanged (no core pair was added).
+
+## Planner: the 0.92 plan bar re-examined on committed rows (no model calls, 21 Nov; D300, D301)
+
+### Rule written first (D300, commit e4a555e6), bar chosen on development rows only
+- Data: the nine verifier-v2 dev flip runs D86 pools (54 pairs, 485 verdicts). Shown = supported at confidence ≥ bar; right = real change with CBP's later origin named (D170 rule). Chosen bar = the lowest of 0.92, 0.90, 0.88, 0.85, 0.80, 0.75 that, with every higher one, has ≥ 100 shown verdicts at a precision lower bound ≥ 97% and no wrong pair shown. A production change also needs ≥ 10 wrong supported dev verdicts.
+- Dev: 0.92 shows 159, all right (97.6–100); 0.90 shows 193 with 2 wrong (2 pairs); 0.85 shows 256 with 3 wrong; real-change pairs shown in every run 13/46 at 0.92, 19/46 at 0.85. **Chosen bar 0.92.** Wrong supported dev verdicts: 3 of 287, so the gate fails. Production unchanged.
+- Reported after the choice, from existing rows (0.92 figures were already published): post-cutoff 18 pairs known-a, 0.92 = 0.85: 9/9 right, recall 9/12, controls 0/6. Unknown-a: 0.92 5/6, recall 5/12; 0.85 8/9, recall 8/12, controls 0/6. 2026 pairs (contaminated): 0.92 21/23 right; 0.85 36/40 with two controls shown. Plan searches: 0.85 would add 3 moves on the post-cutoff air-purifier probes (one directly contradicted by CBP) and 10 unlabelled moves on the per-family checks (21 of 23 products with a plan instead of 15).
+- `eval/results/plan-bar-analysis.json`, `python3 -I -B eval/planner/plan_bar.py . --check`. No RUNLOG line: nothing ran against a model.
 
 ## Repeatability: engine-v1 on Argon, development set, three runs (gateway, 21 Nov; D190)
 - Run 1: `results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl` (D152). Runs 2 and 3: `results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl`, `...-rep3.jsonl`, with `LITELLM_NO_CACHE=1` (fresh calls, every row has a gateway cost). Five gateway timeouts (1 + 4) re-run by resume; RUNLOG has a line for each run and each resume.
