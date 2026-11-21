@@ -6,43 +6,30 @@ import { EstimateCosts } from "./money-prefill";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
-import { groupNames } from "@/lib/families";
+import { groupName } from "@/lib/families";
 import { outcomeLabels } from "@/lib/plan-check";
 import { Country, Flag, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
 
 
-export function groupName(id: string | undefined): string {
-  if (!id) return "Other";
-  return groupNames[id] ?? id.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
-}
-
-// "motor_fan_assembly" → "the motor-fan assembly"; a move's groups joined
-// as a sentence: "the motor-fan assembly and the PCBA".
-const phrases: Record<string, string> = {
-  motor_fan_assembly: "the motor-fan assembly",
-  pcba: "the PCBA",
-  heating_element: "the heating element",
-  housing_moulding: "the housing moulding",
-  switch_cord_minor_parts: "the switch, cord and minor parts",
-  final_assembly: "final assembly",
-  led_pcba: "the LED PCBA",
-  lens: "the lens moulding",
-  base_harness_seals: "the base, harness and seals",
-};
+// The one label helper lives with the template mirror in families.ts (#391);
+// screens import it from here so every group name has a single source.
+export { groupName };
 
 // Lower-cases a leading capital only when it starts an ordinary word, so
-// acronyms ("LED PCBA", "PCBA") keep their case.
+// acronyms ("LED PCBA (SMT)", "PCBA (SMT)") keep their case, as they do in
+// planner.Describe (D220).
 const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
 
-export function movePhrase(p: Plan): string {
+export function movePhrase(p: Plan, family?: string): string {
   // The backend's description, "Move the X and the Y to Thailand" (D220),
   // carries each family's own group names; a one-country move gives its
-  // middle. Anything else falls back to the heat-gun phrases.
+  // middle. Anything else builds the same phrase from the template names,
+  // with no hard-coded group list to drift (#391).
   const d = /^Move (.+) to ([A-Z][^,;]*)$/.exec(p.description ?? "");
   if (d && !/ to [A-Z]/.test(d[1])) return d[1];
-  const parts = (p.move ?? []).map((m) => phrases[m.group ?? ""] ?? `the ${lowerFirst(groupName(m.group))}`);
+  const parts = (p.move ?? []).map((m) => `the ${lowerFirst(groupName(m.group, family))}`);
   if (parts.length === 0) return (p.description ?? "").replace(/^(Make|Move) /, "");
   return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
@@ -75,7 +62,7 @@ export function MoveIncludes({ product, plan, className }: { product: Product | 
       {groups.map((g, i) => (
         <span key={g.group}>
           {i > 0 ? " · " : ""}
-          <span className="text-body">{groupName(g.group)}</span> ({g.items.join("; ")})
+          <span className="text-body">{groupName(g.group, product?.family)}</span> ({g.items.join("; ")})
         </span>
       ))}
     </p>
@@ -138,14 +125,14 @@ export function PlantDiagram({ product, plan, below }: { product: Product; plan:
               {incoming.map((g) => (
                 <li key={`in-${g}`} className={cx("border px-2.5 py-1.5 text-[12.5px]", below ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
                   <b className={cx("mr-1.5 text-[11px] font-medium uppercase tracking-[0.06em]", below ? "text-ask" : "text-ok")}>moved</b>
-                  {groupName(g)}
+                  {groupName(g, product.family)}
                 </li>
               ))}
               {own.map((g) => {
                 const leaves = moved.has(g) && moved.get(g) !== pl.id;
                 return (
                   <li key={g} className={cx("border px-2.5 py-1.5 text-[12.5px]", leaves ? "border-dashed border-line text-dim line-through" : "border-line bg-white")}>
-                    {groupName(g)}
+                    {groupName(g, product.family)}
                   </li>
                 );
               })}
@@ -233,12 +220,12 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
               {groups.map((g) => (
                 <tr key={g} className="border-t border-line">
                   <th scope="row" className="py-1 pr-2 text-left font-normal">
-                    {groupName(g)}
+                    {groupName(g, product?.family)}
                   </th>
                   {plants.map((p) => (
                     <td key={p.id} className="py-1 pr-2">
                       <input
-                        aria-label={`${groupName(g)} at ${p.name || p.id}, USD a year`}
+                        aria-label={`${groupName(g, product?.family)} at ${p.name || p.id}, USD a year`}
                         inputMode="numeric"
                         className="w-full min-w-0 rounded-[2px] border border-line bg-white px-2 py-1"
                         value={costs[g]?.[p.id] ?? ""}
@@ -265,7 +252,7 @@ export function EconomicsEditor({ value, onChange, product, countries, priced }:
           <p className="eyebrow">Yearly cost of each group, by plant (USD)</p>
           {groups.map((g) => (
             <fieldset key={g} className="border-t border-line pt-2">
-              <legend className="text-[13px] font-medium">{groupName(g)}</legend>
+              <legend className="text-[13px] font-medium">{groupName(g, product?.family)}</legend>
               <div className="mt-1 grid grid-cols-2 gap-2">
                 {plants.map((p) => (
                   <label key={p.id} className="flex flex-col gap-0.5 text-[11.5px] text-dim">

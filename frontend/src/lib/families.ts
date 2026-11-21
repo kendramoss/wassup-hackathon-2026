@@ -1,77 +1,45 @@
 // Product families with a plan template, in the order the family picker
-// lists them. Names and group ids mirror backend/internal/planner/templates;
-// scripts/families.test.mjs fails when they drift.
-export type Family = { id: string; name: string; groups: string[] };
+// lists them. Names and group ids/names mirror
+// backend/internal/planner/templates; scripts/families.test.mjs fails when
+// they drift, including the one family whose final group is "and testing".
+export type Group = { id: string; name: string };
+export type Family = { id: string; name: string; groups: Group[] };
 
 export const families: Family[] = [
-  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances", groups: ["motor_fan_assembly", "pcba", "heating_element", "housing_moulding", "switch_cord_minor_parts", "final_assembly"] },
-  { id: "led_lights", name: "LED lights and lamps", groups: ["led_pcba", "lens", "base_harness_seals", "final_assembly"] },
-  { id: "lidar_modules", name: "LiDAR sensor modules", groups: ["main_boards", "rx_tx_boards", "final_assembly"] },
-  { id: "pcba_electronic_devices", name: "PCBA-based electronic devices", groups: ["pcba_manufacturing", "functional_subassemblies", "housing_and_cables", "final_assembly"] },
-  { id: "power_supplies_chargers", name: "Power supplies, adapters and chargers", groups: ["pcba_manufacturing", "power_charging_modules", "housing_cables_parts", "final_assembly"] },
-  { id: "cables_harnesses", name: "Cables, cord sets and wire harnesses", groups: ["optical_fiber_drawing", "conductor_core_making", "cable_insulation_jacket", "connectors_and_housings", "final_assembly"] },
-  { id: "vehicle_parts", name: "Vehicle parts (mechanical and electromechanical)", groups: ["electromechanical_core", "precision_machined_parts", "housings_and_structures", "final_assembly"] },
-  { id: "motors_pumps_compressors", name: "Electric motors, pumps and compressors", groups: ["motor_stator_rotor", "fluid_rotary_mechanism", "housing_and_chassis", "controls_and_valves", "final_assembly"] },
-  { id: "hand_tools", name: "Hand tools and cutting tools", groups: ["primary_metal_forming", "machining_and_treatment", "handles_and_hardware", "final_assembly"] },
-  { id: "medical_devices", name: "Medical devices and disposables", groups: ["metal_cannula_forging", "molded_barrels_chambers", "pcba_and_sensors", "hubs_clamps_housings", "final_assembly"] },
-  { id: "display_camera_modules", name: "Display modules and cameras", groups: ["display_cell_fab", "camera_pcba_smt", "optical_lens_shaping", "final_assembly"] },
-  { id: "gas_grills_cooking", name: "Gas grills and outdoor cooking appliances", groups: ["lid_and_firebox", "burners_and_gas_train", "cooking_surface_frame", "final_assembly"] },
-  { id: "water_filters", name: "Water filters and filtration systems", groups: ["carbon_block", "cartridge_housings", "dispenser_electronics", "final_assembly"] },
-  { id: "furniture", name: "Furniture and mattresses", groups: ["tabletop_fabrication", "frame_metal_fabrication", "foam_textile_production", "electronics_mechanisms", "final_assembly"] },
+  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances", groups: [{ id: "motor_fan_assembly", name: "Motor-fan assembly" }, { id: "pcba", name: "PCBA (SMT)" }, { id: "heating_element", name: "Heating element" }, { id: "housing_moulding", name: "Housing moulding" }, { id: "switch_cord_minor_parts", name: "Switch, cord and minor parts" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "led_lights", name: "LED lights and lamps", groups: [{ id: "led_pcba", name: "LED PCBA (SMT)" }, { id: "lens", name: "Lens moulding" }, { id: "base_harness_seals", name: "Base, harness and seals" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "lidar_modules", name: "LiDAR sensor modules", groups: [{ id: "main_boards", name: "Main boards (TMB and BMB PCBAs)" }, { id: "rx_tx_boards", name: "RX and TX PCBAs" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "pcba_electronic_devices", name: "PCBA-based electronic devices", groups: [{ id: "pcba_manufacturing", name: "PCBA (SMT)" }, { id: "functional_subassemblies", name: "Functional subassemblies" }, { id: "housing_and_cables", name: "Housing and cables" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "power_supplies_chargers", name: "Power supplies, adapters and chargers", groups: [{ id: "pcba_manufacturing", name: "PCBA (SMT)" }, { id: "power_charging_modules", name: "Power conversion or charging module" }, { id: "housing_cables_parts", name: "Housing, cables and minor parts" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "cables_harnesses", name: "Cables, cord sets and wire harnesses", groups: [{ id: "optical_fiber_drawing", name: "Optical fiber drawing" }, { id: "conductor_core_making", name: "Wire conductor making" }, { id: "cable_insulation_jacket", name: "Cable insulation and jacket" }, { id: "connectors_and_housings", name: "Connectors and housings" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "vehicle_parts", name: "Vehicle parts (mechanical and electromechanical)", groups: [{ id: "electromechanical_core", name: "Electromechanical core (motor, coil, sensor)" }, { id: "precision_machined_parts", name: "Machined and heat-treated metal parts" }, { id: "housings_and_structures", name: "Housings and structural parts" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "motors_pumps_compressors", name: "Electric motors, pumps and compressors", groups: [{ id: "motor_stator_rotor", name: "Motor stator and rotor" }, { id: "fluid_rotary_mechanism", name: "Impeller and rotary mechanism" }, { id: "housing_and_chassis", name: "Housing, chassis and machined block" }, { id: "controls_and_valves", name: "Control boards, switches and valves" }, { id: "final_assembly", name: "Final assembly and testing" }] },
+  { id: "hand_tools", name: "Hand tools and cutting tools", groups: [{ id: "primary_metal_forming", name: "Forged or stamped working part" }, { id: "machining_and_treatment", name: "Machining, heat treatment and finishing" }, { id: "handles_and_hardware", name: "Handles and hardware" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "medical_devices", name: "Medical devices and disposables", groups: [{ id: "metal_cannula_forging", name: "Needle cannula or metal blank" }, { id: "molded_barrels_chambers", name: "Moulded barrels, chambers and tubing" }, { id: "pcba_and_sensors", name: "PCBA and sensors" }, { id: "hubs_clamps_housings", name: "Hubs, clamps and housings" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "display_camera_modules", name: "Display modules and cameras", groups: [{ id: "display_cell_fab", name: "Display cell fabrication" }, { id: "camera_pcba_smt", name: "Camera PCBA (SMT)" }, { id: "optical_lens_shaping", name: "Lens grinding" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "gas_grills_cooking", name: "Gas grills and outdoor cooking appliances", groups: [{ id: "lid_and_firebox", name: "Lid and firebox forming" }, { id: "burners_and_gas_train", name: "Burners and gas train" }, { id: "cooking_surface_frame", name: "Cooking surface, panels and frame" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "water_filters", name: "Water filters and filtration systems", groups: [{ id: "carbon_block", name: "Carbon block filter media" }, { id: "cartridge_housings", name: "Cartridge housings and seals" }, { id: "dispenser_electronics", name: "Tanks, pumps and electronics" }, { id: "final_assembly", name: "Final assembly" }] },
+  { id: "furniture", name: "Furniture and mattresses", groups: [{ id: "tabletop_fabrication", name: "Tabletop and panels" }, { id: "frame_metal_fabrication", name: "Frame and base" }, { id: "foam_textile_production", name: "Foam and upholstery" }, { id: "electronics_mechanisms", name: "Controls and mechanisms" }, { id: "final_assembly", name: "Final assembly" }] },
 ];
 
-// Each group id's name in its template (ids are unique across templates;
-// final_assembly is "Final assembly" or "Final assembly and testing", shown
-// as the shorter). scripts/families.test.mjs checks them against the templates.
-export const groupNames: Record<string, string> = {
-  optical_fiber_drawing: "Optical fiber drawing",
-  conductor_core_making: "Wire conductor making",
-  cable_insulation_jacket: "Cable insulation and jacket",
-  connectors_and_housings: "Connectors and housings",
-  final_assembly: "Final assembly",
-  display_cell_fab: "Display cell fabrication",
-  camera_pcba_smt: "Camera PCBA (SMT)",
-  optical_lens_shaping: "Lens grinding",
-  tabletop_fabrication: "Tabletop and panels",
-  frame_metal_fabrication: "Frame and base",
-  foam_textile_production: "Foam and upholstery",
-  electronics_mechanisms: "Controls and mechanisms",
-  lid_and_firebox: "Lid and firebox forming",
-  burners_and_gas_train: "Burners and gas train",
-  cooking_surface_frame: "Cooking surface, panels and frame",
-  primary_metal_forming: "Forged or stamped working part",
-  machining_and_treatment: "Machining, heat treatment and finishing",
-  handles_and_hardware: "Handles and hardware",
-  led_pcba: "LED PCBA (SMT)",
-  lens: "Lens moulding",
-  base_harness_seals: "Base, harness and seals",
-  main_boards: "Main boards (TMB and BMB PCBAs)",
-  rx_tx_boards: "RX and TX PCBAs",
-  metal_cannula_forging: "Needle cannula or metal blank",
-  molded_barrels_chambers: "Moulded barrels, chambers and tubing",
-  pcba_and_sensors: "PCBA and sensors",
-  hubs_clamps_housings: "Hubs, clamps and housings",
-  motor_fan_assembly: "Motor-fan assembly",
-  pcba: "PCBA (SMT)",
-  heating_element: "Heating element",
-  housing_moulding: "Housing moulding",
-  switch_cord_minor_parts: "Switch, cord and minor parts",
-  motor_stator_rotor: "Motor stator and rotor",
-  fluid_rotary_mechanism: "Impeller and rotary mechanism",
-  housing_and_chassis: "Housing, chassis and machined block",
-  controls_and_valves: "Control boards, switches and valves",
-  pcba_manufacturing: "PCBA (SMT)",
-  functional_subassemblies: "Functional subassemblies",
-  housing_and_cables: "Housing and cables",
-  power_charging_modules: "Power conversion or charging module",
-  housing_cables_parts: "Housing, cables and minor parts",
-  electromechanical_core: "Electromechanical core (motor, coil, sensor)",
-  precision_machined_parts: "Machined and heat-treated metal parts",
-  housings_and_structures: "Housings and structural parts",
-  carbon_block: "Carbon block filter media",
-  cartridge_housings: "Cartridge housings and seals",
-  dispenser_electronics: "Tanks, pumps and electronics",
-};
+// Stable fallback for callers that have no product family in hand. Group ids
+// are otherwise unique; final_assembly appears in every template, and its
+// first (most common) name is the fallback (#391).
+export const groupNames: Record<string, string> = {};
+for (const f of families) {
+  for (const g of f.groups) {
+    if (!(g.id in groupNames)) groupNames[g.id] = g.name;
+  }
+}
+
+// The label a screen shows for a group. Pass the product's family when known:
+// final_assembly is "Final assembly and testing" for pumps, and "Final
+// assembly" everywhere else. Acronyms are kept as the template writes them.
+export function groupName(id: string | undefined, family?: string): string {
+  if (!id) return "Other";
+  const scoped = family ? families.find((f) => f.id === family)?.groups.find((g) => g.id === id) : undefined;
+  return scoped?.name ?? groupNames[id] ?? id.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+}
 
 export const familyName = (id: string) => families.find((f) => f.id === id)?.name ?? id;
 
@@ -79,5 +47,5 @@ export const familyName = (id: string) => families.find((f) => f.id === id)?.nam
 // every family's when none is chosen.
 export function groupSuggestions(family?: string): string[] {
   const f = families.find((x) => x.id === family);
-  return f ? f.groups : [...new Set(families.flatMap((x) => x.groups))];
+  return f ? f.groups.map((g) => g.id) : [...new Set(families.flatMap((x) => x.groups.map((g) => g.id)))];
 }

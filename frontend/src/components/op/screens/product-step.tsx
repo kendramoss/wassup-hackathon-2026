@@ -1066,7 +1066,7 @@ export function PartsEditor({ product, family, onChange }: { product: Product; f
       ...(product.operations ? { operations: ops.map((o) => (o.plant === gone ? { ...o, plant: "" } : o)) } : {}),
     });
   };
-  const groupOptions: ComboOption[] = [{ value: "", label: "None" }, ...groups.map((g) => ({ value: g, label: groupName(g) }))];
+  const groupOptions: ComboOption[] = [{ value: "", label: "None" }, ...groups.map((g) => ({ value: g, label: groupName(g, family) }))];
   // Picking where a part is made fills its country from the plant.
   const pickPlant = (i: number, id: string) => {
     const pl = plants.find((p) => p.id === id);
@@ -1136,7 +1136,7 @@ export function PartsEditor({ product, family, onChange }: { product: Product; f
                         className={cx("min-h-7 rounded-[2px] border px-2 text-xs", on ? "border-ok bg-ok-wash text-ok" : "border-line text-dim hover:text-ink")}
                       >
                         {on ? "✓ " : ""}
-                        {groupName(g)}
+                        {groupName(g, family)}
                       </button>
                     );
                   })}
