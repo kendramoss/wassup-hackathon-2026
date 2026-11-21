@@ -532,3 +532,21 @@ Second held-out split (83 rulings, Sep-Nov 2026). Each run makes its own router 
 Reading: on the 377 the official figure is within a ruling of both repeats. On the 83 the official figure is the lower end. Neither split's official figure is flattered by the single run. The intervals above are each run's own; the run-to-run spread is well inside them.
 
 Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I -B eval/charts/build_repeatability_heldout.py .` from the committed row files; `go run ./cmd/claimscheck` recomputes the per-run counts, means and flips (`repeat_heldout.*`). Cost $7.47 gateway-reported for the four runs and their resumes.
+
+## 9. Rule check: 19 CFR 102.20 tariff shift, offline (22 Nov 2026, D360-D362)
+
+**What it is.** A deterministic rule layer (`backend/internal/tariffshift`) beside the Part 102 engine. It holds the verbatim 102.20 rows for chapters 73, 82, 84, 85, 87, 90 and 94 from the eCFR (18 Nov 2026), parsed into alternatives, and applies 102.11(a), 102.13 and 102.11(b) with 102.18(b)(1). Given the good's HTS code, the country of production and each material's HTS code and origin, it either decides, citing the row and paragraphs, or says it cannot and what is missing. It never guesses: an alternative written by goods description, a condition such as simple assembly or GRI 2(a), a code too short or a missing value leaves the answer undetermined. 332 of the 515 alternatives in scope are encoded; the other 183 describe goods in words.
+
+**How it was tested.** Unit tests check the parser against the committed text, hand-checked rows (8473, 8402.90, 7321, 8504, 8507, 8544, 9405, the 8708 note) and worked cases, including CBP's N337260. Then the committed Part 102 splits, pre-registered in D361: a model copies the codes and origins out of each text with verbatim quotes that code checks, and the rule layer runs on them. Two inputs are scored apart: the facts the engine reads, and the full ruling text, which includes CBP's own classifications. The full text checks the encoding given CBP's codes; it is not evidence about the product.
+
+| Split | Input | n | Out of scope | Decided | Agrees with CBP | Differs from the model |
+|---|---|---:|---:|---:|---:|---:|
+| dev | facts (prompt v1) | 72 | 5 | 0 | – | – |
+| dev | full ruling text | 72 | 39 | 2 | 2 of 2 | 0 |
+| final (held out) | facts | 32 | 6 | 0 | – | – |
+| final (held out) | full ruling text | 32 | 17 | 2 | 2 of 2 | 0 |
+| final2 (held out) | facts | 13 | 3 | 0 | – | – |
+
+**What it shows.** Coverage is very low. From the facts it decides none of the 117 rulings: 68 give no code for the good, and none in scope gives one for every foreign material. From the full text it decides 4 of 104, each as CBP held and as the model answered; on 2 of 2 per split the interval is 34.2-100%, so nothing about accuracy can be read from it. Most of the rest are outside the seven chapters (56) or name a material without a code (23). The rule check is therefore a cross-check for cases where the user supplies codes, not a second engine. It is shown beside the model and changes neither the answer nor auto-accept.
+
+**Not done.** The full text of the 13 final2 rulings was not run (raw texts not available locally). Chapters outside the seven, textile rules (102.21), 102.11(c) and (d), and USMCA qualification are not encoded. Source: `eval/tariffshift/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`). Extraction cost $2.58 gateway-reported.

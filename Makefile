@@ -45,6 +45,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/claimscheck
 	cd $(GO_DIR) && go run ./cmd/eval summary -check
 	cd $(GO_DIR) && go run ./cmd/corpus supersession -check
+	cd $(GO_DIR) && go run ./cmd/tariffshift eval -check
 	python3 -I -B eval/supersession/impact.py . --check
 	python3 -I -B eval/charts/build_evaluation.py . --check
 	python3 -I -B eval/charts/build_trust_data.py . --check

@@ -752,3 +752,19 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Dev: every shown verdict held 906/994 (91.1%); tier 1 held 644/644 at m = 0.01 and 0.02, 433/433 at 0.03, 363/363 at 0.04, 63/63 at 0.05. **Chosen m = 0.01** (tier 1 from 0.93). At-the-bar verdicts held 262/350 (74.9%).
 - Re-ranked after the choice (offline): 44 committed plan runs, 30 with a shown plan; the top plan changes in 6 (heat gun D322 runs 1 and 3, D332 runs 1 and 2, per-family N350826, post-cutoff stove heater). The new top backtests worse in 2 (D332 run 1, the stove heater). CBP's heat-gun move after the split ranks 6th of 7 (run 1, counter-ruling N345859) and 1st of 6 (run 2).
 - `eval/results/plan-rank-analysis.json`, `python3 -I -B eval/planner/plan_rank.py . --check`. No RUNLOG line: nothing ran against a model.
+
+## 19 CFR 102.20 rule check on the Part 102 rulings (offline scoring, gateway extraction, 22 Nov; D360, D361, D362)
+- The deterministic rule layer (`backend/internal/tariffshift`, chapters 73, 82, 84, 85, 87, 90, 94) applied to the Part 102 splits. A model (Gemini 3.8 Flash through the gateway, prompt `tariffshift-extract-v2`) copies the HTS codes, origins and country of production out of each text, with a verbatim quote that code checks; it classifies nothing. Pre-registered in D361 (commit 65b1cb2f); code frozen at 89552154 before the held-out extraction (both commits kept as branch `improve/tariff-shift-prereg`; the merged history has new hashes); each held-out file extracted and scored once.
+- "facts" is the text the engine reads. "full ruling text" includes CBP's own classifications and analysis: it checks the encoding given CBP's codes, not the product.
+
+| Split | Input | n | Out of scope | Decided | Agrees with CBP | Differs from the model |
+|---|---|---:|---:|---:|---:|---:|
+| dev | facts (prompt v1) | 72 | 5 | 0 | – | – |
+| dev | full ruling text | 72 | 39 | 2 | 2 of 2 | 0 |
+| final (held out) | facts | 32 | 6 | 0 | – | – |
+| final (held out) | full ruling text | 32 | 17 | 2 | 2 of 2 | 0 |
+| final2 (held out) | facts | 13 | 3 | 0 | – | – |
+
+- Decided rulings: N344091 (8507.90, Mexico) and N344002 (8414.30, Mexico) on dev; N360891 (8708.29, Canada) and N362506 (8507.10, Mexico) held out. One more dev ruling, H339179 (unfinished valves, 8409.91), is open only on the de minimis value; its answer if de minimis does not apply, China, is CBP's.
+- Development v1 runs (0 decided on facts; 0 decided, 1 open only on de minimis on full text) are in `tariffshift/dev-v1/`. Nine dev v2 rows ran out of output tokens and were re-run once at 8,192; 2 dev and 2 final full-text rows still failed. final2 full text was not run (raw texts not available locally).
+- Rows: `tariffshift/inputs-*.jsonl` (extractions with quotes), `tariffshift/results-*.jsonl`, `tariffshift/summary.json`. `cd backend && go run ./cmd/tariffshift eval -check` recomputes them (in `make reproduce`). Cost $2.58 gateway-reported; RUNLOG `tariffshift-extract-*`.
