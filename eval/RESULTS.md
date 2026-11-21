@@ -72,18 +72,32 @@ All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into
 
 ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). This is cal-v1, eval only. The product uses cal-v2 (next section).
 
-### All regimes, held-out (first window, plus final2)
+### All regimes, held-out, both windows (D210)
 
-| Regime | n | Accuracy (95% CI) | Path |
-|---|---:|---|---|
-| Substantial transformation | 377 | 90.2% (86.8–92.8) | Vertex AI |
-| Textile (19 CFR 102.21), textile-v1 | 71 | 85.9% (76.0–92.2) | Vertex AI |
-| Pharmaceutical, pharma-v1 | 56 | 89.3% (78.5–95.0) | proxy |
-| Part 102 marking origin, usmca-v1 | 32 | 78.1% (61.2–89.0) | proxy |
-| **All four, pooled** | 536 | 88.8% (85.9–91.2) | mixed |
-| All four plus final2 (substantial transformation) | 619 | 89.3% (86.7–91.5) | mixed |
+Built by `python3 -I eval/charts/build_accuracy.py .` into `results/accuracy-v2-metrics.json` (`heldout_all_regimes_by_window`); recomputed in Go by `go run ./cmd/claimscheck` (`regimes.*`). Wilson 95% intervals.
 
-Post-cutoff rulings of the other regimes were labelled (`data/labels_final2.jsonl`: 18 Part 102, 12 pharmaceutical) but not scored: their engines need their own precedent pools and splits. Planned.
+The post-cutoff splits of the textile, pharmaceutical and Part 102 engines were built from the 163 labelled rulings of the second window with each first-window builder's rule, unchanged (`splits/build_regimes_final2_split.py`; `splits/splits_{textile,pharma,usmca}_final2.json`, `data/labels_usmca_final2.jsonl`). They were pinned in `SHA256SUMS` and committed (cffff80, 21 Nov 17:18 +08:00) before any run, and each was scored once through the gateway with the production engine of its regime, Gemini 4 Argon, BM25, K = 5, router-v2 on Gemini 3.8 Flash. Every run is in `results/RUNLOG.jsonl` with that revision.
+
+| Regime | Window 1: Jan–Sep 2026 | Path | Window 2: 28 Sep–13 Nov 2026 | Path |
+|---|---|---|---|---|
+| Substantial transformation, engine-v1 | 340/377 = 90.2% (86.8–92.8) | Vertex AI | 77/83 = 92.8% (85.1–96.6) | gateway |
+| Textile (19 CFR 102.21 rule) | 61/71 = 85.9% (76.0–92.2), textile-v1 | Vertex AI | 15/17 = 88.2% (65.7–96.7), textile-v2 (in production) | gateway |
+| Pharmaceutical, pharma-v1 | 50/56 = 89.3% (78.5–95.0) | proxy | 4/6 = 66.7% (30.0–90.3) | gateway |
+| Part 102 marking origin, usmca-v1 | 25/32 = 78.1% (61.2–89.0) | proxy | 11/13 = 84.6% (57.8–95.7) | gateway |
+| Splits added (as the 536 was) | 476/536 = 88.8% (85.9–91.2) | mixed | 107/119 = 89.9% (83.2–94.1) | gateway |
+| **Each ruling once** | 451/509 = 88.6% (85.6–91.1) | mixed | 96/107 = 89.7% (82.5–94.2) | gateway |
+
+| All regimes, all held-out windows | n | Accuracy (95% CI) |
+|---|---:|---|
+| Splits added | 655 | 583 = 89.0% (86.4–91.2) |
+| **Each ruling once** | 616 | **547 = 88.8% (86.1–91.1)** |
+
+- **The 536 counted 27 rulings twice.** The textile rule (D51) matches "102.21" anywhere in a ruling, and Part 102 rulings on non-textile goods name 102.21 in their boilerplate. 27 of the 32 first-window Part 102 rulings are also among the 71 textile ones; in window 2, 12 of the 13 Part 102 rulings are among the 17 textile ones. The rule was kept so the windows compare. "Each ruling once" counts those rulings under Part 102, a rule fixed before the runs (D210). On the overlap the textile engine did better than the Part 102 engine (window 1: 25 against 21 of 27; window 2: 11 against 10 of 12), so this choice gives the lower pooled figure. Of the 17 window-2 textile rulings, only 3 apply 102.21 itself, and all 3 were right.
+- **Pharmaceutical has 6 rulings.** 12 were labelled pharmaceutical; 4 hold no origin (tariff classification only) and 2 are steel tubes made to "API 5CT" that the regime rule mislabelled, left out before the run. 4 of 6 right says little either way.
+- **Misses, window 2:** textile N365940 (gold China, said Canada, 0.55) and N366728 (France, said China, 0.65); pharmaceutical N365255 (India, said South Korea, 0.40) and N366376 (Australia, said China, 0.90); Part 102 N366698 (Mexico, said Brazil, 0.95) and N366728 (France, said Canada, 0.65).
+- **Routing went worse than these numbers suggest.** These runs send every case to its regime's engine. The production router sent 7 of the 13 Part 102 rulings, 1 of the 6 pharmaceutical rulings and 1 of the 3 rulings that apply 102.21 to the substantial-transformation engine instead (`router_regime` on each row). In the product those cases would get the general engine's answer; that path was not scored. On the development window the router kept 88.4% of pharmaceutical and Part 102 rulings out of the general engine; on this small post-cutoff set it kept 11 of 19.
+- **Cost:** $0.41 for the three runs (gateway-reported): textile $0.0139, pharmaceutical $0.0101, Part 102 $0.0085 per case.
+- **Mixed paths.** Window 1 mixes Vertex AI and the earlier LiteLLM proxy; window 2 is the gateway. Textile window 1 is textile-v1; window 2 is textile-v2, the prompt in production.
 
 ## Calibrated confidence in the product (21 Nov 2026; D160, D161)
 

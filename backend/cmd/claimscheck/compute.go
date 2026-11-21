@@ -49,6 +49,24 @@ const (
 	repRun2 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl"
 	repRun3 = "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl"
 
+	// The other regimes' held-out runs, both windows (D210). Window 1 is
+	// Jan-Sep 2026 ("final"); window 2 is the post-cutoff window ("final2"),
+	// each split frozen before its one run.
+	textileSplits  = "eval/splits/splits_textile.json"
+	pharmaSplits   = "eval/splits/splits_pharma.json"
+	usmcaSplits    = "eval/splits/splits_usmca.json"
+	final2Splits   = "eval/splits/splits_final2.json"
+	textile2Splits = "eval/splits/splits_textile_final2.json"
+	pharma2Splits  = "eval/splits/splits_pharma_final2.json"
+	usmca2Splits   = "eval/splits/splits_usmca_final2.json"
+	textileRows    = "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl"
+	pharmaRows     = "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl"
+	usmcaRows      = "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"
+	final2Rows     = "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl"
+	textile2Rows   = "eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl"
+	pharma2Rows    = "eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl"
+	usmca2Rows     = "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl"
+
 	// planBar is the precedent check's plan bar (config.DefaultPlanBar).
 	planBar = 0.92
 
@@ -537,6 +555,7 @@ func Compute(root string) (kv []KV, problems []string) {
 
 	plannerPost(out, &problems, root)
 	repeatability(out, &problems, root, adj)
+	allRegimes(out, &problems, root)
 
 	var calib struct {
 		Splits []struct {
@@ -672,6 +691,8 @@ var requiredManifest = []string{
 	finalRows, finalScope, devRows, devScope,
 	runlogFile, calibFile, sliceFile, postRows, calMapFile,
 	repRun1, repRun2, repRun3,
+	textileSplits, pharmaSplits,
+	textileRows, pharmaRows, usmcaRows, final2Rows, textile2Rows, pharma2Rows, usmca2Rows,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
 	factsNamesPath,
 }
@@ -931,4 +952,88 @@ func repeatability(out *kvs, probs *[]string, root string, adj adjustments) {
 	out.add("repeat.answer_flips", answer)
 	out.add("repeat.correctness_flips", correct)
 	out.add("repeat.fast_path_flips", fast)
+}
+
+// allRegimes recomputes the held-out accuracy of every regime in both
+// windows and the pooled figures (D210). Each result file must score exactly
+// its split, the last row per ruling counting. "sum" adds the splits as they
+// are; "dedup" counts a ruling in both the textile and the Part 102 split
+// once, under Part 102.
+func allRegimes(out *kvs, probs *[]string, root string) {
+	type run struct{ key, rows, splits, list string }
+	windows := [][]run{
+		{{"w1.st", finalRows, splitsFile, "final"}, {"w1.textile", textileRows, textileSplits, "final"},
+			{"w1.pharma", pharmaRows, pharmaSplits, "final"}, {"w1.part102", usmcaRows, usmcaSplits, "final"}},
+		{{"w2.st", final2Rows, final2Splits, "final2"}, {"w2.textile", textile2Rows, textile2Splits, "final2"},
+			{"w2.pharma", pharma2Rows, pharma2Splits, "final2"}, {"w2.part102", usmca2Rows, usmca2Splits, "final2"}},
+	}
+	var sumN, sumK, dedN, dedK int
+	for wi, runs := range windows {
+		right := map[string]map[string]bool{}
+		var wn, wk int
+		for _, r := range runs {
+			var sp map[string]json.RawMessage
+			var want []string
+			if err := readJSON(root, r.splits, &sp); err != nil {
+				*probs = append(*probs, err.Error())
+				return
+			}
+			if err := json.Unmarshal(sp[r.list], &want); err != nil || len(want) == 0 {
+				*probs = append(*probs, fmt.Sprintf("%s: no %q list", r.splits, r.list))
+				return
+			}
+			rows, err := readJSONL[engineRow](root, r.rows)
+			if err != nil {
+				*probs = append(*probs, err.Error())
+				return
+			}
+			got := map[string]bool{}
+			for _, row := range rows {
+				got[row.Ruling] = row.Correct && row.Error == ""
+			}
+			if len(got) != len(want) {
+				*probs = append(*probs, fmt.Sprintf("%s: %d rulings, but %s %s lists %d", r.rows, len(got), r.splits, r.list, len(want)))
+				return
+			}
+			k := 0
+			for _, id := range want {
+				ok, seen := got[id]
+				if !seen {
+					*probs = append(*probs, fmt.Sprintf("%s: %s of %s is not scored", r.rows, id, r.splits))
+					return
+				}
+				if ok {
+					k++
+				}
+			}
+			right[r.key] = got
+			out.add("regimes."+r.key+".n", len(want))
+			out.add("regimes."+r.key+".correct", k)
+			wn += len(want)
+			wk += k
+		}
+		w := fmt.Sprintf("w%d.", wi+1)
+		p := "regimes." + w
+		dn, dk := wn, wk
+		for id, ok := range right[w+"textile"] {
+			if _, both := right[w+"part102"][id]; both {
+				dn--
+				if ok {
+					dk--
+				}
+			}
+		}
+		out.add(p+"overlap", wn-dn)
+		out.add(p+"sum.correct", wk)
+		out.add(p+"sum.n", wn)
+		out.add(p+"dedup.correct", dk)
+		out.add(p+"dedup.n", dn)
+		sumN, sumK, dedN, dedK = sumN+wn, sumK+wk, dedN+dn, dedK+dk
+	}
+	out.add("regimes.all.sum.correct", sumK)
+	out.add("regimes.all.sum.n", sumN)
+	out.add("regimes.all.sum.pct", pct(sumK, sumN))
+	out.add("regimes.all.dedup.correct", dedK)
+	out.add("regimes.all.dedup.n", dedN)
+	out.add("regimes.all.dedup.pct", pct(dedK, dedN))
 }

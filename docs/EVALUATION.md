@@ -71,6 +71,7 @@ Other splits, each built by a committed script and frozen before its held-out ru
 - **Pharmaceutical** (`splits_pharma.json`, `build_pharma_split.py`) and **Part 102** (`splits_usmca.json`, `build_usmca_split.py`): final 56 and 32.
 - **Regression slice** (`eval/splits/slice30.json`): 30 dev rulings stratified by confidence band (`backend/internal/evalslice`, `Pick`).
 - **Second held-out split** (`eval/splits/splits_final2.json`, `build_final2_split.py`, D150): 83 substantial-transformation rulings dated 28 Sep to 13 Nov 2026, built with the same rule from rulings published after the first split and frozen on 21 Nov before any scoring. Section 6.
+- **Post-cutoff splits of the other regimes** (`eval/splits/splits_{textile,pharma,usmca}_final2.json`, `build_regimes_final2_split.py`, D210): textile 17, pharmaceutical 6, Part 102 13, from the same 163 labelled rulings, each with its first builder's rule unchanged, frozen before scoring. Section 6.1.
 
 ### 2.2 The exclusions, reconstructed
 
@@ -256,7 +257,8 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
 - **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
-- **Scoring the other regimes on post-cutoff rulings.** 18 Part 102 and 12 pharmaceutical rulings after 25 Sep are labelled (`eval/data/labels_final2.jsonl`) but not scored.
+- **The production path for the other regimes, end to end.** The post-cutoff regime runs (section 6.1) send each case to its regime's engine; the router sent 10 of those 24 rulings to the general engine instead, and that path is not scored.
+- **A textile split rule that reads the law, not the boilerplate.** The D51 rule matches any mention of 102.21 (section 6.1).
 - **Re-running the specialist engines on Vertex.** The pharmaceutical and Part 102 held-out numbers are proxy runs.
 
 ## 5. Known gaps
@@ -271,6 +273,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
 - **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 13 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
+- **The other regimes' post-cutoff splits are small** (17, 6 and 13), and their router path is not scored (section 6.1).
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
 
 ## 6. The second held-out split (21 Nov 2026)
@@ -301,6 +304,24 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 | Both | 460 | 90.7% (87.6–93.0) | 81.5% at 96.3% (93.8–97.8) | mixed |
 
 **What it shows, and what it does not.** The engine holds up on rulings published after everything it was built and tuned on. It does not show an improvement: the intervals overlap, the second split is easier for simple rules (most-mentioned country 71.1% against 60.7%; `eval/results/baselines-final2.json`), and it has near-duplicates (62 distinct subjects among 83 rulings; counting each subject once gives 91.9%). Four of its six errors are CBP holding China where the engine named the assembling country, the same weakness as before. Production is unchanged.
+
+### 6.1 The other regimes after the cutoff (D210)
+
+The same 163 labelled rulings hold 30 that the textile, pharmaceutical and Part 102 engines answer. Each first-window builder's rule was applied to them unchanged (`eval/splits/build_regimes_final2_split.py`); the three splits were pinned and committed before any run, and each was scored once through the gateway with the production engine of its regime (textile-v2 with precedent reasoning, pharma-v1, usmca-v1; Gemini 4 Argon) and the router. Two steel-tube rulings the regime rule labelled pharmaceutical ("API 5CT" is a petroleum-industry standard) were taken out before the run.
+
+| Regime | Window 1 (Jan–Sep 2026) | Window 2 (28 Sep–13 Nov 2026) |
+|---|---|---|
+| Substantial transformation | 340/377 = 90.2% (86.8–92.8), Vertex AI | 77/83 = 92.8% (85.1–96.6), gateway |
+| Textile (102.21 rule) | 61/71 = 85.9% (76.0–92.2), Vertex AI, textile-v1 | 15/17 = 88.2% (65.7–96.7), gateway, textile-v2 |
+| Pharmaceutical | 50/56 = 89.3% (78.5–95.0), proxy | 4/6 = 66.7% (30.0–90.3), gateway; too few to read |
+| Part 102 marking origin | 25/32 = 78.1% (61.2–89.0), proxy | 11/13 = 84.6% (57.8–95.7), gateway |
+| **All four, each ruling once** | 451/509 = 88.6% (85.6–91.1) | 96/107 = 89.7% (82.5–94.2) |
+
+**All regimes, all held-out windows, each ruling once: 547/616 = 88.8% (86.1–91.1).** Adding the splits as they are gives 583/655 = 89.0% (86.4–91.2).
+
+- **A correction to the earlier pooled figure.** The first-window pool, 476/536 = 88.8%, counted 27 rulings twice. The textile rule matches "102.21" anywhere in a ruling, and Part 102 rulings on non-textile goods name 102.21 in their boilerplate, so 27 of the 32 Part 102 rulings were also in the textile split. Counted once (under Part 102, a rule fixed before the runs), the first window is 451/509 = 88.6%. In window 2 only 3 of the 17 textile rulings apply 102.21 itself; all 3 were right.
+- **Routing.** The production router sent 7 of 13 Part 102 rulings, 1 of 6 pharmaceutical rulings and 1 of the 3 true textile rulings to the general engine. The table scores each regime's own engine, so it is the best case for routing; the routed path was not scored.
+- **What it shows.** The specialist engines hold up after the cutoff within wide intervals. The windows are small, the paths are mixed (Vertex AI, the earlier proxy, the gateway), and nothing here was tuned. `eval/RESULTS.md` lists the misses.
 
 ## 7. Planner (21 Nov 2026)
 
