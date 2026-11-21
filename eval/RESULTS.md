@@ -569,3 +569,15 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 ### Per-family plan checks — development and train rulings, not an evaluation
 - 23 searches, one each: 15 of 23 (65.2%, 44.9–81.2) show a precedent-supported plan, 8 go to a broker. Cited ruling, read by hand: supports 9, partial 4, does not 2. $1.90 ($0.083 a search). `planner-families-summary.json`; docs/EVALUATION.md section 7.2.
 
+
+## Planner: post-cutoff flip-pair addendum (gateway, 21 Nov; D192)
+
+### Frozen before scoring (commit e3ae57f, rebased as 008ec73, 16:37 +08:00), scored once per mode, production configuration
+- Searches: the 85 post-cutoff substantial-transformation rulings against BM25 neighbours ranked 11-30; the 78 post-cutoff rulings of other regimes against their top 15; a re-probe of 1,284 CBP ruling numbers (N366250-N367600), which found **no rulings posted since the first probe**. Mining $0.92 (gemini-3.8-flash).
+- Kept after reading: **3 pairs**, all edge tier: one real change (power transistor, front end in the United States vs South Korea) and two controls (fiber patch cord cabled in China vs Vietnam; water fountain assembled in Cambodia vs Canada, Chinese pump in both). Every candidate left out is listed with its reason in `data/flips_post_addendum_meta.json`.
+- CBP's starting origin given: the real change shown at 0.96 on N337307 with South Korea; both controls not supported. $0.10. `flips-post-verifier-v2-addendum-known-a-litellm.jsonl`.
+- Not given: the real change shown at 0.96; the patch cord control not supported; the fountain control **failed** (gateway timeout after 4 attempts) and is counted as not shown, not re-run. $0.07. `flips-post-verifier-v2-addendum-unknown-a-litellm.jsonl`.
+- Combined with D170 (18 pairs: 12 real changes, 6 controls; D170 rows not re-run), `results/planner-post-addendum-summary.json`:
+  - known-a: shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls shown 0/6 (0-39.0).
+  - unknown-a: shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6 (0-39.0), one control row an error.
+- Core tier unchanged (no core pair was added).

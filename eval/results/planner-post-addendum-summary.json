@@ -1,0 +1,298 @@
+{
+ "what": "Post-cutoff flip-pair addendum (D192): the production precedent check (verifier-v2, gemini-4-argon, local corpus search, plan bar 0.92) scored once per mode on the frozen addendum pairs, through an OpenAI-compatible LiteLLM gateway to Gemini; combined with the D170 rows, which are not re-run.",
+ "bar": 0.92,
+ "modes": {
+  "known-a": {
+   "addendum": {
+    "pairs": 3,
+    "real_changes": 1,
+    "controls": 2,
+    "errors": 0,
+    "shown_at_bar": 1,
+    "precision_at_bar": {
+     "k": 1,
+     "n": 1,
+     "value": 1.0,
+     "ci95": [
+      0.2065,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 1,
+     "n": 1,
+     "value": 1.0,
+     "ci95": [
+      0.2065,
+      1
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 2,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.6576
+     ]
+    }
+   },
+   "combined": {
+    "pairs": 18,
+    "real_changes": 12,
+    "controls": 6,
+    "errors": 0,
+    "shown_at_bar": 9,
+    "precision_at_bar": {
+     "k": 9,
+     "n": 9,
+     "value": 1.0,
+     "ci95": [
+      0.7009,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 9,
+     "n": 12,
+     "value": 0.75,
+     "ci95": [
+      0.4677,
+      0.9111
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 6,
+     "value": 0.0,
+     "ci95": [
+      0.0,
+      0.3903
+     ]
+    }
+   },
+   "combined_core": {
+    "pairs": 10,
+    "real_changes": 6,
+    "controls": 4,
+    "errors": 0,
+    "shown_at_bar": 5,
+    "precision_at_bar": {
+     "k": 5,
+     "n": 5,
+     "value": 1.0,
+     "ci95": [
+      0.5655,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 5,
+     "n": 6,
+     "value": 0.8333,
+     "ci95": [
+      0.4365,
+      0.9699
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    }
+   },
+   "addendum_cost_usd_promo": 0.1012,
+   "addendum_rows": [
+    {
+     "set": "addendum",
+     "id": "NEG-N355061-N365446",
+     "tier": "edge",
+     "control": true,
+     "shown": false,
+     "right": false,
+     "error": false,
+     "supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "cost_usd_promo": 0.0434
+    },
+    {
+     "set": "addendum",
+     "id": "SP-N343494-N365795",
+     "tier": "edge",
+     "control": false,
+     "shown": true,
+     "right": true,
+     "error": false,
+     "supported": true,
+     "confidence": 0.96,
+     "supporting": "N337307",
+     "cost_usd_promo": 0.028
+    },
+    {
+     "set": "addendum",
+     "id": "NEG-N353152-N365470",
+     "tier": "edge",
+     "control": true,
+     "shown": false,
+     "right": false,
+     "error": false,
+     "supported": false,
+     "confidence": 0.55,
+     "supporting": "",
+     "cost_usd_promo": 0.0298
+    }
+   ]
+  },
+  "unknown-a": {
+   "addendum": {
+    "pairs": 3,
+    "real_changes": 1,
+    "controls": 2,
+    "errors": 1,
+    "shown_at_bar": 1,
+    "precision_at_bar": {
+     "k": 1,
+     "n": 1,
+     "value": 1.0,
+     "ci95": [
+      0.2065,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 1,
+     "n": 1,
+     "value": 1.0,
+     "ci95": [
+      0.2065,
+      1
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 2,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.6576
+     ]
+    }
+   },
+   "combined": {
+    "pairs": 18,
+    "real_changes": 12,
+    "controls": 6,
+    "errors": 1,
+    "shown_at_bar": 6,
+    "precision_at_bar": {
+     "k": 5,
+     "n": 6,
+     "value": 0.8333,
+     "ci95": [
+      0.4365,
+      0.9699
+     ]
+    },
+    "recall_at_bar": {
+     "k": 5,
+     "n": 12,
+     "value": 0.4167,
+     "ci95": [
+      0.1933,
+      0.6805
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 6,
+     "value": 0.0,
+     "ci95": [
+      0.0,
+      0.3903
+     ]
+    }
+   },
+   "combined_core": {
+    "pairs": 10,
+    "real_changes": 6,
+    "controls": 4,
+    "errors": 0,
+    "shown_at_bar": 2,
+    "precision_at_bar": {
+     "k": 1,
+     "n": 2,
+     "value": 0.5,
+     "ci95": [
+      0.0945,
+      0.9055
+     ]
+    },
+    "recall_at_bar": {
+     "k": 1,
+     "n": 6,
+     "value": 0.1667,
+     "ci95": [
+      0.0301,
+      0.5635
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    }
+   },
+   "addendum_cost_usd_promo": 0.0714,
+   "addendum_rows": [
+    {
+     "set": "addendum",
+     "id": "SP-N343494-N365795",
+     "tier": "edge",
+     "control": false,
+     "shown": true,
+     "right": true,
+     "error": false,
+     "supported": true,
+     "confidence": 0.96,
+     "supporting": "N337307",
+     "cost_usd_promo": 0.0398
+    },
+    {
+     "set": "addendum",
+     "id": "NEG-N355061-N365446",
+     "tier": "edge",
+     "control": true,
+     "shown": false,
+     "right": false,
+     "error": false,
+     "supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "cost_usd_promo": 0.0316
+    },
+    {
+     "set": "addendum",
+     "id": "NEG-N353152-N365470",
+     "tier": "edge",
+     "control": true,
+     "shown": false,
+     "right": false,
+     "error": true,
+     "supported": false,
+     "confidence": 0,
+     "supporting": "",
+     "cost_usd_promo": 0
+    }
+   ]
+  }
+ }
+}

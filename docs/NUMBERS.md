@@ -94,6 +94,14 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Plan search on the post-cutoff pairs | strut: CBP's move is the top plan (0.96); stove heater: CBP's move shown (0.92) but ranked below a cheaper subset CBP never ruled on; three air-purifier reverse probes: no plan shown (one supported at 0.85, below the bar); $0.76 | `eval/results/planner-post-plan-*-litellm.json` | Measured, once each, gateway; n = 5 |
 | Per-family plan checks | 23 products (two per family where eligible; gas grills one, LiDAR none): 15 of 23 = 65.2% (44.9–81.2) show a precedent-supported plan, 8 go to a broker; China-held 10 of 15, reverse probes 5 of 8; cited ruling supports the move in 9 of 15, partial 4, does not 2; $1.90 promo, $0.083 a search | `eval/results/planner-families-summary.json`, `eval/results/planner-families-*-litellm.json` | Development checks on development and train rulings, one run each, illustrative economics; not an evaluation of plan quality |
 
+### Post-cutoff flip-pair addendum (D192)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Addendum pairs | 3 frozen pairs (1 real change, 2 controls, all edge tier); re-probe of 1,284 ruling numbers found 0 new rulings | `eval/data/flips_post_addendum.jsonl`, `eval/data/flips_post_addendum_meta.json`, `eval/data/addendum_probe.jsonl` | Built; one reader |
+| Precedent check, D170 + addendum (18 pairs), starting origin given | shown 9, right 9/9 (70.1-100); recall 9/12 = 75.0% (46.8-91.1); controls shown 0/6 (0-39.0) | `eval/results/planner-post-addendum-summary.json` | Measured, each pair scored once, gateway, local corpus search. Always with n and the interval |
+| Same, starting origin not given | shown 6, right 5/6 (43.7-97.0); recall 5/12 = 41.7% (19.3-68.1); controls shown 0/6, one control run failed | same | Measured, gateway. Show beside the known-a row |
+
 ## Claude connector (MCP; built, see `docs/MCP.md`)
 
 | Number | Value | Source | Status |

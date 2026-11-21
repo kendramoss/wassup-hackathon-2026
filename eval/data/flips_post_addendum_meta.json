@@ -1,0 +1,22 @@
+{
+ "frozen_at": "2026-11-21T16:37+08:00",
+ "rule": "Addendum to the post-cutoff flip pairs (D192), under the D170 rule unchanged: two CBP substantial-transformation rulings with one held origin each, at least one dated 2026-09-26 or later, on the same or a closely similar product, whose facts differ in the country where a component was made or an operation was done; tiers as in D170. No pair already in eval/data/flips_post.jsonl, and no second pair on a product it already covers. Searches, all proposing candidates only (gemini-3.8-flash, eval/planner/mine_addendum.py): 'wide' = each of the 85 post-cutoff substantial-transformation rulings against its BM25 neighbours ranked 11-30 (D170 showed ranks 1-10); 'other' = the 78 post-cutoff rulings in other regimes or with one named country, against their top 15 neighbours among all labelled rulings; 'new' = rulings found by a re-probe of CBP ruling numbers on 21 Nov (eval/data/addendum_probe.jsonl). Every kept pair was read by hand by one reader (not a customs expert). Frozen before anything was scored on it; scored once with the production configuration, as D170.",
+ "searches": {
+  "wide_targets": 85,
+  "wide_neighbour_ranks": "11-30",
+  "other_targets": 78,
+  "other_neighbours": 15,
+  "probe_lookups": 1284,
+  "probe_found": 0,
+  "probe_saved": 0,
+  "probe_ranges": "N366250-N367300 (numbers not found by the first probe), then N367301 upwards until 300 in a row were not found"
+ },
+ "n": 3,
+ "origin_changed": 1,
+ "controls": 2,
+ "core": 0,
+ "manual_facts": {
+  "N365470": "facts file truncated before the origin facts; regime label follows from that; the ruling applies substantial transformation"
+ },
+ "rejected_candidates": "Read and left out. Different products: radio control transmitter N365050 vs gaming controllers N355069/N355986 and remote N332276; ceramic wax warmer N366275 vs accent lamp H342702; hen-and-chicks windmill N366324 vs windchime N365093; impact wrenches N365615/N365620 vs drill N346961; paper cups N366434 vs paper plates N348329; syringe sets N365408 vs N340345/N341969. Two or more differences: air pressure regulator N365608 vs gate, butterfly and angle valves N362852/N338713/N339513 (valve type and assembly country differ as well) and vs ball valve N358193 (control candidate; different valve and assembly country); LED fixture N365963 vs N351122/N348066/N335573 (PCBA country and assembly country both differ). Already covered: USB hub N366550 vs N346928 (D170 pair SP-N341280-N366550); cabin air filters N366512/N366513 vs twelve earlier filter rulings (D170 pair BA-N366512-N366513); IGBT N365796 and N365797 (one IGBT pair kept; N365797 is in D170). No move: garden stakes N365533/5/6 vs N344661 (same setup); valve bodies N365612/N365614/N364408 (material, not place). Out of the rule: seafood N365223/N365321 (origin follows harvest); tool set N365727 (set origin by essential character); payment IC N365357 (two origins held); Part 102 rulings N365068, N365711, N365695, N366014, N366147, N366698 (tariff-shift rules, not substantial transformation; the thermal-paper pair N366698 vs N362429/N363985/N363986 also crosses regimes); 9802 jewelry rulings N365031, N365032, N365047, N365914, N365977, N365978, N366013, N366016, N366182 (U.S. components rules); pharmaceutical N365272 and N366203 (active-ingredient rules). Same setup: steel casing N365097/N365098 (alloy vs non-alloy; its pharmaceutical regime label is wrong)."
+}
