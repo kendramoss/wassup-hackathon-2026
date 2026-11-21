@@ -165,6 +165,7 @@ The two scopes are independent: finishing one gives no claim for the other. Unti
 - Anything in CBP rulings retrieval (access was denied earlier and not retried).
 - Behaviour on non-U.S. text: no test submits non-U.S. facts to the router or engines.
 - Model output. Router labels, engine answers and the `unclear` outcome depend on a language model; the tests above use fakes.
+- Revocations outside the corpus. Precedent checks skip rulings that a revocation or modification letter in the corpus names (D320, `backend/internal/domain/supersession.json`), but CBP revocations published only in the Customs Bulletin, or by letters that are not in the corpus, are not detected. A cited ruling can still have been revoked; check it on rulings.cbp.gov before relying on it.
 
 ## 9. Research record
 

@@ -43,7 +43,14 @@ func (r Ruling) Validate() error {
 }
 
 // UsableAsPrecedentFor reports whether the ruling may be cited for a case
-// dated caseDate: it must be strictly earlier and not the case itself.
+// dated caseDate: it must be strictly earlier, not the case itself, and not
+// revoked or modified by CBP on or before caseDate (D320). A ruling revoked
+// after caseDate was still CBP's position then and stays usable, so
+// backtests keep the evidence a reader had at the time.
 func (r Ruling) UsableAsPrecedentFor(caseID string, caseDate time.Time) bool {
-	return r.ID != caseID && r.Date.Before(caseDate)
+	if r.ID == caseID || !r.Date.Before(caseDate) {
+		return false
+	}
+	_, superseded := SupersededAsOf(r.ID, caseDate)
+	return !superseded
 }

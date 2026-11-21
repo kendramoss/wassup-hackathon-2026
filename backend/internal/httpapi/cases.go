@@ -1637,6 +1637,27 @@ type rulingDTO struct {
 	Text    string  `json:"text"`
 	URL     string  `json:"url"`
 	Origin  *string `json:"origin"` // CBP's held origin; null when no single origin
+	// Superseded is set when a later CBP ruling in the corpus revoked or
+	// modified this one (D320).
+	Superseded *supersededDTO `json:"superseded,omitempty"`
+}
+
+// supersededDTO names the later ruling that revoked or modified a ruling.
+type supersededDTO struct {
+	By   string `json:"by"`
+	Kind string `json:"kind"` // revoked | modified
+	Date string `json:"date"`
+	Note string `json:"note"` // e.g. "revoked by H325607 on 2025-08-29"
+}
+
+// supersededAsOf is the supersession of ruling id on or before at (any
+// known one when at is zero), or nil.
+func supersededAsOf(id string, at time.Time) *supersededDTO {
+	s, ok := domain.SupersededAsOf(id, at)
+	if !ok {
+		return nil
+	}
+	return &supersededDTO{By: s.By, Kind: s.Kind, Date: s.Date, Note: s.Note()}
 }
 
 func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
@@ -1673,6 +1694,7 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 				dto.Origin = nonEmpty(p.Origin)
 			}
 		}
+		dto.Superseded = supersededAsOf(id, time.Time{})
 		a.rulingMu.Lock()
 		if len(a.rulingMemo) < 500 {
 			a.rulingMemo[id] = dto

@@ -31,6 +31,10 @@
 //	corpus final2-label [-index F] [-since 2026-09-26] [-manual F]
 //	    Label the rulings the probe saved, write their facts and
 //	    eval/data/labels_final2.jsonl (D150).
+//	corpus supersession [-raw DIR] [-out FILE] [-check]
+//	    Find rulings CBP revoked or modified (EFFECT ON OTHER RULINGS,
+//	    "hereby revoked/modified", subject lines) and write the map the
+//	    precedent filters read (internal/domain/supersession.json, D320).
 //	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
 //	    List the rulings whose text states the HTS subheading CBP applied
 //	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
@@ -72,7 +76,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe|label-check|final2-label [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe|label-check|final2-label|supersession [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -101,6 +105,8 @@ func main() {
 		err = labelCheck(os.Args[2:])
 	case "final2-label":
 		err = final2Label(os.Args[2:])
+	case "supersession":
+		err = supersession(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

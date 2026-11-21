@@ -33,6 +33,29 @@ type Hit struct {
 	Date    time.Time
 	Subject string
 	Origin  string
+	// Superseded is set when CBP revoked or modified the ruling on or
+	// before the task's date bound (D320), e.g. "revoked by H325607 on
+	// 2025-08-29". Such a hit is shown for context and is never citable.
+	Superseded string
+}
+
+// withSupersession marks a hit CBP revoked or modified on or before the
+// bound.
+func withSupersession(h Hit, before time.Time) Hit {
+	if s, ok := domain.SupersededAsOf(h.ID, before); ok {
+		h.Superseded = s.Note()
+	}
+	return h
+}
+
+// supersessionNote is the line read_ruling puts above a ruling CBP revoked
+// or modified on or before the bound, or "".
+func supersessionNote(id string, before time.Time) string {
+	s, ok := domain.SupersededAsOf(id, before)
+	if !ok {
+		return ""
+	}
+	return "NOTE: CBP " + s.Kind + " this ruling (" + s.By + ", " + s.Date + "). Its holding below is not CBP's position at this date: do not cite it; read " + s.By + " instead.\n"
 }
 
 // SearchHits is how many hits a search returns (agent_search.py: 8).
@@ -83,7 +106,7 @@ func NewLocal(labels []corpus.Label, factsDir, rawDir string) (*Local, error) {
 func (l *Local) Search(_ context.Context, query string, before time.Time, exclude map[string]bool) ([]Hit, error) {
 	var out []Hit
 	for _, h := range l.bm.Top(query, SearchHits, func(r domain.Ruling) bool { return r.Date.Before(before) && !exclude[r.ID] }) {
-		out = append(out, Hit{ID: h.Ruling.ID, Date: h.Ruling.Date, Subject: h.Ruling.Subject, Origin: h.Ruling.Origin})
+		out = append(out, withSupersession(Hit{ID: h.Ruling.ID, Date: h.Ruling.Date, Subject: h.Ruling.Subject, Origin: h.Ruling.Origin}, before))
 	}
 	return out, nil
 }
@@ -110,8 +133,8 @@ func (l *Local) Read(_ context.Context, id string, before time.Time, exclude map
 			}
 		}
 	}
-	return fmt.Sprintf("[%s | %s] %s\nFACTS: %s\nCBP ANALYSIS AND HOLDING: %s",
-		r.ID, r.Date.Format(time.DateOnly), r.Subject, corpus.Truncate(r.Facts, 2500), analysis), nil
+	return fmt.Sprintf("[%s | %s] %s\n%sFACTS: %s\nCBP ANALYSIS AND HOLDING: %s",
+		r.ID, r.Date.Format(time.DateOnly), r.Subject, supersessionNote(r.ID, before), corpus.Truncate(r.Facts, 2500), analysis), nil
 }
 
 // CROSS searches the live CROSS database (production). toDate is inclusive,
@@ -132,7 +155,7 @@ func (c CROSS) Search(ctx context.Context, query string, before time.Time, exclu
 		if err != nil || !d.Before(before) || exclude[h.RulingNumber] {
 			continue
 		}
-		out = append(out, Hit{ID: h.RulingNumber, Date: d, Subject: h.Subject, Origin: "?"})
+		out = append(out, withSupersession(Hit{ID: h.RulingNumber, Date: d, Subject: h.Subject, Origin: "?"}, before))
 		if len(out) == SearchHits {
 			break
 		}
@@ -162,8 +185,8 @@ func (c CROSS) Read(ctx context.Context, id string, before time.Time, exclude ma
 	if meta.End < len(rest) {
 		analysis = corpus.Truncate(string(rest[meta.End:]), 2500)
 	}
-	return fmt.Sprintf("[%s | %s] %s\nFACTS: %s\nCBP ANALYSIS AND HOLDING: %s",
-		r.RulingNumber, d.Format(time.DateOnly), strings.TrimSpace(r.Subject), corpus.Truncate(facts, 2500), analysis), nil
+	return fmt.Sprintf("[%s | %s] %s\n%sFACTS: %s\nCBP ANALYSIS AND HOLDING: %s",
+		r.RulingNumber, d.Format(time.DateOnly), strings.TrimSpace(r.Subject), supersessionNote(r.RulingNumber, before), corpus.Truncate(facts, 2500), analysis), nil
 }
 
 // formatHits renders search results as agent_search.py does.
@@ -174,6 +197,9 @@ func formatHits(hits []Hit) string {
 	lines := make([]string, len(hits))
 	for i, h := range hits {
 		lines[i] = fmt.Sprintf("%s | %s | %s | CBP held: %s", h.ID, h.Date.Format(time.DateOnly), corpus.Truncate(h.Subject, 110), h.Origin)
+		if h.Superseded != "" {
+			lines[i] += " | SUPERSEDED: " + h.Superseded + " (do not cite)"
+		}
 	}
 	return strings.Join(lines, "\n")
 }
