@@ -692,7 +692,7 @@ func (a *api) caseFieldsBase(r *http.Request, c store.Case) map[string]any {
 		"triage": c.Triage, "router": c.Router, "plan": cal.Plan, "clarify": c.Clarify, "answers": c.Answers, "created_at": c.CreatedAt,
 		"updated_at": c.UpdatedAt, "step": c.Step(), "precedents_detail": a.precedentRefs(c.Prediction.Precedents),
 		"cited_detail": a.precedentRefs(citedRulingIDs(c.Chat)),
-		"scenarios":    a.scenarioFields(c, a.calibratedScenarios(a.currentScenarios(c))), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": historyField(c.History),
+		"scenarios":    a.scenarioFields(c, a.calibratedScenarios(a.currentScenarios(c))), "watch": a.watchFields(c.Watch), "economics": c.Economics, "chat": chatField(c.Chat), "history": a.historyFor(r, c),
 		"targets": targetsField(cal.Targets), "pinned": c.Pinned, "economics_priced": a.economicsPriced(c), "display_name": summaryRow(c).DisplayName,
 		"can_write": a.canWrite(r, c),
 	}
@@ -708,6 +708,33 @@ func historyField(h []store.Event) []store.Event {
 		return []store.Event{}
 	}
 	return h
+}
+
+// demoReviewEvents are the history kinds a public demo must not show to a
+// non-admin reader: a pinned demo is not shared out for broker review (D200),
+// and a link made before the pin is closed by it (issue #447).
+var demoReviewEvents = map[string]bool{
+	"review_link_created":       true,
+	"review_link_revoked":       true,
+	"review_link_closed_on_pin": true,
+	"broker_decision":           true,
+}
+
+// historyFor hides broker-review events on a pinned demo from everyone but
+// the admin. The events stay in the stored history; unpinning brings them
+// back with the case's other history.
+func (a *api) historyFor(r *http.Request, c store.Case) []store.Event {
+	h := historyField(c.History)
+	if !c.Pinned || a.isAdmin(r) {
+		return h
+	}
+	out := make([]store.Event, 0, len(h))
+	for _, e := range h {
+		if !demoReviewEvents[e.Kind] {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 // predictionEvent records an analysis with its model and prompt, and the

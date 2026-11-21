@@ -443,3 +443,96 @@ func TestBrokerReviewTokenNeverLogged(t *testing.T) {
 		t.Errorf("log = %s", out)
 	}
 }
+
+// historyKinds is the set of event kinds in a case answer's history.
+func historyKinds(t *testing.T, out map[string]any) map[string]bool {
+	t.Helper()
+	got := map[string]bool{}
+	for _, v := range out["history"].([]any) {
+		got[v.(map[string]any)["kind"].(string)] = true
+	}
+	return got
+}
+
+// TestPinClosesOpenReviewLink covers issue #447: a link made before the pin
+// must not keep reading or writing a public demo, its events must not show in
+// the demo's history, and the closure must be recorded.
+func TestPinClosesOpenReviewLink(t *testing.T) {
+	hs, cs := reviewHarness(t)
+	alice, bob := visitor(rvAlice), visitor(rvBob)
+	id := hs.newCase(t, alice)
+	tok, rv := makeLink(t, hs, id, `{}`, alice)
+	rid := rv["id"].(string)
+
+	// A broker answer before the pin leaves a broker_decision event behind.
+	if code, _ := hs.doAs(t, "POST", "/v1/review/decision", `{"decision":"approve"}`, tokenHeader(tok)); code != http.StatusOK {
+		t.Fatalf("pre-pin decision = %d", code)
+	}
+	before, _ := cs.Get(context.Background(), id)
+	if len(before.BrokerReviews[0].Decisions) != 1 {
+		t.Fatalf("pre-pin decisions = %d", len(before.BrokerReviews[0].Decisions))
+	}
+
+	// Pin the case that already has the open link.
+	if code, _ := hs.doAs(t, "PUT", "/v1/cases/"+id+"/pin", `{"pinned":true}`, admin); code != http.StatusOK {
+		t.Fatalf("pin = %d", code)
+	}
+
+	// The link is closed: neither a read nor a new answer reaches the demo.
+	if code, out := hs.doAs(t, "GET", "/v1/review", "", tokenHeader(tok)); code != http.StatusGone || out["code"] != "link_revoked" {
+		t.Errorf("broker read after pin = %d %v", code, out)
+	}
+	if code, out := hs.doAs(t, "POST", "/v1/review/decision", `{"decision":"approve"}`, tokenHeader(tok)); code != http.StatusGone || out["code"] != "link_revoked" {
+		t.Errorf("broker answer after pin = %d %v", code, out)
+	}
+	after, _ := cs.Get(context.Background(), id)
+	if !after.Pinned || after.BrokerReviews[0].RevokedAt == nil {
+		t.Fatalf("pin did not close the link: %+v", after.BrokerReviews[0])
+	}
+	if n := len(after.BrokerReviews[0].Decisions); n != 1 {
+		t.Errorf("a broker wrote to the pinned demo: %d decisions", n)
+	}
+	storedKinds := map[string]bool{}
+	for _, e := range after.History {
+		storedKinds[e.Kind] = true
+	}
+	if !storedKinds["review_link_closed_on_pin"] || !storedKinds["pinned"] {
+		t.Errorf("closure not recorded in history: %v", storedKinds)
+	}
+
+	// Visitors see neither the events nor the links.
+	_, pub := hs.doAs(t, "GET", "/v1/cases/"+id, "", bob)
+	kinds := historyKinds(t, pub)
+	for _, k := range []string{"review_link_created", "review_link_closed_on_pin", "broker_decision"} {
+		if kinds[k] {
+			t.Errorf("pinned demo shows %s to a visitor", k)
+		}
+	}
+	if _, ok := pub["broker_reviews"]; ok {
+		t.Error("pinned demo shows broker_reviews to a visitor")
+	}
+	_, own := hs.doAs(t, "GET", "/v1/cases/"+id+"/reviews", "", alice)
+	if got := own["reviews"].([]any); len(got) != 0 {
+		t.Errorf("owner list on pinned demo = %v", got)
+	}
+	if code, _ := hs.doAs(t, "DELETE", "/v1/cases/"+id+"/reviews/"+rid, "", alice); code != http.StatusForbidden {
+		t.Errorf("owner revoke on pinned demo = %d, want 403", code)
+	}
+
+	// Unpinning restores the historical events, but the link stays revoked.
+	if code, _ := hs.doAs(t, "PUT", "/v1/cases/"+id+"/pin", `{"pinned":false}`, admin); code != http.StatusOK {
+		t.Fatalf("unpin = %d", code)
+	}
+	// An unpinned case is private again: its owner reads the history back.
+	code, pub := hs.doAs(t, "GET", "/v1/cases/"+id, "", alice)
+	if code != http.StatusOK {
+		t.Fatalf("owner read after unpin = %d %v", code, pub)
+	}
+	kinds = historyKinds(t, pub)
+	if !kinds["review_link_created"] || !kinds["broker_decision"] || !kinds["review_link_closed_on_pin"] {
+		t.Errorf("unpin did not restore review history: %v", kinds)
+	}
+	if code, _ := hs.doAs(t, "GET", "/v1/review", "", tokenHeader(tok)); code != http.StatusGone {
+		t.Errorf("link works after unpin = %d", code)
+	}
+}
