@@ -252,6 +252,49 @@ for (const scheme of ["light", "dark"]) {
   }
 }
 
+// #542: the signed-in account menu is the third popup that must dismiss when
+// Tab leaves it. It needs a session, so check it on its own signed-in pages.
+for (const scheme of ["light", "dark"]) {
+  for (const [vp, viewport] of Object.entries(viewports)) {
+    const ctx = await browser.newContext({ viewport, colorScheme: scheme });
+    const page = await ctx.newPage();
+    page.on("console", (m) => m.type() === "error" && problems.push({ page: "/cases (signed in)", vp, scheme, console: m.text() }));
+    page.on("pageerror", (e) => problems.push({ page: "/cases (signed in)", vp, scheme, console: String(e) }));
+    await page.route("**/api/session", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ client_id: "ui-check", email: "ui-check@example.com", name: "UI Check", picture: null, exp: null }) }),
+    );
+    // A signed-in identity makes use-role fetch the workspace list. Answer it
+    // locally so the local backend's 404 is not a console error in this state.
+    await page.route("**/api/v1/workspaces/mine", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ email: "ui-check@example.com", workspace: null, invites: [] }) }),
+    );
+    await page.goto(base + "/cases", { waitUntil: "networkidle" });
+    await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+    const trigger = page.locator('button[aria-label^="Account:"]');
+    if (!(await trigger.count())) {
+      problems.push({ page: "/cases (signed in)", vp, scheme, focus: "account menu trigger missing" });
+    } else {
+      await trigger.first().click();
+      await page.locator('div[role="menu"]').waitFor();
+      if (vp === "desktop" && scheme === "light") {
+        await page.screenshot({ path: `${out}/account-menu-open-${vp}-${scheme}.png`, fullPage: true });
+      }
+      let left = false;
+      for (let i = 0; i < 6; i++) {
+        await page.keyboard.press("Tab");
+        left = await page.evaluate(() => {
+          const b = document.querySelector('button[aria-label^="Account:"]');
+          return Boolean(b && !b.parentElement?.contains(document.activeElement));
+        });
+        if (left) break;
+      }
+      const menus = await page.locator('div[role="menu"]').count();
+      if (!left || menus) problems.push({ page: "/cases (signed in)", vp, scheme, focus: "account menu stayed open after Tab left it", left, menus });
+    }
+    await ctx.close();
+  }
+}
+
 await browser.close();
 await writeFile(`${out}/report.json`, JSON.stringify(problems, null, 2));
 console.log(`Screenshots and report.json in ${out}/ (${[...paths, reflowPath].join(", ")} x light/dark x desktop/mobile/narrow)`);

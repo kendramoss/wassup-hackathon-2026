@@ -149,7 +149,16 @@ function Account({ email, name, picture }: { email: string; name: string | null;
     };
   }, [open]);
   return (
-    <span ref={box} className="relative inline-flex shrink-0">
+    <span
+      ref={box}
+      className="relative inline-flex shrink-0"
+      // #542: like the case switcher and row menu, dismiss the menu when
+      // keyboard focus leaves the whole widget, not only on Escape or an
+      // outside pointer click.
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
       <button
         ref={trigger}
         type="button"
