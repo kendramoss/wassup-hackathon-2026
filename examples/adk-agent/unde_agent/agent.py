@@ -60,7 +60,9 @@ Work in this order and call each tool once unless a call fails:
    confidence and the CBP rulings it cites, by ruling number.
 3. If suggest_part_hts is available and parts have no HTS codes, call it once with the
    product and report the codes as unverified suggestions. Do not add them to the product.
-4. plan_production_moves on the case with the target country. Report the best plan: which
+4. plan_production_moves on the case with the target country and an idempotency_key of
+   "<case_id>-plan-<target country>" (no spaces). If the call times out, call it again with
+   the same input and key: the server joins the search already running. Report the best plan: which
    groups move, the predicted origin after the move, and why earlier rulings support it.
 5. export_ruling_request_draft for that plan (pass its move_key and the target, or its
    plan_index). Give the draft's opening lines and say it is a draft for a broker to review.
@@ -81,9 +83,9 @@ def _headers():
 
 def make_toolset() -> McpToolset:
     return McpToolset(
-        # Plan search is the slow tool. In the committed run one call passed
+        # Plan search is the slow tool. In the first run (D391) one call passed
         # ADK's default 300 s read timeout and the agent called it again;
-        # 900 s gives it room (D391).
+        # 900 s gives it room. The server also joins a repeated search (D402).
         connection_params=StreamableHTTPConnectionParams(url=MCP_URL, headers=_headers(), sse_read_timeout=900),
         tool_filter=TOOLS,
     )
@@ -104,28 +106,10 @@ def make_model():
     )
 
 
-def drop_root_composition(callback_context, llm_request):
-    """Removes anyOf/oneOf/allOf/not at the root of each tool's parameters.
-
-    Unde's server no longer puts them there (D390). Before that fix,
-    predict_origin's root anyOf made an OpenAI-compatible gateway refuse the
-    whole request with a 400. This keeps the agent working against a server
-    that still has it, and does nothing otherwise.
-    """
-    for tool in (llm_request.config.tools if llm_request.config else None) or []:
-        for fd in getattr(tool, "function_declarations", None) or []:
-            schema = fd.parameters_json_schema
-            if isinstance(schema, dict):
-                for k in ("anyOf", "oneOf", "allOf", "not"):
-                    schema.pop(k, None)
-    return None
-
-
 root_agent = LlmAgent(
     name="unde_trade_compliance",
     model=make_model(),
     description="Predicts U.S. country of origin with cited CBP rulings, plans production moves and drafts a broker request, using Unde over MCP.",
     instruction=INSTRUCTION,
     tools=[make_toolset()],
-    before_model_callback=drop_root_composition,
 )

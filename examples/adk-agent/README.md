@@ -82,4 +82,4 @@ Without an API key, each run creates one anonymous case. `predict_origin` return
 
 - The agent and its answers are a demo, not advice. The origin and the plans are predictions; the draft is for a licensed customs broker to review.
 - `plan_production_moves` can only move work to a plant in the target country. The instruction tells the agent to add one when the description names none.
-- An OpenAI-compatible gateway refused Unde's full tool list until `predict_origin`'s schema lost its root `anyOf` (D390). `drop_root_composition` in `agent.py` removes such keywords on the client too, so the agent also works with a server that still has them.
+- An OpenAI-compatible gateway refused Unde's full tool list until `predict_origin`'s schema lost its root `anyOf` (D390). The live server has that fix, so the agent no longer strips such keywords on the client (D422). Against an older server built before D390, the gateway path fails with a 400.

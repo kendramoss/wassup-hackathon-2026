@@ -30,3 +30,10 @@ data/tuning/
 /backend/eval
 /backend/server
 /backend/demo
+# every other go build ./cmd/<name> output in backend/ (#578)
+/backend/apikey
+/backend/claimscheck
+/backend/corpus
+/backend/mediacheck
+/backend/readiness-eval
+/backend/tariffshift
