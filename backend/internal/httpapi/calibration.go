@@ -16,22 +16,7 @@ func (a *api) withCalibration(c store.Case) store.Case {
 	if a.d.Calibration == nil {
 		return c
 	}
-	fill := a.fillCalibration
-	plans := func(ps []domain.Plan) []domain.Plan {
-		if ps == nil {
-			return nil
-		}
-		out := append([]domain.Plan(nil), ps...)
-		for i := range out {
-			out[i].Prediction = fill(out[i].Prediction)
-		}
-		return out
-	}
-	result := func(r planner.Result) planner.Result {
-		r.Baseline.Prediction = fill(r.Baseline.Prediction)
-		r.Plans, r.Rejected = plans(r.Plans), plans(r.Rejected)
-		return r
-	}
+	fill, result := a.fillCalibration, a.calibratedResult
 	c.Prediction = fill(c.Prediction)
 	if c.Plan != nil {
 		r := result(*c.Plan)
@@ -56,6 +41,39 @@ func (a *api) withCalibration(c store.Case) store.Case {
 		c.Targets = &t
 	}
 	return c
+}
+
+// calibratedResult is withCalibration for one plan search (a copy). The plan
+// and compare handlers apply it when a search finishes, so the response, the
+// streamed events and the stored result carry the same calibrated value a
+// later read shows (D251).
+func (a *api) calibratedResult(r planner.Result) planner.Result {
+	if a.d.Calibration == nil {
+		return r
+	}
+	plans := func(ps []domain.Plan) []domain.Plan {
+		if ps == nil {
+			return nil
+		}
+		out := append([]domain.Plan(nil), ps...)
+		for i := range out {
+			out[i].Prediction = a.fillCalibration(out[i].Prediction)
+		}
+		return out
+	}
+	r.Baseline.Prediction = a.fillCalibration(r.Baseline.Prediction)
+	r.Plans, r.Rejected = plans(r.Plans), plans(r.Rejected)
+	return r
+}
+
+// calibratedPlan is withCalibration for one streamed plan (a copy).
+func (a *api) calibratedPlan(p *domain.Plan) *domain.Plan {
+	if a.d.Calibration == nil || p == nil {
+		return p
+	}
+	cp := *p
+	cp.Prediction = a.fillCalibration(cp.Prediction)
+	return &cp
 }
 
 // fillCalibration is withCalibration for one prediction.
