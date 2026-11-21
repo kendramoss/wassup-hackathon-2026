@@ -44,6 +44,13 @@ type item struct {
 	} `json:"components"`
 }
 
+// Row is one part as the model read it: synthetic test data, so the rows
+// are kept in the result file to show why a part was missed.
+type Row struct {
+	Name    string `json:"name"`
+	Country string `json:"country"`
+}
+
 // Score is one image's result.
 type Score struct {
 	Image         string   `json:"image"`
@@ -53,6 +60,7 @@ type Score struct {
 	CountryRight  int      `json:"country_right"`
 	Extra         int      `json:"extra_rows"`
 	Missed        []string `json:"missed,omitempty"`
+	Read          []Row    `json:"read,omitempty"`
 	Simulated     bool     `json:"simulated"`
 	InputTokens   int      `json:"input_tokens"`
 	OutputTokens  int      `json:"output_tokens"`
@@ -67,8 +75,9 @@ func main() {
 	dir := flag.String("dir", filepath.Join("..", "eval", "media", "images"), "folder with manifest.json and the images")
 	out := flag.String("out", "", "write the scores as JSON here")
 	runlog := flag.String("runlog", "", "append a summary line to this RUNLOG.jsonl")
+	only := flag.String("only", "", "comma-separated image names to run (default all)")
 	flag.Parse()
-	if err := run(*dir, *out, *runlog); err != nil {
+	if err := run(*dir, *out, *runlog, *only); err != nil {
 		fmt.Fprintln(os.Stderr, "mediacheck:", err)
 		os.Exit(1)
 	}
@@ -96,7 +105,7 @@ func loadConfig() (config.Config, error) {
 	return cfg, nil
 }
 
-func run(dir, out, runlog string) error {
+func run(dir, out, runlog, only string) error {
 	cfg, err := loadConfig()
 	if err != nil {
 		return err
@@ -124,6 +133,19 @@ func run(dir, out, runlog string) error {
 	var items []item
 	if err := json.Unmarshal(b, &items); err != nil {
 		return err
+	}
+	if only != "" {
+		keep := map[string]bool{}
+		for _, n := range strings.Split(only, ",") {
+			keep[strings.TrimSpace(n)] = true
+		}
+		var sel []item
+		for _, it := range items {
+			if keep[it.Image] {
+				sel = append(sel, it)
+			}
+		}
+		items = sel
 	}
 	x := extract.New(model, cfg.EngineModel)
 	var scores []Score
@@ -155,10 +177,12 @@ func run(dir, out, runlog string) error {
 			continue
 		}
 		got := map[string]string{}
+		var read []Row
 		for _, r := range d.Components {
 			got[norm(r.Name)] = r.MadeIn
+			read = append(read, Row{Name: r.Name, Country: r.MadeIn})
 		}
-		s := Score{Image: it.Image, Style: it.Style, CostUSD: tally.USD(), Expected: len(it.Components), Simulated: d.Simulated, InputTokens: d.Trace.InputTokens,
+		s := Score{Image: it.Image, Style: it.Style, CostUSD: tally.USD(), Read: read, Expected: len(it.Components), Simulated: d.Simulated, InputTokens: d.Trace.InputTokens,
 			OutputTokens: d.Trace.OutputTokens, LatencyMS: d.Trace.LatencyMS, PromptVersion: d.Trace.PromptVersion, ModelID: d.Trace.ModelID}
 		matched := 0
 		for _, c := range it.Components {
