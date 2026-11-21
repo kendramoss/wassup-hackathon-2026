@@ -460,9 +460,9 @@ type PartsCell struct {
 	Top1FromModel        int `json:"top1_from_model"`
 	Top1FromModelRight   int `json:"top1_from_model_right"`
 	// The good (usmca only: CBP's code from the full-text extraction).
-	GoodGold  int `json:"good_gold"`
-	GoodTop1  int `json:"good_top1"`
-	GoodTop3  int `json:"good_top3"`
+	GoodGold  int     `json:"good_gold"`
+	GoodTop1  int     `json:"good_top1"`
+	GoodTop3  int     `json:"good_top3"`
 	CostUSD   float64 `json:"cost_usd"`
 	CostPer   float64 `json:"cost_per_product_usd"`
 	InTokens  int     `json:"input_tokens"`
@@ -480,6 +480,7 @@ type RuleCheckCell struct {
 	AgreeCBP   int            `json:"agree_cbp"`
 	Reasons    map[string]int `json:"undetermined_reasons"`
 	Rulings    []string       `json:"decided_rulings,omitempty"`
+	Disagree   []string       `json:"disagree_cbp_rulings,omitempty"`
 }
 
 func cmdPartsEval(args []string) error {
@@ -681,6 +682,8 @@ func scoreRule(c *RuleCheckCell, rules *tariffshift.Rules, in tariffshift.Input,
 		c.Rulings = append(c.Rulings, ruling)
 		if gold != nil && *same(r.Origin, *gold) {
 			c.AgreeCBP++
+		} else {
+			c.Disagree = append(c.Disagree, ruling+": "+r.Origin)
 		}
 	case tariffshift.OutOfScope:
 		c.OutOfScope++

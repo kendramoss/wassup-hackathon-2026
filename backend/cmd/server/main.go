@@ -284,6 +284,11 @@ func newBase(ctx context.Context, cfg config.Config) (llm.Model, error) {
 			if req.SchemaName == extract.MediaSchemaName {
 				return llm.Response{Text: extract.SimulatedMediaAnswer, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
 			}
+			// Per-part HTS codes (D380): each part's first ruling code, with a
+			// reason that says the fake model did not judge it.
+			if req.SchemaName == hts.PartsSchemaName && len(req.Messages) > 0 {
+				return llm.Response{Text: hts.SimulatedPartsAnswer(req.Messages[0].Content), Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
+			}
 			// Report some usage so the daily spend cap (D59) can be exercised locally.
 			return llm.Response{Text: `{"origin_country":"China","confidence":0.5}`, Usage: llm.Usage{InputTokens: 1000, OutputTokens: 100, TotalTokens: 1100}}, nil
 		}}, nil

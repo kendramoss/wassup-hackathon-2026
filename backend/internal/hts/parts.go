@@ -2,6 +2,7 @@ package hts
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"sort"
@@ -322,7 +323,7 @@ func (p *PartsSuggester) Suggest(ctx context.Context, prod domain.Product, opt P
 	}
 	resp, err := p.model.Generate(ctx, llm.Request{Model: p.modelID, System: partsSystem,
 		Messages:   []llm.Message{{Role: llm.RoleUser, Content: partsPrompt(prod, items)}},
-		JSONSchema: partsSchema(items), SchemaName: "parts_hts_suggestion", MaxOutputTokens: 8192})
+		JSONSchema: partsSchema(items), SchemaName: PartsSchemaName, MaxOutputTokens: 8192})
 	var a partsAnswer
 	if err == nil {
 		err = resp.DecodeJSON(&a)
@@ -526,4 +527,59 @@ func (p *PartsSuggester) store(key string, cs []PartCandidate) {
 		delete(p.cache, oldest)
 	}
 	p.cache[key] = cachedPart{cands: cs, at: now}
+}
+
+// PartsSchemaName is the schema name of the per-part call, so the local
+// fake model can answer it (SimulatedPartsAnswer).
+const PartsSchemaName = "parts_hts_suggestion"
+
+// SimulatedPartsAnswer is the local fake model's answer to a per-part call
+// (LLM_PROVIDER=fake): for each item, the first code its listed rulings
+// give, citing that ruling, with a reason that says it was not judged. Items
+// with no ruling get nothing. It lets the suggest, accept and rule-check
+// loop run locally without a model.
+func SimulatedPartsAnswer(prompt string) string {
+	type cand struct {
+		HTS    string   `json:"hts"`
+		Reason string   `json:"reason"`
+		Cited  []string `json:"cited"`
+	}
+	type itemOut struct {
+		Key        string `json:"key"`
+		Candidates []cand `json:"candidates"`
+	}
+	var items []itemOut
+	for _, line := range strings.Split(prompt, "\n") {
+		if strings.HasPrefix(line, "ITEM ") {
+			key, _, _ := strings.Cut(strings.TrimPrefix(line, "ITEM "), ":")
+			items = append(items, itemOut{Key: key, Candidates: []cand{}})
+			continue
+		}
+		if len(items) == 0 || len(items[len(items)-1].Candidates) > 0 || !strings.HasPrefix(line, "  - ") {
+			continue
+		}
+		// "  - N123456 (2024-01-02) classified "motor" in 8501.31: ..." or,
+		// for the good, "  - 8419.89.95: N123456 (2022-…) subject; ..."
+		f := strings.Fields(line)
+		if len(f) < 2 {
+			continue
+		}
+		var code, id string
+		if i := strings.Index(line, `" in `); i >= 0 {
+			code, _, _ = strings.Cut(line[i+5:], ":")
+			id = f[1]
+		} else {
+			code = strings.TrimSuffix(f[1], ":")
+			if len(f) > 2 {
+				id = f[2]
+			}
+		}
+		if FormatCode(code) == "" {
+			continue
+		}
+		it := &items[len(items)-1]
+		it.Candidates = append(it.Candidates, cand{HTS: strings.TrimSpace(code), Reason: "Local fake model: the first code an earlier ruling lists, not judged.", Cited: []string{id}})
+	}
+	b, _ := json.Marshal(map[string]any{"items": items})
+	return string(b)
 }

@@ -239,3 +239,26 @@ func TestPartsSuggestGood(t *testing.T) {
 		t.Fatalf("good = %+v %v", res.Good, err)
 	}
 }
+
+func TestSimulatedPartsAnswer(t *testing.T) {
+	var got string
+	m := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		if req.SchemaName != PartsSchemaName {
+			t.Errorf("schema = %q", req.SchemaName)
+		}
+		got = SimulatedPartsAnswer(req.Messages[0].Content)
+		return llm.Response{Text: got}, nil
+	}}
+	p := NewParts(m, "x", testIndex(), nil, nil)
+	res, err := p.Suggest(context.Background(), product(), PartsOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	motor := res.Parts[0].Candidates
+	if len(motor) != 1 || motor[0].Source != SourceRulings || !strings.Contains(motor[0].Reason, "not judged") || len(motor[0].Cited) != 1 {
+		t.Errorf("motor = %+v (answer %s)", motor, got)
+	}
+	if len(res.Parts[2].Candidates) != 0 {
+		t.Errorf("widget, with no ruling, got %+v", res.Parts[2].Candidates)
+	}
+}

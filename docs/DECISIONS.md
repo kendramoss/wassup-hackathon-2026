@@ -1685,6 +1685,7 @@ Run as pre-registered in D361. Development runs on 22 Nov; code frozen at commit
 - **Route:** `POST /v1/products/parts-hts-suggest {product}`. For each named part (1 to 20; more is a 400), BM25 over the part index gives up to 4 codes CBP stated for similar parts, with their sentences. One router-model call for the whole product (`parts-hts-suggest-v1`) returns up to 3 codes per part, best first, each with one sentence of reason. A code equal to one of the part's ruling codes is labelled `rulings` and keeps only citations of those rulings. Any other code is labelled `model`: the model's own reading of the HTSUS, with no supporting ruling; at 8 digits it is kept only when the USITC HTS lists it today (the D92 check). When the product has no `hts`, the good's code is asked in the same call, from the same candidate search as `/v1/products/hts-suggest` (CROSS plus the local index). Answers per part are cached for a day in memory, keyed by the part's and the product's words (at most 2,000). If the model call fails, the ruling codes come back without reasons (`reasons_unavailable`). Every response says "unverified suggestions — check every code with your customs broker before you rely on it".
 - **Nothing is filled in by itself.** The parts table offers "Suggest codes for all parts"; each part shows its codes with the source and reason, and the user accepts one per part or all top suggestions at once. Accepted codes are ordinary part codes: the rule check reads them when the case is read (D363), and it still never changes the answer.
 - **MCP:** `suggest_part_hts` calls the same route in-process (same limits, spend cap and audit).
+- **Local runs:** with `LLM_PROVIDER=fake`, the fake model answers each part with the first code its nearest ruling lists, and the reason says it was not judged (`hts.SimulatedPartsAnswer`), so the suggest, accept and rule-check loop can be tried without a model (DEMO.md §8).
 - **On by default (`PARTS_HTS_SUGGEST`, default on; `PART_HTS_INDEX`, default `data/part_hts_index.json`).** This turns on a model-calling route in production with no deploy change. It is safe for the same reasons as the other model routes: it goes through `limit(light, ...)` (`TestEveryV1RouteHasALimitClass` lists it among the model routes), so the per-client light rate, the in-flight cap, the daily spend cap and the client's share of it apply, and its model call is metered at the raw client like every other. One call per request, at most 20 parts, a cache, and no CBP search per part. Unset, a missing index turns the route off with a warning instead of stopping the server; `PARTS_HTS_SUGGEST=off` removes it (404). The product-level route is unchanged. Note: `HTS_SUGGEST` is already on in production (D91, deploy workflow), so `/v1/products/hts-suggest` answers there today.
 
 ## D381 — Pre-registration: per-part HTS suggestions on the Part 102 rulings and the family fixtures (22 Nov)
@@ -1697,3 +1698,32 @@ Committed before any suggestion run and before any gold code was read. Nothing i
 - **Development and freeze.** The prompt, retrieval and part index may change on development products only; every development run is kept and reported. Before the held-out run the code is committed and that commit is named in RESULTS; then the held-out gold is read once and the held-out products are suggested and scored once.
 - **Expectation stated now:** modest. Many parts are generic ("fasteners", "small hardware") and many rulings state no part codes, so gold parts will be few and intervals wide. The rule check cannot decide a good outside the seven encoded chapters whatever the codes (56 of 104 in D362), so most rulings stay undetermined even with every part coded.
 - **Cost cap:** $8 for all runs (estimate: about 100 products a run at about $0.02 each).
+
+## D382 — Per-part HTS suggestions: results (22 Nov)
+Run as pre-registered in D381. Development runs on 22 Nov; code frozen at commit dde4fec9 (kept as branch `improve/hts-suggest-parts-freeze`) before the held-out gold was read; the held-out products were suggested and scored once. Rows: `eval/tariffshift/parts/`; recompute with `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`).
+
+| Run | Products | Parts with a suggestion | Gold parts | Top-1 | Top-3 | Good: top-1 / top-3 | Cost per product |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| dev, Part 102 rulings | 69 | 389 of 393 | 27 | 20 (55.3–86.8%) | 22 (63.3–91.8%) | 36 / 42 of 68 | $0.0103 |
+| dev, family fixtures | 23 | 200 of 200 | 2 | 2 | 2 | – | $0.0139 |
+| final, Part 102 (held out) | 29 | 225 of 245 | 3 | 2 (20.8–93.9%) | 2 | 14 / 15 of 27 | $0.0123 |
+
+Rule check on the Part 102 rulings, the same products (69 of the 72 dev and 29 of the 32 held-out rulings have a full-text extraction with parts; the rest are left out):
+
+| Run | Input | n | Out of scope | Decided | Agrees with CBP |
+|---|---|---:|---:|---:|---:|
+| dev | CBP's codes as stated in the full text (D362, reference) | 69 | 38 | 2 | 2 |
+| dev | CBP's code for the good, top suggestion for every part | 69 | 38 | 9 | 9 |
+| dev | top suggestion for the good and every part | 69 | 38 | 10 | 9 |
+| final (held out) | CBP's codes as stated (reference) | 29 | 16 | 2 | 2 |
+| final (held out) | CBP's code for the good, top suggestion for every part | 29 | 16 | 7 | 6 |
+| final (held out) | top suggestion for the good and every part | 29 | 15 | 8 | 7 |
+
+- **Gold parts are few.** Only 27 dev parts and 3 held-out parts have a code CBP states in a sentence the regex reads. The held-out accuracy (2 of 3) says nothing on its own; the dev interval is wide too.
+- **Gold quality (post hoc, by reading the 29 dev sentences):** 4 dev gold codes look wrong. "vinyl skin" took the kit's code; "adhesive" took the paper's; "brake caliper core" took the finished caliper's; and "pressure switch" took the receiver drier's code from a "respectively" sentence. The model answered 8536.50 there, which matches the sentence. Without those four, top-1 is 19 of 23 and top-3 21 of 23. This line is post hoc. The pre-registered figures above stand.
+- **Where the top suggestions come from:** on the dev Part 102 gold parts, 9 top suggestions came from earlier rulings (7 right) and 18 from the model's own reading (13 right). Most parts have no similar part in the 1,159 classifying sentences of the corpus, so most codes are the model's. The screen labels each one.
+- **The rule check decides more, not most.** With CBP's code for the good and the suggested part codes, it decides 9 of 69 dev and 7 of 29 held-out rulings, against 2 and 2 with only the codes CBP states. 15 of the 16 agree with CBP. The exception is held-out N358639 (a pipe assembly): the check decided Mexico, CBP held South Korea; the same with the suggested good code. Dev N340017 disagrees only when the good's code is suggested too. One held-out ruling the reference decided (N362506) is not decided with suggestions. More than half of the rulings stay out of scope: the good is outside the seven encoded chapters, and no part code changes that.
+- **Failures:** 1 held-out product (N359001) and the first smoke product returned truncated JSON; they count as products with no suggestion. The smoke run (3 products, output cap 1,024 + 400 per item) led to the 8,192-token output cap; it is kept as `suggest-dev-smoke.jsonl`. No other development change was made: v1 is the frozen code.
+- **Not measured:** the production path adds a live CROSS search for the good and drops model codes that are not in today's HTS. The evaluation ran neither, to make no web fetches. Origins came from the full-text extraction, as a user would type them.
+- **After the freeze** only the local fake answer, the eval's per-ruling disagreement list and docs changed; the suggestion code the held-out run used is unchanged.
+- **Cost:** $1.42 gateway-reported for all three runs (RUNLOG `parts-hts-*`), about one cent per product.

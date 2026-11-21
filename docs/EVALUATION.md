@@ -552,3 +552,25 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 **What it shows.** Coverage is very low. From the facts it decides none of the 117 rulings: 68 give no code for the good, and none in scope gives one for every foreign material. From the full text it decides 4 of 104, each as CBP held and as the model answered; on 2 of 2 per split the interval is 34.2-100%, so nothing about accuracy can be read from it. Most of the rest are outside the seven chapters (56) or name a material without a code (23). The rule check is therefore a cross-check for cases where the user supplies codes, not a second engine. It is shown beside the model and changes neither the answer nor auto-accept.
 
 **Not done.** The full text of the 13 final2 rulings was not run (raw texts not available locally). Chapters outside the seven, textile rules (102.21), 102.11(c) and (d), and USMCA qualification are not encoded. Source: `eval/tariffshift/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`). Extraction cost $2.58 gateway-reported.
+
+## 10. HTS codes suggested for each part, and the rule check they unlock (22 Nov 2026, D380-D382)
+
+**What it is.** The rule check in §9 needs a code for the good and for every foreign part. `POST /v1/products/parts-hts-suggest` suggests up to 3 codes per part. Each code is labelled with its source: an earlier CBP ruling that classified a similar part (from 1,159 classifying sentences in 562 corpus rulings, `backend/data/part_hts_index.json`), or the model's own reading of the HTSUS when no ruling fits. One Gemini 3.8 Flash call per product. Nothing is filled in until the user accepts a code.
+
+**How it was tested.** Pre-registered in D381. Gold is the code CBP states for the part in the scored ruling's full text, read by regex and matched to the part by name. A suggestion counts when it equals the gold at the gold's level (up to 8 digits). The suggester saw the product name, the facts with every HTS number removed, and the part names and origins; it searched only rulings dated before the scored one, never the ruling itself. It made no CROSS search and no USITC check. Development on the Part 102 dev split and the 23 family fixtures; the held-out Part 102 split was suggested and scored once on the frozen code.
+
+| Run | Products | Parts with a suggestion | Gold parts | Top-1 | Top-3 | Good: top-1 | Cost per product |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| dev, Part 102 | 69 | 389 of 393 | 27 | 20 (55.3–86.8%) | 22 (63.3–91.8%) | 36 of 68 | $0.0103 |
+| dev, family fixtures | 23 | 200 of 200 | 2 | 2 | 2 | – | $0.0139 |
+| final, Part 102 (held out) | 29 | 225 of 245 | 3 | 2 (20.8–93.9%) | 2 | 14 of 27 | $0.0123 |
+
+| Rule check input | dev: decided (agree with CBP) of 69 | final: decided (agree) of 29 |
+|---|---:|---:|
+| CBP's codes as stated in the full text (§9, reference) | 2 (2) | 2 (2) |
+| CBP's code for the good, top suggestion for every part | 9 (9) | 7 (6) |
+| top suggestion for the good and every part | 10 (9) | 8 (7) |
+
+**What it shows.** Parts get a suggestion almost always, and where CBP states a part's code, the top suggestion matches it in 20 of 27 dev parts. The gold set is small: CBP states few part codes in a form the regex reads, and the held-out split has only 3, so its 2 of 3 says nothing on its own. Reading the 29 dev sentences after the run, 4 gold codes look wrong; without them top-1 is 19 of 23 (post hoc). Most top suggestions are the model's own (18 of 27 dev gold parts), not a ruling's. With suggested part codes the rule check decides 16 of 98 rulings instead of 4, and 15 of those 16 agree with CBP. More than half stay out of scope because the good is outside the seven encoded chapters. Accuracy is modest and unverified: every suggestion says to check it with a broker.
+
+**Not done.** The live CROSS search for the good and the USITC check of model codes, which production adds, were not part of the evaluation. final2 has no full text locally, so it has no gold. Source: `eval/tariffshift/parts/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`). Cost $1.42 gateway-reported.

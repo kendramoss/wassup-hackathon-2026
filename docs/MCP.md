@@ -125,10 +125,13 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 | `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | none | read-only (a preview records nothing) |
 | `create_broker_review_link` | `POST /v1/cases/{id}/reviews` (`createBrokerReviewLink`) | basic | writes a link on the case (D200) |
 | `get_broker_review_status` | `GET /v1/cases/{id}/reviews` (`listBrokerReviewLinks`) | basic | read-only |
+| `suggest_part_hts` | `POST /v1/products/parts-hts-suggest` (`suggestPartsHts`) | light | read-only, open world (listed when the server serves the route; on by default, D380) |
 
 `extract_product_from_media` takes 1 to 4 files, 8 MB together (PNG, JPEG, WebP or scanned PDF), each as `{data, mime_type}` with base64 data, as an MCP image content block (`{type: "image", data, mimeType}`), or as an MCP embedded resource (`{type: "resource", resource: {mimeType, blob}}`). The tool decodes them and sends one multipart upload to the REST route, which checks the bytes and its other limits again. As on the website, the files are not stored and the draft must be reviewed before `predict_origin`.
 
 When the product gives an HTS code for the good (`product.hts`) and for at least one part (`components[].hts`), `predict_origin` and `get_case` add one line for the 19 CFR 102.20 rule check (D363), and the structured result carries `rule_check`. The line says when the check differs from the model and that it changes neither the prediction nor the triage.
+
+`suggest_part_hts` fills the gap when parts have no codes. Give it the product (send the parts still without a code, at most 20); it returns up to 3 codes per part, and for the product itself when `product.hts` is empty, each labelled `rulings` (an earlier CBP ruling states that code for a similar part, listed with links) or `model` (the model's own reading, no supporting ruling). They are unverified: show them to the user, put a code on a part only when the user accepts it, then call `predict_origin` with the product and its codes. On the Part 102 dev split the top suggestion matched the code CBP states for the part in 20 of 27 parts (EVALUATION.md §10).
 
 No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. Countries are free text with a length and character check, because the API has no country enum.
 

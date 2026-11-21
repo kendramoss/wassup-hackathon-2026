@@ -167,6 +167,9 @@
       "N350133",
       "N352763",
       "N354024"
+     ],
+     "disagree_cbp_rulings": [
+      "N340017: Mexico"
      ]
     }
    ]
@@ -203,6 +206,106 @@
    "cost_per_product_usd": 0.0139,
    "input_tokens": 102341,
    "output_tokens": 64963
+  },
+  {
+   "run": "final",
+   "split": "final",
+   "set": "usmca",
+   "products": 29,
+   "failed_calls": 1,
+   "parts": 245,
+   "parts_with_a_suggestion": 225,
+   "gold_parts": 3,
+   "gold_products": 3,
+   "top1": 2,
+   "top1_ci": [
+    20.8,
+    93.9
+   ],
+   "top3": 2,
+   "top3_ci": [
+    20.8,
+    93.9
+   ],
+   "top1_same_heading": 2,
+   "top1_from_rulings": 1,
+   "top1_from_rulings_right": 1,
+   "top1_from_model": 2,
+   "top1_from_model_right": 1,
+   "good_gold": 27,
+   "good_top1": 14,
+   "good_top3": 15,
+   "cost_usd": 0.3577,
+   "cost_per_product_usd": 0.0123,
+   "input_tokens": 93031,
+   "output_tokens": 66138,
+   "rule_check": [
+    {
+     "input": "CBP's code for the good, CBP's stated part codes (D362 full text, for reference)",
+     "n": 29,
+     "out_of_scope": 16,
+     "decided": 2,
+     "agree_cbp": 2,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 7,
+      "a material needs a fact (condition or goods description)": 2,
+      "no HTS code for the good": 2
+     },
+     "decided_rulings": [
+      "N360891",
+      "N362506"
+     ]
+    },
+    {
+     "input": "CBP's code for the good, top suggestion for every part",
+     "n": 29,
+     "out_of_scope": 16,
+     "decided": 7,
+     "agree_cbp": 6,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 2,
+      "a material needs a fact (condition or goods description)": 2,
+      "no HTS code for the good": 2
+     },
+     "decided_rulings": [
+      "N357951",
+      "N359145",
+      "N358639",
+      "N359690",
+      "N360891",
+      "N362414",
+      "N364328"
+     ],
+     "disagree_cbp_rulings": [
+      "N358639: Mexico"
+     ]
+    },
+    {
+     "input": "top suggestion for the good and every part",
+     "n": 29,
+     "out_of_scope": 15,
+     "decided": 8,
+     "agree_cbp": 7,
+     "undetermined_reasons": {
+      "a foreign material has no HTS code": 2,
+      "a material needs a fact (condition or goods description)": 3,
+      "other: fork pockets, pivoting boom do not shift and their origin is not given": 1
+     },
+     "decided_rulings": [
+      "N357951",
+      "N359145",
+      "N358639",
+      "N359690",
+      "N360891",
+      "N362414",
+      "N363600",
+      "N364328"
+     ],
+     "disagree_cbp_rulings": [
+      "N358639: Mexico"
+     ]
+    }
+   ]
   }
  ],
  "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"

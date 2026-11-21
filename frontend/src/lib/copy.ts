@@ -507,7 +507,7 @@ export const copy = {
           what: "Use it from Gemini CLI, ADK agents or Claude",
           body: "The same tools over MCP (Model Context Protocol), the open protocol agents use to call other services. In Gemini CLI, one line adds it:",
           code: "gemini mcp add --transport http unde https://undelabs.dev/mcp",
-          link: "Setup for Gemini CLI, Google ADK, Claude Code and Claude Desktop, and the 13 tools →",
+          link: "Setup for Gemini CLI, Google ADK, Claude Code and Claude Desktop, and the 14 tools →",
         },
         {
           key: "method",
