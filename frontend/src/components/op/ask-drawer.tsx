@@ -170,9 +170,11 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
       }
     >
       <div className="flex h-full flex-col">
-        {/* Screen readers hear only the newest answer, not the whole log (#101). */}
+        {/* Screen readers hear only the newest answer, not the whole log (#101).
+            #568: the visible role=status below announces the waiting message;
+            this region announces only the answer, so it is not said twice. */}
         <p className="sr-only" aria-live="polite">
-          {pending ? "Reading the case and earlier rulings…" : announced}
+          {announced}
         </p>
         <div ref={log} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
           {turns.length === 0 && !pending && (
