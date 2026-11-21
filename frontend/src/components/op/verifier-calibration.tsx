@@ -27,7 +27,7 @@ export function VerifierCalibration({ c }: { c: Calibration }) {
         <span className="ml-auto text-[11px] text-dim">{c.prompt} · moves that change origin, scored against CBP</span>
       </div>
       <p className="mt-3 text-[22px] leading-snug tracking-[-0.04em]">
-        {shown} checks reached the {bar} bar across all runs; {wrong === 0 ? "none was wrong" : `${wrong} ${wrong === 1 ? "was" : "were"} wrong`}.
+        In the historical D86 proxy pool, {shown} shown verdicts cleared the {bar} bar; {wrong === 0 ? "none was wrong" : `${wrong} ${wrong === 1 ? "was" : "were"} wrong`}. Later gateway scoring was not perfect.
       </p>
       <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
         It&apos;s cautious, not thorough: a real change cleared the bar in every run for {every} of {pairs} pairs (about {pct(pairs ? every / pairs : undefined)}). The rest

@@ -1,6 +1,6 @@
 # How the evaluation is built, traded off and benchmarked
 
-This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every number here comes from a committed file. The figures and the calibration numbers are rebuilt by two scripts with no model calls:
+This page answers three questions: how the validation and test sets are built, what we trade off in the results, and how we keep the benchmark honest. Every figure here is either computed from a committed file or explicitly labelled reported. The figures and calibration numbers are rebuilt by two scripts with no model calls:
 
 ```bash
 python3 -I eval/charts/build_evaluation.py .           # writes eval/results/evaluation-metrics.json and docs/img/*.svg

@@ -64,7 +64,7 @@ The factors that change accuracy, from the evaluation and the failure analysis b
 | Cost and latency per prediction | [NUMBERS.md](NUMBERS.md) | from the same held-out rows |
 | Failure cases, accuracy by origin | section 6 below; the Accuracy page | `python3 -I eval/charts/build_trust_data.py . --check` |
 
-All of these run with `make reproduce`, with no model calls and no credentials.
+The recomputed rows and ledger checks run with `make reproduce`, with no model calls and no credentials. Confidence intervals, label counts by method, cost and latency figures are reported from `eval/RESULTS.md`, not recomputed there.
 
 **Calibration finding (measured).** The engine is overconfident: its mean stated confidence is above its accuracy, by about 4.5 points on the held-out set (the calibration row of [NUMBERS.md](NUMBERS.md)). Selecting by confidence still works: accepted cases are more accurate than the rest. Treat the stated confidence as a ranking, not as a probability. The calibrated confidence the product shows for the general engine on Gemini 4 Argon is fitted to be read as a probability (D160): on the 377 it averages 90.2% against 90.2% right, ECE 0.028. The gap between fast-path accuracy and overall accuracy is not evidence of calibration ([claims-reconciliation.md](claims-reconciliation.md)).
 

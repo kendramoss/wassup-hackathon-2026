@@ -4,7 +4,7 @@ Video: 3:00. Judges first. Every number on screen must trace to `docs/NUMBERS.md
 
 ## Video timeline (3:00)
 
-There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 14 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute every number.
+There is no deck, so the video carries every judging line. The official weights are Technical Merit & Gen AI 40%, Problem Alignment & Impact 25%, Innovation & Creativity 25%, and UX & Solution Design 10%. The main story is the production heat-gun case in section 3; the newer capabilities (photo import, 14 product families, the Claude connector) follow it, and the video closes on trust: the misses, and how to recompute the headline counts.
 
 The story follows one decision through the five roles on the landing page ("Who uses it, and who benefits"). They are roles Unde is designed around, not customers: it has none yet.
 
@@ -19,8 +19,8 @@ The story follows one decision through the five roles on the landing page ("Who 
 | 1:35–1:45 | **Photo import** (Gen AI, UX) | New case → Import BOM → click "Photo (synthetic)" (it loads in place) → Parts and plants | "A parts list can come in as a photo or a scan. Gemini reads it into a draft table, and the user checks every row before anything runs. On 20 synthetic images it read 151 of 170 part names, with no wrong country; real photos and scans are not measured yet, so every row is treated as unverified." |
 | 1:45–1:55 | **14 product families** (Impact, Innovation) | Cases → "More demos" → gas grill → Origin | "Plans now cover 14 product families, from heat guns to cables, chargers, pumps, hand tools and gas grills. This gas grill is CBP's own case, N335085: CBP held China." Cut (visible "⏩") to the result the site gives on the day; say it is a live run. |
 | 1:55–2:05 | **Use it from Claude** (Technical merit, UX) | Terminal: `claude mcp add --transport http unde https://undelabs.dev/mcp`, then ask Claude | "The same tools work from Claude over MCP: 13 tools, one line to add. Claude calls predict_origin and plan_production_moves, with the same limits as the API." |
-| 2:05–2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings never used to tune it: 90.2%, against 63.4% for the best simple rule we recomputed. It auto-accepts 79.6% of cases at 96.0%. 182 precedent checks (17 distinct product pairs) reached the bar; none was wrong." |
-| 2:25–2:45 | **Trust** (Technical merit) | Accuracy → "Known failure cases" → "Reproduce these numbers" | "Every held-out miss is listed by ruling: all 37 of the 377, 12 of them auto-accepted. And every number on this page is recomputed from the repository with one command, `make reproduce`: no model calls, no account." |
+| 2:05–2:25 | **Does it work** (Technical merit) | Accuracy | "On 377 CBP rulings not used to tune it: 90.2%, against 63.4% for the best simple rule we recomputed. It auto-accepts 79.6% of cases at 96.0%. In the historical D86 proxy pool, 182 shown verdicts (17 distinct product pairs) cleared the bar and none was wrong; in later post-cutoff gateway scoring it was right 9 of 9 with the starting origin and 5 of 6 without. These are proxy and gateway runs, not a guarantee." |
+| 2:25–2:45 | **Trust** (Technical merit) | Accuracy → "Known failure cases" → "Reproduce these numbers" | "Every held-out miss is listed by ruling: all 37 of the 377, 12 of them auto-accepted. And the headline evaluation counts are recomputed from committed rows with one command, `make reproduce`: no model calls, no account. Other figures are labelled reported, external, illustrative or one-run demo." |
 | 2:45–2:55 | **How it's built** (Gen AI, technical merit) | Accuracy → "How it's built" | "Next.js and Go on Cloud Run, Gemini 4 Argon and 3.8 Flash on Vertex AI, an ADK agent for the precedent check, and cases in Firestore." |
 | 2:55–3:00 | **Close** | Landing page | "Plan the production change before you build it. Unde Labs." |
 
@@ -91,7 +91,7 @@ Checked against production (https://undelabs.dev, also `frontend-88903435351.us-
 11. **Accuracy.** Say these numbers:
    - **90.2%** on 377 held-out CBP rulings (Vertex, official), against 63.4% for the best simple rule we recomputed (first country named; D155). On 83 newer rulings (Sep–Nov 2026, gateway, scored once): 92.8%. If asked about the gateway: it agrees with Vertex AI on the development set (p = 0.58, D151).
    - The fast path auto-accepts 79.6% of cases at 96.0%.
-   - The "Precedent check" section: **182 checks reached the 0.92 bar across all runs; none was wrong.** Say the denominator too: proxy runs over 54 development pairs and 21 pairs from 2026, 17 pairs when each is counted once.
+   - The "Precedent check" section: **in the historical D86 proxy pool, 182 shown verdicts reached the 0.92 bar and none was wrong** (proxy runs over 54 development pairs and 21 pairs from 2026; 17 pairs counted once). Then say: later post-cutoff gateway scoring was right 9 of 9 with the starting origin and 5 of 6 without it. These are not guarantees.
    - The "Known failure cases" section: every held-out miss, by ruling. Scroll to it; showing the misses is part of the claim.
 
 **Before recording:**

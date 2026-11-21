@@ -105,25 +105,27 @@ On the two demo products, the plan Unde shows matches what really happened:
 - **Heat gun:** Unde's plan (move the motor-fan assembly, circuit board and switch to Thailand) matches CBP's later 2026 ruling holding Thai origin.
 - **LED tub light:** Unde's plan (make the LED circuit board in Thailand) is exactly CBP's next ruling.
 
-The precedent check that gates every plan has never been wrong at its bar: 182 verdicts cleared it across every run, none wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
+In the historical D86 proxy pool, 182 verdicts cleared the precedent check's 0.92 bar and none was wrong. Those are proxy runs, 159 on 54 development pairs and 23 on 21 pairs from 2026 that are not a clean held-out test, and repeated runs of the same pairs inflate the count. Counted once per pair, 17 real-change pairs were shown in every run and no no-change pair was ever shown ([D86](docs/DECISIONS.md)). In later post-cutoff gateway scoring, the check was right 9 of 9 times with the starting origin and 5 of 6 without it; one wrong plan is recorded in [eval/RESULTS.md](eval/RESULTS.md). These are proxy and gateway runs, not a guarantee. The bar is strict: about 30% of real changes clear it, and the rest go to a broker with their closest supporting ruling. Full results, confidence intervals and what didn't work are in [docs/DETAILS.md](docs/DETAILS.md#results). How the test set is built, what we trade off and how we benchmark: [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Reproduce our numbers
 
-Every number above is recomputed from files in this repository, with no model calls and no credentials:
+The headline evaluation counts above are recomputed from committed result rows, with no model calls and no credentials. Other figures are labelled measured, reported/unverified, external, illustrative, or one-run demo:
 
 ```bash
 make reproduce
 # which runs:
-make verify-data                                        # data files match eval/SHA256SUMS
-cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
-python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
-python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
-python3 -I eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer
-python3 -I eval/charts/build_repeatability.py . --check # three development runs, answers that changed
-python3 -I eval/planner/summarize_addendum.py . --check # the 18 post-cutoff flip pairs
+make verify-data                                           # data files match eval/SHA256SUMS
+cd backend && go run ./cmd/claimscheck && cd ..           # figure ledger and provenance, from committed artifacts
+python3 -I -B eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
+python3 -I -B eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
+python3 -I -B eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer
+python3 -I -B eval/charts/build_repeatability.py . --check # run-to-run repeatability on dev
+python3 -I -B eval/planner/summarize.py . --check          # planner summaries
+python3 -I -B eval/charts/build_adjudicator.py . --check   # adjudicator metrics
+python3 -I -B eval/planner/summarize_addendum.py . --check # planner addendum
 ```
 
-It needs Go and Python 3 (standard library only). Each step fails if a published number has drifted from its source.
+It needs Go 1.27, Python 3.8+, `make` and `shasum`; the Python scripts use only the standard library. Each check fails if a published figure has drifted from its source. `claimscheck` reconciles a frozen figure ledger and provenance; it does not rerun the model or recompute reported confidence intervals, costs and latencies. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md).
 
 **What it gets wrong.** All 37 held-out misses are listed by ruling, with links to CBP, on the [Accuracy page](https://undelabs.dev/accuracy#misses). It is weakest where CBP held China (77.2%, 44 of 57, interval 64.8–86.2), which is the costly direction for a move out of China. The patterns are in the [model card](docs/MODEL-CARD.md#6-known-failure-modes); the corpus, its sources and its biases are in the [datasheet](docs/DATASHEET.md).
 

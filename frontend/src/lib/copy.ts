@@ -115,7 +115,7 @@ export const copy = {
     pcba: { match: /PCBA/, text: "Printed circuit board assembly: the populated circuit board." },
     bar: {
       match: /precedent-check bar/,
-      text: "A plan is shown only when its precedent check is at least 0.92. This bar is for the precedent check on a move. It is separate from the origin auto-accept bar (calibrated 0.90). On every run we scored, no check above it was wrong.",
+      text: "A plan is shown only when its precedent check is at least 0.92. This bar is for the precedent check on a move. It is separate from the origin auto-accept bar (calibrated 0.90). In the historical D86 proxy pool, all 182 shown verdicts at or above it were right; later post-cutoff gateway scoring was right 9 of 9 with the starting origin and 5 of 6 without. These are proxy and gateway runs, not a guarantee.",
     },
     check: {
       match: /precedent check/i,
@@ -444,7 +444,7 @@ export const copy = {
         {
           key: "misses",
           what: "See where it fails",
-          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute every number on the page from the repository.",
+          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute the headline counts on the page from the repository.",
           link: "Known failure cases →",
         },
       ],
@@ -637,7 +637,7 @@ export const copy = {
   // eval/charts/build_trust_data.py from the committed held-out run.
   trust: {
     reproTitle: "Reproduce these numbers",
-    reproLead: "Every number on this page is recomputed from files in the repository. No model calls, no account, a few minutes on a laptop.",
+    reproLead: "Headline evaluation counts are recomputed from committed result rows. No model calls, no account, a few minutes on a laptop. Other figures are labelled reported or illustrative.",
     reproNote: "Each check fails loudly if a number has drifted from its source file.",
     failTitle: "Known failure cases",
     failLead: (miss: number, auto: number, n: number) =>
