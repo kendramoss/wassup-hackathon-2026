@@ -116,11 +116,14 @@ make reproduce
 # which runs:
 make verify-data                                        # data files match eval/SHA256SUMS
 cd backend && go run ./cmd/claimscheck && cd ..        # headline counts, from the result rows
-python3 -I eval/charts/build_evaluation.py . --check    # calibration, accuracy-coverage curve, split funnel
-python3 -I eval/charts/build_trust_data.py . --check    # failure cases, corpus counts
-python3 -I eval/charts/build_accuracy.py . --check      # model sweep, second test set, calibration layer
-python3 -I eval/charts/build_repeatability.py . --check # three development runs, answers that changed
-python3 -I eval/planner/summarize_addendum.py . --check # the 18 post-cutoff flip pairs
+python3 -I -B eval/charts/build_evaluation.py . --check           # calibration, accuracy-coverage curve, split funnel
+python3 -I -B eval/charts/build_trust_data.py . --check           # failure cases, corpus counts
+python3 -I -B eval/charts/build_accuracy.py . --check             # model sweep, second test set, calibration layer
+python3 -I -B eval/charts/build_repeatability.py . --check        # three development runs, answers that changed
+python3 -I -B eval/charts/build_repeatability_heldout.py . --check # two held-out runs, answers that changed
+python3 -I -B eval/planner/summarize.py . --check                 # 15-pair planner summary
+python3 -I -B eval/charts/build_adjudicator.py . --check          # adjudicator metrics
+python3 -I -B eval/planner/summarize_addendum.py . --check        # the 18 post-cutoff flip pairs
 ```
 
 It needs Go and Python 3 (standard library only). Each step fails if a published number has drifted from its source.
@@ -154,7 +157,7 @@ Next.js frontend (Cloud Run)  ──►  Go backend (Cloud Run)  ──►  Gemi
 
 ## Run it locally
 
-You need Go 1.27 and `make`. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
+You need Go 1.27, `make` and Node 24 for the web app. To reproduce the published numbers you also need Python 3.8+ and `shasum`, and an LF checkout (`.gitattributes` sets this; on Windows set `core.autocrlf=input` before cloning). Run `make doctor` first: it checks every prerequisite and the line endings and prints exactly what is missing. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
 
 ```bash
 make run                                # API on :8080, no GCP credentials needed for UI work

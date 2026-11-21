@@ -2,7 +2,7 @@
 GO_DIR := backend
 STATICCHECK ?= $(shell command -v staticcheck 2>/dev/null || echo $(HOME)/go/bin/staticcheck)
 
-.PHONY: demo-seed test lint fmt run smoke reproduce verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
+.PHONY: doctor demo-seed test lint fmt run smoke reproduce verify-data eval-dev eval-test eval-report eval-slice prompt-snapshot eval-summary bundle-corpus upload-corpus
 
 test: ## unit tests, no network
 	cd $(GO_DIR) && go test ./...
@@ -20,6 +20,24 @@ run: ## local server on :8080
 
 smoke: ## one live Vertex call (Application Default Credentials and GOOGLE_CLOUD_PROJECT)
 	cd $(GO_DIR) && go run ./cmd/server -smoke
+
+doctor: ## check the tools and LF checkout that make reproduce needs
+	@echo "Unde Labs reproduce prerequisites:"
+	@ok=1; \
+	for t in make shasum go python3; do \
+	  if p=$$(command -v $$t 2>/dev/null); then printf '  ok    %-8s %s\n' "$$t" "$$p"; \
+	  else printf '  MISS  %-8s install it and re-run make doctor\n' "$$t"; ok=0; fi; \
+	done; \
+	gv=$$(go version 2>/dev/null | sed -n 's/.*go\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1.\2/p'); \
+	if [ -n "$$gv" ]; then printf '  info  go       %s (reproduce needs >= 1.27)\n' "$$gv"; fi; \
+	pv=$$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>/dev/null); \
+	if [ -n "$$pv" ]; then printf '  info  python   %s (reproduce needs >= 3.8)\n' "$$pv"; fi; \
+	eol=$$(git ls-files --eol eval/SHA256SUMS 2>/dev/null | awk '{print $$1}'); \
+	case "$$eol" in \
+	  i/lf) printf '  ok    checkout LF (eval/SHA256SUMS)\n' ;; \
+	  *) printf '  MISS  checkout is %s; see .gitattributes (core.autocrlf=input, then re-clone)\n' "$$eol"; ok=0 ;; \
+	esac; \
+	if [ "$$ok" -eq 1 ]; then echo "Ready: make reproduce"; else echo "Fix the MISS lines, then re-run make doctor"; exit 1; fi
 
 reproduce: ## recompute every published number from committed files: no model calls, no credentials
 	$(MAKE) verify-data
