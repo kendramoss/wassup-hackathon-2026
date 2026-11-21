@@ -25,6 +25,10 @@
       "version": "rules-v1",
       "sha256": "6198f8b5e04c0db28df1e39a6f0d51cbaf6f22de6f3288a89a4d8e4a74161311"
     },
+    "engine.rules2": {
+      "version": "rules-v2",
+      "sha256": "15e301dff32fd101c1fc8bc67e5006a8b0b382c9a816f6951ad21dcae3719cb4"
+    },
     "engine.system": {
       "version": "engine-v1",
       "sha256": "00077c78acd442a9e7ea66377b36703d0bf2fd1ed5b0f467f537f5f0f67b1749"

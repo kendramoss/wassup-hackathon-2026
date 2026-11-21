@@ -95,3 +95,13 @@ const Rules = `CBP practice on three recurring questions:
 1. Chemical and mineral processing. A chemical reaction that creates a different compound (a new chemical name, formula or CAS number, including forming a different hydrate or salt) is generally a substantial transformation. Mixing, diluting, purifying, drying, crystallising or packaging without a new compound generally is not. Crushing, milling or sizing generally is not, unless the facts show it makes the material fit for a specific use it could not serve before.
 2. Blanks and preforms. If the imported article is a blank or preform that already has the approximate shape, dimensions and predetermined use of the finished article and is dedicated to it, later finishing (machining, flow forming, heat treatment, drilling, coating, sharpening) generally does not substantially transform it. If the input is a generic material (bar, sheet, coil, wire, resin, powder) that is formed into the article's shape, the forming does.
 3. Essential character in assemblies. The essential character usually comes from the component that performs the article's primary function for the user (the functional base), not from the most decorative, most visible or most numerous parts. Weigh what the article does over what it looks like.`
+
+// RulesVersion2 names Rules2 (D157): rules-v1 plus a fourth rule on assemblies
+// built around one imported component, written from the development-set
+// errors only (most are the engine naming the component's country where CBP
+// held the assembling country, or the reverse).
+const RulesVersion2 = "rules-v2"
+
+// Rules2 is Rules with a fourth rule. Used only with eval run -rules -rules-version v2.
+const Rules2 = Rules + `
+4. Assembly around one imported component. Do not give origin to the country that made one important imported component when the assembling country also makes several other components (moulding, stamping, machining, circuit-board assembly, frames, blades) and carries out many joining, finishing and testing steps: CBP usually holds the assembling country. CBP holds the component's country when that component alone gives the article its function and identity and the later work is a few simple steps (screwing, gluing, snapping together, packing). When precedents for the same kind of product point both ways, follow the one whose split of work between countries is closest to these facts.`

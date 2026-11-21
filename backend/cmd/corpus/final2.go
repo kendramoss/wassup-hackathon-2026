@@ -147,8 +147,9 @@ func final2Label(args []string) error {
 		}
 	}
 	manual := map[string]struct {
-		PrimaryOrigin *string `json:"primary_origin"`
-		Note          string  `json:"note"`
+		PrimaryOrigin *string  `json:"primary_origin"`
+		Evidence      []string `json:"evidence"`
+		Note          string   `json:"note"`
 	}{}
 	if b, err := os.ReadFile(*manualPath); err == nil {
 		if err := json.Unmarshal(b, &manual); err != nil {
@@ -191,9 +192,14 @@ func final2Label(args []string) error {
 		if err := os.WriteFile(filepath.Join(*factsDir, id+".txt"), []byte(facts+"\n"), 0o644); err != nil {
 			return err
 		}
-		l := corpus.LabelRuling(r.RulingNumber, r.RulingDate, r.Collection, r.Subject, r.Text, meta)
+		// CROSS subjects of New York rulings start with "RE:"; labels.jsonl has none.
+		subject := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(r.Subject), "RE:"))
+		l := corpus.LabelRuling(r.RulingNumber, r.RulingDate, r.Collection, subject, r.Text, meta)
 		if m, ok := manual[id]; ok {
 			l.PrimaryOrigin, l.Method = m.PrimaryOrigin, "manual"
+			if len(m.Evidence) > 0 {
+				l.Evidence = m.Evidence
+			}
 		}
 		rows = append(rows, l)
 	}

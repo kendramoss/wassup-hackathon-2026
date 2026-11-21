@@ -166,6 +166,7 @@ func run(args []string) error {
 	votes := fl.Int("votes", 1, "calls per low-confidence case (majority over rotated precedent orders); 1 = no voting")
 	voteBelow := fl.Float64("vote-below", 0.95, "vote only when the first answer's confidence is below this")
 	useRules := fl.Bool("rules", false, "append engine.Rules (rules-v1) to the system prompt")
+	rulesVersion := fl.String("rules-version", "v1", "with -rules: v1 (rules-v1) or v2 (rules-v2, D157)")
 	useReasoning := fl.Bool("reasoning", false, "show each precedent's CBP reasoning (reasoning-v1; needs -raw)")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw ruling JSON, for -reasoning")
 	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
@@ -299,6 +300,11 @@ func run(args []string) error {
 			Votes: *votes, VoteBelow: *voteBelow, PrecedentReasoning: *useReasoning}
 		if *useRules {
 			opts.Rules, opts.RulesVersion = engine.Rules, engine.RulesVersion
+			if *rulesVersion == "v2" {
+				opts.Rules, opts.RulesVersion = engine.Rules2, engine.RulesVersion2
+			} else if *rulesVersion != "v1" {
+				return fmt.Errorf("-rules-version must be v1 or v2, got %q", *rulesVersion)
+			}
 		}
 		eng = engine.New(model, retr, opts)
 	}
@@ -362,7 +368,11 @@ func run(args []string) error {
 		name += fmt.Sprintf("-vote%d", *votes)
 	}
 	if *useRules {
-		name += "-" + engine.RulesVersion
+		if *rulesVersion == "v2" {
+			name += "-" + engine.RulesVersion2
+		} else {
+			name += "-" + engine.RulesVersion
+		}
 	}
 	if *useReasoning {
 		name += "-" + engine.ReasoningVersion
