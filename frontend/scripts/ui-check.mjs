@@ -54,6 +54,14 @@ for (const scheme of ["light", "dark"]) {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
       if (overflow) problems.push({ page: path, vp, scheme, layout: "page scrolls horizontally" });
 
+      // fig.2's caption explains the four sheets. It must never be blank,
+      // including on phones where the sheets stack (#507).
+      const fig2Now = await page.evaluate(() => {
+        const el = document.querySelector(".lp .f2 .now");
+        return el ? (el.textContent ?? "").trim() : null;
+      });
+      if (fig2Now !== null && !fig2Now) problems.push({ page: path, vp, scheme, layout: "fig.2 caption is empty" });
+
       const { violations } = await new AxeBuilder({ page }).analyze();
       for (const v of violations) {
         problems.push({ page: path, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });

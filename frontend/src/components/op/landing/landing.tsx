@@ -236,7 +236,9 @@ export function Landing() {
                       </h2>
                       <span className="dimn">{L.fig2Sub}</span>
                     </div>
-                    <div className="now duo" data-k="now" />
+                    <div className="now duo" data-k="now">
+                      {L.fig2NowStatic}
+                    </div>
                   </div>
                   <div className="stage" data-k="stage">
                     <svg className="path" data-k="pathsvg" aria-hidden="true">
