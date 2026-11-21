@@ -45,13 +45,23 @@ export default function Page() {
           <ul className="duo flex list-disc flex-col gap-1.5 pl-5 text-[13.5px]">
             <li>Each key has a number of requests per UTC day. Past it: 429 <code className="font-mono">quota_exceeded</code>, with Retry-After set to the next UTC day.</li>
             <li>
-              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, import, scenarios) and 4 a minute for plan searches. Over that: 429{" "}
-              <code className="font-mono">rate_limited</code> with Retry-After.
+              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, import, scenarios) and 4 a minute for plan searches. Reads and
+              other requests without a model call: 120 a minute. Over that: 429 <code className="font-mono">rate_limited</code> with Retry-After.
             </li>
             <li>
-              An unknown or disabled key gets 401 <code className="font-mono">unauthorized</code>. When the day&apos;s model budget is spent, model calls return 503{" "}
+              Every limited response carries <code className="font-mono">RateLimit-Limit</code>, <code className="font-mono">RateLimit-Remaining</code> and{" "}
+              <code className="font-mono">RateLimit-Reset</code>.
+            </li>
+            <li>
+              At most 4 model calls may run at once per key (429 <code className="font-mono">too_many_in_flight</code>). One key may spend at most a tenth of
+              the day&apos;s model budget (429 <code className="font-mono">client_budget_reached</code> until the next UTC day).
+            </li>
+            <li>
+              An unknown or disabled key gets 401 <code className="font-mono">unauthorized</code>; after 10 in a minute from one address, 429{" "}
+              <code className="font-mono">auth_rate_limited</code>. When the day&apos;s model budget is spent, model calls return 503{" "}
               <code className="font-mono">budget_reached</code>.
             </li>
+            <li>Call the API from your server. It sends no CORS headers, so calls from a browser on another site are refused.</li>
           </ul>
         </section>
 

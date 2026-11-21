@@ -146,11 +146,31 @@ type Config struct {
 	RateLightPerMin, RateHeavyPerMin, RateGlobalPerMin int
 	// RateLookupPerMin caps ruling fetches from CROSS per client (D58).
 	RateLookupPerMin int
-	// RateLimitStore is where the limits are counted (D70): local (default,
-	// each instance its own buckets), firestore (fixed-window counters shared
-	// by all instances; falls back to local on a store error) or memory (the
-	// shared limiter in one process, for trying it locally).
-	RateLimitStore string
+	// RateLimitStore is where the limits are counted (D70): local (each
+	// instance its own buckets), firestore (fixed-window counters shared by
+	// all instances; falls back to local on a store error) or memory (the
+	// shared limiter in one process, for trying it locally). Unset, it is
+	// firestore on Cloud Run when GOOGLE_CLOUD_PROJECT is set, else local
+	// (D137). RateLimitStoreDefaulted records that the default chose it.
+	RateLimitStore          string
+	RateLimitStoreDefaulted bool
+	// RateBasicPerMin caps the cheap routes per client (reads, renames,
+	// deletes, economics, export, demos, workspaces); 0 disables it (D137).
+	RateBasicPerMin int
+	// RateMaxInFlight caps how many model-calling requests one client may
+	// have running at once on an instance; 0 disables it (D137).
+	RateMaxInFlight int
+	// RateAuthFailuresPerMin caps invalid API keys per client a minute; 0
+	// disables it (D137).
+	RateAuthFailuresPerMin int
+	// DailySpendClientShare is the share of DailySpendCapUSD one client (API
+	// key or address) may spend in a UTC day; 0 disables the per-client cap
+	// (D137).
+	DailySpendClientShare float64
+	// RequireBearer (REQUIRE_BEARER on|off, default off) refuses every request
+	// but /health that carries no "Authorization: Bearer" header. On Cloud
+	// Run the frontend proxy always sends one (D137).
+	RequireBearer bool
 	// CasesListLimit caps GET /v1/cases: pinned cases plus the newest others (D58).
 	CasesListLimit int
 	// CaseOwnership (on|off, default off) limits visitors to the pinned demos
@@ -316,42 +336,45 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		VerifierPrompt:         strings.ToLower(e.str("VERIFIER_PROMPT", "v2")),
 		PlannerConcurrency:     e.integer("PLANNER_CONCURRENCY", 8),
 		// Defaults resolve both from backend/ (local) and from / in the image.
-		LabelsPath:         e.str("LABELS_PATH", "data/labels.jsonl"),
-		FactsDir:           e.str("CORPUS_FACTS_DIR", "data/facts"),
-		RawDir:             e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
-		VerifierSearch:     strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
-		CasesDir:           e.dir("CASES_DIR", "../data/cases"),
-		FirestoreDatabase:  e.str("FIRESTORE_DATABASE", "(default)"),
-		VerifierCacheDir:   e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
-		RateLightPerMin:    e.integer("RATE_LIGHT_PER_MIN", 20),
-		RateHeavyPerMin:    e.integer("RATE_HEAVY_PER_MIN", 4),
-		RateGlobalPerMin:   e.integer("RATE_GLOBAL_PER_MIN", 120),
-		RateLookupPerMin:   e.integer("RATE_LOOKUP_PER_MIN", 30),
-		RateLimitStore:     strings.ToLower(e.str("RATE_LIMIT_STORE", RateLocal)),
-		CasesListLimit:     e.integer("CASES_LIST_LIMIT", 200),
-		BOMVersions:        strings.ToLower(e.str("BOM_VERSIONS", "off")),
-		DailySpendCapUSD:   e.float("DAILY_SPEND_CAP_USD", 0),
-		AdminToken:         e.str("ADMIN_TOKEN", ""),
-		AuditActorKey:      e.str("AUDIT_ACTOR_KEY", ""),
-		AuditActorKeyID:    e.str("AUDIT_ACTOR_KEY_ID", "1"),
-		AuditRetentionDays: e.integer("AUDIT_RETENTION_DAYS", 90),
-		AuditDir:           e.dir("AUDIT_DIR", "../data/audit"),
-		TeamsAudience:      e.str("TEAMS_AUDIENCE", ""),
-		TextileRulings:     e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
-		TextileFastPath:    e.float("TEXTILE_FAST_PATH", 0),
-		TextilePrompt:      strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
-		TextileReasoning:   e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
-		USMCALabels:        e.str("USMCA_LABELS", "data/labels_usmca.jsonl"),
-		USMCAFastPath:      e.float("USMCA_FAST_PATH", 0),
-		PharmaRulings:      e.str("PHARMA_RULINGS", "data/pharma_rulings.json"),
-		PharmaFastPath:     e.float("PHARMA_FAST_PATH", 0),
-		FastPathByFamily:   strings.ToLower(e.str("FAST_PATH_BY_FAMILY", "off")),
-		HTSIndex:           e.str("HTS_INDEX", "data/hts_index.json"),
-		DutyLiveMFNTTL:     e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
-		DutyLiveMFNTimeout: e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
-		EvalSliceMaxDrop:   e.integer("EVAL_SLICE_MAX_DROP", 2),
-		EvalSliceMaxErrors: e.integer("EVAL_SLICE_MAX_ERRORS", 3),
-		EvalSliceBandMin:   e.float("EVAL_SLICE_BAND_MIN", 0.95),
+		LabelsPath:             e.str("LABELS_PATH", "data/labels.jsonl"),
+		FactsDir:               e.str("CORPUS_FACTS_DIR", "data/facts"),
+		RawDir:                 e.str("CORPUS_RAW_DIR", "../data/corpus/raw"),
+		VerifierSearch:         strings.ToLower(e.str("VERIFIER_SEARCH", "cross")),
+		CasesDir:               e.dir("CASES_DIR", "../data/cases"),
+		FirestoreDatabase:      e.str("FIRESTORE_DATABASE", "(default)"),
+		VerifierCacheDir:       e.dir("VERIFIER_CACHE_DIR", "../data/verifier-cache"),
+		RateLightPerMin:        e.integer("RATE_LIGHT_PER_MIN", 20),
+		RateHeavyPerMin:        e.integer("RATE_HEAVY_PER_MIN", 4),
+		RateGlobalPerMin:       e.integer("RATE_GLOBAL_PER_MIN", 120),
+		RateLookupPerMin:       e.integer("RATE_LOOKUP_PER_MIN", 30),
+		RateBasicPerMin:        e.integer("RATE_BASIC_PER_MIN", 120),
+		RateMaxInFlight:        e.integer("RATE_MAX_IN_FLIGHT", 4),
+		RateAuthFailuresPerMin: e.integer("RATE_AUTH_FAILURES_PER_MIN", 10),
+		CasesListLimit:         e.integer("CASES_LIST_LIMIT", 200),
+		BOMVersions:            strings.ToLower(e.str("BOM_VERSIONS", "off")),
+		DailySpendCapUSD:       e.float("DAILY_SPEND_CAP_USD", 0),
+		DailySpendClientShare:  e.float("DAILY_SPEND_CLIENT_SHARE", 0.1),
+		AdminToken:             e.str("ADMIN_TOKEN", ""),
+		AuditActorKey:          e.str("AUDIT_ACTOR_KEY", ""),
+		AuditActorKeyID:        e.str("AUDIT_ACTOR_KEY_ID", "1"),
+		AuditRetentionDays:     e.integer("AUDIT_RETENTION_DAYS", 90),
+		AuditDir:               e.dir("AUDIT_DIR", "../data/audit"),
+		TeamsAudience:          e.str("TEAMS_AUDIENCE", ""),
+		TextileRulings:         e.str("TEXTILE_RULINGS", "data/textile_rulings.json"),
+		TextileFastPath:        e.float("TEXTILE_FAST_PATH", 0),
+		TextilePrompt:          strings.ToLower(e.str("TEXTILE_PROMPT", "v1")),
+		TextileReasoning:       e.str("TEXTILE_REASONING", "data/textile_reasoning.json"),
+		USMCALabels:            e.str("USMCA_LABELS", "data/labels_usmca.jsonl"),
+		USMCAFastPath:          e.float("USMCA_FAST_PATH", 0),
+		PharmaRulings:          e.str("PHARMA_RULINGS", "data/pharma_rulings.json"),
+		PharmaFastPath:         e.float("PHARMA_FAST_PATH", 0),
+		FastPathByFamily:       strings.ToLower(e.str("FAST_PATH_BY_FAMILY", "off")),
+		HTSIndex:               e.str("HTS_INDEX", "data/hts_index.json"),
+		DutyLiveMFNTTL:         e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
+		DutyLiveMFNTimeout:     e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
+		EvalSliceMaxDrop:       e.integer("EVAL_SLICE_MAX_DROP", 2),
+		EvalSliceMaxErrors:     e.integer("EVAL_SLICE_MAX_ERRORS", 3),
+		EvalSliceBandMin:       e.float("EVAL_SLICE_BAND_MIN", 0.95),
 	}
 	switch v := strings.ToLower(e.str("CASE_OWNERSHIP", "off")); v {
 	case "on", "true", "1":
@@ -378,6 +401,21 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		e.errs = append(e.errs, fmt.Errorf("AUDIT must be on, off or auto, got %q", v))
 	}
 	c.Audit = c.AuditMode == "on" || (c.AuditMode == "auto" && c.AuditActorKey != "")
+	switch v := strings.ToLower(e.str("REQUIRE_BEARER", "off")); v {
+	case "on", "true", "1":
+		c.RequireBearer = true
+	case "off", "false", "0":
+	default:
+		e.errs = append(e.errs, fmt.Errorf("REQUIRE_BEARER must be on or off, got %q", v))
+	}
+	// On Cloud Run, an unset RATE_LIMIT_STORE shares the limits in Firestore:
+	// per-instance buckets let a client through about once per instance
+	// (D57, D70, D137). Without a project it stays local.
+	defRate := RateLocal
+	if c.OnCloudRun && c.GCPProject != "" && e.str("RATE_LIMIT_STORE", "") == "" {
+		defRate, c.RateLimitStoreDefaulted = RateFirestore, true
+	}
+	c.RateLimitStore = strings.ToLower(e.str("RATE_LIMIT_STORE", defRate))
 	switch v := strings.ToLower(e.str("TEAMS", "off")); v {
 	case "on", "true", "1":
 		c.Teams = true
@@ -485,16 +523,17 @@ func (c Config) validate() error {
 	// Config built directly must not carry them either (all comparisons with
 	// NaN are false, so range checks alone cannot catch it).
 	for name, v := range map[string]float64{
-		"FALLBACK_FAST_PATH":   c.FallbackFastPath,
-		"FAST_PATH_CONFIDENCE": c.FastPathConfidence,
-		"PLAN_CONFIDENCE":      c.PlanConfidence,
-		"VERIFIER_PANEL_LOW":   c.VerifierPanelLow,
-		"VERIFIER_PANEL_HIGH":  c.VerifierPanelHigh,
-		"DAILY_SPEND_CAP_USD":  c.DailySpendCapUSD,
-		"TEXTILE_FAST_PATH":    c.TextileFastPath,
-		"USMCA_FAST_PATH":      c.USMCAFastPath,
-		"PHARMA_FAST_PATH":     c.PharmaFastPath,
-		"EVAL_SLICE_BAND_MIN":  c.EvalSliceBandMin,
+		"FALLBACK_FAST_PATH":       c.FallbackFastPath,
+		"FAST_PATH_CONFIDENCE":     c.FastPathConfidence,
+		"PLAN_CONFIDENCE":          c.PlanConfidence,
+		"VERIFIER_PANEL_LOW":       c.VerifierPanelLow,
+		"VERIFIER_PANEL_HIGH":      c.VerifierPanelHigh,
+		"DAILY_SPEND_CAP_USD":      c.DailySpendCapUSD,
+		"DAILY_SPEND_CLIENT_SHARE": c.DailySpendClientShare,
+		"TEXTILE_FAST_PATH":        c.TextileFastPath,
+		"USMCA_FAST_PATH":          c.USMCAFastPath,
+		"PHARMA_FAST_PATH":         c.PharmaFastPath,
+		"EVAL_SLICE_BAND_MIN":      c.EvalSliceBandMin,
 	} {
 		if math.IsNaN(v) || math.IsInf(v, 0) {
 			bad("%s must be a finite number, got %v", name, v)
@@ -539,6 +578,9 @@ func (c Config) validate() error {
 		if v <= 0 {
 			bad("%s must be positive, got %d", name, v)
 		}
+	}
+	if c.DailySpendClientShare < 0 || c.DailySpendClientShare > 1 {
+		bad("DAILY_SPEND_CLIENT_SHARE must be 0 (off) or in (0, 1], got %v", c.DailySpendClientShare)
 	}
 	if c.DailySpendCapUSD < 0 {
 		bad("DAILY_SPEND_CAP_USD must be 0 (no cap) or positive, got %v", c.DailySpendCapUSD)
@@ -600,7 +642,7 @@ func (c Config) validate() error {
 	if c.PharmaFastPath < 0 || c.PharmaFastPath > 1 {
 		bad("PHARMA_FAST_PATH must be 0 (always review) or in (0, 1], got %v", c.PharmaFastPath)
 	}
-	for name, v := range map[string]int{"RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
+	for name, v := range map[string]int{"RATE_BASIC_PER_MIN": c.RateBasicPerMin, "RATE_MAX_IN_FLIGHT": c.RateMaxInFlight, "RATE_AUTH_FAILURES_PER_MIN": c.RateAuthFailuresPerMin, "RATE_LIGHT_PER_MIN": c.RateLightPerMin, "RATE_HEAVY_PER_MIN": c.RateHeavyPerMin, "RATE_GLOBAL_PER_MIN": c.RateGlobalPerMin, "RATE_LOOKUP_PER_MIN": c.RateLookupPerMin} {
 		if v < 0 {
 			bad("%s must be 0 (off) or positive, got %d", name, v)
 		}
@@ -723,7 +765,7 @@ func (c Config) String() string {
 	}
 	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s call_gap=%s max_in_flight=%d cloud_run=%t verifier_search=%s facts=%s cases=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, fallback, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore) + fmt.Sprintf(" audit=%t", c.Audit)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore) + fmt.Sprintf(" audit=%t rate_store=%s", c.Audit, c.RateLimitStore)
 }
 
 // env parses typed values and collects parse errors.

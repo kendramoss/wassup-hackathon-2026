@@ -235,6 +235,18 @@ export async function proxyBackend(request: Request, path: string): Promise<Resp
   return res;
 }
 
+// LIMIT_HEADERS are the backend's limit headers a caller needs to pace
+// itself (D137): Retry-After and the IETF draft RateLimit fields. They pass
+// through the proxy; no other backend header does.
+const LIMIT_HEADERS = ["Retry-After", "RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"];
+
+function copyLimitHeaders(from: Headers, to: Headers) {
+  for (const h of LIMIT_HEADERS) {
+    const v = from.get(h);
+    if (v) to.set(h, v);
+  }
+}
+
 async function forward(request: Request, path: string, visitorId: string, userToken?: string): Promise<Response> {
   const backendUrl = process.env.BACKEND_URL?.replace(/\/$/, "");
   if (!backendUrl) {
@@ -274,13 +286,11 @@ async function forward(request: Request, path: string, visitorId: string, userTo
     // content type, turns a success into a client error.
     if (res.status === 204 || res.status === 205) {
       const empty = new Headers({ "Cache-Control": PRIVATE });
-      const retry = res.headers.get("retry-after");
-      if (retry) empty.set("Retry-After", retry);
+      copyLimitHeaders(res.headers, empty);
       return new Response(null, { status: res.status, headers: empty });
     }
     const out = new Headers({ "Content-Type": res.headers.get("content-type") ?? "application/json", "Cache-Control": PRIVATE });
-    const retry = res.headers.get("retry-after");
-    if (retry) out.set("Retry-After", retry);
+    copyLimitHeaders(res.headers, out);
     if (out.get("Content-Type")?.startsWith("text/event-stream")) {
       // no-transform keeps Next's compression from buffering the stream.
       out.set("Cache-Control", "no-cache, no-transform");

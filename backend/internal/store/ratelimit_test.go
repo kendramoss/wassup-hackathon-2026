@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -42,6 +43,12 @@ func (f *fakeFirestore) Commit(_ context.Context, req *pb.CommitRequest) (*pb.Co
 	}
 	var out []*pb.WriteResult
 	for _, w := range req.GetWrites() {
+		if del := w.GetDelete(); del != "" {
+			delete(f.n, del)
+			delete(f.expires, del)
+			out = append(out, &pb.WriteResult{})
+			continue
+		}
 		doc := w.GetUpdate()
 		if doc == nil || len(w.GetUpdateTransforms()) != 1 || w.GetUpdateTransforms()[0].GetFieldPath() != "n" {
 			return nil, status.Error(codes.InvalidArgument, "unexpected write")
@@ -54,6 +61,32 @@ func (f *fakeFirestore) Commit(_ context.Context, req *pb.CommitRequest) (*pb.Co
 		out = append(out, &pb.WriteResult{TransformResults: []*pb.Value{{ValueType: &pb.Value_IntegerValue{IntegerValue: f.n[doc.GetName()]}}}})
 	}
 	return &pb.CommitResponse{WriteResults: out}, nil
+}
+
+// RunQuery answers the prune query: documents of rate_limits whose
+// expires_at is before the filter's value, names only, up to the limit.
+func (f *fakeFirestore) RunQuery(req *pb.RunQueryRequest, stream pb.Firestore_RunQueryServer) error {
+	q := req.GetStructuredQuery()
+	ff := q.GetWhere().GetFieldFilter()
+	if len(q.GetFrom()) != 1 || q.GetFrom()[0].GetCollectionId() != "rate_limits" || ff.GetField().GetFieldPath() != "expires_at" ||
+		ff.GetOp() != pb.StructuredQuery_FieldFilter_LESS_THAN || q.GetLimit() == nil {
+		return status.Error(codes.InvalidArgument, "unexpected query")
+	}
+	before := ff.GetValue().GetTimestampValue().AsTime()
+	f.mu.Lock()
+	var names []string
+	for name, exp := range f.expires {
+		if exp.Before(before) && len(names) < int(q.GetLimit().GetValue()) {
+			names = append(names, name)
+		}
+	}
+	f.mu.Unlock()
+	for _, n := range names {
+		if err := stream.Send(&pb.RunQueryResponse{Document: &pb.Document{Name: n}}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func newFakeCounters(t *testing.T) (*FirestoreCounters, *fakeFirestore) {
@@ -115,6 +148,34 @@ func TestFirestoreCountersErrorIsNotRetried(t *testing.T) {
 	}
 	if len(fake.commits) != 1 {
 		t.Errorf("%d commits, want 1: a retried increment could count a request twice", len(fake.commits))
+	}
+}
+
+// Prune deletes ended windows only, at most limit a call, so the
+// collection stays bounded without a TTL policy (D137).
+func TestFirestoreCountersPrune(t *testing.T) {
+	fc, fake := newFakeCounters(t)
+	ctx := context.Background()
+	old := time.Date(2026, 10, 17, 12, 1, 0, 0, time.UTC)
+	cur := old.Add(time.Hour)
+	for i, end := range []time.Time{old, old, old, cur} {
+		if _, err := fc.Add(ctx, []ratelimit.Counter{{ID: fmt.Sprintf("c%d-light-1", i), N: 1}}, end); err != nil {
+			t.Fatal(err)
+		}
+	}
+	n, err := fc.Prune(ctx, old.Add(time.Minute), 2)
+	if err != nil || n != 2 {
+		t.Fatalf("first prune = %d %v, want 2 (the limit)", n, err)
+	}
+	n, err = fc.Prune(ctx, old.Add(time.Minute), 2)
+	if err != nil || n != 1 {
+		t.Fatalf("second prune = %d %v, want the last ended window", n, err)
+	}
+	if n, err = fc.Prune(ctx, old.Add(time.Minute), 2); err != nil || n != 0 {
+		t.Fatalf("third prune = %d %v, want nothing left", n, err)
+	}
+	if len(fake.n) != 1 {
+		t.Errorf("%d counters left, want only the current window's", len(fake.n))
 	}
 }
 

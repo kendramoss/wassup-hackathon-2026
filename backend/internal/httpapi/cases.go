@@ -130,6 +130,9 @@ type Deps struct {
 	// instance instead of per instance (D70; RATE_LIMIT_STORE=firestore).
 	// On a store error a request falls back to this instance's limits.
 	RateStore ratelimit.Store
+	// RequireBearer refuses requests other than /health without an
+	// "Authorization: Bearer" header (REQUIRE_BEARER, off by default; D137).
+	RequireBearer bool
 	// AdminToken (X-Admin-Token header) bypasses the limits and allows
 	// pinning, deleting pinned cases and the batch watch. Empty: no admin.
 	AdminToken string
@@ -233,6 +236,9 @@ type api struct {
 	d          Deps
 	limiter    *limiter
 	shared     *sharedLimiter // nil unless Deps.RateStore is set
+	inflight   *inflight      // nil unless Limits.MaxInFlight is set
+	authFails  *authFailures  // failed API-key checks per client; nil unless Deps.APIKeys is set
+	quotaLocal *localQuota    // API-key requests counted here while the quota store fails
 	rulingMu   sync.Mutex
 	rulingMemo map[string]rulingDTO
 	askMu      sync.Mutex

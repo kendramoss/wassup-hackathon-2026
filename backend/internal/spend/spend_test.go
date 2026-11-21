@@ -3,6 +3,7 @@ package spend
 import (
 	"context"
 	"errors"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -118,5 +119,65 @@ func TestNoCapNeverRefuses(t *testing.T) {
 	m.Add(context.Background(), 1000)
 	if over, _ := m.Over(context.Background()); over {
 		t.Error("cap 0 refused")
+	}
+}
+
+// failTotals is a store whose writes and reads fail.
+type failTotals struct{}
+
+func (failTotals) Add(context.Context, string, float64) (float64, error) {
+	return 0, errors.New("down")
+}
+func (failTotals) Total(context.Context, string) (float64, error) { return 0, errors.New("down") }
+
+// The per-client share (D137): spend made under WithClient counts toward
+// that client's share, kept in the store under a hashed key, with this
+// instance's view as the fallback when the store fails.
+func TestClientShare(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name     string
+		store    Store
+		capUSD   float64
+		share    float64
+		spendA   float64
+		wantOver bool
+	}{
+		{"under the share", NewMemory(), 1, 0.1, 0.05, false},
+		{"at the share", NewMemory(), 1, 0.1, 0.1, true},
+		{"no share configured", NewMemory(), 1, 0, 0.5, false},
+		{"no cap configured", NewMemory(), 0, 0.1, 0.5, false},
+		{"store down: this instance's view", failTotals{}, 1, 0.1, 0.2, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := New(tt.store, tt.capUSD).WithClientShare(tt.share)
+			m.Add(WithClient(ctx, "203.0.113.1"), tt.spendA)
+			over, spent, _ := m.ClientOver(ctx, "203.0.113.1")
+			if over != tt.wantOver {
+				t.Errorf("over = %t (spent %v), want %t", over, spent, tt.wantOver)
+			}
+			if over, _, _ := m.ClientOver(ctx, "203.0.113.2"); over {
+				t.Error("another client is over")
+			}
+		})
+	}
+	if k := ClientDay("2026-11-21", "203.0.113.1"); !strings.HasPrefix(k, "2026-11-21_c_") || strings.Contains(k, "203.0.113.1") || strings.Contains(k, "/") {
+		t.Errorf("ClientDay = %q: the address must be hashed and the key a valid document ID", k)
+	}
+}
+
+// Memory keeps only the newest day's totals.
+func TestMemoryForgetsEndedDays(t *testing.T) {
+	ctx := context.Background()
+	s := NewMemory()
+	_, _ = s.Add(ctx, "2026-11-20", 1)
+	_, _ = s.Add(ctx, ClientDay("2026-11-20", "a"), 1)
+	_, _ = s.Add(ctx, "2026-11-21", 2)
+	if len(s.totals) != 1 {
+		t.Errorf("totals = %v, want only 2026-11-21", s.totals)
+	}
+	if got, _ := s.Total(ctx, "2026-11-21"); got != 2 {
+		t.Errorf("today = %v", got)
 	}
 }

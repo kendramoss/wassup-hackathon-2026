@@ -41,6 +41,8 @@ const (
 	maxUnzipXMLBytes = 16 << 20
 	maxSheetRows     = 1000
 	maxSheetCols     = 64
+	// maxFieldLen caps one cell, in bytes, for both formats (D137).
+	maxFieldLen = 2000
 )
 
 // ErrInvalid wraps domain.ErrInvalid for BOM problems the user must fix.
@@ -80,6 +82,9 @@ func ReadRows(r io.Reader) ([][]string, error) {
 			if len(cols) > maxSheetCols {
 				cols = cols[:maxSheetCols]
 			}
+			if err := checkFields(cols, len(rows)+1); err != nil {
+				return nil, err
+			}
 			rows = append(rows, cols)
 		}
 		if err := rs.Error(); err != nil {
@@ -90,11 +95,40 @@ func ReadRows(r io.Reader) ([][]string, error) {
 	cr := csv.NewReader(bytes.NewReader(bytes.TrimPrefix(b, []byte("\xef\xbb\xbf")))) // Excel's CSV export adds a BOM
 	cr.FieldsPerRecord = -1
 	cr.TrimLeadingSpace = true
-	rows, err := cr.ReadAll()
-	if err != nil {
-		return nil, fmt.Errorf("%w: not a readable CSV file: %v", ErrInvalid, err)
+	// Read row by row with the same caps as a sheet (D137), so a CSV of
+	// millions of tiny rows stops at maxSheetRows instead of being parsed
+	// whole first.
+	var rows [][]string
+	for {
+		cols, err := cr.Read()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("%w: not a readable CSV file: %v", ErrInvalid, err)
+		}
+		if len(rows) >= maxSheetRows {
+			return nil, fmt.Errorf("%w: the file has more than %d rows", ErrInvalid, maxSheetRows)
+		}
+		if len(cols) > maxSheetCols {
+			cols = cols[:maxSheetCols]
+		}
+		if err := checkFields(cols, len(rows)+1); err != nil {
+			return nil, err
+		}
+		rows = append(rows, cols)
 	}
 	return rows, nil
+}
+
+// checkFields refuses a row with a cell longer than maxFieldLen.
+func checkFields(cols []string, row int) error {
+	for i, c := range cols {
+		if len(c) > maxFieldLen {
+			return fmt.Errorf("%w: row %d, column %d is longer than %d characters", ErrInvalid, row, i+1, maxFieldLen)
+		}
+	}
+	return nil
 }
 
 var aliases = map[string][]string{
