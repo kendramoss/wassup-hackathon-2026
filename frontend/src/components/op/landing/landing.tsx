@@ -301,7 +301,7 @@ export function Landing() {
                       </div>
                       <div className="ft">Origin engine · Gemini 4 Argon</div>
                     </article>
-                    <article className="mini" data-k="mini">
+                    <article className="mini plan" data-k="mini">
                       <div className="hd">
                         <span>
                           <span className="ball">3</span>Plan
@@ -318,11 +318,11 @@ export function Landing() {
                             For <RulingLink id="N345938" /> · against: none found
                           </p>
                           <p className="small">
-                            Recorded 18 Oct production run (docs/DEMO.md, section 6). The pinned case on this site shows the same plan at 0.96.
+                            Recorded 18 Oct production run (DEMO.md §6); the pinned case shows 0.96.
                           </p>
                           <p className="duo small">
-                            Backtest: moves all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) switched from China to Thailand, and also the switch,
-                            wires and fasteners that change kept in China. Not a blind test: three-group moves were added after the team saw it (D84).
+                            Backtest: all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) switched moved; the plan also moves switch,
+                            wires and fasteners it kept in China (D84).
                           </p>
                         </div>
                       </div>
@@ -351,6 +351,7 @@ export function Landing() {
                   </div>
                   <div className="foot">
                     <span>{L.fig2Foot}</span>
+                    <span>{L.fig2BacktestNote}</span>
                   </div>
                 </div>
               </section>

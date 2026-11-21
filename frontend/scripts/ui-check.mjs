@@ -62,6 +62,26 @@ for (const scheme of ["light", "dark"]) {
       });
       if (fig2Now !== null && !fig2Now) problems.push({ page: path, vp, scheme, layout: "fig.2 caption is empty" });
 
+      // #516: the wide-layout sheets are a fixed height, so extra copy can
+      // print out of the bottom of a card. Measure with the reveal transform
+      // neutralised, so an unreached sheet is checked the same as a reached one.
+      const sheetOverflow = await page.evaluate(() => {
+        const minis = [...document.querySelectorAll(".lp .mini")];
+        if (!minis.length) return [];
+        const style = document.createElement("style");
+        style.textContent = ".lp .mini .real > * { opacity: 1 !important; transform: none !important; }";
+        document.head.appendChild(style);
+        const bad = minis.flatMap((m, i) => {
+          const mb = m.getBoundingClientRect();
+          return [...m.children]
+            .filter((c) => c.getBoundingClientRect().bottom > mb.bottom + 1)
+            .map((c) => `sheet ${i + 1} .${c.className}`);
+        });
+        style.remove();
+        return bad;
+      });
+      for (const b of sheetOverflow) problems.push({ page: path, vp, scheme, layout: `fig.2 ${b} overflows its card` });
+
       const { violations } = await new AxeBuilder({ page }).analyze();
       for (const v of violations) {
         problems.push({ page: path, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });
