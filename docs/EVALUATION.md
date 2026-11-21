@@ -289,7 +289,7 @@ The production engine was pre-registered before the held-out runs, but the setti
 
 - **Multi-run variance on Vertex AI.** Run-to-run spread is now measured through the gateway on dev (section 8) and on both held-out splits (section 8b). Repeats on the Vertex AI path itself are not run.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
-- **A larger clean planner test set.** The engine has a second post-cutoff split (section 6) and the planner now has **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), but they were read by one person and scored once through the gateway (9/9 precision, 9/12 recall). Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. More post-cutoff rulings are needed before the intervals narrow.
+- **A larger clean planner test set.** The engine has a second post-cutoff split (section 6) and the planner now has **18 frozen flip pairs** (12 real changes, 6 controls; D170 + D192), but they were read by one person and scored through the gateway (9/9 precision, 9/12 recall, the same in 3 runs; D354). Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. More post-cutoff rulings are needed before the intervals narrow.
 - **The routed path on the first held-out window.** The post-cutoff routed path is now scored (section 6.2); the first window's is not, because it needs an engine run on every misrouted window-1 pair.
 - **The production path for the other regimes, end to end.** The post-cutoff regime runs (section 6.1) send each case to its regime's engine; the router sent 10 of those 24 rulings to the general engine instead, and that path is not scored.
 - **A textile split rule that reads the law, not the boilerplate.** The D51 rule matches any mention of 102.21 (section 6.1).
@@ -305,7 +305,7 @@ The production engine was pre-registered before the held-out runs, but the setti
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
-- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7) of **18 frozen pairs** (12 real changes, 6 controls; one reader, one gateway run). Starting-origin-given precision is 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real changes, not all 18, and the intervals are wide. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. Plan quality on the 14 families is checked on development rulings, not evaluated.
+- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7) of **18 frozen pairs** (12 real changes, 6 controls; one reader, three gateway runs with the same result when the starting origin is given, D354). Starting-origin-given precision is 9/9 shown moves and recall 9/12 real changes (75.0%); denominators are shown moves and real changes, not all 18, and the intervals are wide. Recompute with `python3 -I -B eval/planner/summarize.py . --check` and `python3 -I -B eval/planner/summarize_addendum.py . --check`. Plan quality on the 14 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 - **The other regimes' post-cutoff splits are small** (17, 6 and 13); their routed path is scored once (section 6.2), on 107 rulings.
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
@@ -469,6 +469,16 @@ Three more searches for pairs under the same rule: wider BM25 neighbours of the 
 | Combined | 18 (12 real, 6 controls) | 9/9 (70.1-100) | 9/12 = 75.0% (46.8-91.1) | 0/6 (0-39.0) | 5/6 (43.7-97.0) | 5/12 = 41.7% (19.3-68.1) |
 
 One control run (not given mode) failed on a gateway timeout and counts as not shown. The addendum barely moves the intervals. A bigger clean test has to wait for CBP to publish more rulings. Source: `eval/results/planner-post-addendum-summary.json`, built by `python3 -I eval/planner/summarize_addendum.py .`.
+
+**Run twice more (D353, D354).** The same 18 pairs, same configuration, gateway cache off, pre-registered before the runs:
+
+| Run | Given: shown, right | Given: real changes found | Given: controls shown | Not given: shown, right | Not given: found | Not given: controls shown | Failed rows | Cost |
+|---|---|---|---|---|---|---|---|---|
+| 1 (D170, D192) | 9, 9 | 9/12 | 0/6 | 6, 5 | 5/12 | 0/6 | 1 | $1.34 |
+| 2 | 9, 9 | 9/12 | 0/6 | 6, 5 | 5/12 | 0/6 | 1 | $1.28 |
+| 3 | 9, 9 | 9/12 | 0/6 | 5, 5 | 5/12 | 0/6 | 0 | $1.38 |
+
+With the starting origin given, all three runs showed the same 9 moves. Without it, the one wrong move (the fracking unit at 0.92) was shown in runs 1 and 2 and fell to 0.88 in run 3. This says the check repeats on these pairs; it does not add pairs, so the intervals above still apply. Source: `eval/results/planner-post-repeats-summary.json` (`python3 -I -B eval/planner/summarize_repeats.py . --check`).
 
 ## 8. Repeatability (21 Nov 2026, D190)
 

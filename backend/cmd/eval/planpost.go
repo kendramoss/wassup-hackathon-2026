@@ -180,7 +180,7 @@ func plannerPostCombinedItems(resultsDir string) ([]evalsummary.Item, error) {
 	if !ok || c.Pairs == 0 || len(c.Precision.CI) != 2 || len(c.Recall.CI) != 2 || len(c.Controls.CI) != 2 {
 		return nil, fmt.Errorf("%s: no combined known-a metrics", file)
 	}
-	src := "eval/results/" + file + " (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen and scored once)"
+	src := "eval/results/" + file + " (eval/data/flips_post.jsonl + eval/data/flips_post_addendum.jsonl, each pair frozen; run 1 of 3, runs 2 and 3 gave the same figures, D354)"
 	label := fmt.Sprintf("Precedent check on post-cutoff flip pairs, D170 plus the D192 addendum (%d pairs, gateway, starting origin given)", c.Pairs)
 	return []evalsummary.Item{
 		{Key: "planner_post_combined_known-a_precision_at_bar", Label: label + ": moves shown at the 0.92 bar that were real changes", Value: c.Precision.Value, CILow: c.Precision.CI[0], CIHigh: c.Precision.CI[1], N: c.Precision.N, Split: "post", Source: src},

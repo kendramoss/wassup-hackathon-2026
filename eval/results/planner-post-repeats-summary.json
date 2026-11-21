@@ -1,0 +1,1114 @@
+{
+ "what": "The 18 post-cutoff flip pairs (D170 + D192), scored three times with the same configuration (verifier-v2, gemini-4-argon, one vote, no panel, local corpus search, plan bar 0.92) through an OpenAI-compatible LiteLLM gateway to Gemini. Run 1 is D170 + D192; runs 2 and 3 are D353, with the gateway cache off. A shown move is right only if CBP changed the origin and the check named CBP's later origin.",
+ "bar": 0.92,
+ "pairs": 18,
+ "real_changes": 12,
+ "modes": {
+  "known-a": {
+   "per_run": {
+    "run1": {
+     "shown_at_bar": 9,
+     "precision_at_bar": {
+      "k": 9,
+      "n": 9,
+      "value": 1.0,
+      "ci95": [
+       0.7009,
+       1
+      ]
+     },
+     "recall_at_bar": {
+      "k": 9,
+      "n": 12,
+      "value": 0.75,
+      "ci95": [
+       0.4677,
+       0.9111
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 0,
+     "cost_usd": 0.6842
+    },
+    "run2": {
+     "shown_at_bar": 9,
+     "precision_at_bar": {
+      "k": 9,
+      "n": 9,
+      "value": 1.0,
+      "ci95": [
+       0.7009,
+       1
+      ]
+     },
+     "recall_at_bar": {
+      "k": 9,
+      "n": 12,
+      "value": 0.75,
+      "ci95": [
+       0.4677,
+       0.9111
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 0,
+     "cost_usd": 0.6552
+    },
+    "run3": {
+     "shown_at_bar": 9,
+     "precision_at_bar": {
+      "k": 9,
+      "n": 9,
+      "value": 1.0,
+      "ci95": [
+       0.7009,
+       1
+      ]
+     },
+     "recall_at_bar": {
+      "k": 9,
+      "n": 12,
+      "value": 0.75,
+      "ci95": [
+       0.4677,
+       0.9111
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 0,
+     "cost_usd": 0.691
+    }
+   },
+   "range": {
+    "shown_at_bar": [
+     9,
+     9
+    ],
+    "right_shown": [
+     9,
+     9
+    ],
+    "wrong_shown": [
+     0,
+     0
+    ],
+    "real_changes_found": [
+     9,
+     9
+    ],
+    "controls_shown": [
+     0,
+     0
+    ]
+   },
+   "pooled": {
+    "precision_at_bar": {
+     "k": 27,
+     "n": 27,
+     "value": 1.0,
+     "ci95": [
+      0.8754,
+      1.0
+     ]
+    },
+    "recall_at_bar": {
+     "k": 27,
+     "n": 36,
+     "value": 0.75,
+     "ci95": [
+      0.5893,
+      0.8625
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 18,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.1759
+     ]
+    }
+   },
+   "pairs_shown_in_all_3": 9,
+   "pairs_shown_in_some_not_all": 0,
+   "run1_shown_shown_again_in_both": 9,
+   "run1_shown": 9,
+   "per_pair": [
+    {
+     "id": "BA-N356030-N364865",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.94,
+      0.94,
+      0.94
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N357855-N365344",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.92,
+      0.92,
+      0.92
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N364386-N365094",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.92,
+      0.92,
+      0.92
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N364414-N365093",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N365280-N360430",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N366512-N366513",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N353152-N365470",
+     "control": true,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.55,
+      0.75,
+      0.65
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N355061-N365446",
+     "control": true,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.98,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N365621-N366380",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.65,
+      0.65,
+      0.65
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366164-N366163",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366166-N366165",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.98
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366168-N366167",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.98
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N339156-N365363",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.75,
+      0.78,
+      0.85
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N341280-N366550",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.97,
+      0.96,
+      0.97
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N343494-N365795",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.98,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N355546-N365797",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.97,
+      0.96,
+      0.98
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N365621-N365615",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.78,
+      0.78,
+      0.78
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N365961-N366717",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  "unknown-a": {
+   "per_run": {
+    "run1": {
+     "shown_at_bar": 6,
+     "precision_at_bar": {
+      "k": 5,
+      "n": 6,
+      "value": 0.8333,
+      "ci95": [
+       0.4365,
+       0.9699
+      ]
+     },
+     "recall_at_bar": {
+      "k": 5,
+      "n": 12,
+      "value": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 1,
+     "cost_usd": 0.6608
+    },
+    "run2": {
+     "shown_at_bar": 6,
+     "precision_at_bar": {
+      "k": 5,
+      "n": 6,
+      "value": 0.8333,
+      "ci95": [
+       0.4365,
+       0.9699
+      ]
+     },
+     "recall_at_bar": {
+      "k": 5,
+      "n": 12,
+      "value": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 1,
+     "cost_usd": 0.6262
+    },
+    "run3": {
+     "shown_at_bar": 5,
+     "precision_at_bar": {
+      "k": 5,
+      "n": 5,
+      "value": 1.0,
+      "ci95": [
+       0.5655,
+       1
+      ]
+     },
+     "recall_at_bar": {
+      "k": 5,
+      "n": 12,
+      "value": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     },
+     "controls_shown": {
+      "k": 0,
+      "n": 6,
+      "value": 0.0,
+      "ci95": [
+       0.0,
+       0.3903
+      ]
+     },
+     "errors": 0,
+     "cost_usd": 0.6872
+    }
+   },
+   "range": {
+    "shown_at_bar": [
+     5,
+     6
+    ],
+    "right_shown": [
+     5,
+     5
+    ],
+    "wrong_shown": [
+     0,
+     1
+    ],
+    "real_changes_found": [
+     5,
+     5
+    ],
+    "controls_shown": [
+     0,
+     0
+    ]
+   },
+   "pooled": {
+    "precision_at_bar": {
+     "k": 15,
+     "n": 17,
+     "value": 0.8824,
+     "ci95": [
+      0.6566,
+      0.9671
+     ]
+    },
+    "recall_at_bar": {
+     "k": 15,
+     "n": 36,
+     "value": 0.4167,
+     "ci95": [
+      0.2714,
+      0.578
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 18,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.1759
+     ]
+    }
+   },
+   "pairs_shown_in_all_3": 5,
+   "pairs_shown_in_some_not_all": 1,
+   "run1_shown_shown_again_in_both": 5,
+   "run1_shown": 6,
+   "per_pair": [
+    {
+     "id": "BA-N356030-N364865",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.9,
+      0.9,
+      0.9
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N357855-N365344",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.9,
+      0.9,
+      0.9
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N364386-N365094",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.9,
+      0.88,
+      0.88
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N364414-N365093",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.85,
+      0.85,
+      0.85
+     ],
+     "supported": [
+      true,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N365280-N360430",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 2,
+     "right_runs": 0,
+     "confidence": [
+      0.92,
+      0.92,
+      0.88
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "BA-N366512-N366513",
+     "control": false,
+     "tier": "core",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.97,
+      0.97,
+      0.97
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N353152-N365470",
+     "control": true,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0,
+      0.72,
+      0.72
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N355061-N365446",
+     "control": true,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.98,
+      0.98
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N365621-N366380",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.78,
+      0,
+      0.75
+     ],
+     "supported": [
+      true,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      true,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366164-N366163",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.94,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366166-N366165",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "NEG-N366168-N366167",
+     "control": true,
+     "tier": "core",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N339156-N365363",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.75,
+      0.85,
+      0.65
+     ],
+     "supported": [
+      true,
+      true,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N341280-N366550",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N343494-N365795",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N355546-N365797",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N365621-N365615",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 0,
+     "right_runs": 0,
+     "confidence": [
+      0.75,
+      0.85,
+      0.75
+     ],
+     "supported": [
+      false,
+      false,
+      false
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "id": "SP-N365961-N366717",
+     "control": false,
+     "tier": "edge",
+     "shown_runs": 3,
+     "right_runs": 3,
+     "confidence": [
+      0.96,
+      0.96,
+      0.96
+     ],
+     "supported": [
+      true,
+      true,
+      true
+     ],
+     "errors": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  }
+ }
+}

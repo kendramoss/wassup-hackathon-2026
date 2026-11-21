@@ -40,7 +40,7 @@ export function VerifierCalibration({ c }: { c: Calibration }) {
       <p className="duo mt-2 max-w-[80ch] text-[13px] text-body">
         It&apos;s cautious, not thorough: a real change cleared the bar in every run for {every} of {pairs} real-change pairs (about {pct(pairs ? every / pairs : undefined)}; development
         and 2026 pairs, runs with and without CBP&apos;s starting origin). The rest show as below the bar, for a broker to look at, so a missing plan doesn&apos;t mean no move
-        works. This is not the same measure as the 75% under Plan checks above, which is 9 of 12 later pairs found in a single run with the starting origin given.
+        works. This is not the same measure as the 75% under Plan checks above, which is 9 of 12 later pairs found in each of 3 runs with the starting origin given.
       </p>
       <div className="mt-4 flex flex-col gap-6">
         {c.splits.map((s) => (
