@@ -9,6 +9,10 @@ service-account*.json
 *.exe
 backend/backend
 
+# Python bytecode (eval scripts import local modules)
+__pycache__/
+*.pyc
+
 # Unde Labs: local env files of any name (LiteLLM key lives only in the shell)
 .env*
 !.env.example
