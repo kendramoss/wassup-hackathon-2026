@@ -76,7 +76,12 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 	cited := 0
 	for fam, tm := range tmpls {
 		if len(tm.Sources) == 0 {
-			continue // the three earlier templates cite rulings in their note only
+			// The three earlier templates have no sources list. The groups
+			// that cite precedent (motorised tools, D330) are held to the same
+			// rules, without the sources check, and never cite the heat gun's
+			// own rulings: the backtest is scored against them.
+			checkLegacyPrecedent(t, fam, tm, byID, evalIDs)
+			continue
 		}
 		sources := map[string]bool{}
 		for _, id := range tm.Sources {
@@ -128,6 +133,34 @@ func TestTemplateCitationsAreRealRulings(t *testing.T) {
 	}
 	if cited == 0 {
 		t.Fatal("no template cites a ruling")
+	}
+}
+
+func checkLegacyPrecedent(t *testing.T, fam string, tm Template, byID map[string]corpus.Label, evalIDs map[string]bool) {
+	t.Helper()
+	for _, g := range tm.Groups {
+		if g.Precedent == nil {
+			continue
+		}
+		ids := slices.Concat(g.Precedent.ConfersOrigin, g.Precedent.NotEnough)
+		for _, id := range ids {
+			l, ok := byID[id]
+			switch {
+			case !ok:
+				t.Errorf("%s/%s: %s is not in data/labels.jsonl", fam, g.ID, id)
+			case l.Regime != "substantial_transformation":
+				t.Errorf("%s/%s: %s is a %s ruling", fam, g.ID, id, l.Regime)
+			case evalIDs[id]:
+				t.Errorf("%s/%s: %s is in the dev or held-out split", fam, g.ID, id)
+			case id == "N328954" || id == "N357771":
+				t.Errorf("%s/%s: %s is one of the heat gun's own rulings", fam, g.ID, id)
+			}
+		}
+		for _, id := range rulingID.FindAllString(g.Precedent.Note, -1) {
+			if !slices.Contains(ids, id) {
+				t.Errorf("%s/%s: note cites %s, which the group's lists do not", fam, g.ID, id)
+			}
+		}
 	}
 }
 

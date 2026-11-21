@@ -1,5 +1,20 @@
 {
  "fixture": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": 15000,
+   "net_usd": 485000,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -7,6 +22,25 @@
    "added_cost_usd": 120000,
    "net_usd": 380000,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": 135000,
+   "net_usd": 365000,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -38,8 +72,8 @@
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
    "duty_savings_usd": 500000,
-   "added_cost_usd": 155000,
-   "net_usd": 345000,
+   "added_cost_usd": 140000,
+   "net_usd": 360000,
    "moved": [
     {
      "group": "motor_fan_assembly",
@@ -117,12 +151,31 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": 75000,
+   "net_usd": 425000,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
    "duty_savings_usd": 500000,
-   "added_cost_usd": 95000,
-   "net_usd": 405000,
+   "added_cost_usd": 80000,
+   "net_usd": 420000,
    "moved": [
     {
      "group": "pcba",
@@ -140,9 +193,28 @@
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
    "duty_savings_usd": 500000,
+   "added_cost_usd": 20000,
+   "net_usd": 480000,
+   "moved": [
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
    "added_cost_usd": 35000,
    "net_usd": 465000,
    "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "switch_cord_minor_parts",
      "to_plant": "th"
@@ -153,6 +225,21 @@
   }
  },
  "negative_net": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -160,6 +247,25 @@
    "added_cost_usd": 800000,
    "net_usd": -300000,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -270,6 +376,25 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -303,9 +428,43 @@
    ],
    "illustrative": true,
    "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
   }
  },
  "no_group_costs": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -313,6 +472,25 @@
    "added_cost_usd": null,
    "net_usd": null,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -423,6 +601,25 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -456,9 +653,43 @@
    ],
    "illustrative": true,
    "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
   }
  },
  "no_money": {
+  "cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": false,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": null,
    "annual_duty_usd": null,
@@ -466,6 +697,25 @@
    "added_cost_usd": null,
    "net_usd": null,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": false,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -576,6 +826,25 @@
    "illustrative": false,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": false,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": null,
    "annual_duty_usd": null,
@@ -609,9 +878,43 @@
    ],
    "illustrative": false,
    "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": false,
+   "origin_differs_from_current": true
   }
  },
  "no_thai_rate": {
+  "cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": 15000,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": null,
    "annual_duty_usd": null,
@@ -619,6 +922,25 @@
    "added_cost_usd": 120000,
    "net_usd": null,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": 135000,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -650,7 +972,7 @@
    "duty_rate": null,
    "annual_duty_usd": null,
    "duty_savings_usd": null,
-   "added_cost_usd": 155000,
+   "added_cost_usd": 140000,
    "net_usd": null,
    "moved": [
     {
@@ -729,11 +1051,30 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
+   "added_cost_usd": 75000,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": null,
    "annual_duty_usd": null,
    "duty_savings_usd": null,
-   "added_cost_usd": 95000,
+   "added_cost_usd": 80000,
    "net_usd": null,
    "moved": [
     {
@@ -752,9 +1093,28 @@
    "duty_rate": null,
    "annual_duty_usd": null,
    "duty_savings_usd": null,
+   "added_cost_usd": 20000,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": null,
+   "annual_duty_usd": null,
+   "duty_savings_usd": null,
    "added_cost_usd": 35000,
    "net_usd": null,
    "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "switch_cord_minor_parts",
      "to_plant": "th"
@@ -765,6 +1125,21 @@
   }
  },
  "partial_costs": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -772,6 +1147,25 @@
    "added_cost_usd": 120000,
    "net_usd": 380000,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -882,6 +1276,25 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -915,9 +1328,43 @@
    ],
    "illustrative": true,
    "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
   }
  },
  "sub_cent": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -925,6 +1372,25 @@
    "added_cost_usd": 20000.01,
    "net_usd": 479999.99,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -1035,6 +1501,25 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -1068,9 +1553,43 @@
    ],
    "illustrative": true,
    "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
   }
  },
  "zero_costs": {
+  "cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "motor_fan_assembly@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -1078,6 +1597,25 @@
    "added_cost_usd": 0,
    "net_usd": 500000,
    "moved": [
+    {
+     "group": "motor_fan_assembly",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "motor_fan_assembly@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "motor_fan_assembly",
      "to_plant": "th"
@@ -1188,6 +1726,25 @@
    "illustrative": true,
    "origin_differs_from_current": true
   },
+  "pcba@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
+    {
+     "group": "pcba",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
   "pcba@th+switch_cord_minor_parts@th": {
    "duty_rate": 0.167,
    "annual_duty_usd": 334000,
@@ -1214,6 +1771,25 @@
    "added_cost_usd": null,
    "net_usd": null,
    "moved": [
+    {
+     "group": "switch_cord_minor_parts",
+     "to_plant": "th"
+    }
+   ],
+   "illustrative": true,
+   "origin_differs_from_current": true
+  },
+  "switch_cord_minor_parts@th+cord_knobs_covers@th": {
+   "duty_rate": 0.167,
+   "annual_duty_usd": 334000,
+   "duty_savings_usd": 500000,
+   "added_cost_usd": null,
+   "net_usd": null,
+   "moved": [
+    {
+     "group": "cord_knobs_covers",
+     "to_plant": "th"
+    },
     {
      "group": "switch_cord_minor_parts",
      "to_plant": "th"

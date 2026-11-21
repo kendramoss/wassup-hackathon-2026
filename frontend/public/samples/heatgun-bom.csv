@@ -1,16 +1,16 @@
 Line,Part no.,Type,Name,Qty,Country,Plant,Group,Plant capabilities
-1,HG-1001,component,main housing,1,Thailand,Rayong plant,housing_moulding,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; final_assembly
+1,HG-1001,component,main housing,1,Thailand,Rayong plant,housing_moulding,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; cord_knobs_covers; final_assembly
 2,HG-1002,component,front cover,1,Thailand,Rayong plant,housing_moulding,
 3,HG-2001,component,heating element,1,Thailand,Rayong plant,heating_element,
-4,HG-3001,component,electric motor,1,China,China suppliers,motor_fan_assembly,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts
+4,HG-3001,component,electric motor,1,China,China suppliers,motor_fan_assembly,motor_fan_assembly; pcba; heating_element; housing_moulding; switch_cord_minor_parts; cord_knobs_covers
 5,HG-3002,component,fan,1,China,China suppliers,motor_fan_assembly,
 6,HG-3003,component,motor support,1,China,China suppliers,motor_fan_assembly,
 7,HG-4001,component,printed circuit board assembly (PCBA),1,China,China suppliers,pcba,
 8,HG-5001,component,switch,1,China,China suppliers,switch_cord_minor_parts,
-9,HG-5002,component,power cord,1,China,China suppliers,switch_cord_minor_parts,
+9,HG-5002,component,power cord,1,China,China suppliers,cord_knobs_covers,
 10,HG-5003,component,wiring,4,China,China suppliers,switch_cord_minor_parts,
-11,HG-5004,component,knob,1,China,China suppliers,switch_cord_minor_parts,
-12,HG-5005,component,back cover,1,China,China suppliers,switch_cord_minor_parts,
+11,HG-5004,component,knob,1,China,China suppliers,cord_knobs_covers,
+12,HG-5005,component,back cover,1,China,China suppliers,cord_knobs_covers,
 13,HG-5006,component,"support ring, heat insulator and fasteners",1,China,China suppliers,switch_cord_minor_parts,
 14,OP-10,operation,press fit the fan to the motor spindle and attach the fan cover,,Thailand,Rayong plant,final_assembly,
 15,OP-20,operation,"crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",,Thailand,Rayong plant,final_assembly,

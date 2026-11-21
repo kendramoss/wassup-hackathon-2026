@@ -206,7 +206,7 @@ func TestBOMVersionCaseWordedFacts(t *testing.T) {
 	if c["prediction"].(map[string]any)["origin_country"] != "China" {
 		t.Fatalf("CBP's facts should give China: %v", c["prediction"])
 	}
-	noKnob := heatGunBOM(t, "component,knob,China,China suppliers,switch_cord_minor_parts,\n", "")
+	noKnob := heatGunBOM(t, "component,knob,China,China suppliers,cord_knobs_covers,\n", "")
 	calls := hs.engine.calls
 	code, out := hs.uploadBOM(t, id, noKnob, "", nil)
 	if code != http.StatusOK || len(out["changes"].([]any)) != 1 {
@@ -238,7 +238,7 @@ func TestBOMVersionCaseWordedFacts(t *testing.T) {
 	// The case's facts are now the rendered BOM: no baseline call, the case's
 	// own prediction is the "before".
 	calls = hs.engine.calls
-	code, out = hs.uploadBOM(t, id, heatGunBOM(t, "component,knob,China,China suppliers,switch_cord_minor_parts,\n", "",
+	code, out = hs.uploadBOM(t, id, heatGunBOM(t, "component,knob,China,China suppliers,cord_knobs_covers,\n", "",
 		"electric motor,China,China suppliers", "electric motor,Thailand,Rayong plant"), "", nil)
 	if code != http.StatusOK || out["facts_basis"] != "case" || out["old_origin"] != "Thailand" || hs.engine.calls != calls+1 {
 		t.Errorf("rendered case: %d %v (engine calls %d -> %d)", code, out, calls, hs.engine.calls)

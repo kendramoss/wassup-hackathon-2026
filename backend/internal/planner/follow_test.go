@@ -80,11 +80,13 @@ func TestMatchGroupsFromAdviceText(t *testing.T) {
 		groups = append(groups, og)
 	}
 	cases := map[string][]string{
-		"Produce the knob, back cover, support ring, switch, and fasteners in Thailand instead of sourcing them from China.": {"switch_cord_minor_parts"},
-		"Make the PCBA in Thailand as well.":                      {"pcba"},
-		"Move SMT placement and reflow to the Thai plant.":        {"pcba"},
-		"Also wind the rotor and build the stator in Thailand.":   {"motor_fan_assembly"},
-		"Keep everything as it is, but import from a new vendor.": nil,
+		"Produce the knob, back cover, support ring, switch, and fasteners in Thailand instead of sourcing them from China.": {"switch_cord_minor_parts", "cord_knobs_covers"},
+		"Make the switch and the fasteners in Thailand.":                                                                     {"switch_cord_minor_parts"},
+		"Make the power cord in Thailand.":                                                                                   {"cord_knobs_covers"},
+		"Make the PCBA in Thailand as well.":                                                                                 {"pcba"},
+		"Move SMT placement and reflow to the Thai plant.":                                                                   {"pcba"},
+		"Also wind the rotor and build the stator in Thailand.":                                                              {"motor_fan_assembly"},
+		"Keep everything as it is, but import from a new vendor.":                                                            nil,
 	}
 	for advice, want := range cases {
 		if got := MatchGroups(advice, groups); !reflect.DeepEqual(got, want) {
@@ -95,8 +97,9 @@ func TestMatchGroupsFromAdviceText(t *testing.T) {
 
 // twoGroups names the PCBA and the switch group, so following it from the
 // motor-fan near misses (0.90) gives the three-group move, which is not in
-// the search without triples (MaxMoves 0).
-const twoGroups = "Make the PCBA and the knob, power cord and switch in Thailand."
+// the search without triples (MaxMoves 0). Since D330 the power cord and the
+// knob are another group, so the advice names the switch alone.
+const twoGroups = "Make the PCBA and the switch in Thailand."
 
 func TestFollowAdviceSearchesOneNewMove(t *testing.T) {
 	res, v, events := followPlan(t, Options{NearMiss: adviceSays{twoGroups}, FollowAdvice: true})
@@ -111,7 +114,7 @@ func TestFollowAdviceSearchesOneNewMove(t *testing.T) {
 	if got.Verdict == nil || got.Description == "" || got.VariantFacts == "" {
 		t.Errorf("followed move not checked like the others: %+v", got)
 	}
-	if res.Stats.AdviceFollowed != 1 || res.Stats.MovesSearched != 7 || len(v.facts) != 7 {
+	if res.Stats.AdviceFollowed != 1 || res.Stats.MovesSearched != 11 || len(v.facts) != 11 {
 		t.Errorf("stats = %+v, verifier runs %d", res.Stats, len(v.facts))
 	}
 	last := events[len(events)-1]
@@ -124,23 +127,27 @@ func TestFollowAdviceSearchesOneNewMove(t *testing.T) {
 			doneKeys++
 		}
 	}
-	if started != 1 || doneKeys != 1 || last.Kind != EventDone || last.Done != 7 || last.Total != 7 {
+	if started != 1 || doneKeys != 1 || last.Kind != EventDone || last.Done != 11 || last.Total != 11 {
 		t.Errorf("events for the followed move: started %d done %d last %+v", started, doneKeys, last)
 	}
 }
 
 func TestFollowAdviceNeverRechecksASearchedMove(t *testing.T) {
-	// Advice naming one more group from a single gives a pair, and every
-	// pair is searched: nothing to follow.
-	res, _, _ := followPlan(t, Options{NearMiss: adviceSays{"Make the knob, power cord and switch in Thailand."}, FollowAdvice: true})
+	// Advice naming the PCBA adds it to the motor-fan near misses (alone, or
+	// with the switch group or the cord group, D330), and each of those moves
+	// is searched with triples on: nothing to follow.
+	res, _, _ := followPlan(t, Options{NearMiss: adviceSays{"Make the PCBA in Thailand."}, FollowAdvice: true, MaxMoves: DefaultMaxMoves})
 	if f := followed(res); len(f) != 0 {
 		t.Errorf("followed an already-searched move: %s", f[0].Move.Key())
 	}
-	// With triples in the search, the triple the advice names was searched
-	// too: nothing is followed and no move is checked twice.
+	// With triples in the search, the triple the advice names from the
+	// motor-fan near miss was searched too. Since D330 the motor-fan and cord
+	// pair is also a near miss, and the advice extends it to all four groups,
+	// which the search does not list: that one is followed, once, and no
+	// move is checked twice.
 	res, v, _ := followPlan(t, Options{NearMiss: adviceSays{twoGroups}, FollowAdvice: true, MaxMoves: DefaultMaxMoves})
-	if f := followed(res); len(f) != 0 {
-		t.Errorf("followed %d moves that were already searched: %s", len(f), f[0].Move.Key())
+	if f := followed(res); len(f) != 1 || f[0].Move.Key() != "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th+cord_knobs_covers@th" {
+		t.Errorf("followed = %d moves, want only the four-group move", len(f))
 	}
 	seen := map[string]int{}
 	for _, f := range v.facts {

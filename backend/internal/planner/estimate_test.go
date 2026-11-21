@@ -36,14 +36,18 @@ func TestEstimateFreshSearchMatchesMeasuredRange(t *testing.T) {
 	if len(f.Calls()) != 0 {
 		t.Fatalf("estimate made %d model calls", len(f.Calls()))
 	}
-	if e.Moves != 6 || e.EngineCalls != 7 || e.EngineCached != 0 || e.ChecksCached != 0 || e.ChecksFresh != (Range{3, 6}) {
+	// Four movable groups since the cord, knobs and covers were split from the
+	// switch and wiring (D330): 4 singles and 6 pairs.
+	if e.Moves != 10 || e.EngineCalls != 11 || e.EngineCached != 0 || e.ChecksCached != 0 || e.ChecksFresh != (Range{5, 10}) {
 		t.Errorf("counts = %+v", e)
 	}
-	// Fresh heat-gun searches measured $0.15–0.22 (eval/results/plan-heatgun-2022-*).
-	if e.CostUSD.Min > 0.154 || e.CostUSD.Max < 0.224 || e.CostUSD.Max > 0.3 {
-		t.Errorf("cost = %+v, want a range covering $0.154–0.224", e.CostUSD)
+	// Fresh searches of the 6-move heat gun measured $0.15–0.22
+	// (eval/results/plan-heatgun-2022-*). This search has 10 moves, so the
+	// estimate must start no higher than that and reach at least 1.5 times its top.
+	if e.CostUSD.Min > 0.22 || e.CostUSD.Max < 0.224*1.5 || e.CostUSD.Max > 0.5 {
+		t.Errorf("cost = %+v, want a range from at most $0.22 to at least $0.34", e.CostUSD)
 	}
-	if e.WallSeconds.Min <= 0 || e.WallSeconds.Max < e.WallSeconds.Min || e.WallSeconds.Max > 120 {
+	if e.WallSeconds.Min <= 0 || e.WallSeconds.Max < e.WallSeconds.Min || e.WallSeconds.Max > 150 {
 		t.Errorf("wall = %+v", e.WallSeconds)
 	}
 }
@@ -62,7 +66,7 @@ func TestEstimateAfterASearchIsNearlyFree(t *testing.T) {
 	if len(f.Calls()) != calls || len(fv.tasks) != checks {
 		t.Fatal("estimate called the model or the verifier")
 	}
-	if e.EngineCached != 7 || e.ChecksCached != 6 || e.ChecksFresh != (Range{}) || e.CostUSD != (Range{}) || e.ModelCalls != (Range{}) || e.WallSeconds.Max > 10 {
+	if e.EngineCached != 11 || e.ChecksCached != 10 || e.ChecksFresh != (Range{}) || e.CostUSD != (Range{}) || e.ModelCalls != (Range{}) || e.WallSeconds.Max > 10 {
 		t.Errorf("all cached = %+v", e)
 	}
 }
