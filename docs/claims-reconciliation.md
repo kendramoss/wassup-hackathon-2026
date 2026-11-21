@@ -128,6 +128,26 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `repeat.answer_flips` | 4 | rulings whose answer differs between runs |
 | `repeat.correctness_flips` | 4 | rulings right in one run and wrong in another |
 | `repeat.fast_path_flips` | 8 | rulings in the fast path (in scope, stated 0.92) in one run and not another |
+| `repeat_heldout.final.official.correct` | 340 | first held-out split (377); official = Vertex AI, 15 Oct, right after the D23 adjustments (D241) |
+| `repeat_heldout.final.official.accuracy_pct` | 90.2 | official run, percent |
+| `repeat_heldout.final.repeat1.correct` | 339 | repeat 1 of the frozen engine, gateway, fresh calls |
+| `repeat_heldout.final.repeat1.accuracy_pct` | 89.9 | repeat 1, percent |
+| `repeat_heldout.final.repeat2.correct` | 340 | repeat 2, gateway, fresh calls |
+| `repeat_heldout.final.repeat2.accuracy_pct` | 90.2 | repeat 2, percent |
+| `repeat_heldout.final.n` | 377 | rulings scored in each run |
+| `repeat_heldout.final.repeat_mean_pct` | 90.05 | mean of the two repeats, percent |
+| `repeat_heldout.final.answer_flips` | 7 | rulings whose answer differs between the official run and a repeat, or between repeats |
+| `repeat_heldout.final.correctness_flips` | 6 | rulings right in one of the three runs and wrong in another |
+| `repeat_heldout.final2.official.correct` | 77 | second held-out split (83); official = the D154 gateway run, right after the D23 adjustments (D241) |
+| `repeat_heldout.final2.official.accuracy_pct` | 92.8 | official run, percent |
+| `repeat_heldout.final2.repeat1.correct` | 77 | repeat 1 of the frozen engine, gateway, fresh calls |
+| `repeat_heldout.final2.repeat1.accuracy_pct` | 92.8 | repeat 1, percent |
+| `repeat_heldout.final2.repeat2.correct` | 79 | repeat 2, gateway, fresh calls |
+| `repeat_heldout.final2.repeat2.accuracy_pct` | 95.2 | repeat 2, percent |
+| `repeat_heldout.final2.n` | 83 | rulings scored in each run |
+| `repeat_heldout.final2.repeat_mean_pct` | 93.98 | mean of the two repeats, percent |
+| `repeat_heldout.final2.answer_flips` | 2 | rulings whose answer differs between the official run and a repeat, or between repeats |
+| `repeat_heldout.final2.correctness_flips` | 2 | rulings right in one of the three runs and wrong in another |
 | `regimes.w1.st.n` | 377 | held-out window 1 (Jan–Sep 2026), substantial transformation, rulings (Vertex AI) |
 | `regimes.w1.st.correct` | 340 | of those, correct |
 | `regimes.w1.textile.n` | 71 | window 1, textile split (19 CFR 102.21 rule, textile-v1, Vertex AI) |
@@ -382,7 +402,7 @@ d3fcd72a7b937dadef183b33cf02106b88f3fd4d6dcd236beab83c23dfdf7b55  eval/SHA256SUM
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
 c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl
 48e86727d5bbc59c415c8b7ae84325a86ce008492f8c7a8711077718d9948f9d  eval/results/scope-dev-router-v2-vertex.jsonl
-f4bee0f7a1a4d9294d3c77d05d9fd9c24d9dd131479d5251df37a565b7b9b9fc  eval/results/RUNLOG.jsonl
+bf276043b616fd678758fbee24ffedb9b0de8062d0054f7772816f58faa5e5b2  eval/results/RUNLOG.jsonl
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
@@ -390,6 +410,10 @@ f4bee0f7a1a4d9294d3c77d05d9fd9c24d9dd131479d5251df37a565b7b9b9fc  eval/results/R
 892ee5b05bb8ca6ff7ce9d0d3b112ff2dbbd5d1357749c8ae29fd217e003fba8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl
 e8490aded389acb9265c7e8ff6af224be3739d8e76ae58bbbde75e65661050c8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl
 23f0e962af0329ade017240fff571e0835cb1b5f7e5f62c75295ea809f492ceb  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl
+7dd588fecc4e12e9493beeeb23e261c327e5551b506b0f3c09df0a6d64f278d3  eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl
+83bc908fb1b359ee8388343c79be88e55efc93faffffcc5290d0305a3408fe1f  eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat2.jsonl
+f08f4ddde5846a5ba174f1cb30238831beb1427713c09416ee7b9a6f67413d84  eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl
+73092cd8a05e352a22285365be1aa65da3819335388015f92723937a68f85658  eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat2.jsonl
 601ec66605fe94a684f2e581e50ae8c6af8c6c92e2f56c7dc287baec6b1a7be5  eval/splits/splits_textile.json
 3d63b4d2b07d5b7f70387622441538f5aea09dc23cec4c4653dcdb27b9a8210e  eval/splits/splits_pharma.json
 8b2091d8c40316fb15011fa181d68e789a3b10eee5abdca19a710328f4d0b812  eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl

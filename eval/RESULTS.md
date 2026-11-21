@@ -662,3 +662,10 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Unadjusted (469): 425 / 422 / 422 = 90.6% / 90.0% / 90.0%.
 - Gateway cost $4.66 and $4.61 for runs 2 and 3 (engine and router calls).
 - Summary: `results/repeatability-dev-litellm.json`.
+
+## Repeatability: engine-v1 on Argon, held-out splits, two repeats each (gateway, 21 Nov; D240, D241)
+- Pre-registered in D240 (commit de0029f) before any repeat was run. A measurement of the frozen engine, not tuning; nothing was changed because of it. `LITELLM_NO_CACHE=1` on every run (fresh calls; every row has a gateway cost).
+- First held-out split (377), no `-router`, fast path on the fixed Vertex scope file: `results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl`, `...-repeat2.jsonl`. 339 and 340 right = 89.9% and 90.2%. Official (Vertex, 15 Oct) 340 = 90.2%; 15 Oct proxy 339. Answer flips over official and repeats 7; fast-path membership flips 28 (6 between the repeats). One timeout in repeat 1 and three in repeat 2, re-run by resume (their answers count). RUNLOG's fast-path fields for these two runs have no scope check (no router in the run); the docs use the scope file.
+- Second held-out split (83), with `-router`: `results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl`, `...-repeat2.jsonl`. 77 and 79 right = 92.8% and 95.2%. Official (D154) 77 = 92.8%. Answer flips 2 (N365606, N365997, right only in repeat 2). No errors.
+- Gateway cost: $2.96 and $2.93 (377, engine only, with resumes); $0.82 and $0.76 (83, engine and router). $7.47 in all.
+- Summary: `results/repeatability-heldout-litellm.json`.

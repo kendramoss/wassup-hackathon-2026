@@ -1,0 +1,515 @@
+{
+ "_doc": "Built by eval/charts/build_repeatability_heldout.py from committed rows; no model calls. D240 pre-registered, D241 results. Accuracy uses the D23 scoring adjustments. Fast path = in scope and calibrated (cal-v2) >= 0.90, the same cases as stated >= 0.92. First held-out split: scope from the fixed Vertex router-v2 file for every run, as the official figure. Second held-out split: each run's own router call (fast_path), and the D154 run's router labels for every run (fast_path_fixed_scope). ECE: one bin per calibrated value. A repeatability measurement of the frozen engine; nothing was changed because of it.",
+ "calibration_map": "cal-v2",
+ "splits": {
+  "final": {
+   "n": 377,
+   "scope": "fixed",
+   "per_run": {
+    "official": {
+     "file": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+     "what": "Vertex AI, 15 Oct, before the fixed seed",
+     "correct": 340,
+     "errors": 0,
+     "accuracy_pct": 90.2,
+     "ci95_pct": [
+      86.8,
+      92.8
+     ],
+     "fast_path": {
+      "n": 377,
+      "auto": 300,
+      "correct": 288,
+      "wrong": 12,
+      "coverage_pct": 79.6,
+      "accuracy_pct": 96.0,
+      "ci95_pct": [
+       93.1,
+       97.7
+      ]
+     },
+     "mean_calibrated_pct": 90.2,
+     "ece_calibrated_levels": 0.0285,
+     "gateway_cost_usd": 0.0
+    },
+    "proxy_15oct": {
+     "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm.jsonl",
+     "what": "proxy, 15 Oct, before the fixed seed",
+     "correct": 339,
+     "errors": 0,
+     "accuracy_pct": 89.9,
+     "ci95_pct": [
+      86.5,
+      92.6
+     ],
+     "fast_path": {
+      "n": 377,
+      "auto": 297,
+      "correct": 287,
+      "wrong": 10,
+      "coverage_pct": 78.8,
+      "accuracy_pct": 96.6,
+      "ci95_pct": [
+       93.9,
+       98.2
+      ]
+     },
+     "mean_calibrated_pct": 90.5,
+     "ece_calibrated_levels": 0.0329,
+     "gateway_cost_usd": 0.0
+    },
+    "repeat1": {
+     "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat1.jsonl",
+     "what": "gateway, 21 Nov, no cache",
+     "correct": 339,
+     "errors": 0,
+     "accuracy_pct": 89.9,
+     "ci95_pct": [
+      86.5,
+      92.6
+     ],
+     "fast_path": {
+      "n": 377,
+      "auto": 297,
+      "correct": 285,
+      "wrong": 12,
+      "coverage_pct": 78.8,
+      "accuracy_pct": 96.0,
+      "ci95_pct": [
+       93.1,
+       97.7
+      ]
+     },
+     "mean_calibrated_pct": 90.6,
+     "ece_calibrated_levels": 0.0299,
+     "gateway_cost_usd": 2.957
+    },
+    "repeat2": {
+     "file": "eval/results/final-gemini-4-argon-prec-engine-v1-litellm-repeat2.jsonl",
+     "what": "gateway, 21 Nov, no cache",
+     "correct": 340,
+     "errors": 0,
+     "accuracy_pct": 90.2,
+     "ci95_pct": [
+      86.8,
+      92.8
+     ],
+     "fast_path": {
+      "n": 377,
+      "auto": 293,
+      "correct": 283,
+      "wrong": 10,
+      "coverage_pct": 77.7,
+      "accuracy_pct": 96.6,
+      "ci95_pct": [
+       93.8,
+       98.1
+      ]
+     },
+     "mean_calibrated_pct": 90.3,
+     "ece_calibrated_levels": 0.0282,
+     "gateway_cost_usd": 2.9333
+    }
+   },
+   "repeats": {
+    "runs": [
+     "repeat1",
+     "repeat2"
+    ],
+    "accuracy_pct": {
+     "mean": 90.05,
+     "min": 89.9,
+     "max": 90.2,
+     "spread_points": 0.3
+    },
+    "fast_path_coverage_pct": {
+     "min": 77.7,
+     "max": 78.8,
+     "spread_points": 1.1
+    },
+    "fast_path_accuracy_pct": {
+     "min": 96.0,
+     "max": 96.6,
+     "spread_points": 0.6
+    },
+    "ece_calibrated": {
+     "min": 0.0282,
+     "max": 0.0299,
+     "spread": 0.0017
+    },
+    "answer_flip_rulings": [
+     "N358371",
+     "N360018"
+    ],
+    "correctness_flip_rulings": [
+     "N358371"
+    ],
+    "cases_answer_flips": 2,
+    "cases_correctness_flips": 1,
+    "cases_fast_path_membership_flips": 6,
+    "right_in_all": 339,
+    "wrong_in_all": 37
+   },
+   "official_and_repeats": {
+    "runs": [
+     "official",
+     "repeat1",
+     "repeat2"
+    ],
+    "accuracy_pct": {
+     "mean": 90.1,
+     "min": 89.9,
+     "max": 90.2,
+     "spread_points": 0.3
+    },
+    "fast_path_coverage_pct": {
+     "min": 77.7,
+     "max": 79.6,
+     "spread_points": 1.9
+    },
+    "fast_path_accuracy_pct": {
+     "min": 96.0,
+     "max": 96.6,
+     "spread_points": 0.6
+    },
+    "ece_calibrated": {
+     "min": 0.0282,
+     "max": 0.0299,
+     "spread": 0.0017
+    },
+    "answer_flip_rulings": [
+     "N358371",
+     "N359220",
+     "N359251",
+     "N359546",
+     "N359867",
+     "N360018",
+     "N362775"
+    ],
+    "correctness_flip_rulings": [
+     "N358371",
+     "N359220",
+     "N359251",
+     "N359546",
+     "N359867",
+     "N362775"
+    ],
+    "cases_answer_flips": 7,
+    "cases_correctness_flips": 6,
+    "cases_fast_path_membership_flips": 28,
+    "right_in_all": 337,
+    "wrong_in_all": 34
+   },
+   "all_runs": {
+    "runs": [
+     "official",
+     "proxy_15oct",
+     "repeat1",
+     "repeat2"
+    ],
+    "accuracy_pct": {
+     "mean": 90.05,
+     "min": 89.9,
+     "max": 90.2,
+     "spread_points": 0.3
+    },
+    "fast_path_coverage_pct": {
+     "min": 77.7,
+     "max": 79.6,
+     "spread_points": 1.9
+    },
+    "fast_path_accuracy_pct": {
+     "min": 96.0,
+     "max": 96.6,
+     "spread_points": 0.6
+    },
+    "ece_calibrated": {
+     "min": 0.0282,
+     "max": 0.0329,
+     "spread": 0.0047
+    },
+    "answer_flip_rulings": [
+     "N358371",
+     "N359220",
+     "N359251",
+     "N359546",
+     "N359867",
+     "N360018",
+     "N362775"
+    ],
+    "correctness_flip_rulings": [
+     "N358371",
+     "N359220",
+     "N359251",
+     "N359546",
+     "N359867",
+     "N362775"
+    ],
+    "cases_answer_flips": 7,
+    "cases_correctness_flips": 6,
+    "cases_fast_path_membership_flips": 33,
+    "right_in_all": 337,
+    "wrong_in_all": 34
+   },
+   "official_vs_repeat_mean": {
+    "official_accuracy_pct": 90.2,
+    "repeat_mean_pct": 90.05,
+    "difference_points": 0.15,
+    "official_is": "above"
+   },
+   "pairwise": {
+    "official_vs_repeat1": {
+     "answer_differs": 5,
+     "n": 377,
+     "fixed": 2,
+     "broke": 3,
+     "p": 1.0
+    },
+    "official_vs_repeat2": {
+     "answer_differs": 7,
+     "n": 377,
+     "fixed": 3,
+     "broke": 3,
+     "p": 1.0
+    },
+    "repeat1_vs_repeat2": {
+     "answer_differs": 2,
+     "n": 377,
+     "fixed": 1,
+     "broke": 0,
+     "p": 1.0
+    }
+   }
+  },
+  "final2": {
+   "n": 83,
+   "scope": "own",
+   "per_run": {
+    "official": {
+     "file": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl",
+     "what": "gateway, D154",
+     "correct": 77,
+     "errors": 0,
+     "accuracy_pct": 92.8,
+     "ci95_pct": [
+      85.1,
+      96.6
+     ],
+     "fast_path": {
+      "n": 83,
+      "auto": 75,
+      "correct": 73,
+      "wrong": 2,
+      "coverage_pct": 90.4,
+      "accuracy_pct": 97.3,
+      "ci95_pct": [
+       90.8,
+       99.3
+      ]
+     },
+     "mean_calibrated_pct": 93.8,
+     "ece_calibrated_levels": 0.0367,
+     "gateway_cost_usd": 0.8107,
+     "fast_path_fixed_scope": {
+      "n": 83,
+      "auto": 75,
+      "correct": 73,
+      "wrong": 2,
+      "coverage_pct": 90.4,
+      "accuracy_pct": 97.3,
+      "ci95_pct": [
+       90.8,
+       99.3
+      ]
+     }
+    },
+    "repeat1": {
+     "file": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl",
+     "what": "gateway, 21 Nov, no cache",
+     "correct": 77,
+     "errors": 0,
+     "accuracy_pct": 92.8,
+     "ci95_pct": [
+      85.1,
+      96.6
+     ],
+     "fast_path": {
+      "n": 83,
+      "auto": 77,
+      "correct": 74,
+      "wrong": 3,
+      "coverage_pct": 92.8,
+      "accuracy_pct": 96.1,
+      "ci95_pct": [
+       89.2,
+       98.7
+      ]
+     },
+     "mean_calibrated_pct": 94.1,
+     "ece_calibrated_levels": 0.0396,
+     "gateway_cost_usd": 0.8207,
+     "fast_path_fixed_scope": {
+      "n": 83,
+      "auto": 77,
+      "correct": 74,
+      "wrong": 3,
+      "coverage_pct": 92.8,
+      "accuracy_pct": 96.1,
+      "ci95_pct": [
+       89.2,
+       98.7
+      ]
+     }
+    },
+    "repeat2": {
+     "file": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat2.jsonl",
+     "what": "gateway, 21 Nov, no cache",
+     "correct": 79,
+     "errors": 0,
+     "accuracy_pct": 95.2,
+     "ci95_pct": [
+      88.3,
+      98.1
+     ],
+     "fast_path": {
+      "n": 83,
+      "auto": 74,
+      "correct": 73,
+      "wrong": 1,
+      "coverage_pct": 89.2,
+      "accuracy_pct": 98.6,
+      "ci95_pct": [
+       92.7,
+       99.8
+      ]
+     },
+     "mean_calibrated_pct": 93.9,
+     "ece_calibrated_levels": 0.0656,
+     "gateway_cost_usd": 0.7619,
+     "fast_path_fixed_scope": {
+      "n": 83,
+      "auto": 74,
+      "correct": 73,
+      "wrong": 1,
+      "coverage_pct": 89.2,
+      "accuracy_pct": 98.6,
+      "ci95_pct": [
+       92.7,
+       99.8
+      ]
+     }
+    }
+   },
+   "repeats": {
+    "runs": [
+     "repeat1",
+     "repeat2"
+    ],
+    "accuracy_pct": {
+     "mean": 93.98,
+     "min": 92.8,
+     "max": 95.2,
+     "spread_points": 2.4
+    },
+    "fast_path_coverage_pct": {
+     "min": 89.2,
+     "max": 92.8,
+     "spread_points": 3.6
+    },
+    "fast_path_accuracy_pct": {
+     "min": 96.1,
+     "max": 98.6,
+     "spread_points": 2.5
+    },
+    "ece_calibrated": {
+     "min": 0.0396,
+     "max": 0.0656,
+     "spread": 0.026
+    },
+    "answer_flip_rulings": [
+     "N365606",
+     "N365997"
+    ],
+    "correctness_flip_rulings": [
+     "N365606",
+     "N365997"
+    ],
+    "cases_answer_flips": 2,
+    "cases_correctness_flips": 2,
+    "cases_fast_path_membership_flips": 3,
+    "right_in_all": 77,
+    "wrong_in_all": 4
+   },
+   "official_and_repeats": {
+    "runs": [
+     "official",
+     "repeat1",
+     "repeat2"
+    ],
+    "accuracy_pct": {
+     "mean": 93.57,
+     "min": 92.8,
+     "max": 95.2,
+     "spread_points": 2.4
+    },
+    "fast_path_coverage_pct": {
+     "min": 89.2,
+     "max": 92.8,
+     "spread_points": 3.6
+    },
+    "fast_path_accuracy_pct": {
+     "min": 96.1,
+     "max": 98.6,
+     "spread_points": 2.5
+    },
+    "ece_calibrated": {
+     "min": 0.0367,
+     "max": 0.0656,
+     "spread": 0.0289
+    },
+    "answer_flip_rulings": [
+     "N365606",
+     "N365997"
+    ],
+    "correctness_flip_rulings": [
+     "N365606",
+     "N365997"
+    ],
+    "cases_answer_flips": 2,
+    "cases_correctness_flips": 2,
+    "cases_fast_path_membership_flips": 4,
+    "right_in_all": 77,
+    "wrong_in_all": 4
+   },
+   "official_vs_repeat_mean": {
+    "official_accuracy_pct": 92.8,
+    "repeat_mean_pct": 93.98,
+    "difference_points": -1.18,
+    "official_is": "below"
+   },
+   "pairwise": {
+    "official_vs_repeat1": {
+     "answer_differs": 0,
+     "n": 83,
+     "fixed": 0,
+     "broke": 0,
+     "p": 1.0
+    },
+    "official_vs_repeat2": {
+     "answer_differs": 2,
+     "n": 83,
+     "fixed": 2,
+     "broke": 0,
+     "p": 0.5
+    },
+    "repeat1_vs_repeat2": {
+     "answer_differs": 2,
+     "n": 83,
+     "fixed": 2,
+     "broke": 0,
+     "p": 0.5
+    }
+   }
+  }
+ }
+}

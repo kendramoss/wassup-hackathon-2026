@@ -51,6 +51,20 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Fast path coverage over three runs | 81.0%, 81.4%, 80.6% (fixed scope file) at 95.5-95.7%; 8 rulings move in or out | same | Measured, development set |
 | Calibrated confidence over three runs | mean 91.2%, 91.2%, 91.0%; ECE 0.022, 0.020, 0.017; changes on 50 rulings, 0.005 on average | same | Measured, development set |
 
+### Repeatability on held-out (D240, D241)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| First held-out split (377): official run and two repeats | 90.2% official (Vertex AI); repeats 89.9% and 90.2%, mean 90.05%; official 0.15 points above the repeat mean; spread 0.3 points | `eval/results/repeatability-heldout-litellm.json`; recomputed by `claimscheck` (`repeat_heldout.final.*`) | Measured. Repeats through the gateway, not Vertex AI; the official run predates the fixed seed |
+| First held-out split: answer changes | 7 of 377 (1.9%) over the three runs; 2 between the two repeats | same | Measured |
+| First held-out split: fast path over three runs | coverage 79.6%, 78.8%, 77.7% at 96.0%, 96.0%, 96.6% (fixed Vertex scope file) | same | Measured |
+| First held-out split: calibrated ECE over three runs | 0.028, 0.030, 0.028 | same | Measured |
+| Second held-out split (83): official run and two repeats | 92.8% official (D154); repeats 92.8% and 95.2%, mean 94.0%; official 1.2 points below the repeat mean; spread 2.4 points | same (`repeat_heldout.final2.*`) | Measured, gateway, small n |
+| Second held-out split: answer changes | 2 of 83 over the three runs | same | Measured |
+| Second held-out split: fast path over three runs | coverage 90.4%, 92.8%, 89.2% at 97.3%, 96.1%, 98.6% (each run's own router call) | same | Measured, small n |
+| Second held-out split: calibrated ECE over three runs | 0.037, 0.040, 0.066 | same | Measured, small n |
+| Cost of the four repeat runs | $7.47 gateway-reported, with resumes | same (`gateway_cost_usd`) | Measured |
+
 ## API limits (developers page, `docs/api/SECURITY.md`)
 
 | Number | Value | Source | Status |

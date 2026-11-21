@@ -192,7 +192,7 @@ Source: `eval/RESULTS.md`, D22, D27, D28, D157, D164. The adjudicator rows are p
 ### 4.1 What is in place (built)
 
 - **Frozen protocol.** Engine-v1, BM25, K = 5, Gemini 4 Argon, router-v2, bar 0.92 were fixed before the held-out run. The split file records its freeze time.
-- **Held-out scored with a gate.** `-confirm-final` is required, for `final` and for `final2`. The engine's held-out split appears twice in `RUNLOG.jsonl`, both with the frozen configuration: once through the proxy (89.9%) and once on Vertex AI (90.2%, the official figure). Nothing changed between them (McNemar p = 1.0). The specialist engines each have one held-out run. The second held-out split has one run, of the candidate pre-registered in D153 (section 6).
+- **Held-out scored with a gate.** `-confirm-final` is required, for `final` and for `final2`. The engine's held-out split appears twice in `RUNLOG.jsonl`, both with the frozen configuration: once through the proxy (89.9%) and once on Vertex AI (90.2%, the official figure). Nothing changed between them (McNemar p = 1.0). The specialist engines each have one held-out run. The second held-out split has one scored run, of the candidate pre-registered in D153 (section 6). Both splits also have two repeat runs of the same frozen engine, run only to measure repeatability (D240, section 8b).
 - **Intervals on every proportion.** 95% Wilson intervals (`backend/internal/evalkit`, `Wilson`). Small-n numbers are never shown without one.
 - **Paired tests for comparisons.** Two runs on the same cases are compared with an exact McNemar test on the discordant cases (`eval compare`; `mcnemarExact` in `backend/cmd/eval/main.go`), not by eyeballing two accuracies.
 - **Repeatable calls.** Temperature 0 on every model call, and since 17 Oct a fixed seed, 20261017 (`llm.Seed`, D76). The official held-out run (15 Oct) predates the seed. Google treats the seed as best effort.
@@ -254,7 +254,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 
 ### 4.3 What we'd add next (planned)
 
-- **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
+- **Multi-run variance on Vertex AI.** Run-to-run spread is now measured through the gateway on dev (section 8) and on both held-out splits (section 8b). Repeats on the Vertex AI path itself are not run.
 - **Bootstrap intervals for paired differences**, alongside McNemar, so the size of a difference gets an interval and not only a p-value.
 - **A clean planner test set** from CBP rulings published after 25 Sep 2026, once enough exist with an origin holding (D82). The engine now has one (section 6); the planner's flip pairs do not.
 - **The routed path on the first held-out window.** The post-cutoff routed path is now scored (section 6.2); the first window's is not, because it needs an engine run on every misrouted window-1 pair.
@@ -264,7 +264,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 ## 5. Known gaps
 
 - **Stated confidence is a self-report.** It is overconfident on average (section 4.2). The product shows a calibrated confidence for the general engine on Gemini 4 Argon (D160); the textile, Part 102 and pharmaceutical engines and the fallback model still show stated confidence only. The map is fitted on one development window and checked on two held-out splits; it will drift if the model or prompt changes.
-- **One scored run** per configuration on each held-out split. Run-to-run variance is not measured for the official numbers. Two dev runs of the same Argon configuration (Vertex and the gateway) differ by 13 cases (8 one way, 5 the other).
+- **One scored run** per configuration on each held-out split. For the production engine, two gateway repeats per split now measure the spread (section 8b: 0.3 points on the 377, 2.4 on the 83); the specialist engines are still one run each. Two dev runs of the same Argon configuration (Vertex and the gateway) differ by 13 cases (8 one way, 5 the other).
 - **Two baselines are still unverified.** Most-mentioned (60.7%) and majority (12.2%) are recomputed (D155); final-assembly 40.6% and last-mentioned 39.8% come from a research document that is not in this repository and are not reproduced.
 - **The split's cleaning script is not committed.** We reconstructed the rule (section 2.2) and it reproduces the counts exactly, but it is a reconstruction.
 - **The test set is not sealed against itself.** Earlier held-out rulings serve as precedents for later ones (414 of 1,885 slots).
@@ -452,5 +452,39 @@ The same engine configuration (engine-v1 on Gemini 4 Argon, BM25, K = 5, tempera
 - Calibrated confidence changes on 50 rulings, by 0.005 on average over all 463.
 - Run 1 is the highest of the three. The single-run figures elsewhere in this document can sit up to about a point above or below a repeat.
 
-Source: `eval/results/repeatability-dev-litellm.json`, built by `python3 -I eval/charts/build_repeatability.py .` from the three committed row files. Held-out splits were not re-run.
+Source: `eval/results/repeatability-dev-litellm.json`, built by `python3 -I eval/charts/build_repeatability.py .` from the three committed row files. For the held-out splits, see 8b.
 
+### 8b. Repeatability on held-out (21 Nov 2026, D240, D241)
+
+The same frozen production engine (engine-v1 on Gemini 4 Argon, BM25, K = 5, temperature 0, fixed seed) was run twice more on each held-out split, through an OpenAI-compatible LiteLLM gateway to Gemini, with the response cache bypassed. This is a repeatability measurement, not tuning. It was pre-registered (D240) before any repeat was run, and no engine, prompt, threshold or calibration setting changed as a result. Fast path = calibrated confidence ≥ 0.90 (the same cases as stated ≥ 0.92) and in scope. ECE is on calibrated confidence (cal-v2), one bin per value.
+
+First held-out split (377 rulings, Jan-Sep 2026). Scope for the fast path comes from the fixed Vertex router-v2 file for every run, as the official figure does.
+
+| Run | Right | Accuracy (95% CI) | Fast path coverage / accuracy | ECE, calibrated |
+|---|---|---|---|---|
+| Official (Vertex AI, 15 Oct, before the fixed seed) | 340 | 90.2% (86.8-92.8) | 79.6% / 96.0% | 0.028 |
+| Proxy, 15 Oct (context) | 339 | 89.9% (86.5-92.6) | 78.8% / 96.6% | 0.033 |
+| Repeat 1 (gateway, 21 Nov) | 339 | 89.9% (86.5-92.6) | 78.8% / 96.0% | 0.030 |
+| Repeat 2 (gateway, 21 Nov) | 340 | 90.2% (86.8-92.8) | 77.7% / 96.6% | 0.028 |
+
+- Repeat mean 90.05%. The official 90.2% is 0.15 points above it, half a ruling.
+- Official and both repeats: spread 0.3 points (one ruling). The answer changes on 7 of 377 rulings (1.9%), and right or wrong on 6; 337 are right every time, 34 wrong every time. Between the two repeats alone, the answer changes on 2.
+- Fast path over the three runs: coverage 77.7-79.6% (spread 1.9 points), accuracy 96.0-96.6%. 28 rulings move in or out of it, 6 between the two repeats alone. The official run is on Vertex AI and predates the seed, so it moves more against the repeats than they move against each other.
+- Calibrated ECE: 0.028-0.030.
+
+Second held-out split (83 rulings, Sep-Nov 2026). Each run makes its own router call, as D154 did; the fast-path figures are the same with the D154 run's router labels held fixed.
+
+| Run | Right | Accuracy (95% CI) | Fast path coverage / accuracy | ECE, calibrated |
+|---|---|---|---|---|
+| Official (gateway, D154) | 77 | 92.8% (85.1-96.6) | 90.4% / 97.3% | 0.037 |
+| Repeat 1 | 77 | 92.8% (85.1-96.6) | 92.8% / 96.1% | 0.040 |
+| Repeat 2 | 79 | 95.2% (88.3-98.1) | 89.2% / 98.6% | 0.066 |
+
+- Repeat mean 94.0%. The official 92.8% is 1.2 points below it.
+- Spread 2.4 points (two rulings). The answer changes on 2 of 83 (N365606, N365997); both are right only in repeat 2. 77 are right every time, 4 wrong every time.
+- Fast path: coverage 89.2-92.8% (spread 3.6 points), accuracy 96.1-98.6%; 4 rulings move in or out. On 83 rulings one case is 1.2 points.
+- Calibrated ECE: 0.037-0.066. ECE on 83 cases moves a lot with a few cases; the 0.066 is repeat 2, the most accurate run, where the calibrated confidence sits below the accuracy.
+
+Reading: on the 377 the official figure is within a ruling of both repeats. On the 83 the official figure is the lower end. Neither split's official figure is flattered by the single run. The intervals above are each run's own; the run-to-run spread is well inside them.
+
+Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I eval/charts/build_repeatability_heldout.py .` from the committed row files; `go run ./cmd/claimscheck` recomputes the per-run counts, means and flips (`repeat_heldout.*`). Cost $7.47 gateway-reported for the four runs and their resumes.
