@@ -130,6 +130,7 @@ A change counts only for cases dated after the revoking ruling's date (D370). On
 - **The held-out rows were right anyway.** The 8 held-out rows that showed N331974 were all correct. The held-out accuracy figures are unchanged: they are committed runs, and no held-out split was re-scored.
 - **One verifier verdict cited a modified ruling.** In `plan-heatgun-2022-verifier-v2-litellm.json`, a rejected heat-gun move (0.90, below the 0.92 bar) cited N322364, which H323218 modified on 16 Dec 2025, a month before the demo's bound. The shown plan does not cite it. The current flagship plan cites N345938, which is not superseded.
 - 342 plan and demo rows carry no date; none of them names any superseded ruling.
+- **Customs Bulletin changes add none (D400, D401).** The map now also holds 109 final changes read only from 28 fetched Customs Bulletins, dated by their effective date. The recount with them is the same 23 showed and 8 cited. Only one of those rulings appears in any committed row: N326416 (general pool), shown in 6 textile development rows for a case dated 11 Dec 2025. H342508 modified it effective 18 Oct 2026, after that case, so it was still CBP's position and counts for none (`bulletin_rulings_named` in the same JSON). The 78 pending proposals are never a bar and no committed row names one. The bulletins are a sample, not every issue, so this is a floor for what the bulletin would add.
 
 ## 3. What we trade off
 

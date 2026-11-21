@@ -377,8 +377,7 @@ var (
 	// and protest numbers are never read as rulings.
 	ruleRun     = regexp.MustCompile(`\b(?:NY|HQ|PC)["”’)]*\s+` + ruleID + `(?:\s*(?:,\s*and|,|and)\s+(?:(?:NY|HQ|PC)\s+)?` + ruleID + `)*`)
 	ruleIDs     = regexp.MustCompile(ruleID)
-	datedPhrase = regexp.MustCompile(`(?i),?\s*(?:dated|issued)\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+[0-9]{1,2},\s*[0-9]{4}`)
-	datePhrase  = regexp.MustCompile(`(?i)\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+[0-9]{1,2},\s*[0-9]{4}`)
+	datedPhrase = regexp.MustCompile(`(?i),?\s*(?:(?:dated|issued)\s+)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+[0-9]{1,2},\s*[0-9]{4}`)
 	effectiveRe = regexp.MustCompile(`(?i)EFFECTIVE DATE:.*?on or after\s+([A-Z][a-z]+\.?\s+[0-9]{1,2},\s*[0-9]{4})`)
 	commentsRe  = regexp.MustCompile(`(?i)DATES?:.*?(?:on or before|no later than)\s+([A-Z][a-z]+\.?\s+[0-9]{1,2},\s*[0-9]{4})`)
 	actionRe    = regexp.MustCompile(`(?i)ACTION:\s*(.*?)(?:SUMMARY|DATES|EFFECTIVE DATE|ADDRESSES):`)
