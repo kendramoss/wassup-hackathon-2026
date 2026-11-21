@@ -270,7 +270,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
 - **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 13 families is checked on development rulings, not evaluated.
-- **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path.
+- **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.
 
 ## 6. The second held-out split (21 Nov 2026)
@@ -292,7 +292,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - Labels come from the same regex holding extractor that produced `labels.jsonl` and a reconstructed regime rule. Re-run on all 2,790 earlier rulings, the extractor reproduces every one of the 1,620 regex-labelled substantial-transformation origins; the regime rule finds substantial transformation with precision 97.6% and recall 98.4% (`eval/data/final2_labeller_check.json`). Two holdings the regex missed were set by hand with the sentence and a reason (`eval/data/final2_manual.json`). The checks were made by the agent that built the split, not by a customs expert.
 - Leakage controls are the same as for the first split (section 2.3). Every precedent is a ruling dated before the case, from either label file; earlier rulings of the new split can be precedents for later ones.
 
-**Candidate and result.** The candidate was chosen on dev only and written down before the split was scored (D152, D153): engine-v1 on Gemini 4 Argon, unchanged, because no newer model or prompt beat it (section 3.3, 3.4). Scored once, through the gateway with the router (D154):
+**Candidate and result.** The candidate was chosen on dev only and written down before the split was scored (D152, D153): engine-v1 on Gemini 4 Argon, unchanged, because no newer model or prompt beat it (section 3.3, 3.4). Scored once, through the gateway with the router (D154). Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 
 | Held-out set | n | Accuracy (95% CI) | Fast path (≥ 0.92, in scope) | Path |
 |---|---:|---|---|---|
@@ -316,7 +316,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 | Controls: work moved, CBP kept the origin | 4 | same |
 | With a plan template (the product's family check) | 6 | `eval/results/planner-post-familycheck-litellm.jsonl` |
 
-**Precedent check, scored once** (production configuration: verifier-v2 on Gemini 4 Argon, plan bar 0.92, local corpus search, gateway). A move counts as right only if CBP's later ruling changed the origin and the check named that origin.
+**Precedent check, scored once** (production configuration: verifier-v2 on Gemini 4 Argon, precedent-check bar 0.92, local corpus search, gateway). Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. A move counts as right only if CBP's later ruling changed the origin and the check named that origin.
 
 | | CBP's starting origin given | Not given |
 |---|---|---|

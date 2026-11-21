@@ -11,6 +11,8 @@ export const copy = {
 
   cases: {
     title: "Cases",
+    // A demo's case date sits just before CBP's later ruling: a backtest.
+    demoDate: (d: string) => `Case dated ${d}: Unde read only CBP rulings from before then.`,
     empty: "No cases yet. Cases you start show here, and only you see them.",
     newCase: "+ New case",
     recheckAll: "Re-check all",
@@ -51,6 +53,8 @@ export const copy = {
     bomBrowse: "Browse files",
     bomReplace: "Replace file",
     bomSamples: "Sample dataset (heat gun, 17 rows):",
+    bomSamplesLoad: "Click one to load it here.",
+    bomSamplesDownload: "Download the CSV",
     bomSamplePhoto: "Photo (synthetic)",
     bomSamplePhotoNote: "a synthetic, tilted rendering of the same table, to try photo import",
     bomTemplate: "Download CSV template",
@@ -98,8 +102,8 @@ export const copy = {
   terms: {
     pcba: { match: /PCBA/, text: "Printed circuit board assembly: the populated circuit board." },
     bar: {
-      match: /0\.92 bar/,
-      text: "A plan is shown only when its precedent check is at least 0.92. On every run we scored, none above it was wrong.",
+      match: /precedent-check bar/,
+      text: "A plan is shown only when its precedent check is at least 0.92. This bar is for the precedent check on a move. It is separate from the origin auto-accept bar (calibrated 0.90). On every run we scored, no check above it was wrong.",
     },
     check: {
       match: /precedent check/i,
@@ -111,7 +115,7 @@ export const copy = {
     },
     stated: {
       match: /^confidence \d/,
-      text: "The model's own confidence. No calibration map was fitted for this engine or model, and stated confidence runs high on average. Auto-accept needs 0.92 or more.",
+      text: "The model's own confidence, not calibrated. The calibration map covers the general engine answered by Gemini 4 Argon; this prediction came from another engine or model, which has no map. Stated confidence runs high on average. Where a stated bar applies, auto-accept needs 0.92 or more.",
     },
     auto: {
       match: /Auto-accepted/,
@@ -130,7 +134,7 @@ export const copy = {
 
   plan: {
     best: "Best plan",
-    none: `No plan cleared the 0.92 bar`,
+    none: `No plan cleared the 0.92 precedent-check bar`,
     supported: "Precedent-supported",
     searching: "Searching moves",
     usually: "usually 1–2 minutes; longer if the model provider is busy",
@@ -177,7 +181,7 @@ export const copy = {
       tried: "Tried because the advice suggested it",
       pending: "The move the advice suggested",
     },
-    belowBarRow: (check: string) => `Check ${check}, under the 0.92 bar`,
+    belowBarRow: (check: string) => `Check ${check}, under the 0.92 precedent-check bar`,
   },
 
   // Landing page (/). Numbers come only from docs/NUMBERS.md (Official or
@@ -277,12 +281,12 @@ export const copy = {
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part, where it is made, and which decide the origin." },
-      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Precedent check 0.96, above the 0.92 bar", for: "N345938" },
+      { title: "The plan", body: "Make the motor-fan assembly, the PCBA and the switch, cord and minor parts in Thailand. Precedent check 0.96, above the 0.92 precedent-check bar", for: "N345938" },
       { title: "2026 setup", body: "The maker moved the same parts, and the outer shells. CBP held Thailand", ruling: "N357771" },
     ],
     stepOf: (n: number) => `Step ${n} of 4`,
     sheetStates: ["2022 setup · isometric", "exploded view", "planned move", "2026 setup · isometric"],
-    planNote: "Unde · plan · check 0.96, above the 0.92 bar",
+    planNote: "Unde · plan · check 0.96, above the 0.92 precedent-check bar",
     planMove: "Motor-fan, PCBA, switch + cord → Thailand",
     legendCn: "Made in China",
     legendTh: "Made in Thailand",
@@ -323,7 +327,8 @@ export const copy = {
         "A contract manufacturer in Thailand assembles heat guns for a U.S. tool brand, $2M of them a year (an illustrative figure). The housing and the heating element are made in Thailand. The motor-fan assembly, the circuit board (PCBA) and the switch, cord and minor parts come from China.",
         "The brand asks whether making those parts in Thailand would make the heat gun Thai for U.S. duty. Moving production costs money, and if the heat gun is still Chinese afterwards, that money buys nothing.",
       ],
-      oldWayLead: "Today the answer comes from a ruling request and an adviser. Each bar pair is drawn to its own scale.",
+      oldWayLead:
+        "Today the answer comes from a ruling request and an adviser. Unde gives a first, non-binding answer; the binding one still comes from CBP. Each bar pair is drawn to its own scale.",
       keyBefore: "Today",
       keyAfter: "With Unde",
       rows: [
@@ -332,23 +337,24 @@ export const copy = {
           before: "20 hours",
           beforeNote: "per ruling request, CBP's estimate (all ruling subjects)",
           after: "about a minute",
-          afterNote: "to a first answer: origin, plan and draft",
+          afterNote: "estimated, not measured: origin, plan and draft for this case",
           ratio: 1 / 1200,
         },
         {
           label: "Waiting for an answer",
           before: "21 days",
-          beforeNote: "median for CBP to answer, Asian-origin rulings (team count, n = 247)",
+          beforeNote: "median for CBP's binding ruling, Asian-origin rulings (team count, n = 247)",
           after: "4.6 s",
-          afterNote: "per origin prediction, median (p50)",
+          afterNote: "median for a first, non-binding origin prediction (p95 5.7 s), measured on 377 held-out rulings",
           ratio: 4.6 / (21 * 24 * 3600),
         },
         {
           label: "Paying for an answer",
           before: "about US$3,600",
-          beforeNote: "median paid for U.S. origin advice (23 subsidised voucher purchases, 2024–26, team-compiled)",
+          beforeNote:
+            "median paid for U.S. origin advice by Korean exporters with subsidised KOTRA vouchers (23 purchases, 2024–26, team-compiled), the only public price we found",
           after: "$0.0078",
-          afterNote: "model cost per origin prediction (promo price); a plan runs several",
+          afterNote: "model cost per origin prediction (promo price), not a broker's fee; a plan runs several",
           ratio: 0.0078 / 3600,
         },
       ],
@@ -465,7 +471,7 @@ export const copy = {
     label: "Review and scope",
     origin: "Even a high-confidence result is a prediction from earlier CBP rulings, not a ruling. Have a licensed customs broker review it before you rely on it.",
     plan: "These plans are suggestions, not rulings or CBP approvals. Have a licensed customs broker review a move before you act on it.",
-    bestBounded: "Best of the moves searched, using the duty and cost assumptions shown, which may be prefilled or illustrative. In the legacy plan ranking a blank cost may count as zero, which is not a verified expense. Factors the model does not include are not counted.",
+    bestBounded: "Best of the moves searched, using the duty and cost assumptions shown, which may be prefilled or illustrative. When you leave a cost blank, the ranking may count it as zero, which is not a verified expense. Factors the model does not include are not counted.",
     compare: "This ranking is a suggestion for a licensed customs broker to review, not a ruling or a CBP approval.",
     compareBounded: "Ranked among the countries you chose, from the moves searched and the duty and cost inputs shown, which may be prefilled or illustrative. A missing required input leaves that figure unpriced, and factors the model does not include are not assessed.",
     scenarios: "Scenarios are what-ifs, not rulings. Have a licensed customs broker review a result before you act on it.",
@@ -632,7 +638,7 @@ export const copy = {
       `Unde said China, CBP held another country: ${c.said_china} (${c.said_china_auto} auto-accepted).`,
       `Neither was China: ${c.neither}.`,
     ],
-    columns: ["Ruling", "Date", "Product (CBP's subject line)", "CBP held", "Unde said", "Confidence", "Route"],
+    columns: ["Ruling", "Date", "Product (CBP's subject line)", "CBP held", "Unde said", "Calibrated (stated)", "Route"],
     auto: "auto-accepted",
     review: "sent to review",
     showAll: (n: number) => `Show all ${n} misses`,
@@ -646,6 +652,7 @@ export const copy = {
       "Goods outside the product's target, food and natural products, still placed in scope by the router.",
       "Kits, where CBP rules item by item and the label follows one item.",
     ],
-    source: "Source: the official held-out run, every row. Rebuilt by eval/charts/build_trust_data.py.",
+    source:
+      "Source: the official held-out run, every row. Confidence is the calibrated value the product shows (auto-accept at 0.90), with the model's stated value in brackets (0.92 on that scale). Rebuilt by eval/charts/build_trust_data.py.",
   },
 };

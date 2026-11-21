@@ -1,7 +1,7 @@
 // How a ruling-watch result reads on screen (#294). status is only the origin
 // comparison; basis says whether a difference is the rulings. Only basis
 // "precedent" may say the rulings moved or did not. A watch with no basis was
-// saved before the legal regime was recorded, so it cannot be read either
+// saved before the legal regime was recorded (an older version of Unde), so it cannot be read either
 // way: it says "Re-check needed" until it is run again (D101). Nothing is
 // deleted; the next re-check replaces it.
 
@@ -32,7 +32,7 @@ const WHY: Record<Exclude<WatchBasis, "precedent">, string> = {
 };
 
 const LEGACY =
-  "This re-check was saved before its legal regime was recorded, so it cannot be read as a ruling change or as unchanged. Re-check to confirm.";
+  "This re-check was saved by an older version of Unde that did not record which set of origin rules it used, so it can't say whether anything changed. Re-check to compare.";
 
 // The triage reason is shown only when it is why a person has to look.
 // An approving reason ("confidence 0.97 >= 0.92 and in scope") beside Needs

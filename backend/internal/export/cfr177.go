@@ -106,7 +106,7 @@ func CFR177(in Input) string {
 		}
 	}
 	b.WriteString("Production as described:\n\n")
-	b.WriteString(strings.TrimSpace(in.Facts) + "\n\n")
+	b.WriteString(CleanFacts(in.Facts) + "\n\n")
 	b.WriteString("[FILL IN: cost or share of value of each component, and the time and skill each step takes, if available].\n\n")
 
 	b.WriteString("## 6. Question presented\n\n")

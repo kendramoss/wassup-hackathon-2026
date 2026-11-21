@@ -43,3 +43,14 @@ test("the China split adds up to every miss", () => {
   assert.equal(c.missed_china_auto, autos.filter((m) => m.cbp_held === "China").length);
   assert.equal(c.said_china_auto, autos.filter((m) => m.predicted === "China").length);
 });
+
+test("the accuracy table cites the first committed file, not the last token (D180)", async () => {
+  const { sourceLabel } = await import("../src/lib/source-label.ts");
+  assert.equal(
+    sourceLabel("eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl + backend/internal/calibrate/map.json (cal-v2, fitted on eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl)"),
+    "final-gemini-4-argon-prec-engine-v1-vertex.jsonl + 2 more",
+  );
+  assert.equal(sourceLabel("eval/results/planner-post-summary.json (eval/data/flips_post.jsonl, frozen; scored once)"), "planner-post-summary.json + 1 more");
+  assert.equal(sourceLabel("unavailable: research write-up RESULTS-v2.md, not in this repository"), "not in this repository");
+  assert.equal(sourceLabel("eval/results/baselines-final.json (go run ./cmd/eval baselines, no model)"), "baselines-final.json");
+});

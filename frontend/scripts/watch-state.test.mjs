@@ -10,7 +10,7 @@ test("a watch with no basis is never read as Changed or Unchanged", () => {
       const v = watchView(status, basis, undefined);
       assert.equal(v.kind, "recheck", `${status}/${basis}`);
       assert.equal(v.label, "Re-check needed");
-      assert.match(v.note, /before its legal regime was recorded/);
+      assert.match(v.note, /older version of Unde that did not record which set of origin rules/);
       assert.match(v.note, /Re-check/);
       assert.doesNotMatch(v.note, /^(Changed|Unchanged)|with today's rulings|the rulings (moved|did not)/i);
     }
@@ -107,4 +107,12 @@ test("a precedent change on the auto route shows no review text and no approving
   assert.equal(v.attention, true, "a change is always worth a look");
   const none = watchView("changed", "precedent", undefined, "confidence 0.97 >= 0.92 and in scope");
   assert.equal(none.reviewNote, "");
+});
+
+test("the conflict panel says 'follows' only for a ruling that held the predicted origin (D180)", async () => {
+  const { conflictLean } = await import("../src/lib/conflict.ts");
+  assert.equal(conflictLean(true, "China", "China"), "follows");
+  assert.equal(conflictLean(true, "Vietnam", "China"), "closest");
+  assert.equal(conflictLean(true, undefined, "China"), "closest");
+  assert.equal(conflictLean(false, "China", "China"), null);
 });

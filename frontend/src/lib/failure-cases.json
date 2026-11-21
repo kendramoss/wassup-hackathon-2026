@@ -4,6 +4,8 @@
  "source_sha256": "2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81",
  "scope_source": "eval/results/scope-final-router-v2-vertex.jsonl",
  "bar": 0.92,
+ "calibrated_bar": 0.9,
+ "calibration": "cal-v2",
  "n": 377,
  "correct": 340,
  "auto_accepted": 300,
@@ -17,6 +19,7 @@
    "cbp_held": "South Korea",
    "predicted": "China",
    "confidence": 0.98,
+   "calibrated": 0.99,
    "auto_accepted": true
   },
   {
@@ -28,6 +31,7 @@
    "cbp_held": "Ireland",
    "predicted": "China",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -39,6 +43,7 @@
    "cbp_held": "China",
    "predicted": "Thailand",
    "confidence": 0.95,
+   "calibrated": 0.9016,
    "auto_accepted": true
   },
   {
@@ -50,6 +55,7 @@
    "cbp_held": "China",
    "predicted": "Malaysia",
    "confidence": 0.95,
+   "calibrated": 0.9016,
    "auto_accepted": true
   },
   {
@@ -61,6 +67,7 @@
    "cbp_held": "China",
    "predicted": "Malaysia",
    "confidence": 0.95,
+   "calibrated": 0.9016,
    "auto_accepted": true
   },
   {
@@ -72,6 +79,7 @@
    "cbp_held": "India",
    "predicted": "United States",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -83,6 +91,7 @@
    "cbp_held": "United Arab Emirates",
    "predicted": "China",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -94,6 +103,7 @@
    "cbp_held": "China",
    "predicted": "Malaysia",
    "confidence": 0.98,
+   "calibrated": 0.99,
    "auto_accepted": true
   },
   {
@@ -105,6 +115,7 @@
    "cbp_held": "China",
    "predicted": "South Korea",
    "confidence": 0.99,
+   "calibrated": 0.99,
    "auto_accepted": true
   },
   {
@@ -116,6 +127,7 @@
    "cbp_held": "China",
    "predicted": "South Korea",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -127,6 +139,7 @@
    "cbp_held": "Brazil",
    "predicted": "China",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -138,6 +151,7 @@
    "cbp_held": "China",
    "predicted": "Taiwan",
    "confidence": 0.92,
+   "calibrated": 0.9,
    "auto_accepted": true
   },
   {
@@ -149,6 +163,7 @@
    "cbp_held": "Italy",
    "predicted": "United Kingdom",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -160,6 +175,7 @@
    "cbp_held": "China",
    "predicted": "Vietnam",
    "confidence": 0.78,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -171,6 +187,7 @@
    "cbp_held": "China",
    "predicted": "Vietnam",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -182,6 +199,7 @@
    "cbp_held": "South Korea",
    "predicted": "China",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -193,6 +211,7 @@
    "cbp_held": "Cambodia",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -204,6 +223,7 @@
    "cbp_held": "Taiwan",
    "predicted": "United States",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -215,6 +235,7 @@
    "cbp_held": "Cambodia",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -226,6 +247,7 @@
    "cbp_held": "Thailand",
    "predicted": "China",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -237,6 +259,7 @@
    "cbp_held": "Thailand",
    "predicted": "China",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -248,6 +271,7 @@
    "cbp_held": "Cambodia",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -259,6 +283,7 @@
    "cbp_held": "United States",
    "predicted": "Taiwan",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -270,6 +295,7 @@
    "cbp_held": "China",
    "predicted": "Thailand",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -281,6 +307,7 @@
    "cbp_held": "Colombia",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -292,6 +319,7 @@
    "cbp_held": "Thailand",
    "predicted": "China",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -303,6 +331,7 @@
    "cbp_held": "China",
    "predicted": "Thailand",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -314,6 +343,7 @@
    "cbp_held": "Thailand",
    "predicted": "Vietnam",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -325,6 +355,7 @@
    "cbp_held": "United States",
    "predicted": "South Korea",
    "confidence": 0.78,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -336,6 +367,7 @@
    "cbp_held": "Vietnam",
    "predicted": "China",
    "confidence": 0.9,
+   "calibrated": 0.7778,
    "auto_accepted": false
   },
   {
@@ -347,6 +379,7 @@
    "cbp_held": "Thailand",
    "predicted": "China",
    "confidence": 0.78,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -358,6 +391,7 @@
    "cbp_held": "China",
    "predicted": "Thailand",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -369,6 +403,7 @@
    "cbp_held": "Malaysia",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -380,6 +415,7 @@
    "cbp_held": "China",
    "predicted": "Thailand",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -391,6 +427,7 @@
    "cbp_held": "Thailand",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -402,6 +439,7 @@
    "cbp_held": "Vietnam",
    "predicted": "China",
    "confidence": 0.85,
+   "calibrated": 0.6,
    "auto_accepted": false
   },
   {
@@ -413,6 +451,7 @@
    "cbp_held": "Vietnam",
    "predicted": "China",
    "confidence": 0.78,
+   "calibrated": 0.6,
    "auto_accepted": false
   }
  ],

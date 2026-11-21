@@ -14,7 +14,7 @@ const card = (w) => html(TurnView, { t: turn(w), caseId: "c1" });
 
 test("a confirmed auto what-if keeps the auto-accept ruler", () => {
   const m = card({ ...base, regime: "textile_102_21", scope: "confirmed", route: "auto", triage_reason: "ok" });
-  assert.match(m, /against the 0\.92 bar/);
+  assert.match(m, /against the 0\.92 auto-accept bar/);
   assert.match(text(m), /Textile rules \(19 CFR 102\.21\)/);
   assert.doesNotMatch(text(m), /Needs review|Provisional/);
 });
@@ -29,7 +29,7 @@ test("uncertain what-ifs render no ruler and no auto-accept wording", () => {
   };
   for (const [name, w] of Object.entries(cases)) {
     const m = card(w);
-    assert.doesNotMatch(m, /against the 0\.92 bar/, name);
+    assert.doesNotMatch(m, /role="img"/, name);
     assert.doesNotMatch(text(m), /auto-accept/i, name);
     assert.match(text(m), /Needs review|Provisional answer|Needs more facts/, name);
     assert.doesNotMatch(text(m), /textile_102_21|usmca_part102|pharma_api|substantial_transformation/, name);

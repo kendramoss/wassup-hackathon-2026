@@ -1,13 +1,14 @@
 # On-screen numbers and their sources
 
-Every number that may appear in the demo, deck or results page. **Status** says whether it can be shown today. The held-out engine, fast path, cost and latency rows below are the Vertex AI re-run (D39). "Proxy" = produced through the LiteLLM proxy: development only, and not a substitute for those rows.
+Every number that may appear in the demo, deck or results page. **Status** says whether it can be shown today. The held-out engine, fast path, cost and latency rows below are the Vertex AI re-run (D39). "Proxy" = produced through the LiteLLM proxy: development only, and not a substitute for those rows. "Gateway" rows ran through an OpenAI-compatible LiteLLM gateway to Gemini. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); the gateway runs were not repeated on Vertex AI.
 
 ## Evaluation (results page — served by `GET /v1/eval/summary`)
 
 | Number | Value | Source | Status |
 |---|---|---|---|
 | Held-out origin accuracy (377 rulings, Jan–Sep 2026) | **90.2% (86.8–92.8)**, Vertex AI, frozen engine-v1. Proxy re-run 89.9% (86.5–92.6); research run 89.1% (85.6–91.9) | `eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl` (D39). Proxy file kept for the comparison | Official. Proxy and research figures stay labelled as such |
-| Best simple baseline (most-mentioned country) | 60.5% (55.5–65.3) | research `RESULTS-v2.md` (no model involved); not committed, so not reproducible here | Reported, unverified. Show only with that label. Since D155 the screens use the recomputed figures instead (most-mentioned 60.7%, best simple rule 63.4%; row "Rule baselines, recomputed"). Never show a lift between this figure and the 96.0% fast-path row: the fast path is a 300-case subset, this baseline is all 377 |
+| Best simple baseline (first country named, recomputed; D155) | **63.4% (58.4–68.1)**; most-mentioned country 60.7% (55.7–65.5) | `eval/results/baselines-final.json` (`go run ./cmd/eval baselines`, no model); row "Rule baselines, recomputed" | Measured. Use these. Never show a lift between a baseline and the 96.0% fast-path row: the fast path is a 300-case subset, the baselines are all 377 |
+| History: research baseline (most-mentioned country) | 60.5% (55.5–65.3) | research `RESULTS-v2.md` (no model involved); not committed, so not reproducible here | Reported, unverified, superseded by the recomputed 60.7% (D155). Kept as history; do not show |
 | Other baselines | final-assembly 40.6%, last-mentioned 39.8%, majority 12.2% (majority since recomputed exactly, D155) | research `RESULTS-v2.md`; not committed, so not reproducible here | Reported, source not in this repository, unverified. Show only with that label, like the 60.5% row |
 | Fast path (calibrated confidence ≥ 0.90, the same cases as stated confidence ≥ 0.92, and in scope; D160), held-out | 79.6% of cases (300/377) at 96.0% (93.1–97.7), Vertex AI, router-v2. Proxy was 78.5% at 96.6% (93.9–98.2). At the old 0.95 bar, proxy coverage was 70.3% at 97.7% | final Vertex rows + `eval/results/scope-final-router-v2-vertex.jsonl` | Official. The proxy figure stays labelled proxy. 288 of 300; the subset is selected by the model's own confidence and router scope |
 | Confidence ≥ 0.95 alone, held-out | 71.9% at 97.8% (95.3–99.0) | final rows | Proxy. Do **not** show the research "65% at 98.0%": it describes a different routed pipeline |
@@ -105,7 +106,7 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 |---|---|---|---|
 | Upload limits | 1–4 files, 8 MB together, 10 PDF pages together, 12,000 px a side, 40 megapixels | `backend/internal/media/media.go` constants | Showable; these are settings, not results |
 | Browser downscale | photos over 3 MB or 4,096 px re-encoded at 3,072 px longest side | `frontend/src/lib/media-upload.ts` | Showable; a setting |
-| Field accuracy reading BOM images (synthetic) | 20 synthetic images, 170 parts: names read 151 (88.8%), countries right 151 (88.8%); every matched name had the right country; 15 of 20 images fully read. Set 1 (5 plain tables) 45/48; set 2 (15 varied layouts, photos, scans) 106/122. The 19 misses are exact-name mismatches: part numbers appended (13), a multi-part row split (3, one cut short in the image), one row split into two (1), plant rows counted as parts (2). Gateway cost $0.252 | `eval/results/media-v1-gemini-4-argon-litellm.json`, `eval/results/media-varied-gemini-4-argon-litellm.json`, `eval/results/RUNLOG.jsonl` (D167, D168) | Measured once, gateway (not Vertex AI), Gemini 4 Argon. Always say "synthetic images, illustrative" and give the counts. Not a measure of accuracy on real photos or scans; do not show it as one |
+| Field accuracy reading BOM images (synthetic) | 20 synthetic images, 170 parts: names read 151 (88.8%), countries right 151 (88.8%); every matched name had the right country; 15 of 20 images fully read. Set 1 (5 plain tables) 45/48; set 2 (15 varied layouts, photos, scans) 106/122. The 19 misses are exact-name mismatches: part numbers appended (13), a multi-part row split (3, one cut short in the image), one row split into two (1), plant rows counted as parts (2). Gateway cost $0.252 | `eval/results/media-v1-gemini-4-argon-litellm.json`, `eval/results/media-varied-gemini-4-argon-litellm.json`, `eval/results/RUNLOG.jsonl` (D167, D168) | Measured once, gateway (not Vertex AI), Gemini 4 Argon. Shown on /accuracy under "Import from a photo or scan" (D180). Always say "synthetic images, illustrative" and give the counts. Not a measure of accuracy on real photos or scans; do not show it as one |
 
 ## Market and time (from `hackathon-research/evidence/fees/LEDGER.md`)
 
@@ -113,8 +114,8 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 |---|---|---|---|
 | Preparation per ruling request | 20 hours | CBP, 90 FR 54349, 26 Nov 2025 (OMB 1651-0085) — all ruling subjects, not only origin | Showable with that qualifier |
 | Ruling responses per year | 3,628 regional (NCSD) | same notice | Showable; "all ruling subjects" |
-| Price paid for US-origin advice | median KRW 5.0M ≈ US$3,600 (23 purchases, 2024–26) | KOTRA export-voucher marketplace purchase records | Showable; "subsidised vouchers; team-compiled" |
-| CBP turnaround, Asian-origin rulings | median 21 days (IQR 14–26), n=247 | own count, rulings.cbp.gov | Showable; "team count" |
+| Price paid for US-origin advice | median KRW 5.0M ≈ US$3,600 (23 purchases, 2024–26) | KOTRA export-voucher marketplace purchase records | Showable; "Korean exporters, subsidised vouchers; team-compiled", and that it is the only public price for origin advice we found (not ASEAN, not a U.S. broker's fee) (D180) |
+| CBP turnaround, Asian-origin rulings | median 21 days (IQR 14–26), n=247 | own count, rulings.cbp.gov | Showable; "team count". It is the time to a binding answer; set it beside Unde's time to a first, non-binding prediction, never as the same thing (D180) |
 
 ## Impact story (landing fig.4, illustrative)
 
@@ -128,7 +129,7 @@ A composite contract manufacturer, labelled on the page "Illustrative example �
 | Duty saved a year | $500,000 (about 25 points) | 834,000 − 334,000 = 2,000,000 × 0.25. Same as the "Duty effect" row above | Same |
 | Added cost of the shown plan | $215,000 a year | Fixture `group_costs`, Thailand minus China for the three moved groups: motor-fan 420k − 300k = 120k, PCBA 210k − 150k = 60k, switch, cord and minor parts 105k − 70k = 35k | Illustrative fixture costs |
 | Net a year, shown plan | about $285,000 | 500,000 − 215,000; the "net $285k/yr" of the plan-shown row above | Illustrative economics |
-| First answer | about a minute | Heat-gun plan search uncached, `docs/DETAILS.md` (step 4) and README; the recorded full plan took 33 s (proxy row above), D79 sizes a 6-move search at 1–2 minutes when Vertex is healthy | Rounded; never quote as a measured latency |
+| First answer | about a minute | Heat-gun plan search uncached, `docs/DETAILS.md` (step 4) and README; the recorded full plan took 33 s (proxy row above), D79 sizes a 6-move search at 1–2 minutes when Vertex is healthy | Estimated, not measured. The page says "estimated, not measured" beside it (D180). Never quote as a measured latency; the measured figure is per origin prediction, p50 4.6 s / p95 5.7 s |
 | Bar lengths in the before/after figure | Unde ÷ before, per row: 1 min ÷ 20 h = 1/1200; 4.6 s ÷ 21 days = 2.5 × 10⁻⁶; $0.0078 ÷ $3,600 = 2.2 × 10⁻⁶ | Drawn to scale per row; anything under 2 px is drawn at 2 px and the figure says so | Drawing only, no new figure |
 
 The other figures in the story are existing rows: 20 hours, 21 days (n = 247), US$3,600, 3,628 ruling responses (market and time), p50 4.6 s and $0.0078 (evaluation), N345938 (plan shown).

@@ -15,6 +15,7 @@
 #         eval/data/labels.jsonl (ruling subject, collection, label method)
 #         eval/splits/splits_final.json (split membership, for the datasheet)
 #         backend/data/facts/ (the bundled facts pool, counted only)
+#         backend/internal/calibrate/map.json (the calibration map the product applies, D160)
 # Writes: frontend/src/lib/failure-cases.json
 #         eval/results/corpus-stats.json
 
@@ -35,6 +36,7 @@ STATS = "eval/results/corpus-stats.json"
 SPLITS = "eval/splits/splits_final.json"
 FACTS = "backend/data/facts"
 BAR = 0.92
+CAL_MAP = "backend/internal/calibrate/map.json"
 MIN_N = 19  # origins with at least this many held-out rulings get their own row
 
 
@@ -61,6 +63,16 @@ def wilson(k, n):
     return round(c - h, 4), round(c + h, 4)
 
 
+def calibrated(m, stated):
+    # The same rule as calibrate.Map.Value: the step at or below the value,
+    # or the lowest step for a value under every step.
+    v = m["steps"][0]["calibrated"]
+    for st in m["steps"]:
+        if stated >= st["from"]:
+            v = st["calibrated"]
+    return v
+
+
 def rate(label, rows):
     k = sum(r["correct"] for r in rows)
     lo, hi = wilson(k, len(rows))
@@ -71,6 +83,8 @@ def build():
     rows = jsonl(RUN)
     scope = {r["ruling"]: r for r in jsonl(SCOPE)}
     labels = {r["ruling"]: r for r in jsonl(LABELS)}
+    with open(path(CAL_MAP)) as f:
+        cal = json.load(f)
 
     def auto(r):
         return r["confidence"] >= BAR and scope[r["ruling"]]["in_scope"]
@@ -88,6 +102,7 @@ def build():
                 "cbp_held": r["gold"],
                 "predicted": r["pred"],
                 "confidence": r["confidence"],
+                "calibrated": calibrated(cal, r["confidence"]),
                 "auto_accepted": auto(r),
             }
         )
@@ -115,6 +130,8 @@ def build():
         "source_sha256": sha256(RUN),
         "scope_source": SCOPE,
         "bar": BAR,
+        "calibrated_bar": cal["bar"],
+        "calibration": cal["version"],
         "n": len(rows),
         "correct": sum(r["correct"] for r in rows),
         "auto_accepted": sum(auto(r) for r in rows),

@@ -141,7 +141,9 @@ export function KnownFailures() {
                 <td className="duo py-2 pr-3">{subject(m.subject)}</td>
                 <td className="whitespace-nowrap py-2 pr-3">{m.cbp_held}</td>
                 <td className="whitespace-nowrap py-2 pr-3">{m.predicted}</td>
-                <td className="py-2 pr-3 tabular-nums">{m.confidence.toFixed(2)}</td>
+                <td className="whitespace-nowrap py-2 pr-3 tabular-nums">
+                  {m.calibrated.toFixed(2)} <span className="text-dim">({m.confidence.toFixed(2)})</span>
+                </td>
                 <td className="py-2">{m.auto_accepted ? <Chip tone="fail">{T.auto}</Chip> : <Chip>{T.review}</Chip>}</td>
               </tr>
             ))}

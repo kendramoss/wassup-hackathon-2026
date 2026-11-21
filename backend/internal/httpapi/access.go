@@ -34,7 +34,7 @@ func (a *api) canWrite(r *http.Request, c store.Case) bool {
 
 // summaryFor is a list row for c as seen by p: the row, plus can_write.
 func (a *api) summaryFor(p principal, c store.Case) caseSummary {
-	row := summaryRow(c)
+	row := summaryRow(a.withCalibration(c))
 	w := p.canWrite(c, a.d.CaseOwnership)
 	row.CanWrite = &w
 	return row

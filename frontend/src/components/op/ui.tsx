@@ -49,11 +49,12 @@ export function Country({ name, size, className }: { name: string | null | undef
 type Tone = "ok" | "ask" | "none";
 
 // Confidence ruler: 0, .5, 1, a diamond at the value and a dashed blue line at
-// the bar (0.92 by default; the calibrated origin bar is 0.90).
+// the bar (by default the 0.92 precedent-check bar on a plan; origin screens
+// pass the auto-accept bar, calibrated 0.90).
 export function Ruler({
   value,
   bar = BAR,
-  label = `${bar} bar`,
+  label = `${bar} precedent-check bar`,
   tone,
   width = 240,
   caption,
@@ -73,7 +74,7 @@ export function Ruler({
         className="relative mt-4 h-[34px] max-w-full"
         style={{ width }}
         role="img"
-        aria-label={`Confidence ${conf(value)} against the ${bar} bar`}
+        aria-label={`Confidence ${conf(value)} against the ${/bar$/.test(label) ? label : `${label} bar`}`}
       >
         <div className="absolute inset-x-0 top-[14px] border-t border-ink" />
         {[0, 0.5, 1].map((x) => (

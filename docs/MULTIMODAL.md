@@ -1,6 +1,6 @@
 # Import from an image or scanned document
 
-Status: built. Measured on 20 synthetic BOM images through an OpenAI-compatible LiteLLM gateway to Gemini (illustrative, n small; see Accuracy). Accuracy on real photos, scans and handwriting: not yet measured.
+Status: built. Measured on 20 synthetic BOM images through an OpenAI-compatible LiteLLM gateway to Gemini (illustrative, n small; shown on the Accuracy page under "Import from a photo or scan"). Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI. Accuracy on real photos, scans and handwriting: not yet measured.
 
 ## What it does
 

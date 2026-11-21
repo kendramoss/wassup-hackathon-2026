@@ -1,6 +1,6 @@
 # Model card: Unde origin engine and planner
 
-This card follows the sections of Mitchell et al., *Model Cards for Model Reporting* (2019). Unde does not train a model. It is a system built on Gemini models used through Vertex AI, with retrieval over public CBP rulings. The card describes that system as a user meets it.
+This card follows the sections of Mitchell et al., *Model Cards for Model Reporting* (2019). Unde does not train a model. It is a system built on Gemini models used through Vertex AI, with retrieval over public CBP rulings. The first held-out split and production run on Vertex AI; some newer evaluation runs (the second held-out split, the post-cutoff planner test, the model sweep and the image import) went through an OpenAI-compatible LiteLLM gateway to the same Gemini models. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); the gateway runs were not repeated on Vertex AI. The card describes that system as a user meets it.
 
 Headline numbers are kept in one place, [NUMBERS.md](NUMBERS.md), and explained in [EVALUATION.md](EVALUATION.md). This card links to them instead of copying them, so it cannot drift. The failure analysis in section 6 is computed for this card from the official held-out run by `eval/charts/build_trust_data.py`.
 
@@ -66,7 +66,7 @@ The factors that change accuracy, from the evaluation and the failure analysis b
 
 All of these run with `make reproduce`, with no model calls and no credentials.
 
-**Calibration finding (measured).** The engine is overconfident: its mean stated confidence is above its accuracy, by about 4.5 points on the held-out set (the calibration row of [NUMBERS.md](NUMBERS.md)). Selecting by confidence still works: accepted cases are more accurate than the rest. Treat the confidence as a ranking, not as a probability. The gap between fast-path accuracy and overall accuracy is not evidence of calibration ([claims-reconciliation.md](claims-reconciliation.md)).
+**Calibration finding (measured).** The engine is overconfident: its mean stated confidence is above its accuracy, by about 4.5 points on the held-out set (the calibration row of [NUMBERS.md](NUMBERS.md)). Selecting by confidence still works: accepted cases are more accurate than the rest. Treat the stated confidence as a ranking, not as a probability. The calibrated confidence the product shows for the general engine on Gemini 4 Argon is fitted to be read as a probability (D160): on the 377 it averages 90.2% against 90.2% right, ECE 0.028. The gap between fast-path accuracy and overall accuracy is not evidence of calibration ([claims-reconciliation.md](claims-reconciliation.md)).
 
 **Evaluation data.** CBP rulings dated 2026-01-02 to 2026-09-25, frozen before scoring and scored once with the frozen configuration. Development data: Jul–Dec 2025. How the splits are built, the exclusions and the leakage controls: [EVALUATION.md §2](EVALUATION.md#2-how-the-validation-and-test-sets-are-built).
 
@@ -75,8 +75,8 @@ All of these run with `make reproduce`, with no model calls and no credentials.
 - Earlier held-out rulings can be retrieved as precedent for later ones, as in real use; a case never sees its own ruling or a later one.
 - The model's pre-training may have seen some 2026 rulings. This cannot be excluded.
 - Rulings where CBP held two or more countries are left out, so the benchmark is silent on "it depends" answers.
-- The simple-rule baselines are reported from a research write-up that is not in this repository, so they are unverified here.
-- The planner's precedent check is measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)).
+- The simple-rule baselines were recomputed from committed files with no model (D155): the best, the first country named, is 63.4%; most-mentioned is 60.7%. The research write-up's figures (most-mentioned 60.5%, final assembly 40.6%) are not reproducible here; they are unverified and kept only as history.
+- The planner's precedent check is measured on development pairs through a proxy, and its 2026 pairs are not a clean held-out test ([DETAILS.md](DETAILS.md#limitations)). A clean post-cutoff test exists but is small: 15 flip pairs, read by one person, scored once through the gateway (D170).
 
 ## 6. Known failure modes
 

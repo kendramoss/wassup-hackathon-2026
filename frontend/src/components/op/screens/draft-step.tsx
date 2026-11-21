@@ -42,7 +42,12 @@ const fillIn = /\[FILL IN(?::[^\]]*)?\]/g;
 function Draft({ id, c, setCase }: CaseCtx) {
   const readOnly = caseReadOnly(c);
   const params = useSearchParams();
-  const move = params.get("move") ?? undefined;
+  // With a shown plan, the letter defaults to it: the plan is what people
+  // came to draft (D180). ?setup=current asks for today's setup instead.
+  const current = params.get("setup") === "current";
+  const shownPlan = c.plan?.plans?.find((p) => p.shown && (p.move?.length ?? 0) > 0);
+  const defaulted = !params.get("move") && !current && shownPlan ? moveKey(shownPlan) : undefined;
+  const move = params.get("move") ?? defaulted;
   const target = params.get("target") ?? undefined;
   const [format, setFormat] = useState<Format>("markdown");
   const [drafts, setDrafts] = useState<Partial<Record<Format, ExportResponse>>>({});
@@ -55,7 +60,6 @@ function Draft({ id, c, setCase }: CaseCtx) {
   const formId = useId();
 
   const pick = move ? { move_key: move, target } : {};
-  const shownPlan = c.plan?.plans?.find((p) => p.shown && (p.move?.length ?? 0) > 0);
   // A visit only previews; Download and Print record the export (#86).
   const fetchDraft = () => {
     api.exportDraft(id, { ...pick, preview: true }).then((d) => {
@@ -129,14 +133,23 @@ function Draft({ id, c, setCase }: CaseCtx) {
             <p className="eyebrow">Step 4 of 4 · Draft for broker</p>
             <h1 className="mt-1 text-xl tracking-[-0.04em]">Ruling request</h1>
             <p className="duo mt-1 text-sm text-dim">
-              A draft binding-ruling request under 19 C.F.R. Part 177 {move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
+              A draft binding-ruling request under 19 C.F.R. Part 177 {defaulted ? "for the shown plan" : move ? "for the chosen move" : "for the current setup"}. Your broker or counsel confirms and expands it before anything is sent to CBP.
             </p>
-            {/* Opened from the step bar, the letter is for today's setup;
-                when the plan found a supported move, offer that letter too
-                (judge journey: the plan is what people came to draft). */}
-            {!move && shownPlan ? (
+            {/* The shown plan is the default letter; today's setup is the
+                second choice, and the other way round when asked for. */}
+            {defaulted && shownPlan ? (
               <p className="duo mt-2 text-sm">
-                <Link href={`/cases/${encodeURIComponent(id)}/draft?move=${encodeURIComponent(moveKey(shownPlan))}`} className="text-ok underline underline-offset-2">
+                <span className="block text-[13px] text-dim">
+                  Make {movePhrase(shownPlan)}
+                  {c.plan?.target ? ` in ${c.plan.target}` : ""}.
+                </span>
+                <Link href={`/cases/${encodeURIComponent(id)}/draft?setup=current`} className="text-ok underline underline-offset-2">
+                  Draft for today&apos;s setup instead →
+                </Link>
+              </p>
+            ) : current && shownPlan ? (
+              <p className="duo mt-2 text-sm">
+                <Link href={`/cases/${encodeURIComponent(id)}/draft`} className="text-ok underline underline-offset-2">
                   Draft for the shown plan instead →
                 </Link>
                 <span className="block text-[13px] text-dim">

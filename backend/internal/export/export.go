@@ -68,7 +68,7 @@ func Markdown(in Input) string {
 		fmt.Fprintf(&b, "This request concerns a proposed production setup: %s.\n\n", lowerFirst(in.PlanSummary))
 	}
 	b.WriteString("## Facts\n\n")
-	b.WriteString(strings.TrimSpace(in.Facts) + "\n\n")
+	b.WriteString(CleanFacts(in.Facts) + "\n\n")
 	b.WriteString("## Issue\n\n")
 	fmt.Fprintf(&b, "What is the country of origin of %s, produced as described above, %s?\n\n", name, rt.mdQuestion)
 	if rt.separate != "" {

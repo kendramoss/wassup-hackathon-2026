@@ -1,6 +1,7 @@
 "use client";
 
 import { watchView } from "@/lib/watch-state";
+import { conflictLean } from "@/lib/conflict";
 import Link from "next/link";
 import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
@@ -288,12 +289,15 @@ function RulingsSummary({ c }: { c: CaseResponse }) {
 }
 
 // Earlier rulings disagree (locked 16 Oct, p-res-conflict.html): the two
-// rulings as halves; the one named by conflict.leans is tinted blue with
-// "this case follows". An amber ("look again") panel above the questions,
-// as framed; only endpoint text, no labels of ours.
+// rulings as halves. The one named by conflict.leans is tinted blue with
+// "this case follows" only when CBP's holding there is the origin this case
+// predicts; otherwise the model's lean and its answer disagree, so the half
+// gets a neutral "closest earlier ruling" and no tint (D180). An amber
+// ("look again") panel above the questions, as framed.
 function Conflict({ c }: { c: CaseResponse }) {
   const k = c.clarify!.conflict!;
   const detail = new Map((c.precedents_detail ?? []).map((r) => [r.id, r]));
+  const predicted = c.prediction?.origin_country;
   const halves = [
     { side: "a", id: k.ruling_a, holding: k.holding_a },
     { side: "b", id: k.ruling_b, holding: k.holding_b },
@@ -304,10 +308,12 @@ function Conflict({ c }: { c: CaseResponse }) {
       <div className="mt-3 grid gap-4 sm:grid-cols-2">
         {halves.map(({ side, id, holding }) => {
           const r = id ? detail.get(id) : undefined;
-          const follows = k.leans === side;
+          const lean = conflictLean(k.leans === side, r?.origin, predicted);
+          const follows = lean === "follows";
           return (
             <div key={side} className={cx("border p-3 text-[13px]", follows ? "border-ok bg-ok-wash" : "border-line bg-white")}>
               {follows && <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-ok">This case follows</p>}
+              {lean === "closest" && <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-dim">Closest earlier ruling</p>}
               {r?.subject && <p className="font-medium">{shortSubject(r.subject)}</p>}
               <p className="mt-0.5 text-xs text-dim">
                 {id && <RulingLink id={id} />}
