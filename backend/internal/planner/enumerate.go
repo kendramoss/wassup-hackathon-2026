@@ -157,8 +157,11 @@ func Describe(p domain.Product, t Template, m domain.Move) string {
 func groupPhrase(p domain.Product, t Template, id string) string {
 	name := GroupName(t, id)
 	comps := groupComponents(p, id)
-	if len(comps) == 0 || describesAny(name, comps) {
+	if len(comps) == 0 {
 		return "the " + lowerWord(name)
+	}
+	if describesAny(name, comps) {
+		return "the " + lowerWord(fittingItems(name, comps))
 	}
 	parts := make([]string, 0, 3)
 	for i, c := range comps {
@@ -169,6 +172,52 @@ func groupPhrase(p domain.Product, t Template, id string) string {
 		parts = append(parts, "the "+lowerWord(c))
 	}
 	return joinAnd(parts)
+}
+
+// fittingItems drops from a listed group name ("PCBA and sensors", "Base,
+// harness and seals") each one-word item that names none of the parts filed
+// under the group, so a PCR instrument with a main board, a monitor and no
+// sensor reads "the PCBA and 4 other parts", not "the PCBA and sensors"
+// (judge panel round 4, D290). Items
+// of more than one word ("firebox forming") are processes or compound names
+// and stay; a name with a parenthesis is left whole. If dropping would leave
+// nothing that fits, the name is kept as it is.
+func fittingItems(name string, parts []string) string {
+	if strings.ContainsAny(name, "()") {
+		return name
+	}
+	items := strings.Split(strings.ReplaceAll(name, " and ", ", "), ", ")
+	if len(items) < 2 {
+		return name
+	}
+	keep := make([]string, 0, len(items))
+	for _, it := range items {
+		it = strings.TrimSpace(it)
+		if len(strings.Fields(it)) == 1 && len(nameWords(it)) > 0 && !describesAny(it, parts) {
+			continue
+		}
+		keep = append(keep, it)
+	}
+	if len(keep) == len(items) || len(keep) == 0 {
+		return name
+	}
+	if !describesAny(joinAnd(keep), parts) {
+		return name
+	}
+	// Parts the shorter name does not cover are counted, so the sentence
+	// still says everything that moves: "the PCBA and 4 other parts".
+	other := 0
+	for _, c := range parts {
+		if !describesAny(joinAnd(keep), []string{c}) {
+			other++
+		}
+	}
+	if other == 1 {
+		keep = append(keep, "1 other part")
+	} else if other > 1 {
+		keep = append(keep, fmt.Sprintf("%d other parts", other))
+	}
+	return joinAnd(keep)
 }
 
 // Words too general to show that a group name fits a part.

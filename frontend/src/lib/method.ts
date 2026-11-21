@@ -29,6 +29,9 @@ export const DECISIONS: Record<string, string> = {
   D73: "d73--tuned-gemini-35-flash-as-a-fallback-when-argon-fails-16-oct",
   D74: "d74--verifier-v2-counter-ruling-search-and-evidence-tied-confidence-17-oct",
   D76: "d76--a-fixed-seed-on-every-model-call-17-oct",
+  D84: "d84--three-group-moves-in-the-plan-search-18-oct",
+  D86: "d86--precedent-check-calibration-on-the-accuracy-page-18-oct",
+  D138: "d138--ten-more-planner-families-chosen-and-written-from-cbp-precedent-21-nov-review-follow-up",
   D150: "d150--a-second-held-out-split-from-rulings-published-after-the-first-one-21-nov",
   D151: "d151--an-openai-compatible-gateway-provider-for-offline-evaluation-only-21-nov",
   D152: "d152--model-sweep-and-engine-candidates-on-the-development-set-selection-rule-fixed-before-the-sweep-finished-21-nov",
@@ -39,7 +42,12 @@ export const DECISIONS: Record<string, string> = {
   D161: "d161--calibrated-confidence-shipped-the-auto-accept-bar-is-090-on-it-21-nov",
   D163: "d163--a-second-stage-adjudicator-for-the-china-component-cluster-plan-and-pass-rule-written-before-any-run-21-nov",
   D164: "d164--the-china-cluster-adjudicator-did-not-pass-on-dev-no-held-out-split-scored-21-nov",
+  D170: "d170--a-post-cutoff-flip-pair-test-for-the-precedent-check-and-the-plan-search-21-nov-review-follow-up",
+  D171: "d171--per-family-plan-checks-on-development-and-train-rulings-21-nov-review-follow-up",
   D190: "d190--run-to-run-repeatability-of-the-engine-on-the-development-set-21-nov-review-follow-up",
+  D192: "d192--a-post-cutoff-flip-pair-addendum-few-new-pairs-exist-21-nov-review-follow-up",
+  D300: "d300--re-examining-the-092-plan-bar-on-committed-rows-rule-written-before-any-re-computation-21-nov-review-follow-up-judge-panel-round-4-item-6",
+  D301: "d301--the-092-plan-bar-stays-the-dev-rule-picks-092-and-there-are-too-few-wrong-verdicts-to-place-a-lower-one-21-nov-review-follow-up-judge-panel-round-4-item-6",
   D210: "d210--post-cutoff-held-out-splits-for-the-textile-pharmaceutical-and-part-102-engines-rule-freeze-and-plan-written-before-any-run-21-nov-review-follow-up",
   D211: "d211--the-post-cutoff-regime-splits-scored-once-results-21-nov-review-follow-up",
   D230: "d230--router-its-own-splits-an-error-analysis-and-a-pass-rule-written-before-any-variant-is-run-21-nov-review-follow-up",
@@ -53,7 +61,11 @@ export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECI
 
 // The protocol in order, from the dates in docs/DECISIONS.md and the split
 // files. Process facts: plain text, no figures (those are in the charts).
-export type Step = { date: string; what: string; refs: string[]; files?: { label: string; path: string }[] };
+// period: a label shown once above the first step that carries it. The 21 Nov
+// steps followed an external expert review that day (judge panel round 4:
+// "Since 21 Nov" read as last-minute; the dates stay exact, the reason is said).
+export type Step = { date: string; what: string; refs: string[]; files?: { label: string; path: string }[]; period?: string };
+export const POST_REVIEW = "Post-review hardening after an external expert review (21 Nov 2026)";
 export const TIMELINE: Step[] = [
   {
     date: "By 14 Oct 2026",
@@ -82,6 +94,7 @@ export const TIMELINE: Step[] = [
   },
   {
     date: "21 Nov 2026",
+    period: POST_REVIEW,
     what: "A second held-out window built from rulings published after the first, frozen before scoring, then scored once.",
     refs: ["D150", "D154"],
   },
@@ -89,11 +102,13 @@ export const TIMELINE: Step[] = [
     date: "21 Nov 2026",
     what: "New experiments on the development set, each with its pass rule written before the run: newer models, a calibration map, a second-stage adjudicator, a new router.",
     refs: ["D152", "D160", "D163", "D230"],
+    period: POST_REVIEW,
   },
   {
     date: "21 Nov 2026",
     what: "Repeat runs of the frozen engine, on the development set and on both held-out splits.",
     refs: ["D190", "D240", "D241"],
+    period: POST_REVIEW,
   },
 ];
 
@@ -162,3 +177,31 @@ export const ROUTER_V3 = { n: 547, v2: 536, v3: 528, limit: "1.0 point" };
 // Leak path, measured on the official held-out run (docs/NUMBERS.md,
 // method-page row; claims-reconciliation.md 4.2).
 export const LEAK = { slots: 1885, heldOutSlots: 414, cases: 377, casesTouched: 209, afterCase: 0 };
+
+// How plans are searched and checked (judge panel round 4). Measured rows
+// from docs/NUMBERS.md: "Precedent check, D170 + addendum (18 pairs)", its
+// "Same, starting origin not given" row and "Per-family plan checks".
+// k of n, with the 95% interval in percent as NUMBERS.md gives it.
+export type PlanBar = { label: string; k: number; n: number; lo: number; hi: number; lowerIsBetter?: boolean };
+export const PLAN_POST: { title: string; note: string; rows: PlanBar[] }[] = [
+  {
+    title: "CBP's starting origin given (how the plan search runs)",
+    note: "18 pairs",
+    rows: [
+      { label: "moves shown that were real changes", k: 9, n: 9, lo: 70.1, hi: 100 },
+      { label: "real changes found at the bar", k: 9, n: 12, lo: 46.8, hi: 91.1 },
+      { label: "no-change pairs shown as a plan", k: 0, n: 6, lo: 0, hi: 39.0, lowerIsBetter: true },
+    ],
+  },
+  {
+    title: "Starting origin not given",
+    note: "same pairs; one control run failed",
+    rows: [
+      { label: "moves shown that were real changes", k: 5, n: 6, lo: 43.7, hi: 97.0 },
+      { label: "real changes found at the bar", k: 5, n: 12, lo: 19.3, hi: 68.1 },
+    ],
+  },
+];
+export const PLAN_FAMILIES = { k: 15, n: 23, lo: 44.9, hi: 81.2, supports: 9, partial: 4, not: 2 };
+// docs/NUMBERS.md: "Full plan, heat gun" (proxy run) and "Per-family plan checks".
+export const PLAN_COST = { heatGunUsd: "$0.22", heatGunSeconds: 33, engineCalls: 7, verifierRuns: 6, perSearchUsd: "$0.083" };

@@ -27,6 +27,12 @@ The code defaults are permissive so local UI work works without credentials. "As
 
 When `K_SERVICE` is set and any of `STRICT_AUTH`, `REQUIRE_BEARER` or `AUDIT_ACTOR_KEY` is missing, the server now logs a `production config` warning at startup naming the gap. This is deliberately a warning, not a boot failure: the flags are off on purpose today, but they must not be invisible.
 
+**Built vs enabled in production.** The audit trail, required sign-in (`STRICT_AUTH`) and the bearer check (`REQUIRE_BEARER`) are built and tested, but they are not enabled on undelabs.dev. Say "built", not "on", for them. Switching them on is an owner and infrastructure step, outside feature PRs ([ROADMAP.md](../ROADMAP.md#owner-and-infrastructure-steps-to-switch-these-on)):
+
+- enable the audit trail: put an audit key in Secret Manager and pass it to the backend as `AUDIT_ACTOR_KEY`;
+- require sign-in: set `STRICT_AUTH=on`, after deciding how the public demo opens without anonymous use;
+- set `REQUIRE_BEARER=on` once Cloud Run's header pass-through is verified.
+
 ## Who the caller is
 
 | Mode | Header | Notes |

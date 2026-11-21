@@ -25,8 +25,10 @@ const PROXY = { from: 0.899, to: 0.902, p: "1.0" }; // docs/NUMBERS.md: proxy �
 // of them (eval/results/media-*-gemini-4-argon-litellm.json, D167, D168).
 const MEDIA = { images: 20, parts: 170, read: 151, fullyRead: 15 };
 // D151: the same engine and model on the development set, Vertex against the
-// gateway, exact McNemar p = 0.58. Said wherever a gateway run is shown.
-const PARITY = "On the development set the gateway and Vertex AI agree (same engine and model, p = 0.58, D151).";
+// gateway, exact McNemar p = 0.58. Said once on the page, before the first
+// gateway section (judge panel round 4: it was repeated on five cards,
+// including the photo import, where engine parity is beside the point).
+const PARITY_HREF = "https://github.com/kendramoss/wassup-hackathon-2026/blob/main/docs/DECISIONS.md#d151--an-openai-compatible-gateway-provider-for-offline-evaluation-only-21-nov";
 
 
 const pct = (v?: number, d = 1) => (v === undefined ? "—" : `${(v * 100).toFixed(d)}%`);
@@ -315,6 +317,15 @@ export function AccuracyPage() {
             </Card>
           </div>
 
+          <p id="gateway" className="read mt-6 max-w-[90ch] scroll-mt-20 text-[13px] leading-snug text-dim">
+            Sections marked &ldquo;gateway&rdquo; were run through an OpenAI-compatible gateway to the same Gemini model, not Vertex AI. On the development set the two agree
+            (same engine and model, exact McNemar p = 0.58,{" "}
+            <a href={PARITY_HREF} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+              D151
+            </a>
+            ).
+          </p>
+
           {f2Acc && (
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
@@ -324,7 +335,7 @@ export function AccuracyPage() {
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Second held-out split" big={pct(f2Acc.value)}>
                   on {f2Acc.n} CBP rulings from 28 Sep to 13 Nov 2026 ({ci(f2Acc)}), the same engine scored once. It is small and easier for simple rules, so it shows the
-                  engine holds up after its cutoff, not that it improved. {PARITY}
+                  engine holds up after its cutoff, not that it improved.
                 </Card>
                 {f2FpAcc && (
                   <Card title="Auto-accepted there" big={pct(f2FpAcc.value)}>
@@ -336,7 +347,7 @@ export function AccuracyPage() {
           )}
 
           {postPrec && postRec && (
-            <section className="mt-6">
+            <section id="plan-checks" className="mt-6 scroll-mt-20">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Plan checks on rulings published after the test set</h2>
                 <span className="ml-auto text-[11px] text-dim">{postPairs} CBP flip pairs, each with a ruling from Sep–Nov 2026 · each pair frozen before scoring, scored once · gateway, not Vertex AI · small</span>
@@ -344,7 +355,7 @@ export function AccuracyPage() {
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
                   at the 0.92 precedent-check bar ({ci0(postPrec)}). {postCtl ? `${postCtlShown} of the ${postCtl.n} pairs where CBP kept the origin were shown.` : ""} The 15 pairs of the first set plus 3 added later (D192), each scored once. With so few pairs the interval
-                  is wide. {PARITY}
+                  is wide.
                 </Card>
                 <Card title="Real changes found" big={pct(postRec.value, 0)}>
                   {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
@@ -364,7 +375,7 @@ export function AccuracyPage() {
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-2">
                 <Card title="Three runs of the same engine" big={pct(repMean.value)}>
-                  mean of {reps.map((r) => pct(r.value)).join(", ")} on the same {repMean.n} development rulings. The same model was called fresh each time. {PARITY}
+                  mean of {reps.map((r) => pct(r.value)).join(", ")} on the same {repMean.n} development rulings. The same model was called fresh each time.
                 </Card>
                 <Card title="Answers that changed" big={repFlips ? `${repFlips.value} of ${repFlips.n}` : "—"}>
                   rulings got a different country in one run than in another ({repFlips?.n ? pct((repFlips.value ?? 0) / repFlips.n) : "—"}). Everything else gave the same answer three times.
@@ -413,7 +424,7 @@ export function AccuracyPage() {
               </Card>
               <Card title="Wrong countries" big="0">
                 Every part name it read came with the right country. It says nothing about real photos, scans or handwriting, which are not measured yet. Every imported row opens as a
-                draft for you to check. {PARITY}
+                draft for you to check.
               </Card>
             </div>
           </section>

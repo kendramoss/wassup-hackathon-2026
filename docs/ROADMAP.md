@@ -3,7 +3,8 @@
 Unde is a hackathon prototype. This is the list of what we would build to make it a product a manufacturer's trade-compliance team could run on. It builds on what already exists; the design notes linked in each row say exactly what is there today.
 
 How to read it:
-- **Status:** *shipped* (in the prototype today), *in progress* (an open change is adding it), *planned* (not started). Nothing here is a commitment to a date.
+- **Status:** *shipped* (built and in the prototype today), *in progress* (an open change is adding it), *planned* (not started). Nothing here is a commitment to a date.
+- **Built is not the same as switched on.** A shipped item can be built and tested but off on the live site, undelabs.dev. The "Now" table says so where that is the case; [api/SECURITY.md](api/SECURITY.md#as-built-vs-as-deployed-21-nov-2026) has every switch with its deployed value.
 - **Effort:** S (days), M (a few weeks), L (a quarter or more), for a small team.
 - **Removes:** the current limitation the item addresses, from the README, [DETAILS.md](DETAILS.md#limitations) or the design notes.
 - No customers, pilots or adoption are implied. There are none.
@@ -15,9 +16,9 @@ These are the foundations the later phases build on. Each is built, but most are
 | Item | What it is | Why it matters to an enterprise | Status |
 |---|---|---|---|
 | Google sign-in and workspaces | Sign in with a Google account; share cases inside one workspace | Cases belong to a team, not a browser | shipped |
-| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; role display, role management and viewer-safe screens in the UI; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped |
+| Roles (viewer, editor, admin) | Per-workspace roles, read from the store on every request; role display, role management and viewer-safe screens in the UI; `STRICT_AUTH` turns off anonymous use ([roles-and-strict-auth.md](design/roles-and-strict-auth.md)) | Least privilege; reviewers who cannot change a case | shipped; on undelabs.dev roles apply to signed-in users, but required sign-in (`STRICT_AUTH`) is not enabled, so anonymous use is on |
 | Case isolation | One request principal, existence-hiding 404s, no trust in client headers ([case-isolation.md](design/case-isolation.md)) | One team cannot see another's products | shipped |
-| Audit trail | Append-only, tenant-scoped events with a hash chain, `verify`, and retention ([audit-trail.md](design/audit-trail.md)) | Evidence of who did what; input to a SOC 2 program | shipped (off unless a key is set) |
+| Audit trail | Append-only, tenant-scoped events with a hash chain, `verify`, and retention ([audit-trail.md](design/audit-trail.md)) | Evidence of who did what; input to a SOC 2 program | built and tested; **not enabled on undelabs.dev** (no audit key is set in production, so it is off) |
 | Log policy | A closed allowlist for log fields; case data never logged ([data-handling.md](design/data-handling.md)) | Product data does not leak into logs | shipped |
 | API and API keys | OpenAPI-described REST API, per-key access, batch predict, BOM import from CSV or Excel ([openapi.yaml](api/openapi.yaml)) | ERP and sourcing tools can call it | shipped |
 | Ruling watch | Re-check saved cases against rulings CBP issued later | Origin answers go stale as CBP rules | shipped (needs a corpus rebuild to see new rulings) |
@@ -28,6 +29,14 @@ These are the foundations the later phases build on. Each is built, but most are
 | Multimodal input | A photo, screenshot or scanned PDF of a BOM read by Gemini into a draft the user checks ([MULTIMODAL.md](MULTIMODAL.md), #378) | Engineering facts live in drawings and spec sheets | shipped (measured on 20 synthetic images only; drawings and real scans not measured) |
 | Broker review link | The case owner sends one frozen draft (current setup or a plan) to an outside customs broker as an expiring, revocable link; the broker approves, requests changes with a comment, or marks it to file as a binding ruling request; the owner sees the status and comments on the case (D200, [SECURITY.md](api/SECURITY.md#broker-review-links-d200)) | The broker is the one who files; the human check becomes a step in the product instead of an email | shipped (minimal: no broker account, no edits to the letter, no notifications; e-filing stays planned) |
 | Calibrated confidence | The model's stated confidence mapped to a probability by a map fitted on the development set; auto-accept at calibrated 0.90 (D160, D161) | A number a reviewer can read as a chance | shipped (general engine on Gemini 4 Argon only) |
+
+### Owner and infrastructure steps to switch these on
+
+These are deployment changes for the project owner, not code changes, and none is made by a feature PR:
+
+1. **Enable the audit trail:** create an audit key in Secret Manager and pass it to the backend as `AUDIT_ACTOR_KEY`. Then check that `GET /v1/audit` and `GET /v1/audit/verify` answer (they are registered only when the trail is on, [audit-trail.md](design/audit-trail.md)).
+2. **Require sign-in:** set `STRICT_AUTH=on`. Anonymous visitors then lose access to private case operations; decide first how the public demo should open (the pinned demo cases, or a demo account).
+3. **Bearer check behind IAM:** set `REQUIRE_BEARER=on` after confirming Cloud Run passes the header to the container (defence in depth, [api/SECURITY.md](api/SECURITY.md)).
 
 ## Next: 0–3 months
 

@@ -65,9 +65,11 @@ function onPhoneChange(cb: () => void) {
 // The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
 // The pinned comparison case is a separate demo (its comparison is recorded).
-type DemoLinks = { demo: string; heat: string | null; compare: string };
+// The hero's button opens the tour on the plan (judge panel round 4): the
+// origin step, which opens on "needs more facts", is one click from there.
+type DemoLinks = { demo: string; tour: string; heat: string | null; compare: string };
 function useDemoLinks(): DemoLinks {
-  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", heat: null, compare: "/cases" });
+  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", heat: null, compare: "/cases" });
   useEffect(() => {
     let live = true;
     (async () => {
@@ -81,8 +83,10 @@ function useDemoLinks(): DemoLinks {
         const demo = (demos.demos ?? []).find((d) => /heat/i.test(`${d.id ?? ""} ${d.title ?? ""}`));
         if (!live) return;
         const heatCase = pinned ? `/cases/${encodeURIComponent(pinned.id)}` : null;
+        const fallback = demo?.id ? `/cases/new?demo=${encodeURIComponent(demo.id)}` : "/cases";
         setLinks({
-          demo: heatCase ? `${heatCase}/origin` : demo?.id ? `/cases/new?demo=${encodeURIComponent(demo.id)}` : "/cases",
+          demo: heatCase ? `${heatCase}/origin` : fallback,
+          tour: heatCase ? `${heatCase}/plan?tour=1` : fallback,
           heat: heatCase,
           compare: cmp ? `/cases/${encodeURIComponent(cmp.id)}/compare` : "/cases",
         });
@@ -124,7 +128,7 @@ function canHref(key: string, l: DemoLinks): string {
 export function Landing() {
   const root = useRef<HTMLDivElement>(null);
   const links = useDemoLinks();
-  const demoHref = links.demo;
+  const demoHref = links.tour;
   useEffect(() => startLanding(root.current!, { flag }), []);
 
   const hero = (
@@ -132,6 +136,9 @@ export function Landing() {
       <span className="dimn">{L.eyebrow}</span>
       <h1>{L.title}</h1>
       <p className="sub read">{L.sub}</p>
+      <p className="novel read">
+        <b>{copy.novel.lead}</b> {copy.novel.text}
+      </p>
       <div className="ctas">
         <ButtonLink href={demoHref}>{L.demo}</ButtonLink>
         <ButtonLink href="/cases/new" variant="ghost">
@@ -440,21 +447,39 @@ export function Landing() {
                       </div>
                     </div>
                   </div>
-                  <div className="forag">
-                    <div className="s">
-                      <span className="rul duo">
-                        For · <RulingLink id="N345938" />
+                  {/* C: the plan check, measured on later rulings (judge panel
+                      round 4). A measured finding, so bars with their numbers
+                      (docs/NUMBERS.md, "Post-cutoff flip-pair addendum"). */}
+                  <div className="plancheck" aria-labelledby="pch">
+                    <div className="ph">
+                      <span id="pch" className="eyebrow">
+                        {L.planCheck.head}
                       </span>
-                      <span className="beam" />
+                      <span className="dimn">{L.planCheck.meta}</span>
                     </div>
-                    <div className="mid">
-                      <span className="dimn">{L.bothWays}</span>
-                      <b>{L.planMove}</b>
-                    </div>
-                    <div className="s r">
-                      <span className="rul ag duo">Against · none found</span>
-                      <span className="beam" />
-                    </div>
+                    <p className="pclead read">{L.planCheck.lead}</p>
+                    <ul className="pcrows">
+                      {L.planCheck.rows.map((r) => (
+                        <li key={r.label} className="pc">
+                          <span className="pcv">
+                            <b>
+                              {r.k} of {r.n}
+                            </b>{" "}
+                            {r.label}
+                          </span>
+                          <span className="pcbar" aria-hidden="true">
+                            <i className={r.lowerIsBetter ? "bad" : undefined} style={{ width: `${(r.k / r.n) * 100}%` }} />
+                          </span>
+                          <span className="pcci" aria-hidden="true">
+                            <i style={{ left: `${r.lo}%`, width: `${r.hi - r.lo}%` }} />
+                          </span>
+                          <span className="dimn">95% interval {r.lo}–{r.hi}%</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="pcfoot dimn">
+                      {L.planCheck.foot} <Link href="/accuracy#plan-checks">{L.planCheck.link}</Link>
+                    </p>
                   </div>
                   <div className="testfoot">
                     <span>{copy.name} · test sheet 01</span>

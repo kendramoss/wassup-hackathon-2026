@@ -324,6 +324,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
           stale={stale}
           demoted={stale ? 0 : demoted}
           objective={result.objective}
+          backtest={result.backtest}
           // The search's own count; the "No change" baseline isn't a move.
           total={(result.stats as Record<string, number> | undefined)?.moves_searched ?? (result.plans?.length ?? 0) + (result.rejected ?? []).filter((p) => p.rejection_kind !== "current_setup").length}
         />
@@ -386,10 +387,13 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
                   </p>
                 </Fold>
                 {result.backtest ? (
+                  // Open by default (judge panel round 4): the backtest is the
+                  // strongest evidence on this screen, so it is not behind a click.
                   <Fold
+                    id="backtest"
                     title="Backtest against CBP's actual ruling"
-                    meta={best && backtestMatch(result.backtest).matches ? "matches the real change" : undefined}
-                    open={Boolean(best && backtestMatch(result.backtest).matches)}
+                    meta={best ? backtestShort(result.backtest) : undefined}
+                    open
                   >
                     <BacktestPanel bt={result.backtest as Record<string, unknown>} closest={best ? undefined : closest} product={c.product ?? undefined} />
                   </Fold>
@@ -480,7 +484,9 @@ function Band({ children, left, right }: { children: React.ReactNode; left?: Rea
     <section aria-label="Plan summary" className="border-b border-dashed border-guide">
       <div className="column relative mx-auto grid max-w-[1240px] items-end gap-8 px-4 pb-8 pt-10 sm:px-10 lg:grid-cols-[minmax(0,1fr)_280px_250px] lg:gap-11">
         {left && <Dimension className="absolute left-4 top-3 sm:left-10">{left}</Dimension>}
-        {right && <Dimension className="absolute right-4 top-3 sm:right-10">{right}</Dimension>}
+        {/* Two labels on one line collide on a phone (judge panel round 4,
+            F1): the right one is shown from sm up only. */}
+        {right && <Dimension className="absolute right-4 top-3 hidden sm:right-10 sm:block">{right}</Dimension>}
         {children}
       </div>
     </section>
@@ -528,9 +534,11 @@ function PlanBand({
   demoted,
   objective,
   product,
+  backtest,
 }: {
   plan: Plan;
   product?: Product | null;
+  backtest?: unknown;
   target: string;
   below: boolean;
   shown: number;
@@ -571,6 +579,16 @@ function PlanBand({
           <Term explain={copy.terms.check.text}>Precedent check</Term>
         </p>
         <Ruler value={v} caption={[`check ${conf(v)}`, agreementWords(plan.verdict?.agreement), checkWords(v)].filter(Boolean).join(" · ")} />
+        {!below && backtestWords(backtest) ? (
+          // The backtest beside the check (judge panel round 4): what the
+          // manufacturer really changed, from CBP's later ruling.
+          <p className="duo mt-3 text-xs">
+            <span className="text-body">Backtest:</span> {backtestWords(backtest)}.{" "}
+            <a href="#backtest" className="whitespace-nowrap text-ok underline underline-offset-2">
+              See the parts ↓
+            </a>
+          </p>
+        ) : null}
       </div>
     </Band>
   );
@@ -950,6 +968,29 @@ function NearMiss({ nm, fallbackRuling }: { nm: NonNullable<Plan["near_miss"]>; 
 }
 
 const parts = (n: number) => `${n} ${n === 1 ? "part" : "parts"}`;
+
+// The fold's short meta: "6 of 7 parts of the real change".
+function backtestShort(bt: unknown): string | undefined {
+  const b = (bt ?? {}) as Record<string, unknown>;
+  const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
+  const actual = list("actual_moved");
+  if (actual.length === 0) return undefined;
+  if (backtestMatch(b).matches) return "matches the real change";
+  return `${list("moved_by_plan").filter((m) => actual.includes(m)).length} of ${parts(actual.length)} of the real change`;
+}
+
+// "moves 6 of the 7 parts CBP's later ruling N357771 records as moved", from
+// the backend's backtest of the shown plan; nothing when there is none.
+function backtestWords(bt: unknown): string | undefined {
+  const b = (bt ?? {}) as Record<string, unknown>;
+  const list = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
+  const actual = list("actual_moved");
+  if (actual.length === 0) return undefined;
+  const moved = list("moved_by_plan").filter((m) => actual.includes(m)).length;
+  const { ruling } = backtestMatch(b);
+  const of = moved === actual.length ? `all ${parts(actual.length)}` : `${moved} of the ${parts(actual.length)}`;
+  return `moves ${of} the manufacturer really moved${ruling ? `, per CBP's later ruling ${ruling}` : ""}`;
+}
 
 // With no plan over the bar the backend compares CBP's change with nothing,
 // so compare it with the closest move the page highlights instead.

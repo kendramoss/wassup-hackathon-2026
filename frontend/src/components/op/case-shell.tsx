@@ -12,6 +12,7 @@ import { ActionSlotProvider } from "./action-bar";
 import { AskDrawer } from "./ask-drawer";
 import { BrokerReviewStatus } from "./broker-reviews";
 import { CaseTabs, ErrorBox, Main, tabStep, type CaseTab } from "./chrome";
+import { DemoTour } from "./demo-tour";
 import { Spinner } from "./ui";
 
 export type CaseCtx = {
@@ -79,6 +80,7 @@ export function CaseShell({ tab, children }: { tab: CaseTab; children: (ctx: Cas
               {copy.access.readOnlyNote}
             </p>
           )}
+          <DemoTour id={id} tab={tab} />
           <BrokerReviewStatus id={id} c={data} />
           {children({ id, c: data, setCase: setData, reload, ask: () => setAsking(true) })}
         </>

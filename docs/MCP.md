@@ -1,6 +1,6 @@
-# Use Unde from Claude (MCP)
+# Use Unde from Gemini CLI, ADK agents or Claude (MCP)
 
-Status: built. The Unde API is also a [Model Context Protocol](https://modelcontextprotocol.io) server, so Claude (and other MCP clients) can call it as tools.
+Status: built. The Unde API is also a [Model Context Protocol](https://modelcontextprotocol.io) server, so an agent in Gemini CLI, Google ADK or Claude (or any other MCP client) can call it as tools.
 
 - Hosted endpoint (Streamable HTTP): `https://undelabs.dev/mcp`
 - Local stdio relay for clients that prefer a local process: `mcp/stdio/` (`undelabs-mcp`)
@@ -8,6 +8,51 @@ Status: built. The Unde API is also a [Model Context Protocol](https://modelcont
 Every answer is a prediction, not a ruling. Confirm it with a licensed customs broker or a CBP binding ruling. Each tool result says so.
 
 ## Set it up
+
+The Gemini CLI and ADK formats below follow their documentation as read on 21 Nov 2026 ([Gemini CLI MCP servers](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md), [ADK MCP tools](https://adk.dev/tools-custom/mcp-tools/)). The team has not run them end to end; they reach the same Streamable HTTP endpoint as Claude Code.
+
+### Gemini CLI
+
+```bash
+gemini mcp add --transport http unde https://undelabs.dev/mcp
+```
+
+With an API key: `gemini mcp add --transport http --header "Authorization: Bearer op_..." unde https://undelabs.dev/mcp`. Or in `~/.gemini/settings.json` (user) or `.gemini/settings.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "unde": {
+      "httpUrl": "https://undelabs.dev/mcp",
+      "headers": { "Authorization": "Bearer op_..." }
+    }
+  }
+}
+```
+
+Leave out `headers` for the anonymous tier.
+
+### Google ADK agent (Python)
+
+```python
+from google.adk.agents import LlmAgent
+from google.adk.tools.mcp_tool import McpToolset
+from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+
+root_agent = LlmAgent(
+    model="gemini-flash-latest",
+    name="origin_planner",
+    instruction="Use the Unde tools to find the likely US origin and the production moves that would change it.",
+    tools=[
+        McpToolset(
+            connection_params=StreamableHTTPConnectionParams(
+                url="https://undelabs.dev/mcp",
+                # With an API key: headers={"Authorization": "Bearer op_..."},
+            ),
+        )
+    ],
+)
+```
 
 ### Claude Code
 
@@ -99,7 +144,7 @@ The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file)
 
 ## Privacy
 
-What you send through a tool is what the REST API receives: product facts, parts and countries are stored on the case, under your API key or access key, as described on the website's privacy page (`/privacy`). Request bodies and queries are never logged; each tool call appears in the server log as an ordinary request line (route, status, latency). The MCP endpoint forwards only your API key and your address; it never forwards cookies or other headers. Claude, as the MCP client, sees the tool results; what Anthropic does with them is governed by your Claude plan, not by Unde.
+What you send through a tool is what the REST API receives: product facts, parts and countries are stored on the case, under your API key or access key, as described on the website's privacy page (`/privacy`). Request bodies and queries are never logged; each tool call appears in the server log as an ordinary request line (route, status, latency). The MCP endpoint forwards only your API key and your address; it never forwards cookies or other headers. The MCP client (Gemini CLI, an ADK agent, Claude or another) sees the tool results; what its provider does with them is governed by your terms with that provider, not by Unde.
 
 ## How it is built
 
