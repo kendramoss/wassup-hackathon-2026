@@ -1549,7 +1549,7 @@ func summaryStatus(finalOfficial, devOfficial bool) string {
 	if !devOfficial {
 		dev = "Development-split engine numbers are still proxy, development only."
 	}
-	return "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). " + dev + " Verifier and heat-gun plan figures remain proxy, development only."
+	return "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). " + dev + " Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6)."
 }
 
 func summaryCmd(args []string) error {

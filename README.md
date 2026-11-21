@@ -64,18 +64,21 @@ What one such decision looks like in numbers (time, cost and duty, each sourced 
 - **Ruling watch:** re-check saved cases against rulings CBP issued later
 - **Ask the case:** an agent that explains the prediction and runs what-ifs
 - **API** for ERP and sourcing tools ([docs/api/openapi.yaml](docs/api/openapi.yaml))
-- **MCP server** so Claude can use Unde as tools (see below)
+- **MCP server** so Gemini CLI, Google ADK agents and Claude can use Unde as tools (see below)
 
-## Use Unde from Claude
+## Use Unde from Gemini CLI, ADK agents or Claude
 
-Unde is also an MCP server: Claude can predict origin, search production moves, look up rulings and duty rates, draft a ruling request and send it to a broker for review as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
+Unde is also an MCP server: an agent can predict origin, search production moves, look up rulings and duty rates, draft a ruling request and send it to a broker for review as tools. Endpoint: `https://undelabs.dev/mcp`. Full setup, tool list, limits and privacy: [docs/MCP.md](docs/MCP.md).
 
 ```bash
+# Gemini CLI (anonymous tier; add --header "Authorization: Bearer op_..." with an API key)
+gemini mcp add --transport http unde https://undelabs.dev/mcp
+
 # Claude Code, with an API key (keys are issued by the Unde admin)
 claude mcp add --transport http unde https://undelabs.dev/mcp --header "Authorization: Bearer op_..."
 ```
 
-In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign-in (anonymous tier). For a local stdio process, run `node mcp/stdio/index.js` with `UNDE_API_KEY` set. Results are predictions, not rulings: confirm with a licensed customs broker.
+A Google ADK agent connects with `McpToolset` and `StreamableHTTPConnectionParams(url="https://undelabs.dev/mcp")`; the snippet is in [docs/MCP.md](docs/MCP.md#google-adk-agent-python). In Claude.ai or Claude Desktop, add a custom connector with that URL and no sign-in (anonymous tier). For a local stdio process, run `node mcp/stdio/index.js` with `UNDE_API_KEY` set. Results are predictions, not rulings: confirm with a licensed customs broker.
 
 ## How a business could use it
 

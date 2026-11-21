@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { Main } from "../chrome";
 import { Reproduce } from "../failure-cases";
 import { Stability } from "../method-stability";
-import { ARMS, AXIS, BANDS, LEAK, ROUTER_V3, TIMELINE, blob, decisionHref, type Arm, type Band } from "@/lib/method";
+import { copy } from "@/lib/copy";
+import { ARMS, AXIS, BANDS, LEAK, PLAN_COST, PLAN_FAMILIES, PLAN_POST, ROUTER_V3, TIMELINE, blob, decisionHref, type Arm, type Band, type PlanBar } from "@/lib/method";
 
 // "How it's built and tested" (review follow-up): the questions a sceptical
 // technical judge asks, answered in order. Process facts are plain text;
@@ -14,6 +15,7 @@ const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).jo
 
 const QUESTIONS = [
   { id: "model", q: "What is the model, and is anything trained?" },
+  { id: "plans", q: "How are plans searched and checked?" },
   { id: "data", q: "What data does it see, and where does it come from?" },
   { id: "choices", q: "How were the prompts, thresholds and calibration chosen?" },
   { id: "clean", q: "How is the test set kept clean?" },
@@ -264,12 +266,64 @@ function Negatives() {
   );
 }
 
+// The plan check on later rulings (judge panel round 4): a measured finding,
+// so bars with their numbers (docs/NUMBERS.md, D170 and D192).
+function PlanBarRow({ r }: { r: PlanBar }) {
+  const v = r.k / r.n;
+  return (
+    <li className="grid gap-x-4 gap-y-1 border-b border-dashed border-line py-2 text-[12.5px] md:grid-cols-[240px_minmax(0,1fr)_170px]">
+      <span>{r.label}</span>
+      <span className="relative h-5 self-center" aria-hidden="true">
+        <i className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 border border-edge bg-wash" />
+        <i className={cx("absolute left-0 top-1/2 h-2 -translate-y-1/2", r.lowerIsBetter ? "bg-fail" : "bg-ok")} style={{ width: `${v * 100}%` }} />
+        <i className="absolute top-[calc(50%+6px)] h-1.5 border border-b-0 border-dimension" style={{ left: `${r.lo}%`, width: `${r.hi - r.lo}%` }} />
+      </span>
+      <span className="tabular-nums text-dim md:text-right">
+        <b className="font-medium text-ink">
+          {r.k} of {r.n}
+        </b>{" "}
+        ({r.lo}–{r.hi})
+      </span>
+    </li>
+  );
+}
+
+function PlanChecks() {
+  return (
+    <Figure
+      title="The precedent check on later rulings"
+      note="18 frozen CBP flip pairs, at least one ruling of each from Sep–Nov 2026 · each scored once · gateway · 95% interval"
+      label={PLAN_POST.map((g) => `${g.title}: ${g.rows.map((r) => `${r.label} ${r.k} of ${r.n}`).join("; ")}`).join(". ")}
+    >
+      {PLAN_POST.map((g) => (
+        <div key={g.title} className="mt-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-dim">
+            {g.title} · {g.note}
+          </p>
+          <ul>
+            {g.rows.map((r) => (
+              <PlanBarRow key={r.label} r={r} />
+            ))}
+          </ul>
+        </div>
+      ))}
+      <p className="mt-3 text-[12px] text-dim">
+        A pair is two CBP rulings on one product before and after work moved; in 12 the origin changed, in 6 it did not. Frozen before scoring (<D id="D170" />,{" "}
+        <D id="D192" />).
+      </p>
+    </Figure>
+  );
+}
+
 export function MethodPage() {
   return (
     <Main>
       <p className="eyebrow">Method</p>
       <h1 className="mt-1 text-[34px] leading-tight tracking-[-0.05em]">How it&apos;s built and tested</h1>
       <div className="read mt-3 flex max-w-[72ch] flex-col gap-3 text-[15px] text-body">
+        <p className="border-l-2 border-ok pl-3">
+          <b className="font-medium text-ink">{copy.novel.lead}</b> {copy.novel.text} <a href="#plans" className="text-ok underline underline-offset-2">How →</a>
+        </p>
         <p>
           Unde is not a trained model. It sends Gemini the facts of a product with the most similar earlier CBP rulings, and asks for the origin CBP would likely assign. What we
           chose by hand are the prompts, the retrieval settings, the confidence bars and a calibration map, all on development rulings.
@@ -300,6 +354,9 @@ export function MethodPage() {
         <ol className="mt-3 max-w-[90ch] border-l border-dashed border-guide pl-5">
           {TIMELINE.map((s, i) => (
             <li key={i} className="relative pb-4 last:pb-0">
+              {s.period && s.period !== TIMELINE[i - 1]?.period ? (
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-dim">{s.period}</p>
+              ) : null}
               <i aria-hidden="true" className="absolute -left-[25px] top-1.5 size-2 rotate-45 bg-ok" />
               <p className="grid gap-x-4 gap-y-0.5 text-[13.5px] sm:grid-cols-[130px_minmax(0,1fr)]">
                 <span className="font-mono text-[12px] text-dimension">{s.date}</span>
@@ -333,7 +390,7 @@ export function MethodPage() {
         </p>
         <p>
           We did try fine-tuning once. On 16 and 17 Oct we tuned Gemini 3.5 Flash on CBP&apos;s own reasoning from rulings older than the development split. It was worse on the
-          development set, so we dropped it, deleted the endpoints, and never scored it on held-out rulings (<D id="D73" />; chart in question 5). When Argon is unavailable a base
+          development set, so we dropped it, deleted the endpoints, and never scored it on held-out rulings (<D id="D73" />; chart in question 6). When Argon is unavailable a base
           Gemini 3.8 Flash answers instead, and its answers always go to review.
         </p>
         <p className="text-[13.5px] text-dim">
@@ -342,7 +399,69 @@ export function MethodPage() {
         </p>
       </Section>
 
-      <Section id="data" n={2}>
+      <Section id="plans" n={2}>
+        <p>
+          <b className="font-medium text-ink">The plan search is the part a classifier does not do.</b> It asks which production change would move the origin, and it shows a
+          move only when an earlier CBP ruling backs it. Each step:
+        </p>
+        <ol className="flex list-decimal flex-col gap-2 pl-5">
+          <li>
+            <b className="font-medium text-ink">Groups of work, from a template.</b> Each of 14 product families has a template, written from CBP rulings, that files the
+            product&apos;s parts and steps into groups of work, such as the motor-fan assembly or the PCBA (<D id="D138" />). Final assembly does not move.
+          </li>
+          <li>
+            <b className="font-medium text-ink">Candidate moves.</b> Moves of one, two or three groups to a plant the product already lists. The heat gun has seven. CBP&apos;s real change for it moved three groups at once, so
+            three-group moves were added (<D id="D84" />).
+          </li>
+          <li>
+            <b className="font-medium text-ink">The engine predicts the new origin.</b> The same origin engine reads the changed facts with the most similar earlier rulings. A
+            move whose predicted origin is not the target country goes no further.
+          </li>
+          <li>
+            <b className="font-medium text-ink">A verifier checks it against earlier rulings.</b> An ADK agent on Gemini searches CBP rulings dated before the case for one that
+            supports the move and for one against it, and states a confidence tied to what it read (<D id="D74" />). A move is shown only with a supporting ruling at 0.92 or
+            above. A supported move below the bar is listed as below the bar; the closest one can still go to a broker, labelled as such. Shown moves are ranked by the
+            net per year on the duty and cost inputs.
+          </li>
+          <li>
+            <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker
+            checks and files. Only CBP&apos;s ruling binds.
+          </li>
+        </ol>
+        <p>
+          <b className="font-medium text-ink">Cost and time.</b> The recorded heat-gun search ran {PLAN_COST.engineCalls} engine calls and {PLAN_COST.verifierRuns} verifier runs
+          in {PLAN_COST.heatGunSeconds} s for {PLAN_COST.heatGunUsd} (promo price, a proxy run). The per-family checks averaged {PLAN_COST.perSearchUsd} a search. Before a search the
+          site shows its own estimate; a repeat search uses the stored checks and costs nothing.
+        </p>
+        <PlanChecks />
+        <p>
+          <b className="font-medium text-ink">Also measured.</b> The heat gun&apos;s shown plan was backtested against what the manufacturer really did: CBP&apos;s later ruling
+          N357771 records the change, and the plan moves 6 of its 7 parts, all but the outer shells (one production run; the plan step shows it). In the per-family checks, 23
+          products across the families, {PLAN_FAMILIES.k} of {PLAN_FAMILIES.n} showed a supported plan ({PLAN_FAMILIES.lo}–{PLAN_FAMILIES.hi}); read by hand, the cited ruling
+          supports the move in {PLAN_FAMILIES.supports} of those {PLAN_FAMILIES.k}, partly in {PLAN_FAMILIES.partial} and not in {PLAN_FAMILIES.not} (<D id="D171" />). The
+          heat-gun pair itself is left out of every flip-pair run, so the check was never fitted to the demo.
+        </p>
+        <p>What is not measured, or not clean:</p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          <li>
+            Part of the verifier&apos;s prompt was written after seeing failures on the first 2026 pairs (<D id="D74" />), so its earlier results there (<D id="D86" />) are not a
+            clean test. The 18 later pairs above are.
+          </li>
+          <li>Whether a shown plan is the cheapest or the best move. The money is illustrative unless you enter your own costs, and the search only moves work between plants you list.</li>
+          <li>
+            Whether a lower bar would do as well. A development-only rule, written before the re-computation, picked 0.92 again: the only wrong supported verdicts sit just
+            below it. There are too few wrong verdicts to place a lower bar, so that waits for a scored run on new pairs (<D id="D300" />, <D id="D301" />). The
+            precedent-check tables on the{" "}
+            <a href="/accuracy#plan-checks" className="text-ok underline underline-offset-2">
+              accuracy page
+            </a>{" "}
+            have the rows.
+          </li>
+          <li>The pairs and the cited rulings were read by one reader, not a customs expert. The flip-pair runs went through a gateway, not Vertex AI, with a local copy of the rulings for search.</li>
+        </ul>
+      </Section>
+
+      <Section id="data" n={3}>
         <p>
           <b className="font-medium text-ink">Public CBP rulings, and the facts you type.</b> The rulings come from CBP&apos;s public CROSS database (rulings.cbp.gov). Nothing
           else is in the corpus.
@@ -359,14 +478,14 @@ export function MethodPage() {
         </p>
       </Section>
 
-      <Section id="choices" n={3}>
+      <Section id="choices" n={4}>
         <p>
           <b className="font-medium text-ink">On development rulings, by rules written down first.</b> The engine development split is CBP rulings from July to December 2025. The
           prompt, the number of precedents, the calibration map and the auto-accept bar were compared there. The router has its own 729-ruling development split (25 Jan 2024 to 31
           Dec 2025); one router cue came from reading later misses, so its post-cutoff figures are qualified below.
         </p>
         <p>
-          Since 21 Nov every experiment follows one pattern. A decision entry, written before the run, names the variants, the pass rule and what happens to the held-out splits. A
+          After an external expert review on 21 Nov 2026, we hardened the protocol, and every experiment from that day follows one pattern. A decision entry, written before the run, names the variants, the pass rule and what happens to the held-out splits. A
           second entry reports the result, including what went worse. A variant that fails on the development set never touches a held-out split. Examples: the model sweep (
           <D id="D152" />, <D id="D153" />), the calibration map and bar (<D id="D160" />, <D id="D161" />), the adjudicator (<D id="D163" />, <D id="D164" />), the router (
           <D id="D230" />, <D id="D231" />, <D id="D233" />) and the repeat runs (<D id="D240" />, <D id="D241" />).
@@ -395,7 +514,7 @@ export function MethodPage() {
         </ul>
       </Section>
 
-      <Section id="clean" n={4}>
+      <Section id="clean" n={5}>
         <p>
           <b className="font-medium text-ink">Split by date, frozen before scoring, scored once.</b>
         </p>
@@ -418,7 +537,7 @@ export function MethodPage() {
           </li>
           <li>
             Each candidate is scored once per held-out split. The frozen production engine has more than one run on the first split: a research run, a proxy run, the official
-            Vertex AI run and two repeats (question 6). None led to a change.
+            Vertex AI run and two repeats (question 7). None led to a change.
           </li>
         </ul>
         <p>What is not sealed, stated plainly:</p>
@@ -439,7 +558,7 @@ export function MethodPage() {
         <Leak />
       </Section>
 
-      <Section id="negative" n={5}>
+      <Section id="negative" n={6}>
         <p>
           <b className="font-medium text-ink">Most things.</b> Newer and larger Gemini models, a fine-tuned Flash, a majority vote, a written rule for the biggest error group, a
           second-stage adjudicator and one router prompt (router-v3) were each tried on the development set against the engine in use. None beat it by enough to pass its rule, so none was
@@ -452,7 +571,7 @@ export function MethodPage() {
         <Negatives />
       </Section>
 
-      <Section id="stable" n={6}>
+      <Section id="stable" n={7}>
         <p>
           <b className="font-medium text-ink">Run it again and the answer rarely changes.</b> The same frozen engine was run again with every call fresh: three times on the
           development set, and twice more on each held-out split. The published held-out figures stay the official single runs; the repeats sit beside them.
@@ -460,10 +579,10 @@ export function MethodPage() {
         <Stability />
       </Section>
 
-      <Section id="check" n={7}>
+      <Section id="check" n={8}>
         <p>
           <b className="font-medium text-ink">Rerun the checks. They use committed files only, with no model calls and no credentials.</b> Each step below fails if a
-          headline number has drifted from its source rows. Two rows of the chart in question 5, the Gemini 3.5 Flash runs from October, are not recomputed by these steps; their
+          headline number has drifted from its source rows. Two rows of the chart in question 6, the Gemini 3.5 Flash runs from October, are not recomputed by these steps; their
           rows are committed in <span className="font-mono text-[12.5px]">eval/results/</span> and described in <D id="D44" /> and <D id="D73" />.
         </p>
         <div className="max-w-[960px]">

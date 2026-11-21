@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
-import { ARMS, BANDS, DECISIONS, LEAK, ROUTER_V3, TIMELINE, ghSlug } from "../src/lib/method.ts";
+import { ARMS, BANDS, DECISIONS, LEAK, PLAN_FAMILIES, PLAN_POST, POST_REVIEW, ROUTER_V3, TIMELINE, ghSlug } from "../src/lib/method.ts";
 
 // The /method page links decision entries by their GitHub anchor and quotes
 // figures from docs/NUMBERS.md. These tests fail when a heading is renamed,
@@ -67,4 +67,27 @@ test("the method page qualifies the router's development split and cue", () => {
   assert.match(lib, /729-ruling dev split/);
   const accuracy = readFileSync(new URL("../src/components/op/screens/accuracy-page.tsx", import.meta.url), "utf8");
   assert.match(accuracy, /\{" "\}Caveat: the &quot;trade programs/);
+});
+
+// Judge panel round 4 (D290): the plan search has its own question, its
+// figures are registered, and the 21 Nov steps say why they happened then.
+test("the plan section's figures are in docs/NUMBERS.md", () => {
+  const [given, notGiven] = PLAN_POST;
+  const [shown, found, controls] = given.rows;
+  assert.ok(numbers.includes(`shown ${shown.n}, right ${shown.k}/${shown.n} (${shown.lo.toFixed(1)}-${shown.hi})`));
+  assert.ok(numbers.includes(`recall ${found.k}/${found.n} = 75.0% (${found.lo}-${found.hi})`));
+  assert.ok(numbers.includes(`controls shown ${controls.k}/${controls.n} (${controls.lo}-${controls.hi.toFixed(1)})`));
+  const [s2, f2] = notGiven.rows;
+  assert.ok(numbers.includes(`right ${s2.k}/${s2.n} (${s2.lo}-${s2.hi.toFixed(1)})`));
+  assert.ok(numbers.includes(`recall ${f2.k}/${f2.n} = 41.7% (${f2.lo}-${f2.hi})`));
+  assert.ok(numbers.includes(`${PLAN_FAMILIES.k} of ${PLAN_FAMILIES.n} = 65.2% (${PLAN_FAMILIES.lo}–${PLAN_FAMILIES.hi})`));
+  assert.ok(numbers.includes("moves 6 of the 7 parts CBP's N357771 change moved"));
+  assert.match(page, /id: "plans", q: "How are plans searched and checked\?"/);
+});
+
+test("the 21 Nov steps are labelled as post-review hardening, with exact dates", () => {
+  const late = TIMELINE.filter((s) => s.date === "21 Nov 2026");
+  assert.ok(late.length > 0 && late.every((s) => s.period === POST_REVIEW));
+  assert.match(POST_REVIEW, /external expert review \(21 Nov 2026\)/);
+  assert.doesNotMatch(page, /Since 21 Nov every experiment/);
 });

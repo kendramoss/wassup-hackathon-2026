@@ -39,6 +39,16 @@ func TestGroupPhraseNamesThePartsWhenTheTemplateNameDoesNotFit(t *testing.T) {
 			"housings_and_structures", "Move the aluminum bar / ingot and the forged circular aluminum blank to Vietnam"},
 		{"many parts are counted", "medical_devices", []domain.Component{comp("Support", "hubs_clamps_housings"), comp("Fixing plate", "hubs_clamps_housings"), comp("Wires", "hubs_clamps_housings"), comp("Guide rail", "hubs_clamps_housings")},
 			"hubs_clamps_housings", "Move the support, the fixing plate and 2 other parts to Vietnam"},
+		// Judge panel round 4 (D290): the PCR instrument's main board sits in
+		// "PCBA and sensors", and it has no sensor.
+		{"an item no part fits is dropped", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors"), comp("Temperature control module", "pcba_and_sensors")},
+			"pcba_and_sensors", "Move the PCBA and 1 other part to Vietnam"},
+		{"only fitting parts: no count", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors")},
+			"pcba_and_sensors", "Move the PCBA to Vietnam"},
+		{"every item fits, the name stays", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors"), comp("Optical sensor array", "pcba_and_sensors")},
+			"pcba_and_sensors", "Move the PCBA and sensors to Vietnam"},
+		{"a process item stays", "gas_grills_cooking", []domain.Component{comp("Deep draw main lids", "lid_and_firebox")},
+			"lid_and_firebox", "Move the lid and firebox forming to Vietnam"},
 		{"a generic word is not a match", "power_supplies_chargers", []domain.Component{comp("Battery module", "power_charging_modules")},
 			"power_charging_modules", "Move the battery module to Vietnam"},
 	} {

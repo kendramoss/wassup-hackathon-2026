@@ -298,6 +298,13 @@ export const copy = {
       ],
     },
   },
+  // One sentence on what is new (judge panel round 4), said the same on the
+  // landing and on /method. Factual: what the product does, no claim of
+  // being first.
+  novel: {
+    lead: "What is new here:",
+    text: "Unde does not stop at classifying origin. It searches which production changes would change it, and shows a move only when an earlier CBP ruling supports it at the 0.92 precedent-check bar.",
+  },
   landing: {
     // Phone-only folds (D270): the summary says what is inside.
     foldRoles: (roles: string[]) => `Show who uses it, pays for it and benefits (${roles.length} roles)`,
@@ -335,7 +342,21 @@ export const copy = {
     squaresHead: "B · every ruling, as a square",
     claimAccuracy: "origin accuracy, vs 63.4% for the best simple rule we recomputed (the first country named).",
     claimAuto: "correct on the 79.6% it auto-accepts; the rest go to expert review.",
-    bothWays: "every move is checked both ways, for and against",
+    // fig.3 row C (judge panel round 4): docs/NUMBERS.md, "Precedent check,
+    // D170 + addendum (18 pairs), starting origin given", served as
+    // planner_post_combined_known-a_* by GET /v1/eval/summary.
+    planCheck: {
+      head: "C · the plan check, on later rulings",
+      meta: "18 CBP flip pairs from Sep–Nov 2026 · each frozen, scored once · gateway, not Vertex AI",
+      lead: "Every move is checked both ways, for and against, against earlier CBP rulings only. Tested on pairs of CBP rulings on one product before and after a change, at least one of them published after the 377 above, with CBP's starting origin given.",
+      rows: [
+        { k: 9, n: 9, label: "moves shown were real changes", lo: 70, hi: 100, lowerIsBetter: false },
+        { k: 9, n: 12, label: "real changes found (75%)", lo: 47, hi: 91, lowerIsBetter: false },
+        { k: 0, n: 6, label: "no-change pairs shown as a plan", lo: 0, hi: 39, lowerIsBetter: true },
+      ],
+      foot: "Small samples, so wide intervals. Without the starting origin: 5 of 6 shown were right, 5 of 12 found.",
+      link: "Plan checks on the accuracy page →",
+    },
     more: "How accurate is it? →",
     cta: "Open the cases →",
     whoTitle: "Who it's for",
@@ -417,7 +438,7 @@ export const copy = {
     // "What you can do" (judge journey): every capability that is built and
     // running, each with a way in. Plain list, no numbers beyond NUMBERS.md
     // rows (14 families, 11 MCP tools).
-    also: "Also built: a parts list read from a photo or scan, plan templates for 14 product families, and a connector for Claude.",
+    also: "Also built: a parts list read from a photo or scan, plan templates for 14 product families, and an MCP server for Gemini CLI, ADK agents and Claude.",
     alsoLink: "What you can do ↓",
     can: {
       title: "What you can do",
@@ -455,10 +476,10 @@ export const copy = {
         },
         {
           key: "mcp",
-          what: "Use it from Claude",
-          body: "The same tools over MCP, the protocol Claude uses to connect to other services. In Claude Code, one line adds it:",
-          code: "claude mcp add --transport http unde https://undelabs.dev/mcp",
-          link: "Setup for Claude.ai and Desktop, and the 13 tools →",
+          what: "Use it from Gemini CLI, ADK agents or Claude",
+          body: "The same tools over MCP (Model Context Protocol), the open protocol agents use to call other services. In Gemini CLI, one line adds it:",
+          code: "gemini mcp add --transport http unde https://undelabs.dev/mcp",
+          link: "Setup for Gemini CLI, Google ADK, Claude Code and Claude Desktop, and the 13 tools →",
         },
         {
           key: "method",
@@ -478,6 +499,14 @@ export const copy = {
     built: "Built with Gemini on Vertex AI, ADK for Go and Cloud Run.",
     roadmap: "Roadmap",
     repo: "https://github.com/kendramoss/wassup-hackathon-2026",
+  },
+
+  // The landing's demo tour (judge panel round 4, components/op/demo-tour.tsx).
+  tour: {
+    label: "Heat-gun tour",
+    steps: ["The plan", "Backtest vs CBP's later ruling", "The broker draft"] as const,
+    next: (step: string) => `Next: ${step[0].toLowerCase()}${step.slice(1)} →`,
+    origin: "See the origin step first",
   },
 
   signIn: {
