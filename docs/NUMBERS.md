@@ -42,4 +42,21 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Price paid for US-origin advice | median KRW 5.0M ≈ US$3,600 (23 purchases, 2024–26) | KOTRA export-voucher marketplace purchase records | Showable; "subsidised vouchers; team-compiled" |
 | CBP turnaround, Asian-origin rulings | median 21 days (IQR 14–26), n=247 | own count, rulings.cbp.gov | Showable; "team count" |
 
+## Impact story (landing fig.4, illustrative)
+
+A composite contract manufacturer, labelled on the page "Illustrative example — composite, not a customer". The inputs are the heat-gun demo fixture, so the arithmetic is the same one the plan screen does for the shown plan. Copy: `copy.landing.story` in `frontend/src/lib/copy.ts`.
+
+| Number | Value | Derivation and source | Status |
+|---|---|---|---|
+| Heat guns imported a year | $2M | `annual_import_value_usd: 2000000` in `backend/testdata/heatgun_2022.json` | Illustrative input; say so on screen |
+| Duty a year, China origin | $834,000 | 2,000,000 × 0.417 (fixture `duty_rates.China`, from `docs/DUTY-SOURCES.md`) | Illustrative; "classification to be confirmed by a broker" |
+| Duty a year, Thailand origin | $334,000 | 2,000,000 × 0.167 (fixture `duty_rates.Thailand`) | Same |
+| Duty saved a year | $500,000 (about 25 points) | 834,000 − 334,000 = 2,000,000 × 0.25. Same as the "Duty effect" row above | Same |
+| Added cost of the shown plan | $215,000 a year | Fixture `group_costs`, Thailand minus China for the three moved groups: motor-fan 420k − 300k = 120k, PCBA 210k − 150k = 60k, switch, cord and minor parts 105k − 70k = 35k | Illustrative fixture costs |
+| Net a year, shown plan | about $285,000 | 500,000 − 215,000; the "net $285k/yr" of the plan-shown row above | Illustrative economics |
+| First answer | about a minute | Heat-gun plan search uncached, `docs/DETAILS.md` (step 4) and README; the recorded full plan took 33 s (proxy row above), D79 sizes a 6-move search at 1–2 minutes when Vertex is healthy | Rounded; never quote as a measured latency |
+| Bar lengths in the before/after figure | Unde ÷ before, per row: 1 min ÷ 20 h = 1/1200; 4.6 s ÷ 21 days = 2.5 × 10⁻⁶; $0.0078 ÷ $3,600 = 2.2 × 10⁻⁶ | Drawn to scale per row; anything under 2 px is drawn at 2 px and the figure says so | Drawing only, no new figure |
+
+The other figures in the story are existing rows: 20 hours, 21 days (n = 247), US$3,600, 3,628 ruling responses (market and time), p50 4.6 s and $0.0078 (evaluation), N345938 (plan shown).
+
 Rules: small-n numbers carry CIs; development-only numbers say "development set"; never "approved", "verified", "guaranteed", "cheapest" or "proof that it qualifies". Do not describe a percentage-point gap between subsets as proof of calibration.

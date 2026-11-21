@@ -90,6 +90,8 @@ Across 182 precedent checks that cleared the bar, none was wrong. The bar is str
 
 All limitations: [docs/DETAILS.md](docs/DETAILS.md#limitations).
 
+What we would build to turn the prototype into an enterprise product, phase by phase: [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ## How it's built
 
 ```
@@ -142,6 +144,6 @@ setup still depends on it.
 | `backend/` | Go API, origin engine, planner, verifier, eval tools |
 | `frontend/` | Next.js web app |
 | `eval/` | Test sets and results ([eval/RESULTS.md](eval/RESULTS.md)) |
-| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
+| `docs/` | [DETAILS.md](docs/DETAILS.md) (full write-up), [ROADMAP.md](docs/ROADMAP.md), [DECISIONS.md](docs/DECISIONS.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [NUMBERS.md](docs/NUMBERS.md), [api/openapi.yaml](docs/api/openapi.yaml) |
 
 Data: CBP rulings from [rulings.cbp.gov](https://rulings.cbp.gov) (U.S. government works, public domain).
