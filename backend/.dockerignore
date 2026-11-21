@@ -1,3 +1,13 @@
 Dockerfile
 .dockerignore
 *.exe
+# local go build ./cmd/<name> outputs (#578); the image builds its own /server
+/apikey
+/claimscheck
+/corpus
+/demo
+/eval
+/mediacheck
+/readiness-eval
+/server
+/tariffshift

@@ -24,7 +24,7 @@ const geminiSettings = `{
   }
 }`;
 // The toolset and model lines of examples/adk-agent/unde_agent/agent.py,
-// which ran one whole case against the live server (D391).
+// which ran whole cases against the live server (D391, D422).
 const adkAgent = `from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
@@ -163,8 +163,9 @@ export default function Page() {
             </p>
             <Code label="Google ADK agent in Python">{adkAgent}</Code>
             <p className="duo max-w-[72ch] text-[13px] text-dim">
-              Run once on 22 Nov 2026 against undelabs.dev, anonymously, with Gemini 3.8 Flash through a LiteLLM gateway to Gemini: one heat-gun case, predicted China,
-              one supported plan to Thailand, a draft for the broker. One plan call passed ADK&apos;s default read timeout and was retried, hence the longer timeout above.{" "}
+              Run on 22 Nov 2026 against undelabs.dev, anonymously, with Gemini 3.8 Flash through a LiteLLM gateway to Gemini: one heat-gun case, predicted China,
+              precedent-supported plans to Thailand, a draft for the broker. The first plan call failed on the server&apos;s side at 300 s; the retry, with the same
+              idempotency key, joined the search still running, so the search ran once.{" "}
               <a href={adkExample} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 The agent and exact commands
               </a>
