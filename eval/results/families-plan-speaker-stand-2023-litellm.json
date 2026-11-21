@@ -1,0 +1,247 @@
+{
+  "case_id": "speaker-stand-2023",
+  "target": "Malaysia",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Optimo 1 Stand and Optimo 2 Stand. Two floor stands designed to hold Sonos speakers, each comprised of a base subassembly (plastic base bottom, steel weight, and steel top cover), a vertical aluminum post with a plastic cap, and a top subassembly. The Optimo 1 top subassembly uses a zinc alloy platform ring and plastic bottom cover, while the Optimo 2 uses an aluminum stem with mounting holes. The Optimo 1 Stand and Optimo 2 Stand is assembled in China using components sourced from China and Malaysia.\n\nThe Base Bottom (plastic), Base Weight (steel), Post Cap (plastic), Washer (aluminum), Foot (silicone, primer), Landing Pad (silicone) and Miscellaneous Fasteners (various) are produced in China. The Post (aluminum), Platform Ring (zinc alloy), Platform Ring Bottom Cover (plastic), Stem (aluminum) and Base Cover (steel) are sourced from Malaysia. \n\nFinal assembly in China: Assemble base subassembly, vertical post, and top subassembly and package stands.\n",
+    "prediction": {
+      "origin_country": "Malaysia",
+      "key_factors": [
+        "The main structural components (aluminum vertical post, steel base cover, and zinc alloy platform ring or aluminum stem)"
+      ],
+      "decisive_step": "Manufacturing of the primary structural metal components (post, top mounting structure, and base cover) in Malaysia",
+      "confidence": 0.78,
+      "reasoning": "Under the substantial transformation test, simple assembly of pre-formed components in China does not confer origin (similar to N329854 and N333330). Where assembly is not complex, origin is determined by the components imparting the essential character. Here, the Malaysian-origin components—specifically the vertical aluminum post, steel base cover, and the top mounting structures (zinc alloy platform ring or aluminum stem)—form the primary structural and visual framework of the speaker stands, imparting their essential character over the Chinese base weight and fasteners.",
+      "cited_rulings": [
+        "N333330",
+        "N329854"
+      ],
+      "precedents": [
+        "N329854",
+        "N333330",
+        "N333410",
+        "N334276",
+        "N335716"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2443,
+        "output_tokens": 244,
+        "latency_ms": 7085
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N335711"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Optimo 1 Stand and Optimo 2 Stand. Two floor stands designed to hold Sonos speakers, each comprised of a base subassembly (plastic base bottom, steel weight, and steel top cover), a vertical aluminum post with a plastic cap, and a top subassembly. The Optimo 1 top subassembly uses a zinc alloy platform ring and plastic bottom cover, while the Optimo 2 uses an aluminum stem with mounting holes. The Optimo 1 Stand and Optimo 2 Stand is assembled in China using components sourced from China and Malaysia.\n\nThe Base Bottom (plastic), Base Weight (steel), Post Cap (plastic), Washer (aluminum), Foot (silicone, primer), Landing Pad (silicone) and Miscellaneous Fasteners (various) are produced in China. The Post (aluminum), Platform Ring (zinc alloy), Platform Ring Bottom Cover (plastic), Stem (aluminum) and Base Cover (steel) are sourced from Malaysia. \n\nFinal assembly in China: Assemble base subassembly, vertical post, and top subassembly and package stands.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "The main structural components (aluminum vertical post, steel base cover, and zinc alloy platform ring or aluminum stem)"
+        ],
+        "decisive_step": "Manufacturing of the primary structural metal components (post, top mounting structure, and base cover) in Malaysia",
+        "confidence": 0.78,
+        "reasoning": "Under the substantial transformation test, simple assembly of pre-formed components in China does not confer origin (similar to N329854 and N333330). Where assembly is not complex, origin is determined by the components imparting the essential character. Here, the Malaysian-origin components—specifically the vertical aluminum post, steel base cover, and the top mounting structures (zinc alloy platform ring or aluminum stem)—form the primary structural and visual framework of the speaker stands, imparting their essential character over the Chinese base weight and fasteners.",
+        "cited_rulings": [
+          "N333330",
+          "N329854"
+        ],
+        "precedents": [
+          "N329854",
+          "N333330",
+          "N333410",
+          "N334276",
+          "N335716"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2443,
+          "output_tokens": 244,
+          "latency_ms": 7085
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N335711); engine predicts Malaysia",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "my"
+        }
+      ],
+      "description": "Make Frame and base in Malaysia",
+      "variant_facts": "The merchandise under consideration is a Optimo 1 Stand and Optimo 2 Stand. Two floor stands designed to hold Sonos speakers, each comprised of a base subassembly (plastic base bottom, steel weight, and steel top cover), a vertical aluminum post with a plastic cap, and a top subassembly. The Optimo 1 top subassembly uses a zinc alloy platform ring and plastic bottom cover, while the Optimo 2 uses an aluminum stem with mounting holes. The Optimo 1 Stand and Optimo 2 Stand is assembled in China using components sourced from Malaysia and China.\n\nThe Base Bottom (plastic), Base Weight (steel), Post Cap (plastic), Washer (aluminum), Foot (silicone, primer), Landing Pad (silicone), Post (aluminum), Platform Ring (zinc alloy), Platform Ring Bottom Cover (plastic), Stem (aluminum) and Base Cover (steel) are produced in Malaysia. The Miscellaneous Fasteners (various) are produced in China. \n\nIn Malaysia, the Base Bottom (plastic), Base Weight (steel), Post Cap (plastic), Washer (aluminum), Foot (silicone, primer), Landing Pad (silicone), Post (aluminum), Platform Ring (zinc alloy), Platform Ring Bottom Cover (plastic), Stem (aluminum) and Base Cover (steel) will be produced in-house: Manufacture plastic base bottom, steel base weight, plastic post cap, aluminum washer, silicone foot/landing pad, and fasteners; Manufacture aluminum post, stem, zinc alloy platform ring, plastic platform ring bottom cover, and steel base cover; Apply powder coating to post, platform ring, and stem.\n\nFinal assembly in China: Assemble base subassembly, vertical post, and top subassembly and package stands.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "Structural components of the stand (base weight, base cover, vertical post, stem, platform ring)"
+        ],
+        "decisive_step": "Manufacturing and powder coating of the primary metal and plastic structural components in Malaysia",
+        "confidence": 0.98,
+        "reasoning": "Nearly all components of the speaker stands, including all major structural elements (steel base weight and cover, aluminum post and stem, zinc alloy platform ring, and plastic covers), are completely manufactured and powder-coated in Malaysia. These components impart the essential character and predetermined use of the floor stands (similar to N329854). The processing in China is limited to simple assembly of the Malaysian components using Chinese fasteners and packaging, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N329854"
+        ],
+        "precedents": [
+          "N329854",
+          "N333330",
+          "N333410",
+          "N334276",
+          "N335716"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2572,
+          "output_tokens": 208,
+          "latency_ms": 8022
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N329853",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, major base components (plastic base bottom, steel base weight, post cap, washer, foot, landing pad, and fasteners) are made in China and assembled with Malaysian components in China, giving China origin. In Variant B, manufacturing of virtually all structural components—including the base bottom, steel base weight, post, platform ring, stem, and base cover—moves to Malaysia, leaving only miscellaneous fasteners and simple final assembly/packaging of the three subassemblies in China. Under N329853 (monitor mount), simple assembly of structural metal mount components in a second country does not substantially transform the structural parts.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "speaker stand floor stand base post Malaysia China assembly",
+            "rulings": [
+              "H326590",
+              "N330057",
+              "N334531",
+              "N333646",
+              "N330075",
+              "N330880",
+              "N334681",
+              "N331047"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "floor stand metal components produced in one country assembled in China fasteners",
+            "rulings": [
+              "N333646",
+              "H326590",
+              "N333798",
+              "N334756",
+              "N335716",
+              "N330075",
+              "N334276",
+              "N335508"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Sonos stand mount speaker base subassembly post",
+            "rulings": [
+              "N329853",
+              "H322161",
+              "H328731",
+              "N330296",
+              "N333598",
+              "N330880",
+              "N334276",
+              "H327078"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "stand base weight post aluminum steel fasteners assembly China",
+            "rulings": [
+              "N329853",
+              "N335716",
+              "N334681",
+              "N329854",
+              "N330046",
+              "H322161",
+              "N333330",
+              "N335300"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N329853",
+            "rulings": [
+              "N329853"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335300",
+            "rulings": [
+              "N335300"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14966,
+          "output_tokens": 418,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 22500,
+      "net_per_year": 277500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 19981,
+    "output_tokens": 870,
+    "engine_input_tokens": 5015,
+    "engine_output_tokens": 452,
+    "verifier_input_tokens": 14966,
+    "verifier_output_tokens": 418,
+    "wall_seconds": 32.04761225
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.048662000000000004,
+  "cost_usd_list": 0.09732400000000001,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:06:07+08:00"
+}

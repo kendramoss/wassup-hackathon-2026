@@ -1,0 +1,143 @@
+{
+  "family": "cables_harnesses",
+  "version": "1",
+  "name": "Cables, cord sets and wire harnesses",
+  "note": "For electrical cables, cord sets, and wire harnesses, CBP consistently holds that the country of origin is determined by the country where the underlying metal wire conductor or optical fiber is manufactured, or where single strands are wound, twisted, and extruded into multi-strand conducting cores. Downstream operations such as applying insulation and shielding to pre-existing cores, cutting bulk cable to length, stripping ends, soldering or crimping connectors, and bundling into harnesses or housings are treated as simple assembly that does not confer origin. Written from 45 CBP substantial-transformation rulings (of 59 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H337046",
+    "N331047",
+    "N331572",
+    "N331900",
+    "N335078",
+    "N340107",
+    "N340244",
+    "N340694",
+    "N343132",
+    "N343287",
+    "N343808",
+    "N344328",
+    "N345400",
+    "N346532",
+    "N347034",
+    "N347166",
+    "N347638",
+    "N347805",
+    "N348303",
+    "N348304",
+    "N348409",
+    "N348567",
+    "N348743"
+  ],
+  "groups": [
+    {
+      "id": "optical_fiber_drawing",
+      "name": "Optical fiber drawing",
+      "operations": [
+        "vapor-deposit core and cladding glass or melt and stretch glass into a preform bar",
+        "grind, clean, stretch, and draw the glass preform into optical fiber of specified diameter",
+        "coat the drawn optical fiber with polymer and test for strength and signal transmission"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H337046",
+          "N343132",
+          "N347034",
+          "N347805",
+          "N348409"
+        ],
+        "note": "CBP holds that the country where optical fiber is drawn confers origin to finished fiber optic products, even when jacketing and connector termination occur elsewhere (H337046, N343132, N347034, N347805)."
+      }
+    },
+    {
+      "id": "conductor_core_making",
+      "name": "Wire conductor making",
+      "operations": [
+        "draw and plate metal conductor wire or wind, twist, and strand multiple single-strand wires into conducting cores",
+        "bundle and braid copper wire strands into bulk conducting cores"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N340694",
+          "N344328",
+          "N346532",
+          "N347166",
+          "N348567"
+        ],
+        "note": "CBP considers the wire conductor substantially transformed where the conducting wire itself is made (N346532, N347166, N348567)."
+      }
+    },
+    {
+      "id": "cable_insulation_jacket",
+      "name": "Cable insulation and jacket",
+      "operations": [
+        "extrude PVC or polymer insulation around conducting cores",
+        "wrap insulated cores with aluminum-mylar tape, drain wires, and braided metal shielding",
+        "extrude outer protective jacket and wind bulk unterminated cable onto reels"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N331900",
+          "N340107",
+          "N343287",
+          "N343808",
+          "N348303"
+        ],
+        "not_enough": [
+          "N331047",
+          "N343132",
+          "N346532",
+          "N347034",
+          "N347166",
+          "N348567"
+        ],
+        "note": "Producing bulk insulated cable from raw wire confers origin over later termination (N340107, N343808, N348303), but merely insulating, shielding, and jacketing an already-formed wire conductor or optical fiber does not confer origin (N331047, N343132, N346532, N347166, N348567)."
+      }
+    },
+    {
+      "id": "connectors_and_housings",
+      "name": "Connectors and housings",
+      "operations": [
+        "stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts",
+        "injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N345400",
+          "N347638"
+        ],
+        "not_enough": [
+          "N335078",
+          "N348304",
+          "N348743"
+        ],
+        "note": "Stamping metal terminals confers origin to standalone couplers (N347638) and molding housings with local cord and terminals confers origin to a power strip (N345400), but the origin of connectors, plugs, clamps, or boxes does not confer origin to a cable or harness assembly (N335078, N348304, N348743)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "cut bulk insulated cable or optical fiber to desired length and strip or fan out ends",
+        "solder, crimp, wire, or glue plugs, jacks, clamps, PCB paddle cards, and connectors onto cable ends",
+        "group and tape cables into harnesses or mount assemblies into cassette trays and terminal boxes",
+        "test electrical or optical functionality and package for shipment"
+      ],
+      "movable": false,
+      "precedent": {
+        "not_enough": [
+          "N331047",
+          "N331572",
+          "N335078",
+          "N340107",
+          "N340244",
+          "N343808"
+        ],
+        "note": "Cutting bulk cable or fiber to length, stripping ends, soldering or crimping connectors, taping wires into harnesses, and enclosing them in trays or boxes do not constitute a substantial transformation (N331047, N331572, N335078, N340107, N340244, N343808)."
+      }
+    }
+  ]
+}

@@ -59,6 +59,19 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Corpus | 2,790 rulings, 2023-01-10 to 2026-09-25; NY 2,619 / HQ 171; by year 354 / 425 / 1,358 / 653; regex 2,696 / manual 94; 3,081 facts files | `eval/results/corpus-stats.json` | Measured |
 | Substantial-transformation pool | 1,703 rulings, 1,593 with a single held origin, 93 countries; China + ASEAN 62.8% of those 1,593 | same file | Measured |
 
+## Planner product scope (D138)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Product families with a plan template | 13 (3 before D138, 10 added) | `backend/internal/planner/templates/*.json`; pinned by `TestTemplateSetIsPinned` | Built |
+| Selection pool | 845 substantial-transformation rulings outside the dev, held-out and pilot splits; 840 labelled | `eval/results/families-selection.json` | Measured (model labels, gemini-3.8-flash) |
+| Assembled pool rulings per new family | vehicle parts 88, PCBA-based devices 86, hand tools 67, cables and harnesses 59, medical devices 26, power supplies 23, furniture 15, display and cameras 14, water filters 12, gas grills 11 | `eval/results/families-selection.json` (`chosen`) | Measured (model labels) |
+| Rulings cited by the new templates | 156 distinct; 267 of 326 citation checks supported, the rest dropped | `backend/internal/planner/templates/*.json` (`sources`), `eval/results/families-citation-checks.jsonl` | Measured; each citation checked by gemini-3.8-flash against the ruling's facts and holding |
+| Coverage, held-out (377, 2026) | 16 (4.2%) before, 215 (57.0%) after; failed checks counted as not covered. On the 368 checks that answered: 58.4% (53.3–63.3) | `eval/results/families-coverage-final-{legacy,all}-litellm.jsonl` | Measured once per set (LiteLLM gateway, not Vertex). Say "matched to a family with a plan template", never "planned" or "accurate" |
+| Coverage, development (469, Jul–Dec 2025) | 23 (4.9%) before, 258 (55.0%) after; on the 452 that answered: 57.1% (52.5–61.6) | `eval/results/families-coverage-dev-{legacy,all}-litellm.jsonl` | Measured; say "development set" |
+| Family-check failures | 17 of 469 dev, 9 of 377 held-out at 1,024 output tokens; 31 of 469 dev at the old 400 | coverage rows above | Measured |
+| Live plan checks, new families | 7 of 10 fixtures show a precedent-supported plan, 3 go to a broker; $0.97 promo for the ten | `eval/results/families-live-checks.json` | Development checks on pool-ruling fixtures, one run each; not an evaluation |
+
 ## Image and scan import (built; see `docs/MULTIMODAL.md`)
 
 | Number | Value | Source | Status |

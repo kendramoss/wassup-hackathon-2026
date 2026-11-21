@@ -409,7 +409,7 @@ export const copy = {
     originScope: "U.S. origin only. Not for trade-agreement claims, certificates of origin or non-U.S. rules.",
     outOfScope: "This looks like a case this tool does not decide. A licensed customs broker should review it.",
     part102: "Marking origin under the Part 102 rules. This is not USMCA qualification or regional value content.",
-    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only motorised tools and small appliances, LiDAR modules and LED lights are planned.",
+    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only products in a family with a plan template (13 families, listed in the family picker) are planned.",
     draftNote: "A draft ruling request for a broker to complete and file. It asks CBP a question; it is not a determination.",
     part177Label: "Ruling request letter (19 CFR Part 177)",
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",

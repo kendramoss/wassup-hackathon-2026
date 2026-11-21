@@ -88,25 +88,34 @@ func (c *Checker) schema() map[string]any {
 // Check matches text (what the user typed, plus anything known about the
 // product) to a family.
 func (c *Checker) Check(ctx context.Context, text string) (Result, error) {
+	r, _, err := c.CheckUsage(ctx, text)
+	return r, err
+}
+
+// CheckUsage is Check that also returns the model call's token usage (for
+// the coverage eval's cost accounting, D138).
+func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usage, error) {
 	resp, err := c.model.Generate(ctx, llm.Request{
-		Model:           c.modelID,
-		System:          c.system,
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: "PRODUCT:\n" + text}},
-		JSONSchema:      c.schema(),
-		SchemaName:      "family",
-		MaxOutputTokens: 400,
+		Model:      c.modelID,
+		System:     c.system,
+		Messages:   []llm.Message{{Role: llm.RoleUser, Content: "PRODUCT:\n" + text}},
+		JSONSchema: c.schema(),
+		SchemaName: "family",
+		// 1024, not 400: with thinking billed as output, 400 cut off 31 of
+		// 469 development checks before the JSON (D138).
+		MaxOutputTokens: 1024,
 	})
 	if err != nil {
-		return Result{}, fmt.Errorf("familycheck: %w", err)
+		return Result{}, llm.Usage{}, fmt.Errorf("familycheck: %w", err)
 	}
 	var r Result
 	if err := resp.DecodeJSON(&r); err != nil {
-		return Result{}, fmt.Errorf("familycheck: %w", err)
+		return Result{}, resp.Usage, fmt.Errorf("familycheck: %w", err)
 	}
 	if r.Family != None && !slices.Contains(c.ids, r.Family) {
-		return Result{}, fmt.Errorf("familycheck: %w: family %q", llm.ErrBadResponse, r.Family)
+		return Result{}, resp.Usage, fmt.Errorf("familycheck: %w: family %q", llm.ErrBadResponse, r.Family)
 	}
 	r.Name = c.names[r.Family]
 	r.Confidence = min(max(r.Confidence, 0), 1)
-	return r, nil
+	return r, resp.Usage, nil
 }

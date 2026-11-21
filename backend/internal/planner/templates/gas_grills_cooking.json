@@ -1,0 +1,105 @@
+{
+  "family": "gas_grills_cooking",
+  "version": "1",
+  "name": "Gas grills and outdoor cooking appliances",
+  "note": "CBP generally finds that origin is conferred where raw sheet metal and tubing are substantially transformed through stamping, forming, bending, welding, and porcelain enameling into the main structural subassemblies such as the lid, firebox, cooking area, and frame. Conversely, merely enameling pre-formed enclosures or joining pre-manufactured burner assemblies, gas trains, housings, and minor local brackets through fastener assembly and testing does not confer origin. Written from 11 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N335085",
+    "N335086",
+    "N335581",
+    "N339983",
+    "N339984",
+    "N340363",
+    "N344475",
+    "N344477",
+    "N345976",
+    "N346005"
+  ],
+  "groups": [
+    {
+      "id": "lid_and_firebox",
+      "name": "Lid and firebox forming",
+      "operations": [
+        "forming, deep drawing, bending, and punching steel sheets into main lid panels, fireboxes, and outer housings",
+        "grinding sharp edges and welding brackets and hinges onto lid and firebox structures",
+        "degreasing, pickling, applying wet frit porcelain enamel or powder coating, and furnace baking the formed enclosures"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N335086",
+          "N339984",
+          "N340363"
+        ],
+        "not_enough": [
+          "N335085",
+          "N339983"
+        ],
+        "note": "Forming the main lid and firebox from raw steel sheets in the assembly country weighed heavily toward conferring origin (N335086, N339984, N340363)."
+      }
+    },
+    {
+      "id": "burners_and_gas_train",
+      "name": "Burners and gas train",
+      "operations": [
+        "forming and fabricating burner tubes, oxygen depletion sensors, and pilot assemblies",
+        "manufacturing gas manifolds, thermostatic valves, regulators, and gas train assemblies",
+        "assembling ignitor modules, thermocouples, and control knobs with the gas delivery components"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N345976"
+        ],
+        "not_enough": [
+          "N344475",
+          "N344477",
+          "N345976",
+          "N346005"
+        ],
+        "note": "Chinese-origin burner assemblies, valves, and sensors retained their origin when combined in Vietnam with only local regulators and selector valves (N345976), while extensive sheet metal fabrication in Thailand conferred origin despite using Chinese gas trains and burner tubes (N344475, N344477)."
+      }
+    },
+    {
+      "id": "cooking_surface_frame",
+      "name": "Cooking surface, panels and frame",
+      "operations": [
+        "stamping, bending, and welding steel sheets and tubes into cart frames, side shelves, and cabinet panels",
+        "fabricating cooking grids, flat top griddle plates, grease trays, and control panels",
+        "producing printed circuit board assemblies and electrical harnesses for range and grill controls"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N335581",
+          "N344475",
+          "N344477"
+        ],
+        "note": "Stamping and welding the structural panels, griddle plates, control panels, and PCBAs in the final assembly country supported origin (N335581, N344475, N344477)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "mounting burners, gas train assemblies, and ignitors into the firebox or heating cabinet",
+        "attaching the main lid, control panel, side shelves, grates, and cart frame with hardware",
+        "connecting gas lines and wires, performing leak and ignition testing, and packaging with manuals and accessories"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N344475",
+          "N344477"
+        ],
+        "not_enough": [
+          "N335085",
+          "N339983",
+          "N345976",
+          "N346005"
+        ],
+        "note": "Final assembly and testing conferred origin when paired with local metal forming of key subassemblies (N344475), but did not confer origin when core components were imported pre-formed (N335085, N339983, N345976, N346005)."
+      }
+    }
+  ]
+}

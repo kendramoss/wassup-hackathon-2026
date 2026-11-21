@@ -1,0 +1,253 @@
+{
+  "case_id": "usb-hub-2024",
+  "target": "Taiwan",
+  "family": "pcba_electronic_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a USB-C 11-in-1 Hub (Hub), Item No. C112H-R. The USB-C 11-in-1 Hub connects to an automatic data processing machine to attach peripherals, memory cards, and network connections. It consists of an aluminum enclosure, a plastic end cap, and a printed circuit board assembly (PCBA) with multiple ports and sockets such as USB, HDMI, SD card slots, and an RJ45 port. The USB-C 11-in-1 Hub (Hub), Item No. C112H-R is assembled in Taiwan using components sourced from China and Taiwan.\n\nThe printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports are produced in China. The aluminum housing and plastic end cap are produced in Taiwan. \n\nFinal assembly in Taiwan: Place PCBA into aluminum housing; Install plastic end cap; Conduct quality and functional testing.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The printed circuit board assembly (PCBA) with integrated ports and sockets"
+      ],
+      "decisive_step": "Manufacturing of the PCBA with USB, HDMI, SD card, and RJ45 ports in China",
+      "confidence": 0.98,
+      "reasoning": "Following CBP precedents N339405, N331904, and N332332, the PCBA imparts the essential character to an electronic hub/adapter because it enables the core interconnecting and signal-converting functions. The PCBA is fully produced in China. The subsequent operations in Taiwan—inserting the Chinese PCBA into a Taiwanese aluminum housing, attaching a plastic end cap, and testing—constitute simple assembly and do not substantially transform the PCBA into a new and different article of commerce.",
+      "cited_rulings": [
+        "N339405",
+        "N332332",
+        "N331904"
+      ],
+      "precedents": [
+        "H332752",
+        "N331904",
+        "N332332",
+        "N338376",
+        "N339405"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2608,
+        "output_tokens": 223,
+        "latency_ms": 6746
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N341280"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "tw"
+        }
+      ],
+      "description": "Make PCBA (SMT) in Taiwan",
+      "variant_facts": "The merchandise under consideration is a USB-C 11-in-1 Hub (Hub), Item No. C112H-R. The USB-C 11-in-1 Hub connects to an automatic data processing machine to attach peripherals, memory cards, and network connections. It consists of an aluminum enclosure, a plastic end cap, and a printed circuit board assembly (PCBA) with multiple ports and sockets such as USB, HDMI, SD card slots, and an RJ45 port. The USB-C 11-in-1 Hub (Hub), Item No. C112H-R is assembled in Taiwan using components sourced from Taiwan.\n\nThe printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports, aluminum housing and plastic end cap are produced in Taiwan. \n\nIn Taiwan, the printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports will be produced in-house: solder electronic components onto the bare printed circuit board (SMT).\n\nFinal assembly in Taiwan: Place PCBA into aluminum housing; Install plastic end cap; Conduct quality and functional testing.\n",
+      "prediction": {
+        "origin_country": "Taiwan",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "Surface mount technology (SMT) soldering of electronic components onto the bare PCB and final assembly in Taiwan",
+        "confidence": 1,
+        "reasoning": "Consistent with CBP precedents N339405 and N331904, the essential character of a peripheral adapter hub is imparted by its printed circuit board assembly (PCBA), which enables signal conversion and peripheral interconnection. Here, all components (PCBA, aluminum housing, plastic end cap) are sourced in Taiwan, the bare PCB is populated via SMT soldering in Taiwan, and final assembly and testing occur in Taiwan. Because the product is wholly produced and substantially transformed in Taiwan, the country of origin is Taiwan.",
+        "cited_rulings": [
+          "N339405",
+          "N331904"
+        ],
+        "precedents": [
+          "H332752",
+          "N331904",
+          "N332332",
+          "N338376",
+          "N339405"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2645,
+          "output_tokens": 231,
+          "latency_ms": 5842
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N339405",
+        "confidence": 0.96,
+        "reasoning": "In N339405, CBP ruled on a nearly identical multi-port USB-C adapter hub (PCBA with HDMI and USB sockets in a housing). CBP held that manufacturing the PCBA by soldering components onto a bare board via SMT substantially transforms the components and establishes the function and origin of the hub. In Variant A, the PCBA is made in China and merely placed into the housing in Taiwan, conferring Chinese origin. In Variant B, SMT production of the PCBA moves to Taiwan (and all components are Taiwanese), shifting the country of origin to Taiwan.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "USB hub docking station PCBA SMT Taiwan China origin",
+            "rulings": [
+              "H328731",
+              "H332752",
+              "N339405",
+              "N340295",
+              "N338375",
+              "N331943",
+              "N337999",
+              "N338376"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "docking station hub PCBA surface mount technology origin",
+            "rulings": [
+              "H328731",
+              "H332752",
+              "N339405",
+              "N337999",
+              "N340295",
+              "N335263",
+              "H331939",
+              "N332276"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "USB hub PCBA aluminum housing end cap origin",
+            "rulings": [
+              "N339405",
+              "N331904",
+              "N333268",
+              "N331908",
+              "N331906",
+              "N331935",
+              "N331943",
+              "N338377"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339405",
+            "rulings": [
+              "N339405"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H328731",
+            "rulings": [
+              "H328731"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333268",
+            "rulings": [
+              "N333268"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13751,
+          "output_tokens": 379,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 37500,
+      "net_per_year": 262500,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a USB-C 11-in-1 Hub (Hub), Item No. C112H-R. The USB-C 11-in-1 Hub connects to an automatic data processing machine to attach peripherals, memory cards, and network connections. It consists of an aluminum enclosure, a plastic end cap, and a printed circuit board assembly (PCBA) with multiple ports and sockets such as USB, HDMI, SD card slots, and an RJ45 port. The USB-C 11-in-1 Hub (Hub), Item No. C112H-R is assembled in Taiwan using components sourced from China and Taiwan.\n\nThe printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports are produced in China. The aluminum housing and plastic end cap are produced in Taiwan. \n\nFinal assembly in Taiwan: Place PCBA into aluminum housing; Install plastic end cap; Conduct quality and functional testing.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The printed circuit board assembly (PCBA) with integrated ports and sockets"
+        ],
+        "decisive_step": "Manufacturing of the PCBA with USB, HDMI, SD card, and RJ45 ports in China",
+        "confidence": 0.98,
+        "reasoning": "Following CBP precedents N339405, N331904, and N332332, the PCBA imparts the essential character to an electronic hub/adapter because it enables the core interconnecting and signal-converting functions. The PCBA is fully produced in China. The subsequent operations in Taiwan—inserting the Chinese PCBA into a Taiwanese aluminum housing, attaching a plastic end cap, and testing—constitute simple assembly and do not substantially transform the PCBA into a new and different article of commerce.",
+        "cited_rulings": [
+          "N339405",
+          "N332332",
+          "N331904"
+        ],
+        "precedents": [
+          "H332752",
+          "N331904",
+          "N332332",
+          "N338376",
+          "N339405"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2608,
+          "output_tokens": 223,
+          "latency_ms": 6746
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N341280); engine predicts China",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N342837 (3 Oct 2024): CBP held Taiwan",
+    "plan": "Make PCBA (SMT) in Taiwan",
+    "actual_moved": [
+      "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports"
+    ],
+    "moved_by_plan": [
+      "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 19004,
+    "output_tokens": 833,
+    "engine_input_tokens": 5253,
+    "engine_output_tokens": 454,
+    "verifier_input_tokens": 13751,
+    "verifier_output_tokens": 379,
+    "wall_seconds": 26.6303395
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "pcba_electronic_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.046338000000000004,
+  "cost_usd_list": 0.09267600000000001,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:01:34+08:00"
+}

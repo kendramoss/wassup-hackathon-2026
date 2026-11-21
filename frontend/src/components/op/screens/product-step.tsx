@@ -33,6 +33,7 @@ import { isImage, mediaBanner, routeFor, scaledSize, tooLarge } from "@/lib/medi
 import { Button, Chip, Country, Panel, PanelHead, Spinner, cx } from "../ui";
 import { VIEWER_REASON, canCreate } from "@/lib/roles";
 import { useWorkspaceRole } from "@/lib/use-role";
+import { familyName, families, groupSuggestions } from "@/lib/families";
 
 type Tab = "parts" | "paste" | "bom";
 // Import BOM first: most users have one (18 Oct).
@@ -58,28 +59,13 @@ export function nameFromFile(file: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-// Operation groups of the planner templates, offered as suggestions.
-const groupSuggestions = [
-  "motor_fan_assembly",
-  "pcba",
-  "heating_element",
-  "housing_moulding",
-  "switch_cord_minor_parts",
-  "final_assembly",
-];
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 // No empty rows on arrival: the parts tab starts with "+ Add" prompts.
 const emptyProduct = (): Product => ({ name: "", plants: [], components: [], operations: [] });
 
-const families = [
-  { id: "motorised_tools_small_appliances", name: "Motorised tools & small appliances" },
-  { id: "led_lights", name: "LED lights and lamps" },
-  { id: "lidar_modules", name: "LiDAR sensor modules" },
-];
 const familyOptions: ComboOption[] = [...families.map((f) => ({ value: f.id, label: f.name })), { value: "", label: "None of these (likely origin only)" }];
-const familyName = (id: string) => families.find((f) => f.id === id)?.name ?? id;
 
 // A family typed that isn't listed is checked by the AI (18 Oct). It can
 // only answer with a family that exists, or none.
@@ -124,7 +110,7 @@ function FamilyNote({ check, onUse }: { check: FamilyCheck; onUse: (family: stri
     return (
       <div role="status" className={cx(box, "border-ask-line bg-ask-wash text-body")}>
         <b className="font-medium text-ask">&ldquo;{check.typed}&rdquo; isn&apos;t a supported family yet.</b> {check.reason} The likely origin still works; the plan search
-        needs one of: {families.map((f) => f.name).join(", ")}.
+        needs one of the {families.length} families in the list.
       </div>
     );
   return (
@@ -616,7 +602,7 @@ export function ProductStep() {
           )}
 
           <div className="mt-5" role="tabpanel" id="step1-panel" aria-labelledby={`step1-tab-${tab}`}>
-            {tab === "parts" && <PartsEditor product={product} onChange={setProduct} />}
+            {tab === "parts" && <PartsEditor product={product} family={family} onChange={setProduct} />}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
                 <Field label={copy.product.facts}>
@@ -1055,13 +1041,13 @@ function plantId(product: Product) {
   return `p${n}`;
 }
 
-export function PartsEditor({ product, onChange }: { product: Product; onChange: (p: Product) => void }) {
+export function PartsEditor({ product, family, onChange }: { product: Product; family?: string; onChange: (p: Product) => void }) {
   const plants = product.plants ?? [];
   const ops = product.operations ?? [];
   const setPlants = (p: Plant[]) => onChange({ ...product, plants: p });
   const setComps = (c: Component[]) => onChange({ ...product, components: c });
   const setOps = (o: Operation[]) => onChange({ ...product, operations: o });
-  const groups = [...new Set([...groupSuggestions, ...[...product.components, ...ops].map((x) => x.group).filter((g): g is string => Boolean(g))])];
+  const groups = [...new Set([...groupSuggestions(family), ...[...product.components, ...ops].map((x) => x.group).filter((g): g is string => Boolean(g))])];
   const plantOptions: ComboOption[] = [
     { value: "", label: "A supplier not listed" },
     ...plants.map((p) => ({ value: p.id, label: `${p.name || "Unnamed plant"}${p.country ? ` · ${p.country}` : ""}` })),

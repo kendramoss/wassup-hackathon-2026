@@ -1,0 +1,124 @@
+{
+  "family": "vehicle_parts",
+  "version": "1",
+  "name": "Vehicle parts (mechanical and electromechanical)",
+  "note": "For mechanical and electromechanical vehicle assemblies, CBP generally finds that origin is conferred by the country that manufactures the core functional component or performs extensive precision machining, heat treatment, and coil winding on raw blanks. Conversely, simple assembly operations such as pressing, riveting, soldering leads, or bolting pre-manufactured components into a housing do not result in a substantial transformation. Written from 45 CBP substantial-transformation rulings (of 88 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H322161",
+    "H335139",
+    "H337371",
+    "H354721",
+    "N330075",
+    "N331974",
+    "N333330",
+    "N334204",
+    "N337565",
+    "N339022",
+    "N340438",
+    "N343372",
+    "N343396",
+    "N343953",
+    "N344657",
+    "N344809",
+    "N345286",
+    "N345322",
+    "N345436",
+    "N345996"
+  ],
+  "groups": [
+    {
+      "id": "electromechanical_core",
+      "name": "Electromechanical core (motor, coil, sensor)",
+      "operations": [
+        "winding primary and secondary copper wires onto bobbins and assembling with iron cores and magnets",
+        "manufacturing electric motors, armatures, stators, and pyrotechnic or electric actuators",
+        "fabricating Hall Effect sensor integrated circuits, electromagnetic sensor cores, and insulated conductor cables"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H322161",
+          "H337371",
+          "H354721",
+          "N330075",
+          "N344657",
+          "N344809"
+        ],
+        "not_enough": [
+          "N343953"
+        ],
+        "note": "CBP holds that the origin of electromechanical vehicle parts is governed by the country where the core motor, stator, actuator, wound coil, or sensor IC is produced (H322161, H354721, N330075, N344657, N344809), whereas merely soldering an imported IC to a local passive PCB is not enough (N343953)."
+      }
+    },
+    {
+      "id": "precision_machined_parts",
+      "name": "Machined and heat-treated metal parts",
+      "operations": [
+        "turning, drilling, chamfering, tapping, and splining forged steel blanks or cut metal pipes",
+        "quenching, tempering, and induction hardening of bearing rings, wheel hub flanges, and ball joint studs",
+        "cNC rough grinding and super-fine grinding of bearing raceways, inner rings, and outer flanges",
+        "manufacturing primary mechanical functional elements such as pump impellers, brake friction linings, and worm gears"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N334204",
+          "N339022",
+          "N340438",
+          "N343396",
+          "N345286",
+          "N345436"
+        ],
+        "not_enough": [
+          "N337565"
+        ],
+        "note": "Extensive machining, heat treating, and super-fine raceway grinding of components, or producing key functional elements, confers origin (N334204, N339022, N340438, N343396, N345286, N345436), while pre- and finish-machining an imported cast rotor does not (N337565)."
+      }
+    },
+    {
+      "id": "housings_and_structures",
+      "name": "Housings and structural parts",
+      "operations": [
+        "sawing, stamping, washing, and heat treating metal profiles, structural brackets, and radiator cores",
+        "casting or molding metal and plastic housings, bells, enclosures, and mounting plates",
+        "assembling ancillary PCBAs, cutting cables or hoses to length, and crimping fittings"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H335139",
+          "N331974"
+        ],
+        "not_enough": [
+          "H322161",
+          "N333330",
+          "N337565"
+        ],
+        "note": "Substantial metalforming of raw profiles or manufacturing core components can confer origin (H335139, N331974), but supplying secondary housings, cast bells, or control PCBAs paired with an imported core does not confer origin (H322161, N333330, N337565)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "pressing, riveting, bolting, and installing rollers, cages, seals, valves, and subassemblies into housings",
+        "soldering electrical connections, potting with epoxy resin, drying, and greasing mechanical parts",
+        "performing functional, pressure, inductance, and voltage testing, laser marking, and packaging"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N344657",
+          "N345322",
+          "N345996"
+        ],
+        "not_enough": [
+          "H322161",
+          "N334204",
+          "N343372"
+        ],
+        "note": "Final assembly confers origin when it involves complex multi-step integration or local subassembly manufacturing (N344657, N345322, N345996), whereas bolting or pressing together imported components is not enough for a substantial transformation (H322161, N334204, N343372)."
+      }
+    }
+  ]
+}

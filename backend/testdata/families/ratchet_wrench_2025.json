@@ -1,0 +1,101 @@
+{
+  "_source": "Illustrative starting setup (everything made in China) built from the facts of CBP ruling N347615 (5 May 2025), where the wrench is forged in Vietnam and machined, heat-treated and assembled in China: CBP held Vietnam. The all-China setup has no ruling; the engine predicts its origin. N347615 is in the selection pool and is excluded.",
+  "case_id": "ratchet-wrench-2025",
+  "date": "2025-04-20",
+  "family": "hand_tools",
+  "target": "Vietnam",
+  "product": {
+    "name": "Reversible ratcheting wrench",
+    "description": "A box-end wrench made primarily of steel whose two box ends hold a ratcheting mechanism of plastic and metal parts.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China plant",
+        "country": "China",
+        "capabilities": [
+          "primary_metal_forming",
+          "machining_and_treatment",
+          "handles_and_hardware",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "vn",
+        "name": "Vietnam forge",
+        "country": "Vietnam",
+        "capabilities": [
+          "primary_metal_forming",
+          "machining_and_treatment",
+          "handles_and_hardware"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "forged steel wrench body",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "primary_metal_forming"
+      },
+      {
+        "name": "springs, clips, pins and small bushings of the ratcheting mechanism",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "handles_and_hardware"
+      }
+    ],
+    "operations": [
+      {
+        "name": "cut raw steel rods to length and forge them into the final size, shape and form of the wrench, except the two end holes",
+        "plant": "cn",
+        "group": "primary_metal_forming"
+      },
+      {
+        "name": "machine the two end holes, heat-treat and polish",
+        "plant": "cn",
+        "group": "machining_and_treatment"
+      },
+      {
+        "name": "assemble the ratcheting mechanism into the end holes and pack",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "primary_metal_forming": {
+        "cn": 90000,
+        "vn": 112500
+      },
+      "machining_and_treatment": {
+        "cn": 60000,
+        "vn": 75000
+      },
+      "handles_and_hardware": {
+        "cn": 30000,
+        "vn": 37500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N347615"
+  ],
+  "actual_change": {
+    "_source": "CBP ruling N347615 (5 May 2025): CBP held Vietnam",
+    "moved_to": "Vietnam",
+    "moved_to_thailand": [
+      "forged steel wrench body"
+    ],
+    "still_from_china": [
+      "springs, clips, pins and small bushings of the ratcheting mechanism"
+    ]
+  }
+}

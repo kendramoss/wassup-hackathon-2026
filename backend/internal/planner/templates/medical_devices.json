@@ -1,0 +1,151 @@
+{
+  "family": "medical_devices",
+  "version": "1",
+  "name": "Medical devices and disposables",
+  "note": "For medical devices and disposables, CBP usually finds that origin is conferred where the primary functional component, such as the stainless steel needle cannula, syringe barrel or bulb, main fluid chamber or tubing, forged surgical blank, or printed circuit board assembly and optical sensor array, is manufactured. Conversely, CBP treats attaching plastic hubs, bonding connectors and clamps onto tubing, inserting plungers into barrels, putting components into blister trays, and sterilizing and packaging as simple assembly that does not confer origin. Written from 26 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H322967",
+    "H339462",
+    "N336168",
+    "N340345",
+    "N342838",
+    "N343161",
+    "N343712",
+    "N343771",
+    "N343774",
+    "N343775",
+    "N344211",
+    "N344695",
+    "N345397",
+    "N348081",
+    "N348317",
+    "N349038",
+    "N350041",
+    "N357919",
+    "N361712"
+  ],
+  "groups": [
+    {
+      "id": "metal_cannula_forging",
+      "name": "Needle cannula or metal blank",
+      "operations": [
+        "roll, laser-weld, and cold-draw stainless steel strip into hollow needle tubing",
+        "cut stainless steel tubing to length and bevel, grind, or sharpen the needle tip",
+        "temper, anneal, electropolish, and bend stainless steel cannulae to fixed angles",
+        "hot-forge and anneal stainless steel into the distinctive shape of surgical forceps"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H322967",
+          "N343712",
+          "N343771",
+          "N343774",
+          "N348317",
+          "N361712"
+        ],
+        "not_enough": [
+          "N344211",
+          "N344695"
+        ],
+        "note": "CBP held that manufacturing the sharpened or pre-processed stainless steel cannula or hot-forged surgical blank confers origin on needles, tips, and forceps (H322967, N343712, N343771, N348317, N361712), though a pre-made needle alone did not determine origin when combined with locally molded and assembled syringe parts (N344211, N344695)."
+      }
+    },
+    {
+      "id": "molded_barrels_chambers",
+      "name": "Moulded barrels, chambers and tubing",
+      "operations": [
+        "injection-mold plastic syringe barrels with integral tips, plungers, and plunger seals",
+        "print graduated volume measurement markings onto syringe barrels",
+        "injection-mold soft plastic irrigation bulbs and integral bent plastic cannula tips",
+        "manufacture drip chambers, selectable drop chambers, and filtered transfusion chambers",
+        "extrude medical-grade PVC and fluted silicone tubing for fluid administration and drainage"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N342838",
+          "N343161",
+          "N343775",
+          "N344211",
+          "N348081",
+          "N357919"
+        ],
+        "not_enough": [
+          "N342838",
+          "N343161"
+        ],
+        "note": "CBP looked to the country producing the core fluid-handling body, such as molded syringe parts (N343161, N344211), a soft bulb (N342838), an integral molded tip (N343775), or primary medical tubing (N348081), while finding secondary molded parts insufficient when paired with a more essential imported component (N342838, N343161)."
+      }
+    },
+    {
+      "id": "pcba_and_sensors",
+      "name": "PCBA and sensors",
+      "operations": [
+        "populate printed circuit boards with electronic components using surface mount technology (SMT)",
+        "manufacture and assemble LED emitters and photodetectors into optical sensor arrays",
+        "produce chip-on-board (COB) modules, LCD screens, and temperature or pressure sensor movements",
+        "load firmware and perform circuit board quality control testing"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N336168",
+          "N345397",
+          "N350041"
+        ],
+        "note": "For electronic and optical medical devices, CBP held that origin is conferred where the SMT printed circuit board assembly, electronic movement, or LED/photodetector array is manufactured (N336168, N345397, N350041)."
+      }
+    },
+    {
+      "id": "hubs_clamps_housings",
+      "name": "Hubs, clamps and housings",
+      "operations": [
+        "injection-mold plastic needle hubs, sheaths, protective caps, and luer connectors",
+        "manufacture roller clamps, pinch clamps, slide clamps, spikes, and Y-injection sites",
+        "produce plastic enclosures, top and bottom guides, foam laminates, adhesive tapes, and cords",
+        "extrude and coat brush fibers for dental applicator tips"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "H322967",
+          "N336168",
+          "N343771",
+          "N343774",
+          "N348081",
+          "N349038"
+        ],
+        "note": "CBP found that sourcing minor connecting or housing parts such as plastic hubs, sheaths, clamps, luer locks, cords, brush fibers, or outer enclosures does not confer origin on the finished device (H322967, N336168, N343771, N343774, N348081, N349038)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "glue or attach plastic hubs and protective caps onto stainless steel needles and cannulae",
+        "insert plungers with gaskets into syringe barrels and screw hubbed needles onto syringe tips",
+        "solvent-bond medical tubing to drip chambers, spikes, Y-sites, and luer connectors in a cleanroom",
+        "assemble sensor arrays, PCBs, displays, and batteries into plastic housings or adhesive foam pads",
+        "place syringes, tubing assemblies, and spikes into blister trays, seal with Tyvek, and sterilize"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "H339462",
+          "N344211",
+          "N344695"
+        ],
+        "not_enough": [
+          "H322967",
+          "N336168",
+          "N340345",
+          "N343712",
+          "N348081",
+          "N357919"
+        ],
+        "note": "CBP held that gluing hubs to needles, bonding tubing, assembling syringe components, and kit packaging do not confer origin on their own (H322967, N336168, N340345, N343712, N348081, N357919), conferring origin only when combined with molding core parts or complex assembly (H339462, N344211, N344695)."
+      }
+    }
+  ]
+}

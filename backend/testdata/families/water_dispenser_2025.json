@@ -1,0 +1,92 @@
+{
+  "_source": "CBP ruling N348298 (21 May 2025): electric water filter dispenser, South Korean carbon block, other parts Chinese, assembled in China: CBP held China. In the selection pool; excluded. Plant capabilities for South Korea are an assumption.",
+  "case_id": "water-dispenser-2025",
+  "date": "2025-05-21",
+  "family": "water_filters",
+  "target": "South Korea",
+  "product": {
+    "name": "Electric water filter dispenser",
+    "description": "A countertop dispenser made of a transparent water tank, a tank lid and a water pumping unit; the pumping unit holds a circuit board, a battery and a carbon block filter element.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China plant",
+        "country": "China",
+        "capabilities": [
+          "cartridge_housings",
+          "dispenser_electronics",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "kr",
+        "name": "South Korea supplier",
+        "country": "South Korea",
+        "capabilities": [
+          "carbon_block",
+          "cartridge_housings",
+          "dispenser_electronics"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "carbon block",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "carbon_block"
+      },
+      {
+        "name": "filter element housing parts",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "transparent water tank and tank lid",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "dispenser_electronics"
+      },
+      {
+        "name": "water pumping unit with circuit board, battery and touch panel",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "dispenser_electronics"
+      }
+    ],
+    "operations": [
+      {
+        "name": "assemble the filter element, fit it into the pumping unit, fit the pumping unit to the tank and lid, test and pack",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "South Korea": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "cartridge_housings": {
+        "cn": 40000,
+        "kr": 50000
+      },
+      "dispenser_electronics": {
+        "cn": 120000,
+        "kr": 150000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N348298"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348298"
+  }
+}

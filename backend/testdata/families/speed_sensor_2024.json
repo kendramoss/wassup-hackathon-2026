@@ -1,0 +1,111 @@
+{
+  "_source": "CBP ruling N343953 (26 Nov 2024): transmission speed sensor, Chinese Hall effect IC soldered to a PCB and housed in Thailand: CBP held China. N344809 (10 Jan 2025): the Hall effect IC made in Thailand: CBP held Thailand. Both in the selection pool; both excluded.",
+  "case_id": "speed-sensor-2024",
+  "date": "2024-12-15",
+  "family": "vehicle_parts",
+  "target": "Thailand",
+  "product": {
+    "name": "Speed sensors (part numbers 20010031 and 20010104)",
+    "description": "Speed sensors installed within the transmission system of a vehicle to provide speed information for wheels and turbines to the Transmission Control Unit. They consist of a Hall Effect sensor integrated circuit attached to a printed circuit board, enclosed within a plastic frame and shell with a connection point at one end.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand sensor plant",
+        "country": "Thailand",
+        "capabilities": [
+          "electromechanical_core",
+          "precision_machined_parts",
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China IC supplier",
+        "country": "China",
+        "capabilities": [
+          "electromechanical_core"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Hall Effect sensor integrated circuit (IC)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "electromechanical_core"
+      },
+      {
+        "name": "Printed Circuit Board (PCB)",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Plastic frame",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Plastic shell",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "housings_and_structures"
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the Hall effect sensor integrated circuit",
+        "plant": "cn",
+        "group": "electromechanical_core"
+      },
+      {
+        "name": "Bending and soldering the leads of the Hall Effect IC to the PCB",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Inserting the IC and PCB subassembly into the plastic frame and enclosing with the plastic shell",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Inspecting, testing, and packaging the finished device",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "electromechanical_core": {
+        "cn": 120000,
+        "th": 150000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N343953",
+    "N344809"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N343953"
+  },
+  "actual_change": {
+    "_source": "CBP ruling N344809 (10 Jan 2025): CBP held Thailand",
+    "moved_to": "Thailand",
+    "moved_to_thailand": [
+      "Hall Effect sensor integrated circuit (IC)"
+    ],
+    "still_from_china": []
+  }
+}

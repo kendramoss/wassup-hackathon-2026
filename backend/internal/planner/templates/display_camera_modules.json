@@ -1,0 +1,106 @@
+{
+  "family": "display_camera_modules",
+  "version": "1",
+  "name": "Display modules and cameras",
+  "note": "For display modules, cameras, and optical assemblies, CBP generally confers origin where the core active element is fabricated, such as TFT-LCD or OLED display cell formation, SMT production of camera sensor and processing PCBAs, or grinding and milling of optical lens blanks. Downstream cutting of display cells, attaching driver ICs, polarizers, backlights, lenses, or housings, and final testing are treated as assembly operations that do not substantially transform the core components. Written from 14 CBP substantial-transformation rulings outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N330296",
+    "N335871",
+    "N335873",
+    "N337202",
+    "N339727",
+    "N343835",
+    "N344595",
+    "N345328",
+    "N345937",
+    "N345963",
+    "N348165",
+    "N349742"
+  ],
+  "groups": [
+    {
+      "id": "display_cell_fab",
+      "name": "Display cell fabrication",
+      "operations": [
+        "build thin-film transistor (TFT) array structure on glass substrate via chemical vapor deposition and patterning",
+        "develop color filter on matching glass substrate or deposit organic electroluminescent (EV) layers and cathodes",
+        "fill liquid crystal material via one-drop fill (ODF) between aligned substrates or encapsulate (EN) the OLED glass"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N335871",
+          "N335873",
+          "N337202",
+          "N343835",
+          "N345328",
+          "N345963"
+        ],
+        "note": "CBP held that the country where the TFT array, color filter or organic layers, and liquid crystal fill or encapsulation are fabricated on the glass substrate is the country of origin of the finished display module (N335871, N335873, N337202, N343835, N345328, N345963)."
+      }
+    },
+    {
+      "id": "camera_pcba_smt",
+      "name": "Camera PCBA (SMT)",
+      "operations": [
+        "populate bare PCBs with electronic components via surface mount technology (SMT) and reflow soldering for sensor, processing, and power boards",
+        "install through-hole components via dual in-line package (DIP) wave soldering",
+        "load device firmware, attach compact camera module (CCM) to the main board where applicable, and inspect PCBAs"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N330296",
+          "N339727",
+          "N344595",
+          "N349742"
+        ],
+        "not_enough": [
+          "N348165"
+        ],
+        "note": "CBP held that SMT manufacturing of the camera's sensor, encoding, and main processing PCBAs confers origin when those subassemblies provide the essential image-capturing and processing capability (N330296, N339727, N344595, N349742), though a PCBA exported without the ability to capture and convert images was not enough in N348165."
+      }
+    },
+    {
+      "id": "optical_lens_shaping",
+      "name": "Lens grinding",
+      "operations": [
+        "cut raw optical glass pucks, sheets, bars, or rods into disk-shaped lens blanks",
+        "grind and mill the lens blank to create the required optical curvature",
+        "smooth, polish, center, and coat the curved lens element"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N345937"
+        ],
+        "note": "Cutting raw optical glass into blanks and grinding and milling its curvature conferred country of origin for standalone lens assemblies (N345937)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "cut display cell sheets into individual panels and affix driver ICs, polarizers, FPCs, backlights, and frames",
+        "align and bond lenses or camera modules to sensor boards and connect batteries, cables, and secondary boards",
+        "mount subassemblies, metal rings, spacers, and O-rings into housings or enclosures with screws and adhesives",
+        "perform final optical, electrical, and quality testing and package finished units"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N348165"
+        ],
+        "not_enough": [
+          "N330296",
+          "N335871",
+          "N339727",
+          "N344595",
+          "N345328",
+          "N349742"
+        ],
+        "note": "Cutting display cells and attaching driver ICs, polarizers, FPCs, and backlights, or assembling camera PCBAs with lenses, batteries, and enclosures, did not confer origin (N330296, N335871, N339727, N344595, N345328, N349742), except where the imported PCBA could not yet function as a camera prior to assembly in China (N348165)."
+      }
+    }
+  ]
+}

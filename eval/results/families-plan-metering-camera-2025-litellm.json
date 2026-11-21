@@ -1,0 +1,233 @@
+{
+  "case_id": "metering-camera-2025",
+  "target": "South Korea",
+  "family": "display_camera_modules",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera. Smart waste-metering cameras optimized for different types of containers and compactors. They consist of a main PCBA, a compact camera module (CCM), a flash flexible printed circuit board (Flash FPC), and a plastic enclosure. The R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera is assembled in China using components sourced from China and South Korea.\n\nThe Compact camera module (CCM), Flash flexible printed circuit board (Flash FPC) and Plastic enclosure are produced in China. The Main PCBA are sourced from South Korea. \n\nFinal assembly in China: Assemble flash flexible printed circuit board (Flash FPC) onto the main PCBA; Mount camera subassemblies into plastic enclosure.\n",
+    "prediction": {
+      "origin_country": "South Korea",
+      "key_factors": [
+        "Main PCBA"
+      ],
+      "decisive_step": "Manufacturing of the Main PCBA in South Korea",
+      "confidence": 0.92,
+      "reasoning": "Following CBP precedents for electronic cameras (e.g., N344595, N339727), the Main PCBA provides the essential character and intelligence of the smart waste-metering cameras. The complex manufacturing of the Main PCBA in South Korea establishes the functional identity of the product. The subsequent final assembly in China—attaching the Chinese-origin Flash FPC, compact camera module, and mounting into the plastic enclosure—is a simple combining operation that does not substantially transform the South Korean Main PCBA.",
+      "cited_rulings": [
+        "N344595",
+        "N339727"
+      ],
+      "precedents": [
+        "H338116",
+        "N335537",
+        "N339485",
+        "N339727",
+        "N344595"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2707,
+        "output_tokens": 191,
+        "latency_ms": 7268
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N348165"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "camera_pcba_smt",
+          "to_plant": "kr"
+        }
+      ],
+      "description": "Make Camera PCBA (SMT) in South Korea",
+      "variant_facts": "The merchandise under consideration is a R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera. Smart waste-metering cameras optimized for different types of containers and compactors. They consist of a main PCBA, a compact camera module (CCM), a flash flexible printed circuit board (Flash FPC), and a plastic enclosure. The R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera is assembled in China using components sourced from South Korea and China.\n\nThe Compact camera module (CCM), Flash flexible printed circuit board (Flash FPC) and Main PCBA are produced in South Korea. The Plastic enclosure are produced in China. \n\nIn South Korea, the Compact camera module (CCM), Flash flexible printed circuit board (Flash FPC) and Main PCBA will be produced in-house: Assemble compact camera module (CCM) onto the main PCBA; Manufacture main PCBA.\n\nFinal assembly in China: Assemble flash flexible printed circuit board (Flash FPC) onto the main PCBA; Mount camera subassemblies into plastic enclosure.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Main PCBA and Compact Camera Module (CCM)"
+        ],
+        "decisive_step": "Manufacturing of the Main PCBA, CCM, and Flash FPC, and assembly of the CCM onto the Main PCBA in South Korea",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent for electronic cameras (e.g., N344595 and N339727), the essential character of the smart-metering cameras is imparted by the Main PCBA and the Compact Camera Module (CCM). Both the Main PCBA, CCM, and Flash FPC are manufactured in South Korea, where the CCM is also assembled onto the Main PCBA. The subsequent operations in China—attaching the Flash FPC and mounting the subassemblies into a plastic enclosure—constitute simple final assembly that does not substantially transform the South Korean subassemblies.",
+        "cited_rulings": [
+          "N344595",
+          "N339727"
+        ],
+        "precedents": [
+          "H338116",
+          "N335537",
+          "N339485",
+          "N339727",
+          "N344595"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2757,
+          "output_tokens": 224,
+          "latency_ms": 5981
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344595",
+        "confidence": 0.95,
+        "reasoning": "In Variant A, only the main PCBA is sourced from South Korea while the compact camera module (CCM), Flash FPC, plastic enclosure, and final assembly are in China, resulting in Chinese origin. In Variant B, all electronic and optical subassemblies (main PCBA, CCM, and Flash FPC) are manufactured in South Korea, and the CCM is assembled onto the main PCBA in South Korea, leaving only the plastic enclosure and simple final assembly in China. Consistent with N344595, N339727, and N330296, when all functional camera PCBAs/modules are produced in one country, simple enclosure assembly in China does not change origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "smart camera PCBA camera module origin",
+            "rulings": [
+              "N344595",
+              "N330296",
+              "N347058",
+              "N340187",
+              "N342124",
+              "N335537",
+              "N333850",
+              "N340825"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "camera module PCBA enclosure assembly China Korea",
+            "rulings": [
+              "N330296",
+              "N342576",
+              "N332332",
+              "N344595",
+              "N346867",
+              "N333268",
+              "N339727",
+              "N335064"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344595",
+            "rulings": [
+              "N344595"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N339727",
+            "rulings": [
+              "N339727"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342576",
+            "rulings": [
+              "N342576"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N330296",
+            "rulings": [
+              "N330296"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 20971,
+          "output_tokens": 405,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 27500,
+      "net_per_year": 272500,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera. Smart waste-metering cameras optimized for different types of containers and compactors. They consist of a main PCBA, a compact camera module (CCM), a flash flexible printed circuit board (Flash FPC), and a plastic enclosure. The R13-series smart-metering cameras (R13, R13L, and R13S) and C01 smart compactor waste-metering camera is assembled in China using components sourced from China and South Korea.\n\nThe Compact camera module (CCM), Flash flexible printed circuit board (Flash FPC) and Plastic enclosure are produced in China. The Main PCBA are sourced from South Korea. \n\nFinal assembly in China: Assemble flash flexible printed circuit board (Flash FPC) onto the main PCBA; Mount camera subassemblies into plastic enclosure.\n",
+      "prediction": {
+        "origin_country": "South Korea",
+        "key_factors": [
+          "Main PCBA"
+        ],
+        "decisive_step": "Manufacturing of the Main PCBA in South Korea",
+        "confidence": 0.92,
+        "reasoning": "Following CBP precedents for electronic cameras (e.g., N344595, N339727), the Main PCBA provides the essential character and intelligence of the smart waste-metering cameras. The complex manufacturing of the Main PCBA in South Korea establishes the functional identity of the product. The subsequent final assembly in China—attaching the Chinese-origin Flash FPC, compact camera module, and mounting into the plastic enclosure—is a simple combining operation that does not substantially transform the South Korean Main PCBA.",
+        "cited_rulings": [
+          "N344595",
+          "N339727"
+        ],
+        "precedents": [
+          "H338116",
+          "N335537",
+          "N339485",
+          "N339727",
+          "N344595"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2707,
+          "output_tokens": 191,
+          "latency_ms": 7268
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N348165); engine predicts South Korea",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 5,
+    "verifier_tool_calls": 6,
+    "input_tokens": 26435,
+    "output_tokens": 820,
+    "engine_input_tokens": 5464,
+    "engine_output_tokens": 415,
+    "verifier_input_tokens": 20971,
+    "verifier_output_tokens": 405,
+    "wall_seconds": 32.099392792
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "display_camera_modules": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.06107,
+  "cost_usd_list": 0.12214,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:06:39+08:00"
+}

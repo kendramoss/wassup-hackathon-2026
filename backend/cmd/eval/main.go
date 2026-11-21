@@ -49,6 +49,10 @@
 //	    of eval/splits/slice30.json (needs EVAL_SLICE=on) or take an existing
 //	    result file, and fail when it falls below
 //	    eval/results/slice30-baseline.json by more than the tolerance.
+//	eval familycov -split dev|final -set legacy|all [-confirm-final]
+//	    Product-scope coverage (D138): run the family checker on a split's
+//	    rulings with the legacy three templates or all of them, and report
+//	    the share matched to a family with a plan template.
 //
 // Model and provider come from the same environment as the server
 // (LLM_PROVIDER, ENGINE_MODEL, ROUTER_MODEL, PRECEDENT_K, ...). Run from backend/.
@@ -136,6 +140,8 @@ func main() {
 		err = calibrateCmd(os.Args[2:])
 	case "slice":
 		err = sliceCmd(os.Args[2:])
+	case "familycov":
+		err = familyCovCmd(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}

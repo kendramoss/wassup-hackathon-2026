@@ -1,0 +1,105 @@
+{
+  "_source": "CBP ruling N341280 (26 Jul 2024): USB-C 11-in-1 hub, PCBA made in China, assembled in Taiwan: CBP held China. N342837 (3 Oct 2024): the PCBA soldered in Taiwan: CBP held Taiwan. Both rulings are in the selection pool (not dev or held-out) and both are excluded. Plant capabilities for Taiwan are an assumption.",
+  "case_id": "usb-hub-2024",
+  "date": "2024-09-15",
+  "family": "pcba_electronic_devices",
+  "target": "Taiwan",
+  "product": {
+    "name": "USB-C 11-in-1 Hub (Hub), Item No. C112H-R",
+    "description": "The USB-C 11-in-1 Hub connects to an automatic data processing machine to attach peripherals, memory cards, and network connections. It consists of an aluminum enclosure, a plastic end cap, and a printed circuit board assembly (PCBA) with multiple ports and sockets such as USB, HDMI, SD card slots, and an RJ45 port.",
+    "plants": [
+      {
+        "id": "tw",
+        "name": "Taiwan assembly plant",
+        "country": "Taiwan",
+        "capabilities": [
+          "pcba_manufacturing",
+          "functional_subassemblies",
+          "housing_and_cables",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China PCBA supplier",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "aluminum housing",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "plastic end cap",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "housing_and_cables"
+      }
+    ],
+    "operations": [
+      {
+        "name": "solder electronic components onto the bare printed circuit board (SMT)",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Place PCBA into aluminum housing",
+        "plant": "tw",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Install plastic end cap",
+        "plant": "tw",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Conduct quality and functional testing",
+        "plant": "tw",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Taiwan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_manufacturing": {
+        "cn": 150000,
+        "tw": 187500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N341280",
+    "N342837"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N341280"
+  },
+  "actual_change": {
+    "_source": "CBP ruling N342837 (3 Oct 2024): CBP held Taiwan",
+    "moved_to": "Taiwan",
+    "moved_to_thailand": [
+      "printed circuit board assembly (PCBA) with USB, HDMI, SD card and RJ45 ports"
+    ],
+    "still_from_china": []
+  }
+}

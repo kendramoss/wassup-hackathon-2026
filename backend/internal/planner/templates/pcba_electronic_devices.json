@@ -1,0 +1,132 @@
+{
+  "family": "pcba_electronic_devices",
+  "version": "1",
+  "name": "PCBA-based electronic devices",
+  "note": "For PCBA-based electronic devices, CBP generally holds that the country where the main printed circuit board assembly is manufactured via surface mount technology and through-hole insertion is the country of origin, unless the device is a large electro-mechanical machine where major functional subassemblies and transport frames dominate. Merely enclosing pre-assembled PCBAs into plastic or metal housings, connecting wires or batteries, and flashing firmware is consistently treated as simple assembly that does not confer origin. Written from 45 CBP substantial-transformation rulings (of 86 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "H304677",
+    "H328859",
+    "H331939",
+    "H332745",
+    "H332752",
+    "H333699",
+    "H338116",
+    "H355075",
+    "N332332",
+    "N334315",
+    "N334757",
+    "N335213",
+    "N335809",
+    "N336013",
+    "N336580",
+    "N340153",
+    "N340187",
+    "N340516",
+    "N341280",
+    "N341338",
+    "N341875",
+    "N342124"
+  ],
+  "groups": [
+    {
+      "id": "pcba_manufacturing",
+      "name": "PCBA (SMT)",
+      "operations": [
+        "apply solder paste to bare printed circuit board",
+        "place active and passive electronic components onto board using surface mount technology (SMT) and pin through-hole (PTH) insertion",
+        "reflow solder in oven to permanently bond components to the circuit board",
+        "perform System in Package (SiP) mounting, initial firmware flashing, and in-circuit board testing"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H331939",
+          "H338116",
+          "H355075",
+          "N334757",
+          "N336013",
+          "N336580"
+        ],
+        "not_enough": [
+          "H304677",
+          "H328859"
+        ],
+        "note": "CBP usually finds that SMT and through-hole assembly of the main PCBA imparts the essential character of compact electronic devices (H331939, H338116, N336013, N336580), though a PCBA alone will not outweigh a pre-assembled electro-mechanical printer transport or print mechanism (H304677, H328859)."
+      }
+    },
+    {
+      "id": "functional_subassemblies",
+      "name": "Functional subassemblies",
+      "operations": [
+        "assemble mechanical print transports, imaging units, developing units, and laser print heads",
+        "build transmit and receive optical subassemblies (TOSA/ROSA), LED display modules, or heating and control modules",
+        "fabricate semiconductor sensing elements, MEMS transducers, or microchips through wafer processing and die packaging"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "H304677",
+          "H332752",
+          "H333699",
+          "N341338",
+          "N341875"
+        ],
+        "not_enough": [
+          "N335213"
+        ],
+        "note": "Producing the core electro-mechanical transports, imaging units, or sensing dies drives origin (H304677, H333699, N341875), whereas sourcing discrete components does not override local SMT assembly of the main PCBA (N335213)."
+      }
+    },
+    {
+      "id": "housing_and_cables",
+      "name": "Housing and cables",
+      "operations": [
+        "injection mold plastic shells, frames, buttons, and structural covers",
+        "laser cut, punch, bend, and coat sheet metal or aluminum enclosures",
+        "cut insulated conductors, twist wires, extrude outer cable jackets, and attach terminal connectors"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N340187",
+          "N342124"
+        ],
+        "not_enough": [
+          "N334315",
+          "N336013",
+          "N336580",
+          "N340516",
+          "N341280"
+        ],
+        "note": "Fabricating steel enclosures, molding plastic housings, or jacketing cables does not confer origin when the core controller or PCBA is imported from another country (N334315, N336013, N340516, N341280), only contributing when performed alongside PCBA production (N340187, N342124)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "insert PCBAs, batteries, fans, and subassemblies into the outer plastic or metal enclosure",
+        "solder interconnecting wires and attach connectors, keypads, switches, and external covers",
+        "ultrasonically weld or screw the housing closed",
+        "upload final operating software or firmware, calibrate, perform functional testing, and package for retail"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "H332745",
+          "H333699",
+          "N340153"
+        ],
+        "not_enough": [
+          "H331939",
+          "H338116",
+          "N332332",
+          "N334757",
+          "N335809",
+          "N341280"
+        ],
+        "note": "Simple enclosure of imported PCBAs, wire soldering, and software loading does not substantially transform the device (H331939, H338116, N332332, N335809, N341280), whereas complex integration of multi-country subassemblies confers origin when no single country dominates or key modules are made locally (H332745, H333699, N340153)."
+      }
+    }
+  ]
+}

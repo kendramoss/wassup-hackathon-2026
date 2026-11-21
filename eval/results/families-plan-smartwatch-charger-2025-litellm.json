@@ -1,0 +1,500 @@
+{
+  "case_id": "smartwatch-charger-2025",
+  "target": "Vietnam",
+  "family": "power_supplies_chargers",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Smartwatch Charger (Charger). An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module. The Smartwatch Charger (Charger) is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe C962 magnetic charging module and C962 printed circuit board assembly (PCBA) are produced in China. The Circular plastic molded housing (C962 Module Top Cover), USB electrical cable and USB Type C connector are produced in Vietnam. \n\nFinal assembly in Vietnam: Program the C962 PCBA; Solder the PCBA to the electrical cable; Insert the C962 charging module into the plastic housing; Solder the individual cable wires to produce a functional inductive charging device.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The printed circuit board assembly (PCBA) and magnetic charging module"
+      ],
+      "decisive_step": "Manufacturing of the PCBA and magnetic charging module in China",
+      "confidence": 0.98,
+      "reasoning": "Following precedent N333268, the essential character of an inductive wireless charger is imparted by its functional core: the PCBA and the magnetic charging module, both of which are produced in China. The operations performed in Vietnam—programming the PCBA, inserting the module into the housing, and soldering the cable wires—constitute simple assembly and finishing that do not result in a substantial transformation of the Chinese-origin components.",
+      "cited_rulings": [
+        "N333268"
+      ],
+      "precedents": [
+        "N331901",
+        "N331903",
+        "N331943",
+        "N333268",
+        "N335064"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2491,
+        "output_tokens": 191,
+        "latency_ms": 5356
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N347058"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "vn"
+        },
+        {
+          "group": "power_charging_modules",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Power conversion or charging module in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Smartwatch Charger (Charger). An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module. The Smartwatch Charger (Charger) is assembled in Vietnam using components sourced from Vietnam.\n\nThe C962 magnetic charging module, C962 printed circuit board assembly (PCBA), Circular plastic molded housing (C962 Module Top Cover), USB electrical cable and USB Type C connector are produced in Vietnam. \n\nIn Vietnam, the C962 printed circuit board assembly (PCBA) will be produced in-house: Manufacture the C962 printed circuit board assembly (PCBA).\n\nIn Vietnam, the C962 magnetic charging module will be produced in-house: Manufacture the C962 magnetic charging module.\n\nFinal assembly in Vietnam: Program the C962 PCBA; Solder the PCBA to the electrical cable; Insert the C962 charging module into the plastic housing; Solder the individual cable wires to produce a functional inductive charging device.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA) and magnetic charging module"
+        ],
+        "decisive_step": "Manufacturing of the PCBA and magnetic charging module, followed by final assembly in Vietnam",
+        "confidence": 1,
+        "reasoning": "All components, including the critical PCBA and magnetic charging module that impart the essential character of the inductive charger, are manufactured in Vietnam, where final assembly and programming also occur. Consistent with N331943 and N335064, manufacturing the PCBA and charging module and assembling them into the finished charger substantially transforms the components in Vietnam, making Vietnam the country of origin.",
+        "cited_rulings": [
+          "N331943",
+          "N335064"
+        ],
+        "precedents": [
+          "N331901",
+          "N331903",
+          "N331943",
+          "N333268",
+          "N335064"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2550,
+          "output_tokens": 211,
+          "latency_ms": 5514
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333268",
+        "confidence": 0.96,
+        "reasoning": "In N333268, CBP ruled on a nearly identical inductive wireless charger assembled in Vietnam from a plastic housing, magnetic charging module, PCBA, and USB-C cable. CBP held that simple assembly in Vietnam did not substantially transform the components and that the magnetic charging module established the essential charging function, conferring Chinese origin. Similarly, in N331943 and N335537, manufacturing the PCBA and inductive charging module conferred origin. In Variant B, both the C962 magnetic charging module and the C962 PCBA—along with all other components and final assembly—are produced in Vietnam, shifting the country of origin from China to Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "smartwatch charger wireless charger PCBA origin Vietnam China",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N335017",
+              "N335537",
+              "N339062",
+              "N339485",
+              "N340825"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "inductive charger wireless charger PCBA charging module Vietnam China",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N335017",
+              "N339485",
+              "N340825",
+              "N335537",
+              "N344246"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "charger PCBA SMT assembly Vietnam China origin",
+            "rulings": [
+              "N339485",
+              "N333268",
+              "N335537",
+              "N335017",
+              "N340825",
+              "N331943",
+              "N335064",
+              "N334538"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335537",
+            "rulings": [
+              "N335537"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N331943",
+            "rulings": [
+              "N331943"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333268",
+            "rulings": [
+              "N333268"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14960,
+          "output_tokens": 462,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 37500,
+      "net_per_year": 262500,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Smartwatch Charger (Charger). An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module. The Smartwatch Charger (Charger) is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe C962 magnetic charging module and C962 printed circuit board assembly (PCBA) are produced in China. The Circular plastic molded housing (C962 Module Top Cover), USB electrical cable and USB Type C connector are produced in Vietnam. \n\nFinal assembly in Vietnam: Program the C962 PCBA; Solder the PCBA to the electrical cable; Insert the C962 charging module into the plastic housing; Solder the individual cable wires to produce a functional inductive charging device.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The printed circuit board assembly (PCBA) and magnetic charging module"
+        ],
+        "decisive_step": "Manufacturing of the PCBA and magnetic charging module in China",
+        "confidence": 0.98,
+        "reasoning": "Following precedent N333268, the essential character of an inductive wireless charger is imparted by its functional core: the PCBA and the magnetic charging module, both of which are produced in China. The operations performed in Vietnam—programming the PCBA, inserting the module into the housing, and soldering the cable wires—constitute simple assembly and finishing that do not result in a substantial transformation of the Chinese-origin components.",
+        "cited_rulings": [
+          "N333268"
+        ],
+        "precedents": [
+          "N331901",
+          "N331903",
+          "N331943",
+          "N333268",
+          "N335064"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2491,
+          "output_tokens": 191,
+          "latency_ms": 5356
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N347058); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make PCBA (SMT) in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Smartwatch Charger (Charger). An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module. The Smartwatch Charger (Charger) is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe C962 magnetic charging module are produced in China. The C962 printed circuit board assembly (PCBA), Circular plastic molded housing (C962 Module Top Cover), USB electrical cable and USB Type C connector are produced in Vietnam. \n\nIn Vietnam, the C962 printed circuit board assembly (PCBA) will be produced in-house: Manufacture the C962 printed circuit board assembly (PCBA).\n\nFinal assembly in Vietnam: Program the C962 PCBA; Solder the PCBA to the electrical cable; Insert the C962 charging module into the plastic housing; Solder the individual cable wires to produce a functional inductive charging device.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The printed circuit board assembly (PCBA) and final assembly into a functional charger"
+        ],
+        "decisive_step": "Manufacturing the PCBA (SMT/soldering), programming it, and assembling it with the charging module, cable, and housing in Vietnam",
+        "confidence": 0.92,
+        "reasoning": "Consistent with N331943 and N335064, the PCBA imparts the essential functional intelligence to a wireless/inductive charger. Unlike N333268 (where both the PCBA and magnetic charging module were made in China), here the PCBA, cable, connector, and housing are all produced in Vietnam, where the PCBA is also programmed and integrated with the Chinese magnetic charging module. The manufacturing of the PCBA and final assembly in Vietnam substantially transform the components into a product of Vietnam.",
+        "cited_rulings": [
+          "N333268",
+          "N331943",
+          "N335064"
+        ],
+        "precedents": [
+          "N331901",
+          "N331903",
+          "N331943",
+          "N333268",
+          "N335064"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2528,
+          "output_tokens": 257,
+          "latency_ms": 5968
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N333268",
+        "confidence": 0.92,
+        "reasoning": "In N333268, involving a nearly identical inductive wireless charger with a magnetic charging module, PCBA, plastic housing, and USB-C cable assembled in Vietnam, CBP explicitly held that 'the magnetic charging module establishes the function of the device because it is the article within the assembly that is performing the inductive charging,' and that inserting the module and soldering wires in Vietnam is not a substantial transformation. Although Variant B moves PCBA production to Vietnam (which is decisive in wired battery chargers like N335537), the magnetic charging module remains Chinese in Variant B, so origin stays China under N333268.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "wireless charger inductive charger PCBA origin Vietnam China",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N335017",
+              "N335537",
+              "N339062",
+              "N339485",
+              "N340825"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "smartwatch charger inductive magnetic charging module PCBA Vietnam China",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N339485",
+              "N340825",
+              "N335537",
+              "N335017",
+              "N331908"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"charging module\" OR \"inductive\" charger PCBA origin",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N340825",
+              "N339485",
+              "N335537",
+              "N335017",
+              "N331908"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335537",
+            "rulings": [
+              "N335537"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N331943",
+            "rulings": [
+              "N331943"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333268",
+            "rulings": [
+              "N333268"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14454,
+          "output_tokens": 424,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 20000,
+      "net_per_year": 280000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "power_charging_modules",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Power conversion or charging module in Vietnam",
+      "variant_facts": "The merchandise under consideration is a Smartwatch Charger (Charger). An inductive-type smartwatch charger consisting of a circular plastic molded housing (C962 Module Top Cover), a magnetic charging module, a printed circuit board assembly (PCBA), and a permanently affixed USB electrical cable with a USB Type C connector. It plugs into a USB socket to wirelessly charge a user's smartwatch placed in alignment with the concave surface of the charging module. The Smartwatch Charger (Charger) is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe C962 magnetic charging module, Circular plastic molded housing (C962 Module Top Cover), USB electrical cable and USB Type C connector are produced in Vietnam. The C962 printed circuit board assembly (PCBA) are sourced from China. \n\nIn Vietnam, the C962 magnetic charging module will be produced in-house: Manufacture the C962 magnetic charging module.\n\nFinal assembly in Vietnam: Program the C962 PCBA; Solder the PCBA to the electrical cable; Insert the C962 charging module into the plastic housing; Solder the individual cable wires to produce a functional inductive charging device.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "C962 magnetic charging module and final assembly"
+        ],
+        "decisive_step": "Manufacture of the magnetic charging module and final assembly in Vietnam",
+        "confidence": 0.85,
+        "reasoning": "In wireless inductive chargers, the magnetic charging module and PCBA provide the essential functional character (see N333268 and N331943). Unlike N333268 where both the module and PCBA were sourced from China, here the C962 magnetic charging module, housing, cable, and connector are all manufactured in Vietnam. The manufacture of the critical charging module in Vietnam, combined with PCBA programming and final assembly of the Chinese PCBA with the Vietnamese components, effects a substantial transformation in Vietnam.",
+        "cited_rulings": [
+          "N333268",
+          "N331943"
+        ],
+        "precedents": [
+          "N331901",
+          "N331903",
+          "N331943",
+          "N333268",
+          "N335064"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2520,
+          "output_tokens": 205,
+          "latency_ms": 7164
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N335537",
+        "confidence": 0.75,
+        "reasoning": "In electronic chargers (such as N335537), CBP consistently holds that the main PCBA manufactured by SMT and through-hole soldering imparts the essence of the electrical charging function and determines the country of origin. In Variant B, although production of the magnetic charging module moves to Vietnam along with the housing, cable, and final assembly (programming, soldering wires, and inserting into the housing), the C962 PCBA remains produced in China. Under CBP precedent, the subsequent assembly and programming in Vietnam do not substantially transform the Chinese-origin PCBA, so the country of origin remains China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "smartwatch charger magnetic charging module",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N340825",
+              "N339485",
+              "N335537",
+              "N335017",
+              "N331243"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wireless charger PCBA charging coil module Vietnam China origin",
+            "rulings": [
+              "N333268",
+              "N335064",
+              "N331943",
+              "N335017",
+              "N339485",
+              "N340825",
+              "N335537",
+              "N344246"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "charger PCBA China assembly Vietnam origin",
+            "rulings": [
+              "N333268",
+              "N335537",
+              "N339485",
+              "N340825",
+              "N331943",
+              "N335064",
+              "N331934",
+              "N331935"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "inductive charger smartwatch magnetic charging module PCBA Vietnam China",
+            "rulings": [
+              "N333268",
+              "N331943",
+              "N335064",
+              "N339485",
+              "N340825",
+              "N335537",
+              "N335017",
+              "N331908"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335537",
+            "rulings": [
+              "N335537"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N331943",
+            "rulings": [
+              "N331943"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9083,
+          "output_tokens": 404,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 17500,
+      "net_per_year": 282500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 11,
+    "verifier_tool_calls": 18,
+    "input_tokens": 48586,
+    "output_tokens": 2154,
+    "engine_input_tokens": 10089,
+    "engine_output_tokens": 864,
+    "verifier_input_tokens": 38497,
+    "verifier_output_tokens": 1290,
+    "wall_seconds": 28.1040405
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "power_supplies_chargers": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.118712,
+  "cost_usd_list": 0.237424,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:03:02+08:00"
+}

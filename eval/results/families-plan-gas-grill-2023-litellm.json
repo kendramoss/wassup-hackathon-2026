@@ -1,0 +1,926 @@
+{
+  "case_id": "gas-grill-2023",
+  "target": "Indonesia",
+  "family": "gas_grills_cooking",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs, Control panels, Cart frames, Side shelves and Cooking area are produced in China. The Screws, bolts, and nuts are produced in Indonesia. \n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The main structural and functional components (firebox, main lid, burners, gas train sub-assemblies, and cart frame)"
+      ],
+      "decisive_step": "Fabrication and forming of the primary structural and heating components in China",
+      "confidence": 0.95,
+      "reasoning": "Virtually all critical components—including the firebox, lid, burners, gas manifold/regulator sub-assemblies, and frame—are fabricated into their final shapes in China, imparting the grill's essential character and predetermined use. Similar to N333410, N333956, and N333330, the subsequent porcelain enameling, simple mechanical fastening with Indonesian hardware, testing, and packaging in Indonesia constitute mere finishing and assembly operations that do not substantially transform the Chinese components.",
+      "cited_rulings": [
+        "N333410",
+        "N333330",
+        "N333956"
+      ],
+      "precedents": [
+        "N333330",
+        "N333410",
+        "N333646",
+        "N333956",
+        "N334276"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2699,
+        "output_tokens": 224,
+        "latency_ms": 7060
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N335085"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "lid_and_firebox",
+          "to_plant": "id"
+        },
+        {
+          "group": "burners_and_gas_train",
+          "to_plant": "id"
+        },
+        {
+          "group": "cooking_surface_frame",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs, Control panels, Cart frames, Side shelves, Cooking area and Screws, bolts, and nuts are produced in Indonesia. \n\nIn Indonesia, the Deep draw main lids, Formed and punched fireboxes and Lid handle, badges, and thermometer will be produced in-house: Forming, punching, and prepping steel sheets for deep draw into main lids; Forming and punching steel sheets into fireboxes; Degreasing, pickling, rinsing, kiln drying, spraying porcelain enamel wet frit, furnace baking at 1,600 F for 25 minutes, and inspecting main lids and fireboxes.\n\nIn Indonesia, the Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs will be produced in-house: Adding gas valve port holes, bending manifold to shape, adding threaded connectors, assembling gas valves onto manifold, and conducting gas tightness test; Cutting perforated tube steel, pressing and sealing ends to create a venturi funnel, adding a fuel mixer screw, punching a breather hole, and welding spider mesh and cap to make burners.\n\nIn Indonesia, the Control panels, Cart frames, Side shelves and Cooking area will be produced in-house: Manufacturing control panels, cart frames, side shelves, and cooking area.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "The main lids, fireboxes, burners, gas train assembly, and structural cart components"
+        ],
+        "decisive_step": "Metal forming, stamping, deep drawing, welding, porcelain enameling, and final assembly of the core grill components in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Consistent with N333646 and N334276, the country of origin is determined by where the major structural and functional subassemblies are fabricated. Here, the detailed manufacturing steps explicitly show that the raw steel sheets and tubes are deep-drawn, punched, bent, welded, and enameled in Indonesia to create the main lids, fireboxes, burners, manifold assemblies, and cart frames, followed by final assembly and testing in Indonesia. Thus, the substantial transformation occurs in Indonesia.",
+        "cited_rulings": [
+          "N334276",
+          "N333646"
+        ],
+        "precedents": [
+          "N333410",
+          "N333646",
+          "N333956",
+          "N333989",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2975,
+          "output_tokens": 237,
+          "latency_ms": 7368
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333420",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, nearly all components (main lids, fireboxes, manifold/regulator sub-assemblies, burners, control panels, cart frames, side shelves, cooking area) are fabricated in China and only finished and assembled in Indonesia, resulting in Chinese origin. In Variant B, all components—including forming/punching the steel sheets into main lids and fireboxes, manufacturing the manifold sub-assemblies and burners, and producing the control panels, cart frames, side shelves, and cooking area, as well as fasteners and final assembly—are produced entirely in Indonesia. Similar to N333420 (where metal forming of essential housing parts and full assembly conferred origin), producing all components and assembling the grills in Indonesia makes Indonesia the country of origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "barbecue grill assembly origin China",
+            "rulings": [
+              "N333420",
+              "N330075",
+              "N331047",
+              "N333554",
+              "N334204",
+              "N332384",
+              "N331572",
+              "N333677"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas grill burner firebox lid origin",
+            "rulings": [
+              "N330295",
+              "N334032",
+              "H321332",
+              "N333853",
+              "N333860",
+              "N333010",
+              "N331814",
+              "N330844"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill firebox porcelain enamel assembly origin",
+            "rulings": [
+              "N333420",
+              "N330075",
+              "N332593",
+              "H322161",
+              "N334204",
+              "N332384",
+              "N332595",
+              "N332592"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill stove range burner origin",
+            "rulings": [
+              "N332816",
+              "N334104",
+              "N333420",
+              "N330175",
+              "N330513",
+              "N332747",
+              "N330046",
+              "N334296"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cooking appliance burner oven origin China",
+            "rulings": [
+              "N333247",
+              "N333420",
+              "N329947",
+              "N332816",
+              "N333316",
+              "H327997",
+              "N334421",
+              "N332226"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333420",
+            "rulings": [
+              "N333420"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9606,
+          "output_tokens": 368,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 117500,
+      "net_per_year": 182500,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs, Control panels, Cart frames, Side shelves and Cooking area are produced in China. The Screws, bolts, and nuts are produced in Indonesia. \n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The main structural and functional components (firebox, main lid, burners, gas train sub-assemblies, and cart frame)"
+        ],
+        "decisive_step": "Fabrication and forming of the primary structural and heating components in China",
+        "confidence": 0.95,
+        "reasoning": "Virtually all critical components—including the firebox, lid, burners, gas manifold/regulator sub-assemblies, and frame—are fabricated into their final shapes in China, imparting the grill's essential character and predetermined use. Similar to N333410, N333956, and N333330, the subsequent porcelain enameling, simple mechanical fastening with Indonesian hardware, testing, and packaging in Indonesia constitute mere finishing and assembly operations that do not substantially transform the Chinese components.",
+        "cited_rulings": [
+          "N333410",
+          "N333330",
+          "N333956"
+        ],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333646",
+          "N333956",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2699,
+          "output_tokens": 224,
+          "latency_ms": 7060
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N335085); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "lid_and_firebox",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Lid and firebox forming in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer and Screws, bolts, and nuts are produced in Indonesia. The Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs, Control panels, Cart frames, Side shelves and Cooking area are sourced from China. \n\nIn Indonesia, the Deep draw main lids, Formed and punched fireboxes and Lid handle, badges, and thermometer will be produced in-house: Forming, punching, and prepping steel sheets for deep draw into main lids; Forming and punching steel sheets into fireboxes; Degreasing, pickling, rinsing, kiln drying, spraying porcelain enamel wet frit, furnace baking at 1,600 F for 25 minutes, and inspecting main lids and fireboxes.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "The main lid and firebox housing components, combined with complex fabrication and assembly"
+        ],
+        "decisive_step": "Deep drawing and stamping steel sheets into main lids and fireboxes, porcelain enameling, and final assembly in Indonesia",
+        "confidence": 0.85,
+        "reasoning": "Similar to N333646 and N334276, where origin was conferred by the country fabricating major structural subassemblies from raw steel and performing final assembly, Indonesia transforms raw steel sheets via deep drawing, punching, and high-temperature porcelain enameling into the grill's core housing (main lid and firebox). Combined with assembling the Chinese burners, gas train, and frame components into a finished gas grill and conducting fire/safety testing, the Indonesian operations constitute a substantial transformation.",
+        "cited_rulings": [
+          "N333646",
+          "N334276"
+        ],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333646",
+          "N333956",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2795,
+          "output_tokens": 239,
+          "latency_ms": 9604
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333420",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, all major grill components including the main lids and fireboxes are formed and fabricated in China, with Indonesia performing only porcelain enameling and assembly, resulting in Chinese origin. In Variant B, Indonesia manufactures the essential housing/cooking-chamber components—deep-drawing and punching steel sheets into main lids and fireboxes, plus producing the lid handle, badges, and thermometer—before enameling, building the gas train, firebox, and lid subassemblies, and completing final assembly and testing. Consistent with N333420 (forming essential oven housing plates from steel sheet plus subassembly and final assembly transforms Chinese components), origin shifts to Indonesia.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "barbecue grill firebox lid china origin",
+            "rulings": [
+              "N330295",
+              "N334032",
+              "N333420",
+              "N333316",
+              "H327997",
+              "N334421",
+              "N332226",
+              "N333285"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas grill firebox burner lid assembly origin",
+            "rulings": [
+              "N330295",
+              "N334032",
+              "H321332",
+              "N333853",
+              "N333860",
+              "N333010",
+              "N333420",
+              "N331814"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill burner manifold firebox origin",
+            "rulings": [
+              "N333420",
+              "N333646",
+              "N330175",
+              "N332750",
+              "N331014",
+              "N332853",
+              "N333594",
+              "N330391"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "porcelain enamel deep draw steel sheet forming assembly",
+            "rulings": [
+              "N334299",
+              "N333889",
+              "N330771",
+              "H329175",
+              "N333850",
+              "N332681",
+              "N334315",
+              "N334757"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill oven stove cooking appliance metal stamping forming assembly",
+            "rulings": [
+              "N333420",
+              "N332816",
+              "N330771",
+              "N334104",
+              "N333247",
+              "N333989",
+              "N334424",
+              "N334423"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333420",
+            "rulings": [
+              "N333420"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14216,
+          "output_tokens": 1461,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "burners_and_gas_train",
+          "to_plant": "id"
+        },
+        {
+          "group": "cooking_surface_frame",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Burners and gas train and Cooking surface, panels and frame in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes and Lid handle, badges, and thermometer are produced in China. The Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs, Control panels, Cart frames, Side shelves, Cooking area and Screws, bolts, and nuts are produced in Indonesia. \n\nIn Indonesia, the Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs will be produced in-house: Adding gas valve port holes, bending manifold to shape, adding threaded connectors, assembling gas valves onto manifold, and conducting gas tightness test; Cutting perforated tube steel, pressing and sealing ends to create a venturi funnel, adding a fuel mixer screw, punching a breather hole, and welding spider mesh and cap to make burners.\n\nIn Indonesia, the Control panels, Cart frames, Side shelves and Cooking area will be produced in-house: Manufacturing control panels, cart frames, side shelves, and cooking area.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Gas train assembly, burners, cooking area, cart frame, and overall functional subassemblies"
+        ],
+        "decisive_step": "Fabrication of the burners, gas train, cart frame, and cooking area, combined with final assembly and testing in Indonesia",
+        "confidence": 0.92,
+        "reasoning": "Similar to N334276, where origin followed the country producing the majority of major functional and structural subassemblies, Indonesia manufactures the core heat-generating and structural components of the gas grill (burners, manifold/gas train, cooking area, control panels, cart frames). While the lid and firebox are formed in China, they are finished with porcelain enamel in Indonesia and integrated with the Indonesian-made gas train and structural subassemblies, substantially transforming the components into a complete gas grill in Indonesia.",
+        "cited_rulings": [
+          "N334276"
+        ],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333956",
+          "N333989",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2897,
+          "output_tokens": 241,
+          "latency_ms": 8075
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333420",
+        "confidence": 0.78,
+        "reasoning": "In Variant A, nearly all components (lid, firebox, gas train, manifold, burners, control panels, cart frame, cooking area) are fabricated in China and merely finished/assembled in Indonesia, giving China origin. In Variant B, only the lid, firebox, handle, badges, and thermometer come from China, while Indonesia manufactures the core functional and structural components in-house—including forming/welding the burners, bending/Machining the manifold and gas train, and manufacturing the control panels, cart frames, side shelves, and cooking area—plus sub-assembly and final assembly. Analogous to N333420 (toaster ovens), manufacturing the bulk of essential structural/functional components plus full assembly in Indonesia effects a substantial transformation.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "cooktop oven burner manifold firebox origin",
+            "rulings": [
+              "N333646",
+              "N333420",
+              "N332816",
+              "N329947",
+              "N330175",
+              "N332750",
+              "N331014",
+              "N332853"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas grill burner firebox manifold origin",
+            "rulings": [
+              "H321332",
+              "N333853",
+              "N333860",
+              "N333010",
+              "N331814",
+              "N330844",
+              "N333420",
+              "N333646"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill burner assembly China",
+            "rulings": [
+              "N333420",
+              "N330075",
+              "N331047",
+              "N333554",
+              "N334204",
+              "N332384",
+              "N331572",
+              "N333677"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cooking appliance oven range China Vietnam Indonesia",
+            "rulings": [
+              "N334296",
+              "N333420",
+              "N332816",
+              "N332747",
+              "N333247",
+              "N334757",
+              "N330513",
+              "N330046"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "barbecue grill fire pit stove heater origin",
+            "rulings": [
+              "N331595",
+              "N334104",
+              "N333598",
+              "N332816",
+              "N330844",
+              "N333775",
+              "N333420",
+              "N330175"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333420",
+            "rulings": [
+              "N333420"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9164,
+          "output_tokens": 371,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 67500,
+      "net_per_year": 232500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.78 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "lid_and_firebox",
+          "to_plant": "id"
+        },
+        {
+          "group": "burners_and_gas_train",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Lid and firebox forming and Burners and gas train in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs and Screws, bolts, and nuts are produced in Indonesia. The Control panels, Cart frames, Side shelves and Cooking area are sourced from China. \n\nIn Indonesia, the Deep draw main lids, Formed and punched fireboxes and Lid handle, badges, and thermometer will be produced in-house: Forming, punching, and prepping steel sheets for deep draw into main lids; Forming and punching steel sheets into fireboxes; Degreasing, pickling, rinsing, kiln drying, spraying porcelain enamel wet frit, furnace baking at 1,600 F for 25 minutes, and inspecting main lids and fireboxes.\n\nIn Indonesia, the Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs will be produced in-house: Adding gas valve port holes, bending manifold to shape, adding threaded connectors, assembling gas valves onto manifold, and conducting gas tightness test; Cutting perforated tube steel, pressing and sealing ends to create a venturi funnel, adding a fuel mixer screw, punching a breather hole, and welding spider mesh and cap to make burners.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Main lid, firebox, burners, and gas train assembly"
+        ],
+        "decisive_step": "Fabrication of steel sheets and tubes into lids, fireboxes, manifolds, and burners, followed by enameling and final assembly in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Consistent with N333646 and N334276, origin is conferred where the primary structural and functional subassemblies are fabricated from raw steel. In Indonesia, steel sheets and tubes are formed, punched, deep-drawn, bent, welded, and enameled to create the main lids, fireboxes, manifolds, and burners. These components impart the essential character of the gas grill. Combining them with Chinese structural parts (cart frame, shelves, cooking grates) in Indonesia constitutes a substantial transformation into a finished gas grill.",
+        "cited_rulings": [
+          "N334276",
+          "N333646"
+        ],
+        "precedents": [
+          "N333410",
+          "N333646",
+          "N333956",
+          "N333989",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2945,
+          "output_tokens": 235,
+          "latency_ms": 6025
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333420",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, almost all components (main lid, firebox, burners, manifold, cart, cooking area) are fabricated in China and merely enameled and assembled in Indonesia, leaving origin in China. In Variant B, production of the core structural and functional components—forming and deep-drawing steel sheets into the main lids and fireboxes, fabricating the gas manifolds, and manufacturing the burners from steel tubes—moves to Indonesia alongside sub-assembly and final assembly. Consistent with N333420 (where stamping/forming key oven housing components and assembling subassemblies conferred origin), manufacturing the firebox, lid, burners, and manifold in Indonesia effects a substantial transformation.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "grill burner firebox assembly origin",
+            "rulings": [
+              "N333420",
+              "N330075",
+              "N332593",
+              "H322161",
+              "N334204",
+              "N332384",
+              "N332595",
+              "N332592"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "gas grill firebox burner lid manifold China",
+            "rulings": [
+              "N330295",
+              "N334032",
+              "H321332",
+              "N333853",
+              "N331814",
+              "N333860",
+              "N333010",
+              "N333420"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "barbecue OR grill OR griddle OR stove OR heater burner China",
+            "rulings": [
+              "N333598",
+              "N334104",
+              "N332816",
+              "N333420",
+              "N333775",
+              "N333316",
+              "H327997",
+              "N334421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333420",
+            "rulings": [
+              "N333420"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "Indonesia China assembly forming punching steel subassembly",
+            "rulings": [
+              "N330771",
+              "N334276",
+              "N333506",
+              "N333420",
+              "N333646",
+              "N334296",
+              "N330296",
+              "N334757"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cooking appliance OR oven OR range OR stamping forming steel housing assembly China",
+            "rulings": [
+              "N333420",
+              "N330771",
+              "N332816",
+              "N333247",
+              "N333514",
+              "N332747",
+              "N333677",
+              "N330046"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13504,
+          "output_tokens": 705,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 80000,
+      "net_per_year": 220000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "lid_and_firebox",
+          "to_plant": "id"
+        },
+        {
+          "group": "cooking_surface_frame",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Lid and firebox forming and Cooking surface, panels and frame in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Control panels, Cart frames, Side shelves, Cooking area and Screws, bolts, and nuts are produced in Indonesia. The Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs are sourced from China. \n\nIn Indonesia, the Deep draw main lids, Formed and punched fireboxes and Lid handle, badges, and thermometer will be produced in-house: Forming, punching, and prepping steel sheets for deep draw into main lids; Forming and punching steel sheets into fireboxes; Degreasing, pickling, rinsing, kiln drying, spraying porcelain enamel wet frit, furnace baking at 1,600 F for 25 minutes, and inspecting main lids and fireboxes.\n\nIn Indonesia, the Control panels, Cart frames, Side shelves and Cooking area will be produced in-house: Manufacturing control panels, cart frames, side shelves, and cooking area.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Main structural and cooking components (firebox, main lid, cooking area, cart frame)"
+        ],
+        "decisive_step": "Metal forming, stamping, deep drawing, porcelain enameling of the firebox and lid, and final assembly in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Consistent with N333646 and N334276, where the fabrication of major structural subassemblies and final assembly confer origin, the gas grill's essential character is imparted by its core structural and cooking housings (firebox, main lid, cooking area, cart frame). In Indonesia, raw steel is substantially transformed via deep drawing, punching, and enameling into these key components, which are then assembled with Chinese-origin gas train and burner components into a finished gas grill.",
+        "cited_rulings": [
+          "N333646",
+          "N334276"
+        ],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333646",
+          "N333956",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2832,
+          "output_tokens": 223,
+          "latency_ms": 8713
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N333420",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, virtually all structural and functional components are fabricated in China and merely enameled and assembled in Indonesia (origin China). In Variant B, the fabrication of the major structural and housing components—deep drawing the main lids, forming and punching the fireboxes, porcelain enameling, and manufacturing the control panels, cart frames, side shelves, and cooking area—is performed in Indonesia, while only the gas train and burner components are sourced from China. Under N333420 (toaster ovens), manufacturing the essential metal housing/structural components (forming, punching, coating) plus subassembly and final assembly effects a substantial transformation.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "gas grill burner firebox lid origin",
+            "rulings": [
+              "N330295",
+              "N334032",
+              "H321332",
+              "N333853",
+              "N333860",
+              "N333010",
+              "N331814",
+              "N330844"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "barbecue grill burner manifold firebox origin",
+            "rulings": [
+              "N333420",
+              "N333646",
+              "N330175",
+              "N332750",
+              "N331014",
+              "N332853",
+              "N333594",
+              "N330391"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "stove oven heater burner assembly origin China",
+            "rulings": [
+              "N332816",
+              "N334104",
+              "N333598",
+              "N333420",
+              "N333775",
+              "N329947",
+              "N330075",
+              "N331047"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grill outdoor cooking appliance origin China",
+            "rulings": [
+              "N332706",
+              "N333247",
+              "N334299",
+              "N333889",
+              "N333420",
+              "N333574",
+              "N333316",
+              "H327997"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333420",
+            "rulings": [
+              "N333420"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333646",
+            "rulings": [
+              "N333646"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13974,
+          "output_tokens": 382,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 87500,
+      "net_per_year": 212500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "burners_and_gas_train",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Burners and gas train in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Control panels, Cart frames, Side shelves and Cooking area are produced in China. The Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners, Knobs and Screws, bolts, and nuts are produced in Indonesia. \n\nIn Indonesia, the Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs will be produced in-house: Adding gas valve port holes, bending manifold to shape, adding threaded connectors, assembling gas valves onto manifold, and conducting gas tightness test; Cutting perforated tube steel, pressing and sealing ends to create a venturi funnel, adding a fuel mixer screw, punching a breather hole, and welding spider mesh and cap to make burners.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The main structural and functional body components (deep drawn main lid, formed and punched firebox, cooking area, cart frame, and control panel)"
+        ],
+        "decisive_step": "Forming and fabricating the primary structural components (main lid, firebox, cart frame, cooking area) in China",
+        "confidence": 0.85,
+        "reasoning": "Similar to N334276 and N333330, origin is conferred by the major structural components that impart the essential character and form of the article. Here, the deep-drawn main lid, formed firebox, cooking area, cart frame, and control panel are all fabricated in China with predetermined end-uses. Although the burners and gas manifold are manufactured in Indonesia, combining them with the pre-formed Chinese grill body and frame via fasteners and surface finishing does not substantially transform the Chinese structural components.",
+        "cited_rulings": [
+          "N334276",
+          "N333330"
+        ],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333956",
+          "N333989",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2860,
+          "output_tokens": 254,
+          "latency_ms": 8655
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 30000,
+      "net_per_year": -30000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Indonesia",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "cooking_surface_frame",
+          "to_plant": "id"
+        }
+      ],
+      "description": "Make Cooking surface, panels and frame in Indonesia",
+      "variant_facts": "The merchandise under consideration is a Gas grills (2-burner and 3-burner models). 2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging. The Gas grills (2-burner and 3-burner models) is assembled in Indonesia using components sourced from China and Indonesia.\n\nThe Deep draw main lids, Formed and punched fireboxes, Lid handle, badges, and thermometer, Manifold tube, regulator hose, fittings, and gas valves, Manifold sub-assemblies, LP regulator sub-assembly, Perforated tube steel, fuel mixer screw, spider mesh, and burner cap, Burners and Knobs are produced in China. The Control panels, Cart frames, Side shelves, Cooking area and Screws, bolts, and nuts are produced in Indonesia. \n\nIn Indonesia, the Control panels, Cart frames, Side shelves and Cooking area will be produced in-house: Manufacturing control panels, cart frames, side shelves, and cooking area.\n\nFinal assembly in Indonesia: Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies; Affixing lid handle, badges, and thermometer to complete the main lids; Installing burners into fireboxes and fire testing completed firebox sub-assemblies; Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion; Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The firebox, main lid, burners, and gas train components"
+        ],
+        "decisive_step": "Fabrication and forming of the firebox, main lid, burners, and gas train subassemblies in China",
+        "confidence": 0.9,
+        "reasoning": "The core components that impart the essential character of the gas grill—specifically the deep-drawn main lid, formed and punched firebox, burners, and gas manifold/regulator subassemblies—are fabricated in China. Although Indonesia manufactures the cart frame, control panel, and cooking grates, and performs porcelain enameling, testing, and final assembly, these operations do not substantially transform the Chinese-origin heating and containment core into a new and different article of commerce.",
+        "cited_rulings": [],
+        "precedents": [
+          "N333330",
+          "N333410",
+          "N333646",
+          "N333956",
+          "N334276"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2736,
+          "output_tokens": 195,
+          "latency_ms": 7404
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 37500,
+      "net_per_year": -37500,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Indonesia",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "backtest": {
+    "source": "CBP ruling N335085, scenario 2: CBP held Indonesia",
+    "plan": "Make Lid and firebox forming, Burners and gas train and Cooking surface, panels and frame in Indonesia",
+    "actual_moved": [
+      "Deep draw main lids",
+      "Formed and punched fireboxes"
+    ],
+    "moved_by_plan": [
+      "Deep draw main lids",
+      "Formed and punched fireboxes"
+    ],
+    "in_actual_change_not_in_plan": null
+  },
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 5,
+    "verifier_cached": 0,
+    "verifier_model_calls": 18,
+    "verifier_tool_calls": 30,
+    "input_tokens": 83203,
+    "output_tokens": 5135,
+    "engine_input_tokens": 22739,
+    "engine_output_tokens": 1848,
+    "verifier_input_tokens": 60464,
+    "verifier_output_tokens": 3287,
+    "wall_seconds": 63.648299042
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "gas_grills_cooking": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.217756,
+  "cost_usd_list": 0.435512,
+  "git_revision": "856e215fca54ad0e2dab868507a601239567f87c-dirty",
+  "time": "2026-11-21T13:04:06+08:00"
+}

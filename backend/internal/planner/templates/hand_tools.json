@@ -1,0 +1,144 @@
+{
+  "family": "hand_tools",
+  "version": "1",
+  "name": "Hand tools and cutting tools",
+  "note": "CBP generally holds that the country of origin of non-powered hand tools and cutting tools is where the primary metal working components, such as jaws, blades, shafts, or tool heads, are forged, cast, stamped, or CNC-turned into their recognizable form and shape. Subsequent machining of teeth or holes, heat-treating, polishing, coating, and final assembly with handles, grips, and fasteners are typically treated as finishing and simple assembly operations that do not confer origin unless a major structural jaw or handle is also wholly manufactured in that country. Written from 45 CBP substantial-transformation rulings (of 67 in this category) outside the dev and held-out splits (D138); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N330201",
+    "N331036",
+    "N331764",
+    "N332258",
+    "N332747",
+    "N332748",
+    "N333023",
+    "N333361",
+    "N333956",
+    "N334540",
+    "N335339",
+    "N335671",
+    "N336828",
+    "N339039",
+    "N346289",
+    "N346340",
+    "N347613",
+    "N347615",
+    "N348003"
+  ],
+  "groups": [
+    {
+      "id": "primary_metal_forming",
+      "name": "Forged or stamped working part",
+      "operations": [
+        "drop forging, hot forging, or cold forging steel bars or rods into jaw, blade, wrench body, or tool head blanks",
+        "die-cutting, laser-cutting, or stamping raw steel plate or coil into blade, trowel, or working part blanks",
+        "cNC lathe turning and milling of cut steel wire or bars into screwdriver tips, nut driver shafts, or bits",
+        "heating, rolling, and bending flat metal blanks into scooped shovel or rake heads",
+        "deburring and sandblasting formed metal blanks"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N330201",
+          "N331764",
+          "N332747",
+          "N335671",
+          "N346340",
+          "N347613"
+        ],
+        "not_enough": [
+          "N331036",
+          "N332258",
+          "N334540",
+          "N339039",
+          "N346289"
+        ],
+        "note": "CBP finds that forging, stamping, or turning raw metal into the recognizable shape of the tool's working end or body confers origin (N330201, N331764, N332747), unless only a subset of the primary structural components is formed there while other major jaws, shafts, or handles are made in the assembling country (N332258, N334540, N339039)."
+      }
+    },
+    {
+      "id": "machining_and_treatment",
+      "name": "Machining, heat treatment and finishing",
+      "operations": [
+        "milling jaw teeth, grooves, threads, and channel slots into forged blanks",
+        "drilling or punching pivot holes, slip holes, and handle attachment holes",
+        "grinding and sharpening cutting edges and blades",
+        "heat-treating metal components to increase hardness and strength",
+        "polishing, electroplating, powder coating, painting, magnetizing tips, and laser etching logos"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N332258",
+          "N346289"
+        ],
+        "not_enough": [
+          "N330201",
+          "N331764",
+          "N332747",
+          "N332748",
+          "N333956",
+          "N335671"
+        ],
+        "note": "Machining teeth and holes, sharpening edges, heat-treating, and plating pre-formed tool blanks do not substantially transform them (N331764, N332747, N335671), except when combined with the manufacture of a specialized sintered carbide cutting tip or another primary jaw in the same country (N332258, N346289)."
+      }
+    },
+    {
+      "id": "handles_and_hardware",
+      "name": "Handles and hardware",
+      "operations": [
+        "injection molding plastic handles or comfort grips and producing wood or fiberglass handles",
+        "casting or forging separate metal handles, handle joints, or secondary jaws",
+        "producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets",
+        "pressing and sintering specialized carbide cutting tips"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N332258",
+          "N333956",
+          "N334540",
+          "N339039",
+          "N346289"
+        ],
+        "not_enough": [
+          "N330201",
+          "N333361",
+          "N335339",
+          "N335671",
+          "N336828",
+          "N347615"
+        ],
+        "note": "Producing non-structural handles, grips, and minor hardware does not confer origin over an imported working head (N330201, N336828, N347615), whereas manufacturing major components like structural handles, tubular shafts, or carbide tips with assembly can confer origin (N332258, N334540, N346289)."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly",
+      "operations": [
+        "joining jaws, blades, and handles using rivets, pivot pins, bolts, nuts, and springs",
+        "inserting and securing ratcheting mechanisms, push-button mechanisms, or adjustment screws",
+        "welding or soldering tool head components, tangs, or carbide tips together",
+        "attaching molded plastic, wooden, or fiberglass handles and dipping or slipping on PVC/TPR grips",
+        "labeling and retail packaging finished tools or multi-piece tool sets"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N332258",
+          "N334540",
+          "N339039",
+          "N346289"
+        ],
+        "not_enough": [
+          "N330201",
+          "N331764",
+          "N332747",
+          "N333023",
+          "N347615",
+          "N348003"
+        ],
+        "note": "Assembling pre-formed tool heads, jaws, or shafts with handles, grips, and fasteners does not confer origin (N330201, N331764, N332747, N333023, N347615, N348003), unless the country also manufactures critical structural components like a primary jaw or main shaft (N332258, N334540, N339039, N346289)."
+      }
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+ "what": "Product categories of the 845 substantial-transformation rulings outside the dev, held-out and pilot splits (the selection pool), labelled by gemini-3.8-flash from each ruling's subject and the first 1,500 characters of its facts; 'assembled' = made by assembling separately made parts.",
+ "pool": 845,
+ "labelled": 840,
+ "label_errors": 5,
+ "label_cost_usd": 0.8721,
+ "rule": "Pick assembled-goods categories with at least 10 assembled rulings in the pool that no template covers; leave out regimes with their own engines (textiles, pharmaceuticals), processed goods (food, chemicals, paper) and categories that mix unrelated products (machinery_industrial, metal_articles_fasteners, household_goods except gas grills, toys_sporting_goods, plastic_rubber_articles, other). electric_motors_pumps_compressors (10 assembled) was left out as a separate family: motors are a group of the motorised template, and pumps and compressors overlap vehicle parts and machinery; it is the next candidate.",
+ "categories": [
+  {
+   "category": "vehicle_parts",
+   "rulings": 90,
+   "assembled": 88
+  },
+  {
+   "category": "pcba_electronic_devices",
+   "rulings": 88,
+   "assembled": 86
+  },
+  {
+   "category": "hand_tools_cutlery",
+   "rulings": 74,
+   "assembled": 67
+  },
+  {
+   "category": "paper_printed_wood",
+   "rulings": 69,
+   "assembled": 12
+  },
+  {
+   "category": "cables_harnesses_connectors",
+   "rulings": 62,
+   "assembled": 59
+  },
+  {
+   "category": "chemicals_pharma",
+   "rulings": 54,
+   "assembled": 1
+  },
+  {
+   "category": "food_agriculture",
+   "rulings": 48,
+   "assembled": 0
+  },
+  {
+   "category": "machinery_industrial",
+   "rulings": 44,
+   "assembled": 43
+  },
+  {
+   "category": "metal_articles_fasteners",
+   "rulings": 39,
+   "assembled": 21
+  },
+  {
+   "category": "motorised_tools_small_appliances",
+   "rulings": 38,
+   "assembled": 38
+  },
+  {
+   "category": "household_goods",
+   "rulings": 34,
+   "assembled": 34
+  },
+  {
+   "category": "medical_devices",
+   "rulings": 28,
+   "assembled": 26
+  },
+  {
+   "category": "led_lights",
+   "rulings": 25,
+   "assembled": 25
+  },
+  {
+   "category": "power_supplies_chargers",
+   "rulings": 23,
+   "assembled": 23
+  },
+  {
+   "category": "toys_sporting_goods",
+   "rulings": 22,
+   "assembled": 18
+  },
+  {
+   "category": "furniture",
+   "rulings": 15,
+   "assembled": 15
+  },
+  {
+   "category": "optical_cameras",
+   "rulings": 15,
+   "assembled": 14
+  },
+  {
+   "category": "filters",
+   "rulings": 12,
+   "assembled": 12
+  },
+  {
+   "category": "plastic_rubber_articles",
+   "rulings": 12,
+   "assembled": 5
+  },
+  {
+   "category": "other",
+   "rulings": 11,
+   "assembled": 6
+  },
+  {
+   "category": "electric_motors_pumps_compressors",
+   "rulings": 10,
+   "assembled": 10
+  },
+  {
+   "category": "batteries",
+   "rulings": 8,
+   "assembled": 8
+  },
+  {
+   "category": "solar_pv",
+   "rulings": 5,
+   "assembled": 4
+  },
+  {
+   "category": "jewelry_watches",
+   "rulings": 5,
+   "assembled": 5
+  },
+  {
+   "category": "bicycles_scooters",
+   "rulings": 4,
+   "assembled": 4
+  },
+  {
+   "category": "footwear",
+   "rulings": 2,
+   "assembled": 2
+  },
+  {
+   "category": "apparel_textiles",
+   "rulings": 2,
+   "assembled": 2
+  },
+  {
+   "category": "lidar_modules",
+   "rulings": 1,
+   "assembled": 1
+  }
+ ],
+ "gas_grills_subset_of_household_goods": 11,
+ "chosen": {
+  "pcba_electronic_devices": {
+   "category": "pcba_electronic_devices",
+   "assembled_rulings": 86
+  },
+  "vehicle_parts": {
+   "category": "vehicle_parts",
+   "assembled_rulings": 88
+  },
+  "hand_tools": {
+   "category": "hand_tools_cutlery",
+   "assembled_rulings": 67
+  },
+  "cables_harnesses": {
+   "category": "cables_harnesses_connectors",
+   "assembled_rulings": 59
+  },
+  "medical_devices": {
+   "category": "medical_devices",
+   "assembled_rulings": 26
+  },
+  "power_supplies_chargers": {
+   "category": "power_supplies_chargers",
+   "assembled_rulings": 23
+  },
+  "furniture": {
+   "category": "furniture",
+   "assembled_rulings": 15
+  },
+  "display_camera_modules": {
+   "category": "optical_cameras",
+   "assembled_rulings": 14
+  },
+  "water_filters": {
+   "category": "filters",
+   "assembled_rulings": 12
+  },
+  "gas_grills_cooking": {
+   "category": "household_goods",
+   "assembled_rulings": 11
+  }
+ },
+ "not_chosen_below_10": [
+  "solar_pv",
+  "jewelry_watches",
+  "batteries",
+  "other",
+  "footwear",
+  "chemicals_pharma",
+  "apparel_textiles",
+  "bicycles_scooters",
+  "plastic_rubber_articles"
+ ]
+}

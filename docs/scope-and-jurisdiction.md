@@ -9,7 +9,7 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 | Question | Answer |
 |---|---|
 | Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). No other jurisdiction is encoded. |
-| Which products does the planner cover? | Three families with templates: motorised tools and small appliances, LiDAR modules, LED lights (section 4). |
+| Which products does the planner cover? | 13 families with templates (section 4): three earlier ones and ten added from CBP precedent in D138. |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
 | USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
@@ -63,19 +63,31 @@ Gaps to state plainly:
 
 ## 4. Planner coverage
 
-The relocation planner has three templates, loaded by `planner.LoadTemplates` (`backend/internal/planner/template.go:62`, embedded `templates/*.json`):
+The relocation planner has 13 templates, loaded by `planner.LoadTemplates` (`backend/internal/planner/template.go`, embedded `templates/*.json`). The last ten were chosen and written from CBP precedent; each of their groups cites the rulings where its work conferred origin or was not enough (D138).
 
 | Family key | Name in the template | File |
 |---|---|---|
 | `motorised_tools_small_appliances` | Motorised tools & small appliances | `backend/internal/planner/templates/motorised_tools.json` |
 | `lidar_modules` | LiDAR sensor modules (backup demo family) | `backend/internal/planner/templates/lidar_modules.json` |
 | `led_lights` | LED lights and lamps | `backend/internal/planner/templates/led_lights.json` |
+| `pcba_electronic_devices` | PCBA-based electronic devices | `backend/internal/planner/templates/pcba_electronic_devices.json` |
+| `vehicle_parts` | Vehicle parts (mechanical and electromechanical) | `backend/internal/planner/templates/vehicle_parts.json` |
+| `hand_tools` | Hand tools and cutting tools | `backend/internal/planner/templates/hand_tools.json` |
+| `cables_harnesses` | Cables, cord sets and wire harnesses | `backend/internal/planner/templates/cables_harnesses.json` |
+| `medical_devices` | Medical devices and disposables | `backend/internal/planner/templates/medical_devices.json` |
+| `power_supplies_chargers` | Power supplies, adapters and chargers | `backend/internal/planner/templates/power_supplies_chargers.json` |
+| `furniture` | Furniture and mattresses | `backend/internal/planner/templates/furniture.json` |
+| `display_camera_modules` | Display modules and cameras | `backend/internal/planner/templates/display_camera_modules.json` |
+| `water_filters` | Water filters and filtration systems | `backend/internal/planner/templates/water_filters.json` |
+| `gas_grills_cooking` | Gas grills and outdoor cooking appliances | `backend/internal/planner/templates/gas_grills_cooking.json` |
+
+On the 2026 held-out rulings the product's family check matched 57.0% to one of these families (4.2% with the first three; D138, `eval/RESULTS.md`).
 
 Other product families are not planned. A request for a family with no template is refused: `family %q has no template` (`internal/httpapi/cases.go:386`, `products.go:81`, `products.go:160`), and the family checker answers `none` rather than inventing one (`internal/familycheck/familycheck.go:1`). Origin prediction does not need a template; only plan search does.
 
 Plan and country-comparison searches use the general engine only, with a precedent check. `planner.New(tmpls, predictor, ...)` receives the general (possibly cached) engine (`cmd/server/main.go:508`, `main.go:394`) and the planner calls it (`planner/plan.go:253`, `plan.go:376`); the compare call is `Planner.Plan` (`httpapi/compare.go:77`). So a plan for a textile, Part 102 or pharmaceutical product is not computed under that regime's rules. The export draft says so (`cases.go:1364`, `exportRegimeProvisionalNote`: "A plan search always uses the general engine"). Scenario re-runs are different: they dispatch with the case's pinned router label, so a specialist engine can answer them (`httpapi/scenarios.go:280-287`).
 
-`TestTemplatesLoad` (`planner/planner_core_test.go:33`) asserts only that two of the three families exist; it does not pin the set.
+`TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 13 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
 
 ## 5. Legal references and what each is
 
@@ -126,7 +138,7 @@ None of the following is implemented. A result from this system must not be used
 - Antidumping and countervailing duty (AD/CVD) circumvention or scope determinations. No such code exists.
 - Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:24`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
 - Tariff classification. HTS suggestions are separate and are suggestions (`config.go:215`).
-- Plan search for any product family outside the three templates (section 4).
+- Plan search for any product family outside the 13 templates (section 4).
 - Any final or binding determination. CBP rulings bind for the transaction and requester they describe (19 CFR 177.9 per `docs/claims-reconciliation.md` section 6; not re-fetched here).
 
 ## 7. Deferral record
