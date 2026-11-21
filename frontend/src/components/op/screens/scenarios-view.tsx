@@ -18,6 +18,7 @@ import { comparisonNetText, feasibilityText, figureText, netText } from "../ops-
 import { opsActive } from "@/lib/ops";
 import { groupName } from "../plan-bits";
 import { ReviewNote } from "../review-note";
+import { Term } from "../term";
 import { exampleDrafts, initialDrafts, scenarioBody, type Draft } from "@/lib/scenario-drafts";
 import { engineLabel, highestNet, planCheckOf, planCheckWords, readsDiffer } from "@/lib/plan-check";
 import { Button, ButtonLink, Chip, Country, Flag, Fold, Panel, PanelHead, Ruler, ScrollX, Spinner, StatusChip, cx } from "../ui";
@@ -166,6 +167,7 @@ export function Scenarios({ id, c, setCase }: CaseCtx) {
         )}
 
         {!editing && sc.length > 0 && <Cards sc={sc} c={c} />}
+        {!editing && sc.length > 0 && sc.some((s) => originConf(s.prediction).calibrated) && <p className="duo -mt-4 text-xs text-dim">{copy.calSteps}</p>}
         {!editing && sc.length > 0 && <ReviewNote place="scenarios" />}
         {!editing && product && sc.some((s) => s.product && (s.comparison?.moved?.length ?? 0) > 0) && (
           <div>
@@ -396,7 +398,15 @@ function Cards({ sc, c }: { sc: Scenario[]; c: CaseResponse }) {
             )}
             {(() => {
               const o = originConf(p);
-              return <Ruler value={o.value} bar={o.bar} label={`${o.bar.toFixed(2)} auto-accept`} width={220} caption={originConfCaption(o)} />;
+              return (
+                <Ruler
+                  value={o.value}
+                  bar={o.bar}
+                  label={`${o.bar.toFixed(2)} auto-accept`}
+                  width={220}
+                  caption={o.calibrated ? <Term explain={copy.terms.calibrated.text}>{originConfCaption(o)}</Term> : originConfCaption(o)}
+                />
+              );
             })()}
             {p.decisive_step && <p className="duo clamp-2 text-[13px]">{p.decisive_step}</p>}
             {cmp?.origin_differs_from_current && cur && (nothingMoves || !s.product) && (

@@ -112,13 +112,25 @@ export const BANDS: Band[] = [
 // What was tried and dropped, development set, 463 rulings after the D23
 // adjustments (docs/NUMBERS.md: model sweep, method-page rows, adjudicator).
 // vs: what the row is paired against; p is the exact McNemar test.
-export type Arm = { label: string; v: number; lo?: number; hi?: number; vs?: string; note: string; ref?: boolean; refs: string[] };
+// runs: separate runs of the same arm; v is then their mean and the chart draws
+// each run as a dot over their range instead of one run's interval.
+export type Arm = { label: string; v: number; lo?: number; hi?: number; runs?: number[]; vs?: string; note: string; ref?: boolean; refs: string[] };
 export const ARMS: { group: string; rows: Arm[] }[] = [
   {
     group: "In use",
     rows: [
       { label: "Gemini 4 Argon, Vertex AI", v: 0.911, lo: 0.882, hi: 0.934, note: "the production engine", ref: true, refs: ["D39"] },
-      { label: "Gemini 4 Argon, gateway", v: 0.918, lo: 0.889, hi: 0.94, vs: "fixed 8, broke 5, p = 0.58", note: "same model by another path", ref: true, refs: ["D151"] },
+      // docs/NUMBERS.md "Development accuracy over three runs": 91.8, 91.1,
+      // 91.1, mean 91.3. The paired test is on the first run (D151).
+      {
+        label: "Gemini 4 Argon, gateway",
+        v: 0.913,
+        runs: [0.918, 0.911, 0.911],
+        vs: "fixed 8, broke 5, p = 0.58 (first run, 91.8%)",
+        note: "mean of 3 runs; same model by another path",
+        ref: true,
+        refs: ["D151", "D190"],
+      },
     ],
   },
   {
@@ -127,15 +139,15 @@ export const ARMS: { group: string; rows: Arm[] }[] = [
       { label: "Gemini 3.5 Flash, fine-tuned", v: 0.879, lo: 0.846, hi: 0.906, vs: "fixed 15, broke 30, p = 0.036", note: "significantly worse; dropped", refs: ["D73"] },
       { label: "Gemini 3.5 Flash", v: 0.905, lo: 0.875, hi: 0.928, vs: "fixed 16, broke 19, p = 0.736", note: "no gain", refs: ["D44"] },
       { label: "Gemini 3.8 Flash", v: 0.901, lo: 0.87, hi: 0.925, vs: "fixed 13, broke 18, p = 0.473", note: "kept only as the fallback", refs: ["D73"] },
-      { label: "Gemini 4 Carbon", v: 0.881, lo: 0.849, hi: 0.908, vs: "fixed 6, broke 20, p = 0.009", note: "27 failed calls", refs: ["D153"] },
-      { label: "Gemini 3.1 Pro preview", v: 0.873, lo: 0.839, hi: 0.9, vs: "fixed 12, broke 30, p = 0.008", note: "10 failed calls", refs: ["D153"] },
-      { label: "Majority of three models", v: 0.916, lo: 0.887, hi: 0.938, vs: "fixed 8, broke 6, p = 0.79", note: "five times the cost", refs: ["D153"] },
+      { label: "Gemini 4 Carbon", v: 0.881, lo: 0.849, hi: 0.908, vs: "fixed 6, broke 20, p = 0.009", note: "gateway run; 27 failed calls, counted wrong", refs: ["D153"] },
+      { label: "Gemini 3.1 Pro preview", v: 0.873, lo: 0.839, hi: 0.9, vs: "fixed 12, broke 30, p = 0.008", note: "gateway run; 10 failed calls, counted wrong", refs: ["D153"] },
+      { label: "Majority of three models", v: 0.916, lo: 0.887, hi: 0.938, vs: "fixed 8, broke 6, p = 0.79", note: "gateway runs; five times the cost", refs: ["D153"] },
     ],
   },
   {
     group: "Changes around the engine",
     rows: [
-      { label: "rules-v2 prompt", v: 0.909, lo: 0.88, hi: 0.932, vs: "fixed 9, broke 13, p = 0.52 (vs gateway)", note: "not adopted", refs: ["D157"] },
+      { label: "rules-v2 prompt", v: 0.909, lo: 0.88, hi: 0.932, vs: "fixed 9, broke 13, p = 0.52 (vs the first gateway run)", note: "not adopted", refs: ["D157"] },
       { label: "Adjudicator, narrow", v: 0.901, vs: "fixed 2, broke 7, p = 0.18", note: "failed its rule", refs: ["D164"] },
       { label: "Adjudicator, symmetric", v: 0.909, vs: "fixed 9, broke 10, p = 1.0", note: "failed its rule", refs: ["D164"] },
       { label: "Adjudicator, moves away from China only", v: 0.92, vs: "fixed 7, broke 3, p = 0.34", note: "picked after seeing the two above, so not a fair test; failed its rule", refs: ["D164"] },

@@ -1,0 +1,669 @@
+{
+ "id": "case_878d76540b91",
+ "pinned": true,
+ "can_write": false,
+ "date": "2026-01-14",
+ "display_name": "Heat gun, 2022 setup (Kobalt 12.5-amp)",
+ "step": "plan",
+ "facts_source": "pasted",
+ "updated_at": "2026-10-18T09:23:48.275916604Z",
+ "created_at": "2026-10-16T16:25:39.128559305Z",
+ "prediction": {
+  "origin_country": "China",
+  "confidence": 0.85,
+  "calibrated_confidence": 0.6
+ },
+ "triage": {
+  "route": "needs_info",
+  "reason": "confidence 0.85 below 0.92; no earlier ruling on point: answer the questions first"
+ },
+ "current_origin": {
+  "country": "China",
+  "ruling": "N328954"
+ },
+ "product": {
+  "name": "Kobalt 12.5-amp heat gun, model 5208257",
+  "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+  "plants": [
+   {
+    "id": "th",
+    "name": "Rayong plant",
+    "country": "Thailand",
+    "capabilities": [
+     "motor_fan_assembly",
+     "pcba",
+     "heating_element",
+     "housing_moulding",
+     "switch_cord_minor_parts",
+     "final_assembly"
+    ]
+   },
+   {
+    "id": "cn",
+    "name": "China suppliers",
+    "country": "China",
+    "capabilities": [
+     "motor_fan_assembly",
+     "pcba",
+     "heating_element",
+     "housing_moulding",
+     "switch_cord_minor_parts"
+    ]
+   }
+  ],
+  "components": [
+   {
+    "name": "main housing",
+    "made_in": "Thailand",
+    "plant": "th",
+    "group": "housing_moulding"
+   },
+   {
+    "name": "front cover",
+    "made_in": "Thailand",
+    "plant": "th",
+    "group": "housing_moulding"
+   },
+   {
+    "name": "heating element",
+    "made_in": "Thailand",
+    "plant": "th",
+    "group": "heating_element"
+   },
+   {
+    "name": "electric motor",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "motor_fan_assembly"
+   },
+   {
+    "name": "fan",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "motor_fan_assembly"
+   },
+   {
+    "name": "motor support",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "motor_fan_assembly"
+   },
+   {
+    "name": "printed circuit board assembly (PCBA)",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "pcba"
+   },
+   {
+    "name": "switch",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   },
+   {
+    "name": "power cord",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   },
+   {
+    "name": "wiring",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   },
+   {
+    "name": "knob",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   },
+   {
+    "name": "back cover",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   },
+   {
+    "name": "support ring, heat insulator and fasteners",
+    "made_in": "China",
+    "plant": "cn",
+    "group": "switch_cord_minor_parts"
+   }
+  ],
+  "operations": [
+   {
+    "name": "press fit the fan to the motor spindle and attach the fan cover",
+    "plant": "th",
+    "group": "final_assembly"
+   },
+   {
+    "name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",
+    "plant": "th",
+    "group": "final_assembly"
+   },
+   {
+    "name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",
+    "plant": "th",
+    "group": "final_assembly"
+   },
+   {
+    "name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack",
+    "plant": "th",
+    "group": "final_assembly"
+   }
+  ],
+  "hts": "8419.89.95"
+ },
+ "scenarios": [
+  {
+   "comparison": {
+    "duty_rate": 0.417,
+    "annual_duty_usd": 834000,
+    "duty_savings_usd": 0,
+    "added_cost_usd": 0,
+    "net_usd": 0,
+    "moved": [],
+    "illustrative": true,
+    "origin_differs_from_current": true
+   },
+   "label": "As today",
+   "prediction": {
+    "origin_country": "Thailand",
+    "confidence": 0.78,
+    "calibrated_confidence": 0.6
+   },
+   "product": {
+    "name": "Kobalt 12.5-amp heat gun, model 5208257",
+    "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+    "plants": [
+     {
+      "id": "th",
+      "name": "Rayong plant",
+      "country": "Thailand",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts",
+       "final_assembly"
+      ]
+     },
+     {
+      "id": "cn",
+      "name": "China suppliers",
+      "country": "China",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts"
+      ]
+     }
+    ],
+    "components": [
+     {
+      "name": "main housing",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "front cover",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "heating element",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "heating_element"
+     },
+     {
+      "name": "electric motor",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "fan",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "motor support",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "printed circuit board assembly (PCBA)",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "pcba"
+     },
+     {
+      "name": "switch",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "power cord",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "wiring",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "knob",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "back cover",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "support ring, heat insulator and fasteners",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     }
+    ],
+    "operations": [
+     {
+      "name": "press fit the fan to the motor spindle and attach the fan cover",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack",
+      "plant": "th",
+      "group": "final_assembly"
+     }
+    ],
+    "hts": "8419.89.95"
+   },
+   "triage": {
+    "route": "needs_review",
+    "reason": "confidence 0.78 below 0.92"
+   }
+  },
+  {
+   "comparison": {
+    "duty_rate": 0.167,
+    "annual_duty_usd": 334000,
+    "duty_savings_usd": 500000,
+    "added_cost_usd": 120000,
+    "net_usd": 380000,
+    "moved": [
+     {
+      "group": "motor_fan_assembly",
+      "to_plant": "th"
+     }
+    ],
+    "illustrative": true,
+    "origin_differs_from_current": true
+   },
+   "label": "motor_fan_assembly in Thailand",
+   "plan_check": {
+    "shown": false,
+    "confidence": 0.9,
+    "bar": 0.92,
+    "supporting_ruling": "N325810",
+    "rejection_kind": "below_confidence_bar",
+    "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+    "description": "Move the motor-fan assembly to Thailand",
+    "net_per_year": 380000,
+    "target": "Thailand"
+   },
+   "prediction": {
+    "origin_country": "Thailand",
+    "confidence": 0.98,
+    "calibrated_confidence": 0.99
+   },
+   "product": {
+    "name": "Kobalt 12.5-amp heat gun, model 5208257",
+    "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+    "plants": [
+     {
+      "id": "th",
+      "name": "Rayong plant",
+      "country": "Thailand",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts",
+       "final_assembly"
+      ]
+     },
+     {
+      "id": "cn",
+      "name": "China suppliers",
+      "country": "China",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts"
+      ]
+     }
+    ],
+    "components": [
+     {
+      "name": "main housing",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "front cover",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "heating element",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "heating_element"
+     },
+     {
+      "name": "electric motor",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "fan",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "motor support",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "printed circuit board assembly (PCBA)",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "pcba"
+     },
+     {
+      "name": "switch",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "power cord",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "wiring",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "knob",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "back cover",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "support ring, heat insulator and fasteners",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     }
+    ],
+    "operations": [
+     {
+      "name": "press fit the fan to the motor spindle and attach the fan cover",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack",
+      "plant": "th",
+      "group": "final_assembly"
+     }
+    ],
+    "hts": "8419.89.95"
+   },
+   "triage": {
+    "route": "auto",
+    "reason": "confidence 0.98 \u2265 0.92 and in scope"
+   }
+  },
+  {
+   "comparison": {
+    "duty_rate": 0.167,
+    "annual_duty_usd": 334000,
+    "duty_savings_usd": 500000,
+    "added_cost_usd": 180000,
+    "net_usd": 320000,
+    "moved": [
+     {
+      "group": "motor_fan_assembly",
+      "to_plant": "th"
+     },
+     {
+      "group": "pcba",
+      "to_plant": "th"
+     }
+    ],
+    "illustrative": true,
+    "origin_differs_from_current": true
+   },
+   "label": "motor_fan_assembly + pcba in Thailand",
+   "plan_check": {
+    "shown": false,
+    "confidence": 0.85,
+    "bar": 0.92,
+    "rejection_kind": "no_supporting_precedent",
+    "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+    "description": "Move the motor-fan assembly and the PCBA (SMT) to Thailand",
+    "net_per_year": 320000,
+    "target": "Thailand"
+   },
+   "prediction": {
+    "origin_country": "Thailand",
+    "confidence": 0.99,
+    "calibrated_confidence": 0.99
+   },
+   "product": {
+    "name": "Kobalt 12.5-amp heat gun, model 5208257",
+    "description": "It features two fan speeds and a variable temperature control dial and is rated at 1500 watts. The main components are a plastic molded housing that encompasses a heating element, motor-fan assembly, power switch and power cord. It delivers hot air for heat shrinking, stripping paint, bending plastic, drying and thawing.",
+    "plants": [
+     {
+      "id": "th",
+      "name": "Rayong plant",
+      "country": "Thailand",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts",
+       "final_assembly"
+      ]
+     },
+     {
+      "id": "cn",
+      "name": "China suppliers",
+      "country": "China",
+      "capabilities": [
+       "motor_fan_assembly",
+       "pcba",
+       "heating_element",
+       "housing_moulding",
+       "switch_cord_minor_parts"
+      ]
+     }
+    ],
+    "components": [
+     {
+      "name": "main housing",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "front cover",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "housing_moulding"
+     },
+     {
+      "name": "heating element",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "heating_element"
+     },
+     {
+      "name": "electric motor",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "fan",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "motor support",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "motor_fan_assembly"
+     },
+     {
+      "name": "printed circuit board assembly (PCBA)",
+      "made_in": "Thailand",
+      "plant": "th",
+      "group": "pcba"
+     },
+     {
+      "name": "switch",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "power cord",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "wiring",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "knob",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "back cover",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     },
+     {
+      "name": "support ring, heat insulator and fasteners",
+      "made_in": "China",
+      "plant": "cn",
+      "group": "switch_cord_minor_parts"
+     }
+    ],
+    "operations": [
+     {
+      "name": "press fit the fan to the motor spindle and attach the fan cover",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "crimp plugs to the heating element wires, add heat shrink tubing, solder wires to the switch and plug the heating element into the switch and PCBA",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "fasten the PCBA to the main housing, assemble the temperature knob, connect the PCBA to the motor, add the back cover and motor support",
+      "plant": "th",
+      "group": "final_assembly"
+     },
+     {
+      "name": "secure the power cord, add the switch slider, close the housing with screws, test, label and pack",
+      "plant": "th",
+      "group": "final_assembly"
+     }
+    ],
+    "hts": "8419.89.95"
+   },
+   "triage": {
+    "route": "auto",
+    "reason": "confidence 0.99 \u2265 0.92 and in scope"
+   }
+  }
+ ],
+ "exclude_rulings": [
+  "N328954",
+  "N357771"
+ ],
+ "family": "motorised_tools_small_appliances",
+ "_doc": "Trimmed GET /api/v1/cases/case_878d76540b91 from the public site on 21 Nov 2026 (the pinned heat-gun flagship): precedent details and long texts dropped, shape kept."
+}

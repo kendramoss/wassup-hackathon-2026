@@ -43,6 +43,8 @@ test("every figure on the page is in docs/NUMBERS.md", () => {
     for (const r of g.rows) {
       const want = r.lo !== undefined ? `${p1(r.v)} (${(r.lo * 100).toFixed(1)}–${(r.hi * 100).toFixed(1)})` : p1(r.v);
       assert.ok(numbers.includes(want), `${r.label}: ${want} not in NUMBERS.md`);
+      // A row of repeat runs: each run and their mean are registered (D270).
+      for (const v of r.runs ?? []) assert.ok(numbers.includes(p1(v)), `${r.label}: run ${p1(v)} not in NUMBERS.md`);
       if (r.vs) {
         const [f, b] = r.vs.match(/\d+/g);
         assert.match(numbers, new RegExp(`fixed ${f}, broke ${b}|${f} / ${b}`), `${r.label}: ${r.vs}`);

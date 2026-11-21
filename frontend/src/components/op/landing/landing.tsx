@@ -11,7 +11,7 @@
 // number comes from docs/NUMBERS.md.
 import Link from "next/link";
 import { Explained } from "../term";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
@@ -26,6 +26,41 @@ const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
   // eslint-disable-next-line @next/next/no-img-element
   <img className="flag" alt="" src={flag(c)} style={h ? { height: h } : undefined} />
 );
+
+// A secondary block that phones get folded (judge panel round 3, D270: the
+// phone landing was 11,470 px tall). Wide screens always show it open, with
+// no summary line; below 901 px it starts folded behind a summary that says
+// what is inside. The server renders it open, so nothing is hidden without
+// script; the fold applies on mount, far below the first screen.
+function PhoneFold({ summary, children }: { summary: string; children: ReactNode }) {
+  const phone = useSyncExternalStore(onPhoneChange, isPhone, () => false);
+  const [userOpen, setUserOpen] = useState(false);
+  const open = !phone || userOpen;
+  return (
+    <details
+      className="pfold"
+      open={open}
+      onToggle={(e) => {
+        if (phone) setUserOpen((e.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
+      <summary>
+        <span aria-hidden="true" className="pfmark">
+          ▸
+        </span>
+        {summary}
+      </summary>
+      {children}
+    </details>
+  );
+}
+const PHONE = "(max-width: 900px)";
+const isPhone = () => matchMedia(PHONE).matches;
+function onPhoneChange(cb: () => void) {
+  const mq = matchMedia(PHONE);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
 
 // The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
@@ -274,7 +309,7 @@ export function Landing() {
                             For <RulingLink id="N345938" /> · against: none found
                           </p>
                           <p className="small">
-                            Recorded 18 Oct production run (docs/DEMO.md, section 6). The pinned case on this site may instead show no plan above the bar.
+                            Recorded 18 Oct production run (docs/DEMO.md, section 6). The pinned case on this site shows the same plan at 0.96.
                           </p>
                           <p className="duo small">
                             Matches CBP&apos;s 2026 change (<RulingLink id="N357771" />), all but the outer shells.
@@ -474,17 +509,19 @@ export function Landing() {
               {K.title}
             </h3>
             <p className="read rolelead">{K.lead}</p>
-            <dl>
-              {K.roles.map((r) => (
-                <div key={r.role} className="role">
-                  <dt>
-                    <span className="eyebrow">{r.role}</span>
-                    <span className="read">{r.who}</span>
-                  </dt>
-                  <dd className="read">{r.gets}</dd>
-                </div>
-              ))}
-            </dl>
+            <PhoneFold summary={L.foldRoles(K.roles.map((r) => r.role))}>
+              <dl>
+                {K.roles.map((r) => (
+                  <div key={r.role} className="role">
+                    <dt>
+                      <span className="eyebrow">{r.role}</span>
+                      <span className="read">{r.who}</span>
+                    </dt>
+                    <dd className="read">{r.gets}</dd>
+                  </div>
+                ))}
+              </dl>
+            </PhoneFold>
           </section>
         </section>
 
@@ -502,6 +539,7 @@ export function Landing() {
               </div>
               <p className="illus">{S.label}</p>
             </div>
+            <PhoneFold summary={L.foldStory(Object.values(S.beats))}>
             <ol className="beats">
               <li className="beat">
                 <span className="bn">
@@ -629,6 +667,7 @@ export function Landing() {
                 </div>
               </li>
             </ol>
+            </PhoneFold>
             <div className="storyfoot">
               <span>{S.sources}</span>
               <span>{copy.name} · sheet 04</span>

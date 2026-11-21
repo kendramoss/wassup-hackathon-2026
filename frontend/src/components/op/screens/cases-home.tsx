@@ -81,7 +81,7 @@ export function CasesHome() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {pinned.map((c) => (
-              <DemoCard key={c.id} c={c} />
+              <DemoCard key={c.id} c={c} demo={c.demo_id ? demos?.find((d) => d.id === c.demo_id) : undefined} />
             ))}
           </div>
           <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">
@@ -186,7 +186,7 @@ export function LoadDemoCard({ d }: { d: NonNullable<DemoList["demos"]>[number] 
         <Chip tone="ask" className="whitespace-normal">
           {copy.cases.recorded.unseeded}
         </Chip>
-        {d.has_plan && <Chip tone="ok">Plan included</Chip>}
+        {d.has_plan && <Chip>{copy.cases.recorded.planRuns}</Chip>}
       </span>
     </article>
   );
@@ -229,12 +229,21 @@ function RecordedRun({ r }: { r: NonNullable<NonNullable<DemoList["demos"]>[numb
   );
 }
 
-export function DemoCard({ c }: { c: CaseSummary }) {
+// The card's demo entry, when known, gives what CBP held for a demo whose
+// case has no current origin recorded (the dryer latches, judge panel round 3).
+const heldOf = (s?: string | null) => {
+  const h = (s ?? "").trim();
+  const cut = h.indexOf(" (");
+  return h ? { country: cut < 0 ? h : h.slice(0, cut), ruling: cut < 0 ? undefined : h.slice(cut + 2).replace(/\)$/, "") } : undefined;
+};
+
+export function DemoCard({ c, demo }: { c: CaseSummary; demo?: NonNullable<DemoList["demos"]>[number] }) {
   const [full, setFull] = useState<CaseResponse | null>(null);
   useEffect(() => {
     api.getCase(c.id).then(setFull, () => {});
   }, [c.id]);
-  const cur = full ? currentOrigin(full) : undefined;
+  const own = full ? currentOrigin(full) : undefined;
+  const cur = own?.country ? own : heldOf(demo?.cbp_held);
   const best = full?.plan?.plans?.[0];
   const compared = (full as (CaseResponse & { targets?: { ranked?: unknown[] } }) | null)?.targets?.ranked?.length ?? 0;
   const differs = Boolean(cur?.country && c.predicted_origin && cur.country.toLowerCase() !== c.predicted_origin.toLowerCase());
@@ -287,6 +296,8 @@ export function DemoCard({ c }: { c: CaseSummary }) {
           <span className="text-ask">No plan cleared the {BAR} precedent-check bar</span>
         ) : compared > 0 ? (
           <span className="text-ok">Country comparison recorded: {compared} countries</span>
+        ) : full && !full.product ? (
+          <span className="text-dim">{copy.cases.recorded.originOnly}</span>
         ) : (
           <span className="text-dim">No plan search yet</span>
         )}

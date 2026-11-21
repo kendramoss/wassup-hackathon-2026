@@ -6,23 +6,12 @@ import { EstimateCosts } from "./money-prefill";
 import type { Economics, Plan, Product } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { money, pct } from "@/lib/format";
+import { groupNames } from "@/lib/families";
 import { outcomeLabels } from "@/lib/plan-check";
 import { Country, Flag, Panel, PanelHead, cx } from "./ui";
 
 export const moveKey = (p: Plan) => (p.move ?? []).map((m) => `${m.group}@${m.to_plant}`).join("+");
 
-const groupNames: Record<string, string> = {
-  motor_fan_assembly: "Motor-fan assembly",
-  pcba: "PCBA (SMT)",
-  heating_element: "Heating element",
-  housing_moulding: "Housing moulding",
-  switch_cord_minor_parts: "Switch, cord and minor parts",
-  final_assembly: "Final assembly",
-  // LED tub light demo
-  led_pcba: "LED PCBA (SMT)",
-  lens: "Lens moulding",
-  base_harness_seals: "Base, harness and seals",
-};
 
 export function groupName(id: string | undefined): string {
   if (!id) return "Other";
@@ -58,16 +47,21 @@ export function movePhrase(p: Plan): string {
   return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
-// What a move takes with it (D220): for each moved group, the parts and
-// steps of this product in that group that are not already at the plant it
-// moves to, by the names the parts list gives them.
+// What a move takes with it (D220): for each moved group, the parts of this
+// product in that group that are not already at the plant it moves to, by
+// the names the parts list gives them. The group's steps are listed only when
+// none of its parts move, so the line names parts, not process sentences
+// (judge panel round 3, D270; backend planner.MovedItems does the same).
 export function movedParts(product: Product | null | undefined, plan: Plan): { group: string; items: string[] }[] {
   if (!product) return [];
-  return (plan.move ?? []).map((m) => {
-    const items = [...(product.components ?? []), ...(product.operations ?? [])]
-      .filter((x) => x.group === m.group && ("plant" in x ? x.plant !== m.to_plant : true))
+  const names = (xs: { name?: string; group?: string; plant?: string }[], m: { group?: string; to_plant?: string }) =>
+    xs
+      .filter((x) => x.group === m.group && x.plant !== m.to_plant)
       .map((x) => x.name)
       .filter((n): n is string => Boolean(n));
+  return (plan.move ?? []).map((m) => {
+    const parts = names(product.components ?? [], m);
+    const items = parts.length > 0 ? parts : names(product.operations ?? [], m);
     return { group: m.group ?? "", items: [...new Set(items)] };
   });
 }

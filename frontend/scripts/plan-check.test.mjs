@@ -114,5 +114,8 @@ test("origin: the pinned demo explains its watch and the second reading", async 
 
 test("a plan names what it moves", () => {
   assert.equal(movePhrase(best), "the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts");
-  assert.deepEqual(movedParts(product, { move: [{ group: "motor_fan_assembly", to_plant: "th" }] }), [{ group: "motor_fan_assembly", items: ["electric motor", "wind the motor stator"] }]);
+  // Parts, not process steps; a group's steps only when none of its parts move (D270).
+  assert.deepEqual(movedParts(product, { move: [{ group: "motor_fan_assembly", to_plant: "th" }] }), [{ group: "motor_fan_assembly", items: ["electric motor"] }]);
+  const stepsOnly = { ...product, components: product.components.filter((c) => c.group !== "motor_fan_assembly") };
+  assert.deepEqual(movedParts(stepsOnly, { move: [{ group: "motor_fan_assembly", to_plant: "th" }] }), [{ group: "motor_fan_assembly", items: ["wind the motor stator"] }]);
 });

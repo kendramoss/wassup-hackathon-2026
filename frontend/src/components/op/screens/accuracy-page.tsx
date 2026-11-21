@@ -192,7 +192,7 @@ export function AccuracyPage() {
         <a href="#misses" className="text-ok underline underline-offset-2">
           rulings it got wrong
         </a>{" "}
-        are listed by name. The intervals resample these same scored rows with a fixed seed; they describe sampling error conditional on one run, not model-run variance, label error, calibration fitting or split construction. Repeatability is measured separately on the development set only.
+        are listed by name. The intervals resample these same scored rows with a fixed seed; they describe sampling error conditional on one run, not model-run variance, label error, calibration fitting or split construction. Repeat runs are measured separately, on the development set and on both held-out splits (see Run it again below).
       </p>
       {/* Below md the headline numbers come before the reproduce block, so a
           phone sees the result first (judge panel round 2, D220). */}
@@ -395,6 +395,7 @@ export function AccuracyPage() {
                   the model&apos;s own.
                 </Card>
               </div>
+              <p className="read mt-3 max-w-[90ch] text-[12.5px] text-dim">{copy.calSteps}</p>
             </section>
           )}
 
@@ -407,7 +408,7 @@ export function AccuracyPage() {
             </div>
             <div className="mt-3 grid gap-5 md:grid-cols-2">
               <Card title="Part names read" big={`${MEDIA.read} of ${MEDIA.parts}`}>
-                parts on {MEDIA.images} synthetic BOM images (tables, tilted photos and scans we rendered), {pct(MEDIA.read / MEDIA.parts)}. {MEDIA.fullyRead} of {MEDIA.images} images were read in full. The{" "}
+                parts on {MEDIA.images} synthetic BOM images (tables, tilted photos and scans we rendered). {MEDIA.fullyRead} of {MEDIA.images} images were read in full. The{" "}
                 {MEDIA.parts - MEDIA.read} misses are names that did not match exactly, mostly a part number added to the name.
               </Card>
               <Card title="Wrong countries" big="0">
@@ -445,7 +446,7 @@ export function AccuracyPage() {
                   </Card>
                 )}
                 {allReg && (
-                  <Card title="All regimes, both held-out windows" big={pct(allReg.value)}>
+                  <Card title={`All regimes · ${allReg.n} rulings, each once`} big={pct(allReg.value)}>
                     on {allReg.n} held-out rulings from January to November 2026 ({ci(allReg)}), all four rule sets, each ruling counted once. Runs on Vertex AI, the earlier
                     proxy and the gateway are pooled.
                   </Card>
@@ -462,7 +463,7 @@ export function AccuracyPage() {
                   </Card>
                 )}
                 {routed && (
-                  <Card title="The product, end to end" big={pct(routed.value)}>
+                  <Card title={`Routed product · ${routed.n} later rulings`} big={pct(routed.value)}>
                     on {routed.n} later rulings (28 Sep to 13 Nov 2026), all four rule sets, each answered by the engine the router picked ({ci(routed)}),{" "}
                     {Math.round((routed.value ?? 0) * (routed.n ?? 0))} right.
                     {routedOld ? ` With the router before it: ${Math.round((routedOld.value ?? 0) * (routedOld.n ?? 0))} of ${routedOld.n} right.` : ""} Each ruling sent straight to its own rules scores a little higher; the gap is the cost
@@ -560,7 +561,7 @@ export function AccuracyPage() {
 // How the pieces fit, for anyone judging the Gen AI (#153). Model names and
 // settings are the backend defaults (internal/config); the Ask agent is ADK.
 const stages: { n: number; name: string; model: string; does: string }[] = [
-  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Pharmaceutical and Part 102 marking rulings go to their own rules; other questions outside substantial transformation go to a person." },
+  { n: 1, name: "Router", model: "Gemini 3.8 Flash", does: "Checks which origin rules apply. Textile, pharmaceutical and Part 102 marking rulings go to their own rules; other questions outside substantial transformation go to a person." },
   { n: 2, name: "Origin engine", model: "Gemini 4 Argon", does: "Reads the 5 most similar CBP rulings dated before the case date (BM25 over the public rulings) and predicts the origin CBP would likely assign, with its reasons." },
   { n: 3, name: "Triage", model: "calibrated 0.90 bar", does: "Maps the model's confidence to a calibrated one (fitted on the development set). At or above the bar the answer is auto-accepted; below it, it asks CBP-style questions and goes to review." },
   { n: 4, name: "Planner", model: "search", does: "Enumerates moves of operation groups between the plants you list and re-runs the engine on each." },
