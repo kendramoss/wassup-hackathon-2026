@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bulletin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
@@ -288,4 +289,96 @@ func bulletinsModel(args []string) error {
 	}
 	fmt.Printf("bulletins: %d notices read, $%.5f reported by the gateway\n", n, tally.USD())
 	return nil
+}
+
+// bulletinMerge reads the committed notices and model reads and returns the
+// final changes as supersession edges and the pending proposals (D400).
+func bulletinMerge(noticesPath, readsPath string) ([]domain.Supersession, []domain.ProposedChange, map[string]int, error) {
+	notices, err := loadNotices(noticesPath)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	reads, err := bulletin.LoadReads(readsPath)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return nil, nil, nil, err
+	}
+	stats := map[string]int{"bulletin_notices": len(notices)}
+	issues := map[string]bool{}
+	cite := func(n bulletin.Notice) domain.BulletinCite {
+		return domain.BulletinCite{Volume: n.Volume, Number: n.Number, Date: n.Date, Page: n.Page, URL: n.URL}
+	}
+	finals := map[string]domain.Supersession{}
+	var proposals []domain.ProposedChange
+	withdrawn := map[string]bool{}
+	for _, n := range notices {
+		issues[fmt.Sprintf("%d/%d", n.Volume, n.Number)] = true
+		r := bulletin.Parse(n)
+		stats["bulletin_notices_"+r.Status]++
+		if r.Status == "withdrawn" {
+			for _, id := range bulletin.IDsIn(n.Excerpt) {
+				withdrawn[id] = true
+			}
+			continue
+		}
+		changes := r.Changes
+		if r.Problem() != "" {
+			stats["bulletin_notices_flagged"]++
+			rd, ok := reads[n.Key()]
+			if !ok {
+				return nil, nil, nil, fmt.Errorf("notice %s is flagged (%s) and has no model read; run go run ./cmd/corpus bulletins model", n.Key(), r.Problem())
+			}
+			changes = bulletin.Resolve(n, r, rd)
+			if rd.Error != "" {
+				stats["bulletin_notices_failed"]++
+			}
+			stats["bulletin_model_added"] += len(changes) - countIn(changes, r.Changes)
+			stats["bulletin_model_dropped"] += len(r.Changes) - countIn(r.Changes, changes)
+		}
+		for _, c := range changes {
+			ct := cite(n)
+			if c.Status == "final" {
+				ct.Effective = c.Effective
+				e := domain.Supersession{Ruling: c.Ruling, By: c.By, Date: c.Effective, Kind: c.Kind, Source: domain.SourceCustomsBulletin,
+					SourceRuling: c.By, Quote: c.Quote, Bulletin: &ct}
+				k := c.Ruling + "|" + c.By
+				if old, ok := finals[k]; !ok || e.Date < old.Date {
+					finals[k] = e
+				}
+				continue
+			}
+			ct.CommentsBy = c.CommentsBy
+			proposals = append(proposals, domain.ProposedChange{Ruling: c.Ruling, By: c.By, Kind: c.Kind, Quote: c.Quote, Bulletin: ct})
+		}
+	}
+	stats["bulletin_issues"] = len(issues)
+	var edges []domain.Supersession
+	finalFor := map[string]bool{}
+	for _, e := range finals {
+		edges = append(edges, e)
+		finalFor[e.Ruling] = true
+	}
+	var pending []domain.ProposedChange
+	seen := map[string]bool{}
+	for _, p := range proposals {
+		k := p.Ruling + "|" + p.By
+		if finalFor[p.Ruling] || withdrawn[p.Ruling] || seen[k] {
+			continue
+		}
+		seen[k] = true
+		pending = append(pending, p)
+	}
+	return edges, pending, stats, nil
+}
+
+func countIn(xs, in []bulletin.Change) int {
+	n := 0
+	for _, x := range xs {
+		for _, y := range in {
+			if x.Ruling == y.Ruling && x.By == y.By {
+				n++
+				break
+			}
+		}
+	}
+	return n
 }

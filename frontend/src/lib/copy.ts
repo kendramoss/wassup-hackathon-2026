@@ -157,10 +157,11 @@ export const copy = {
     },
   },
 
-  // Revoked and modified rulings (D320): said beside every ruling link.
+  // Revoked and modified rulings (D320, D400): said beside every ruling link.
   supersession: {
     by: (ruling: string, date: string) => `superseded by ${ruling}, ${date}`,
     notSupport: "not counted as support for this case",
+    proposed: (kind: "revoked" | "modified", ruling: string) => `CBP proposed to ${kind === "revoked" ? "revoke" : "modify"} it in ${ruling}`,
   },
   plan: {
     // The stored backtest waits for the demo's record of the real change

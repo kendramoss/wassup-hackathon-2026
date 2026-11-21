@@ -549,6 +549,9 @@ func Parse(n Notice) Result {
 	return r
 }
 
+// IDsIn returns the ruling numbers s names after "NY", "HQ" or "PC".
+func IDsIn(s string) []string { return idsIn(s) }
+
 func idsIn(s string) []string {
 	var out []string
 	s = datedPhrase.ReplaceAllString(s, "")

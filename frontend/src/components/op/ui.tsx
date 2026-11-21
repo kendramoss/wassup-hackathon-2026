@@ -8,7 +8,7 @@ import { Term } from "./term";
 import { useEffect, useRef, type ComponentProps, type ReactNode } from "react";
 import { flagCodes } from "@/lib/countries";
 import { BAR, conf, formatDate } from "@/lib/format";
-import { supersededAsOf } from "@/lib/supersession";
+import { proposalFor, supersededAsOf } from "@/lib/supersession";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
@@ -237,14 +237,16 @@ export function Spinner({ label }: { label: string }) {
   );
 }
 
-// A ruling number, linked to CBP. When a later ruling in the corpus revoked
-// or modified it (D320), the link says so: "superseded by H… (date)". With
-// support (the ruling is cited as support) and asOf (the case date), a ruling
-// changed before that date (D370) is marked as not counted: the precedent
-// check never cites one, so it can only appear on results stored before the
-// guard.
+// A ruling number, linked to CBP. When a later ruling in the corpus or a
+// final Customs Bulletin notice revoked or modified it (D320, D400), the link
+// says so: "superseded by H… (date)". With support (the ruling is cited as
+// support) and asOf (the case date), a ruling changed before that date (D370)
+// is marked as not counted: the precedent check never cites one, so it can
+// only appear on results stored before the guard. A change CBP has only
+// proposed is named too, as information.
 export function RulingLink({ id, className, asOf, support }: { id: string; className?: string; asOf?: string | null; support?: boolean }) {
   const s = supersededAsOf(id, asOf);
+  const p = s ? undefined : proposalFor(id);
   return (
     <>
       <a
@@ -256,10 +258,18 @@ export function RulingLink({ id, className, asOf, support }: { id: string; class
         {id}
       </a>
       {s ? (
-        <span className="text-xs text-ask" title={`${s.kind === "revoked" ? "Revoked" : "Modified"} by ${s.by} on ${s.date} (D320)`}>
+        <span
+          className="text-xs text-ask"
+          title={`${s.kind === "revoked" ? "Revoked" : "Modified"} by ${s.by} on ${s.date}${s.bulletin ? `, ${s.bulletin} (D400)` : " (D320)"}`}
+        >
           {" "}
           ({copy.supersession.by(s.by, formatDate(s.date))}
           {support && s.inForce ? `; ${copy.supersession.notSupport}` : ""})
+        </span>
+      ) : p ? (
+        <span className="text-xs text-dim" title={`${p.bulletin}: proposed, not final; still counted (D400)`}>
+          {" "}
+          ({copy.supersession.proposed(p.kind, p.by)})
         </span>
       ) : null}
     </>

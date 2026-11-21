@@ -1647,9 +1647,13 @@ type rulingDTO struct {
 	Text    string  `json:"text"`
 	URL     string  `json:"url"`
 	Origin  *string `json:"origin"` // CBP's held origin; null when no single origin
-	// Superseded is set when a later CBP ruling in the corpus revoked or
-	// modified this one (D320).
+	// Superseded is set when a later CBP ruling in the corpus, or a final
+	// Customs Bulletin notice, revoked or modified this one (D320, D400).
 	Superseded *supersededDTO `json:"superseded,omitempty"`
+	// Proposed is set when CBP proposed to revoke or modify it in a fetched
+	// Customs Bulletin notice and has not made that final (D400). It is
+	// information only and never bars the ruling as a precedent.
+	Proposed *proposedDTO `json:"proposed,omitempty"`
 }
 
 // supersededDTO names the later ruling that revoked or modified a ruling.
@@ -1658,6 +1662,19 @@ type supersededDTO struct {
 	Kind string `json:"kind"` // revoked | modified
 	Date string `json:"date"`
 	Note string `json:"note"` // e.g. "revoked by H325607 on 2025-08-29"
+	// Bulletin and BulletinURL cite the Customs Bulletin notice, when one
+	// published or confirmed the change (D400).
+	Bulletin    string `json:"bulletin,omitempty"`
+	BulletinURL string `json:"bulletin_url,omitempty"`
+}
+
+// proposedDTO is a pending proposal to revoke or modify a ruling (D400).
+type proposedDTO struct {
+	By          string `json:"by"`
+	Kind        string `json:"kind"` // revoked | modified
+	Bulletin    string `json:"bulletin"`
+	BulletinURL string `json:"bulletin_url"`
+	Note        string `json:"note"`
 }
 
 // supersededAsOf is the supersession of ruling id dated before at (any
@@ -1667,7 +1684,20 @@ func supersededAsOf(id string, at time.Time) *supersededDTO {
 	if !ok {
 		return nil
 	}
-	return &supersededDTO{By: s.By, Kind: s.Kind, Date: s.Date, Note: s.Note()}
+	d := &supersededDTO{By: s.By, Kind: s.Kind, Date: s.Date, Note: s.Note()}
+	if s.Bulletin != nil {
+		d.Bulletin, d.BulletinURL = s.Bulletin.String(), s.Bulletin.URL
+	}
+	return d
+}
+
+// proposedFor is CBP's pending proposal for ruling id, or nil (D400).
+func proposedFor(id string) *proposedDTO {
+	p, ok := domain.ProposedFor(id)
+	if !ok {
+		return nil
+	}
+	return &proposedDTO{By: p.By, Kind: p.Kind, Bulletin: p.Bulletin.String(), BulletinURL: p.Bulletin.URL, Note: p.Note()}
 }
 
 func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
@@ -1705,6 +1735,7 @@ func (a *api) ruling(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		dto.Superseded = supersededAsOf(id, time.Time{})
+		dto.Proposed = proposedFor(id)
 		a.rulingMu.Lock()
 		if len(a.rulingMemo) < 500 {
 			a.rulingMemo[id] = dto

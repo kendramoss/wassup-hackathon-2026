@@ -1,0 +1,3 @@
+{"notice":"59/8/p1","model":"gemini-3.5-flash","model_id":"gemini-3.5-flash","rulings":[{"ruling":"H303773","kind":"revoked"},{"ruling":"H303816","kind":"revoked"},{"ruling":"N299944","kind":"revoked"},{"ruling":"H303733","kind":"revoked"}],"tokens":2027,"cost_usd":0.0130155}
+{"notice":"59/35/p7","model":"gemini-3.5-flash","model_id":"gemini-3.5-flash","rulings":[{"ruling":"N019900","kind":"revoked"},{"ruling":"N159975","kind":"revoked"},{"ruling":"N15997","kind":"revoked"}],"tokens":2502,"cost_usd":0.016060500000000002}
+{"notice":"60/16/p58","model":"gemini-3.5-flash","model_id":"gemini-3.5-flash","rulings":[{"ruling":"952233","kind":"revoked"},{"ruling":"080651","kind":"revoked"}],"tokens":1941,"cost_usd":0.011169000000000002}

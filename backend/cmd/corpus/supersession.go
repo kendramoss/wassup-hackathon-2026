@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -33,6 +34,8 @@ func supersession(args []string) error {
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON (optional; subject lines only without it)")
 	out := fl.String("out", "internal/domain/supersession.json", "map file (embedded by internal/domain)")
 	check := fl.Bool("check", false, "verify the committed map instead of writing it")
+	notices := fl.String("notices", bulletinNotices, "Customs Bulletin notice excerpts (D400)")
+	reads := fl.String("reads", bulletinReads, "model reads of flagged notices (D400)")
 	_ = fl.Parse(args)
 	pools := []supersessionPool{
 		{"general", "data/labels.jsonl"},
@@ -116,48 +119,129 @@ func supersession(args []string) error {
 		edges = append(edges, corpus.DetectSupersession(corpus.SupersessionInput{ID: r.RulingNumber, Date: d, Subject: r.Subject, Text: r.Text}, lookup)...)
 	}
 	edges = dedupeEdges(edges)
+	// Without the raw texts only subject lines are read: check that those
+	// edges are in the committed map, then rebuild the Customs Bulletin part
+	// on top of the committed corpus edges and compare it in full.
+	noRaw := *check && withText == 0
+	var cm domain.SupersessionMap
+	if noRaw {
+		committed, err := os.ReadFile(*out)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(committed, &cm); err != nil {
+			return err
+		}
+		var base []domain.Supersession
+		inMap := map[string]bool{}
+		for _, e := range cm.Edges {
+			if e.Source == domain.SourceCustomsBulletin {
+				continue
+			}
+			inMap[e.Ruling+"|"+e.By] = true
+			e.Bulletin = nil
+			base = append(base, e)
+		}
+		for _, e := range edges {
+			if !inMap[e.Ruling+"|"+e.By] {
+				return fmt.Errorf("%s lacks %s superseded by %s (subject line of %s)", *out, e.Ruling, e.By, e.SourceRuling)
+			}
+		}
+		fmt.Printf("supersession: no raw texts; the %d subject-line edges are all in %s\n", len(edges), *out)
+		edges = base
+	}
+	// Customs Bulletin notices (D400): a final change the corpus already
+	// holds adds its citation to the corpus edge; any other becomes a new
+	// edge dated by its effective date.
+	bEdges, proposed, bStats, err := bulletinMerge(*notices, *reads)
+	if err != nil {
+		return err
+	}
+	corpus.SortSupersessions(bEdges)
+	have := map[string]int{}
+	for i, e := range edges {
+		have[e.Ruling+"|"+e.By] = i
+	}
+	for _, b := range bEdges {
+		if i, ok := have[b.Ruling+"|"+b.By]; ok {
+			edges[i].Bulletin = b.Bulletin
+			bStats["bulletin_edges_confirming_corpus"]++
+			continue
+		}
+		edges = append(edges, b)
+		bStats["bulletin_edges_new"]++
+	}
+	kept := proposed[:0]
+	for _, p := range proposed {
+		if _, ok := have[p.Ruling+"|"+p.By]; ok {
+			continue // the corpus holds the final letter
+		}
+		p.Pools = poolOf[p.Ruling]
+		kept = append(kept, p)
+	}
+	proposed = kept
+	sort.Slice(proposed, func(i, j int) bool {
+		a, b := proposed[i], proposed[j]
+		if a.Ruling != b.Ruling {
+			return a.Ruling < b.Ruling
+		}
+		return a.By < b.By
+	})
 	for i := range edges {
 		edges[i].Pools = poolOf[edges[i].Ruling]
 	}
 	corpus.SortSupersessions(edges)
 
-	m := domain.SupersessionMap{Version: corpus.SupersessionVersion, Rule: corpus.SupersessionRule, Edges: edges}
+	m := domain.SupersessionMap{Version: corpus.SupersessionVersion, Rule: corpus.SupersessionRule, Edges: edges, Proposed: proposed}
 	m.Counts = supersessionCounts(edges, len(labels)+len(extra), withText+len(extra))
+	for k, v := range bStats {
+		m.Counts[k] = v
+	}
+	m.Counts["proposed"] = len(proposed)
+	m.Counts["proposed_in_pool"] = 0
+	for _, p := range proposed {
+		if len(p.Pools) > 0 {
+			m.Counts["proposed_in_pool"]++
+		}
+	}
 	b, _ := json.MarshalIndent(m, "", " ")
 	b = append(b, '\n')
 
 	if !*check {
-		fmt.Printf("supersession: %d rulings read (%d with full text, %d subject only), %d edges, %d rulings in a precedent pool superseded\n",
-			len(labels)+len(extra), withText+len(extra), subjectOnly, len(edges), m.Counts["superseded_in_pool"])
+		fmt.Printf("supersession: %d rulings read (%d with full text, %d subject only), %d edges (%d new from %d Customs Bulletin notices), %d proposed, %d rulings in a precedent pool superseded\n",
+			len(labels)+len(extra), withText+len(extra), subjectOnly, len(edges), bStats["bulletin_edges_new"], bStats["bulletin_notices"], len(proposed), m.Counts["superseded_in_pool"])
 		return os.WriteFile(*out, b, 0o644)
 	}
-	committed, err := os.ReadFile(*out)
-	if err != nil {
-		return err
-	}
-	if withText > 0 {
+	if !noRaw {
+		committed, err := os.ReadFile(*out)
+		if err != nil {
+			return err
+		}
 		if !bytes.Equal(committed, b) {
 			return fmt.Errorf("%s differs from a rebuild from the raw texts; run go run ./cmd/corpus supersession", *out)
 		}
-		fmt.Printf("supersession: %s matches a rebuild (%d edges)\n", *out, len(edges))
+		fmt.Printf("supersession: %s matches a rebuild (%d edges, %d proposed)\n", *out, len(edges), len(proposed))
 		return nil
 	}
-	// No raw texts: every edge the committed subject lines prove must be in
-	// the map.
-	var cm domain.SupersessionMap
-	if err := json.Unmarshal(committed, &cm); err != nil {
-		return err
+	// Counts that need the raw texts (rulings read, with full text) are not
+	// rebuilt here; the edges, the proposals and every count derived from
+	// them are.
+	e1, _ := json.Marshal(m.Edges)
+	e2, _ := json.Marshal(cm.Edges)
+	p1, _ := json.Marshal(m.Proposed)
+	p2, _ := json.Marshal(cm.Proposed)
+	if !bytes.Equal(e1, e2) || !bytes.Equal(p1, p2) {
+		return fmt.Errorf("%s: edges or proposals differ from the committed corpus edges plus the Customs Bulletin notices; run go run ./cmd/corpus supersession with the raw texts", *out)
 	}
-	have := map[string]bool{}
-	for _, e := range cm.Edges {
-		have[e.Ruling+"|"+e.By] = true
-	}
-	for _, e := range edges {
-		if !have[e.Ruling+"|"+e.By] {
-			return fmt.Errorf("%s lacks %s superseded by %s (subject line of %s)", *out, e.Ruling, e.By, e.SourceRuling)
+	for k, v := range m.Counts {
+		if k == "rulings_read" || k == "rulings_with_full_text" {
+			continue
+		}
+		if cm.Counts[k] != v {
+			return fmt.Errorf("%s: count %s is %d, a rebuild gives %d", *out, k, cm.Counts[k], v)
 		}
 	}
-	fmt.Printf("supersession: no raw texts; the %d subject-line edges are all in %s (%d edges)\n", len(edges), *out, len(cm.Edges))
+	fmt.Printf("supersession: the Customs Bulletin part of %s matches a rebuild (%d edges, %d proposed)\n", *out, len(edges), len(proposed))
 	return nil
 }
 

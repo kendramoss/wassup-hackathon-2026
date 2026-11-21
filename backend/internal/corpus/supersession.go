@@ -9,15 +9,18 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 )
 
-// SupersessionVersion names the detection rules below (D320).
-const SupersessionVersion = "supersession-v1"
+// SupersessionVersion names the detection rules below (D320; v2 adds the
+// Customs Bulletin notices, D400).
+const SupersessionVersion = "supersession-v2"
 
 // SupersessionRule is the rule text written into the committed map.
 const SupersessionRule = "A ruling is superseded when a later CBP ruling in the corpus states that it is revoked or modified: " +
 	"the EFFECT ON OTHER RULINGS section, any \"is/are hereby revoked/modified\" or \"we hereby revoke/modify\" sentence, " +
 	"a subject line that starts \"Revocation of\" or \"Modification of/to\", or a later ruling stating that one ruling " +
 	"\"was revoked/modified by\" another. The date is the superseding ruling's issue date. Notices of proposed " +
-	"revocation and affirmations are not supersessions. A ruling revoked after a case date stays usable for that case."
+	"revocation and affirmations are not supersessions. A ruling revoked after a case date stays usable for that case. " +
+	"Final revocations and modifications published in fetched Customs Bulletin notices are added, dated by the notice's effective date, " +
+	"with the bulletin's volume, number, page and URL (D400); proposed ones are listed under \"proposed\" and never bar a precedent."
 
 // ruleIDs matches ruling numbers as CBP writes them in revocation letters:
 // current NY and HQ numbers (N331974, H303816), older NY numbers (E87234,
