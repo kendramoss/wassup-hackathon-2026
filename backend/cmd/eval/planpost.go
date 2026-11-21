@@ -310,6 +310,16 @@ func planStabilityItems(resultsDir string) ([]evalsummary.Item, error) {
 			Runs  int `json:"runs"`
 			Shown int `json:"with_a_plan_shown"`
 		} `json:"recorded_before_d321"`
+		D331 struct {
+			Shown     int        `json:"with_a_plan_shown"`
+			CBPShown  int        `json:"cbp_move_shown_in"`
+			CBPChecks []*float64 `json:"cbp_move_checks"`
+			CBPRanks  []*int     `json:"cbp_move_ranks"`
+			Four      []*float64 `json:"four_group_checks"`
+			PerRun    []int      `json:"shown_moves_per_run"`
+			TopMoves  []int      `json:"top_plan_moves_changed_parts"`
+			Runs      []any      `json:"runs"`
+		} `json:"d331"`
 		D321 struct {
 			Runs   int        `json:"runs"`
 			Shown  int        `json:"with_a_plan_shown"`
@@ -338,6 +348,31 @@ func planStabilityItems(resultsDir string) ([]evalsummary.Item, error) {
 			evalsummary.Item{Key: fmt.Sprintf("plan_stability_heatgun_run%d_shown_moves", i+1), Label: fmt.Sprintf("Plan check, run again: moves shown in run %d (a count)", i+1), Value: float64(len(s.D321.PerRun[i])), N: 7, Split: "demo", DevelopmentOnly: true, Source: src},
 			evalsummary.Item{Key: fmt.Sprintf("plan_stability_heatgun_run%d_best_check", i+1), Label: fmt.Sprintf("Plan check, run again: best precedent check in run %d", i+1), Value: s.D321.Best[i], Split: "demo", DevelopmentOnly: true, Source: src},
 		)
+	}
+	// The two runs after the cord, knobs and covers were split from the switch
+	// and wiring (D330, D331): CBP's own move (motor-fan, PCBA, cord group).
+	d := s.D331
+	if n := len(d.Runs); n > 0 {
+		if len(d.CBPChecks) != n || len(d.CBPRanks) != n || len(d.Four) != n || len(d.PerRun) != n || len(d.TopMoves) != n {
+			return nil, fmt.Errorf("%s: d331 lists differ in length", file)
+		}
+		srcSplit := "eval/results/" + file + " (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+		items = append(items,
+			evalsummary.Item{Key: "plan_split_heatgun_runs_shown", Label: "Plan after the split: heat-gun runs that showed a plan (D331, a count)", Value: float64(d.Shown), N: n, Split: "demo", DevelopmentOnly: true, Source: srcSplit},
+			evalsummary.Item{Key: "plan_split_heatgun_cbp_move_shown", Label: "Plan after the split: runs that showed CBP's own move (a count)", Value: float64(d.CBPShown), N: n, Split: "demo", DevelopmentOnly: true, Source: srcSplit},
+		)
+		for i := 0; i < n; i++ {
+			if d.CBPChecks[i] != nil {
+				items = append(items, evalsummary.Item{Key: fmt.Sprintf("plan_split_heatgun_run%d_cbp_move_check", i+1), Label: fmt.Sprintf("Plan after the split: precedent check of CBP's own move in run %d", i+1), Value: *d.CBPChecks[i], Split: "demo", DevelopmentOnly: true, Source: srcSplit})
+			}
+			if d.CBPRanks[i] != nil {
+				items = append(items, evalsummary.Item{Key: fmt.Sprintf("plan_split_heatgun_run%d_cbp_move_rank", i+1), Label: fmt.Sprintf("Plan after the split: rank of CBP's own move among the shown plans in run %d, by net a year (1 is first)", i+1), Value: float64(*d.CBPRanks[i]), N: d.PerRun[i], Split: "demo", DevelopmentOnly: true, Source: srcSplit})
+			}
+			if d.Four[i] != nil {
+				items = append(items, evalsummary.Item{Key: fmt.Sprintf("plan_split_heatgun_run%d_four_group_check", i+1), Label: fmt.Sprintf("Plan after the split: precedent check of the four-group move in run %d", i+1), Value: *d.Four[i], Split: "demo", DevelopmentOnly: true, Source: srcSplit})
+			}
+			items = append(items, evalsummary.Item{Key: fmt.Sprintf("plan_split_heatgun_run%d_top_plan_changed_parts", i+1), Label: fmt.Sprintf("Plan after the split: parts CBP's change switched that the top-ranked plan moves, run %d (a count)", i+1), Value: float64(d.TopMoves[i]), N: 6, Split: "demo", DevelopmentOnly: true, Source: srcSplit})
+		}
 	}
 	return append(items, evalsummary.Item{Key: "plan_stability_heatgun_earlier_runs_shown", Label: "Plan check: earlier recorded heat-gun runs, other configurations, that showed a plan (a count)", Value: float64(s.Before.Shown), N: s.Before.Runs, Split: "demo", DevelopmentOnly: true, Source: src}), nil
 }

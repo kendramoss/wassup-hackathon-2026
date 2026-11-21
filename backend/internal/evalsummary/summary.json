@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T14:56:36Z",
+  "generated_at": "2026-11-21T16:12:24Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -558,6 +558,92 @@
       "split": "demo",
       "development_only": true,
       "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_split_heatgun_runs_shown",
+      "label": "Plan after the split: heat-gun runs that showed a plan (D331, a count)",
+      "value": 2,
+      "n": 2,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_cbp_move_shown",
+      "label": "Plan after the split: runs that showed CBP's own move (a count)",
+      "value": 2,
+      "n": 2,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run1_cbp_move_check",
+      "label": "Plan after the split: precedent check of CBP's own move in run 1",
+      "value": 0.94,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run1_cbp_move_rank",
+      "label": "Plan after the split: rank of CBP's own move among the shown plans in run 1, by net a year (1 is first)",
+      "value": 5,
+      "n": 7,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run1_four_group_check",
+      "label": "Plan after the split: precedent check of the four-group move in run 1",
+      "value": 0.96,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run1_top_plan_changed_parts",
+      "label": "Plan after the split: parts CBP's change switched that the top-ranked plan moves, run 1 (a count)",
+      "value": 2,
+      "n": 6,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run2_cbp_move_check",
+      "label": "Plan after the split: precedent check of CBP's own move in run 2",
+      "value": 0.94,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run2_cbp_move_rank",
+      "label": "Plan after the split: rank of CBP's own move among the shown plans in run 2, by net a year (1 is first)",
+      "value": 4,
+      "n": 6,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run2_four_group_check",
+      "label": "Plan after the split: precedent check of the four-group move in run 2",
+      "value": 0.96,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
+    },
+    {
+      "key": "plan_split_heatgun_run2_top_plan_changed_parts",
+      "label": "Plan after the split: parts CBP's change switched that the top-ranked plan moves, run 2 (a count)",
+      "value": 5,
+      "n": 6,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py, d331; heat-gun demo after the split, D330, D331; made after seeing N357771, not a blind test)"
     },
     {
       "key": "plan_stability_heatgun_earlier_runs_shown",

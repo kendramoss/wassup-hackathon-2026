@@ -706,3 +706,27 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 | PCBA alone (unsupported) | 0.75 | 0.75 | 0.82 | 0 |
 
 - Gateway cost $0.46, $0.45, $0.41 ($1.32); wall time 91 s, 105 s, 138 s. No run failed or was retried.
+
+## Plan after the split: the heat-gun demo, two runs (gateway, 22 Nov; D330, D331, D332)
+- The motorised-tools template now keeps the power cord, knobs and covers apart from the switch and wiring (D330), so CBP's own 2026 move (N357771: motor-fan assembly, PCBA, and power cord, knobs and covers to Thailand; switch, wiring and fasteners kept in China) can be searched. Made after seeing N357771: a demonstration, not a test.
+- Pre-registered in D331 (commit 071043a, the `git_revision` of both runs and their RUNLOG lines; kept as branch `improve/split-switch-prereg`). D321's configuration, `LITELLM_NO_CACHE=1`, `-tag split-run{1,2}`. Run 2's revision is marked dirty: the summary script and eval summary code were being edited while it ran; the planner, template, fixture and verifier were as committed.
+- Rows: `results/plan-heatgun-2022-relaxed-verifier-v2-split-run{1,2}-litellm.json`. Summary: `results/plan-stability-heatgun.json` (`d331`).
+
+| Move to Thailand (net a year, illustrative) | Run 1 | Run 2 | Shown |
+|---|---|---|---|
+| Motor-fan alone ($380k) | 0.92 | 0.90 | 1 of 2 |
+| Motor-fan + power cord, knobs and covers ($365k) | 0.92 | 0.92 | 2 of 2 |
+| Motor-fan + switch, wiring and minor parts ($360k) | 0.92 | 0.92 | 2 of 2 |
+| Motor-fan + PCBA ($320k) | 0.93 | 0.92 | 2 of 2 |
+| **Motor-fan + PCBA + power cord, knobs and covers: CBP's move ($305k)** | **0.94 (N347421)** | **0.94 (N347421)** | 2 of 2 |
+| Motor-fan + PCBA + switch, wiring and minor parts ($300k) | 0.94 | 0.93 | 2 of 2 |
+| All four groups, followed from near-miss advice ($285k) | 0.96 | 0.96 | 2 of 2 |
+| Power cord, knobs and covers alone (unsupported) | 0.92 | 0.92 | 0 |
+| PCBA + switch, wiring and minor parts | 0.85 | 0.78 | 0 |
+| PCBA + power cord, knobs and covers | 0.75 | 0.75 (unsupported) | 0 |
+| Switch, wiring and minor parts alone (unsupported) | 0.90 | 0.85 | 0 |
+| Switch group + cord group (unsupported) | 0.85 | 0.85 | 0 |
+| PCBA alone (unsupported) | 0.75 | 0.75 | 0 |
+
+- CBP's move ranked 5 of 7 (run 1) and 4 of 6 (run 2): above the bigger moves, below the cheaper ones. The backtest reads the top-ranked plan: run 1 motor-fan alone (2 of 6 changed parts moved), run 2 motor-fan + power cord, knobs and covers (5 of 6, nothing CBP kept). Before the split (D322) the top-ranked plan moved 5 of 6 plus the switch, wires and fasteners, and the nearest move to CBP's checked 0.95–0.96.
+- Gateway cost $0.96, $0.82 ($1.78); wall time 154 s, 206 s; 13 moves each (12 searched, 1 followed). No run failed or was retried.

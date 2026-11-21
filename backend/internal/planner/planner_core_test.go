@@ -48,10 +48,12 @@ func TestEnumerateHeatGun(t *testing.T) {
 	for _, m := range Enumerate(r.Product, tm, r.Target) {
 		keys = append(keys, m.Key())
 	}
-	// Heating element and housing are already Thai; final assembly is not movable.
+	// Heating element and housing are already Thai; final assembly is not
+	// movable. The power cord, knobs and covers are their own group (D330).
 	want := []string{
-		"motor_fan_assembly@th", "pcba@th", "switch_cord_minor_parts@th",
-		"motor_fan_assembly@th+pcba@th", "motor_fan_assembly@th+switch_cord_minor_parts@th", "pcba@th+switch_cord_minor_parts@th",
+		"motor_fan_assembly@th", "pcba@th", "switch_cord_minor_parts@th", "cord_knobs_covers@th",
+		"motor_fan_assembly@th+pcba@th", "motor_fan_assembly@th+switch_cord_minor_parts@th", "motor_fan_assembly@th+cord_knobs_covers@th",
+		"pcba@th+switch_cord_minor_parts@th", "pcba@th+cord_knobs_covers@th", "switch_cord_minor_parts@th+cord_knobs_covers@th",
 	}
 	if !reflect.DeepEqual(keys, want) {
 		t.Errorf("moves = %v\nwant    %v", keys, want)
@@ -64,27 +66,31 @@ func TestEnumerateUpToAddsTheHeatGunTriple(t *testing.T) {
 	for _, m := range EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, DefaultMaxMoves) {
 		keys = append(keys, m.Key())
 	}
-	// The six singles and pairs keep their order (and so their cached
-	// verdicts); CBP's real 2026 change, all three groups, comes last.
+	// The ten singles and pairs keep their order (and so their cached
+	// verdicts). Two of the four triples fit under the cap: the costliest
+	// where made now (motor-fan, PCBA and the switch group, $490k), then
+	// CBP's real 2026 change (motor-fan, PCBA and the cord group, $480k).
 	want := []string{
-		"motor_fan_assembly@th", "pcba@th", "switch_cord_minor_parts@th",
-		"motor_fan_assembly@th+pcba@th", "motor_fan_assembly@th+switch_cord_minor_parts@th", "pcba@th+switch_cord_minor_parts@th",
+		"motor_fan_assembly@th", "pcba@th", "switch_cord_minor_parts@th", "cord_knobs_covers@th",
+		"motor_fan_assembly@th+pcba@th", "motor_fan_assembly@th+switch_cord_minor_parts@th", "motor_fan_assembly@th+cord_knobs_covers@th",
+		"pcba@th+switch_cord_minor_parts@th", "pcba@th+cord_knobs_covers@th", "switch_cord_minor_parts@th+cord_knobs_covers@th",
 		"motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
+		"motor_fan_assembly@th+pcba@th+cord_knobs_covers@th",
 	}
 	if !reflect.DeepEqual(keys, want) {
 		t.Errorf("moves = %v\nwant    %v", keys, want)
 	}
-	m := EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, DefaultMaxMoves)[6]
-	if got := Describe(r.Product, tm, m); got != "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand" {
+	m := EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, DefaultMaxMoves)[11]
+	if got := Describe(r.Product, tm, m); got != "Move the motor-fan assembly, the PCBA (SMT) and the power cord, knobs and covers to Thailand" {
 		t.Errorf("describe = %q", got)
 	}
 	if err := m.Validate(); err != nil {
 		t.Error(err)
 	}
-	if n := len(EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, 6)); n != 6 {
-		t.Errorf("a cap of 6 should add no triple, got %d moves", n)
+	if n := len(EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, 10)); n != 10 {
+		t.Errorf("a cap of 10 should add no triple, got %d moves", n)
 	}
-	if n := len(EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, 0)); n != 6 {
+	if n := len(EnumerateUpTo(r.Product, tm, r.Target, r.Economics.GroupCosts, 0)); n != 10 {
 		t.Errorf("cap 0 should add no triple, got %d moves", n)
 	}
 }

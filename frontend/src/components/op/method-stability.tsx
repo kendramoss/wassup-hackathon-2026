@@ -74,6 +74,17 @@ export function Stability() {
   const planSame = get("plan_stability_heatgun_same_moves");
   const earlier = get("plan_stability_heatgun_earlier_runs_shown");
   const hasPlan = planShown?.value !== undefined && planRuns.every((r) => r.shown?.value !== undefined && r.best?.value !== undefined);
+  // After the cord, knobs and covers were split from the switch and wiring
+  // (D330), two more runs (D331, D332): where CBP's own move landed.
+  const splitShown = get("plan_split_heatgun_cbp_move_shown");
+  const splitRuns = [1, 2].map((i) => ({
+    i,
+    check: get(`plan_split_heatgun_run${i}_cbp_move_check`),
+    rank: get(`plan_split_heatgun_run${i}_cbp_move_rank`),
+    four: get(`plan_split_heatgun_run${i}_four_group_check`),
+    top: get(`plan_split_heatgun_run${i}_top_plan_changed_parts`),
+  }));
+  const hasSplit = splitShown?.value !== undefined && splitRuns.every((r) => r.check?.value !== undefined && r.rank?.value !== undefined && r.top?.value !== undefined);
 
   return (
     <figure
@@ -160,6 +171,36 @@ export function Stability() {
             </ul>
             <a href={decisionHref("D322")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
               D322
+            </a>
+          </div>
+        </div>
+      )}
+      {hasSplit && (
+        <div className="grid gap-x-4 gap-y-2 border-t border-dashed border-line py-3 text-[12.5px] md:grid-cols-[200px_minmax(0,1fr)_230px]">
+          <div>
+            <p className="font-medium text-ink">
+              Heat gun, cord split from switch <span className="tabular-nums font-normal text-dim">· {splitShown?.n} runs</span>
+            </p>
+            <p className="text-[11.5px] text-dim">same settings; template changed after seeing N357771, not a blind test</p>
+          </div>
+          <p className="self-center text-[12px] text-dim">
+            CBP&apos;s own 2026 move (motor-fan assembly, PCBA, and power cord, knobs and covers) was shown in{" "}
+            <b className="font-medium text-ink">
+              {splitShown?.value} of {splitShown?.n}
+            </b>{" "}
+            runs. It was not ranked first: plans that move less cost less and rank above it. The top-ranked plan moved{" "}
+            {splitRuns.map((r) => r.top?.value).join(" and ")} of the {splitRuns[0].top?.n} parts CBP&apos;s change switched.
+          </p>
+          <div className="text-[12px] text-dim md:text-right">
+            <ul className="tabular-nums">
+              {splitRuns.map((r) => (
+                <li key={r.i}>
+                  run {r.i}: check <b className="font-medium text-ink">{r.check?.value?.toFixed(2)}</b>, rank {r.rank?.value} of {r.rank?.n}
+                </li>
+              ))}
+            </ul>
+            <a href={decisionHref("D332")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
+              D332
             </a>
           </div>
         </div>

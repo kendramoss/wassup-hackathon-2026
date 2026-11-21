@@ -141,7 +141,7 @@ const SimulatedMediaAnswer = `{"product":"Simulated draft (fake model)","compone
 {"name":"heating element","country":"Thailand","group":"heating_element","file":1,"page":1,"legible":true},
 {"name":"electric motor","country":"China","group":"motor_fan_assembly","file":1,"page":1,"legible":true},
 {"name":"fan","country":"China","group":"motor_fan_assembly","file":1,"page":1,"legible":false},
-{"name":"power cord","country":"","group":"switch_cord_minor_parts","file":1,"page":1,"legible":true}],
+{"name":"power cord","country":"","group":"cord_knobs_covers","file":1,"page":1,"legible":true}],
 "operations":[{"name":"final assembly and testing","country":"Thailand","group":"final_assembly","file":1,"page":1,"legible":true}],
 "plants":[],"stated_component_count":null,
 "unreadable":[{"file":1,"page":1,"what":"an example row (simulated)"}],

@@ -23,7 +23,8 @@ const weight: Record<string, number> = {
   pcba: 150,
   heating_element: 75,
   housing_moulding: 75,
-  switch_cord_minor_parts: 70,
+  switch_cord_minor_parts: 40,
+  cord_knobs_covers: 30,
 };
 
 const num = (s: string) => {

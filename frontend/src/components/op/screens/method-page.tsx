@@ -440,7 +440,10 @@ export function MethodPage() {
           N357771 records the change. The comparison is between the parts whose origin that change switched from China to Thailand and the parts the plan moves. The change
           switched 6 parts, and the plan moves all 6 (one production run; the plan step shows it). The plan also moves the switch, wires and fasteners, which the real change
           kept in China, so a smaller move may have been enough. The outer shells, which N357771 also lists as Thai, were already Thai in 2022 and are not counted. This is
-          not a blind test: three-group moves were added to the search after the team saw this change (<D id="D84" />). The date cutoff still holds. In the per-family checks, 23
+          not a blind test: three-group moves were added to the search after the team saw this change (<D id="D84" />). The date cutoff still holds. Also after seeing it,
+          the power cord, knobs and covers were split from the switch and wiring, so the search can propose CBP&apos;s smaller move (<D id="D330" />). In two later gateway
+          runs that move was shown, with a check of 0.94, but cheaper moves that move fewer parts ranked above it (<D id="D332" />). The plan step still shows the stored
+          production plan, made before the split, until it is re-pinned. In the per-family checks, 23
           products across the families, {PLAN_FAMILIES.k} of {PLAN_FAMILIES.n} showed a supported plan ({PLAN_FAMILIES.lo}–{PLAN_FAMILIES.hi}); read by hand, the cited ruling
           supports the move in {PLAN_FAMILIES.supports} of those {PLAN_FAMILIES.k}, partly in {PLAN_FAMILIES.partial} and not in {PLAN_FAMILIES.not} (<D id="D171" />). The
           heat-gun pair itself is left out of every flip-pair run, so the check was never fitted to the demo.

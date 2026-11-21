@@ -30,9 +30,23 @@
     },
     {
       "id": "switch_cord_minor_parts",
-      "name": "Switch, cord and minor parts",
-      "operations": ["make the switch, power cord, wiring, supports and fasteners"],
-      "movable": true
+      "name": "Switch, wiring and minor parts",
+      "operations": ["make the switch, wiring, supports and fasteners"],
+      "movable": true,
+      "precedent": {
+        "not_enough": ["N347421"],
+        "note": "Kept apart from the power cord (D330). In the third space heater of N347421 the switches came from China with the fan blades and thermostat, while the housing, heating element, motor and power cord came from Vietnam; CBP held Vietnam. The id keeps its old name so stored plans, fixtures and BOM imports still load."
+      }
+    },
+    {
+      "id": "cord_knobs_covers",
+      "name": "Power cord, knobs and covers",
+      "operations": ["make the power cord", "mould the knobs and the back cover"],
+      "movable": true,
+      "precedent": {
+        "not_enough": ["N342916", "N347421"],
+        "note": "Split from the switch and wiring (D330). In all three space heaters of N347421 the power cord came from a different country than the switches; in the second, the knobs were moulded in Vietnam with the other plastic items. Making the cord, nuts, bolts and housing in Cambodia was not enough when the motor, switches, fan and heating element came from China (N347421, first heater). In N342916 the power cord assembly came from China while the switch plate and all plastic parts were made in Thailand, which CBP held the origin."
+      }
     },
     {
       "id": "final_assembly",
