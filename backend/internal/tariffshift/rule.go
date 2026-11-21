@@ -1,0 +1,122 @@
+package tariffshift
+
+// Condition names a fact the rule text depends on that an HTS code alone
+// cannot settle. An exception or source with a condition is "conditional":
+// the evaluator decides it only when the input states that fact.
+type Condition string
+
+const (
+	// CondSimpleAssembly: the exception applies when the change results
+	// from a simple assembly (102.1(o)).
+	CondSimpleAssembly Condition = "simple_assembly"
+	// CondNotSimpleAssembly: the source is allowed only when the change is
+	// not the result of a simple assembly.
+	CondNotSimpleAssembly Condition = "not_simple_assembly"
+	// CondUnlessBending: the exception applies unless the change involves
+	// bending to shape (the steel-tube exceptions in chapter 84).
+	CondUnlessBending Condition = "unless_bending_to_shape"
+	// CondGRI2a: the exception applies when the change is pursuant to General
+	// Rule of Interpretation 2(a) (102.18(a)).
+	CondGRI2a Condition = "gri_2a"
+)
+
+// Exception is one "except from ..." clause of an alternative.
+type Exception struct {
+	// To narrows the exception to a change to these codes ("except for a
+	// change to subheading 8507.80 from ..."). Empty: the whole alternative.
+	To        []Range   `json:"to,omitempty"`
+	From      []Range   `json:"from"`
+	Condition Condition `json:"condition,omitempty"`
+	// Described: the clause names goods by description ("parts of water-jet
+	// cutting machines of heading 8466"), so a code in the range may or may
+	// not be that good.
+	Described bool   `json:"described,omitempty"`
+	Text      string `json:"text"`
+}
+
+// Source is an allowed source listed by code ("or from heading 8473", or a
+// rule that only says "from subheading 7321.90").
+type Source struct {
+	From      []Range   `json:"from"`
+	Condition Condition `json:"condition,omitempty"`
+	Described bool      `json:"described,omitempty"`
+	Text      string    `json:"text"`
+}
+
+// Alternative is one "A change to ... from ..." sentence. A rule's
+// alternatives are joined by "or": a material that satisfies any applicable
+// alternative undergoes the shift.
+type Alternative struct {
+	Text string `json:"text"`
+	// Encoded is false when the parser could not turn the sentence into the
+	// fields below without guessing (most often a change described by goods,
+	// not codes). The evaluator never decides on an alternative that is not
+	// encoded; it reports it as needing a person.
+	Encoded bool   `json:"encoded"`
+	Reason  string `json:"reason,omitempty"`
+	// To is the HTS range the sentence changes to.
+	To []Range `json:"to,omitempty"`
+	// From is the level of the "from any other ..." clause: 2 (chapter),
+	// 4 (heading) or 6 (subheading); 0 when the sentence only lists
+	// sources.
+	From int `json:"from,omitempty"`
+	// Group is how a source inside the target range counts: "outside" (a
+	// source anywhere in the target range at the From level is not a
+	// shift), "including" (only the good's own code at that level is not),
+	// "within" (only sources inside the range, other than the good's own
+	// code, count). GroupImplied marks "outside" read from a range rule
+	// that says neither.
+	Group        string `json:"group,omitempty"`
+	GroupImplied bool   `json:"group_implied,omitempty"`
+	// Also lists sources allowed besides the From clause.
+	Also   []Source    `json:"also,omitempty"`
+	Except []Exception `json:"except,omitempty"`
+	// NotSimpleAssembly: the whole alternative holds only when the change is
+	// not the result of a simple assembly. NotGRI2a: only when it is not
+	// pursuant to GRI 2(a).
+	NotSimpleAssembly bool `json:"not_simple_assembly,omitempty"`
+	NotGRI2a          bool `json:"not_gri_2a,omitempty"`
+}
+
+// Rule is one row of the 19 CFR 102.20 table: the HTS range in the left
+// column and the verbatim text in the right, split into alternatives.
+type Rule struct {
+	// ID cites the row: "19 CFR 102.20(o), 8473".
+	ID string `json:"id"`
+	// Paragraph is the 102.20 paragraph letter of the section ("o" for
+	// Section XVI); Section is its heading.
+	Paragraph    string        `json:"paragraph"`
+	Section      string        `json:"section"`
+	HTS          string        `json:"hts"`
+	Applies      Range         `json:"applies"`
+	Text         string        `json:"text"`
+	Alternatives []Alternative `json:"alternatives"`
+	// Notes are table notes of the same paragraph that govern this rule
+	// (verbatim); a barring note is also an exception on each alternative.
+	Notes []string `json:"notes,omitempty"`
+	// FallbackNote: a note replaces 102.11(b)-(d) when a material fails the
+	// shift, so the evaluator does not apply 102.11(b) to this rule.
+	FallbackNote bool `json:"fallback_note,omitempty"`
+}
+
+// Table is the committed rule data (rules.json).
+type Table struct {
+	Source   TableSource `json:"source"`
+	Chapters []string    `json:"chapters"`
+	Rules    []Rule      `json:"rules"`
+}
+
+// TableSource says where the rule text came from.
+type TableSource struct {
+	Title     string `json:"title"`
+	URL       string `json:"url"`
+	AsOf      string `json:"as_of"`
+	Retrieved string `json:"retrieved"`
+	Note      string `json:"note"`
+}
+
+// ScopeChapters are the HTS chapters encoded: Section XVI (84, 85) and the
+// chapters of the goods in the 14 planner families (73 grills and stoves,
+// 82 hand tools, 87 vehicle parts, 90 medical and optical devices, 94
+// furniture and lamps). Other chapters are out of scope.
+var ScopeChapters = []string{"73", "82", "84", "85", "87", "90", "94"}
