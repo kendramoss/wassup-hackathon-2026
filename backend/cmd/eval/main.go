@@ -938,7 +938,8 @@ func readScope(path string) (map[string]bool, error) {
 func planCmd(args []string) error {
 	fl := flag.NewFlagSet("plan", flag.ExitOnError)
 	fixture := fl.String("fixture", "testdata/heatgun_2022.json", "plan request fixture")
-	searchMode := fl.String("search", "local", "verifier evidence: local (corpus, reproducible) or cross (live CROSS with toDate)")
+	searchMode := fl.String("search", "local", "verifier evidence: local (corpus, reproducible), cross (live CROSS with toDate) or relaxed (the server's searcher: CROSS with shorter retries, filled from the corpus; D89)")
+	tag := fl.String("tag", "", "suffix for the output file, e.g. stability-run1 (repeat runs, D321)")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory")
 	rawDir := fl.String("raw", "../data/corpus/raw", "raw CROSS JSON directory")
@@ -978,8 +979,14 @@ func planCmd(args []string) error {
 		}
 	case "cross":
 		searcher = verifier.CROSS{Client: cross.NewHTTPClient(cross.UserAgent)}
+	case "relaxed":
+		local, err := verifier.NewLocal(labels, *factsDir, *rawDir)
+		if err != nil {
+			return err
+		}
+		searcher = verifier.Relaxed{Primary: verifier.CROSS{Client: cross.NewHTTPClient(cross.UserAgent)}, Fill: local}
 	default:
-		return fmt.Errorf("-search must be local or cross")
+		return fmt.Errorf("-search must be local, cross or relaxed")
 	}
 	// The same verifier as production: VERIFIER_PROMPT, VERIFIER_PANEL and VERIFIER_VOTES.
 	ver := verifier.NewMajority(verifier.NewWithPanel(model, searcher, verifier.Options{Model: cfg.VerifierModel, MaxToolCalls: cfg.VerifierMaxToolCalls, MaxOutputTokens: 6000, Prompt: cfg.VerifierPrompt},
@@ -996,7 +1003,8 @@ func planCmd(args []string) error {
 		}
 	}
 	pl := planner.New(tmpls, eng, ver, planOpts)
-	res, err := pl.Plan(ctx, req)
+	var tally llm.CostTally // the gateway's own per-call cost; zero on Vertex AI
+	res, err := pl.Plan(llm.ContextWithCostTally(ctx, &tally), req)
 	if err != nil {
 		return err
 	}
@@ -1011,10 +1019,19 @@ func planCmd(args []string) error {
 		Search      string  `json:"verifier_search"`
 		CostUSD     float64 `json:"cost_usd_promo"`
 		CostUSDList float64 `json:"cost_usd_list"`
+		GatewayUSD  float64 `json:"gateway_cost_usd,omitempty"`
+		Config      string  `json:"verifier_config"`
+		NoCache     bool    `json:"llm_no_cache,omitempty"`
 		Revision    string  `json:"git_revision"`
 		Time        string  `json:"time"`
-	}{res, cfg.LLMProvider, *searchMode, cost, costList, revision(), time.Now().Format(time.RFC3339)}
-	path := filepath.Join(*resultsDir, fmt.Sprintf("plan-%s-%s-verifier-%s%s-%s.json", req.CaseID, *searchMode, cfg.VerifierPrompt, votesSuffix(cfg.VerifierVotes), cfg.LLMProvider))
+	}{res, cfg.LLMProvider, *searchMode, cost, costList, tally.USD(),
+		fmt.Sprintf("prompt=%s panel=%s votes=%d near_miss=%t follow=%t bar=%.2f", cfg.VerifierPrompt, cfg.VerifierPanel, cfg.VerifierVotes, cfg.NearMissAdvice, cfg.FollowAdvice, cfg.PlanConfidence),
+		os.Getenv("LITELLM_NO_CACHE") == "1", revision(), time.Now().Format(time.RFC3339)}
+	suffix := ""
+	if *tag != "" {
+		suffix = "-" + *tag
+	}
+	path := filepath.Join(*resultsDir, fmt.Sprintf("plan-%s-%s-verifier-%s%s%s-%s.json", req.CaseID, *searchMode, cfg.VerifierPrompt, votesSuffix(cfg.VerifierVotes), suffix, cfg.LLMProvider))
 	b, _ := json.MarshalIndent(out, "", "  ")
 	if err := os.WriteFile(path, b, 0o644); err != nil {
 		return err
@@ -1055,6 +1072,9 @@ func planCmd(args []string) error {
 	}
 	if s.AdviceFollowed > 0 {
 		fmt.Printf("- Followed near-miss advice: %d move\n", s.AdviceFollowed)
+	}
+	if g := tally.USD(); g > 0 {
+		fmt.Printf("- Gateway-reported cost: $%.4f\n", g)
 	}
 	fmt.Println("- Saved:", path)
 	return nil
@@ -1690,6 +1710,13 @@ func summaryCmd(args []string) error {
 		return err
 	} else {
 		items = append(items, hrItems...)
+	}
+	if psItems, err := planStabilityItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip plan stability: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, psItems...)
 	}
 	items = append(items,
 		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},

@@ -288,3 +288,56 @@ func heldoutRepeatItems(resultsDir string) ([]evalsummary.Item, error) {
 	}
 	return items, nil
 }
+
+// planStabilityItems are the three pre-registered repeat runs of the heat-gun
+// plan search (D321), from eval/planner/plan_stability.py's summary: per run,
+// how many moves were shown and the best precedent check; across runs,
+// whether the shown moves were the same; and the earlier recorded runs, which
+// used other configurations.
+func planStabilityItems(resultsDir string) ([]evalsummary.Item, error) {
+	const file = "plan-stability-heatgun.json"
+	b, err := os.ReadFile(filepath.Join(resultsDir, file))
+	if err != nil {
+		return nil, err
+	}
+	var s struct {
+		Runs []struct {
+			Path  string   `json:"path"`
+			Shown []any    `json:"shown"`
+			Best  *float64 `json:"best"`
+		} `json:"runs"`
+		Before struct {
+			Runs  int `json:"runs"`
+			Shown int `json:"with_a_plan_shown"`
+		} `json:"recorded_before_d321"`
+		D321 struct {
+			Runs   int        `json:"runs"`
+			Shown  int        `json:"with_a_plan_shown"`
+			Same   bool       `json:"same_shown_moves_in_all_runs"`
+			Best   []float64  `json:"best_check_per_run"`
+			PerRun [][]string `json:"shown_moves_per_run"`
+		} `json:"d321"`
+	}
+	if err := json.Unmarshal(b, &s); err != nil {
+		return nil, fmt.Errorf("%s: %w", file, err)
+	}
+	if s.D321.Runs != 3 || len(s.D321.Best) != 3 || len(s.D321.PerRun) != 3 {
+		return nil, fmt.Errorf("%s: want three D321 runs", file)
+	}
+	src := "eval/results/" + file + " (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+	same := 0.0
+	if s.D321.Same {
+		same = 1
+	}
+	items := []evalsummary.Item{
+		{Key: "plan_stability_heatgun_runs_shown", Label: "Plan check, run again: heat-gun runs that showed a plan (D321, a count)", Value: float64(s.D321.Shown), N: s.D321.Runs, Split: "demo", DevelopmentOnly: true, Source: src},
+		{Key: "plan_stability_heatgun_same_moves", Label: "Plan check, run again: the same moves were shown in every run (1 yes, 0 no)", Value: same, N: s.D321.Runs, Split: "demo", DevelopmentOnly: true, Source: src},
+	}
+	for i := 0; i < 3; i++ {
+		items = append(items,
+			evalsummary.Item{Key: fmt.Sprintf("plan_stability_heatgun_run%d_shown_moves", i+1), Label: fmt.Sprintf("Plan check, run again: moves shown in run %d (a count)", i+1), Value: float64(len(s.D321.PerRun[i])), N: 7, Split: "demo", DevelopmentOnly: true, Source: src},
+			evalsummary.Item{Key: fmt.Sprintf("plan_stability_heatgun_run%d_best_check", i+1), Label: fmt.Sprintf("Plan check, run again: best precedent check in run %d", i+1), Value: s.D321.Best[i], Split: "demo", DevelopmentOnly: true, Source: src},
+		)
+	}
+	return append(items, evalsummary.Item{Key: "plan_stability_heatgun_earlier_runs_shown", Label: "Plan check: earlier recorded heat-gun runs, other configurations, that showed a plan (a count)", Value: float64(s.Before.Shown), N: s.Before.Runs, Split: "demo", DevelopmentOnly: true, Source: src}), nil
+}

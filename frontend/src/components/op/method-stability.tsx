@@ -68,6 +68,13 @@ export function Stability() {
 
   if (rows.length === 0) return <p className="mt-4 text-[13px] text-dim">The repeat runs are not in this build&apos;s summary.</p>;
 
+  // The heat-gun plan check, run again three times (D321).
+  const planRuns = [1, 2, 3].map((i) => ({ i, shown: get(`plan_stability_heatgun_run${i}_shown_moves`), best: get(`plan_stability_heatgun_run${i}_best_check`) }));
+  const planShown = get("plan_stability_heatgun_runs_shown");
+  const planSame = get("plan_stability_heatgun_same_moves");
+  const earlier = get("plan_stability_heatgun_earlier_runs_shown");
+  const hasPlan = planShown?.value !== undefined && planRuns.every((r) => r.shown?.value !== undefined && r.best?.value !== undefined);
+
   return (
     <figure
       aria-label={rows
@@ -131,6 +138,32 @@ export function Stability() {
           ))}
         </span>
       </div>
+      {hasPlan && (
+        <div className="mt-3 grid gap-x-4 gap-y-2 border-t border-dashed border-line py-3 text-[12.5px] md:grid-cols-[200px_minmax(0,1fr)_230px]">
+          <div>
+            <p className="font-medium text-ink">
+              Plan check, heat gun <span className="tabular-nums font-normal text-dim">· {planShown?.n} runs</span>
+            </p>
+            <p className="text-[11.5px] text-dim">production settings, gateway, every call fresh</p>
+          </div>
+          <p className="self-center text-[12px] text-dim">
+            A plan was shown in <b className="font-medium text-ink">{planShown?.value} of {planShown?.n}</b> runs
+            {planSame?.value === 1 ? ", the same moves each time" : ", with different moves"}. Earlier recorded runs, with older settings, showed one in {earlier?.value} of {earlier?.n}.
+          </p>
+          <div className="text-[12px] text-dim md:text-right">
+            <ul className="tabular-nums">
+              {planRuns.map((r) => (
+                <li key={r.i}>
+                  run {r.i}: {r.shown?.value} moves shown, best check <b className="font-medium text-ink">{r.best?.value?.toFixed(2)}</b>
+                </li>
+              ))}
+            </ul>
+            <a href={decisionHref("D322")} target="_blank" rel="noreferrer" className="font-mono text-ok underline underline-offset-2">
+              D322
+            </a>
+          </div>
+        </div>
+      )}
       <p className="mt-3 text-[12px] text-dim">
         Filled marker: the official run, which is the published figure. The first held-out official run used Vertex AI and predates the fixed seed; the repeats went through an
         OpenAI-compatible gateway to the same Gemini model. Two repeats per held-out split is a small sample.

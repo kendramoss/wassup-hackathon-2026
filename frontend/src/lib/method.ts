@@ -55,6 +55,7 @@ export const DECISIONS: Record<string, string> = {
   D233: "d233--held-out-results-router-v4-becomes-the-production-router-the-routed-path-scored-21-nov-review-follow-up",
   D240: "d240--repeatability-on-the-held-out-splits-pre-registration-21-nov-review-follow-up",
   D241: "d241--repeatability-on-the-held-out-splits-results-21-nov-review-follow-up",
+  D322: "d322--the-heat-gun-plan-run-again-three-times-results-21-nov-judge-panel-round-5-item-5",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;

@@ -690,3 +690,19 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - Second held-out split (83), with `-router`: `results/final2-gemini-4-argon-prec-engine-v1-litellm-router-repeat1.jsonl`, `...-repeat2.jsonl`. 77 and 79 right = 92.8% and 95.2%. Official (D154) 77 = 92.8%. Answer flips 2 (N365606, N365997, right only in repeat 2). No errors.
 - Gateway cost: $2.96 and $2.93 (377, engine only, with resumes); $0.82 and $0.76 (83, engine and router). $7.47 in all.
 - Summary: `results/repeatability-heldout-litellm.json`.
+
+## Plan check run again: the heat-gun demo, three runs (gateway, 21 Nov; D321, D322)
+- Pre-registered in D321 (commit 0abafde, the `git_revision` of all three runs and of their RUNLOG lines; kept as branch `improve/panel5-plan-stability-prereg`, since the PR branch was rebased onto main afterwards) before any run. A later change on main (#510) added backtest fields to `backend/testdata/heatgun_2022.json`; it does not touch the moves or the checks. Production's verifier configuration (verifier-v2, panel, near-miss and follow advice, one vote, bar 0.92) and searcher (relaxed CROSS search filled from the corpus), `LITELLM_NO_CACHE=1`. A demonstration, not a test.
+- Rows: `results/plan-heatgun-2022-relaxed-verifier-v2-stability-run{1,2,3}-litellm.json`. Summary with every earlier recorded run: `results/plan-stability-heatgun.json` (`python3 -I -B eval/planner/plan_stability.py . --check`).
+
+| Move to Thailand | Run 1 | Run 2 | Run 3 | Shown |
+|---|---|---|---|---|
+| Motor-fan + PCBA + switch, cord and minor parts | 0.95 (N347421) | 0.96 (N345859) | 0.96 (N345859) | 3 of 3 |
+| Motor-fan + PCBA | 0.92 | 0.92 | 0.94 | 3 of 3 |
+| Motor-fan + switch, cord and minor parts | 0.92 | 0.92 | 0.92 | 3 of 3 |
+| Motor-fan alone | 0.90 | 0.91 | 0.91 | 0 |
+| PCBA + switch, cord and minor parts | 0.85 | 0.78 | 0.85 | 0 |
+| Switch, cord and minor parts (unsupported) | 0.85 | 0.90 | 0.85 | 0 |
+| PCBA alone (unsupported) | 0.75 | 0.75 | 0.82 | 0 |
+
+- Gateway cost $0.46, $0.45, $0.41 ($1.32); wall time 91 s, 105 s, 138 s. No run failed or was retried.

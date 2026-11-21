@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T14:16:28Z",
+  "generated_at": "2026-11-21T14:56:36Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier figures and the heat-gun plan's cost and time are proxy development runs; the heat-gun plan the landing shows (check 0.96) is the recorded 18 Oct production run (docs/DEMO.md, section 6).",
   "items": [
     {
@@ -489,6 +489,84 @@
       "split": "final2",
       "development_only": false,
       "source": "eval/results/repeatability-heldout-litellm.json (eval/charts/build_repeatability_heldout.py; D23 adjustments; repeats through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_runs_shown",
+      "label": "Plan check, run again: heat-gun runs that showed a plan (D321, a count)",
+      "value": 3,
+      "n": 3,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_same_moves",
+      "label": "Plan check, run again: the same moves were shown in every run (1 yes, 0 no)",
+      "value": 1,
+      "n": 3,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run1_shown_moves",
+      "label": "Plan check, run again: moves shown in run 1 (a count)",
+      "value": 3,
+      "n": 7,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run1_best_check",
+      "label": "Plan check, run again: best precedent check in run 1",
+      "value": 0.95,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run2_shown_moves",
+      "label": "Plan check, run again: moves shown in run 2 (a count)",
+      "value": 3,
+      "n": 7,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run2_best_check",
+      "label": "Plan check, run again: best precedent check in run 2",
+      "value": 0.96,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run3_shown_moves",
+      "label": "Plan check, run again: moves shown in run 3 (a count)",
+      "value": 3,
+      "n": 7,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_run3_best_check",
+      "label": "Plan check, run again: best precedent check in run 3",
+      "value": 0.96,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
+    },
+    {
+      "key": "plan_stability_heatgun_earlier_runs_shown",
+      "label": "Plan check: earlier recorded heat-gun runs, other configurations, that showed a plan (a count)",
+      "value": 6,
+      "n": 13,
+      "split": "demo",
+      "development_only": true,
+      "source": "eval/results/plan-stability-heatgun.json (eval/planner/plan_stability.py; heat-gun demo, D321: production verifier configuration through the gateway, no cache)"
     },
     {
       "key": "research_final_accuracy",

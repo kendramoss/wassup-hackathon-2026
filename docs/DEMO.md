@@ -239,6 +239,8 @@ History, for the record: the first production search (`backend-00043-bvb`) lost 
 3. After the relaxed search fix (D89), and with Anas's approval, that one stored verdict was deleted and checked once more: 0.96 on N345938, shown. The other six verdicts were never touched.
 
 
+**Run again (D321, D322, 21 Nov):** three pre-registered runs with production's verifier settings through the gateway each showed a plan, and the same three moves: the three-group move at 0.95, 0.96 and 0.96, and two pairs at or just above the bar (0.92–0.94). None cited N345938; the three-group move cited N347421 once and N345859 twice. Table: eval/RESULTS.md, "Plan check run again".
+
 ## 7. New-family demos with recorded runs (D191, 21 Nov)
 Five demos come from the families added in D138. Each card on /cases shows CBP's holding and a recorded development run (one run each, through an OpenAI-compatible LiteLLM gateway to Gemini, local corpus search, plan bar 0.92). Four were picked by family, not by result (D191); one of them disagrees with CBP, and the card says so.
 
