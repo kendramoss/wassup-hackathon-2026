@@ -51,12 +51,40 @@ export function BrokerPreview({ c, draft, plan, label }: { c: CaseResponse; draf
   const [open, setOpen] = useState(false);
   const close = useRef<HTMLButtonElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
     close.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || !panel.current) return;
+      // The same containment Drawer gives every other modal (#534): with
+      // aria-modal=true, Tab must not reach the page the overlay covers.
+      const f = [
+        ...panel.current.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      ];
+      if (f.length === 0) return;
+      if (!panel.current.contains(document.activeElement)) {
+        e.preventDefault();
+        f[0].focus();
+      } else if (e.shiftKey && document.activeElement === f[0]) {
+        e.preventDefault();
+        f[f.length - 1].focus();
+      } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+        e.preventDefault();
+        f[0].focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
   }, [open]);
   useEffect(() => {
     if (!open) opener.current?.focus({ preventScroll: true });
@@ -68,7 +96,7 @@ export function BrokerPreview({ c, draft, plan, label }: { c: CaseResponse; draf
       </Button>
       <p className="duo text-xs text-dim">The review page for this draft, as a preview: no link, nothing sent, no decision recorded.</p>
       {open && draft && (
-        <div role="dialog" aria-modal="true" aria-label="Preview of the broker review page" className="fixed inset-0 z-50 overflow-y-auto bg-paper">
+        <div ref={panel} role="dialog" aria-modal="true" aria-label="Preview of the broker review page" className="fixed inset-0 z-50 overflow-y-auto bg-paper">
           <div className="sticky top-0 z-10 flex min-h-14 flex-wrap items-center gap-x-4 gap-y-1 border-b border-line bg-paper px-4 py-2 sm:px-10">
             <span className="text-[13px] font-medium">Preview · what your broker sees</span>
             <span className="text-xs text-dim">No link exists for this demo. Nothing here is sent or recorded.</span>
