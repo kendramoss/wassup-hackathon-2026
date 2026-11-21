@@ -1311,6 +1311,7 @@ paths:
                         description: { type: string }
                         cbp_held: { type: string, example: "China (N328954)" }
                         has_plan: { type: boolean }
+                        pinned_case_id: { type: string, description: "Present only when this demo has a pinned case on this site; absent means loading it starts a new live run (#412)" }
                         recorded: { $ref: "#/components/schemas/DemoRecordedRun" }
   /v1/demos/{id}:
     get:
@@ -1760,6 +1761,7 @@ components:
         watch_route: { type: [string, "null"], enum: [auto, needs_review, needs_info, null], description: "Route of the watch result's triage (Watch.triage.route); null as watch_basis" }
         scenario_count: { type: integer }
         pinned: { type: boolean, description: A seeded demo case; listed first }
+        demo_id: { type: string, description: "Present on pinned rows seeded from a demo fixture; the demo's id (#412)" }
         can_write: { type: boolean, description: "Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden)." }
     Error:
       type: object

@@ -20,10 +20,12 @@ export const copy = {
     demosNote: "Demos were picked because CBP ruled on the same product, so you can compare the answer with CBP's. They show how it works, not how often it is right.",
     demosMisses: "Every held-out ruling it got wrong →",
     moreDemos: "More demos · not run on this site yet",
-    moreDemosNote: "Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
+    moreDemosNote: "These cards have no pinned case on this site. Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
     // A demo's recorded development run (D191), on its card.
     recorded: {
-      label: "Recorded development run",
+      label: "Development run · not run on this site",
+      recordLink: "View the committed run (JSON) →",
+      unseeded: "No case here · starts a live run",
       engine: "Engine:",
       agrees: "Agrees with CBP",
       disagrees: "Disagrees with CBP",

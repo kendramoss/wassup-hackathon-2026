@@ -3,6 +3,7 @@ package httpapi
 import (
 	"net/http"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/demos"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
 
@@ -37,5 +38,20 @@ func (a *api) summaryFor(p principal, c store.Case) caseSummary {
 	row := summaryRow(a.withCalibration(c))
 	w := p.canWrite(c, a.d.CaseOwnership)
 	row.CanWrite = &w
+	if c.Pinned {
+		row.DemoID = demoIDFor(a.d.Demos, row.DisplayName)
+	}
 	return row
+}
+
+// demoIDFor maps a pinned case's display name to the demo fixture it was
+// seeded from. The seed names cases after demo titles; an unrecognised name
+// simply has no demo_id, which is what an older or custom seed gets.
+func demoIDFor(ds []demos.Demo, displayName string) string {
+	for _, d := range ds {
+		if d.Title != "" && d.Title == displayName {
+			return d.ID
+		}
+	}
+	return ""
 }
