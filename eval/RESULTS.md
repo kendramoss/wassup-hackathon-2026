@@ -98,6 +98,7 @@ The post-cutoff splits of the textile, pharmaceutical and Part 102 engines were 
 - **Routing went worse than these numbers suggest.** These runs send every case to its regime's engine. The production router sent 7 of the 13 Part 102 rulings, 1 of the 6 pharmaceutical rulings and 1 of the 3 rulings that apply 102.21 to the substantial-transformation engine instead (`router_regime` on each row). In the product those cases would get the general engine's answer; that path was not scored. On the development window the router kept 88.4% of pharmaceutical and Part 102 rulings out of the general engine; on this small post-cutoff set it kept 11 of 19.
 - **Cost:** $0.41 for the three runs (gateway-reported): textile $0.0139, pharmaceutical $0.0101, Part 102 $0.0085 per case.
 - **Mixed paths.** Window 1 mixes Vertex AI and the earlier LiteLLM proxy; window 2 is the gateway. Textile window 1 is textile-v1; window 2 is textile-v2, the prompt in production.
+- **Limits of "held out" and of the intervals.** Held out means not used to tune anything; it is not a sealed set. Within each window, earlier rulings can be precedents for later ones (docs/EVALUATION.md 2.3), BM25 statistics use the whole corpus, and model pre-training exposure cannot be excluded. Each figure is one scored run; the Wilson intervals treat that run's rows as independent and leave out run-to-run, label-error and split-construction uncertainty, and near-duplicate rulings.
 
 ## Calibrated confidence in the product (21 Nov 2026; D160, D161)
 
