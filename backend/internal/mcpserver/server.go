@@ -9,7 +9,9 @@
 // exactly what the REST call gets: the API-key check and daily quota, the
 // route's rate-limit class, the global spend cap, case isolation, the audit
 // row and the request log line. The admin token and user token never reach
-// the API from here.
+// the API from here: this guard drops their headers, and the API's withUser
+// middleware also skips /mcp, so a verified identity cannot ride into a tool
+// call through the request context (issue #385).
 //
 // Stateless: the server keeps no MCP session, so any instance can answer any
 // request (Cloud Run runs several).
