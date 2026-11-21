@@ -96,12 +96,14 @@ func (c *Checker) Check(ctx context.Context, text string) (Result, error) {
 // the coverage eval's cost accounting, D138).
 func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usage, error) {
 	resp, err := c.model.Generate(ctx, llm.Request{
-		Model:           c.modelID,
-		System:          c.system,
-		Messages:        []llm.Message{{Role: llm.RoleUser, Content: "PRODUCT:\n" + text}},
-		JSONSchema:      c.schema(),
-		SchemaName:      "family",
-		MaxOutputTokens: 400,
+		Model:      c.modelID,
+		System:     c.system,
+		Messages:   []llm.Message{{Role: llm.RoleUser, Content: "PRODUCT:\n" + text}},
+		JSONSchema: c.schema(),
+		SchemaName: "family",
+		// 1024, not 400: with thinking billed as output, 400 cut off 31 of
+		// 469 development checks before the JSON (D138).
+		MaxOutputTokens: 1024,
 	})
 	if err != nil {
 		return Result{}, llm.Usage{}, fmt.Errorf("familycheck: %w", err)
