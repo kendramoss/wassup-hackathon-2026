@@ -151,16 +151,31 @@ function HtsHelp() {
   const [open, setOpen] = useState(false);
   const tipId = useId();
   return (
-    <span className="group relative inline-flex" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <span
+      className="group relative inline-flex"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      // The tooltip holds a link. Keep it open while focus moves from the
+      // button to that link, and close only when focus leaves the help itself.
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+      onKeyDown={(e) => {
+        if (e.key !== "Escape" || !open) return;
+        e.preventDefault();
+        // Focus first: the button's onFocus reopens the tip, so the final
+        // state update must be the close.
+        e.currentTarget.querySelector<HTMLButtonElement>("button")?.focus();
+        setOpen(false);
+      }}
+    >
       <button
         type="button"
         aria-label="How to find your HTS subheading"
         aria-expanded={open}
         aria-describedby={open ? tipId : undefined}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-        onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
         className="grid size-[18px] place-items-center rounded-full border border-edge bg-white text-[11px] font-semibold italic leading-none text-ok hover:border-ok"
       >
         i

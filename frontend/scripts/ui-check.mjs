@@ -1,5 +1,6 @@
-// Screenshots every page in light and dark, desktop and mobile, and runs axe
-// on each. Use it after any UI change and look at the pictures.
+// Screenshots every page in light and dark, desktop, mobile and narrow, runs
+// axe on each, and checks dialog/tooltip keyboard states. Use it after any UI
+// change and look at the pictures.
 //
 //   npm run ui-check                         # against http://localhost:3000
 //   npm run ui-check -- https://<url> /accuracy  # another site or other paths
@@ -13,13 +14,15 @@ import { AxeBuilder } from "@axe-core/playwright";
 
 const args = process.argv.slice(2);
 const base = (args.find((a) => a.startsWith("http")) ?? "http://localhost:3000").replace(/\/$/, "");
-// #522 and #534: use the recorded pinned case so these states do not depend
-// on a live backend (or spend a prediction) and are checked on every run.
+// #522, #534 and #537: use the recorded pinned case and local stubs so these
+// states do not depend on a live backend (or spend a prediction) and are
+// checked on every run.
 const reflowId = "case_878d76540b91";
 const reflowPath = `/cases/${reflowId}/scenarios`;
 const draftPath = `/cases/${reflowId}/draft`;
+const newCasePath = "/cases/new";
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage", draftPath);
+if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage", newCasePath, draftPath);
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 }, narrow: { width: 320, height: 720 } };
@@ -61,6 +64,11 @@ for (const scheme of ["light", "dark"]) {
       route.request().method() === "GET"
         ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ case_id: reflowId, reviews: [] }) })
         : route.continue(),
+    );
+    // /cases/new probes HTS_SUGGEST with an empty POST; a real 404 is
+    // intentional and would log a console error. Answer it locally instead.
+    await page.route("**/api/v1/products/hts-suggest", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
     );
     const checkPaths = vp === "narrow" ? [...new Set([...paths, reflowPath])] : paths;
 
@@ -132,6 +140,45 @@ for (const scheme of ["light", "dark"]) {
         const { violations: resultViolations } = await new AxeBuilder({ page }).analyze();
         for (const v of resultViolations) {
           problems.push({ page: `${path} (results)`, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });
+        }
+      }
+
+      // #537: the HTS help tooltip opens on focus and contains a link. Tab
+      // must reach that link, and Escape must close the tip and restore focus.
+      if (path === newCasePath) {
+        await page.getByRole("button", { name: "How to find your HTS subheading" }).focus();
+        await page.locator('[role="tooltip"]').waitFor();
+        await page.keyboard.press("Tab");
+        const reached = await page.evaluate(() => {
+          const a = document.activeElement;
+          return {
+            tag: a?.tagName?.toLowerCase(),
+            href: a?.getAttribute("href"),
+            text: (a?.textContent ?? "").trim().slice(0, 80),
+            tooltip: Boolean(document.querySelector('[role="tooltip"]')),
+          };
+        });
+        if (reached.href !== "https://hts.usitc.gov" || !reached.tooltip) {
+          problems.push({ page: `${path} (hts help)`, vp, scheme, focus: "Tab did not reach the HTS help link", ...reached });
+        }
+        await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+        await page.screenshot({ path: `${out}/new-case-hts-help-${vp}-${scheme}.png`, fullPage: true });
+        const { violations: tipViolations } = await new AxeBuilder({ page }).analyze();
+        for (const v of tipViolations) {
+          problems.push({ page: `${path} (hts help)`, vp, scheme, axe: v.id, impact: v.impact, help: v.help, nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) });
+        }
+        await page.keyboard.press("Escape");
+        await page.locator('[role="tooltip"]').waitFor({ state: "detached" });
+        const restored = await page.evaluate(() => {
+          const a = document.activeElement;
+          return {
+            tag: a?.tagName?.toLowerCase(),
+            label: a?.getAttribute("aria-label"),
+            tooltip: Boolean(document.querySelector('[role="tooltip"]')),
+          };
+        });
+        if (!/How to find your HTS subheading/.test(restored.label ?? "") || restored.tooltip) {
+          problems.push({ page: `${path} (hts help)`, vp, scheme, focus: "Escape did not close the tip and restore focus", ...restored });
         }
       }
 
