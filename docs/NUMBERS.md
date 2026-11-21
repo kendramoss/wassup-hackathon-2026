@@ -235,6 +235,7 @@ Built by `go run ./cmd/corpus supersession` (from `backend/`; `-check` verifies)
 | Number | Value | Source | Status |
 |---|---|---|---|
 | MCP tools | 13 (11 before the two broker review tools, D200) | `docs/MCP.md` (Tools table), `backend/internal/mcpserver` | Built; a count of tools, not a result |
+| ADK agent full-flow run (22 Nov 2026) | 1 run, 1 case; 7 agent model calls, gateway-reported $0.0465; about 477 s, of which a plan call timed out at ADK's default 300 s and was retried (second call 103 s); predicted China (calibrated 90%, stated 95%), 1 supported plan to Thailand, 7 rejected moves | `docs/mcp-transcripts/adk-full-flow.md`, `docs/mcp-transcripts/adk-full-flow.replay.txt` (D391) | Run once, Gemini 3.8 Flash through a gateway; shows the flow works, not accuracy |
 
 ## Image and scan import (built; see `docs/MULTIMODAL.md`)
 

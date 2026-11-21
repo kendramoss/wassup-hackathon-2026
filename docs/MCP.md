@@ -9,7 +9,7 @@ Every answer is a prediction, not a ruling. Confirm it with a licensed customs b
 
 ## Set it up
 
-The Gemini CLI and ADK formats below follow their documentation as read on 21 Nov 2026 ([Gemini CLI MCP servers](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md), [ADK MCP tools](https://adk.dev/tools-custom/mcp-tools/)). We ran both end to end once on 21 Nov 2026, with the model reached through an OpenAI-compatible LiteLLM gateway to Gemini rather than a Google API key, and the read-only tools `search_rulings` and `get_ruling`: [ADK transcript](mcp-transcripts/adk-search-rulings-2026-11-21.md), [Gemini CLI transcript](mcp-transcripts/gemini-cli-search-rulings-2026-11-21.md). The other tools were listed but not called from these clients. They reach the same Streamable HTTP endpoint as Claude Code.
+The Gemini CLI and ADK formats below follow their documentation as read on 21 Nov 2026 ([Gemini CLI MCP servers](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md), [ADK MCP tools](https://adk.dev/tools-custom/mcp-tools/)). We ran both end to end once on 21 Nov 2026, with the model reached through an OpenAI-compatible LiteLLM gateway to Gemini rather than a Google API key, and the read-only tools `search_rulings` and `get_ruling`: [ADK transcript](mcp-transcripts/adk-search-rulings-2026-11-21.md), [Gemini CLI transcript](mcp-transcripts/gemini-cli-search-rulings-2026-11-21.md). On 22 Nov 2026 an ADK agent ran a whole case through the same endpoint, anonymously: extract, predict, part HTS suggestions, plan and ruling request draft ([full-flow transcript](mcp-transcripts/adk-full-flow.md), D391). They reach the same Streamable HTTP endpoint as Claude Code.
 
 ### Gemini CLI
 
@@ -34,7 +34,7 @@ Leave out `headers` for the anonymous tier.
 
 ### Google ADK agent (Python)
 
-Install `google-adk` and `mcp` (`pip install google-adk mcp`): ADK's MCP tools import nothing without the `mcp` package. A runnable version with a tool filter is [`mcp-transcripts/adk_unde_agent.py`](mcp-transcripts/adk_unde_agent.py).
+Install `google-adk` and `mcp` (`pip install google-adk mcp`): ADK's MCP tools import nothing without the `mcp` package. The smallest agent is below. A full trade-compliance agent is [`examples/adk-agent`](../examples/adk-agent/): it filters the toolset to `extract_product`, `predict_origin`, `suggest_part_hts`, `plan_production_moves`, `export_ruling_request_draft` and `get_ruling`, works one case from a product description to a broker draft, and runs on Gemini with a Google API key or Vertex AI, or through an OpenAI-compatible gateway with ADK's `LiteLlm` wrapper (the path we ran). Its README has the exact commands; the run is in [mcp-transcripts/adk-full-flow.md](mcp-transcripts/adk-full-flow.md). The earlier two-tool script is [`mcp-transcripts/adk_unde_agent.py`](mcp-transcripts/adk_unde_agent.py).
 
 ```python
 from google.adk.agents import LlmAgent
@@ -51,10 +51,14 @@ root_agent = LlmAgent(
                 url="https://undelabs.dev/mcp",
                 # With an API key: headers={"Authorization": "Bearer op_..."},
             ),
+            # Optional: offer only the tools the task needs.
+            # tool_filter=["extract_product", "predict_origin", "plan_production_moves", "export_ruling_request_draft"],
         )
     ],
 )
 ```
+
+Plan search can take minutes. ADK's default MCP read timeout is 300 s; pass `sse_read_timeout=900` to `StreamableHTTPConnectionParams` so a slow plan call is not cut off and retried (D391).
 
 ### Claude Code
 
@@ -133,7 +137,7 @@ When the product gives an HTS code for the good (`product.hts`) and for at least
 
 `suggest_part_hts` fills the gap when parts have no codes. Give it the product (send the parts still without a code, at most 20); it returns up to 3 codes per part, and for the product itself when `product.hts` is empty, each labelled `rulings` (an earlier CBP ruling states that code for a similar part, listed with links) or `model` (the model's own reading, no supporting ruling). They are unverified: show them to the user, put a code on a part only when the user accepts it, then call `predict_origin` with the product and its codes. On the Part 102 dev split the top suggestion matched the code CBP states for the part in 20 of 27 parts (EVALUATION.md §10).
 
-No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. Countries are free text with a length and character check, because the API has no country enum.
+No tool deletes anything (`destructiveHint: false` on all). Inputs have closed JSON schemas: capped string lengths (facts up to 12,000 characters, as the API), patterns for dates, ruling numbers and case ids, an enum of the product families the server has templates for, 2 to 4 distinct target countries. A malformed call is refused before any API call. No input schema has `anyOf`, `oneOf`, `allOf` or `not` at its root, because an OpenAI-compatible gateway to Gemini refused the whole tool list over one (D390); `predict_origin`'s "facts or product" rule is checked by the tool instead, still before any API call. Countries are free text with a length and character check, because the API has no country enum.
 
 Results carry a short text summary (with the disclaimer) and `structuredContent`: the API's JSON answer, without bulky internals (verifier search trails, model traces, cost stats, case history and chat; `GET /v1/cases/{id}` over REST has them). An API error becomes a tool error with the status, code and message, and the retry time for a rate limit.
 
