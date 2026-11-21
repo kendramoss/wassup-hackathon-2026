@@ -208,3 +208,31 @@ func ParseRule(text string) []Alternative {
 	}
 	return out
 }
+
+// Reparse parses a table's committed verbatim rule text again with the
+// current parser and re-applies its notes. It is how rules.json is
+// regenerated after a parser fix without fetching the eCFR again (#550,
+// #551); TestRulesJSONMatchesParser checks the committed file equals it.
+func Reparse(tab Table) (Table, error) {
+	var notes []note
+	seen := map[string]bool{}
+	for _, r := range tab.Rules {
+		for _, n := range r.Notes {
+			if k := r.Paragraph + n; !seen[k] {
+				seen[k] = true
+				notes = append(notes, note{para: r.Paragraph, text: n})
+			}
+		}
+	}
+	out := tab
+	out.Rules = make([]Rule, len(tab.Rules))
+	for i, r := range tab.Rules {
+		out.Rules[i] = r
+		out.Rules[i].Notes, out.Rules[i].FallbackNote = nil, false
+		out.Rules[i].Alternatives = ParseRule(r.Text)
+	}
+	if err := applyNotes(out.Rules, notes); err != nil {
+		return Table{}, err
+	}
+	return out, nil
+}

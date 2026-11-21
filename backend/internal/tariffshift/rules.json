@@ -4155,13 +4155,18 @@
         {
          "lo": "850440",
          "hi": "850440"
-        },
+        }
+       ],
+       "text": "subheading 8504.40"
+      },
+      {
+       "from": [
         {
          "lo": "8473",
          "hi": "8473"
         }
        ],
-       "text": "subheading 8504.40 or from heading 8473"
+       "text": "heading 8473"
       }
      ]
     },
@@ -4795,10 +4800,10 @@
          "hi": "848190"
         }
        ],
+       "condition": "not_simple_assembly",
        "text": "subheading 8481.90"
       }
-     ],
-     "not_simple_assembly": true
+     ]
     }
    ]
   },
@@ -5066,14 +5071,19 @@
         {
          "lo": "848610",
          "hi": "848640"
-        },
+        }
+       ],
+       "text": "subheading 8486.10 through 8486.40"
+      },
+      {
+       "from": [
         {
          "lo": "845690",
          "hi": "845690"
         }
        ],
        "described": true,
-       "text": "subheading 8486.10 through 8486.40 and from water-jet cutting machines of subheading 8456.90"
+       "text": "water-jet cutting machines of subheading 8456.90"
       }
      ]
     },
@@ -5104,18 +5114,28 @@
         {
          "lo": "847521",
          "hi": "847529"
-        },
+        }
+       ],
+       "text": "subheading 8475.21 through 8475.29"
+      },
+      {
+       "from": [
         {
          "lo": "848610",
          "hi": "848640"
-        },
+        }
+       ],
+       "text": "subheading 8486.10 through 8486.40"
+      },
+      {
+       "from": [
         {
          "lo": "845690",
          "hi": "845690"
         }
        ],
        "described": true,
-       "text": "subheading 8475.21 through 8475.29, from 8486.10 through 8486.40, from water-jet cutting machines of subheading 8456.90"
+       "text": "water-jet cutting machines of subheading 8456.90"
       },
       {
        "from": [
@@ -5125,7 +5145,7 @@
         }
        ],
        "condition": "simple_assembly",
-       "text": "heading 8501,"
+       "text": "heading 8501"
       }
      ]
     },
@@ -5145,14 +5165,19 @@
         {
          "lo": "848610",
          "hi": "848640"
-        },
+        }
+       ],
+       "text": "subheading 8486.10 through 8486.40"
+      },
+      {
+       "from": [
         {
          "lo": "845690",
          "hi": "845690"
         }
        ],
        "described": true,
-       "text": "subheading 8486.10 through 8486.40 and from water-jet cutting machines of subheading 8456.90"
+       "text": "water-jet cutting machines of subheading 8456.90"
       }
      ]
     },
@@ -9316,10 +9341,10 @@
          "hi": "871690"
         }
        ],
+       "condition": "not_gri_2a",
        "text": "subheading 8716.90"
       }
-     ],
-     "not_gri_2a": true
+     ]
     }
    ]
   },
@@ -9496,14 +9521,19 @@
         {
          "lo": "900190",
          "hi": "900190"
-        },
+        }
+       ],
+       "text": "subheading 9001.90"
+      },
+      {
+       "from": [
         {
          "lo": "7014",
          "hi": "7014"
         }
        ],
        "described": true,
-       "text": "subheading 9001.90 or from lens blanks of heading 7014"
+       "text": "lens blanks of heading 7014"
       }
      ]
     }
@@ -11438,14 +11468,19 @@
         {
          "lo": "903020",
          "hi": "903020"
-        },
+        }
+       ],
+       "described": true,
+       "text": "non-cathode ray tube oscilloscopes or oscillographs of subheading 9030.20"
+      },
+      {
+       "from": [
         {
          "lo": "903090",
          "hi": "903090"
         }
        ],
-       "described": true,
-       "text": "non-cathode ray tube oscilloscopes or oscillographs of subheading 9030.20 or from subheading 9030.90"
+       "text": "subheading 9030.90"
       }
      ]
     }
@@ -11478,14 +11513,19 @@
         {
          "lo": "903020",
          "hi": "903020"
-        },
+        }
+       ],
+       "described": true,
+       "text": "non-cathode ray tube oscilloscopes or oscillographs of subheading 9030.20"
+      },
+      {
+       "from": [
         {
          "lo": "903089",
          "hi": "903089"
         }
        ],
-       "described": true,
-       "text": "non-cathode ray tube oscilloscopes or oscillographs of subheading 9030.20 or from subheading 9030.89"
+       "text": "subheading 9030.89"
       }
      ]
     }
@@ -11780,7 +11820,7 @@
         }
        ],
        "condition": "gri_2a",
-       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99,"
+       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99"
       }
      ]
     }
@@ -11868,7 +11908,7 @@
         }
        ],
        "condition": "gri_2a",
-       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99,"
+       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99"
       }
      ]
     }
@@ -11918,7 +11958,7 @@
         }
        ],
        "condition": "gri_2a",
-       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99,"
+       "text": "subheading 9401.91 through 9401.99 or 9403.91 through 9403.99"
       }
      ]
     }

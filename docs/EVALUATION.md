@@ -554,6 +554,8 @@ Source: `eval/results/repeatability-heldout-litellm.json`, built by `python3 -I 
 
 **Not done.** The full text of the 13 final2 rulings was not run (raw texts not available locally). Chapters outside the seven, textile rules (102.21), 102.11(c) and (d), and USMCA qualification are not encoded. Source: `eval/tariffshift/summary.json`, recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make reproduce`). Extraction cost $2.58 gateway-reported.
 
+**Parser fix after the freeze (D412, #550, #551).** Two encoding errors were fixed after these runs: a trailing limitation on 8481.10–8481.80 and 8716.10–8716.80 now limits only the source it follows, and exception lists split at "or from" without a comma (9002, 9030.89, 9030.90, 8485). Both offline evaluations were re-run on the committed extractions before and after the fix; the numbers above and in §10 are unchanged, because no committed ruling has a good in those rows.
+
 ## 10. HTS codes suggested for each part, and the rule check they unlock (22 Nov 2026, D380-D382)
 
 **What it is.** The rule check in §9 needs a code for the good and for every foreign part. `POST /v1/products/parts-hts-suggest` suggests up to 3 codes per part. Each code is labelled with its source: an earlier CBP ruling that classified a similar part (from 1,159 classifying sentences in 562 corpus rulings, `backend/data/part_hts_index.json`), or the model's own reading of the HTSUS when no ruling fits. One Gemini 3.8 Flash call per product. Nothing is filled in until the user accepts a code.

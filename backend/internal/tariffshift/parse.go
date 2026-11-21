@@ -69,6 +69,9 @@ var (
 	reNotSACond = regexp.MustCompile(`,? except when resulting from (?:a )?simple assembly$`)
 	reChangeTo  = regexp.MustCompile(`^a change to ((?:headings?|subheadings?) [\d.]+(?: through [\d.]+)?) from (.+)$`)
 	reWithinSA  = regexp.MustCompile(`^a change within that group resulting from (?:a )?simple assembly$`)
+	// reExceptSeg splits an exception list into its "from ..." segments.
+	reExceptSeg = regexp.MustCompile(`,? (?:or|and) from |, from `)
+	reLevelWord = regexp.MustCompile(`\b(?:chapters?|subheadings?|headings?)\b`)
 )
 
 // ParseAlternative turns one sentence into an Alternative. It never errors:
@@ -117,13 +120,29 @@ func ParseAlternative(text string) Alternative {
 		a.NotSimpleAssembly = true
 		rest = rest[:loc[0]]
 	}
-	if loc := reWholeSA.FindStringIndex(rest); loc != nil {
-		a.NotSimpleAssembly = true
-		rest = rest[:loc[0]]
-	}
-	if loc := reWholeGRI.FindStringIndex(rest); loc != nil {
-		a.NotGRI2a = true
-		rest = rest[:loc[0]]
+	// A trailing "except when resulting from a simple assembly" (or "...
+	// pursuant to GRI 2(a)") limits the whole alternative when a comma sets
+	// it off or it follows the only source. Written with no comma straight
+	// after a listed source that follows other sources ("from any other
+	// heading, or from subheading 8481.90 except when resulting from a
+	// simple assembly"), it limits that last source only (#550).
+	lastCond := Condition("")
+	for _, x := range []struct {
+		re    *regexp.Regexp
+		whole *bool
+		src   Condition
+	}{{reWholeSA, &a.NotSimpleAssembly, CondNotSimpleAssembly}, {reWholeGRI, &a.NotGRI2a, CondNotGRI2a}} {
+		loc := x.re.FindStringIndex(rest)
+		if loc == nil {
+			continue
+		}
+		pre := rest[:loc[0]]
+		if srcs := splitSources(pre); !strings.HasPrefix(rest[loc[0]:], ",") && len(srcs) > 1 && !reAnyOther.MatchString(srcs[len(srcs)-1]) {
+			lastCond = x.src
+		} else {
+			*x.whole = true
+		}
+		rest = pre
 	}
 
 	head, excepts := rest, ""
@@ -166,6 +185,12 @@ func ParseAlternative(text string) Alternative {
 	}
 	if a.From == 0 && len(a.Also) == 0 {
 		return fail("no source read")
+	}
+	if lastCond != "" {
+		if len(a.Also) == 0 || a.Also[len(a.Also)-1].Condition != "" {
+			return fail("source limitation not read")
+		}
+		a.Also[len(a.Also)-1].Condition = lastCond
 	}
 	if a.From != 0 && a.Group == "" {
 		if t := tr.truncate(a.From); t.Lo != t.Hi {
@@ -245,10 +270,21 @@ func parseExcept(c string, to Range) ([]Exception, string) {
 			break
 		}
 	}
-	segs := strings.Split(strings.ReplaceAll(body, ", and from ", ", or from "), ", or from ")
+	// Each "from ..." is its own exception, with or without a comma before
+	// "or from" / "and from", and at a bare ", from " between list items
+	// (#551). A segment that starts with a number takes the level word of
+	// the segment before it ("from subheading 8475.21 through 8475.29, from
+	// 8486.10 through 8486.40").
+	segs := reExceptSeg.Split(body, -1)
 	var out []Exception
+	level := ""
 	for i, seg := range segs {
-		seg = strings.TrimPrefix(strings.TrimSpace(seg), "from ")
+		seg = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(seg), "from "), ",")
+		if m := reLevelWord.FindAllString(seg, -1); len(m) > 0 {
+			level = m[len(m)-1]
+		} else if seg != "" && seg[0] >= '0' && seg[0] <= '9' && level != "" {
+			seg = level + " " + seg
+		}
 		segCond := Condition("")
 		if i == len(segs)-1 {
 			segCond = cond

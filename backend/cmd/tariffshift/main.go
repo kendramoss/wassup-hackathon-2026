@@ -1,6 +1,7 @@
 // Command tariffshift builds and evaluates the 19 CFR 102.20 rule layer.
 //
 //	go run ./cmd/tariffshift rules -ecfr part102.xml   # rebuild internal/tariffshift/rules.json
+//	go run ./cmd/tariffshift rules -reparse            # re-parse its committed text after a parser change
 //	go run ./cmd/tariffshift extract -split dev -source facts   # read rule inputs with a model (gateway; D361)
 //	go run ./cmd/tariffshift eval -check                # recompute the offline evaluation (no model calls)
 //	go run ./cmd/tariffshift parts-gold|parts-suggest|parts-eval   # per-part HTS suggestions (D380, D381; parts.go)
@@ -55,9 +56,21 @@ func cmdRules(args []string) error {
 	asOf := fl.String("as-of", "", "the eCFR point-in-time date of the XML (YYYY-MM-DD)")
 	retrieved := fl.String("retrieved", "", "date the XML was downloaded (YYYY-MM-DD)")
 	out := fl.String("out", "internal/tariffshift/rules.json", "output file")
+	reparse := fl.Bool("reparse", false, "parse the committed rule text in -out again with the current parser (no eCFR download)")
 	_ = fl.Parse(args)
+	var t tariffshift.Table
+	if *reparse {
+		r, err := tariffshift.Default()
+		if err != nil {
+			return err
+		}
+		if t, err = tariffshift.Reparse(r.Table()); err != nil {
+			return err
+		}
+		return writeRules(*out, t)
+	}
 	if *src == "" || *asOf == "" || *retrieved == "" {
-		return fmt.Errorf("-ecfr, -as-of and -retrieved are required")
+		return fmt.Errorf("-ecfr, -as-of and -retrieved are required (or -reparse)")
 	}
 	xml, err := os.ReadFile(*src)
 	if err != nil {
@@ -67,7 +80,7 @@ func cmdRules(args []string) error {
 	if err != nil {
 		return err
 	}
-	t := tariffshift.Table{
+	t = tariffshift.Table{
 		Source: tariffshift.TableSource{
 			Title:     "19 CFR 102.20, Specific rules by tariff classification",
 			URL:       "https://www.ecfr.gov/api/versioner/v1/full/" + *asOf + "/title-19.xml?part=102",
@@ -78,15 +91,19 @@ func cmdRules(args []string) error {
 		Chapters: tariffshift.ScopeChapters,
 		Rules:    rules,
 	}
+	return writeRules(*out, t)
+}
+
+func writeRules(out string, t tariffshift.Table) error {
 	b, err := json.MarshalIndent(t, "", " ")
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(*out, append(b, '\n'), 0o644); err != nil {
+	if err := os.WriteFile(out, append(b, '\n'), 0o644); err != nil {
 		return err
 	}
 	enc, alts := 0, 0
-	for _, r := range rules {
+	for _, r := range t.Rules {
 		for _, a := range r.Alternatives {
 			alts++
 			if a.Encoded {
@@ -94,6 +111,6 @@ func cmdRules(args []string) error {
 			}
 		}
 	}
-	fmt.Printf("%d rules in chapters %s; %d of %d alternatives encoded\n", len(rules), strings.Join(tariffshift.ScopeChapters, ","), enc, alts)
+	fmt.Printf("%d rules in chapters %s; %d of %d alternatives encoded\n", len(t.Rules), strings.Join(tariffshift.ScopeChapters, ","), enc, alts)
 	return nil
 }
