@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -340,6 +341,11 @@ func TestToolBehaviourMatchesWhatTheWorkflowAsserts(t *testing.T) {
 	w, _ := load(t)
 	all := strings.Join(allRuns(t, w), "\n")
 	bin := filepath.Join(t.TempDir(), "readiness-eval")
+	if runtime.GOOS == "windows" {
+		// go build does not append .exe to an explicit -o name; Windows
+		// cannot execute a file without it.
+		bin += ".exe"
+	}
 	build := exec.Command("go", "build", "-o", bin, "./cmd/readiness-eval")
 	build.Dir = filepath.Join(root(t), "backend")
 	build.Env = append(os.Environ(), "GOFLAGS=-mod=readonly")
@@ -350,7 +356,16 @@ func TestToolBehaviourMatchesWhatTheWorkflowAsserts(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		defer cancel()
 		cmd := exec.CommandContext(ctx, bin, args...)
-		cmd.Env = append([]string{"PATH=" + os.Getenv("PATH"), "HOME=" + t.TempDir()}, env...)
+		// A minimal env must include the temp dirs too: on Windows the child
+		// falls back to C:\Windows when TMP/TEMP are absent and its dry-run
+		// scratch dir cannot be created there.
+		home := t.TempDir()
+		cmd.Env = append([]string{
+			"PATH=" + os.Getenv("PATH"),
+			"HOME=" + home,
+			"TMP=" + home,
+			"TEMP=" + home,
+		}, env...)
 		var so, se bytes.Buffer
 		cmd.Stdout, cmd.Stderr = &so, &se
 		err := cmd.Run()
@@ -400,6 +415,12 @@ func TestToolBehaviourMatchesWhatTheWorkflowAsserts(t *testing.T) {
 }
 
 func TestProductionTargetRefusalStepRuns(t *testing.T) {
+	// The refusal step is a bash `run:` block from a Linux Actions runner.
+	// Without sh there is no faithful way to execute it; Windows hosts that
+	// ship Git Bash (sh on PATH) still run the test.
+	if _, err := exec.LookPath("sh"); err != nil {
+		t.Skip("no sh on PATH: the workflow refusal step runs on a Linux Actions runner")
+	}
 	w, _ := load(t)
 	steps := stepsOf(t, asMap(t, jobs(t, w)["offline"], "offline"))
 	script, first := "", -1

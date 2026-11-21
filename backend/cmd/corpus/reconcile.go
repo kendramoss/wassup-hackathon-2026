@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"syscall"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -322,7 +321,7 @@ func writeFresh(path string, b []byte) error {
 	case !errors.Is(err, fs.ErrNotExist):
 		return err
 	}
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0o644)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL|noFollowFlag, 0o644)
 	if err != nil {
 		return err
 	}
