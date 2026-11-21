@@ -18,8 +18,8 @@ import (
 // POST {BaseURL}/v1/chat/completions. It exists for offline evaluation only
 // (cmd/eval, D151): the server's config still accepts only vertex and fake
 // (D49), so nothing deployed can use it. It also carries inline media parts
-// (images, PDFs) for the offline image-import check, cmd/mediacheck (D167). Every call sends temperature 0 and
-// the fixed Seed, the same as Vertex.
+// (images, PDFs) for the offline image-import check, cmd/mediacheck (D167).
+// Every call sends temperature 0 and the fixed Seed, the same as Vertex.
 type LiteLLM struct {
 	baseURL string
 	apiKey  string

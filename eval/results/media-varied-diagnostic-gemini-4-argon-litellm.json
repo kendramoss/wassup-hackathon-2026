@@ -1,0 +1,290 @@
+{
+ "git_revision": "863d8f788382a0d5cbac8fde942b45a2b003f8d2-dirty",
+ "model": "gemini-4-argon",
+ "note": "synthetic renderings of illustrative BOMs; illustrative only",
+ "provider": "litellm",
+ "scores": [
+  {
+   "image": "lidar-serif.png",
+   "style": "serif table, long names wrapped",
+   "expected": 5,
+   "name_read": 4,
+   "country_right": 4,
+   "extra_rows": 9,
+   "missed": [
+    "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components"
+   ],
+   "read": [
+    {
+     "name": "Top Main Board (TMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "Bottom Main Board (BMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "receiver (RX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "transmitter (TX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "lenses",
+     "country": "China"
+    },
+    {
+     "name": "laser emitters and detectors",
+     "country": "China"
+    },
+    {
+     "name": "flexible printed circuits",
+     "country": "China"
+    },
+    {
+     "name": "brackets",
+     "country": "China"
+    },
+    {
+     "name": "heat sink",
+     "country": "China"
+    },
+    {
+     "name": "motor",
+     "country": "China"
+    },
+    {
+     "name": "covers",
+     "country": "China"
+    },
+    {
+     "name": "base",
+     "country": "China"
+    },
+    {
+     "name": "all other components",
+     "country": "China"
+    }
+   ],
+   "simulated": false,
+   "input_tokens": 2345,
+   "output_tokens": 1234,
+   "latency_ms": 755,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon"
+  },
+  {
+   "image": "lidar-photo.jpg",
+   "style": "phone-photo style: rotated 6 degrees, shaded, blurred, JPEG",
+   "expected": 5,
+   "name_read": 4,
+   "country_right": 4,
+   "extra_rows": 10,
+   "missed": [
+    "lenses, laser emitters and detectors, flexible printed circuits, brackets, heat sink, motor, covers, base and all other components"
+   ],
+   "read": [
+    {
+     "name": "Top Main Board (TMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "Bottom Main Board (BMB) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "receiver (RX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "transmitter (TX) PCBA",
+     "country": "Thailand"
+    },
+    {
+     "name": "lenses",
+     "country": "China"
+    },
+    {
+     "name": "laser emitters",
+     "country": "China"
+    },
+    {
+     "name": "detectors",
+     "country": "China"
+    },
+    {
+     "name": "flexible printed circuits",
+     "country": "China"
+    },
+    {
+     "name": "brackets",
+     "country": "China"
+    },
+    {
+     "name": "heat sink",
+     "country": "China"
+    },
+    {
+     "name": "motor",
+     "country": "China"
+    },
+    {
+     "name": "covers",
+     "country": "China"
+    },
+    {
+     "name": "base",
+     "country": "China"
+    },
+    {
+     "name": "all other components",
+     "country": "China"
+    }
+   ],
+   "simulated": false,
+   "input_tokens": 2362,
+   "output_tokens": 621,
+   "latency_ms": 599,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon"
+  },
+  {
+   "image": "supplier-reordered.png",
+   "style": "grid table, country first, part numbers and quantities",
+   "expected": 13,
+   "name_read": 0,
+   "country_right": 0,
+   "extra_rows": 13,
+   "missed": [
+    "main housing",
+    "front cover",
+    "heating element",
+    "electric motor",
+    "fan",
+    "motor support",
+    "printed circuit board assembly (PCBA)",
+    "switch",
+    "power cord",
+    "wiring",
+    "knob",
+    "back cover",
+    "support ring, heat insulator and fasteners"
+   ],
+   "read": [
+    {
+     "name": "main housing (HG-1001)",
+     "country": "Thailand"
+    },
+    {
+     "name": "front cover (HG-1002)",
+     "country": "Thailand"
+    },
+    {
+     "name": "heating element (HG-2001)",
+     "country": "Thailand"
+    },
+    {
+     "name": "electric motor (HG-3001)",
+     "country": "China"
+    },
+    {
+     "name": "fan (HG-3002)",
+     "country": "China"
+    },
+    {
+     "name": "motor support (HG-3003)",
+     "country": "China"
+    },
+    {
+     "name": "printed circuit board assembly (PCBA) (HG-4001)",
+     "country": "China"
+    },
+    {
+     "name": "switch (HG-5001)",
+     "country": "China"
+    },
+    {
+     "name": "power cord (HG-5002)",
+     "country": "China"
+    },
+    {
+     "name": "wiring (HG-5003)",
+     "country": "China"
+    },
+    {
+     "name": "knob (HG-5004)",
+     "country": "China"
+    },
+    {
+     "name": "back cover (HG-5005)",
+     "country": "China"
+    },
+    {
+     "name": "support ring, heat insulator and fasteners (HG-5006)",
+     "country": "China"
+    }
+   ],
+   "simulated": false,
+   "input_tokens": 2337,
+   "output_tokens": 1309,
+   "latency_ms": 701,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon"
+  },
+  {
+   "image": "tublight-list.png",
+   "style": "bulleted spec list",
+   "expected": 5,
+   "name_read": 4,
+   "country_right": 4,
+   "extra_rows": 2,
+   "missed": [
+    "LED printed circuit board assembly (PCBA), populated with a South Korean LED"
+   ],
+   "read": [
+    {
+     "name": "LED printed circuit board assembly (PCBA)",
+     "country": "Thailand"
+    },
+    {
+     "name": "LED",
+     "country": "South Korea"
+    },
+    {
+     "name": "lens",
+     "country": "China"
+    },
+    {
+     "name": "lamp base",
+     "country": "China"
+    },
+    {
+     "name": "wiring harness",
+     "country": "China"
+    },
+    {
+     "name": "PVC sealing and O-ring",
+     "country": "China"
+    }
+   ],
+   "simulated": false,
+   "input_tokens": 2343,
+   "output_tokens": 785,
+   "latency_ms": 565,
+   "prompt_version": "extract-image-v1",
+   "model_id": "gemini-4-argon"
+  }
+ ],
+ "summary": {
+  "cost_usd_gateway": 0,
+  "countries_right": 12,
+  "expected_parts": 28,
+  "extra_rows": 34,
+  "failed_calls": 0,
+  "images": 4,
+  "names_read": 12
+ },
+ "time": "2026-11-21T14:57:28+08:00"
+}

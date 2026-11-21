@@ -201,3 +201,25 @@ func TestRenderedDemoBOMsPass(t *testing.T) {
 		}
 	}
 }
+
+// The varied set (eval/media/images-varied, D168) holds PNGs and JPEGs,
+// some deliberately small (low-resolution scans); all pass the upload checks.
+func TestVariedDemoBOMsPass(t *testing.T) {
+	var paths []string
+	for _, ext := range []string{"*.png", "*.jpg"} {
+		m, _ := filepath.Glob(filepath.Join("..", "..", "..", "eval", "media", "images-varied", ext))
+		paths = append(paths, m...)
+	}
+	if len(paths) != 15 {
+		t.Fatalf("found %d varied BOM images, want 15", len(paths))
+	}
+	for _, p := range paths {
+		b, err := os.ReadFile(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if info, err := Check(b); err != nil || (info.MIMEType != PNG && info.MIMEType != JPEG) || info.Width < 200 {
+			t.Errorf("%s: %+v %v", p, info, err)
+		}
+	}
+}

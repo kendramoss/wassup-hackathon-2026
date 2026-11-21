@@ -387,6 +387,17 @@ Research (Python, same 54 pairs): 32/32 precision, 70% recall, 8/8 specificity. 
 
 Engine on the heat-gun **current setup**: Thailand 0.78 from the structured product, China 0.78 from CBP's own 2022 facts text; CBP held China. A borderline case, below the 0.95 fast path either way (routed to review).
 
+## Image import on synthetic BOM images (gateway, 21 Nov 2026; D167, D168) — illustrative
+
+`go run ./cmd/mediacheck` with `LLM_PROVIDER=litellm`, Gemini 4 Argon, prompt `extract-image-v1`, one run per set. Synthetic renderings of illustrative BOMs, not real documents. A part counts when its name is read exactly (case and spacing ignored) and its country matches.
+
+| Set | Images | Parts | Names read | Countries right | Extra rows | Cost (gateway) | Rows |
+|---|---:|---:|---|---|---:|---:|---|
+| 1, plain tables | 5 | 48 | 45 | 45 | 1 | $0.079 | `results/media-v1-gemini-4-argon-litellm.json` |
+| 2, varied layouts, photos, scans | 15 | 122 | 106 | 106 | 34 | $0.173 | `results/media-varied-gemini-4-argon-litellm.json` |
+
+All 19 misses are exact-name mismatches with the country right where the row was found: 13 names with the part number appended, 3 from one multi-part row (split into its parts, or cut short with "…" in a set 1 image), 1 row split into PCBA and LED, 2 plant rows counted as parts in set 1's manifest. The returned rows are in `results/media-v1-diagnostic-gemini-4-argon-litellm.json` and `results/media-varied-diagnostic-gemini-4-argon-litellm.json` (re-runs of the imperfect images to keep the rows; answered from the gateway cache, same answers, not scores). The varied run's `git_revision` is marked dirty because the set 1 result file was not yet committed; the code and images were committed (bb563b5).
+
 ## Not yet measured
 - Held-out test of the verifier and planner (needs CBP rulings published after 25 Sep 2026).
 - Run-to-run variance of the official engine numbers (one scored run each). The official Vertex AI numbers, once listed here as blocked on GCP access, are measured: see the top of this file.
