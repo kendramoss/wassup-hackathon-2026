@@ -251,6 +251,40 @@ func TestJoinSharesOnlyNewCases(t *testing.T) {
 	}
 }
 
+// A join reads the target workspace, not the capped list used by /mine. With
+// more pending invitations than MaxInvites, the newest one must still work
+// (#374); an unrelated invitation-free workspace stays hidden.
+func TestJoinBeyondInvitationListCap(t *testing.T) {
+	hs, _, _ := teamsHarness(t, nil)
+	var newest string
+	for i := 0; i < teams.MaxInvites+1; i++ {
+		admin := fmt.Sprintf("admin%02d", i)
+		code, ws := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"Team `+admin+`"}`, user(admin))
+		if code != http.StatusCreated {
+			t.Fatalf("create by %s = %d %v", admin, code, ws)
+		}
+		newest = ws["id"].(string)
+		code, out := hs.doAs(t, "POST", "/v1/workspaces/"+newest+"/members", `{"email":"victim@example.com"}`, user(admin))
+		if code != http.StatusOK {
+			t.Fatalf("%s invites victim = %d %v", admin, code, out)
+		}
+	}
+	// The UI list is still capped; the API's join is not.
+	code, mine := hs.doAs(t, "GET", "/v1/workspaces/mine", "", user("victim"))
+	if code != http.StatusOK || len(mine["invites"].([]any)) != teams.MaxInvites {
+		t.Fatalf("mine = %d %v, want %d capped invites", code, mine, teams.MaxInvites)
+	}
+	code, joined := hs.doAs(t, "POST", "/v1/workspaces/"+newest+"/join", "", user("victim"))
+	if code != http.StatusOK || joined["id"] != newest {
+		t.Fatalf("join the %dth invitation = %d %v", teams.MaxInvites+1, code, joined)
+	}
+	_, other := hs.doAs(t, "POST", "/v1/workspaces", `{"name":"No invite here"}`, user("other"))
+	otherID := other["id"].(string)
+	if code, out := hs.doAs(t, "POST", "/v1/workspaces/"+otherID+"/join", "", user("stranger")); code != http.StatusNotFound {
+		t.Errorf("join without an invitation = %d %v, want 404", code, out)
+	}
+}
+
 func TestTeamsVisibility(t *testing.T) {
 	for _, ownership := range []bool{false, true} {
 		t.Run(fmt.Sprintf("case_ownership=%v", ownership), func(t *testing.T) {
