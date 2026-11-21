@@ -1,0 +1,534 @@
+{
+  "case_id": "post-purifier-mighty-2026",
+  "target": "China",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, HEPA filter and main module and power module printed board assemblies are produced in Vietnam. The ionizer, particle sensor, power cord assembly and harness are sourced from China. \n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "Motor, HEPA filter, and main/power printed board assemblies, along with final assembly"
+      ],
+      "decisive_step": "Production of the motor, HEPA filter, and PCBAs, and final assembly of the unit in Vietnam",
+      "confidence": 0.98,
+      "reasoning": "In Vietnam, the critical components that impart the essential character of the air purifier—specifically the motor, HEPA filter, and main/power printed circuit board assemblies—are manufactured, and all components are assembled into the finished appliance. Consistent with CBP precedent on air purifiers (e.g., H323218, N359250), the Chinese components (ionizer, sensor, cord, harness) undergo a substantial transformation when integrated with the Vietnamese-origin core functional components during final assembly in Vietnam.",
+      "cited_rulings": [
+        "N359250",
+        "H323218"
+      ],
+      "precedents": [
+        "H323218",
+        "N351887",
+        "N359250",
+        "N359251",
+        "N359672"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2551,
+        "output_tokens": 224,
+        "latency_ms": 7158
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N366165"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, HEPA filter and main module and power module printed board assemblies are produced in Vietnam. The ionizer, particle sensor, power cord assembly and harness are sourced from China. \n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, HEPA filter, and main/power printed board assemblies, along with final assembly"
+        ],
+        "decisive_step": "Production of the motor, HEPA filter, and PCBAs, and final assembly of the unit in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "In Vietnam, the critical components that impart the essential character of the air purifier—specifically the motor, HEPA filter, and main/power printed circuit board assemblies—are manufactured, and all components are assembled into the finished appliance. Consistent with CBP precedent on air purifiers (e.g., H323218, N359250), the Chinese components (ionizer, sensor, cord, harness) undergo a substantial transformation when integrated with the Vietnamese-origin core functional components during final assembly in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2551,
+          "output_tokens": 224,
+          "latency_ms": 7158
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Vietnam (N366165); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly and PCBA (SMT) in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from China.\n\nThe motor, HEPA filter, main module and power module printed board assemblies and ionizer, particle sensor, power cord assembly and harness are produced in China. \n\nIn China, the motor and HEPA filter will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the main module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, fan, HEPA filter, and PCBAs"
+        ],
+        "decisive_step": "Manufacturing of the motor, HEPA filter, and PCBAs in China",
+        "confidence": 0.9,
+        "reasoning": "All critical functional components of the air purifier—the motor, fan, HEPA filter, ionizer, particle sensor, and main/power PCBAs—are completely manufactured in China through complex processes like lamination stamping, rotor winding, and SMT reflow. Unlike H323218, N359250, or N357771 where substantial component manufacturing or complex multi-country integration occurred in the assembly country, the operations in Vietnam consist merely of simple sub-assembly and final assembly of pre-made Chinese components, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N359250",
+          "H323218",
+          "N357771"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2713,
+          "output_tokens": 242,
+          "latency_ms": 9298
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "H323218",
+        "confidence": 0.85,
+        "reasoning": "In H323218 (affirming NY N322364 and NY N322681) and the paired rulings N359250/N359251, CBP examined air purifiers assembled in Vietnam or Thailand where sourcing of the motor, HEPA/composite filter, and printed circuit board assemblies shifted to China. In both instances, CBP held that multi-step sub-assembly and final integration of the air purifier's mechanical, electrical, and filtration systems in the assembly country resulted in a substantial transformation, so moving the motor, HEPA filter, and PCBAs to China did not alter the country of origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier HEPA filter motor PCBA Vietnam China origin",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N333247",
+              "N351887",
+              "N362121"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier country of origin substantial transformation",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N348711",
+              "N356520",
+              "N361998",
+              "N363601"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359672",
+            "rulings": [
+              "N359672"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359250",
+            "rulings": [
+              "N359250"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16530,
+          "output_tokens": 982,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -15000,
+      "net_per_year": -285000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly, PCBA (SMT) and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from China.\n\nThe motor, HEPA filter, main module and power module printed board assemblies and ionizer, particle sensor, power cord assembly and harness are produced in China. \n\nIn China, the motor and HEPA filter will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the main module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, HEPA filter, and main/power PCBAs"
+        ],
+        "decisive_step": "Manufacturing of the motor, filters, PCBAs, and molded housing in China",
+        "confidence": 0.88,
+        "reasoning": "All critical components imparting the air purifier's essential character—including the motor, fan, HEPA filter, main/power PCBAs, ionizer, sensor, and plastic housing—are manufactured entirely in China through complex processes like rotor winding, SMT placement, and injection molding. Unlike N359250, N359251, or H323218, where the assembly country contributed substantial domestic components or subassembly manufacturing, the operations in Vietnam here are limited to simple screwdriver assembly of completely Chinese-origin components, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2736,
+          "output_tokens": 262,
+          "latency_ms": 7711
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -19000,
+      "net_per_year": -281000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent check failed: model provider unavailable",
+      "rejection_kind": "check_failed"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe motor, HEPA filter and ionizer, particle sensor, power cord assembly and harness are produced in China. The main module and power module printed board assemblies are produced in Vietnam. \n\nIn China, the motor and HEPA filter will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Main and power printed board assemblies combined with final assembly of all components"
+        ],
+        "decisive_step": "Production of the main and power PCBAs and final assembly of the air purifier in Vietnam",
+        "confidence": 0.78,
+        "reasoning": "Consistent with HQ H323218 and NY N359251, even when the motor, fan, and HEPA filter are sourced from China, the country of final assembly (Vietnam) confers origin when substantial manufacturing occurs there. Here, the main module and power module PCBAs are produced in Vietnam, and all components (filters, motor/fan, ionizer, sensors, boards, and housing) are integrated into the finished air purifier in Vietnam, resulting in a substantial transformation.",
+        "cited_rulings": [
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2668,
+          "output_tokens": 212,
+          "latency_ms": 9275
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -10000,
+      "net_per_year": 10000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make PCBA (SMT) in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor and HEPA filter are produced in Vietnam. The main module and power module printed board assemblies and ionizer, particle sensor, power cord assembly and harness are sourced from China. \n\nIn China, the main module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, HEPA filter, and complex final assembly"
+        ],
+        "decisive_step": "Production of the motor and HEPA filter combined with final assembly of all components in Vietnam",
+        "confidence": 0.92,
+        "reasoning": "Under CBP precedent for air purifiers (e.g., H323218, N359250), no single component like the Chinese PCBA imparts the essential character alone; rather, the motor, fan, filtration system, and electronics all contribute to the purifying function. Because key functional components—specifically the motor and HEPA filter—are manufactured in Vietnam, and all Chinese and Vietnamese subassemblies are integrated into the finished appliance in Vietnam, the components undergo a substantial transformation in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "H350894",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2619,
+          "output_tokens": 225,
+          "latency_ms": 8451
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -5000,
+      "net_per_year": 5000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, HEPA filter and main module and power module printed board assemblies are produced in Vietnam. The ionizer, particle sensor, power cord assembly and harness are sourced from China. \n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, HEPA filter, and main/power printed board assemblies, combined with final assembly"
+        ],
+        "decisive_step": "Production of key functional components (motor, HEPA filter, PCBAs) and final assembly in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Under the substantial transformation test and consistent with H323218 and N359250, the country of origin of an air purifier is where the core functional components (motor, HEPA filter, and main/power PCBAs) are produced and integrated with other components through final assembly. Here, Vietnam produces the motor, HEPA filter, and main/power boards, and performs final assembly. The Chinese plastic housing, ionizer, and sensor are substantially transformed when integrated into the finished air purifier in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2574,
+          "output_tokens": 241,
+          "latency_ms": 7528
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -4000,
+      "net_per_year": 4000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe motor, HEPA filter and ionizer, particle sensor, power cord assembly and harness are produced in China. The main module and power module printed board assemblies are produced in Vietnam. \n\nIn China, the motor and HEPA filter will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Main and power module printed board assemblies (PCBAs) and final assembly into a complete air purifier"
+        ],
+        "decisive_step": "Manufacturing the main and power PCBAs and final assembly of all components in Vietnam",
+        "confidence": 0.85,
+        "reasoning": "Consistent with H323218, N359250, and N359251, the assembly of an air purifier from various components, combined with the domestic production of key subassemblies (here, the main and power module PCBAs made in Vietnam), constitutes a substantial transformation. Although the motor, fan, HEPA filter, ionizer, and housing are made in China, the integration of these parts with the Vietnamese-origin control and power boards in Vietnam creates a new and different article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2691,
+          "output_tokens": 256,
+          "latency_ms": 8611
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -14000,
+      "net_per_year": 14000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Mighty air purifier. A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing. The Mighty air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor and HEPA filter are produced in Vietnam. The main module and power module printed board assemblies and ionizer, particle sensor, power cord assembly and harness are sourced from China. \n\nIn China, the main module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, HEPA filter, and final assembly"
+        ],
+        "decisive_step": "Production of the motor and HEPA filter combined with final assembly of all components in Vietnam",
+        "confidence": 0.9,
+        "reasoning": "Following CBP precedents for air purifiers (e.g., H323218, N359250, N359251), the country of final assembly confers origin when key functional components are also produced there or when complex assembly integrates multi-country parts. Here, Vietnam produces two critical components—the motor and HEPA filter—and performs the final assembly integrating the Chinese PCBAs, housing, and sensors into a finished air purifier, resulting in a substantial transformation in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "H350894",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2642,
+          "output_tokens": 220,
+          "latency_ms": 7853
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -9000,
+      "net_per_year": 9000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 37724,
+    "output_tokens": 2864,
+    "engine_input_tokens": 21194,
+    "engine_output_tokens": 1882,
+    "verifier_input_tokens": 16530,
+    "verifier_output_tokens": 982,
+    "wall_seconds": 158.4343915
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.104088,
+  "cost_usd_list": 0.208176,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:13:34+08:00"
+}

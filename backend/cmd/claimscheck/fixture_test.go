@@ -114,6 +114,15 @@ func newFixture(t *testing.T) *fixture {
 	write(t, root, "eval/results/RUNLOG.jsonl",
 		`{"run":"final-gemini-4-argon-prec-engine-v1-vertex","cases":10,"correct":8,"fast_path_coverage":7,"fast_path_correct":6,"time":"2026-10-15T18:29:23Z"}`+"\n")
 	write(t, root, "eval/RESULTS.md", "final 6 / 10 = 60.0% fast; 5 / 6 = 83.3% accuracy; overall 80.0%\n")
+	// Post-cutoff flip pairs (D170): two real changes and a control.
+	write(t, root, "eval/data/flips_post.jsonl",
+		`{"id":"P1","date":"2026-10-01","tier":"core","origin_changed":true}`+"\n"+
+			`{"id":"P2","date":"2026-10-02","tier":"edge","origin_changed":true}`+"\n"+
+			`{"id":"C1","date":"2026-10-03","tier":"core","origin_changed":false}`+"\n")
+	write(t, root, "eval/results/flips-post-verifier-v2-known-a-litellm.jsonl",
+		`{"id":"P1","precedent_supported":true,"confidence":0.95,"origin_b_ok":true}`+"\n"+
+			`{"id":"P2","precedent_supported":true,"confidence":0.85,"origin_b_ok":true}`+"\n"+
+			`{"id":"C1","precedent_supported":false,"confidence":0.9,"origin_b_ok":true}`+"\n")
 	// eval/SHA256SUMS pins data files relative to eval/.
 	var sums strings.Builder
 	for _, rel := range []string{"data/labels.jsonl", "data/labels_usmca.jsonl", "splits/splits_final.json"} {

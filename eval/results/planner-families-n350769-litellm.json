@@ -1,0 +1,498 @@
+{
+  "case_id": "fam-n350769",
+  "target": "Thailand",
+  "family": "cables_harnesses",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Switch harness for use in a gas range. A switch harness used as an ignition trigger for a gas range cooktop, comprised of a set of insulated cable conductors with an electrical connector at the end and multiple compression switches attached. Each switch includes a switch base, contacts, a cam button, and a switch cover. The Switch harness for use in a gas range is assembled in Thailand using components sourced from China.\n\nThe Insulated wire harness, Electrical connector, Switch base, Switch contacts, Cam button and Switch cover are produced in China. \n\nFinal assembly in Thailand: Place the wire harness within the switch base; Assemble remainder of switch parts including contacts and cam button on top of the base; Place the switch cover over the assemblies; Test the finished harness and package for shipment.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Insulated wire harness and switch components"
+      ],
+      "decisive_step": "Manufacturing of the insulated wire harness and switch components in China",
+      "confidence": 0.98,
+      "reasoning": "All components, including the insulated wire harness, electrical connector, and switch parts, are manufactured in China and have a predetermined end-use. Consistent with CBP precedents N350058, N335078, and N340243, the simple assembly of pre-manufactured wire harnesses, connectors, and switch components in Thailand (placing the harness in the base, adding contacts, cam button, and cover, followed by testing) is mere assembly that does not result in a substantial transformation. Therefore, the country of origin remains China.",
+      "cited_rulings": [
+        "N335078",
+        "N350058",
+        "N340243"
+      ],
+      "precedents": [
+        "N335078",
+        "N340243",
+        "N340244",
+        "N350058",
+        "N350562"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2295,
+        "output_tokens": 221,
+        "latency_ms": 6091
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350769"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "cable_insulation_jacket",
+          "to_plant": "th"
+        },
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Cable insulation and jacket and Connectors and housings in Thailand",
+      "variant_facts": "The merchandise under consideration is a Switch harness for use in a gas range. A switch harness used as an ignition trigger for a gas range cooktop, comprised of a set of insulated cable conductors with an electrical connector at the end and multiple compression switches attached. Each switch includes a switch base, contacts, a cam button, and a switch cover. The Switch harness for use in a gas range is assembled in Thailand using components sourced from Thailand.\n\nThe Insulated wire harness, Electrical connector, Switch base, Switch contacts, Cam button and Switch cover are produced in Thailand. \n\nIn Thailand, the Insulated wire harness will be produced in-house: extrude PVC or polymer insulation around conducting cores; wrap insulated cores with aluminum-mylar tape, drain wires, and braided metal shielding; extrude outer protective jacket and wind bulk unterminated cable onto reels (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Electrical connector, Switch base, Switch contacts, Cam button and Switch cover will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Place the wire harness within the switch base; Assemble remainder of switch parts including contacts and cam button on top of the base; Place the switch cover over the assemblies; Test the finished harness and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The insulated cable conductors and compression switches produced in Thailand"
+        ],
+        "decisive_step": "Production of the insulated wire conductors and switch components, as well as final assembly, in Thailand",
+        "confidence": 1,
+        "reasoning": "All components—including the insulated wire harness, electrical connector, switch base, contacts, cam button, and switch cover—are wholly produced in Thailand, and final assembly also takes place in Thailand. Furthermore, consistent with CBP precedents N335078 and N340244, the country of origin of a wire harness is imparted by the insulated conducting wires, which are manufactured in Thailand.",
+        "cited_rulings": [
+          "N335078",
+          "N340244"
+        ],
+        "precedents": [
+          "N335078",
+          "N340244",
+          "N346532",
+          "N347166",
+          "N348567"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2524,
+          "output_tokens": 212,
+          "latency_ms": 6207
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335078",
+        "confidence": 0.98,
+        "reasoning": "In Variant A, all components (insulated wire harness, electrical connector, switch base, contacts, cam button, and cover) are manufactured in China and undergo simple assembly in Thailand, conferring Chinese origin. In Variant B, production of the insulated wire harness and all switch and connector components moves entirely to Thailand, where final assembly also occurs. Under CBP rulings on wire harnesses and gas range ignition assemblies (e.g., N335078, N340243, N350058), the country where the insulated cable assembly and functional components are manufactured determines origin. Because all component manufacturing and assembly occur in Thailand in Variant B, origin changes to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "switch harness wire harness gas range ignition connector assembly",
+            "rulings": [
+              "N350058",
+              "N349019",
+              "N331814",
+              "N347139",
+              "N345976",
+              "N335078",
+              "N342924",
+              "N350727"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire harness electrical connector switch assembly China Thailand",
+            "rulings": [
+              "N335078",
+              "N350727",
+              "N347899",
+              "N350050",
+              "N342924",
+              "N340243",
+              "N343543",
+              "N350562"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350727",
+            "rulings": [
+              "N350727"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350058",
+            "rulings": [
+              "N350058"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340243",
+            "rulings": [
+              "N340243"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335078",
+            "rulings": [
+              "N335078"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9221,
+          "output_tokens": 601,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Switch harness for use in a gas range. A switch harness used as an ignition trigger for a gas range cooktop, comprised of a set of insulated cable conductors with an electrical connector at the end and multiple compression switches attached. Each switch includes a switch base, contacts, a cam button, and a switch cover. The Switch harness for use in a gas range is assembled in Thailand using components sourced from China.\n\nThe Insulated wire harness, Electrical connector, Switch base, Switch contacts, Cam button and Switch cover are produced in China. \n\nFinal assembly in Thailand: Place the wire harness within the switch base; Assemble remainder of switch parts including contacts and cam button on top of the base; Place the switch cover over the assemblies; Test the finished harness and package for shipment.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Insulated wire harness and switch components"
+        ],
+        "decisive_step": "Manufacturing of the insulated wire harness and switch components in China",
+        "confidence": 0.98,
+        "reasoning": "All components, including the insulated wire harness, electrical connector, and switch parts, are manufactured in China and have a predetermined end-use. Consistent with CBP precedents N350058, N335078, and N340243, the simple assembly of pre-manufactured wire harnesses, connectors, and switch components in Thailand (placing the harness in the base, adding contacts, cam button, and cover, followed by testing) is mere assembly that does not result in a substantial transformation. Therefore, the country of origin remains China.",
+        "cited_rulings": [
+          "N335078",
+          "N350058",
+          "N340243"
+        ],
+        "precedents": [
+          "N335078",
+          "N340243",
+          "N340244",
+          "N350058",
+          "N350562"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2295,
+          "output_tokens": 221,
+          "latency_ms": 6091
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N350769); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "cable_insulation_jacket",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Cable insulation and jacket in Thailand",
+      "variant_facts": "The merchandise under consideration is a Switch harness for use in a gas range. A switch harness used as an ignition trigger for a gas range cooktop, comprised of a set of insulated cable conductors with an electrical connector at the end and multiple compression switches attached. Each switch includes a switch base, contacts, a cam button, and a switch cover. The Switch harness for use in a gas range is assembled in Thailand using components sourced from Thailand and China.\n\nThe Insulated wire harness are produced in Thailand. The Electrical connector, Switch base, Switch contacts, Cam button and Switch cover are sourced from China. \n\nIn Thailand, the Insulated wire harness will be produced in-house: extrude PVC or polymer insulation around conducting cores; wrap insulated cores with aluminum-mylar tape, drain wires, and braided metal shielding; extrude outer protective jacket and wind bulk unterminated cable onto reels (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Place the wire harness within the switch base; Assemble remainder of switch parts including contacts and cam button on top of the base; Place the switch cover over the assemblies; Test the finished harness and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Insulated wire harness"
+        ],
+        "decisive_step": "Manufacturing of the insulated wire harness and final assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Following CBP precedents for wire harnesses (e.g., N335078, N340244), the insulated conductor wires impart the essential character of a harness assembly. Here, the insulated wire harness is produced in Thailand, and the final assembly of the Chinese-origin switch components and connectors onto the harness also takes place in Thailand. Because both the essential component and the final assembly occur in Thailand, the country of origin is Thailand.",
+        "cited_rulings": [
+          "N335078",
+          "N340244"
+        ],
+        "precedents": [
+          "N335078",
+          "N340244",
+          "N346532",
+          "N347166",
+          "N348567"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2454,
+          "output_tokens": 185,
+          "latency_ms": 6622
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N335078",
+        "confidence": 0.9,
+        "reasoning": "In Variant A (and companion rulings N350058/N350059), all components including the insulated wire harness were made in China, and simple assembly of switch parts/connectors onto the wire in Thailand did not substantially transform them. In N335078, CBP held that for a wire harness assembly, the insulated conducting wire assemblies impart the essential character of the finished harness, and subsequent assembly of connectors, terminals, plastic parts, and covers is not a substantial transformation. In Variant B, the insulated wire harness is extruded and manufactured in Thailand and assembled there with Chinese switch/connector parts, making Thailand the country of origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "switch harness gas range wire harness Thailand China",
+            "rulings": [
+              "N350058",
+              "N335581",
+              "N350059",
+              "N335078",
+              "N347272",
+              "N347271",
+              "N347270",
+              "N350727"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "ignition switch harness cable conductors connector origin",
+            "rulings": [
+              "N349019",
+              "N343543",
+              "N340516",
+              "N340244",
+              "N342924",
+              "N343697",
+              "N347139",
+              "N335078"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire harness switch assembly origin China Thailand Vietnam Mexico",
+            "rulings": [
+              "H340062",
+              "N335078",
+              "N347899",
+              "N350727",
+              "N346435",
+              "N347272",
+              "N347271",
+              "N347270"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350059",
+            "rulings": [
+              "N350059"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335078",
+            "rulings": [
+              "N335078"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350058",
+            "rulings": [
+              "N350058"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 13524,
+          "output_tokens": 444,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "connectors_and_housings",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Connectors and housings in Thailand",
+      "variant_facts": "The merchandise under consideration is a Switch harness for use in a gas range. A switch harness used as an ignition trigger for a gas range cooktop, comprised of a set of insulated cable conductors with an electrical connector at the end and multiple compression switches attached. Each switch includes a switch base, contacts, a cam button, and a switch cover. The Switch harness for use in a gas range is assembled in Thailand using components sourced from China and Thailand.\n\nThe Insulated wire harness are produced in China. The Electrical connector, Switch base, Switch contacts, Cam button and Switch cover are produced in Thailand. \n\nIn Thailand, the Electrical connector, Switch base, Switch contacts, Cam button and Switch cover will be produced in-house: stamp, form, and coat metal electrical terminals, plugs, clamps, and coupler contacts; injection-mold plastic connector shells, adapter plates, splice trays, and enclosure housings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Place the wire harness within the switch base; Assemble remainder of switch parts including contacts and cam button on top of the base; Place the switch cover over the assemblies; Test the finished harness and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The compression switches (switch base, contacts, cam button, cover) that perform the ignition triggering function"
+        ],
+        "decisive_step": "Manufacturing the switch components and assembling them with the wire harness in Thailand to create the functional ignition switch harness",
+        "confidence": 0.78,
+        "reasoning": "Unlike basic wire harnesses where the insulated conductor wire imparts the essential character (as in N335078, N343697, and N340244), this merchandise is a switch harness functioning as an ignition trigger for a gas range. In Thailand, the functional switch components (base, contacts, cam button, cover, and connector) are manufactured from raw materials and assembled onto the Chinese wire harness. This manufacturing and assembly substantially transforms the Chinese wire into a new article with a distinct character and use.",
+        "cited_rulings": [
+          "N335078",
+          "N343697",
+          "N340244"
+        ],
+        "precedents": [
+          "N335078",
+          "N335581",
+          "N340244",
+          "N343697",
+          "N350562"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2635,
+          "output_tokens": 228,
+          "latency_ms": 9640
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350058",
+        "counter_ruling": "N335078",
+        "confidence": 0.8,
+        "reasoning": "In Variant A (and analogous gas range spark plug assembly ruling N350058), origin remained China because all components were sourced from China and merely assembled in Thailand. In Variant B, only the insulated wire harness comes from China, while all the active ignition trigger switch components (switch base, contacts, cam button, switch cover) and electrical connector are manufactured from raw metal and plastic in Thailand (stamping, forming, coating, and injection molding) and assembled into the switch harness there. Unlike N335078 (a simple connector wire harness where the cable imparted character), a switch harness's essential ignition-triggering function is imparted by the switches manufactured and assembled in Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "switch harness wire harness switches contacts base cover",
+            "rulings": [
+              "N332358",
+              "H340062",
+              "N334327",
+              "N334072",
+              "N347899",
+              "H337124",
+              "N338945",
+              "N335078"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "switch harness gas range ignition wire harness assembly",
+            "rulings": [
+              "N350058",
+              "N349019",
+              "N331814",
+              "N345976",
+              "N342924",
+              "N347139",
+              "N347207",
+              "N345996"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "ignition switch harness cooktop range country of origin",
+            "rulings": [
+              "N335508",
+              "N338935",
+              "N349019",
+              "N347139",
+              "N340202",
+              "N342924",
+              "N350058",
+              "N347899"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "wire harness connector switch assembly China Thailand Vietnam",
+            "rulings": [
+              "N335078",
+              "N350727",
+              "N347899",
+              "N346435",
+              "H340062",
+              "N350050",
+              "N350058",
+              "N340243"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350058",
+            "rulings": [
+              "N350058"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335078",
+            "rulings": [
+              "N335078"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 12769,
+          "output_tokens": 459,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.80 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 11,
+    "verifier_tool_calls": 18,
+    "input_tokens": 45422,
+    "output_tokens": 2350,
+    "engine_input_tokens": 9908,
+    "engine_output_tokens": 846,
+    "verifier_input_tokens": 35514,
+    "verifier_output_tokens": 1504,
+    "wall_seconds": 29.505355167
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "cables_harnesses": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.114344,
+  "cost_usd_list": 0.228688,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:15:55+08:00"
+}

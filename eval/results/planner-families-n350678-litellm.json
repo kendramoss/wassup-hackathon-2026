@@ -1,0 +1,240 @@
+{
+  "case_id": "fam-n350678",
+  "target": "China",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Pet bed. The pet bed is an elevated square-shaped iron frame with four tube legs, plastic end caps, and a square textile panel permanently affixed to each side of the frame. The Pet bed is assembled in Vietnam using components sourced from Thailand, China, Malaysia and Vietnam.\n\nThe HDPE (High-Density Polyethylene) are produced in Thailand. The Woven fabric, Metallic components and Plastic components (including plastic end caps) are sourced from China. The Raw iron ingots are sourced from Malaysia. The Iron tubes, Iron cassettes and Cut and sewn square textile panel are produced in Vietnam. \n\nFinal assembly in Vietnam: Assemble iron frame with tube legs, plastic end caps, and permanently affix textile panel to the frame.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "Elevated iron frame with permanently affixed textile panel"
+      ],
+      "decisive_step": "Forming the iron tubes and cassettes from raw ingots, cutting and sewing the textile panel, and assembling the finished pet bed in Vietnam",
+      "confidence": 0.78,
+      "reasoning": "Unlike all-textile pet beds governed by Section 3342 (e.g., N349985, N349766), an elevated metal-framed pet bed is a composite article (typically Chapter 94 furniture) evaluated under the substantial transformation test. In Vietnam, raw Malaysian iron ingots are transformed into iron tubes and cassettes, and Chinese woven fabric is cut and sewn into the bed panel, before final assembly. Forming the structural metal frame components and assembling them with the cut-and-sewn panel in Vietnam creates a new article of commerce.",
+      "cited_rulings": [
+        "N349985",
+        "N349766"
+      ],
+      "precedents": [
+        "N338794",
+        "N348140",
+        "N349766",
+        "N349985",
+        "N350182"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2578,
+        "output_tokens": 253,
+        "latency_ms": 7454
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N350678"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Pet bed. The pet bed is an elevated square-shaped iron frame with four tube legs, plastic end caps, and a square textile panel permanently affixed to each side of the frame. The Pet bed is assembled in Vietnam using components sourced from Thailand, China, Malaysia and Vietnam.\n\nThe HDPE (High-Density Polyethylene) are produced in Thailand. The Woven fabric, Metallic components and Plastic components (including plastic end caps) are sourced from China. The Raw iron ingots are sourced from Malaysia. The Iron tubes, Iron cassettes and Cut and sewn square textile panel are produced in Vietnam. \n\nFinal assembly in Vietnam: Assemble iron frame with tube legs, plastic end caps, and permanently affix textile panel to the frame.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Elevated iron frame with permanently affixed textile panel"
+        ],
+        "decisive_step": "Forming the iron tubes and cassettes from raw ingots, cutting and sewing the textile panel, and assembling the finished pet bed in Vietnam",
+        "confidence": 0.78,
+        "reasoning": "Unlike all-textile pet beds governed by Section 3342 (e.g., N349985, N349766), an elevated metal-framed pet bed is a composite article (typically Chapter 94 furniture) evaluated under the substantial transformation test. In Vietnam, raw Malaysian iron ingots are transformed into iron tubes and cassettes, and Chinese woven fabric is cut and sewn into the bed panel, before final assembly. Forming the structural metal frame components and assembling them with the cut-and-sewn panel in Vietnam creates a new article of commerce.",
+        "cited_rulings": [
+          "N349985",
+          "N349766"
+        ],
+        "precedents": [
+          "N338794",
+          "N348140",
+          "N349766",
+          "N349985",
+          "N350182"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2578,
+          "output_tokens": 253,
+          "latency_ms": 7454
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Vietnam (N350678); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Frame and base in China",
+      "variant_facts": "The merchandise under consideration is a Pet bed. The pet bed is an elevated square-shaped iron frame with four tube legs, plastic end caps, and a square textile panel permanently affixed to each side of the frame. The Pet bed is assembled in Vietnam using components sourced from Thailand, China and Vietnam.\n\nThe HDPE (High-Density Polyethylene) are produced in Thailand. The Woven fabric, Metallic components, Plastic components (including plastic end caps), Raw iron ingots, Iron tubes and Iron cassettes are sourced from China. The Cut and sewn square textile panel are produced in Vietnam. \n\nIn China, the Metallic components, Raw iron ingots, Iron tubes and Iron cassettes will be produced in-house: Create iron tubes and cassettes from raw iron ingots; Cut iron tubes and cassettes to size for the finished good.\n\nFinal assembly in Vietnam: Assemble iron frame with tube legs, plastic end caps, and permanently affix textile panel to the frame.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The woven fabric and iron frame components"
+        ],
+        "decisive_step": "Weaving the fabric and manufacturing and cutting to size the iron frame components in China",
+        "confidence": 0.9,
+        "reasoning": "Whether analyzed under 19 CFR 102.21 as a textile article (like N350182 and N349985 where the country of fabric formation governs over cutting/sewing) or under the substantial transformation test as furniture/metal frame, the country of origin is China. In China, both the woven fabric and the cut-to-size iron frame components are produced. The operations in Vietnam—cutting and sewing the Chinese fabric into a square panel and assembling the pre-fabricated Chinese frame—do not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N350182",
+          "N349985"
+        ],
+        "precedents": [
+          "N338794",
+          "N348140",
+          "N349766",
+          "N349985",
+          "N350182"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2616,
+          "output_tokens": 213,
+          "latency_ms": 7836
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "confidence": 0.65,
+        "reasoning": "In Variant A, CBP held origin is Vietnam even though the woven fabric and plastic/metallic components came from China, because the raw iron ingots were formed into iron tubes and cassettes in Vietnam alongside cutting and sewing the textile panel and final assembly. In Variant B, forming and cutting to size of the iron tubes and cassettes moves to China, where the woven fabric, metallic components, and plastic end caps also originate. With all frame components prefabricated to size in China, the metal frame (essential character of an elevated iron-frame pet bed) originates in China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"pet bed\" OR \"elevated\" frame textile Vietnam China",
+            "rulings": [
+              "N349766",
+              "N349985",
+              "N348140",
+              "N344474",
+              "N348571",
+              "N326416",
+              "N333574",
+              "N350182"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "cot OR bed OR chair iron frame textile panel cut and sewn Vietnam China",
+            "rulings": [
+              "N349985",
+              "N348140",
+              "N349766",
+              "N348571",
+              "N344474",
+              "H338482",
+              "N333574",
+              "N350866"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N349985",
+            "rulings": [
+              "N349985"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N349766",
+            "rulings": [
+              "N349766"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348140",
+            "rulings": [
+              "N348140"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"iron tubes\" OR \"steel tubes\" frame \"textile\" OR \"fabric\" cut and sewn Vietnam China",
+            "rulings": [
+              "N350866",
+              "N342368",
+              "N348808",
+              "N326416",
+              "N335342",
+              "N350182",
+              "N343157",
+              "N349985"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15071,
+          "output_tokens": 409,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20265,
+    "output_tokens": 875,
+    "engine_input_tokens": 5194,
+    "engine_output_tokens": 466,
+    "verifier_input_tokens": 15071,
+    "verifier_output_tokens": 409,
+    "wall_seconds": 27.469065917
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.04928,
+  "cost_usd_list": 0.09856,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:15:25+08:00"
+}

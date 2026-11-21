@@ -1,0 +1,116 @@
+{
+  "_source": "Built from the facts of CBP ruling N350727 (2025-07-09, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Thailand; plant capabilities for Thailand are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350727",
+  "date": "2025-07-09",
+  "family": "pcba_electronic_devices",
+  "target": "Thailand",
+  "product": {
+    "name": "washing machine motor speed sensor (part number 290D1187P006)",
+    "description": "A washing machine motor speed sensor that creates an electromagnetic field to detect motor speed and send electrical signals to the washing machine control unit. It is comprised of a printed circuit board assembly (PCBA) with a Hall Effect sensor enclosed within a plastic housing, and a wire harness with a specialized electrical connector at the end.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing",
+          "housing_and_cables"
+        ]
+      },
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "pcba_manufacturing",
+          "housing_and_cables",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Printed circuit board assembly (PCBA) with Hall Effect sensor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Wire harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Specialized electrical connector",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Plastic housing",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "housing_and_cables"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Manufacture PCBA with Hall Effect sensor",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Attach wire harness to PCBA",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Enclose PCBA and wire harness within plastic housing",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Attach electrical connector to the end of the wire harness",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test finished device",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Package finished device for shipment",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_manufacturing": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "housing_and_cables": {
+        "cn": 100000,
+        "th": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350727"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350727"
+  }
+}

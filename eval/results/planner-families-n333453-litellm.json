@@ -1,0 +1,418 @@
+{
+  "case_id": "fam-n333453",
+  "target": "Japan",
+  "family": "medical_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C). An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components. The QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C) is assembled in Japan using components sourced from China.\n\nThe Power supply, Support, Power supply fixing plate, Power supply switch, Main printed circuit board, Monitor, Wires, Guide rail assembly, Temperature control module and External components are produced in China. \n\nFinal assembly in Japan: Attach power supply to support with screws; Press power supply fixing plate against power supply switch and affix with glue; Fasten main board to the device with screws; Attach monitor with screws and plug wires into allocated slots; Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue; Press all wires into place on the main printed circuit board; Fasten external components with screws and zip tie wires in place.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Main printed circuit board, temperature control module, and complete Chinese subassemblies"
+      ],
+      "decisive_step": "Manufacturing of the main printed circuit board, temperature control module, and all other components in China",
+      "confidence": 0.98,
+      "reasoning": "All components of the PCR detection system, including the main PCB and temperature control module that impart its essential character, are wholly produced in China. Unlike the N331908 line of rulings where complex PCBA manufacturing (SMT and through-hole soldering) occurred in the final assembly country, the operations in Japan consist merely of simple mechanical assembly using screws, glue, and plug-in wires. This simple assembly does not result in a substantial transformation, so the country of origin remains China.",
+      "cited_rulings": [
+        "N331908"
+      ],
+      "precedents": [
+        "N331901",
+        "N331902",
+        "N331903",
+        "N331906",
+        "N331908"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2511,
+        "output_tokens": 230,
+        "latency_ms": 7233
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N333453"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "pcba_and_sensors",
+          "to_plant": "jp"
+        }
+      ],
+      "description": "Make PCBA and sensors in Japan",
+      "variant_facts": "The merchandise under consideration is a QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C). An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components. The QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C) is assembled in Japan using components sourced from Japan and China.\n\nThe Power supply, Power supply switch, Main printed circuit board, Monitor and Temperature control module are produced in Japan. The Support, Power supply fixing plate, Wires, Guide rail assembly and External components are sourced from China. \n\nIn Japan, the Power supply, Power supply switch, Main printed circuit board, Monitor and Temperature control module will be produced in-house: populate printed circuit boards with electronic components using surface mount technology (SMT); manufacture and assemble LED emitters and photodetectors into optical sensor arrays; produce chip-on-board (COB) modules, LCD screens, and temperature or pressure sensor movements; load firmware and perform circuit board quality control testing (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Japan: Attach power supply to support with screws; Press power supply fixing plate against power supply switch and affix with glue; Fasten main board to the device with screws; Attach monitor with screws and plug wires into allocated slots; Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue; Press all wires into place on the main printed circuit board; Fasten external components with screws and zip tie wires in place.\n",
+      "prediction": {
+        "origin_country": "Japan",
+        "key_factors": [
+          "Main printed circuit board, temperature control module, monitor, and power supply"
+        ],
+        "decisive_step": "Manufacturing the critical electronic and optical subassemblies via SMT and performing final assembly in Japan",
+        "confidence": 0.98,
+        "reasoning": "In Japan, the most critical functional components—the main PCBA (via SMT), temperature control module, optical sensor arrays, monitor, and power supply—are manufactured from the ground up and programmed with firmware. Consistent with N331903, producing the core PCBAs via SMT and integrating them with structural housings (sourced from China) during final assembly substantially transforms the components into a new diagnostic instrument, conferring Japanese origin.",
+        "cited_rulings": [
+          "N331903"
+        ],
+        "precedents": [
+          "H304677",
+          "N331902",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2667,
+          "output_tokens": 194,
+          "latency_ms": 6568
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N330296",
+        "counter_ruling": "H304677",
+        "confidence": 0.92,
+        "reasoning": "In Variant A, all components are produced in China and undergo simple screw-and-glue final assembly in Japan, leaving origin in China. In Variant B, the functional core of the PCR detection system—including the main printed circuit board (via SMT), temperature control module, optical sensor arrays, monitor, power supply, and power switch—is manufactured in Japan, alongside final assembly. Under N330296, SMT production of the main PCBAs and functional electronic modules imparts the essential character of an electronic detection/imaging instrument. Unlike H304677 (where major functional subassemblies remained in China), only passive structural parts and wires remain Chinese in Variant B.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "analytical instrument main printed circuit board SMT optical sensor assembly",
+            "rulings": [
+              "N330296",
+              "N332276",
+              "H304677",
+              "N330057",
+              "H326574",
+              "N331908",
+              "N331906",
+              "N331902"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "in vitro diagnostic instrument assembly printed circuit board SMT",
+            "rulings": [
+              "N332276",
+              "N330296",
+              "H304677",
+              "H326574",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "PCR diagnostic instrument main printed circuit board temperature control module",
+            "rulings": [
+              "N332276",
+              "N330057",
+              "H328731",
+              "N333268",
+              "H304677",
+              "N331908",
+              "N331906",
+              "N331902"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "spectrometer OR analyzer OR sensor OR medical device PCBA SMT assembly",
+            "rulings": [
+              "N330296",
+              "H326574",
+              "N332332",
+              "N333268",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N330296",
+            "rulings": [
+              "N330296"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H304677",
+            "rulings": [
+              "H304677"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9702,
+          "output_tokens": 383,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "pcba_and_sensors",
+          "to_plant": "jp"
+        },
+        {
+          "group": "hubs_clamps_housings",
+          "to_plant": "jp"
+        }
+      ],
+      "description": "Make PCBA and sensors and Hubs, clamps and housings in Japan",
+      "variant_facts": "The merchandise under consideration is a QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C). An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components. The QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C) is assembled in Japan using components sourced from Japan.\n\nThe Power supply, Support, Power supply fixing plate, Power supply switch, Main printed circuit board, Monitor, Wires, Guide rail assembly, Temperature control module and External components are produced in Japan. \n\nIn Japan, the Power supply, Power supply switch, Main printed circuit board, Monitor and Temperature control module will be produced in-house: populate printed circuit boards with electronic components using surface mount technology (SMT); manufacture and assemble LED emitters and photodetectors into optical sensor arrays; produce chip-on-board (COB) modules, LCD screens, and temperature or pressure sensor movements; load firmware and perform circuit board quality control testing (assumed from the product-family template; no operations were supplied for this group).\n\nIn Japan, the Support, Power supply fixing plate, Wires, Guide rail assembly and External components will be produced in-house: injection-mold plastic needle hubs, sheaths, protective caps, and luer connectors; manufacture roller clamps, pinch clamps, slide clamps, spikes, and Y-injection sites; produce plastic enclosures, top and bottom guides, foam laminates, adhesive tapes, and cords; extrude and coat brush fibers for dental applicator tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Japan: Attach power supply to support with screws; Press power supply fixing plate against power supply switch and affix with glue; Fasten main board to the device with screws; Attach monitor with screws and plug wires into allocated slots; Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue; Press all wires into place on the main printed circuit board; Fasten external components with screws and zip tie wires in place.\n",
+      "prediction": {
+        "origin_country": "Japan",
+        "key_factors": [
+          "Main printed circuit board assembly, temperature control module, and complete system integration"
+        ],
+        "decisive_step": "Manufacturing of all constituent subassemblies (including SMT for the main PCBA) and final assembly in Japan",
+        "confidence": 1,
+        "reasoning": "All components—including the main printed circuit board, temperature control module, monitor, power supply, and structural supports—are wholly produced in Japan, and final assembly and testing also occur entirely in Japan. Even under substantial transformation principles for multi-country electronics (e.g., N331908, H304677), both the critical PCBA/functional modules and the complete mechanical assembly originate in Japan. Because the product is wholly produced and assembled in a single country, the country of origin is unequivocally Japan.",
+        "cited_rulings": [
+          "N331908",
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "N331902",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2767,
+          "output_tokens": 238,
+          "latency_ms": 8371
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N332276",
+        "counter_ruling": "H304677",
+        "confidence": 0.94,
+        "reasoning": "In Variant A, all components (including the main printed circuit board, temperature control module, monitor, power supply, and structural components) are produced in China and undergo only simple screw/glue final assembly in Japan, leaving origin in China (consistent with N333268). In Variant B, all components—including the main PCBA (via SMT), optical sensor arrays, temperature control module, monitor, power supply, and housings—are manufactured in-house in Japan and assembled in Japan. Under N332276, performing SMT to create the main PCBA along with component production and final assembly in one country confers origin there, making Variant B's origin Japan.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "diagnostic instrument main printed circuit board temperature control module origin",
+            "rulings": [
+              "N332276",
+              "N330057",
+              "H328731",
+              "N333268",
+              "H304677",
+              "N331908",
+              "N331906",
+              "N331902"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"in vitro diagnostic\" OR \"PCR\" OR \"quantitative detection\" circuit board assembly origin",
+            "rulings": [
+              "N331243",
+              "N332276",
+              "N330296",
+              "N331908",
+              "N331906",
+              "N331902",
+              "N331901",
+              "N331904"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "analyzer OR spectrophotometer OR detector PCBA SMT assembly origin",
+            "rulings": [
+              "N330296",
+              "H304677",
+              "H326574",
+              "N332276",
+              "N332332",
+              "N331904",
+              "N333268",
+              "N332358"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332276",
+            "rulings": [
+              "N332276"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H304677",
+            "rulings": [
+              "H304677"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333268",
+            "rulings": [
+              "N333268"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14458,
+          "output_tokens": 419,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C). An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components. The QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C) is assembled in Japan using components sourced from China.\n\nThe Power supply, Support, Power supply fixing plate, Power supply switch, Main printed circuit board, Monitor, Wires, Guide rail assembly, Temperature control module and External components are produced in China. \n\nFinal assembly in Japan: Attach power supply to support with screws; Press power supply fixing plate against power supply switch and affix with glue; Fasten main board to the device with screws; Attach monitor with screws and plug wires into allocated slots; Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue; Press all wires into place on the main printed circuit board; Fasten external components with screws and zip tie wires in place.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Main printed circuit board, temperature control module, and complete Chinese subassemblies"
+        ],
+        "decisive_step": "Manufacturing of the main printed circuit board, temperature control module, and all other components in China",
+        "confidence": 0.98,
+        "reasoning": "All components of the PCR detection system, including the main PCB and temperature control module that impart its essential character, are wholly produced in China. Unlike the N331908 line of rulings where complex PCBA manufacturing (SMT and through-hole soldering) occurred in the final assembly country, the operations in Japan consist merely of simple mechanical assembly using screws, glue, and plug-in wires. This simple assembly does not result in a substantial transformation, so the country of origin remains China.",
+        "cited_rulings": [
+          "N331908"
+        ],
+        "precedents": [
+          "N331901",
+          "N331902",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2511,
+          "output_tokens": 230,
+          "latency_ms": 7233
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N333453); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "hubs_clamps_housings",
+          "to_plant": "jp"
+        }
+      ],
+      "description": "Make Hubs, clamps and housings in Japan",
+      "variant_facts": "The merchandise under consideration is a QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C). An automated standalone in vitro diagnostic instrument used for quantitative detection of analytes in pathogen nucleic acids from human samples using the polymerase chain reaction (PCR) process. It consists of a power supply, support, fixing plate, power supply switch, main printed circuit board, monitor, guide rail assembly, temperature control module, wires, and external components. The QuantGene 9600 Fluorescent Quantitative Detection System (FQD-96C) is assembled in Japan using components sourced from China and Japan.\n\nThe Power supply, Power supply switch, Main printed circuit board, Monitor and Temperature control module are produced in China. The Support, Power supply fixing plate, Wires, Guide rail assembly and External components are produced in Japan. \n\nIn Japan, the Support, Power supply fixing plate, Wires, Guide rail assembly and External components will be produced in-house: injection-mold plastic needle hubs, sheaths, protective caps, and luer connectors; manufacture roller clamps, pinch clamps, slide clamps, spikes, and Y-injection sites; produce plastic enclosures, top and bottom guides, foam laminates, adhesive tapes, and cords; extrude and coat brush fibers for dental applicator tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Japan: Attach power supply to support with screws; Press power supply fixing plate against power supply switch and affix with glue; Fasten main board to the device with screws; Attach monitor with screws and plug wires into allocated slots; Power on monitor, verify serial number display, and slide guide rail assembly together with temperature control module fastened with screws and glue; Press all wires into place on the main printed circuit board; Fasten external components with screws and zip tie wires in place.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Main printed circuit board, temperature control module, monitor, and power supply"
+        ],
+        "decisive_step": "Manufacturing of the core electronic and functional subassemblies (main PCB, temperature control module, monitor, power supply) in China",
+        "confidence": 0.92,
+        "reasoning": "The core functional components that impart the essential character of the PCR diagnostic system—specifically the main printed circuit board, temperature control module, monitor, and power supply—are manufactured in China (consistent with N331908 regarding PCBA origin significance). The components made in Japan are primarily structural housings, supports, and wires. The final processing in Japan consists of simple screw-and-glue assembly and wire plugging, which does not substantially transform the Chinese functional subassemblies.",
+        "cited_rulings": [
+          "N331908"
+        ],
+        "precedents": [
+          "N331901",
+          "N331902",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2625,
+          "output_tokens": 210,
+          "latency_ms": 6502
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Japan",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 7,
+    "verifier_tool_calls": 12,
+    "input_tokens": 34730,
+    "output_tokens": 1674,
+    "engine_input_tokens": 10570,
+    "engine_output_tokens": 872,
+    "verifier_input_tokens": 24160,
+    "verifier_output_tokens": 802,
+    "wall_seconds": 42.552449125
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "medical_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.0862,
+  "cost_usd_list": 0.1724,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:13:40+08:00"
+}

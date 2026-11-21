@@ -1,0 +1,84 @@
+{
+  "_source": "Built from the facts of CBP ruling N352073 (2025-08-22, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Hand edit: heat treating is the machined-and-heat-treated group, not the housings group, so the Chinese table and webs can move. Target Philippines; plant capabilities for Philippines are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n352073",
+  "date": "2025-08-22",
+  "family": "vehicle_parts",
+  "target": "Philippines",
+  "product": {
+    "name": "“bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2)",
+    "description": "Bare steel brake shoes measuring 16 and ½\" in length by 7\" in height, used in heavy duty trucks and lacking the friction material typically attached with rivets. Each brake shoe consists of a table and two pieces of webs that are welded together, heat treated, and painted.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "housings_and_structures"
+        ]
+      },
+      {
+        "id": "ph",
+        "name": "Philippines Plant",
+        "country": "Philippines",
+        "capabilities": [
+          "precision_machined_parts",
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "table",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "two pieces of webs",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      }
+    ],
+    "operations": [
+      {
+        "name": "welding the table and webs together",
+        "plant": "ph",
+        "group": "final_assembly"
+      },
+      {
+        "name": "heat treating the completed assembly",
+        "plant": "ph",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "painting the completed assembly",
+        "plant": "ph",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Philippines": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "housings_and_structures": {
+        "cn": 100000,
+        "ph": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N352073"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352073"
+  }
+}

@@ -1,0 +1,1012 @@
+{
+  "case_id": "fam-n350310",
+  "target": "United States",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "All major subassemblies and components (refrigeration, evaporator, slide, frame, and main control PCBAs)"
+      ],
+      "decisive_step": "Manufacturing of all components and subassemblies, plus final assembly in China",
+      "confidence": 1,
+      "reasoning": "All components and subassemblies—including the main control PCBAs, refrigeration system, evaporator, slide subassembly, and frame—are manufactured in China, and final assembly, calibration, and testing also occur entirely in China. Because the product is wholly produced and assembled in China with no third-country processing, the country of origin is unequivocally China.",
+      "cited_rulings": [],
+      "precedents": [
+        "H304677",
+        "N341251",
+        "N343175",
+        "N343451",
+        "N345862"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2728,
+        "output_tokens": 188,
+        "latency_ms": 6983
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N350310"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "All major subassemblies and components (refrigeration, evaporator, slide, frame, and main control PCBAs)"
+        ],
+        "decisive_step": "Manufacturing of all components and subassemblies, plus final assembly in China",
+        "confidence": 1,
+        "reasoning": "All components and subassemblies—including the main control PCBAs, refrigeration system, evaporator, slide subassembly, and frame—are manufactured in China, and final assembly, calibration, and testing also occur entirely in China. Because the product is wholly produced and assembled in China with no third-country processing, the country of origin is unequivocally China.",
+        "cited_rulings": [],
+        "precedents": [
+          "H304677",
+          "N341251",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2728,
+          "output_tokens": 188,
+          "latency_ms": 6983
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N350310); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "us"
+        },
+        {
+          "group": "heating_element",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Heating element in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from United States and China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) are produced in United States. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nIn United States, the Printed circuit board assemblies (PCBAs) including main control board will be produced in-house: Populate various electrical components onto a PCB via surface mount technology (SMT); Permanently load U.S.-developed proprietary software onto the PCBAs; Provision cellular connection on the PCBAs with cloud services provider and test.\n\nIn United States, the Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) will be produced in-house: Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly; Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "United States",
+        "key_factors": [
+          "U.S.-origin refrigeration subassembly, evaporator subassembly, and programmed main control PCBAs"
+        ],
+        "decisive_step": "Complex manufacturing of the refrigeration/evaporator subassemblies and SMT production and programming of the PCBAs in the United States",
+        "confidence": 0.9,
+        "reasoning": "The essential character of the freeze-on-demand appliance is imparted by the U.S.-origin refrigeration and evaporator subassemblies (which perform the core freezing function) and the U.S.-origin PCBAs programmed with U.S. firmware (the \"brain\" of the machine). In the United States, raw components undergo complex manufacturing (SMT, brazing, laser welding, refrigerant charging). Final assembly in China consists of installing frames, harnesses, and pre-made subassemblies, which is mere assembly that does not substantially transform the U.S. subassemblies (similar to H304677).",
+        "cited_rulings": [
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2972,
+          "output_tokens": 250,
+          "latency_ms": 7934
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "confidence": 0.88,
+        "reasoning": "In N348913, CBP held that final assembly of cooling units in China was simple installation that did not substantially transform the key cooling subassemblies (evaporator and condenser) manufactured in another country via tube bending and brazing. Similarly, in Variant B, the core functional components of the freeze-on-demand appliance—the evaporator subassembly, the refrigerant-charged refrigeration subassembly (produced via extrusion, brazing, laser welding, and charging), and the SMT-populated main control PCBAs with U.S. firmware—are manufactured in the United States. Final assembly in China merely connects pre-made subassemblies and housings without substantially transforming the U.S. components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ColdSnap freeze-on-demand food mixer evaporator refrigeration subassembly PCBA",
+            "rulings": [
+              "N348913",
+              "N350304",
+              "H333319",
+              "N341500",
+              "N347899",
+              "N349422",
+              "N330296",
+              "H332525"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "food mixer appliance refrigeration evaporator PCBA China United States",
+            "rulings": [
+              "N341500",
+              "N342276",
+              "N349869",
+              "H340257",
+              "H332525",
+              "N348913",
+              "N347190",
+              "H333319"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "appliance PCBA SMT subassembly assembled in China origin United States",
+            "rulings": [
+              "N330296",
+              "N348392",
+              "H338116",
+              "H331515",
+              "N349107",
+              "N344203",
+              "H345749",
+              "N334757"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "ice maker dispenser blender coffee machine refrigerator compressor evaporator PCBA",
+            "rulings": [
+              "N348913",
+              "H326072",
+              "N345287",
+              "N342916",
+              "N337269",
+              "N338945",
+              "N339653",
+              "N344002"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "electro-mechanical appliance subassemblies final assembly China",
+            "rulings": [
+              "N346984",
+              "N343416",
+              "H333699",
+              "N333849",
+              "N340198",
+              "N340295",
+              "H326072",
+              "N333420"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9340,
+          "output_tokens": 1027,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 425000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 375000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.88 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "heating_element",
+          "to_plant": "us"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Heating element and Switch, cord and minor parts in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) and Plastic housings are produced in China. The Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are sourced from United States. \n\nIn United States, the Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) will be produced in-house: Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly; Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly.\n\nIn United States, the Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen will be produced in-house: Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly; Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "United States",
+        "key_factors": [
+          "The U.S.-origin refrigeration, evaporator, frame, and rivet shear subassemblies that form the core mechanical structure and freezing functionality"
+        ],
+        "decisive_step": "Metal stamping, extrusion, brazing, laser welding, refrigerant charging, and assembling the primary structural and refrigeration subassemblies in the United States",
+        "confidence": 0.78,
+        "reasoning": "Following H304677 and N334276, the origin of complex electromechanical machines is determined by the country producing the dominant structural and functional subassemblies, even if PCBAs and final assembly occur elsewhere. In the United States, the core frame, rivet shear, evaporator, and refrigeration subassemblies are manufactured through complex extrusion, stamping, brazing, laser welding, and refrigerant charging. These U.S. subassemblies impart the appliance's essential freezing and structural character. Final assembly in China with Chinese PCBAs and slide subassemblies does not substantially transform them.",
+        "cited_rulings": [
+          "H304677",
+          "N334276"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N334276",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 3002,
+          "output_tokens": 252,
+          "latency_ms": 7665
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "counter_ruling": "N342916",
+        "confidence": 0.88,
+        "reasoning": "In Variant B, the core cooling and structural subassemblies—including the evaporator subassembly, refrigeration subassembly, frame subassembly, and rivet shear subassembly, plus the power supply, touch screen, and wiring harnesses—are manufactured in the United States through complex processes (extruding, stamping, brazing, laser welding, and refrigerant charging). Following N348913, where final assembly of a cooling appliance in China did not substantially transform pre-manufactured cooling subassemblies (evaporator/condenser brazed in another country), the final assembly in China (installing and connecting pre-made subassemblies, PCBAs, slide assembly, and housings) is not complex enough to substantially transform the U.S.-origin subassemblies.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "beverage dispenser ice maker evaporator refrigeration subassembly origin",
+            "rulings": [
+              "N348913",
+              "N348697",
+              "N342916",
+              "N338945",
+              "N347899",
+              "N339653",
+              "H332525",
+              "N345897"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigeration subassembly evaporator subassembly food mixer appliance China",
+            "rulings": [
+              "N346984",
+              "N348913",
+              "H333319",
+              "N341500",
+              "N347899",
+              "N349422",
+              "N350304",
+              "H332525"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigeration system compressor evaporator assembly origin China",
+            "rulings": [
+              "N348913",
+              "N344002",
+              "H332525",
+              "H326072",
+              "N348532",
+              "N343389",
+              "N333850",
+              "N347190"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "food mixer motor assembly PCBA China United States origin",
+            "rulings": [
+              "H333319",
+              "H322161",
+              "N349869",
+              "N350727",
+              "N341500",
+              "N342276",
+              "N345938",
+              "N348465"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N342916",
+            "rulings": [
+              "N342916"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10429,
+          "output_tokens": 1184,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 425000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 375000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.88 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Motor-fan assembly in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) are sourced from United States. \n\nIn United States, the Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) will be produced in-house: Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The PCBAs, refrigeration and evaporator subassemblies, frame, and final assembly in China"
+        ],
+        "decisive_step": "Manufacture of the major subassemblies (PCBAs, refrigeration, evaporator, frame) and final integration of all components in China",
+        "confidence": 0.99,
+        "reasoning": "Nearly all critical components of the appliance—including the main control PCBAs, refrigeration and evaporator subassemblies, frame, housings, and touch screen—are manufactured in China, where final assembly, calibration, and testing also occur. While the slide subassembly containing motors is made in the United States, it is only one component integrated into the larger appliance. The U.S. slide subassembly undergoes a substantial transformation in China when combined with the Chinese-origin refrigeration, control, and structural subassemblies to create the finished food mixer.",
+        "cited_rulings": [],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N336445",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2813,
+          "output_tokens": 252,
+          "latency_ms": 8357
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make PCBA (SMT) in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from United States and China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board are produced in United States. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nIn United States, the Printed circuit board assemblies (PCBAs) including main control board will be produced in-house: Populate various electrical components onto a PCB via surface mount technology (SMT); Permanently load U.S.-developed proprietary software onto the PCBAs; Provision cellular connection on the PCBAs with cloud services provider and test.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Electromechanical refrigeration and mixing subassemblies (slide, evaporator, refrigeration, rivet shear, and frame)"
+        ],
+        "decisive_step": "Production of the major electromechanical subassemblies and final assembly into the completed appliance in China",
+        "confidence": 0.9,
+        "reasoning": "Although the PCBAs and proprietary software are produced in the United States via SMT, the appliance's essential character as a freeze-on-demand food mixer is imparted by its core mechanical and refrigeration components—the slide, evaporator, refrigeration, rivet shear, and frame subassemblies—all manufactured in China. Similar to H304677, where a complex electromechanical machine took the origin of its mechanical subassemblies rather than the country of the PCBA, the manufacturing and final assembly in China confer Chinese origin.",
+        "cited_rulings": [
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "N335581",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2816,
+          "output_tokens": 230,
+          "latency_ms": 6551
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "heating_element",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Heating element in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) are sourced from United States. \n\nIn United States, the Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) will be produced in-house: Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly; Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Main control PCBAs, electromechanical slide/motor/shear subassemblies, and final integration"
+        ],
+        "decisive_step": "Production of key electromechanical and electronic subassemblies (PCBAs, slide/motors, frame) and final assembly in China",
+        "confidence": 0.92,
+        "reasoning": "While the U.S. evaporator and refrigeration subassemblies provide the cooling function, the appliance is a freeze-on-demand mixer whose essential character is equally defined by its mixing mechanics, frame, user interface, and smart control electronics. In China, the majority of the major subassemblies—including the main control PCBAs, motorized slide subassembly, rivet shear subassembly, frame, and touch screen—are manufactured and integrated with the U.S. cooling components. Consistent with N343175 and N334276, this extensive manufacturing and final assembly in China constitutes a substantial transformation.",
+        "cited_rulings": [
+          "N343175",
+          "N334276"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N334276",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2903,
+          "output_tokens": 262,
+          "latency_ms": 6965
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Housing moulding in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Plastic housings are sourced from United States. \n\nIn United States, the Plastic housings will be produced in-house: Injection mold plastic housings, remove flashing, inspect, and screen-print logo.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The PCBAs, refrigeration subassembly, evaporator subassembly, slide subassembly, and frame subassembly"
+        ],
+        "decisive_step": "Manufacturing of all core functional subassemblies (PCBAs, refrigeration, evaporator, slide, and frame) and final assembly in China",
+        "confidence": 0.99,
+        "reasoning": "Nearly all components, including the critical PCBAs, refrigeration system, evaporator, slide assembly, and frame, are manufactured in China, where final assembly, calibration, and testing also occur. Only the outer plastic housings are injection-molded in the United States. The U.S. plastic housings undergo a substantial transformation when integrated with the core functional components in China to create a new article of commerce with a distinct name, character, and use. Consistent with N343175 and N342124, origin is conferred in China.",
+        "cited_rulings": [
+          "N343175",
+          "N342124"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N342124",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2819,
+          "output_tokens": 241,
+          "latency_ms": 7866
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Switch, cord and minor parts in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) and Plastic housings are produced in China. The Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are sourced from United States. \n\nIn United States, the Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen will be produced in-house: Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly; Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Refrigeration, evaporator, motor/slide subassemblies, and main control PCBAs"
+        ],
+        "decisive_step": "Manufacture of the core functional subassemblies (refrigeration, evaporator, slide/motor, PCBAs) and final assembly in China",
+        "confidence": 0.98,
+        "reasoning": "The appliance's essential character as a freeze-on-demand food mixer is imparted by its core functional components—the refrigeration subassembly, evaporator subassembly, motor/slide subassembly, and main control PCBAs—all of which are manufactured in China. Moreover, final assembly, integration, calibration, and testing occur in China, where the U.S.-origin structural frames, rivet shear subassembly, and electrical components are substantially transformed into the finished appliance (consistent with N343175 and N345862).",
+        "cited_rulings": [
+          "N345862",
+          "N343175"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N336445",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2862,
+          "output_tokens": 258,
+          "latency_ms": 6850
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "us"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Motor-fan assembly and PCBA (SMT) in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from United States and China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board and Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) are produced in United States. The Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nIn United States, the Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) will be produced in-house: Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly.\n\nIn United States, the Printed circuit board assemblies (PCBAs) including main control board will be produced in-house: Populate various electrical components onto a PCB via surface mount technology (SMT); Permanently load U.S.-developed proprietary software onto the PCBAs; Provision cellular connection on the PCBAs with cloud services provider and test.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The refrigeration, evaporator, and mechanical subassemblies combined with the final assembly"
+        ],
+        "decisive_step": "Production of the core refrigeration/mechanical subassemblies and final assembly of the appliance in China",
+        "confidence": 0.85,
+        "reasoning": "Similar to HQ H304677, where a U.S. or Mexican PCBA did not impart the essential character to a complex electro-mechanical machine when the main mechanical housings and functional subassemblies were made in China, the ColdSnap mixer's core cooling and mechanical subassemblies (refrigeration, evaporator, rivet shear, frame, housings) are all produced in China. Furthermore, final assembly occurs in China. While the PCBAs and slide subassembly are made in the U.S., the components lose their separate identities during manufacturing and assembly in China.",
+        "cited_rulings": [
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "N335581",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2868,
+          "output_tokens": 234,
+          "latency_ms": 6515
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "us"
+        },
+        {
+          "group": "heating_element",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Heating element in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) are sourced from United States. \n\nIn United States, the Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) will be produced in-house: Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly.\n\nIn United States, the Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) will be produced in-house: Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly; Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The PCBAs (including main control board), frame and rivet shear subassemblies, and final integration of all subassemblies into a complete appliance"
+        ],
+        "decisive_step": "Manufacturing the PCBAs and structural frames, combined with final assembly and integration of the U.S. refrigeration/slide subassemblies in China",
+        "confidence": 0.9,
+        "reasoning": "Although key mechanical and cooling subassemblies (refrigeration, evaporator, slide) are manufactured in the United States, the electronic brain (PCBAs including the main control board), structural frames, rivet shear subassembly, touch screen, power supply, and housings are all produced in China. Under CBP precedent (e.g., N343175, H333319), producing the control PCBAs and major structural subassemblies and integrating them with imported functional modules during final assembly substantially transforms the components into a new article of commerce, conferring Chinese origin.",
+        "cited_rulings": [
+          "N343175",
+          "H333319"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N334276",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2954,
+          "output_tokens": 263,
+          "latency_ms": 6693
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "us"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Housing moulding in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) and Plastic housings are sourced from United States. \n\nIn United States, the Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) will be produced in-house: Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly.\n\nIn United States, the Plastic housings will be produced in-house: Injection mold plastic housings, remove flashing, inspect, and screen-print logo.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The PCBAs (including main control board), refrigeration and evaporator subassemblies, and final complex assembly"
+        ],
+        "decisive_step": "Manufacture of critical functional subassemblies (PCBAs, refrigeration, evaporator) and final assembly in China",
+        "confidence": 0.98,
+        "reasoning": "Consistent with N343175 and N342124, origin is conferred where the primary functional components are produced and integrated via complex assembly. Here, China produces the vast majority of key subassemblies (main control PCBAs, refrigeration, evaporator, rivet shear, frame, touchscreen, power supply) and performs final assembly, calibration, and testing. The U.S.-origin slide subassembly and plastic housings are substantially transformed when integrated with the Chinese subassemblies in China into a new article with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N343175",
+          "N342124"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N342124",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2871,
+          "output_tokens": 245,
+          "latency_ms": 6329
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "us"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Switch, cord and minor parts in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) and Plastic housings are produced in China. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are sourced from United States. \n\nIn United States, the Slide subassembly (slide plate, belt retainer, bearings, motors, scanner) will be produced in-house: Cast slide plate and belt retainer; install bearings, fasten motors, install scanner, and test slide subassembly.\n\nIn United States, the Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen will be produced in-house: Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly; Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Refrigeration/evaporator subassemblies and main control PCBAs"
+        ],
+        "decisive_step": "Production of PCBAs and refrigeration/evaporator subassemblies, plus final integration and assembly in China",
+        "confidence": 0.92,
+        "reasoning": "In China, the core functional components that enable the appliance's primary freezing and smart control capabilities—the refrigeration subassembly, evaporator subassembly, and PCBAs (including the main control board)—are manufactured, and all U.S. mechanical subassemblies (frames, slide, rivet shear) are finally integrated, calibrated, and tested into the finished appliance. Consistent with N343175 and N345862, producing key PCBAs and critical functional subassemblies combined with complex final assembly substantially transforms the imported U.S. components in China.",
+        "cited_rulings": [
+          "N345862",
+          "N343175"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N336445",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2913,
+          "output_tokens": 250,
+          "latency_ms": 7320
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "us"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Housing moulding in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from United States and China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board and Plastic housings are produced in United States. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. \n\nIn United States, the Printed circuit board assemblies (PCBAs) including main control board will be produced in-house: Populate various electrical components onto a PCB via surface mount technology (SMT); Permanently load U.S.-developed proprietary software onto the PCBAs; Provision cellular connection on the PCBAs with cloud services provider and test.\n\nIn United States, the Plastic housings will be produced in-house: Injection mold plastic housings, remove flashing, inspect, and screen-print logo.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Electromechanical refrigeration, evaporator, and mixing subassemblies"
+        ],
+        "decisive_step": "Manufacture of the core functional mechanical/refrigeration subassemblies and final assembly into the finished appliance in China",
+        "confidence": 0.9,
+        "reasoning": "Similar to H304677, where a Chinese printer transport imparted origin despite a Mexican PCBA, the essential character of this freeze-on-demand food mixer is imparted by its core functional mechanics—specifically the refrigeration, evaporator, and motor/slide subassemblies—rather than its control electronics. While the PCBAs with U.S. software and plastic housings are made in the U.S., the primary cooling and mixing subassemblies are manufactured in China and combined there in final assembly to create the finished appliance.",
+        "cited_rulings": [
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "H332752",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2842,
+          "output_tokens": 231,
+          "latency_ms": 7182
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "us"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Switch, cord and minor parts in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from United States and China.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are produced in United States. The Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) and Plastic housings are produced in China. \n\nIn United States, the Printed circuit board assemblies (PCBAs) including main control board will be produced in-house: Populate various electrical components onto a PCB via surface mount technology (SMT); Permanently load U.S.-developed proprietary software onto the PCBAs; Provision cellular connection on the PCBAs with cloud services provider and test.\n\nIn United States, the Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen will be produced in-house: Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly; Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Electromechanical freezing and mixing subassemblies (refrigeration, evaporator, and slide/motor subassemblies)"
+        ],
+        "decisive_step": "Manufacture of the core refrigeration, evaporator, and slide subassemblies and final integration of all subassemblies into the finished appliance in China",
+        "confidence": 0.85,
+        "reasoning": "Consistent with HQ H304677, for complex electromechanical machines, manufacturing the electronic 'brain' (PCBAs and firmware) in one country does not confer origin when the core functional mechanical and cooling components (refrigeration, evaporator, and slide/motor subassemblies) that impart the appliance's essential character are manufactured and assembled with the remaining components into the finished article in China. The U.S. components undergo a substantial transformation when integrated with the Chinese electromechanical subassemblies in China.",
+        "cited_rulings": [
+          "H304677"
+        ],
+        "precedents": [
+          "H304677",
+          "N335581",
+          "N343175",
+          "N343451",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2917,
+          "output_tokens": 247,
+          "latency_ms": 8390
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "heating_element",
+          "to_plant": "us"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Heating element and Housing moulding in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen are produced in China. The Evaporator subassembly (evaporator body, end covers, handles, copper tubes), Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) and Plastic housings are sourced from United States. \n\nIn United States, the Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) will be produced in-house: Extrude evaporator body; braze end covers, laser weld handles, braze copper tubes, and leak/pressure drop test evaporator subassembly; Attach major components to frame; bend, braze, test, install, and couple copper tube subassemblies; evacuate tubing, fill, apply insulation, and test refrigeration subassembly.\n\nIn United States, the Plastic housings will be produced in-house: Injection mold plastic housings, remove flashing, inspect, and screen-print logo.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Main control PCBAs, slide motor/scanner subassembly, and complex final integration"
+        ],
+        "decisive_step": "Production of the main PCBAs, mechanical subassemblies, and final electro-mechanical assembly in China",
+        "confidence": 0.95,
+        "reasoning": "Although the refrigeration, evaporator, and plastic housing subassemblies are manufactured in the United States, the appliance is a smart food-processing mixer that relies heavily on its mechanical and electronic systems. China produces the main control PCBAs, motors, slide subassembly, frame, power supply, and touchscreen, and performs the complex final assembly, alignment, and testing. Consistent with N343175 and H333319, the U.S. components lose their separate identities and undergo a substantial transformation during the manufacturing and final integration in China.",
+        "cited_rulings": [
+          "N343175",
+          "H333319"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N342124",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2930,
+          "output_tokens": 237,
+          "latency_ms": 6002
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "us"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "us"
+        }
+      ],
+      "description": "Make Housing moulding and Switch, cord and minor parts in United States",
+      "variant_facts": "The merchandise under consideration is a ColdSnap System freeze-on-demand food mixer. A smart, connected, food-processing mixer-freeze appliance used to create single-serve frozen desserts using proprietary pods. It integrates a refrigeration system, motor and slide assemblies, an evaporator subassembly, a rivet shear subassembly, a frame subassembly, plastic housings, a user interface, and printed circuit board assemblies (PCBAs) including a main control board. The ColdSnap System freeze-on-demand food mixer is assembled in China using components sourced from China and United States.\n\nThe Printed circuit board assemblies (PCBAs) including main control board, Slide subassembly (slide plate, belt retainer, bearings, motors, scanner), Evaporator subassembly (evaporator body, end covers, handles, copper tubes) and Refrigeration subassembly (copper tube subassemblies, refrigerant, insulation) are produced in China. The Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts), Plastic housings and Wiring harnesses, power supply, QR scanner, and touch screen are sourced from United States. \n\nIn United States, the Plastic housings will be produced in-house: Injection mold plastic housings, remove flashing, inspect, and screen-print logo.\n\nIn United States, the Rivet shear subassembly (stamped metal frame, mounting hardware, molded plastic parts), Frame subassembly (stamped metal frame, mounting hardware, molded plastic parts) and Wiring harnesses, power supply, QR scanner, and touch screen will be produced in-house: Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test rivet shear subassembly; Stamp metal frame, install mounting hardware, injection mold plastic parts, assemble and test frame subassembly.\n\nFinal assembly in China: Install frames and wiring harnesses; Install and connect power supply, PCBAs, QR scanner, and touch screen; Install and align slide assembly; Calibrate and test, install housings, apply stickers, and final packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The PCBAs (including the main control board), refrigeration subassembly, evaporator subassembly, and motor/slide subassembly"
+        ],
+        "decisive_step": "Manufacturing the core functional subassemblies (PCBAs, refrigeration, evaporator, and slide/motor assemblies) and performing final integration and testing in China",
+        "confidence": 0.95,
+        "reasoning": "In China, the core functional components that impart the essential character to the freeze-on-demand mixer—specifically the main control PCBAs, refrigeration system, evaporator, and motorized slide subassembly—are manufactured. Final assembly, calibration, and testing also occur in China. The U.S.-origin structural frames, plastic housings, wiring, and interface components undergo a substantial transformation when integrated with the Chinese core functional systems into a finished appliance in China (consistent with N343175 and N342124).",
+        "cited_rulings": [
+          "N343175",
+          "N342124"
+        ],
+        "precedents": [
+          "H304677",
+          "H333319",
+          "N342124",
+          "N343175",
+          "N345862"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2919,
+          "output_tokens": 248,
+          "latency_ms": 7414
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 50000,
+      "net_per_year": -50000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not United States",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 15,
+    "engine_calls": 16,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 6,
+    "verifier_tool_calls": 12,
+    "input_tokens": 65898,
+    "output_tokens": 6099,
+    "engine_input_tokens": 46129,
+    "engine_output_tokens": 3888,
+    "verifier_input_tokens": 19769,
+    "verifier_output_tokens": 2211,
+    "wall_seconds": 43.971003667
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.192786,
+  "cost_usd_list": 0.385572,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:57+08:00"
+}

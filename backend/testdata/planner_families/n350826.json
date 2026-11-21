@@ -1,0 +1,148 @@
+{
+  "_source": "Built from the facts of CBP ruling N350826 (2025-07-25, dev split; picked: no second China-held ruling; earliest dev other): CBP held United States. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350826",
+  "date": "2025-07-25",
+  "family": "water_filters",
+  "target": "China",
+  "product": {
+    "name": "Replacement Water Purification and Filtration Cartridges for the GeoPress and UltraPress Filtration Systems",
+    "description": "Cylindrical replacement filter units inserted into a rigid outer bottle to remove submicron biological, chemical, and particulate contaminants. Each cartridge houses a proprietary non-woven electro-adsorptive filter media encased in polypropylene plastic end caps with two silicone O-rings.",
+    "plants": [
+      {
+        "id": "us",
+        "name": "United States Plant",
+        "country": "United States",
+        "capabilities": [
+          "carbon_block",
+          "cartridge_housings"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "carbon_block",
+          "cartridge_housings",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Non-woven electro-adsorptive filter media",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Alumina/glass continuous fibers",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Cellulose pulp",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Activated carbon fibers",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Polypropylene plastic end caps",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Silicone O-rings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Perform melt-blown fiber extrusion to create high-aspect-ratio alumina/glass continuous fibers",
+        "plant": "us",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Blend slurry with cellulose pulp and activated carbon fibers in a precise weight ratio",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Form web on a flat wire fourdrinier paper machine to produce a uniform composite",
+        "plant": "us",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Laminate multiple fiber layers under heat, tension, and time controls",
+        "plant": "us",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Treat surface with proprietary compounds to increase electropositive charge density",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Cut filter media and perform quality control testing and bio-testing",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Produce polypropylene plastic end caps and silicone O-rings",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Pleat U.S.-origin filter media into cylindrical form and hot-seal into pleat packs",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Insert pleat packs into polypropylene plastic end caps, glue, and cure",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Affix two silicone O-rings to complete the cartridge",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "carbon_block": {
+        "us": 100000,
+        "cn": 125000
+      },
+      "cartridge_housings": {
+        "us": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350826"
+  ],
+  "current_origin": {
+    "country": "United States",
+    "ruling": "N350826"
+  }
+}

@@ -79,6 +79,17 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Live plan checks, new families | 7 of 10 fixtures show a precedent-supported plan, 3 go to a broker; $0.97 promo for the ten | `eval/results/families-live-checks.json` | Development checks on pool-ruling fixtures, one run each; not an evaluation |
 | Gas-grill demo, development check | engine China 0.95 (CBP held China, N335085 scenario 1); 7 moves searched, 1 shown: lid and firebox forming, burners and gas train, and cooking surface, panels and frame in Indonesia, check 0.96, supporting N333420; backtest: moves both parts CBP's scenario 2 moved, plus more. Duty rates, import value and costs are illustrative placeholders | `eval/results/families-plan-gas-grill-2023-litellm.json`; demo `backend/internal/demos/fixtures/gas_grill_2023.json` | One run through the LiteLLM gateway, not production. The demo runs live when loaded, so the site's answer may differ; quote the screen, not this row |
 
+## Planner evaluation (D170, D171)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Post-cutoff flip pairs | 15 frozen pairs from CBP rulings, at least one dated after 25 Sep 2026: 11 real origin changes (6 core, 5 edge), 4 controls; 6 with a plan template | `eval/data/flips_post.jsonl`, `eval/data/flips_post_meta.json`, `eval/results/planner-post-familycheck-litellm.jsonl` | Built; each pair read by hand by one reader (not a customs expert) |
+| Precedent check on them, CBP's starting origin given | shown at the 0.92 bar: 8 of 8 right (67.6–100); real changes shown 8 of 11 = 72.7% (43.4–90.3); core 5 of 6; controls shown 0 of 4; $0.58 for 15 checks (promo) | `eval/results/flips-post-verifier-v2-known-a-litellm.jsonl`, `eval/results/planner-post-summary.json`; recomputed by `claimscheck` (`planner_post.*`) and served as `planner_post_known-a_*` | Measured, scored once, gateway (not Vertex AI), local corpus search. Always with n and the interval; say "precedent check", not "plan accuracy" |
+| Precedent check on them, starting origin not given | shown 5, right 4 (37.6–96.4): the fracking unit was shown at 0.92 with the wrong later origin; real changes shown 4 of 11 = 36.4% (15.2–64.6); controls shown 0 of 4 | `eval/results/flips-post-verifier-v2-unknown-a-litellm.jsonl`, `eval/results/planner-post-summary.json` | Measured, scored once, gateway. Show beside the known-a row, never alone |
+| Cited ruling supports the shown move (hand read) | 5 of 8 support, 3 partial (known-a) | `eval/planner/spot_checks.json` | One reader |
+| Plan search on the post-cutoff pairs | strut: CBP's move is the top plan (0.96); stove heater: CBP's move shown (0.92) but ranked below a cheaper subset CBP never ruled on; three air-purifier reverse probes: no plan shown (one supported at 0.85, below the bar); $0.76 | `eval/results/planner-post-plan-*-litellm.json` | Measured, once each, gateway; n = 5 |
+| Per-family plan checks | 23 products (two per family where eligible; gas grills one, LiDAR none): 15 of 23 = 65.2% (44.9–81.2) show a precedent-supported plan, 8 go to a broker; China-held 10 of 15, reverse probes 5 of 8; cited ruling supports the move in 9 of 15, partial 4, does not 2; $1.90 promo, $0.083 a search | `eval/results/planner-families-summary.json`, `eval/results/planner-families-*-litellm.json` | Development checks on development and train rulings, one run each, illustrative economics; not an evaluation of plan quality |
+
 ## Claude connector (MCP; built, see `docs/MCP.md`)
 
 | Number | Value | Source | Status |

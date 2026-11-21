@@ -1,0 +1,141 @@
+{
+  "_source": "Built from the facts of CBP ruling N335263 (2023-10-04, train split; picked: no dev China-held ruling; train China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Hong Kong; plant capabilities for Hong Kong are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n335263",
+  "date": "2023-10-04",
+  "family": "led_lights",
+  "target": "Hong Kong",
+  "product": {
+    "name": "LED grow lights",
+    "description": "LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires.",
+    "plants": [
+      {
+        "id": "hk",
+        "name": "Hong Kong Plant",
+        "country": "Hong Kong",
+        "capabilities": [
+          "led_pcba",
+          "lens",
+          "base_harness_seals"
+        ]
+      },
+      {
+        "id": "de",
+        "name": "Germany Plant",
+        "country": "Germany",
+        "capabilities": [
+          "base_harness_seals"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "lens",
+          "base_harness_seals",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "LED module (Printed Circuit Board Assembly with LEDs and electronic components)",
+        "made_in": "Hong Kong",
+        "plant": "hk",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Connector",
+        "made_in": "Germany",
+        "plant": "de",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Lens",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "lens"
+      },
+      {
+        "name": "Power supply",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Heatsink",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Light box covers",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Screws",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Cable",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      },
+      {
+        "name": "Wires",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "base_harness_seals"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Incorporate numerous electronic components and populate LEDs onto the Printed Circuit Board (PCB) using Surface Mount Technology (SMT) to produce the PCBA",
+        "plant": "hk",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Conduct testing and inspections in each step during the manufacturing of the PCBAs",
+        "plant": "hk",
+        "group": "led_pcba"
+      },
+      {
+        "name": "Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Germany": 0.125,
+      "Hong Kong": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "lens": {
+        "cn": 100000,
+        "hk": 125000
+      },
+      "base_harness_seals": {
+        "de": 100000,
+        "hk": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N335263"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N335263"
+  }
+}

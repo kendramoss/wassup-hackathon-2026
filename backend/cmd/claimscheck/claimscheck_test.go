@@ -413,3 +413,27 @@ func TestRealRepository(t *testing.T) {
 		}
 	}
 }
+
+// TestPlannerPostFigures recomputes the post-cutoff flip-pair figures (D170):
+// a move counts as shown only at the plan bar, and as right only when the
+// pair is a real change and the check named CBP's later origin.
+func TestPlannerPostFigures(t *testing.T) {
+	f := newFixture(t)
+	kv, problems := Compute(f.root)
+	if len(problems) > 0 {
+		t.Fatal(problems)
+	}
+	for k, want := range map[string]string{
+		"planner_post.pairs": "3", "planner_post.real_changes": "2", "planner_post.controls": "1", "planner_post.core_pairs": "2",
+		"planner_post.known_a.shown": "1", "planner_post.known_a.shown_right": "1", "planner_post.known_a.controls_shown": "0",
+		"planner_post.known_a.recall_pct": "50.0",
+	} {
+		if got := lookup(kv, k); got != want {
+			t.Errorf("%s = %q, want %q", k, got, want)
+		}
+	}
+	f.edit(t, "eval/data/flips_post.jsonl", func(s string) string { return strings.Replace(s, "2026-10-01", "2026-09-01", 1) })
+	if _, problems := Compute(f.root); len(problems) == 0 {
+		t.Error("a pair with no post-cutoff ruling was accepted")
+	}
+}

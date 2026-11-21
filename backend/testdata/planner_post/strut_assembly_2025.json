@@ -1,0 +1,113 @@
+{
+  "_source": "Built from the facts of CBP ruling N356030 (3 Dec 2025): strut assembly put together in Thailand around a shock absorber assembled in Thailand from a Chinese tube, piston rod and oil; CBP held China. Later ruling N364865 (1 Oct 2026): shock absorber made in Thailand from raw steel (piston rod machined, reservoir tube welded, valves built, oil filled, nitrogen charged); CBP held Thailand. Post-cutoff pair BA-N356030-N364865 (D170).",
+  "case_id": "post-strut-assembly-2025",
+  "date": "2025-12-03",
+  "family": "vehicle_parts",
+  "target": "Thailand",
+  "product": {
+    "name": "Strut assembly",
+    "description": "A passenger-vehicle strut assembly: a shock absorber inside a coil spring with a strut mount, spring seats, bumpers and a dust shield.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand strut plant",
+        "country": "Thailand",
+        "capabilities": [
+          "electromechanical_core",
+          "precision_machined_parts",
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "precision_machined_parts",
+          "housings_and_structures"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "shock absorber tube",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "connecting rod (piston)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "lubricating oil",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "coil spring, bumper stop and strut dust shield",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "strut mount, upper spring bumper, upper spring seat, spring seat, bottom cover and lugs",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "housings_and_structures"
+      }
+    ],
+    "operations": [
+      {
+        "name": "assemble the shock absorber components into a complete shock absorber",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "insert the shock absorber into the coil spring and fit the remaining components",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "precision_machined_parts": {
+        "cn": 80000,
+        "th": 100000
+      },
+      "housings_and_structures": {
+        "cn": 40000,
+        "th": 50000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N356030",
+    "N364865"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N356030"
+  },
+  "actual_change": {
+    "_source": "CBP ruling N364865 (1 Oct 2026): CBP held Thailand",
+    "moved_to": "Thailand",
+    "moved_to_thailand": [
+      "shock absorber tube",
+      "connecting rod (piston)"
+    ],
+    "still_from_china": []
+  }
+}

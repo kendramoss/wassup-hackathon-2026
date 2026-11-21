@@ -1,0 +1,136 @@
+{
+  "_source": "Built from the facts of CBP ruling N354175 (2025-10-16, dev split; picked: no China-held ruling; second earliest dev): CBP held Taiwan. Product drafted by gemini-4-argon from the facts, reviewed by hand. The draft stopped at the facts' first 7,000 characters; the Chinese lamination and assembly steps were added by hand from the rest of the facts. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n354175",
+  "date": "2025-10-16",
+  "family": "display_camera_modules",
+  "target": "China",
+  "product": {
+    "name": "Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0",
+    "description": "An automotive display that utilizes microscopic LEDs on a thin-film transistor (TFT) glass substrate panel to project the car logo, charging status, and driving modes.",
+    "plants": [
+      {
+        "id": "tw",
+        "name": "Taiwan Facility",
+        "country": "Taiwan",
+        "capabilities": [
+          "display_cell_fab"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Facility",
+        "country": "China",
+        "capabilities": [
+          "display_cell_fab",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Glass substrate",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Array glass substrate panel (TFT panel)",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Template glass",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Microscopic LEDs (uLEDs)",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Protective molding film",
+        "made_in": "Taiwan",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Step 1A: Unpack and clean glass substrates and perform physical vapor deposition (PVD) and chemical vapor deposition (CVD) of metal and chemical films",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1A: Perform photolithography, dry/wet etching, photoresist stripping, array testing, and packing of glass substrates",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1B: Unpack and clean glass substrates, perform CVD and PVD thin film deposition, and repeat photolithography, etching, and stripping five times to create TFT array",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1B: Perform array testing, Automated Optical Inspection (AOI), robot transfer, and cutting and grinding of combined substrate into desired dimensions",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1C: Perform Electroless Nickel Immersion Gold (ENIG) metal plating process including cleaning, micro etching, acid rinse, nickel plating, and gold plating to output array glass substrate panel",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1D: Delaminate protective film, clean with FLUX cleaner, test array, and fix LEDs on template glass",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1D: Plasma etch template glass, FLUX coat TFT panel, apply sealant, and bond uLED cells to TFT panel in a vacuum environment before removing template glass",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "Step 1D: Illuminate uLEDs for optical inspection and repair, and apply, cure, bake, and etch protective and molding films",
+        "plant": "tw",
+        "group": "display_cell_fab"
+      },
+      {
+        "name": "laminate the cover glass to the semi-panel and degas",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "assemble the uLED panel with the bezel, PCB and bracket; test and pack",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Taiwan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "display_cell_fab": {
+        "tw": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N354175"
+  ],
+  "current_origin": {
+    "country": "Taiwan",
+    "ruling": "N354175"
+  }
+}

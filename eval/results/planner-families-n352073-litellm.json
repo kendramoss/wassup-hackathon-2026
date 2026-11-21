@@ -1,0 +1,234 @@
+{
+  "case_id": "fam-n352073",
+  "target": "Philippines",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2). Bare steel brake shoes measuring 16 and ½\" in length by 7\" in height, used in heavy duty trucks and lacking the friction material typically attached with rivets. Each brake shoe consists of a table and two pieces of webs that are welded together, heat treated, and painted. The “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2) is assembled in Philippines using components sourced from China.\n\nThe table and two pieces of webs are produced in China. \n\nFinal assembly in Philippines: welding the table and webs together; painting the completed assembly.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "Pre-formed steel table and web components"
+      ],
+      "decisive_step": "Manufacturing and forming of the dedicated steel table and webs in China",
+      "confidence": 0.9,
+      "reasoning": "The steel table and two webs are pre-formed in China to the specific shape, dimensions, and dedicated use of the brake shoe. The operations in the Philippines, which consist solely of welding the three pre-formed pieces together, heat treating, and painting, constitute simple assembly and finishing. These operations do not result in a substantial transformation of the Chinese components into a new and different article of commerce. Thus, the country of origin remains China.",
+      "cited_rulings": [],
+      "precedents": [
+        "N334204",
+        "N335049",
+        "N339944",
+        "N343372",
+        "N346445"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2470,
+        "output_tokens": 183,
+        "latency_ms": 9035
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352073"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "housings_and_structures",
+          "to_plant": "ph"
+        }
+      ],
+      "description": "Make Housings and structural parts in Philippines",
+      "variant_facts": "The merchandise under consideration is a “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2). Bare steel brake shoes measuring 16 and ½\" in length by 7\" in height, used in heavy duty trucks and lacking the friction material typically attached with rivets. Each brake shoe consists of a table and two pieces of webs that are welded together, heat treated, and painted. The “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2) is assembled in Philippines using components sourced from Philippines.\n\nThe table and two pieces of webs are produced in Philippines. \n\nIn Philippines, the table and two pieces of webs will be produced in-house: sawing, stamping, washing, and heat treating metal profiles, structural brackets, and radiator cores; casting or molding metal and plastic housings, bells, enclosures, and mounting plates; assembling ancillary PCBAs, cutting cables or hoses to length, and crimping fittings (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Philippines: welding the table and webs together; painting the completed assembly.\n",
+      "prediction": {
+        "origin_country": "Philippines",
+        "key_factors": [
+          "The welded steel table and webs forming the bare brake shoe structure"
+        ],
+        "decisive_step": "Fabrication of the steel table and webs, and welding, heat treating, and painting them in the Philippines",
+        "confidence": 0.99,
+        "reasoning": "Unlike the lined brake shoe assemblies in N335049 and N334204 where the friction lining imparts essential character, the subject merchandise is an unlined bare steel brake shoe. All constituent components—the steel table and the two web pieces—are produced in the Philippines, and all manufacturing and assembly operations (stamping, welding, heat treating, and painting) occur in the Philippines. Because the article is wholly produced and substantially transformed in the Philippines, its country of origin is the Philippines.",
+        "cited_rulings": [
+          "N335049",
+          "N334204"
+        ],
+        "precedents": [
+          "H335139",
+          "N334204",
+          "N334531",
+          "N335049",
+          "N342125"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2632,
+          "output_tokens": 243,
+          "latency_ms": 6440
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N343372",
+        "confidence": 0.95,
+        "reasoning": "In Variant A, the sole structural components of the bare steel brake shoe—the table and two pieces of webs—are produced in China and merely welded together and painted in the Philippines, which does not effect a substantial transformation (leaving origin as China, consistent with N343372 where assembling pre-formed brake components did not change origin). In Variant B, the table and webs themselves are manufactured in the Philippines (sawing, stamping, heat treating) and then welded and painted in the Philippines. Because all components and assembly operations occur in the Philippines, the country of origin changes to the Philippines.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "brake shoe table web welded origin",
+            "rulings": [
+              "N334204",
+              "N335049",
+              "N343372",
+              "H330862",
+              "H338728",
+              "N339685",
+              "N348995",
+              "N334531"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "bare steel brake shoes Philippines China",
+            "rulings": [
+              "N334204",
+              "N335049",
+              "N339944",
+              "N343372",
+              "N339405",
+              "N350967",
+              "N331904",
+              "N331908"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "brake shoe stamping welding heat treating origin",
+            "rulings": [
+              "N334204",
+              "N335049",
+              "N343372",
+              "N346445",
+              "H333250",
+              "N348995",
+              "N344477",
+              "N348598"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334204",
+            "rulings": [
+              "N334204"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335049",
+            "rulings": [
+              "N335049"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343372",
+            "rulings": [
+              "N343372"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9358,
+          "output_tokens": 345,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2). Bare steel brake shoes measuring 16 and ½\" in length by 7\" in height, used in heavy duty trucks and lacking the friction material typically attached with rivets. Each brake shoe consists of a table and two pieces of webs that are welded together, heat treated, and painted. The “bare steel” brake shoes (Part Numbers 4707Q, 5415Q, and 4709E2) is assembled in Philippines using components sourced from China.\n\nThe table and two pieces of webs are produced in China. \n\nFinal assembly in Philippines: welding the table and webs together; painting the completed assembly.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Pre-formed steel table and web components"
+        ],
+        "decisive_step": "Manufacturing and forming of the dedicated steel table and webs in China",
+        "confidence": 0.9,
+        "reasoning": "The steel table and two webs are pre-formed in China to the specific shape, dimensions, and dedicated use of the brake shoe. The operations in the Philippines, which consist solely of welding the three pre-formed pieces together, heat treating, and painting, constitute simple assembly and finishing. These operations do not result in a substantial transformation of the Chinese components into a new and different article of commerce. Thus, the country of origin remains China.",
+        "cited_rulings": [],
+        "precedents": [
+          "N334204",
+          "N335049",
+          "N339944",
+          "N343372",
+          "N346445"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2470,
+          "output_tokens": 183,
+          "latency_ms": 9035
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N352073); engine predicts China",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 14460,
+    "output_tokens": 771,
+    "engine_input_tokens": 5102,
+    "engine_output_tokens": 426,
+    "verifier_input_tokens": 9358,
+    "verifier_output_tokens": 345,
+    "wall_seconds": 21.726329416
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.03663,
+  "cost_usd_list": 0.07326,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:16:27+08:00"
+}

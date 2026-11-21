@@ -1,0 +1,522 @@
+{
+  "case_id": "fam-n335263",
+  "target": "Hong Kong",
+  "family": "led_lights",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a LED grow lights. LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires. The LED grow lights is assembled in China using components sourced from Hong Kong, Germany and China.\n\nThe LED module (Printed Circuit Board Assembly with LEDs and electronic components) are produced in Hong Kong. The Connector are sourced from Germany. The Lens, Power supply, Heatsink, Light box covers, Screws, Cable and Wires are produced in China. \n\nFinal assembly in China: Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights.\n",
+    "prediction": {
+      "origin_country": "Hong Kong",
+      "key_factors": [
+        "LED module (PCBA with mounted LEDs)"
+      ],
+      "decisive_step": "Production of the LED module (PCBA with LEDs and electronic components) in Hong Kong",
+      "confidence": 0.9,
+      "reasoning": "For LED lighting fixtures, CBP consistently holds that the LED module (PCBA populated with LEDs) imparts the essential character because it generates the light and defines the article's function. Consistent with N330296, where PCBA manufacturing via SMT conferred origin despite final assembly with lenses and housings in China, the production of the LED PCBA in Hong Kong is the decisive substantial transformation. The final assembly in China with the power supply, heatsink, lens, and housing does not change its character.",
+      "cited_rulings": [
+        "N330296"
+      ],
+      "precedents": [
+        "H304677",
+        "N330296",
+        "N331901",
+        "N331903",
+        "N333268"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2547,
+        "output_tokens": 223,
+        "latency_ms": 6538
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N335263"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a LED grow lights. LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires. The LED grow lights is assembled in China using components sourced from Hong Kong, Germany and China.\n\nThe LED module (Printed Circuit Board Assembly with LEDs and electronic components) are produced in Hong Kong. The Connector are sourced from Germany. The Lens, Power supply, Heatsink, Light box covers, Screws, Cable and Wires are produced in China. \n\nFinal assembly in China: Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights.\n",
+      "prediction": {
+        "origin_country": "Hong Kong",
+        "key_factors": [
+          "LED module (PCBA with mounted LEDs)"
+        ],
+        "decisive_step": "Production of the LED module (PCBA with LEDs and electronic components) in Hong Kong",
+        "confidence": 0.9,
+        "reasoning": "For LED lighting fixtures, CBP consistently holds that the LED module (PCBA populated with LEDs) imparts the essential character because it generates the light and defines the article's function. Consistent with N330296, where PCBA manufacturing via SMT conferred origin despite final assembly with lenses and housings in China, the production of the LED PCBA in Hong Kong is the decisive substantial transformation. The final assembly in China with the power supply, heatsink, lens, and housing does not change its character.",
+        "cited_rulings": [
+          "N330296"
+        ],
+        "precedents": [
+          "H304677",
+          "N330296",
+          "N331901",
+          "N331903",
+          "N333268"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2547,
+          "output_tokens": 223,
+          "latency_ms": 6538
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N335263); engine predicts Hong Kong",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "base_harness_seals",
+          "to_plant": "hk"
+        }
+      ],
+      "description": "Make Base, harness and seals in Hong Kong",
+      "variant_facts": "The merchandise under consideration is a LED grow lights. LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires. The LED grow lights is assembled in China using components sourced from Hong Kong and China.\n\nThe LED module (Printed Circuit Board Assembly with LEDs and electronic components), Connector, Power supply, Heatsink, Light box covers, Screws, Cable and Wires are produced in Hong Kong. The Lens are produced in China. \n\nIn Hong Kong, the Connector, Power supply, Heatsink, Light box covers, Screws, Cable and Wires will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights.\n",
+      "prediction": {
+        "origin_country": "Hong Kong",
+        "key_factors": [
+          "LED module (PCBA with LEDs) and power supply"
+        ],
+        "decisive_step": "Manufacturing of the LED PCBA module, power supply, heatsink, and housing in Hong Kong",
+        "confidence": 0.92,
+        "reasoning": "In lighting fixtures, CBP consistently holds that the LED PCBA and power supply impart the essential character of the finished light, and the SMT assembly creating the PCBA (analogous to N331903) effects a substantial transformation. Here, the LED PCBA, power supply, heatsink, covers, and wiring are all produced in Hong Kong. Only the lens is made in China, where final assembly occurs. Mere assembly of pre-manufactured critical components in China does not substantially transform the Hong Kong components.",
+        "cited_rulings": [
+          "N331903"
+        ],
+        "precedents": [
+          "H304677",
+          "N331901",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2539,
+          "output_tokens": 212,
+          "latency_ms": 6658
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N332358",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, CBP ruled origin was China because although the LED PCBA was made in Hong Kong, the remaining major functional and structural components (power supply, heatsink, lens, light box covers, cables) as well as final assembly occurred in China. In Variant B, production of the power supply, heatsink, light box covers, connectors, and hardware moves to Hong Kong, leaving only the lens and simple final assembly in China. Under CBP's totality-of-the-evidence and substantial transformation analysis (see N332358), when both the PCBA and virtually all other major components originate in Hong Kong, simple final assembly in China does not confer origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED light luminaire PCBA essential character origin",
+            "rulings": [
+              "N334757",
+              "N335170",
+              "H327732",
+              "N335300",
+              "N334072",
+              "N332358",
+              "N331903",
+              "N335017"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light fixture PCBA power supply heatsink assembly origin",
+            "rulings": [
+              "N334757",
+              "H322161",
+              "N331903",
+              "N332332",
+              "H304677",
+              "N331243",
+              "N331908",
+              "N331906"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED grow light PCBA power supply heatsink lens assembly origin",
+            "rulings": [
+              "N334757",
+              "N330296",
+              "N331903",
+              "N332332",
+              "H304677",
+              "N331243",
+              "N331908",
+              "N331906"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED lamp PCBA Hong Kong China assembly origin",
+            "rulings": [
+              "N334757",
+              "N332358",
+              "N334072",
+              "N331903",
+              "N335017",
+              "N334327",
+              "N332276",
+              "N330296"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "lighting fixture lamp luminaire country of origin",
+            "rulings": [
+              "H322161",
+              "N334327",
+              "N334072",
+              "N332358",
+              "N333594",
+              "N330321",
+              "N331014",
+              "N334669"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332358",
+            "rulings": [
+              "N332358"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8342,
+          "output_tokens": 371,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "lens",
+          "to_plant": "hk"
+        },
+        {
+          "group": "base_harness_seals",
+          "to_plant": "hk"
+        }
+      ],
+      "description": "Make Lens moulding and Base, harness and seals in Hong Kong",
+      "variant_facts": "The merchandise under consideration is a LED grow lights. LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires. The LED grow lights is assembled in China using components sourced from Hong Kong.\n\nThe LED module (Printed Circuit Board Assembly with LEDs and electronic components), Connector, Lens, Power supply, Heatsink, Light box covers, Screws, Cable and Wires are produced in Hong Kong. \n\nIn Hong Kong, the Lens will be produced in-house: injection-mould the lens from resin (assumed from the product-family template; no operations were supplied for this group).\n\nIn Hong Kong, the Connector, Power supply, Heatsink, Light box covers, Screws, Cable and Wires will be produced in-house: make the plastic lamp base, wiring harness, PVC sealing and O-ring (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights.\n",
+      "prediction": {
+        "origin_country": "Hong Kong",
+        "key_factors": [
+          "LED module (PCBA with LEDs) and major subassemblies"
+        ],
+        "decisive_step": "Manufacturing of the LED PCBA, power supply, lens, and housing components in Hong Kong",
+        "confidence": 0.95,
+        "reasoning": "The LED module (PCBA with LEDs) imparts the essential character of the LED grow light by providing its primary lighting function. Here, the LED PCBA and all other components (power supply, lens, heatsink, covers, hardware) are produced in Hong Kong. The final assembly in China consists of simple mechanical and electrical integration of pre-manufactured components, which does not constitute a substantial transformation into a new and different article of commerce. Therefore, the country of origin is Hong Kong.",
+        "cited_rulings": [],
+        "precedents": [
+          "H304677",
+          "N331901",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2571,
+          "output_tokens": 233,
+          "latency_ms": 8271
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N332332",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, although the LED module (PCBA) is from Hong Kong, the remaining components (power supply, lens, heatsink, covers, cables, and hardware) are produced in China, where final assembly also occurs, giving China origin. In Variant B, production of ALL components—the LED PCBA module, power supply, lens, heatsink, covers, connectors, and hardware—is moved to Hong Kong, leaving only simple final assembly of pre-finished Hong Kong components in China. As held in N332332, simple final assembly of finished PCBAs, power supplies, and housings does not effect a substantial transformation, shifting origin to Hong Kong.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED lamp PCBA origin substantial transformation assembly",
+            "rulings": [
+              "H304677",
+              "N334757",
+              "N334072",
+              "N331903",
+              "N332358",
+              "H322967",
+              "N335017",
+              "N334327"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED light fixture PCBA lens heatsink power supply origin",
+            "rulings": [
+              "N334757",
+              "N330296",
+              "H322161",
+              "N331903",
+              "N331243",
+              "N332332",
+              "H304677",
+              "N331908"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED grow light PCBA power supply heatsink lens assembly China",
+            "rulings": [
+              "N334757",
+              "N330296",
+              "N331903",
+              "N332332",
+              "H304677",
+              "N331243",
+              "N331908",
+              "N331906"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"country of origin\" \"LED\" light fixture lamp luminaire",
+            "rulings": [
+              "N334757",
+              "H322161",
+              "H329175",
+              "N333392",
+              "N332276",
+              "N335017",
+              "N334072",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332358",
+            "rulings": [
+              "N332358"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332332",
+            "rulings": [
+              "N332332"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8775,
+          "output_tokens": 383,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "lens",
+          "to_plant": "hk"
+        }
+      ],
+      "description": "Make Lens moulding in Hong Kong",
+      "variant_facts": "The merchandise under consideration is a LED grow lights. LED grow lights designed for high-intensity indoor horticulture and high-efficiency greenhouse applications. Each unit consists of an LED module (PCBA with LEDs), a power supply, lens, heatsink, light box covers, and hardware including screws, cable, connector, and wires. The LED grow lights is assembled in China using components sourced from Hong Kong, Germany and China.\n\nThe LED module (Printed Circuit Board Assembly with LEDs and electronic components) and Lens are produced in Hong Kong. The Connector are sourced from Germany. The Power supply, Heatsink, Light box covers, Screws, Cable and Wires are produced in China. \n\nIn Hong Kong, the Lens will be produced in-house: injection-mould the lens from resin (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Assemble the finished PCBAs (with LEDs attached) with the power supply, lens, heatsink, light box covers, connector, and hardware to produce the LED grow lights.\n",
+      "prediction": {
+        "origin_country": "Hong Kong",
+        "key_factors": [
+          "LED module (PCBA with LEDs)"
+        ],
+        "decisive_step": "Manufacturing of the LED PCBA and lens in Hong Kong",
+        "confidence": 0.9,
+        "reasoning": "For LED lighting fixtures, CBP consistently holds that the LED printed circuit board assembly (PCBA) imparts the essential character of the luminaire as it generates the light (see principle in N331903 regarding PCBA conferring origin). Here, the LED PCBA and the optical lens are produced in Hong Kong. The final assembly in China—combining the Hong Kong LED PCBA and lens with the Chinese power supply, heatsink, and housing—constitutes mere assembly and does not substantially transform the Hong Kong PCBA.",
+        "cited_rulings": [
+          "N331903"
+        ],
+        "precedents": [
+          "N331901",
+          "N331902",
+          "N331903",
+          "N331906",
+          "N331908"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2467,
+          "output_tokens": 219,
+          "latency_ms": 9892
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "confidence": 0.75,
+        "reasoning": "In Variant A, CBP held the origin is China (N335263) even though the LED module (PCBA with LEDs) is produced in Hong Kong, because final assembly and production of the power supply, lens, heatsink, light box covers, and hardware occur in China. In Variant B, only the injection-molded plastic lens moves from China to Hong Kong, while the power supply, heatsink, covers, hardware, and final assembly remain in China. No CBP ruling treats shifting a passive lens component as decisive to alter origin when the PCBA was already insufficient to confer origin and major components/assembly remain in China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "LED light fixture PCBA module assembled in China Hong Kong origin",
+            "rulings": [
+              "N334757",
+              "N335064",
+              "H322161",
+              "N334072",
+              "N333268",
+              "N331903",
+              "N331943",
+              "N332358"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED grow light PCBA module lens heatsink power supply origin",
+            "rulings": [
+              "N334757",
+              "N335064",
+              "H304677",
+              "N330296",
+              "N333268",
+              "N331903",
+              "N331243",
+              "N332332"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "grow light horticulture LED country of origin",
+            "rulings": [
+              "N334757",
+              "H329175",
+              "N333392",
+              "N332276",
+              "N335017",
+              "N334072",
+              "N331903",
+              "N332358"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "LED luminaire lamp light fixture country of origin PCBA lens",
+            "rulings": [
+              "N334757",
+              "N330296",
+              "H322161",
+              "N334072",
+              "N332358",
+              "N331903",
+              "N335017",
+              "N334327"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "country of origin LED light lamp fixture luminaire",
+            "rulings": [
+              "N334757",
+              "H322161",
+              "H329175",
+              "N333392",
+              "N332276",
+              "N335017",
+              "N334072",
+              "N331903"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N332358",
+            "rulings": [
+              "N332358"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10415,
+          "output_tokens": 364,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 10,
+    "verifier_tool_calls": 18,
+    "input_tokens": 37656,
+    "output_tokens": 2005,
+    "engine_input_tokens": 10124,
+    "engine_output_tokens": 887,
+    "verifier_input_tokens": 27532,
+    "verifier_output_tokens": 1118,
+    "wall_seconds": 32.695251375
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "led_lights": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.095362,
+  "cost_usd_list": 0.190724,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:13:30+08:00"
+}

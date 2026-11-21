@@ -1,0 +1,240 @@
+{
+  "case_id": "fam-n354175",
+  "target": "China",
+  "family": "display_camera_modules",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0. An automotive display that utilizes microscopic LEDs on a thin-film transistor (TFT) glass substrate panel to project the car logo, charging status, and driving modes. The Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0 is assembled in China using components sourced from Taiwan.\n\nThe Glass substrate, Array glass substrate panel (TFT panel), Template glass, Microscopic LEDs (uLEDs) and Protective molding film are produced in Taiwan. \n\nFinal assembly in China: laminate the cover glass to the semi-panel and degas; assemble the uLED panel with the bezel, PCB and bracket; test and pack.\n",
+    "prediction": {
+      "origin_country": "Taiwan",
+      "key_factors": [
+        "uLED TFT glass substrate panel (semi-panel)"
+      ],
+      "decisive_step": "Production of the TFT array glass substrate panel and microscopic LEDs in Taiwan",
+      "confidence": 0.96,
+      "reasoning": "Consistent with CBP precedent on flat-panel display modules (e.g., N343835, N345991), the display cell/panel imparts the essential character of the module. Here, the critical display components—the TFT array glass substrate panel and microscopic LEDs—are produced in Taiwan, establishing the article's identity and core display functionality. The subsequent operations in China (laminating cover glass, degassing, and assembling with the bezel, PCB, and bracket) constitute simple assembly and finishing that do not result in a substantial transformation.",
+      "cited_rulings": [
+        "N343835",
+        "N345991"
+      ],
+      "precedents": [
+        "N335871",
+        "N335873",
+        "N337202",
+        "N343835",
+        "N345991"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2688,
+        "output_tokens": 218,
+        "latency_ms": 6015
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Taiwan",
+    "ruling": "N354175"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "display_cell_fab",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Display cell fabrication in China",
+      "variant_facts": "The merchandise under consideration is a Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0. An automotive display that utilizes microscopic LEDs on a thin-film transistor (TFT) glass substrate panel to project the car logo, charging status, and driving modes. The Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0 is assembled in China using components sourced from China.\n\nThe Glass substrate, Array glass substrate panel (TFT panel), Template glass, Microscopic LEDs (uLEDs) and Protective molding film are produced in China. \n\nIn China, the Glass substrate, Array glass substrate panel (TFT panel), Template glass, Microscopic LEDs (uLEDs) and Protective molding film will be produced in-house: Step 1A: Unpack and clean glass substrates and perform physical vapor deposition (PVD) and chemical vapor deposition (CVD) of metal and chemical films; Step 1A: Perform photolithography, dry/wet etching, photoresist stripping, array testing, and packing of glass substrates; Step 1B: Unpack and clean glass substrates, perform CVD and PVD thin film deposition, and repeat photolithography, etching, and stripping five times to create TFT array; Step 1B: Perform array testing, Automated Optical Inspection (AOI), robot transfer, and cutting and grinding of combined substrate into desired dimensions; Step 1C: Perform Electroless Nickel Immersion Gold (ENIG) metal plating process including cleaning, micro etching, acid rinse, nickel plating, and gold plating to output array glass substrate panel; Step 1D: Delaminate protective film, clean with FLUX cleaner, test array, and fix LEDs on template glass; Step 1D: Plasma etch template glass, FLUX coat TFT panel, apply sealant, and bond uLED cells to TFT panel in a vacuum environment before removing template glass; Step 1D: Illuminate uLEDs for optical inspection and repair, and apply, cure, bake, and etch protective and molding films.\n\nFinal assembly in China: laminate the cover glass to the semi-panel and degas; assemble the uLED panel with the bezel, PCB and bracket; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "uLED TFT array glass substrate panel"
+        ],
+        "decisive_step": "Fabrication of the TFT array on glass substrate, bonding of uLEDs, and final assembly in China",
+        "confidence": 1,
+        "reasoning": "All critical components—including the glass substrate, TFT array panel, and microscopic LEDs—are manufactured in China, and both front-end fabrication (PVD/CVD deposition, photolithography, etching, uLED bonding) and final module assembly occur entirely in China. Consistent with N343835 and N335871, the country where the active display cell/TFT array is fabricated imparts the essential character and confers origin. Because the entire production and assembly process takes place in China, the country of origin is unambiguously China.",
+        "cited_rulings": [
+          "N343835",
+          "N335871"
+        ],
+        "precedents": [
+          "H338127",
+          "N335871",
+          "N335873",
+          "N337202",
+          "N343835"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2960,
+          "output_tokens": 244,
+          "latency_ms": 6316
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N345991",
+        "confidence": 0.97,
+        "reasoning": "In rulings on automotive and flat-panel display modules (e.g., N345991, N345328), CBP consistently holds that the country of origin is where the TFT array glass substrate and display cell/panel are fabricated (via CVD/PVD deposition, photolithography, and bonding), as the panel is the dominant component with a predetermined end-use that is not substantially transformed by subsequent module assembly. In Variant A, the TFT panel and uLEDs are produced in Taiwan, making Taiwan the origin. In Variant B, production of the TFT array glass substrate, uLED panel fabrication, and final assembly all occur in China, shifting origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "automotive display TFT panel glass substrate assembly Taiwan China",
+            "rulings": [
+              "N335871",
+              "N335873",
+              "N345991",
+              "N343377",
+              "N343835",
+              "N345963",
+              "N337202",
+              "N345328"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "display module LCD LED panel origin Taiwan China assembly bezel PCB",
+            "rulings": [
+              "H332752",
+              "N348702",
+              "N335871",
+              "N335873",
+              "N343377",
+              "N345991",
+              "N345963",
+              "N353432"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "TFT glass substrate display panel origin substantial transformation",
+            "rulings": [
+              "N335871",
+              "N335873",
+              "N343377",
+              "N345991",
+              "N343835",
+              "N345963",
+              "N337202",
+              "N345328"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348702",
+            "rulings": [
+              "N348702"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345991",
+            "rulings": [
+              "N345991"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345328",
+            "rulings": [
+              "N345328"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10221,
+          "output_tokens": 650,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0. An automotive display that utilizes microscopic LEDs on a thin-film transistor (TFT) glass substrate panel to project the car logo, charging status, and driving modes. The Ultra Light Emitting Diode Automotive Display (uLED Display Set), model # CN30UYX02.0 is assembled in China using components sourced from Taiwan.\n\nThe Glass substrate, Array glass substrate panel (TFT panel), Template glass, Microscopic LEDs (uLEDs) and Protective molding film are produced in Taiwan. \n\nFinal assembly in China: laminate the cover glass to the semi-panel and degas; assemble the uLED panel with the bezel, PCB and bracket; test and pack.\n",
+      "prediction": {
+        "origin_country": "Taiwan",
+        "key_factors": [
+          "uLED TFT glass substrate panel (semi-panel)"
+        ],
+        "decisive_step": "Production of the TFT array glass substrate panel and microscopic LEDs in Taiwan",
+        "confidence": 0.96,
+        "reasoning": "Consistent with CBP precedent on flat-panel display modules (e.g., N343835, N345991), the display cell/panel imparts the essential character of the module. Here, the critical display components—the TFT array glass substrate panel and microscopic LEDs—are produced in Taiwan, establishing the article's identity and core display functionality. The subsequent operations in China (laminating cover glass, degassing, and assembling with the bezel, PCB, and bracket) constitute simple assembly and finishing that do not result in a substantial transformation.",
+        "cited_rulings": [
+          "N343835",
+          "N345991"
+        ],
+        "precedents": [
+          "N335871",
+          "N335873",
+          "N337202",
+          "N343835",
+          "N345991"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2688,
+          "output_tokens": 218,
+          "latency_ms": 6015
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Taiwan (N354175); engine predicts Taiwan",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 15869,
+    "output_tokens": 1112,
+    "engine_input_tokens": 5648,
+    "engine_output_tokens": 462,
+    "verifier_input_tokens": 10221,
+    "verifier_output_tokens": 650,
+    "wall_seconds": 23.922967583
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "display_camera_modules": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.042858,
+  "cost_usd_list": 0.085716,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:17:42+08:00"
+}

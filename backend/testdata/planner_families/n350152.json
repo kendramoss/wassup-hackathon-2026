@@ -1,0 +1,151 @@
+{
+  "_source": "Built from the facts of CBP ruling N350152 (2025-07-10, dev split; picked: no second China-held ruling; earliest dev other): CBP held Japan. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350152",
+  "date": "2025-07-10",
+  "family": "medical_devices",
+  "target": "China",
+  "product": {
+    "name": "Spinal needle (SN22G351, 22G x 3.5”)",
+    "description": "A spinal needle used to inject local anesthetics into a patient to provide regional anesthesia. It consists of a stainless-steel shaft with a bevel (cannula), a stainless-steel stylet, a plastic cannula hub, a plastic stylet hub, and a needle protector.",
+    "plants": [
+      {
+        "id": "jp",
+        "name": "Japan Plant",
+        "country": "Japan",
+        "capabilities": [
+          "metal_cannula_forging",
+          "hubs_clamps_housings"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "metal_cannula_forging",
+          "hubs_clamps_housings",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Stainless-steel cannula",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Stainless-steel stylet",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Adhesive glue",
+        "made_in": "Japan",
+        "plant": "jp",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Plastic cannula hub",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Plastic stylet hub",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Needle protector",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Plastic bags",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Cardboard cartons",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Cut stainless-steel hollow tubes to length and sharpen to form the cannula",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Etch cannulas with depth markings",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Apply silicone coating to the cannula surface",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Sand-blast the blunt end of the cannula",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Manufacture stylet from solid stainless-steel wire",
+        "plant": "jp",
+        "group": "metal_cannula_forging"
+      },
+      {
+        "name": "Mold needle protector",
+        "plant": "cn",
+        "group": "hubs_clamps_housings"
+      },
+      {
+        "name": "Affix plastic hubs to the cannula and stylet using adhesive glue",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Assemble needle protector onto the cannula",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Package completed needles in units of 100 into plastic bags and cardboard cartons",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Japan": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "metal_cannula_forging": {
+        "jp": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350152"
+  ],
+  "current_origin": {
+    "country": "Japan",
+    "ruling": "N350152"
+  }
+}

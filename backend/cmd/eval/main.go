@@ -49,6 +49,9 @@
 //	    of eval/splits/slice30.json (needs EVAL_SLICE=on) or take an existing
 //	    result file, and fail when it falls below
 //	    eval/results/slice30-baseline.json by more than the tolerance.
+//	eval flipsfamily [-flips ../eval/data/flips_post.jsonl]
+//	    The product's family check on the starting setup of every post-cutoff
+//	    flip pair (D170); decides which pairs the plan search can try.
 //	eval familycov -split dev|final -set legacy|all [-confirm-final]
 //	    Product-scope coverage (D138): run the family checker on a split's
 //	    rulings with the legacy three templates or all of them, and report
@@ -140,6 +143,8 @@ func main() {
 		err = calibrateCmd(os.Args[2:])
 	case "slice":
 		err = sliceCmd(os.Args[2:])
+	case "flipsfamily":
+		err = flipsFamilyCmd(os.Args[2:])
 	case "familycov":
 		err = familyCovCmd(os.Args[2:])
 	case "baselines":
@@ -1054,11 +1059,14 @@ func predictCmd(args []string) error {
 
 type flipItem struct {
 	ID            string   `json:"id"`
+	Type          string   `json:"type"`
+	Tier          string   `json:"tier"`
 	Rulings       []string `json:"rulings"`
 	Date          string   `json:"date"`
 	Difference    string   `json:"difference"`
 	OriginChanged bool     `json:"origin_changed"`
 	VariantA      struct {
+		Ruling string `json:"ruling"`
 		Facts  string `json:"facts"`
 		Origin string `json:"origin"`
 	} `json:"variant_a"`
@@ -1081,7 +1089,17 @@ func flipsCmd(args []string) error {
 	prompt := fl.String("verifier", "", "verifier prompt: v1, v2 (D74) or v3 (D75); default VERIFIER_PROMPT, as production")
 	tag := fl.String("tag", "", "suffix for the result file, e.g. run2, to score the same prompt twice")
 	final := fl.Bool("confirm-final", false, "score the 2026 flip pairs (held out) instead of the earlier ones; run once with the frozen verifier")
+	post := fl.Bool("post", false, "score the post-cutoff pairs (eval/data/flips_post.jsonl, D170) once with the production verifier")
+	datesPath := fl.String("dates", "../eval/data/labels_final2.jsonl", "with -post: labels of the post-cutoff rulings, for their dates only (the precedent corpus stays -labels)")
 	_ = fl.Parse(args)
+	if *post {
+		if *final {
+			return errors.New("flips: -post and -confirm-final are different sets")
+		}
+		if *flipsPath == "../eval/data/flips.jsonl" {
+			*flipsPath = "../eval/data/flips_post.jsonl"
+		}
+	}
 	cfg, err := loadConfig()
 	if err != nil {
 		return err
@@ -1099,6 +1117,15 @@ func flipsCmd(args []string) error {
 	dates := map[string]string{}
 	for _, l := range labels {
 		dates[l.Ruling] = l.Date
+	}
+	if *post {
+		later, err := corpus.LoadLabels(*datesPath)
+		if err != nil {
+			return err
+		}
+		for _, l := range later {
+			dates[l.Ruling] = l.Date
+		}
 	}
 	if *prompt == "" {
 		*prompt = cfg.VerifierPrompt
@@ -1128,7 +1155,7 @@ func flipsCmd(args []string) error {
 		if it.ID == "BA-N328954-N357771" {
 			continue
 		}
-		if (it.Date < "2026-01-01") != *final {
+		if *post || (it.Date < "2026-01-01") != *final {
 			items = append(items, it)
 		}
 	}
@@ -1144,6 +1171,9 @@ func flipsCmd(args []string) error {
 	if *final {
 		split = "final"
 	}
+	if *post {
+		split = "post"
+	}
 	name := "verifier"
 	if *prompt != "v1" {
 		name = "verifier-" + *prompt
@@ -1153,6 +1183,9 @@ func flipsCmd(args []string) error {
 		name += "-" + *tag
 	}
 	outPath := filepath.Join(*resultsDir, fmt.Sprintf("flips-%s-%s-%s-%s.jsonl", split, name, mode, cfg.LLMProvider))
+	if _, err := os.Stat(outPath); err == nil && *post {
+		return fmt.Errorf("%s exists; the post-cutoff pairs are scored once (D170)", outPath)
+	}
 	out, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -1161,6 +1194,9 @@ func flipsCmd(args []string) error {
 
 	type row struct {
 		ID                 string   `json:"id"`
+		Type               string   `json:"type,omitempty"`
+		Tier               string   `json:"tier,omitempty"`
+		Before             string   `json:"precedents_before,omitempty"`
 		OriginChanged      bool     `json:"origin_changed"`
 		ChangesOrigin      bool     `json:"pred_changes_origin"`
 		PrecedentSupported bool     `json:"precedent_supported"`
@@ -1199,7 +1235,10 @@ func flipsCmd(args []string) error {
 				task.KnownOriginA = it.VariantA.Origin
 			}
 			res, err := ver.Verify(ctx, task)
-			rw := row{ID: it.ID, OriginChanged: it.OriginChanged, Mode: mode, ModelID: cfg.VerifierModel, Provider: cfg.LLMProvider}
+			rw := row{ID: it.ID, Type: it.Type, Tier: it.Tier, OriginChanged: it.OriginChanged, Mode: mode, ModelID: cfg.VerifierModel, Provider: cfg.LLMProvider}
+			if *post {
+				rw.Before = before
+			}
 			if err != nil {
 				rw.Error = err.Error()
 			} else {
@@ -1253,13 +1292,19 @@ func flipsCmd(args []string) error {
 		p, lo, hi := evalkit.Wilson(k, n)
 		return fmt.Sprintf("%d/%d = %.0f%% (%.0f–%.0f)", k, n, 100*p, 100*lo, 100*hi)
 	}
-	if *final {
+	if *post {
+		fmt.Printf("## %s on post-cutoff flip pairs (%s, %s) — FROZEN, scored once (D170)\n\n", name, mode, cfg.LLMProvider)
+	} else if *final {
 		fmt.Printf("## %s on held-out 2026 flip pairs (%s, %s) — HELD OUT, scored once\n\n", name, mode, cfg.LLMProvider)
 	} else {
 		fmt.Printf("## %s on development flip pairs (%s, %s) — DEVELOPMENT SET ONLY\n\n", name, mode, cfg.LLMProvider)
 	}
 	n := len(rows) - errs
-	fmt.Printf("- Items: %d (%s, heat-gun pair excluded; %d failed runs)\n", len(rows), map[bool]string{false: "pre-2026", true: "2026"}[*final], errs)
+	set := map[bool]string{false: "pre-2026", true: "2026"}[*final]
+	if *post {
+		set = "post-cutoff"
+	}
+	fmt.Printf("- Items: %d (%s, heat-gun pair excluded; %d failed runs)\n", len(rows), set, errs)
 	fmt.Printf("- Precision when it says the move changes origin: %s\n", fmtP(tp, tp+fp))
 	fmt.Printf("- Recall (real changes caught): %s\n", fmtP(tp, tp+fn))
 	fmt.Printf("- Specificity (no-change pairs correctly rejected): %s\n", fmtP(tn, tn+fp))
@@ -1517,6 +1562,13 @@ func summaryCmd(args []string) error {
 		return err
 	} else {
 		items = append(items, f2Items...)
+	}
+	if ppItems, err := plannerPostSummaryItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip post-cutoff flip pairs: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, ppItems...)
 	}
 	items = append(items,
 		item{Key: "research_final_accuracy", Label: "Research run: Gemini 4 Argon + dated precedents", Value: 0.891, CILow: 0.856, CIHigh: 0.919, N: 377, Split: "final", Source: v2},

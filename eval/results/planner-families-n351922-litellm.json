@@ -1,0 +1,1026 @@
+{
+  "case_id": "fam-n351922",
+  "target": "Thailand",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft and DC motor are produced in Thailand. The Tubing and sleeves, Motor electronic board, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan air guide cover, Fan, Coupling, Mounting feet, Compressor subassembly, Baseplate and left group plates, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Hook and right plate, Rubber-coated handle and top plate, Membrane keys and transparent panel, Digital display board assembly, Front and back covers, Large knob, Retaining ring, Filter screen and Drying filter are sourced from China. \n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The Chinese-origin compressor subassembly, condenser, control valve, and digital display board assembly."
+      ],
+      "decisive_step": "Manufacturing of the core refrigerant recovery functional components (compressor subassembly, condenser, control valve, and electronics) in China.",
+      "confidence": 0.85,
+      "reasoning": "Although the DC motor is produced in Thailand, a refrigerant recovery unit's essential function—suctioning, compressing, cooling, and condensing refrigerant—is imparted by the compressor subassembly, condenser, and control valve, all sourced from China. Similar to N351901 and N347899, screwing pre-manufactured Chinese subassemblies (compressor, condenser, boards, covers) together in Thailand with wiring and soldering constitutes simple assembly that does not substantially transform the Chinese components into a new article of commerce.",
+      "cited_rulings": [
+        "N351901",
+        "N347899"
+      ],
+      "precedents": [
+        "H354721",
+        "N344002",
+        "N347899",
+        "N350225",
+        "N351901"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2839,
+        "output_tokens": 239,
+        "latency_ms": 7694
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N351922"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing moulding and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Fan air guide cover, Mounting feet, Compressor subassembly, Baseplate and left group plates, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Hook and right plate, Rubber-coated handle and top plate, Membrane keys and transparent panel, Front and back covers, Large knob, Retaining ring, Filter screen and Drying filter are produced in Thailand. The Tubing and sleeves, Motor electronic board, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan, Coupling and Digital display board assembly are sourced from China. \n\nIn Thailand, the Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, compressor subassembly, condenser, and control valve"
+        ],
+        "decisive_step": "Manufacturing of the core functional subassemblies (motor, compressor, condenser, valve) and final assembly in Thailand",
+        "confidence": 0.96,
+        "reasoning": "The core components that impart the essential character of the refrigerant recovery unit—specifically the DC motor (including stator core, rotor shaft, and copper wire), compressor subassembly, condenser, and control valve—are manufactured in Thailand. Unlike N347899 and N351901, where critical functional components (motors, compressors) were sourced from China and merely assembled in a third country, here Thailand produces the primary subassemblies and performs the final integration, substantially transforming the Chinese components into a new article of commerce.",
+        "cited_rulings": [
+          "N347899",
+          "N351901"
+        ],
+        "precedents": [
+          "H354721",
+          "N343389",
+          "N344002",
+          "N347899",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2930,
+          "output_tokens": 233,
+          "latency_ms": 6478
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "confidence": 0.92,
+        "reasoning": "In Variant A, CBP held origin is China (N351922) despite the DC motor (stator/rotor) and final assembly being in Thailand, because the key refrigerant recovery/cooling components (compressor subassembly, condenser, control valve, filters) and housing were sourced from China. In N348913 (citing H320036/H320039/H319823), CBP held that when final assembly is simple, the origin of refrigeration/heat-pump equipment is governed by the primary cooling/refrigerant components (compressor, condenser). In Variant B, production of the compressor subassembly, condenser, control valve, filters, and housing moves to Thailand, placing the DC motor, all core refrigerant-handling components, and final assembly in Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "dehumidifier OR air conditioner compressor condenser motor origin",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N350773",
+              "N351860",
+              "H326072",
+              "N344002",
+              "N346185",
+              "N347306"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor condenser motor assembly Thailand China origin",
+            "rulings": [
+              "N351901",
+              "N348913",
+              "N351860",
+              "N350773",
+              "H326072",
+              "N344002",
+              "N347899",
+              "N346297"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "DC motor stator rotor compressor assembly China Thailand",
+            "rulings": [
+              "N344002",
+              "H326072",
+              "H354721",
+              "N348913",
+              "N344081",
+              "N333849",
+              "N349662",
+              "N346961"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10520,
+          "output_tokens": 426,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT), Housing moulding and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Motor electronic board, Fan air guide cover, Mounting feet, Compressor subassembly, Baseplate and left group plates, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Hook and right plate, Rubber-coated handle and top plate, Membrane keys and transparent panel, Digital display board assembly, Front and back covers, Large knob, Retaining ring, Filter screen and Drying filter are produced in Thailand. The Tubing and sleeves, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan and Coupling are sourced from China. \n\nIn Thailand, the Motor electronic board and Digital display board assembly will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, compressor subassembly, condenser, and PCBAs"
+        ],
+        "decisive_step": "Manufacturing of key subassemblies (motor, compressor, condenser, PCBAs via SMT) and final complex assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "The essential character of the refrigerant recovery unit is imparted by its core functional components—the DC motor, compressor subassembly, condenser, control valve, and electronic boards—all of which are produced in Thailand (including SMT for PCBAs). Furthermore, complex final integration and assembly of all Thai and minor Chinese components occur in Thailand. Unlike N347899 where all key components were Chinese, here both component manufacturing and final assembly in Thailand result in a substantial transformation.",
+        "cited_rulings": [
+          "N347899"
+        ],
+        "precedents": [
+          "H354721",
+          "N343389",
+          "N344002",
+          "N347899",
+          "N350225"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2977,
+          "output_tokens": 229,
+          "latency_ms": 7194
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "counter_ruling": "N351901",
+        "confidence": 0.92,
+        "reasoning": "In Variant A, only the DC motor (stator, rotor, copper wire) is made in Thailand while the compressor subassembly, condenser, control valve, PCBAs, and structural covers come from China; because final assembly is simple, origin is China where the primary refrigerant-handling components (compressor and condenser) originate (consistent with N348913 and N351901). In Variant B, production of the compressor subassembly, condenser, control valve, PCBAs, and housings moves to Thailand, leaving only minor motor parts, fan, and coupling from China. With the motor, compressor, condenser, PCBAs, and assembly all in Thailand, origin shifts to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "vacuum pump compressor motor stator rotor Thailand China origin",
+            "rulings": [
+              "N344081",
+              "N344002",
+              "H326072",
+              "N348913",
+              "N351860",
+              "N349662",
+              "N351901",
+              "H354721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor subassembly condenser motor assembly Thailand China origin",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "N350773",
+              "H326072",
+              "N347899",
+              "N347272",
+              "N347271"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17578,
+          "output_tokens": 477,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 75000,
+      "net_per_year": 225000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft and DC motor are produced in Thailand. The Tubing and sleeves, Motor electronic board, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan air guide cover, Fan, Coupling, Mounting feet, Compressor subassembly, Baseplate and left group plates, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Hook and right plate, Rubber-coated handle and top plate, Membrane keys and transparent panel, Digital display board assembly, Front and back covers, Large knob, Retaining ring, Filter screen and Drying filter are sourced from China. \n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The Chinese-origin compressor subassembly, condenser, control valve, and digital display board assembly."
+        ],
+        "decisive_step": "Manufacturing of the core refrigerant recovery functional components (compressor subassembly, condenser, control valve, and electronics) in China.",
+        "confidence": 0.85,
+        "reasoning": "Although the DC motor is produced in Thailand, a refrigerant recovery unit's essential function—suctioning, compressing, cooling, and condensing refrigerant—is imparted by the compressor subassembly, condenser, and control valve, all sourced from China. Similar to N351901 and N347899, screwing pre-manufactured Chinese subassemblies (compressor, condenser, boards, covers) together in Thailand with wiring and soldering constitutes simple assembly that does not substantially transform the Chinese components into a new article of commerce.",
+        "cited_rulings": [
+          "N351901",
+          "N347899"
+        ],
+        "precedents": [
+          "H354721",
+          "N344002",
+          "N347899",
+          "N350225",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2839,
+          "output_tokens": 239,
+          "latency_ms": 7694
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N351922); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter are produced in Thailand. The Tubing and sleeves, Motor electronic board, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan air guide cover, Fan, Coupling, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate, Digital display board assembly and Front and back covers are sourced from China. \n\nIn Thailand, the Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, compressor subassembly, and condenser"
+        ],
+        "decisive_step": "Manufacturing of the core functional subassemblies (DC motor, compressor, condenser, control valve) and final assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "The refrigerant recovery unit's essential character is imparted by its core functional components—the DC motor (built from Thai stator core, rotor shaft, and copper wire), compressor subassembly, condenser, and control valve—all of which are produced in Thailand. Unlike N347899 or N351901 where the motor or compressor originated in China, here the critical functional subassemblies are manufactured in Thailand and integrated with Chinese structural/auxiliary parts during final assembly in Thailand, resulting in a substantial transformation in Thailand.",
+        "cited_rulings": [
+          "N347899",
+          "N351901"
+        ],
+        "precedents": [
+          "H354721",
+          "N343389",
+          "N344002",
+          "N347899",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2863,
+          "output_tokens": 232,
+          "latency_ms": 6480
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "counter_ruling": "N351901",
+        "confidence": 0.9,
+        "reasoning": "In rulings on analogous refrigerant/cooling composite units (such as N348913, citing H320036, H320039, and H319823), CBP held that simple final assembly does not substantially transform the components and instead determined origin by the majority of the core functional/cooling components (compressor, condenser, heat exchanger). In Variant A, only the DC motor was made in Thailand while the compressor, condenser, control valve, and filters came from China, yielding Chinese origin. In Variant B, production of the compressor subassembly, condenser, control valve, and filters moves to Thailand alongside the DC motor and final assembly, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "compressor subassembly condenser motor assembly Thailand China origin",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "N350773",
+              "H326072",
+              "N347899",
+              "N347272",
+              "N347271"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"refrigerant\" OR \"recovery unit\" OR \"condenser\" compressor motor origin Thailand Vietnam Mexico",
+            "rulings": [
+              "N344002",
+              "N351901",
+              "N350773",
+              "N351860",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347899",
+            "rulings": [
+              "N347899"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17066,
+          "output_tokens": 948,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "switch_cord_minor_parts",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Switch, cord and minor parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Motor electronic board, Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Digital display board assembly, Large knob, Retaining ring, Filter screen and Drying filter are produced in Thailand. The Tubing and sleeves, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan air guide cover, Fan, Coupling, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers are sourced from China. \n\nIn Thailand, the Motor electronic board and Digital display board assembly will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter will be produced in-house: make the switch, power cord, wiring, supports and fasteners (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, compressor subassembly, condenser, and electronic PCBA boards"
+        ],
+        "decisive_step": "Manufacturing of core functional subassemblies (DC motor, compressor, condenser, PCBAs via SMT) and final assembly in Thailand",
+        "confidence": 0.98,
+        "reasoning": "The core components imparting the essential character of the refrigerant recovery unit—the DC motor (including stator core and rotor shaft), compressor subassembly, condenser, control valve, and PCBAs (populated via SMT, consistent with N350225)—are all produced in Thailand. Combining these Thai-origin functional subassemblies with Chinese housing and structural parts during final assembly in Thailand substantially transforms the constituent components into a new article of commerce. Thus, the country of origin is Thailand.",
+        "cited_rulings": [
+          "N350225"
+        ],
+        "precedents": [
+          "H354721",
+          "N343389",
+          "N344002",
+          "N347899",
+          "N350225"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2910,
+          "output_tokens": 218,
+          "latency_ms": 6552
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N348913",
+        "counter_ruling": "N351901",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, although the DC motor is made in Thailand and final assembly occurs there, the compressor subassembly, condenser, control valve, filters, and both PCBAs are sourced from China, yielding Chinese origin. In N348913 (and N351901), CBP held that when final assembly of refrigeration/heat-pump equipment is simple, origin is governed by the core functional components (such as the compressor and condenser). In Variant B, production of the compressor subassembly, condenser, control valve, filters, and both PCBAs moves to Thailand (joining the Thai DC motor and final assembly), shifting the country of origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigeration air conditioning compressor motor PCBA assembly Thailand China",
+            "rulings": [
+              "N347899",
+              "N351082",
+              "N348913",
+              "H326072",
+              "N335213",
+              "N352061",
+              "N344002",
+              "N350310"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor subassembly condenser motor PCBA Thailand China origin",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "N350773",
+              "H326072",
+              "H337371",
+              "N347899",
+              "N350304"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347899",
+            "rulings": [
+              "N347899"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17804,
+          "output_tokens": 1125,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT) in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Motor electronic board and Digital display board assembly are produced in Thailand. The Tubing and sleeves, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan air guide cover, Fan, Coupling, Mounting feet, Compressor subassembly, Baseplate and left group plates, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Hook and right plate, Rubber-coated handle and top plate, Membrane keys and transparent panel, Front and back covers, Large knob, Retaining ring, Filter screen and Drying filter are sourced from China. \n\nIn Thailand, the Motor electronic board and Digital display board assembly will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, PCBAs, and compressor"
+        ],
+        "decisive_step": "Manufacturing the DC motor (including stator core and rotor shaft) and SMT production of the PCBAs, combined with final assembly in Thailand",
+        "confidence": 0.85,
+        "reasoning": "Unlike N347899 and N351901 where key functional components were sourced from China and merely assembled in the final country, here Thailand produces critical components: the DC motor (including stator core, copper wire, and rotor shaft) and both the motor electronic and digital display PCBAs via SMT (similar to N350225). Combining this substantial Thai component manufacturing with the final integration of the Chinese compressor and condenser substantially transforms the components into a refrigerant recovery unit of Thai origin.",
+        "cited_rulings": [
+          "N350225",
+          "N347899",
+          "N351901"
+        ],
+        "precedents": [
+          "H354721",
+          "N344002",
+          "N347899",
+          "N350225",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2891,
+          "output_tokens": 238,
+          "latency_ms": 7273
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N351901",
+        "confidence": 0.85,
+        "reasoning": "In Variant A (N351922), CBP held the refrigerant recovery unit's origin was China despite the DC motor (including stator core and rotor shaft) and final assembly occurring in Thailand, because the core mechanical refrigeration components—including the compressor subassembly, condenser, control valve, fan, and housing—were sourced from China (consistent with N351901 and N351860, where Chinese compressors and components determined origin despite local subassembly manufacture and final assembly). Moving only the motor electronic board and digital display board assembly to Thailand in Variant B leaves the Chinese compressor, condenser, and other primary functional components unchanged, which does not alter origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "vacuum pump compressor motor stator rotor Thailand China PCBA",
+            "rulings": [
+              "N344081",
+              "N344002",
+              "H326072",
+              "N348913",
+              "N351860",
+              "N349662",
+              "N351901",
+              "H354721"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor subassembly condenser motor electronic board Thailand China",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "N350773",
+              "N347272",
+              "N347271",
+              "N347270",
+              "H326072"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351860",
+            "rulings": [
+              "N351860"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17335,
+          "output_tokens": 998,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers are produced in Thailand. The Tubing and sleeves, Motor electronic board, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan, Coupling, Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Digital display board assembly, Large knob, Retaining ring, Filter screen and Drying filter are sourced from China. \n\nIn Thailand, the Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor (stator core, copper wire, rotor shaft) manufactured in Thailand"
+        ],
+        "decisive_step": "Manufacturing of the DC motor from core components and final assembly of the refrigerant recovery unit in Thailand",
+        "confidence": 0.85,
+        "reasoning": "Unlike N347899 and N351901 where key functional components like the motor and compressor were entirely sourced from China and merely assembled in a third country, here the DC motor—including its stator core, copper wire, and rotor shaft—and housing components are produced in Thailand. Manufacturing the driving motor (consistent with H354721 and N344002) and integrating it with the Chinese compressor, condenser, and electronics in Thailand constitutes a substantial transformation, conferring Thai origin.",
+        "cited_rulings": [
+          "H354721",
+          "N344002",
+          "N351901",
+          "N347899"
+        ],
+        "precedents": [
+          "H354721",
+          "N344002",
+          "N347899",
+          "N350225",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2906,
+          "output_tokens": 221,
+          "latency_ms": 6696
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N351901",
+        "confidence": 0.85,
+        "reasoning": "In Variant A (N351922), CBP held that the country of origin of the refrigerant recovery unit is China despite the DC motor (stator core, rotor shaft, copper wire) and final assembly occurring in Thailand, because core functional components—including the compressor subassembly, condenser, control valve, and circuit board assemblies—are sourced from China. Variant B only shifts outer housing covers, baseplates, and handle/plate components to Thailand. In analogous refrigeration/heat pump rulings (e.g., N351901, N351860), housing panels and secondary components do not outweigh the Chinese compressor and core functional subassemblies. Thus, origin remains China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "DC motor stator rotor housing covers injection mold China Thailand origin",
+            "rulings": [
+              "H354721",
+              "N344002",
+              "N344081",
+              "H326072",
+              "N347421",
+              "N333849",
+              "N346397",
+              "N349662"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor condenser motor housing covers Thailand China origin",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "H326072",
+              "N350773",
+              "N344002",
+              "N350727",
+              "N347421"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351860",
+            "rulings": [
+              "N351860"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 17344,
+          "output_tokens": 706,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Housing moulding in Thailand",
+      "variant_facts": "The merchandise under consideration is a refrigerant recovery unit. A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters. The refrigerant recovery unit is assembled in Thailand using components sourced from Thailand and China.\n\nThe Copper wire, Stator core, Rotor shaft, DC motor, Motor electronic board, Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate, Digital display board assembly and Front and back covers are produced in Thailand. The Tubing and sleeves, Magnetic ring, Terminal block assembly, Motor back cover, Magnets, Bearing, Motor front cover, Fan, Coupling, Mounting feet, Compressor subassembly, Condenser, Sensor, Gears, Control valve, Handle fixing frame, Membrane keys and transparent panel, Large knob, Retaining ring, Filter screen and Drying filter are sourced from China. \n\nIn Thailand, the Motor electronic board and Digital display board assembly will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the Fan air guide cover, Baseplate and left group plates, Hook and right plate, Rubber-coated handle and top plate and Front and back covers will be produced in-house: injection-mould the housing shells and covers (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly; Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser; Make wiring connections and install sensor, two gears, control valve, and handle fixing frame; Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate; Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws; Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob; Solder remaining wires and install retaining ring and filter screen; Test, inspect, and package unit with drying filter.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "DC motor, PCBAs, and compressor subassembly working together to suction and condense refrigerant"
+        ],
+        "decisive_step": "Manufacturing of the DC motor (stator core, rotor shaft, copper wire) and SMT assembly of PCBAs, combined with final assembly in Thailand",
+        "confidence": 0.85,
+        "reasoning": "Unlike N347899 and N351901 where the motor, compressor, and key functional components were all sourced from China and merely assembled in a third country, here Thailand produces the critical DC motor (including stator core, rotor shaft, copper wire), performs SMT to create the motor electronic board and digital display PCBA, molds the housing, and integrates them with the Chinese compressor and condenser. This substantial manufacturing and complex integration in Thailand effects a substantial transformation.",
+        "cited_rulings": [
+          "N347899",
+          "N351901"
+        ],
+        "precedents": [
+          "H354721",
+          "N344002",
+          "N347899",
+          "N350225",
+          "N351901"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2958,
+          "output_tokens": 225,
+          "latency_ms": 7048
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N348913",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, CBP held the origin is China even though the DC motor and final assembly are in Thailand, because the final assembly is simple and the key refrigerant-handling/cooling components (compressor subassembly, condenser, control valve, filters) are sourced from China. As seen in analogous rulings on refrigerant/heat-exchange equipment (N348913, N351901), when final assembly is not complex, CBP looks to the origin of the core functional cooling/compression components (compressor, condenser). In Variant B, moving the housing covers/plates and two electronic boards to Thailand leaves the compressor subassembly, condenser, valve, and filters in China, which does not alter origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "refrigerant recovery unit compressor condenser motor Thailand China",
+            "rulings": [
+              "N351901",
+              "N351860",
+              "N350773",
+              "N344002",
+              "N348913",
+              "H326072",
+              "N343389",
+              "N338219"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pump compressor motor stator rotor PCBA Thailand Vietnam China",
+            "rulings": [
+              "N344002",
+              "H326072",
+              "N344081",
+              "N348913",
+              "N349662",
+              "H354721",
+              "N346961",
+              "N351860"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "dehumidifier air conditioner compressor condenser motor Thailand Vietnam China",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "N350773",
+              "H326072",
+              "N347306",
+              "N347302",
+              "N347309"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "compressor subassembly condenser motor PCBA housing Thailand China",
+            "rulings": [
+              "N348913",
+              "N351901",
+              "N351860",
+              "H326072",
+              "H322161",
+              "N350773",
+              "N350727",
+              "H337371"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351901",
+            "rulings": [
+              "N351901"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348913",
+            "rulings": [
+              "N348913"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10630,
+          "output_tokens": 431,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 7,
+    "verifier_cached": 0,
+    "verifier_model_calls": 26,
+    "verifier_tool_calls": 42,
+    "input_tokens": 131551,
+    "output_tokens": 6946,
+    "engine_input_tokens": 23274,
+    "engine_output_tokens": 1835,
+    "verifier_input_tokens": 108277,
+    "verifier_output_tokens": 5111,
+    "wall_seconds": 35.49448175
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.332562,
+  "cost_usd_list": 0.665124,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:16:31+08:00"
+}

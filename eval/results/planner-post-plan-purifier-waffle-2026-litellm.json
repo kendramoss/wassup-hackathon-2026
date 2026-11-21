@@ -1,0 +1,408 @@
+{
+  "case_id": "post-purifier-waffle-2026",
+  "target": "China",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Waffle Cone air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body. The Waffle Cone air purifier is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe motor, fan and filters are produced in Indonesia. The power board, converter board and control PCB assemblies and dust sensor, power cable, LED light strip and wiring are sourced from China. \n\nFinal assembly in Indonesia: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+    "prediction": {
+      "origin_country": "Indonesia",
+      "key_factors": [
+        "Motor, fan, and 3-in-1 filter"
+      ],
+      "decisive_step": "Production of the motor, fan, and filters, combined with the final assembly in Indonesia",
+      "confidence": 0.96,
+      "reasoning": "Consistent with CBP precedent on air purifiers (e.g., H323218, N359250, N359251), the essential character of an air purifier is imparted by the components that draw in and filter the air—specifically the motor, fan, and filter. Here, the motor, fan, and filters are all produced in Indonesia, and final assembly of all components into the finished unit also takes place in Indonesia. The Chinese-origin PCBs and sensors are substantially transformed during the Indonesian manufacturing and assembly operations.",
+      "cited_rulings": [
+        "H323218",
+        "N359250",
+        "N359251"
+      ],
+      "precedents": [
+        "H323218",
+        "N351887",
+        "N359250",
+        "N359251",
+        "N359672"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2555,
+        "output_tokens": 241,
+        "latency_ms": 7743
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N366167"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Waffle Cone air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body. The Waffle Cone air purifier is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe motor, fan and filters are produced in Indonesia. The power board, converter board and control PCB assemblies and dust sensor, power cable, LED light strip and wiring are sourced from China. \n\nFinal assembly in Indonesia: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Motor, fan, and 3-in-1 filter"
+        ],
+        "decisive_step": "Production of the motor, fan, and filters, combined with the final assembly in Indonesia",
+        "confidence": 0.96,
+        "reasoning": "Consistent with CBP precedent on air purifiers (e.g., H323218, N359250, N359251), the essential character of an air purifier is imparted by the components that draw in and filter the air—specifically the motor, fan, and filter. Here, the motor, fan, and filters are all produced in Indonesia, and final assembly of all components into the finished unit also takes place in Indonesia. The Chinese-origin PCBs and sensors are substantially transformed during the Indonesian manufacturing and assembly operations.",
+        "cited_rulings": [
+          "H323218",
+          "N359250",
+          "N359251"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2555,
+          "output_tokens": 241,
+          "latency_ms": 7743
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Indonesia (N366167); engine predicts Indonesia",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Waffle Cone air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body. The Waffle Cone air purifier is assembled in Indonesia using components sourced from China.\n\nThe motor, fan, filters, power board, converter board and control PCB assemblies and dust sensor, power cable, LED light strip and wiring are produced in China. \n\nIn China, the motor, fan and filters will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Indonesia: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The Chinese-origin motor, fan, 3-in-1 filter, PCB assemblies, and housing, which together constitute all functional and structural components of the air purifier."
+        ],
+        "decisive_step": "Manufacturing of the electric motor (stamping, stacking, winding), fan, filters, PCB assemblies, and molded housing in China.",
+        "confidence": 0.92,
+        "reasoning": "All critical components imparting the essential character of the air purifier—the motor, fan, 3-in-1 filter, PCB assemblies, sensor, and plastic housing—are entirely manufactured in China. Unlike N359250 or N357771 where substantial component manufacturing (such as motor lamination stamping/winding or major subassembly production) occurred in the final assembly country, the operations in Indonesia consist merely of screwing/fitting pre-made Chinese modules together. This simple assembly does not substantially transform the Chinese components.",
+        "cited_rulings": [
+          "N359250",
+          "N357771"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2689,
+          "output_tokens": 275,
+          "latency_ms": 6636
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N359672",
+        "counter_ruling": "N359251",
+        "confidence": 0.85,
+        "reasoning": "In air purifier rulings (N359672, N359250, N359251, H323218), CBP confers origin on the assembly country only when local component manufacturing (such as the motor, fan, filter, or injection-molded plastic housing) is combined with assembly. In Variant A, the motor, fan, and filters are made in Indonesia, conferring Indonesian origin. In Variant B, ALL components—including the motor, fan, filters, PCBs, sensor, and injection-molded plastic housing—are produced in China, leaving only simple sub-assembly and final assembly of wholly Chinese parts in Indonesia. Without any Indonesian component manufacturing, assembly alone does not substantially transform the Chinese components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier motor fan filter PCB assembly China Indonesia Vietnam Malaysia Thailand",
+            "rulings": [
+              "H323218",
+              "N359251",
+              "N359250",
+              "N359672",
+              "N351922",
+              "N356520",
+              "N358092",
+              "N358925"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier origin substantial transformation motor filter",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N348711",
+              "N350783",
+              "N351887"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359672",
+            "rulings": [
+              "N359672"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359250",
+            "rulings": [
+              "N359250"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16200,
+          "output_tokens": 463,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -14000,
+      "net_per_year": -286000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly in China",
+      "variant_facts": "The merchandise under consideration is a Waffle Cone air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body. The Waffle Cone air purifier is assembled in Indonesia using components sourced from China.\n\nThe motor, fan, filters, power board, converter board and control PCB assemblies and dust sensor, power cable, LED light strip and wiring are produced in China. \n\nIn China, the motor, fan and filters will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Indonesia: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, fan, filtration system, and printed circuit board assemblies (PCBAs)"
+        ],
+        "decisive_step": "Manufacturing of the motor, fan, filters, and PCBAs in China",
+        "confidence": 0.92,
+        "reasoning": "All critical functional components that impart the essential character of the air purifier—the motor, fan, 3-in-1 filter, dust sensor, and all PCBAs—are manufactured in China. Unlike H323218, N359250, and N357771 where key subassemblies, motors, or housings were locally manufactured in the assembly country, the operations in Indonesia consist solely of simple screwdriver assembly, installing pre-made Chinese components into a housing, and testing, which does not result in a substantial transformation.",
+        "cited_rulings": [
+          "H323218",
+          "N359250",
+          "N357771"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2666,
+          "output_tokens": 244,
+          "latency_ms": 7573
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N359672",
+        "counter_ruling": "N359251",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, Indonesia produces the core functional components (motor, fan, filters) and performs final assembly, conferring Indonesian origin. In Variant B, ALL components—including the motor, fan, filters, PCBAs, and sensors—are produced in China, with Indonesia performing only final assembly of entirely Chinese-sourced parts. Unlike N359251 and H323218 (where the assembly country still manufactured plastic housing, fan, and structural components to combine with Chinese motor/filter), Variant B leaves zero component manufacturing in Indonesia. Per N359672, origin follows the country producing the core functional elements (filter, motor, fan, PCBAs) rather than simple final assembly.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier assembly origin motor filter PCBA",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N351887",
+              "N348711",
+              "N362121"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier motor fan filter Indonesia China",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N362856",
+              "N351922",
+              "N348711"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359672",
+            "rulings": [
+              "N359672"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359250",
+            "rulings": [
+              "N359250"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16110,
+          "output_tokens": 454,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -10000,
+      "net_per_year": -290000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Waffle Cone air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body. The Waffle Cone air purifier is assembled in Indonesia using components sourced from Indonesia and China.\n\nThe motor, fan and filters are produced in Indonesia. The power board, converter board and control PCB assemblies and dust sensor, power cable, LED light strip and wiring are sourced from China. \n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Indonesia: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Motor, fan, and 3-in-1 filtration system combined with final assembly"
+        ],
+        "decisive_step": "Manufacturing of the motor, fan, and filters, and final assembly of all components in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Consistent with H323218, N359250, and N359251, the core functional components of an air purifier are the motor, fan, and filter system, which draw in and clean the air. Here, the motor, fan, and 3-in-1 filters are manufactured in Indonesia. Furthermore, the Chinese electronics and molded housing parts are substantially transformed in Indonesia when integrated with the Indonesian key components during sub-assembly and final assembly into a complete, functional air purifier.",
+        "cited_rulings": [
+          "H323218",
+          "N359250",
+          "N359251"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2578,
+          "output_tokens": 238,
+          "latency_ms": 5994
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -4000,
+      "net_per_year": 4000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Indonesia, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 2,
+    "verifier_cached": 0,
+    "verifier_model_calls": 8,
+    "verifier_tool_calls": 12,
+    "input_tokens": 42798,
+    "output_tokens": 1915,
+    "engine_input_tokens": 10488,
+    "engine_output_tokens": 998,
+    "verifier_input_tokens": 32310,
+    "verifier_output_tokens": 917,
+    "wall_seconds": 32.832551958
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.10474599999999999,
+  "cost_usd_list": 0.20949199999999998,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:07+08:00"
+}

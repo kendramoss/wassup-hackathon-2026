@@ -1,0 +1,115 @@
+{
+  "_source": "Built from the facts of CBP ruling N349871 (2025-07-03, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Thailand; plant capabilities for Thailand are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n349871",
+  "date": "2025-07-03",
+  "family": "vehicle_parts",
+  "target": "Thailand",
+  "product": {
+    "name": "Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607)",
+    "description": "Aluminum wheels used in semi-trailer trucks and trailers, produced by forging aluminum bars into a circular blank ('cookie'), flow forming and machining the rim, applying surface treatments, and installing a valve.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "housings_and_structures"
+        ]
+      },
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "precision_machined_parts",
+          "housings_and_structures",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Aluminum bar / ingot",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Forged circular aluminum blank ('cookie')",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Valve",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Cutting aluminum bars",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Heating, forging ingots into a circular shape, and expanding to form a 'cookie'",
+        "plant": "cn",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Flow forming (stretching the rim to the required size and structure)",
+        "plant": "th",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Solution heat treatment",
+        "plant": "th",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "Turning, milling holes, drilling holes, finish turning, and deburring",
+        "plant": "th",
+        "group": "precision_machined_parts"
+      },
+      {
+        "name": "Pre-cleaning, burnishing (sanding), polishing inside and outside, applying special anti-oxidation coating, and removing polishing paste",
+        "plant": "th",
+        "group": "housings_and_structures"
+      },
+      {
+        "name": "Loading valve",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Marking, testing, and packaging",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "housings_and_structures": {
+        "cn": 100000,
+        "th": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N349871"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N349871"
+  }
+}

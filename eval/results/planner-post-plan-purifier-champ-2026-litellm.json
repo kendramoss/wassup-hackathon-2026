@@ -1,0 +1,700 @@
+{
+  "case_id": "post-purifier-champ-2026",
+  "target": "China",
+  "family": "motorised_tools_small_appliances",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, main key module and power module printed board assemblies and filter assembly are produced in Vietnam. The particle sensor, power cord assembly and wire harnesses are sourced from China. \n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "Motor, filter assembly, and main/power PCBAs"
+      ],
+      "decisive_step": "Manufacturing of key components (motor, PCBAs, filter) and final assembly in Vietnam",
+      "confidence": 0.98,
+      "reasoning": "In Vietnam, the critical components imparting the essential character of the air purifier—specifically the motor, filter assembly, and main/power PCBAs—are manufactured, and all components are assembled into the finished appliance. The Chinese components (sensor, power cord, wire harnesses) are ancillary and undergo a substantial transformation when integrated with the Vietnamese subassemblies during final assembly in Vietnam, consistent with CBP precedent in H323218 and N359250.",
+      "cited_rulings": [
+        "N359250",
+        "H323218"
+      ],
+      "precedents": [
+        "H323218",
+        "N351887",
+        "N359250",
+        "N359251",
+        "N359672"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2548,
+        "output_tokens": 201,
+        "latency_ms": 10520
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N366163"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, main key module and power module printed board assemblies and filter assembly are produced in Vietnam. The particle sensor, power cord assembly and wire harnesses are sourced from China. \n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, filter assembly, and main/power PCBAs"
+        ],
+        "decisive_step": "Manufacturing of key components (motor, PCBAs, filter) and final assembly in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "In Vietnam, the critical components imparting the essential character of the air purifier—specifically the motor, filter assembly, and main/power PCBAs—are manufactured, and all components are assembled into the finished appliance. The Chinese components (sensor, power cord, wire harnesses) are ancillary and undergo a substantial transformation when integrated with the Vietnamese subassemblies during final assembly in Vietnam, consistent with CBP precedent in H323218 and N359250.",
+        "cited_rulings": [
+          "N359250",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2548,
+          "output_tokens": 201,
+          "latency_ms": 10520
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Vietnam (N366163); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly, PCBA (SMT) and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from China.\n\nThe motor, main key module and power module printed board assemblies, filter assembly and particle sensor, power cord assembly and wire harnesses are produced in China. \n\nIn China, the motor and filter assembly will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the main key module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, fan, filter assembly, and printed circuit board assemblies"
+        ],
+        "decisive_step": "Manufacturing of the motor, PCBAs, filter, and housing in China",
+        "confidence": 0.92,
+        "reasoning": "Unlike N359250, N359251, and H323218 where the assembly country contributed substantial domestic components or subassembly manufacturing, here virtually all components—including the critical motor, fan, 3-in-1 filter, PCBAs, particle sensor, and molded housing—are wholly manufactured in China. The core manufacturing (motor winding/stamping, SMT reflow, and injection molding) occurs in China. The operations in Vietnam consist of simple pre-assembly and final installation of pre-made Chinese components, which does not rise to the level of a substantial transformation.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2734,
+          "output_tokens": 237,
+          "latency_ms": 10596
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N359672",
+        "counter_ruling": "H323218",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, core components (motor, main/power PCBAs, and filter assembly) are manufactured in Vietnam alongside final assembly, conferring Vietnam origin. In Variant B, ALL components—including the motor, fan, PCBAs (via SMT), filter assembly, sensor, and injection-molded plastic housing—are manufactured in China, leaving only simple sub-assembly, installation, testing, and packing in Vietnam. Unlike H323218 and N359251 (where plastic housing molding and fans/parts were produced in the assembly country), Variant B retains zero component fabrication in Vietnam. Under CBP precedent (e.g., N359672), assembling pre-made Chinese components without local component fabrication does not substantially transform the air purifier.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier motor PCBA filter assembly Vietnam China",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N351887",
+              "N362121",
+              "N348711"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "vacuum fan motor PCBA housing assembly China Vietnam",
+            "rulings": [
+              "N344081",
+              "N347421",
+              "N357771",
+              "H323218",
+              "N351493",
+              "N359672",
+              "N349422",
+              "H322161"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier country of origin assembly",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N348711",
+              "N351887",
+              "N350783"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359672",
+            "rulings": [
+              "N359672"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15312,
+          "output_tokens": 481,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -19000,
+      "net_per_year": -281000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly and PCBA (SMT) in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from China.\n\nThe motor, main key module and power module printed board assemblies, filter assembly and particle sensor, power cord assembly and wire harnesses are produced in China. \n\nIn China, the motor and filter assembly will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the main key module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, fan, filter assembly, and printed circuit board assemblies (PCBAs)"
+        ],
+        "decisive_step": "Manufacturing of the motor, filter assembly, and PCBAs in China",
+        "confidence": 0.92,
+        "reasoning": "All critical functional components that impart the essential character of the air purifier—specifically the motor, fan, 3-in-1 filter assembly, particle sensor, and control/power PCBAs—are completely manufactured in China. Unlike N359250 and N359251 where substantial domestic components and complex manufacturing occurred in the assembly country, the operations in Vietnam consist solely of pre-assembling Chinese subassemblies and simple final installation into the housing, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N359250",
+          "N359251"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2711,
+          "output_tokens": 234,
+          "latency_ms": 7820
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "H323218",
+        "counter_ruling": "N359251",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, the motor, main key and power PCBAs, and filter assembly are manufactured in Vietnam and assembled into the air purifier there, conferring Vietnam origin. In Variant B, ALL components (including the motor, fan, filter assembly, all PCBAs, particle sensor, power cord, and wire harnesses) are sourced and manufactured in China, with only simple final assembly of pre-made Chinese components occurring in Vietnam. Unlike N359251 and H323218 (where plastic injection molding of housings/fans and local sub-assemblies remained in the assembly country), no components are produced in Vietnam in Variant B, leaving origin as China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier country of origin assembly China Vietnam Thailand",
+            "rulings": [
+              "N359251",
+              "H323218",
+              "N359250",
+              "N359672",
+              "N356520",
+              "N361552",
+              "N347306",
+              "N346397"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier motor printed circuit board assembly origin",
+            "rulings": [
+              "N359672",
+              "H323218",
+              "N359251",
+              "N359250",
+              "N353023",
+              "N362121",
+              "N351887",
+              "N356520"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier motor PCBA filter assembly Vietnam China",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N351887",
+              "N362121",
+              "N348711"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359250",
+            "rulings": [
+              "N359250"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15058,
+          "output_tokens": 460,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -15000,
+      "net_per_year": -285000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe motor, filter assembly and particle sensor, power cord assembly and wire harnesses are produced in China. The main key module and power module printed board assemblies are produced in Vietnam. \n\nIn China, the motor and filter assembly will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Motor, fan, filter assembly, and molded housing"
+        ],
+        "decisive_step": "Manufacturing of the electric motor, fan, filter assembly, and plastic housing in China",
+        "confidence": 0.82,
+        "reasoning": "For air purifiers, the motor, fan, filter assembly, and housing collectively impart the essential character. Although the main key and power PCBAs are produced in Vietnam alongside final assembly, all core mechanical, structural, and filtration components—the motor (wound and assembled from raw laminations), fan, 3-in-1 filter, particle sensor, and molded housing—are manufactured in China. Under the totality of circumstances (see H323218), final assembly in Vietnam is not complex enough to substantially transform the core Chinese components.",
+        "cited_rulings": [
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2688,
+          "output_tokens": 224,
+          "latency_ms": 8479
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "H323218",
+        "confidence": 0.92,
+        "reasoning": "In H323218 and N359251, CBP held that the country of final assembly (Vietnam and Thailand, respectively) was the country of origin for air purifiers even when the motor, HEPA/composite filter assembly, and other parts were sourced from China. Here, although Variant B shifts production of the motor, filter assembly, and moulded plastic housing to China, Vietnam continues to manufacture the main key module and power module PCBAs, pre-assemble the control, power, and sensor sub-assemblies, and perform complete final assembly and testing. Under H323218 and N359251, these operations substantially transform the Chinese components in Vietnam.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "air purifier cylindrical filter motor fan control board",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N351922",
+              "N351887",
+              "N350783"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier printed circuit board assembly motor filter origin",
+            "rulings": [
+              "N359672",
+              "H323218",
+              "N359251",
+              "N359250",
+              "N351887",
+              "N356520",
+              "N362121",
+              "N353023"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "air purifier motor filter PCBA Vietnam China origin",
+            "rulings": [
+              "H323218",
+              "N359672",
+              "N359251",
+              "N359250",
+              "N356520",
+              "N351887",
+              "N362121",
+              "N348711"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359672",
+            "rulings": [
+              "N359672"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359251",
+            "rulings": [
+              "N359251"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H323218",
+            "rulings": [
+              "H323218"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14907,
+          "output_tokens": 438,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": -14000,
+      "net_per_year": -286000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_fan_assembly",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Motor-fan assembly in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from China and Vietnam.\n\nThe motor, filter assembly and particle sensor, power cord assembly and wire harnesses are produced in China. The main key module and power module printed board assemblies are produced in Vietnam. \n\nIn China, the motor and filter assembly will be produced in-house: stamp rotor laminations from silicon steel; stack laminations and wind the rotor; build the stator; assemble the motor; press-fit the fan to the motor spindle (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "The Vietnamese printed board assemblies (main key and power modules) combined with the final assembly integrating the Chinese motor and filter components into a complete air purifier"
+        ],
+        "decisive_step": "Manufacture of the control and power PCBA modules and final assembly of all components into the finished air purifier in Vietnam",
+        "confidence": 0.78,
+        "reasoning": "Consistent with H323218, N359250, and N359251, CBP determines the origin of air purifiers based on the totality of manufacturing operations. Although the motor, fan, and filter assembly are produced in China, Vietnam produces the critical control and power PCBAs (main key and power modules) and performs the final sub-assembly and integration of the motor, fan, filters, boards, and housing. This combination of domestic PCBA manufacturing and final assembly substantially transforms the Chinese components into a new article of commerce in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N357771",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2665,
+          "output_tokens": 246,
+          "latency_ms": 10407
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -10000,
+      "net_per_year": 10000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make PCBA (SMT) in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor and filter assembly are produced in Vietnam. The main key module and power module printed board assemblies and particle sensor, power cord assembly and wire harnesses are sourced from China. \n\nIn China, the main key module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor and filter assembly combined with final assembly"
+        ],
+        "decisive_step": "Manufacturing the motor and filter assembly and final integration of all components in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "Consistent with H323218 and N359250, the country of origin of an air purifier is conferred where the core functional components (specifically the motor and filter assembly) are produced and integrated with the remaining components into the finished appliance. Here, Vietnam manufactures both the motor and the filter assembly and performs the complete final assembly and testing, substantially transforming the Chinese PCBAs, sensors, and wiring harnesses into a new article of commerce.",
+        "cited_rulings": [
+          "N359250",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2601,
+          "output_tokens": 204,
+          "latency_ms": 7571
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -5000,
+      "net_per_year": 5000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor, main key module and power module printed board assemblies and filter assembly are produced in Vietnam. The particle sensor, power cord assembly and wire harnesses are sourced from China. \n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor, filter assembly, and main/power printed board assemblies"
+        ],
+        "decisive_step": "Production of core components (motor, filter, PCBAs) and final assembly in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Under the substantial transformation test and consistent with H323218, N359250, and N359251, the country of origin of the air purifier is Vietnam. The essential character-imparting components—specifically the motor, 3-in-1 filter assembly, and main/power printed board assemblies—are all manufactured in Vietnam. Furthermore, final assembly combining these critical Vietnamese subassemblies with the Chinese plastic housing, sensor, and cords occurs in Vietnam, substantially transforming the components into a finished air purifier.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2571,
+          "output_tokens": 237,
+          "latency_ms": 7317
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -4000,
+      "net_per_year": 4000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba",
+          "to_plant": "cn"
+        },
+        {
+          "group": "housing_moulding",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make PCBA (SMT) and Housing moulding in China",
+      "variant_facts": "The merchandise under consideration is a Champ air purifier. A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, control and power boards, a particle sensor and a moulded plastic housing. The Champ air purifier is assembled in Vietnam using components sourced from Vietnam and China.\n\nThe motor and filter assembly are produced in Vietnam. The main key module and power module printed board assemblies and particle sensor, power cord assembly and wire harnesses are sourced from China. \n\nIn China, the main key module and power module printed board assemblies will be produced in-house: SMT placement and reflow of the printed circuit board assembly; test the PCBA (assumed from the product-family template; no operations were supplied for this group).\n\nIn China, the housing moulding will be produced in-house: injection-mould the plastic housing parts.\n\nFinal assembly in Vietnam: pre-assemble the control, power and sensor sub-assemblies; install frame, fan and motor, filters, boards and housing; test and pack.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "Motor and filter assembly combined with final assembly of all components"
+        ],
+        "decisive_step": "Production of the motor and filter assembly and final integration of Chinese and Vietnamese components in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "Consistent with HQ H323218, NY N359250, and NY N359251, the assembly of an air purifier's various components (housing, PCBAs, sensors, motor, fan, and filters) into a finished appliance constitutes a substantial transformation. Furthermore, critical functional components that impart the essential air-moving and purifying character—specifically the motor and filter assembly—are produced in Vietnam. The Chinese PCBAs, sensor, and housing lose their separate identities when integrated with the Vietnamese motor and filter during final assembly in Vietnam.",
+        "cited_rulings": [
+          "N359250",
+          "N359251",
+          "H323218"
+        ],
+        "precedents": [
+          "H323218",
+          "N351887",
+          "N359250",
+          "N359251",
+          "N359672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2624,
+          "output_tokens": 252,
+          "latency_ms": 8561
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": -9000,
+      "net_per_year": 9000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Vietnam, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 12,
+    "verifier_tool_calls": 18,
+    "input_tokens": 66419,
+    "output_tokens": 3214,
+    "engine_input_tokens": 21142,
+    "engine_output_tokens": 1835,
+    "verifier_input_tokens": 45277,
+    "verifier_output_tokens": 1379,
+    "wall_seconds": 80.372338667
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motorised_tools_small_appliances": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.164978,
+  "cost_usd_list": 0.329956,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:10:55+08:00"
+}

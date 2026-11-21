@@ -1,0 +1,249 @@
+{
+  "case_id": "fam-n352230",
+  "target": "Malaysia",
+  "family": "pcba_electronic_devices",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Ultrasonic Sensor Module (Part No. 0060858035). A functional component in the automatic water filling system of smart refrigerators that detects water levels inside a container using ultrasonic signal transmission and reception. It consists of a front plastic bracket and two integrated ultrasonic sensor modules made of a PCB, piezo element, wire harness, plastic housing, and rubber parts. The Ultrasonic Sensor Module (Part No. 0060858035) is assembled in Malaysia using components sourced from Malaysia and China.\n\nThe Front plastic bracket and Label and anti-static packaging bags are produced in Malaysia. The Plastic housing, Rubber ring, Piezo element, Wire harness, Printed circuit board (PCB), Solder wire, Label and Potting glue are sourced from China. \n\nFinal assembly in Malaysia: Integrate two completed sensor modules with a plastic bracket to form the dual-sensor water level detection assembly; Perform system-level functional testing to ensure proper pairing and synchronization.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The two integrated ultrasonic sensor modules (containing the PCB and piezo elements)"
+      ],
+      "decisive_step": "Manufacturing of the PCB, piezo elements, and completed sensor modules in China",
+      "confidence": 0.9,
+      "reasoning": "Consistent with N335170 and N350672, the essential character of a sensor assembly is imparted by the functional sensing elements and PCBAs. Here, the PCB, piezo elements, wire harness, and housing that form the completed sensor modules originate in China. The processing in Malaysia consists merely of snapping or integrating two completed Chinese sensor modules onto a Malaysian plastic bracket and conducting testing, which is simple assembly that does not result in a substantial transformation.",
+      "cited_rulings": [
+        "N350672",
+        "N335170"
+      ],
+      "precedents": [
+        "N335170",
+        "N340187",
+        "N342124",
+        "N346168",
+        "N350672"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2638,
+        "output_tokens": 214,
+        "latency_ms": 5917
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352230"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Ultrasonic Sensor Module (Part No. 0060858035). A functional component in the automatic water filling system of smart refrigerators that detects water levels inside a container using ultrasonic signal transmission and reception. It consists of a front plastic bracket and two integrated ultrasonic sensor modules made of a PCB, piezo element, wire harness, plastic housing, and rubber parts. The Ultrasonic Sensor Module (Part No. 0060858035) is assembled in Malaysia using components sourced from Malaysia and China.\n\nThe Front plastic bracket and Label and anti-static packaging bags are produced in Malaysia. The Plastic housing, Rubber ring, Piezo element, Wire harness, Printed circuit board (PCB), Solder wire, Label and Potting glue are sourced from China. \n\nFinal assembly in Malaysia: Integrate two completed sensor modules with a plastic bracket to form the dual-sensor water level detection assembly; Perform system-level functional testing to ensure proper pairing and synchronization.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The two integrated ultrasonic sensor modules (containing the PCB and piezo elements)"
+        ],
+        "decisive_step": "Manufacturing of the PCB, piezo elements, and completed sensor modules in China",
+        "confidence": 0.9,
+        "reasoning": "Consistent with N335170 and N350672, the essential character of a sensor assembly is imparted by the functional sensing elements and PCBAs. Here, the PCB, piezo elements, wire harness, and housing that form the completed sensor modules originate in China. The processing in Malaysia consists merely of snapping or integrating two completed Chinese sensor modules onto a Malaysian plastic bracket and conducting testing, which is simple assembly that does not result in a substantial transformation.",
+        "cited_rulings": [
+          "N350672",
+          "N335170"
+        ],
+        "precedents": [
+          "N335170",
+          "N340187",
+          "N342124",
+          "N346168",
+          "N350672"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2638,
+          "output_tokens": 214,
+          "latency_ms": 5917
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N352230); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "my"
+        }
+      ],
+      "description": "Make PCBA (SMT) in Malaysia",
+      "variant_facts": "The merchandise under consideration is a Ultrasonic Sensor Module (Part No. 0060858035). A functional component in the automatic water filling system of smart refrigerators that detects water levels inside a container using ultrasonic signal transmission and reception. It consists of a front plastic bracket and two integrated ultrasonic sensor modules made of a PCB, piezo element, wire harness, plastic housing, and rubber parts. The Ultrasonic Sensor Module (Part No. 0060858035) is assembled in Malaysia using components sourced from Malaysia and China.\n\nThe Front plastic bracket, Label and anti-static packaging bags, Printed circuit board (PCB) and Solder wire are produced in Malaysia. The Plastic housing, Rubber ring, Piezo element, Wire harness, Label and Potting glue are sourced from China. \n\nIn Malaysia, the Printed circuit board (PCB) and Solder wire will be produced in-house: apply solder paste to bare printed circuit board; place active and passive electronic components onto board using surface mount technology (SMT) and pin through-hole (PTH) insertion; reflow solder in oven to permanently bond components to the circuit board; perform System in Package (SiP) mounting, initial firmware flashing, and in-circuit board testing (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Malaysia: Integrate two completed sensor modules with a plastic bracket to form the dual-sensor water level detection assembly; Perform system-level functional testing to ensure proper pairing and synchronization.\n",
+      "prediction": {
+        "origin_country": "Malaysia",
+        "key_factors": [
+          "Printed Circuit Board Assembly (PCBA)"
+        ],
+        "decisive_step": "SMT, PTH insertion, reflow soldering, firmware flashing, and final assembly in Malaysia",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedent (e.g., N344595, N342124), the printed circuit board assembly (PCBA) imparts the essential character to electronic control and sensor modules. In Malaysia, bare PCBs undergo Surface Mount Technology (SMT), Pin Through-Hole (PTH) insertion, reflow soldering, firmware flashing, and final integration with the Chinese-origin piezo element, wire harness, and housing. This complex manufacturing process substantially transforms the foreign components into a new and different article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N344595",
+          "N342124"
+        ],
+        "precedents": [
+          "N340187",
+          "N342124",
+          "N344595",
+          "N346168",
+          "N350041"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2763,
+          "output_tokens": 224,
+          "latency_ms": 7439
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350672",
+        "counter_ruling": "N343950",
+        "confidence": 0.9,
+        "reasoning": "In Variant A, the PCBs, piezo elements, and other sensor subcomponents are produced in China and merely assembled with a plastic bracket in Malaysia, making China the country of origin. In Variant B, the PCBA is manufactured in Malaysia by populating bare boards with active and passive components via SMT and PTH insertion, reflow soldering, SiP mounting, and firmware flashing, followed by final sensor module assembly. Consistent with N350672 (mass air flow sensor), creating and programming the functional PCBA via SMT substantially transforms the foreign components, shifting origin to Malaysia (unlike N343950, where an unpopulated connection-only PCB did not transform a sensor IC).",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "ultrasonic sensor module PCB assembly Malaysia China",
+            "rulings": [
+              "N330057",
+              "N350041",
+              "N343950",
+              "N342133",
+              "H332752",
+              "N350672",
+              "N350225",
+              "N346168"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "sensor module PCBA SMT piezo element origin",
+            "rulings": [
+              "H338116",
+              "N349107",
+              "H326827",
+              "H345749",
+              "N335263",
+              "N347723",
+              "N330296",
+              "N335974"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "refrigerator sensor module PCBA SMT China Malaysia",
+            "rulings": [
+              "N349107",
+              "N350041",
+              "H338116",
+              "N335263",
+              "N330296",
+              "N347723",
+              "N335974",
+              "H304677"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343950",
+            "rulings": [
+              "N343950"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350672",
+            "rulings": [
+              "N350672"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "ultrasonic sensor origin PCBA",
+            "rulings": [
+              "N350727",
+              "N351261",
+              "N335974",
+              "H326827",
+              "N344081",
+              "N330296",
+              "N335213",
+              "N335170"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14084,
+          "output_tokens": 864,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.90 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 19485,
+    "output_tokens": 1302,
+    "engine_input_tokens": 5401,
+    "engine_output_tokens": 438,
+    "verifier_input_tokens": 14084,
+    "verifier_output_tokens": 864,
+    "wall_seconds": 35.465679209
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "pcba_electronic_devices": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.05199,
+  "cost_usd_list": 0.10398,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:17:08+08:00"
+}

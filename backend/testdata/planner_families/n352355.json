@@ -1,0 +1,136 @@
+{
+  "_source": "Built from the facts of CBP ruling N352355 (2025-09-03, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Vietnam; plant capabilities for Vietnam are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n352355",
+  "date": "2025-09-03",
+  "family": "power_supplies_chargers",
+  "target": "Vietnam",
+  "product": {
+    "name": "Deal Worthy 4,000 mAh power bank, model number PB41",
+    "description": "A portable battery for charging electronic devices with a nominal capacity of 4,000 mAh and a nominal energy of 14.8 Wh. It consists of two cylindrical lithium-ion battery cells and a printed circuit board assembly enclosed in an injection molded plastic case with a plastic button, light guide, light shield, USB-A output connector, and micro-USB input connector, packaged with a charging cable.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam Plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "pcba_manufacturing",
+          "power_charging_modules",
+          "housing_cables_parts"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "power_charging_modules",
+          "housing_cables_parts",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Printed circuit board assembly (with a USB-A and a micro-USB connector)",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Light guide",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Light shield",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Plastic button",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Injection molded case (bottom and top cases)",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "housing_cables_parts"
+      },
+      {
+        "name": "Two cylindrical lithium-ion battery cells",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "power_charging_modules"
+      },
+      {
+        "name": "Charging cable",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_cables_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Inspect each component",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Solder wires to the printed circuit board assembly",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Weld a nickel strip to two battery cells",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Weld the wires from the printed circuit board assembly to the battery cells",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Place the PCBA and battery cell assembly inside the bottom case with a pre-installed button, light guide, and light shield",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Install the top case",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test, inspect, and package the device with the charging cable",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "power_charging_modules": {
+        "cn": 100000,
+        "vn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N352355"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352355"
+  }
+}

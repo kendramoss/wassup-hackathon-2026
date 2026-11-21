@@ -1,0 +1,890 @@
+{
+ "what": "Post-cutoff flip pairs (D170): the production precedent check (verifier-v2, gemini-4-argon, local corpus search, plan bar 0.92) scored once per mode on 15 frozen pairs, through an OpenAI-compatible LiteLLM gateway to Gemini.",
+ "pairs_file": "eval/data/flips_post.jsonl",
+ "bar": 0.92,
+ "modes": {
+  "known-a": {
+   "rows": "eval/results/flips-post-verifier-v2-known-a-litellm.jsonl",
+   "all": {
+    "pairs": 15,
+    "real_changes": 11,
+    "controls": 4,
+    "precision_at_bar": {
+     "k": 8,
+     "n": 8,
+     "value": 1.0,
+     "ci95": [
+      0.6756,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 8,
+     "n": 11,
+     "value": 0.7273,
+     "ci95": [
+      0.4344,
+      0.9025
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    },
+    "says_changes_precision": {
+     "k": 9,
+     "n": 9,
+     "value": 1.0,
+     "ci95": [
+      0.7009,
+      1
+     ]
+    },
+    "says_changes_recall": {
+     "k": 9,
+     "n": 11,
+     "value": 0.8182,
+     "ci95": [
+      0.523,
+      0.9486
+     ]
+    }
+   },
+   "core": {
+    "pairs": 10,
+    "real_changes": 6,
+    "controls": 4,
+    "precision_at_bar": {
+     "k": 5,
+     "n": 5,
+     "value": 1.0,
+     "ci95": [
+      0.5655,
+      1
+     ]
+    },
+    "recall_at_bar": {
+     "k": 5,
+     "n": 6,
+     "value": 0.8333,
+     "ci95": [
+      0.4365,
+      0.9699
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    },
+    "says_changes_precision": {
+     "k": 5,
+     "n": 5,
+     "value": 1.0,
+     "ci95": [
+      0.5655,
+      1
+     ]
+    },
+    "says_changes_recall": {
+     "k": 5,
+     "n": 6,
+     "value": 0.8333,
+     "ci95": [
+      0.4365,
+      0.9699
+     ]
+    }
+   },
+   "cost_usd_promo": 0.583,
+   "pairs": [
+    {
+     "id": "BA-N366512-N366513",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N353724",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0348,
+     "spot_check": "supports: N353724 (same filter maker, 2025) held China 'where the filter media is manufactured'."
+    },
+    {
+     "id": "BA-N364414-N365093",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Vietnam",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N361370",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0357,
+     "spot_check": "partial: N361370 held Vietnam for a windchime even with Chinese top pieces, so it backs the later origin but also contradicts CBP's holding on the starting setup."
+    },
+    {
+     "id": "BA-N364386-N365094",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Vietnam",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.92,
+     "supporting": "N345085",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.036,
+     "spot_check": "partial: N345085 is a ceiling light whose canopy and lamp holder were made in Vietnam (held Vietnam); right principle, different product."
+    },
+    {
+     "id": "BA-N357855-N365344",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.92,
+     "supporting": "N347421",
+     "counter": "N345859",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0453,
+     "spot_check": "partial: N347421 is a three-scenario space-heater ruling; the scenario with a Vietnamese-made heating element held Vietnam. No single held origin."
+    },
+    {
+     "id": "BA-N356030-N364865",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.94,
+     "supporting": "N339174",
+     "counter": "N353886",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0418,
+     "spot_check": "supports: N339174 held Thailand for strut assemblies whose piston rod, reservoir tube and working cylinder were made in Thailand from Chinese steel."
+    },
+    {
+     "id": "BA-N365280-N360430",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "United Arab Emirates",
+     "says_changes": false,
+     "later_origin_right": false,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "N357930",
+     "shown_at_bar": false,
+     "outcome": "missed: no supporting ruling",
+     "cost_usd_promo": 0.0423,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N341280-N366550",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "China",
+     "origin_b": "Philippines",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.97,
+     "supporting": "N339405",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0364,
+     "spot_check": "supports: N339405 held the Philippines for a USB hub whose PCBA was made there."
+    },
+    {
+     "id": "SP-N339156-N365363",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "Finland",
+     "origin_b": "Germany",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.75,
+     "supporting": "",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "missed: no supporting ruling",
+     "cost_usd_promo": 0.028,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N365961-N366717",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "Malaysia",
+     "origin_b": "Tanzania",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N347656",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0357,
+     "spot_check": "supports: N347656 held China for plywood whose cores were pressed in China."
+    },
+    {
+     "id": "SP-N365621-N365615",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "China",
+     "origin_b": "Malaysia",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.78,
+     "supporting": "N364679",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar",
+     "cost_usd_promo": 0.0511,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N355546-N365797",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "United States",
+     "origin_b": "South Korea",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.97,
+     "supporting": "N344105",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0323,
+     "spot_check": "supports: N344105 held South Korea for transistors made front-end in Korea and packaged in China."
+    },
+    {
+     "id": "NEG-N366166-N366165",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Vietnam",
+     "origin_b": "Vietnam",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "N359251",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0376,
+     "spot_check": ""
+    },
+    {
+     "id": "NEG-N366164-N366163",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Vietnam",
+     "origin_b": "Vietnam",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "H323218",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0367,
+     "spot_check": ""
+    },
+    {
+     "id": "NEG-N366168-N366167",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Indonesia",
+     "origin_b": "Indonesia",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "N359250",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0376,
+     "spot_check": ""
+    },
+    {
+     "id": "NEG-N365621-N366380",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "China",
+     "origin_b": "China",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.65,
+     "supporting": "",
+     "counter": "N353210",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0517,
+     "spot_check": ""
+    }
+   ]
+  },
+  "unknown-a": {
+   "rows": "eval/results/flips-post-verifier-v2-unknown-a-litellm.jsonl",
+   "all": {
+    "pairs": 15,
+    "real_changes": 11,
+    "controls": 4,
+    "precision_at_bar": {
+     "k": 4,
+     "n": 5,
+     "value": 0.8,
+     "ci95": [
+      0.3755,
+      0.9638
+     ]
+    },
+    "recall_at_bar": {
+     "k": 4,
+     "n": 11,
+     "value": 0.3636,
+     "ci95": [
+      0.1517,
+      0.6462
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    },
+    "says_changes_precision": {
+     "k": 8,
+     "n": 10,
+     "value": 0.8,
+     "ci95": [
+      0.4902,
+      0.9433
+     ]
+    },
+    "says_changes_recall": {
+     "k": 8,
+     "n": 11,
+     "value": 0.7273,
+     "ci95": [
+      0.4344,
+      0.9025
+     ]
+    }
+   },
+   "core": {
+    "pairs": 10,
+    "real_changes": 6,
+    "controls": 4,
+    "precision_at_bar": {
+     "k": 1,
+     "n": 2,
+     "value": 0.5,
+     "ci95": [
+      0.0945,
+      0.9055
+     ]
+    },
+    "recall_at_bar": {
+     "k": 1,
+     "n": 6,
+     "value": 0.1667,
+     "ci95": [
+      0.0301,
+      0.5635
+     ]
+    },
+    "controls_shown": {
+     "k": 0,
+     "n": 4,
+     "value": 0.0,
+     "ci95": [
+      0,
+      0.4899
+     ]
+    },
+    "says_changes_precision": {
+     "k": 4,
+     "n": 6,
+     "value": 0.6667,
+     "ci95": [
+      0.3,
+      0.9032
+     ]
+    },
+    "says_changes_recall": {
+     "k": 4,
+     "n": 6,
+     "value": 0.6667,
+     "ci95": [
+      0.3,
+      0.9032
+     ]
+    }
+   },
+   "cost_usd_promo": 0.5892,
+   "pairs": [
+    {
+     "id": "BA-N366512-N366513",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.97,
+     "supporting": "N353725",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0241,
+     "spot_check": "supports: N353725 (same maker) held Thailand 'where the filter media is manufactured'."
+    },
+    {
+     "id": "BA-N364414-N365093",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Vietnam",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.85,
+     "supporting": "N361370",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar",
+     "cost_usd_promo": 0.0341,
+     "spot_check": ""
+    },
+    {
+     "id": "BA-N364386-N365094",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Vietnam",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.9,
+     "supporting": "H342414",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar",
+     "cost_usd_promo": 0.0374,
+     "spot_check": ""
+    },
+    {
+     "id": "BA-N357855-N365344",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.9,
+     "supporting": "N347421",
+     "counter": "N345859",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar",
+     "cost_usd_promo": 0.0379,
+     "spot_check": ""
+    },
+    {
+     "id": "BA-N356030-N364865",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "Thailand",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.9,
+     "supporting": "N353886",
+     "counter": "N339174",
+     "shown_at_bar": false,
+     "outcome": "missed: no supporting ruling",
+     "cost_usd_promo": 0.0371,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N341280-N366550",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "China",
+     "origin_b": "Philippines",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N339405",
+     "counter": "N332332",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0371,
+     "spot_check": "supports: N339405, as in known-a."
+    },
+    {
+     "id": "SP-N339156-N365363",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "Finland",
+     "origin_b": "Germany",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.75,
+     "supporting": "N333537",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar",
+     "cost_usd_promo": 0.0299,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N365961-N366717",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "Malaysia",
+     "origin_b": "Tanzania",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N347656",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0356,
+     "spot_check": "supports: N347656, as in known-a."
+    },
+    {
+     "id": "SP-N355546-N365797",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "United States",
+     "origin_b": "South Korea",
+     "says_changes": true,
+     "later_origin_right": true,
+     "precedent_supported": true,
+     "confidence": 0.96,
+     "supporting": "N344105",
+     "counter": "",
+     "shown_at_bar": true,
+     "outcome": "shown, correct",
+     "cost_usd_promo": 0.0388,
+     "spot_check": "supports: N344105, as in known-a."
+    },
+    {
+     "id": "NEG-N365621-N366380",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "China",
+     "origin_b": "China",
+     "says_changes": true,
+     "later_origin_right": false,
+     "precedent_supported": true,
+     "confidence": 0.78,
+     "supporting": "N353210",
+     "counter": "",
+     "shown_at_bar": false,
+     "outcome": "supported below the bar (wrong, not shown)",
+     "cost_usd_promo": 0.0395,
+     "spot_check": ""
+    },
+    {
+     "id": "NEG-N366164-N366163",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Vietnam",
+     "origin_b": "Vietnam",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.94,
+     "supporting": "",
+     "counter": "H323218",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0467,
+     "spot_check": ""
+    },
+    {
+     "id": "BA-N365280-N360430",
+     "tier": "core",
+     "type": "before_after",
+     "origin_a": "China",
+     "origin_b": "United Arab Emirates",
+     "says_changes": true,
+     "later_origin_right": false,
+     "precedent_supported": true,
+     "confidence": 0.92,
+     "supporting": "N357930",
+     "counter": "N357930",
+     "shown_at_bar": true,
+     "outcome": "shown, wrong later origin",
+     "cost_usd_promo": 0.0607,
+     "spot_check": "does not support: N357930 (same product, Chinese trailer, held China) was cited as both support and counter, and the check named the wrong later origin. Counted as wrong."
+    },
+    {
+     "id": "NEG-N366166-N366165",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Vietnam",
+     "origin_b": "Vietnam",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "N359251",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0401,
+     "spot_check": ""
+    },
+    {
+     "id": "NEG-N366168-N366167",
+     "tier": "core",
+     "type": "control",
+     "origin_a": "Indonesia",
+     "origin_b": "Indonesia",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.96,
+     "supporting": "",
+     "counter": "N359251",
+     "shown_at_bar": false,
+     "outcome": "correctly not supported",
+     "cost_usd_promo": 0.0462,
+     "spot_check": ""
+    },
+    {
+     "id": "SP-N365621-N365615",
+     "tier": "edge",
+     "type": "similar_product",
+     "origin_a": "China",
+     "origin_b": "Malaysia",
+     "says_changes": false,
+     "later_origin_right": true,
+     "precedent_supported": false,
+     "confidence": 0.75,
+     "supporting": "",
+     "counter": "N359897",
+     "shown_at_bar": false,
+     "outcome": "missed: no supporting ruling",
+     "cost_usd_promo": 0.044,
+     "spot_check": ""
+    }
+   ]
+  }
+ },
+ "plan_search": [
+  {
+   "pair": "BA-N364414-N365093",
+   "tier": "core",
+   "family_check": "none",
+   "family_confidence": 0.95,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "BA-N364386-N365094",
+   "tier": "core",
+   "family_check": "none",
+   "family_confidence": 0.95,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "BA-N366512-N366513",
+   "tier": "core",
+   "family_check": "none",
+   "family_confidence": 0.95,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "BA-N357855-N365344",
+   "tier": "core",
+   "family_check": "motorised_tools_small_appliances",
+   "family_confidence": 0.98,
+   "file": "eval/results/planner-post-plan-stove-heater-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/stove_heater_2026.json",
+   "target": "Thailand",
+   "shown": [
+    "Make Motor-fan assembly in Thailand",
+    "Make Motor-fan assembly and Switch, cord and minor parts in Thailand",
+    "Make Motor-fan assembly and Housing moulding in Thailand",
+    "Make Motor-fan assembly, Housing moulding and Switch, cord and minor parts in Thailand"
+   ],
+   "best_plan": "Make Motor-fan assembly in Thailand",
+   "cost_usd_promo": 0.2534,
+   "wall_s": 36.5,
+   "cbp_move": "motor (coil wound in Thailand), metal housing and final assembly to Thailand; the planner cannot move final assembly",
+   "outcome": "CBP's move shown (motor-fan + housing, check 0.92); best-ranked plan is a cheaper subset (motor-fan alone, 0.92) that CBP did not rule on",
+   "note": "Four plans shown. The motor-fan-alone plan cites N345859, which held China because the motor, fan and heating element were Chinese: the converse, so partial support at best."
+  },
+  {
+   "pair": "BA-N356030-N364865",
+   "tier": "core",
+   "family_check": "vehicle_parts",
+   "family_confidence": 0.95,
+   "file": "eval/results/planner-post-plan-strut-assembly-2025-litellm.json",
+   "fixture": "backend/testdata/planner_post/strut_assembly_2025.json",
+   "target": "Thailand",
+   "shown": [
+    "Make Machined and heat-treated metal parts in Thailand",
+    "Make Machined and heat-treated metal parts and Housings and structural parts in Thailand"
+   ],
+   "best_plan": "Make Machined and heat-treated metal parts in Thailand",
+   "cost_usd_promo": 0.1291,
+   "wall_s": 44.3,
+   "cbp_move": "shock absorber tube and piston rod made in Thailand",
+   "outcome": "CBP's move is the best-ranked shown plan (check 0.96, N353886); backtest: plan moved exactly the parts CBP's ruling moved",
+   "note": "N353886 held Thailand for a strut whose shock was made in Thailand: supports."
+  },
+  {
+   "pair": "BA-N365280-N360430",
+   "tier": "core",
+   "family_check": "none",
+   "family_confidence": 0.98,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "SP-N365621-N365615",
+   "tier": "edge",
+   "family_check": "none",
+   "family_confidence": 0.85,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "SP-N341280-N366550",
+   "tier": "edge",
+   "family_check": "pcba_electronic_devices",
+   "family_confidence": 0.95,
+   "outcome": "no plan search: the target country (Philippines) has no plant in the starting setup"
+  },
+  {
+   "pair": "SP-N339156-N365363",
+   "tier": "edge",
+   "family_check": "none",
+   "family_confidence": 0.99,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "SP-N365961-N366717",
+   "tier": "edge",
+   "family_check": "none",
+   "family_confidence": 0.95,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "SP-N355546-N365797",
+   "tier": "edge",
+   "family_check": "none",
+   "family_confidence": 0.98,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "NEG-N365621-N366380",
+   "tier": "core",
+   "family_check": "none",
+   "family_confidence": 0.85,
+   "outcome": "no plan search: no template"
+  },
+  {
+   "pair": "NEG-N366164-N366163",
+   "tier": "core",
+   "family_check": "motorised_tools_small_appliances",
+   "family_confidence": 0.95,
+   "file": "eval/results/planner-post-plan-purifier-champ-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_champ_2026.json",
+   "target": "China",
+   "shown": [],
+   "best_plan": null,
+   "cost_usd_promo": 0.165,
+   "wall_s": 80.4,
+   "cbp_move": "motor from China instead of Vietnam: still Vietnam (N366164)",
+   "outcome": "no plan shown; the motor-fan move to China was predicted Vietnam by the engine (agrees with CBP)",
+   "note": "Two larger moves were supported below the bar (0.85, 0.75); none shown."
+  },
+  {
+   "pair": "NEG-N366166-N366165",
+   "tier": "core",
+   "family_check": "motorised_tools_small_appliances",
+   "family_confidence": 0.95,
+   "file": "eval/results/planner-post-plan-purifier-mighty-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_mighty_2026.json",
+   "target": "China",
+   "shown": [],
+   "best_plan": null,
+   "cost_usd_promo": 0.1041,
+   "wall_s": 158.4,
+   "cbp_move": "HEPA filter and motor from China instead of Vietnam: still Vietnam (N366166)",
+   "outcome": "no plan shown; the motor-fan move (motor and HEPA filter) was predicted Vietnam by the engine (agrees with CBP)",
+   "note": "One three-group move's precedent check failed (provider unavailable) and was not retried."
+  },
+  {
+   "pair": "NEG-N366168-N366167",
+   "tier": "core",
+   "family_check": "motorised_tools_small_appliances",
+   "family_confidence": 0.95,
+   "file": "eval/results/planner-post-plan-purifier-waffle-2026-litellm.json",
+   "fixture": "backend/testdata/planner_post/purifier_waffle_2026.json",
+   "target": "China",
+   "shown": [],
+   "best_plan": null,
+   "cost_usd_promo": 0.1047,
+   "wall_s": 32.8,
+   "cbp_move": "motor and filters from China instead of Indonesia: still Indonesia (N366168)",
+   "outcome": "no plan shown, but close: the engine predicted China for the motor-fan move (wrong per CBP) and the check supported it at 0.85, below the bar",
+   "note": "The fixture's motor-fan group also holds the Indonesian fan, which CBP's ruling kept Indonesian, so the move is slightly larger than CBP's. The 0.92 bar is what kept this off the screen."
+  }
+ ],
+ "plan_search_cost_usd_promo": 0.7563
+}

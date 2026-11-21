@@ -77,6 +77,15 @@ export function AccuracyPage() {
   const routeTex = get("router_textile_routing");
   const routeFalse = get("router_false_out_of_scope");
   const moveRec = get("verifier_unknown-a_recall");
+  // D170: the precedent check on flip pairs from rulings published after the
+  // corpus cut-off, frozen before scoring, CBP's starting origin given.
+  const postPrec = get("planner_post_known-a_precision_at_bar");
+  const postRec = get("planner_post_known-a_recall_at_bar");
+  const postCtl = get("planner_post_known-a_controls_shown");
+  const postShown = postPrec?.n ?? 0;
+  const postRight = Math.round((postPrec?.value ?? 0) * postShown);
+  const postReal = postRec?.n ?? 0;
+  const postFound = Math.round((postRec?.value ?? 0) * postReal);
 
   // The squares, worked out from the rates (DESIGN.md: 288 / 12 / 52 / 25).
   const n = acc?.n ?? 377;
@@ -259,6 +268,25 @@ export function AccuracyPage() {
             </section>
           )}
 
+          {postPrec && postRec && (
+            <section className="mt-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="eyebrow">Plan checks on rulings published after the test set</h2>
+                <span className="ml-auto text-[11px] text-dim">15 CBP flip pairs, each with a ruling from Sep–Nov 2026 · frozen before scoring · gateway, not Vertex AI · small</span>
+              </div>
+              <div className="mt-3 grid gap-5 md:grid-cols-2">
+                <Card title="Moves shown that were real changes" big={`${postRight} of ${postShown}`}>
+                  at the 0.92 plan bar ({ci0(postPrec)}). {postCtl ? `None of the ${postCtl.n} pairs where CBP kept the origin was shown.` : ""} With so few pairs the interval
+                  is wide.
+                </Card>
+                <Card title="Real changes found" big={pct(postRec.value, 0)}>
+                  {postFound} of {postReal} pairs where CBP&apos;s later ruling changed the origin cleared the bar ({ci0(postRec)}). The rest go to a
+                  broker as below the bar or without a supporting ruling.
+                </Card>
+              </div>
+            </section>
+          )}
+
           {(texAcc || routeOut) && (
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
@@ -314,6 +342,7 @@ export function AccuracyPage() {
                   Move checks on the Plan step: {movePrec.n} of {movePrec.n} flagged moves were right ({ci0(movePrec)}) on a {get("verifier_unknown-a_cost_usd")?.n ?? 54}-pair
                   development set, finding {pct(moveRec?.value, 0)} of real flips. On the 2026 pairs every precedent-supported check was a real change too (12 of 12),
                   but part of the check&apos;s prompt was written after the research team saw those pairs, so it isn&apos;t a clean held-out test.
+                  {postRec ? ` The clean test on ${postReal + (postCtl?.n ?? 0)} later pairs is small; it is not a measure of plan quality.` : ""}
                 </li>
               )}
               <li>{copy.jurisdiction.notCovered}</li>

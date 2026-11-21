@@ -1,0 +1,136 @@
+{
+  "_source": "Built from the facts of CBP ruling N357855 (10 Feb 2026), Stove Heater model: Thai heating element and PCB fitted in China to a Chinese motor, fan, housing and wiring; CBP held China. Later ruling N365344 (9 Oct 2026, same requester): motor coil made, housing fabricated and the heater assembled in Thailand, heating element from Vietnam; CBP held Thailand. Post-cutoff pair BA-N357855-N365344 (D170). Plant capabilities for Thailand are an assumption.",
+  "case_id": "post-stove-heater-2026",
+  "date": "2026-02-10",
+  "family": "motorised_tools_small_appliances",
+  "target": "Thailand",
+  "product": {
+    "name": "Electric stove heater",
+    "description": "A household electric heater with a heating element, an electric motor driving a fan, a PCB, a metal housing and wiring, switches and connectors.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China assembly plant",
+        "country": "China",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "th",
+        "name": "Thailand supplier",
+        "country": "Thailand",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "heating element (calibrated resistance wire)",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "heating_element"
+      },
+      {
+        "name": "printed circuit board (PCB)",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "pcba"
+      },
+      {
+        "name": "electric motor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "fan",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "metal housing",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "wiring, switches and connectors",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "install the heating element and PCB with fasteners and electrical connections",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "wire the unit and mount the fan and motor",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "install the housing and pack the finished heater",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_fan_assembly": {
+        "cn": 120000,
+        "th": 150000
+      },
+      "housing_moulding": {
+        "cn": 60000,
+        "th": 75000
+      },
+      "switch_cord_minor_parts": {
+        "cn": 30000,
+        "th": 37500
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N357855",
+    "N365344"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N357855"
+  },
+  "actual_change": {
+    "_source": "CBP ruling N365344 (9 Oct 2026): CBP held Thailand. Final assembly also moved to Thailand, which the planner cannot move; the heating element came from Vietnam instead of Thailand.",
+    "moved_to": "Thailand",
+    "moved_to_thailand": [
+      "electric motor",
+      "metal housing"
+    ],
+    "still_from_china": [
+      "wiring, switches and connectors"
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "_source": "Built from the facts of CBP ruling H339955 (2024-09-06, train split; picked: no dev China-held ruling; train China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target South Korea; plant capabilities for South Korea are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-h339955",
+  "date": "2024-09-06",
+  "family": "water_filters",
+  "target": "South Korea",
+  "product": {
+    "name": "A.O. Smith Clean Water 4-stage Carbon Block Reverse Osmosis Filtration System (part no. 22010372)",
+    "description": "A non-electric residential drinking water filtration system designed to be installed underneath a household sink for contaminant removal. It contains a carbon block filter, a reverse osmosis membrane filter, O-rings, flow controllers/regulators, plastic filter bodies/cartridges, and caps.",
+    "plants": [
+      {
+        "id": "us",
+        "name": "United States Plant",
+        "country": "United States",
+        "capabilities": [
+          "carbon_block"
+        ]
+      },
+      {
+        "id": "kr",
+        "name": "South Korea Plant",
+        "country": "South Korea",
+        "capabilities": [
+          "carbon_block",
+          "cartridge_housings"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "cartridge_housings",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Carbon block filter",
+        "made_in": "United States",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Permeate collection material",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Membrane",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Feed channel spacer",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Outer wrap",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Reverse osmosis (RO) membrane filter",
+        "made_in": "South Korea",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "O-rings",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Flow controllers/regulators",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Filter bodies/cartridges",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Caps",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "cartridge_housings"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Manufacture carbon block filter",
+        "plant": "us",
+        "group": "carbon_block"
+      },
+      {
+        "name": "Perform chemical reactions, material cutting (permeate collection material, membrane, feed channel spacer, outer wrap), and spinning operations to produce RO membrane filter",
+        "plant": "kr",
+        "group": "cartridge_housings"
+      },
+      {
+        "name": "Combine RO membrane filter and carbon block with O-rings, flow controllers/regulators, filter bodies/cartridges, and caps via screwing, gluing, and pressing/inserting",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test and pack finished water filters",
+        "plant": "cn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "South Korea": 0.125,
+      "United States": 0.0
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "carbon_block": {
+        "us": 100000,
+        "kr": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "H339955"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "H339955"
+  }
+}

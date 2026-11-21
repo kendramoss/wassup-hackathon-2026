@@ -1,0 +1,503 @@
+{
+  "case_id": "fam-n354220",
+  "target": "Vietnam",
+  "family": "hand_tools",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a 14-in-1 outdoor and wilderness survival tool. A pocket wallet-sized multi-tool with 14 functions such as a survival saw, blade edges, screwdriver, wrench, and openers. It consists mainly of a SUS420 stainless steel card and a piece of polyester rope. The 14-in-1 outdoor and wilderness survival tool is assembled in China using components sourced from Vietnam and China.\n\nThe SUS420 stainless steel card blank are produced in Vietnam. The Polyester rope are produced in China. \n\nFinal assembly in China: Assembling stainless steel card together with polyester cord.\n",
+    "prediction": {
+      "origin_country": "Vietnam",
+      "key_factors": [
+        "SUS420 stainless steel card blank"
+      ],
+      "decisive_step": "Production and shaping of the stainless steel multi-tool card blank in Vietnam",
+      "confidence": 0.98,
+      "reasoning": "Following CBP precedents N334762 and N350962, the essential character of a multi-tool is imparted by its functional metal working body/blade. The SUS420 stainless steel card blank, which embodies the 14 tool functions, is produced into its predetermined shape in Vietnam. The subsequent addition of a Chinese polyester rope and simple assembly in China are minor finishing operations that do not substantially transform the Vietnamese steel card blank.",
+      "cited_rulings": [
+        "N350962",
+        "N334762"
+      ],
+      "precedents": [
+        "N333989",
+        "N334762",
+        "N350962",
+        "N351687",
+        "N351961"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2394,
+        "output_tokens": 190,
+        "latency_ms": 5716
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N354220"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a 14-in-1 outdoor and wilderness survival tool. A pocket wallet-sized multi-tool with 14 functions such as a survival saw, blade edges, screwdriver, wrench, and openers. It consists mainly of a SUS420 stainless steel card and a piece of polyester rope. The 14-in-1 outdoor and wilderness survival tool is assembled in China using components sourced from Vietnam and China.\n\nThe SUS420 stainless steel card blank are produced in Vietnam. The Polyester rope are produced in China. \n\nFinal assembly in China: Assembling stainless steel card together with polyester cord.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "SUS420 stainless steel card blank"
+        ],
+        "decisive_step": "Production and shaping of the stainless steel multi-tool card blank in Vietnam",
+        "confidence": 0.98,
+        "reasoning": "Following CBP precedents N334762 and N350962, the essential character of a multi-tool is imparted by its functional metal working body/blade. The SUS420 stainless steel card blank, which embodies the 14 tool functions, is produced into its predetermined shape in Vietnam. The subsequent addition of a Chinese polyester rope and simple assembly in China are minor finishing operations that do not substantially transform the Vietnamese steel card blank.",
+        "cited_rulings": [
+          "N350962",
+          "N334762"
+        ],
+        "precedents": [
+          "N333989",
+          "N334762",
+          "N350962",
+          "N351687",
+          "N351961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2394,
+          "output_tokens": 190,
+          "latency_ms": 5716
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N354220); engine predicts Vietnam",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Machining, heat treatment and finishing in Vietnam",
+      "variant_facts": "The merchandise under consideration is a 14-in-1 outdoor and wilderness survival tool. A pocket wallet-sized multi-tool with 14 functions such as a survival saw, blade edges, screwdriver, wrench, and openers. It consists mainly of a SUS420 stainless steel card and a piece of polyester rope. The 14-in-1 outdoor and wilderness survival tool is assembled in China using components sourced from Vietnam and China.\n\nThe SUS420 stainless steel card blank are produced in Vietnam. The Polyester rope are produced in China. \n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: Barrel finishing; Sharpening; Black oxide finishing; Laser etching of logo and measurements.\n\nFinal assembly in China: Assembling stainless steel card together with polyester cord.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "SUS420 stainless steel multi-tool card"
+        ],
+        "decisive_step": "Production, machining, heat treatment, and sharpening of the stainless steel card in Vietnam",
+        "confidence": 0.99,
+        "reasoning": "Following N334762 and N350962, the country of origin of a multi-tool is determined by the country where the primary metal working component acquires its final form, shape, and functional characteristics. Here, the SUS420 stainless steel card—which imparts the essential character and provides all 14 tool functions—is completely formed, machined, heat-treated, and sharpened in Vietnam. Merely attaching a polyester rope in China is a minor assembly operation that does not result in a substantial transformation.",
+        "cited_rulings": [
+          "N350962",
+          "N334762"
+        ],
+        "precedents": [
+          "N333989",
+          "N334762",
+          "N350001",
+          "N350962",
+          "N351958"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2599,
+          "output_tokens": 211,
+          "latency_ms": 9478
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N334762",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP held origin was China because only an unmachined stainless steel card blank was produced in Vietnam before being sent to China. In Variant B, all machining, heat treatment, sharpening, black oxide finishing, and laser etching of the stainless steel card are performed in Vietnam, leaving only simple assembly of the finished card with a polyester rope in China. Under N334762 and N350962, the formed and machined stainless steel tool body imparts the essential character of a multi-tool, and simple assembly with a cord in China does not substantially transform the Vietnamese tool.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "knife blade blank heat treatment sharpening machining Vietnam China",
+            "rulings": [
+              "N350962",
+              "N347603",
+              "N350719",
+              "N350389",
+              "N350796",
+              "N345938",
+              "N351687",
+              "N352429"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hand tool blank machining heat treatment sharpening finishing origin",
+            "rulings": [
+              "N350962",
+              "N333989",
+              "N346637",
+              "N346803",
+              "N334762",
+              "N335671",
+              "N345261",
+              "N334644"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "multi-tool survival tool stainless steel card blank machining heat treatment Vietnam China",
+            "rulings": [
+              "N350962",
+              "N334762",
+              "N333989",
+              "N351687",
+              "N334644",
+              "N346637",
+              "N351557",
+              "N335179"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350962",
+            "rulings": [
+              "N350962"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350389",
+            "rulings": [
+              "N350389"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334762",
+            "rulings": [
+              "N334762"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14030,
+          "output_tokens": 467,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "machining_and_treatment",
+          "to_plant": "vn"
+        },
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Machining, heat treatment and finishing and Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a 14-in-1 outdoor and wilderness survival tool. A pocket wallet-sized multi-tool with 14 functions such as a survival saw, blade edges, screwdriver, wrench, and openers. It consists mainly of a SUS420 stainless steel card and a piece of polyester rope. The 14-in-1 outdoor and wilderness survival tool is assembled in China using components sourced from Vietnam.\n\nThe SUS420 stainless steel card blank and Polyester rope are produced in Vietnam. \n\nIn Vietnam, the machining, heat treatment and finishing will be produced in-house: Barrel finishing; Sharpening; Black oxide finishing; Laser etching of logo and measurements.\n\nIn Vietnam, the Polyester rope will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Assembling stainless steel card together with polyester cord.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "SUS420 stainless steel multi-tool card"
+        ],
+        "decisive_step": "Producing, machining, heat treating, sharpening, and finishing the stainless steel card blank in Vietnam",
+        "confidence": 0.99,
+        "reasoning": "Consistent with CBP precedents N334762 and N350962, the essential character of the 14-in-1 survival tool is imparted by its functional working part—the SUS420 stainless steel card. In Vietnam, both the steel card and polyester rope are produced, and the card undergoes machining, heat treatment, sharpening, and laser etching, establishing its final form and multi-tool functions. The subsequent processing in China consists merely of simple assembly of the finished card with the polyester cord, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N350962",
+          "N334762"
+        ],
+        "precedents": [
+          "N333956",
+          "N334762",
+          "N350001",
+          "N350962",
+          "N351961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2625,
+          "output_tokens": 238,
+          "latency_ms": 6655
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N351687",
+        "counter_ruling": "N352429",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, only the unmachined stainless steel card blank was made in Vietnam, while the rope and remaining processing occurred in China. In Variant B, ALL components (the SUS420 stainless steel card and the polyester rope) are produced in Vietnam, where the steel card also undergoes machining, heat treatment, sharpening, black oxide finishing, and laser etching. Only minimal final assembly (attaching the finished card and polyester cord together) remains in China. Under National Hand Tool Corp. and general CBP substantial transformation doctrine (cited in N351687 and N352429), merely attaching a cord in China does not substantially transform completely fabricated Vietnamese components.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "multi-tool stainless steel blank machining sharpening heat treatment Vietnam China",
+            "rulings": [
+              "N350962",
+              "N334762",
+              "N333989",
+              "N351687",
+              "N334644",
+              "N346637",
+              "N351557",
+              "N335179"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "knife blade blank sharpening heat treatment finishing Vietnam China origin",
+            "rulings": [
+              "N350962",
+              "N347603",
+              "N350719",
+              "N350389",
+              "N350796",
+              "N351687",
+              "N352429",
+              "N333989"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "survival tool stainless steel card multi-tool Vietnam China",
+            "rulings": [
+              "N334762",
+              "N351687",
+              "N334644",
+              "N335179",
+              "N350962",
+              "N333989",
+              "N350796",
+              "N351961"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "hand tool blank machining heat treatment assembly cord handle China Vietnam",
+            "rulings": [
+              "N333989",
+              "N350962",
+              "N334762",
+              "N334644",
+              "N350121",
+              "N345261",
+              "N350766",
+              "N335179"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N352429",
+            "rulings": [
+              "N352429"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351687",
+            "rulings": [
+              "N351687"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 8608,
+          "output_tokens": 436,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 50000,
+      "net_per_year": 250000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.75 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "vn"
+        }
+      ],
+      "description": "Make Handles and hardware in Vietnam",
+      "variant_facts": "The merchandise under consideration is a 14-in-1 outdoor and wilderness survival tool. A pocket wallet-sized multi-tool with 14 functions such as a survival saw, blade edges, screwdriver, wrench, and openers. It consists mainly of a SUS420 stainless steel card and a piece of polyester rope. The 14-in-1 outdoor and wilderness survival tool is assembled in China using components sourced from Vietnam.\n\nThe SUS420 stainless steel card blank and Polyester rope are produced in Vietnam. \n\nIn Vietnam, the Polyester rope will be produced in-house: injection molding plastic handles or comfort grips and producing wood or fiberglass handles; casting or forging separate metal handles, handle joints, or secondary jaws; producing ratcheting pawls, worm screws, adjustment nuts, release levers, pins, springs, and rivets; pressing and sintering specialized carbide cutting tips (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in China: Assembling stainless steel card together with polyester cord.\n",
+      "prediction": {
+        "origin_country": "Vietnam",
+        "key_factors": [
+          "SUS420 stainless steel multi-tool card blank"
+        ],
+        "decisive_step": "Production and shaping of the stainless steel multi-tool card blank in Vietnam",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedents N334762 and N350962, the country of origin of a multi-tool is determined by the working metal component that imparts its essential character. In Vietnam, the SUS420 stainless steel card blank—which contains the 14 functional profiles—and the polyester rope are produced, fixing the tool's predetermined shape, character, and use. Subsequent processing in China consists merely of simple assembly of the steel card with the polyester cord, which does not constitute a substantial transformation.",
+        "cited_rulings": [
+          "N350962",
+          "N334762"
+        ],
+        "precedents": [
+          "N333956",
+          "N333989",
+          "N334762",
+          "N350962",
+          "N351961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2630,
+          "output_tokens": 213,
+          "latency_ms": 7477
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N334762",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, CBP held origin is China (N354220) despite the SUS420 stainless steel card blank being produced in Vietnam, implying that the finishing/machining of the blank in China (or the Chinese processing) conferred origin. In Variant B, the only change is shifting the production of the auxiliary polyester rope/handle element from China to Vietnam, while the card blank and final assembly remain split the same way. Under N334762 and N350962, shifting secondary handle/grip components does not alter the country of origin of a multi-tool, which is governed by where the steel working tool receives its essential character.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"hand tool\" blank Vietnam machined finished China origin",
+            "rulings": [
+              "N333989",
+              "N345261",
+              "N335671",
+              "N334762",
+              "N343610",
+              "N341088",
+              "N334644",
+              "N335179"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"card blank\" OR \"credit card tool\" OR \"pocket tool\" Vietnam China origin",
+            "rulings": [
+              "N350962",
+              "N353245",
+              "N352781",
+              "N353611",
+              "N333989",
+              "N347948",
+              "N334762",
+              "H328731"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"survival tool\" OR \"multi-tool\" stainless steel card blank Vietnam China",
+            "rulings": [
+              "N334762",
+              "N333989",
+              "N351687",
+              "N350962",
+              "N334644",
+              "N335179",
+              "N350641",
+              "N350796"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350962",
+            "rulings": [
+              "N350962"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N334762",
+            "rulings": [
+              "N334762"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N351687",
+            "rulings": [
+              "N351687"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 14212,
+          "output_tokens": 453,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 3,
+    "engine_calls": 4,
+    "verifier_runs": 3,
+    "verifier_cached": 0,
+    "verifier_model_calls": 11,
+    "verifier_tool_calls": 18,
+    "input_tokens": 47098,
+    "output_tokens": 2208,
+    "engine_input_tokens": 10248,
+    "engine_output_tokens": 852,
+    "verifier_input_tokens": 36850,
+    "verifier_output_tokens": 1356,
+    "wall_seconds": 29.736289083
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "hand_tools": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.116276,
+  "cost_usd_list": 0.232552,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:18:06+08:00"
+}

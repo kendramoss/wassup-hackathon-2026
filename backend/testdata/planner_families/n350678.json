@@ -1,0 +1,150 @@
+{
+  "_source": "Built from the facts of CBP ruling N350678 (2025-07-15, dev split; picked: no China-held ruling; earliest dev): CBP held Vietnam. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target China (reverse probe: away from a non-China origin); plant capabilities for China are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n350678",
+  "date": "2025-07-15",
+  "family": "furniture",
+  "target": "China",
+  "product": {
+    "name": "Pet bed",
+    "description": "The pet bed is an elevated square-shaped iron frame with four tube legs, plastic end caps, and a square textile panel permanently affixed to each side of the frame.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "foam_textile_production"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "foam_textile_production",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "my",
+        "name": "Malaysia Plant",
+        "country": "Malaysia",
+        "capabilities": [
+          "frame_metal_fabrication"
+        ]
+      },
+      {
+        "id": "vn",
+        "name": "Vietnam Plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "foam_textile_production",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "HDPE (High-Density Polyethylene)",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "foam_textile_production"
+      },
+      {
+        "name": "Woven fabric",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "foam_textile_production"
+      },
+      {
+        "name": "Metallic components",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Plastic components (including plastic end caps)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Raw iron ingots",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Iron tubes",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Iron cassettes",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Cut and sewn square textile panel",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "foam_textile_production"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Make woven fabric from HDPE",
+        "plant": "cn",
+        "group": "foam_textile_production"
+      },
+      {
+        "name": "Create iron tubes and cassettes from raw iron ingots",
+        "plant": "vn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Cut iron tubes and cassettes to size for the finished good",
+        "plant": "vn",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "Cut and sew woven fabric to the size of the pet bed",
+        "plant": "vn",
+        "group": "foam_textile_production"
+      },
+      {
+        "name": "Assemble iron frame with tube legs, plastic end caps, and permanently affix textile panel to the frame",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Malaysia": 0.125,
+      "Thailand": 0.125,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "frame_metal_fabrication": {
+        "vn": 100000,
+        "cn": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N350678"
+  ],
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N350678"
+  }
+}

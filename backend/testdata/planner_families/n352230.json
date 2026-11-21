@@ -1,0 +1,150 @@
+{
+  "_source": "Built from the facts of CBP ruling N352230 (2025-08-28, dev split; picked: China-held): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Malaysia; plant capabilities for Malaysia are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n352230",
+  "date": "2025-08-28",
+  "family": "pcba_electronic_devices",
+  "target": "Malaysia",
+  "product": {
+    "name": "Ultrasonic Sensor Module (Part No. 0060858035)",
+    "description": "A functional component in the automatic water filling system of smart refrigerators that detects water levels inside a container using ultrasonic signal transmission and reception. It consists of a front plastic bracket and two integrated ultrasonic sensor modules made of a PCB, piezo element, wire harness, plastic housing, and rubber parts.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "pcba_manufacturing",
+          "functional_subassemblies",
+          "housing_and_cables"
+        ]
+      },
+      {
+        "id": "my",
+        "name": "Malaysia Plant",
+        "country": "Malaysia",
+        "capabilities": [
+          "pcba_manufacturing",
+          "functional_subassemblies",
+          "housing_and_cables",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Front plastic bracket",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Label and anti-static packaging bags",
+        "made_in": "Malaysia",
+        "plant": "my",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Plastic housing",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Rubber ring",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Piezo element",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "Wire harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Printed circuit board (PCB)",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Solder wire",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba_manufacturing"
+      },
+      {
+        "name": "Label",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      },
+      {
+        "name": "Potting glue",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_cables"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Align PCB with the piezo element, solder, and trim excess pins",
+        "plant": "my",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "Perform electrical validation including capacitance measurement and polarity verification",
+        "plant": "my",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "Perform waterproof sealing by inserting piezo element into rubber sleeve and shell and curing sealant",
+        "plant": "my",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "Perform individual module functional testing including echo testing",
+        "plant": "my",
+        "group": "functional_subassemblies"
+      },
+      {
+        "name": "Integrate two completed sensor modules with a plastic bracket to form the dual-sensor water level detection assembly",
+        "plant": "my",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Perform system-level functional testing to ensure proper pairing and synchronization",
+        "plant": "my",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Malaysia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba_manufacturing": {
+        "cn": 100000,
+        "my": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N352230"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352230"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "_source": "Reverse probe built from the facts of CBP ruling N366165 (2026-11-05): Mighty air purifier; CBP held Vietnam. Same-day ruling N366166 on the same product with the parts listed in actual_change from China: CBP still held Vietnam. Post-cutoff control pair (D170). Filters are put in the motor-fan group (the air path); plant capabilities for China are an assumption.",
+  "case_id": "post-purifier-mighty-2026",
+  "date": "2026-11-05",
+  "family": "motorised_tools_small_appliances",
+  "target": "China",
+  "product": {
+    "name": "Mighty air purifier",
+    "description": "A home air purifier with a pre-filter, deodorisation filter and HEPA filter, a motor and fan, control and power boards, an ionizer and a moulded plastic housing.",
+    "plants": [
+      {
+        "id": "vn",
+        "name": "Vietnam assembly plant",
+        "country": "Vietnam",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "motor",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "HEPA filter",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "main module and power module printed board assemblies",
+        "made_in": "Vietnam",
+        "plant": "vn",
+        "group": "pcba"
+      },
+      {
+        "name": "ionizer, particle sensor, power cord assembly and harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "injection-mould the plastic housing parts",
+        "plant": "vn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "pre-assemble the control, power and sensor sub-assemblies",
+        "plant": "vn",
+        "group": "final_assembly"
+      },
+      {
+        "name": "install frame, fan and motor, filters, boards and housing; test and pack",
+        "plant": "vn",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Vietnam": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_fan_assembly": {
+        "vn": 60000,
+        "cn": 50000
+      },
+      "pcba": {
+        "vn": 40000,
+        "cn": 35000
+      },
+      "housing_moulding": {
+        "vn": 30000,
+        "cn": 26000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N366165",
+    "N366166"
+  ],
+  "current_origin": {
+    "country": "Vietnam",
+    "ruling": "N366165"
+  },
+  "control": {
+    "_source": "CBP ruling N366166 (2026-11-05): CBP held Vietnam, not China",
+    "moved_to_china": [
+      "motor",
+      "HEPA filter"
+    ],
+    "origin_changed": false
+  }
+}

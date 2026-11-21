@@ -1,0 +1,322 @@
+{
+  "_source": "Built from the facts of CBP ruling N351922 (2025-08-27, dev split; picked: China-held; N352061 skipped as the same product as N350310): CBP held China. Product drafted by gemini-4-argon from the facts, reviewed by hand. Target Thailand; plant capabilities for Thailand are an assumption. No later ruling on a changed setup, so there is no backtest.",
+  "case_id": "fam-n351922",
+  "date": "2025-08-27",
+  "family": "motorised_tools_small_appliances",
+  "target": "Thailand",
+  "product": {
+    "name": "refrigerant recovery unit",
+    "description": "A composite machine designed to suction refrigerant vapor from refrigeration or air conditioning equipment, filter and cool it, and push liquid refrigerant into an external recovery tank. It consists of an outer casing enclosing a DC motor, a compressor, a condenser, a fan, a digital display board, a control valve, and filters.",
+    "plants": [
+      {
+        "id": "th",
+        "name": "Thailand Plant",
+        "country": "Thailand",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China Plant",
+        "country": "China",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "housing_moulding",
+          "switch_cord_minor_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "Copper wire",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Stator core",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Rotor shaft",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "DC motor",
+        "made_in": "Thailand",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Tubing and sleeves",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Motor electronic board",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba"
+      },
+      {
+        "name": "Magnetic ring",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Terminal block assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Motor back cover",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Magnets",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Bearing",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Motor front cover",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Fan air guide cover",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Fan",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Coupling",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Mounting feet",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Compressor subassembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Baseplate and left group plates",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Condenser",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Sensor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Gears",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Control valve",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Handle fixing frame",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Hook and right plate",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Rubber-coated handle and top plate",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Membrane keys and transparent panel",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Digital display board assembly",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba"
+      },
+      {
+        "name": "Front and back covers",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "Large knob",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Retaining ring",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Filter screen",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      },
+      {
+        "name": "Drying filter",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "Wind copper wire onto stator core, place tubing and sleeves over wires, and solder additional wiring",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Weld electronic board to motor stator assembly and install magnetic ring, terminal block assembly, and back cover",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Bond magnets to rotor shaft, install shaft cover and bearing, and press front cover in place",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Secure stator and rotor subassemblies to each other using screws to finish DC motor",
+        "plant": "th",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "Assemble fan air guide cover, fan, coupling, and mounting feet onto motor with screws to form motor subassembly",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Screw motor subassembly and compressor subassembly together, and install baseplate, left group plates, and condenser",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Make wiring connections and install sensor, two gears, control valve, and handle fixing frame",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Join hook to right plate and install onto unit, and install rubber-coated handle onto top plate",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Affix membrane keys onto transparent panel and secure with digital display board assembly to front cover using screws",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Complete wiring connections, align and screw front and back covers to baseplate groups, and install large knob",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Solder remaining wires and install retaining ring and filter screen",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "Test, inspect, and package unit with drying filter",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "pcba": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "housing_moulding": {
+        "cn": 100000,
+        "th": 125000
+      },
+      "switch_cord_minor_parts": {
+        "cn": 100000,
+        "th": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N351922"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N351922"
+  }
+}

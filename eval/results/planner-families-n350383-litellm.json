@@ -1,0 +1,236 @@
+{
+  "case_id": "fam-n350383",
+  "target": "China",
+  "family": "power_supplies_chargers",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Battery Charger (Models IC, ICL, RC, RQ, and XV). A battery charger used in industrial and recreational machinery such as electric pallet jacks, scissor lifts, golf carts, and e-mobility scooters. It consists of a printed circuit board assembly (PCBA) housed within a cast enclosure with a lid and various electrical connectors. The Battery Charger (Models IC, ICL, RC, RQ, and XV) is assembled in China using components sourced from Indonesia and China.\n\nThe Bare printed circuit board, Integrated circuits, Resistors, Transistors, Capacitors and Printed circuit board assembly (PCBA) are produced in Indonesia. The Cast enclosure, Electrical connectors and Enclosure lid are produced in China. \n\nFinal assembly in China: Glue the PCBA within the cast enclosure; Add the electrical connectors; Attach the lid to the enclosure; Test the finished device and package for shipment.\n",
+    "prediction": {
+      "origin_country": "Indonesia",
+      "key_factors": [
+        "Printed circuit board assembly (PCBA)"
+      ],
+      "decisive_step": "Production and assembly of the PCBA from electronic components in Indonesia",
+      "confidence": 0.95,
+      "reasoning": "Under CBP precedent for battery chargers and power adapters (e.g., N331908, N331906, N331902), the printed circuit board assembly (PCBA) imparts the essential character because it converts voltage and controls electrical charging. Here, the bare PCB, electronic components, and finished PCBA are entirely produced in Indonesia. The subsequent operations in China—gluing the PCBA into a cast enclosure, adding connectors, attaching the lid, and testing—constitute simple assembly that does not substantially transform the Indonesian PCBA.",
+      "cited_rulings": [
+        "N331908",
+        "N331906",
+        "N331902"
+      ],
+      "precedents": [
+        "N331902",
+        "N331906",
+        "N331908",
+        "N348392",
+        "N349313"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2492,
+        "output_tokens": 227,
+        "latency_ms": 6165
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N350383"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "pcba_manufacturing",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Make PCBA (SMT) in China",
+      "variant_facts": "The merchandise under consideration is a Battery Charger (Models IC, ICL, RC, RQ, and XV). A battery charger used in industrial and recreational machinery such as electric pallet jacks, scissor lifts, golf carts, and e-mobility scooters. It consists of a printed circuit board assembly (PCBA) housed within a cast enclosure with a lid and various electrical connectors. The Battery Charger (Models IC, ICL, RC, RQ, and XV) is assembled in China using components sourced from China.\n\nThe Bare printed circuit board, Integrated circuits, Resistors, Transistors, Capacitors, Printed circuit board assembly (PCBA), Cast enclosure, Electrical connectors and Enclosure lid are produced in China. \n\nIn China, the Bare printed circuit board, Integrated circuits, Resistors, Transistors, Capacitors and Printed circuit board assembly (PCBA) will be produced in-house: Add electrical components including integrated circuits, resistors, transistors, and capacitors to the bare printed circuit board via soldering, through-hole, and surface mount technology (SMT) processes to create the PCBA; Test the finished PCBA for functionality.\n\nFinal assembly in China: Glue the PCBA within the cast enclosure; Add the electrical connectors; Attach the lid to the enclosure; Test the finished device and package for shipment.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "SMT and through-hole assembly of the PCBA and final assembly of the battery charger in China",
+        "confidence": 1,
+        "reasoning": "All components are sourced from China, and all manufacturing operations—including the surface mount technology (SMT) and through-hole assembly of the PCBA, as well as the final integration into the cast enclosure—take place entirely within China. Consistent with CBP precedent (e.g., N331908, N331906, N331902), the assembly of the PCBA imparts the essential character of a charger/power adapter, making China the country of origin.",
+        "cited_rulings": [
+          "N331908",
+          "N331906",
+          "N331902"
+        ],
+        "precedents": [
+          "N331902",
+          "N331906",
+          "N331908",
+          "N348392",
+          "N349313"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2567,
+          "output_tokens": 232,
+          "latency_ms": 7662
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N340825",
+        "confidence": 0.98,
+        "reasoning": "In N340825 and N335537, CBP held that the country of origin of battery chargers is determined by the country where the main printed circuit board assembly (PCBA) is manufactured via SMT/through-hole soldering, as the PCBA provides the essential character of the electrical charging function, while final enclosure assembly in China does not effect a substantial transformation. In Variant A, the PCBA is produced in Indonesia, making Indonesia the origin. In Variant B, PCBA manufacturing (and all component production and final assembly) moves to China, shifting the country of origin to China.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "battery charger PCBA printed circuit board assembly SMT enclosure",
+            "rulings": [
+              "N335537",
+              "N340825",
+              "N334434",
+              "N349313",
+              "N339485",
+              "H338116",
+              "N335017",
+              "H345749"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "power supply battery charger PCBA origin China Indonesia",
+            "rulings": [
+              "N331243",
+              "N335537",
+              "N340825",
+              "N347058",
+              "N331943",
+              "H345749",
+              "N333268",
+              "N348708"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N348708",
+            "rulings": [
+              "N348708"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N335537",
+            "rulings": [
+              "N335537"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N340825",
+            "rulings": [
+              "N340825"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N349313",
+            "rulings": [
+              "N349313"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15563,
+          "output_tokens": 385,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Battery Charger (Models IC, ICL, RC, RQ, and XV). A battery charger used in industrial and recreational machinery such as electric pallet jacks, scissor lifts, golf carts, and e-mobility scooters. It consists of a printed circuit board assembly (PCBA) housed within a cast enclosure with a lid and various electrical connectors. The Battery Charger (Models IC, ICL, RC, RQ, and XV) is assembled in China using components sourced from Indonesia and China.\n\nThe Bare printed circuit board, Integrated circuits, Resistors, Transistors, Capacitors and Printed circuit board assembly (PCBA) are produced in Indonesia. The Cast enclosure, Electrical connectors and Enclosure lid are produced in China. \n\nFinal assembly in China: Glue the PCBA within the cast enclosure; Add the electrical connectors; Attach the lid to the enclosure; Test the finished device and package for shipment.\n",
+      "prediction": {
+        "origin_country": "Indonesia",
+        "key_factors": [
+          "Printed circuit board assembly (PCBA)"
+        ],
+        "decisive_step": "Production and assembly of the PCBA from electronic components in Indonesia",
+        "confidence": 0.95,
+        "reasoning": "Under CBP precedent for battery chargers and power adapters (e.g., N331908, N331906, N331902), the printed circuit board assembly (PCBA) imparts the essential character because it converts voltage and controls electrical charging. Here, the bare PCB, electronic components, and finished PCBA are entirely produced in Indonesia. The subsequent operations in China—gluing the PCBA into a cast enclosure, adding connectors, attaching the lid, and testing—constitute simple assembly that does not substantially transform the Indonesian PCBA.",
+        "cited_rulings": [
+          "N331908",
+          "N331906",
+          "N331902"
+        ],
+        "precedents": [
+          "N331902",
+          "N331906",
+          "N331908",
+          "N348392",
+          "N349313"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2492,
+          "output_tokens": 227,
+          "latency_ms": 6165
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Indonesia (N350383); engine predicts Indonesia",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 20622,
+    "output_tokens": 844,
+    "engine_input_tokens": 5059,
+    "engine_output_tokens": 459,
+    "verifier_input_tokens": 15563,
+    "verifier_output_tokens": 385,
+    "wall_seconds": 26.375773
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "power_supplies_chargers": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.049684,
+  "cost_usd_list": 0.099368,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:58+08:00"
+}

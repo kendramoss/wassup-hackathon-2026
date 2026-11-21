@@ -35,6 +35,14 @@ const (
 
 	finalRunName = "final-gemini-4-argon-prec-engine-v1-vertex"
 
+	// The post-cutoff flip pairs (D170): frozen pairs and the production
+	// precedent check's rows, scored once with CBP's holding on the starting
+	// setup given (known-a).
+	postPairs = "eval/data/flips_post.jsonl"
+	postRows  = "eval/results/flips-post-verifier-v2-known-a-litellm.jsonl"
+	// planBar is the precedent check's plan bar (config.DefaultPlanBar).
+	planBar = 0.92
+
 	// fastPathBar is the auto-accept confidence bar of the frozen config.
 	fastPathBar = 0.92
 	// cutoff is the last ruling date of the labelled corpus.
@@ -517,6 +525,8 @@ func Compute(root string) (kv []KV, problems []string) {
 		out.add("slice.baseline.band95_correct", slice.Band95C)
 	}
 
+	plannerPost(out, &problems, root)
+
 	var calib struct {
 		Splits []struct {
 			Split  string `json:"split"`
@@ -581,7 +591,7 @@ const factsNamesPath = "names:" + factsDir
 var requiredManifest = []string{
 	sumsFile, adjustFile,
 	finalRows, finalScope, devRows, devScope,
-	runlogFile, calibFile, sliceFile,
+	runlogFile, calibFile, sliceFile, postRows,
 	"backend/data/labels.jsonl", "backend/data/labels_usmca.jsonl",
 	factsNamesPath,
 }
@@ -650,6 +660,15 @@ var meanings = map[string]string{
 	"usmca.not_in_labels":                  "Part 102 rulings absent from the labelled corpus",
 	"runlog.final.time":                    "run-of-record timestamp in RUNLOG",
 	"temporal.final_starts_after_dev_ends": "held-out window starts after the dev window ends",
+	"planner_post.pairs":                   "frozen post-cutoff flip pairs (D170)",
+	"planner_post.real_changes":            "pairs where CBP's two holdings differ",
+	"planner_post.controls":                "pairs where work moved and the origin did not",
+	"planner_post.core_pairs":              "pairs tiered core",
+	"planner_post.known_a.error_rows":      "precedent-check rows with an error",
+	"planner_post.known_a.shown":           "moves the check supported at the 0.92 plan bar",
+	"planner_post.known_a.shown_right":     "of those, real changes with CBP's later origin named",
+	"planner_post.known_a.controls_shown":  "no-change pairs supported at the bar",
+	"planner_post.known_a.recall_pct":      "real changes shown and right, percent",
 }
 
 // RenderTable formats figures as the document's key/value rows.
@@ -659,4 +678,87 @@ func RenderTable(kv []KV) string {
 		fmt.Fprintf(&b, "| `%s` | %s | %s |\n", e.Key, e.Value, meanings[e.Key])
 	}
 	return b.String()
+}
+
+// plannerPost recomputes the post-cutoff flip-pair figures (D170) from the
+// frozen pairs and the known-a precedent-check rows. A move is shown when
+// the check is precedent-supported at confidence >= the plan bar; it is
+// right when the pair is a real origin change and the check named CBP's
+// later origin.
+func plannerPost(out *kvs, probs *[]string, root string) {
+	type pair struct {
+		ID            string `json:"id"`
+		Date          string `json:"date"`
+		Tier          string `json:"tier"`
+		OriginChanged bool   `json:"origin_changed"`
+	}
+	type row struct {
+		ID         string  `json:"id"`
+		Supported  bool    `json:"precedent_supported"`
+		Confidence float64 `json:"confidence"`
+		OriginBOK  bool    `json:"origin_b_ok"`
+		Error      string  `json:"error"`
+	}
+	pairs, err := readJSONL[pair](root, postPairs)
+	if err != nil {
+		*probs = append(*probs, err.Error())
+		return
+	}
+	rows, err := readJSONL[row](root, postRows)
+	if err != nil {
+		*probs = append(*probs, err.Error())
+		return
+	}
+	byID := map[string]pair{}
+	var real, controls, core, early int
+	for _, p := range pairs {
+		byID[p.ID] = p
+		if p.OriginChanged {
+			real++
+		} else {
+			controls++
+		}
+		if p.Tier == "core" {
+			core++
+		}
+		if p.Date < "2026-09-26" {
+			early++
+		}
+	}
+	if early > 0 {
+		*probs = append(*probs, fmt.Sprintf("%s: %d pairs have no ruling dated after %s", postPairs, early, cutoff))
+	}
+	if len(rows) != len(pairs) {
+		*probs = append(*probs, fmt.Sprintf("%s: %d rows for %d frozen pairs", postRows, len(rows), len(pairs)))
+	}
+	var shown, right, ctlShown, errs int
+	for _, r := range rows {
+		p, ok := byID[r.ID]
+		if !ok {
+			*probs = append(*probs, fmt.Sprintf("%s: row %s is not a frozen pair", postRows, r.ID))
+			continue
+		}
+		if r.Error != "" {
+			errs++
+			continue
+		}
+		if r.Supported && r.Confidence >= planBar {
+			shown++
+			if p.OriginChanged && r.OriginBOK {
+				right++
+			}
+			if !p.OriginChanged {
+				ctlShown++
+			}
+		}
+	}
+	out.add("planner_post.pairs", len(pairs))
+	out.add("planner_post.real_changes", real)
+	out.add("planner_post.controls", controls)
+	out.add("planner_post.core_pairs", core)
+	out.add("planner_post.known_a.error_rows", errs)
+	out.add("planner_post.known_a.shown", shown)
+	out.add("planner_post.known_a.shown_right", right)
+	out.add("planner_post.known_a.controls_shown", ctlShown)
+	out.add("planner_post.known_a.recall_pct", pct(right, real))
 }

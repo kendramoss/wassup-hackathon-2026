@@ -1,0 +1,229 @@
+{
+  "case_id": "fam-n352429",
+  "target": "Taiwan",
+  "family": "hand_tools",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Snap-off blade utility knife. A snap-off blade style utility knife consisting of a stamped and ground steel blade, an injection-molded plastic blade slide button, a stamped steel blade sleeve, and an injection-molded plastic handle. The Snap-off blade utility knife is assembled in China using components sourced from Taiwan and China.\n\nThe Steel blade are produced in Taiwan. The Plastic blade slide button, Steel blade sleeve and Plastic handle material are produced in China. \n\nFinal assembly in China: Assembly of components; Packaging.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The utility knife handle, sleeve, and retraction mechanism"
+      ],
+      "decisive_step": "Manufacturing the handle, sleeve, and slide button and assembling the utility knife in China",
+      "confidence": 0.78,
+      "reasoning": "Unlike fixed or pocket knives (N350962) where the permanently attached blade imparts the essential character, a snap-off utility knife features a disposable, replaceable blade. As reflected in N350719 (citing N308152), the durable housing/handle mechanism and its assembly impart the essential character to a retractable utility knife with non-permanent blades. Because the plastic handle, steel blade sleeve, and slide button are all manufactured and assembled with the Taiwanese blade in China, the country of origin is China.",
+      "cited_rulings": [
+        "N350719",
+        "N350962"
+      ],
+      "precedents": [
+        "N347603",
+        "N350389",
+        "N350719",
+        "N350962",
+        "N351961"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2395,
+        "output_tokens": 222,
+        "latency_ms": 7714
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N352429"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "handles_and_hardware",
+          "to_plant": "tw"
+        }
+      ],
+      "description": "Make Handles and hardware in Taiwan",
+      "variant_facts": "The merchandise under consideration is a Snap-off blade utility knife. A snap-off blade style utility knife consisting of a stamped and ground steel blade, an injection-molded plastic blade slide button, a stamped steel blade sleeve, and an injection-molded plastic handle. The Snap-off blade utility knife is assembled in China using components sourced from Taiwan.\n\nThe Steel blade, Plastic blade slide button, Steel blade sleeve and Plastic handle material are produced in Taiwan. \n\nIn Taiwan, the Plastic blade slide button, Steel blade sleeve and Plastic handle material will be produced in-house: Injection molding plastic blade slide button; Stamping steel blade sleeve; Injection molding plastic handle material.\n\nFinal assembly in China: Assembly of components; Packaging.\n",
+      "prediction": {
+        "origin_country": "Taiwan",
+        "key_factors": [
+          "Stamped and ground steel blade, steel blade sleeve, and plastic handle"
+        ],
+        "decisive_step": "Manufacturing of the steel blade, blade sleeve, handle, and slide button in Taiwan",
+        "confidence": 0.99,
+        "reasoning": "All components of the snap-off utility knife—including the stamped and ground steel blade, stamped steel blade sleeve, injection-molded plastic handle, and slide button—are manufactured in Taiwan. Consistent with N350719, the essential character of a utility knife is imparted by its primary functional components (the blade and handle). The processing in China is limited to simple assembly of pre-manufactured Taiwanese parts and packaging, which does not constitute a substantial transformation. Therefore, the country of origin is Taiwan.",
+        "cited_rulings": [
+          "N350719"
+        ],
+        "precedents": [
+          "N347603",
+          "N350389",
+          "N350719",
+          "N350962",
+          "N351961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2431,
+          "output_tokens": 202,
+          "latency_ms": 7305
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N350719",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, only the replaceable blade is made in Taiwan while the handle, sleeve, slide button, and final assembly occur in China, resulting in Chinese origin. In Variant B, all four components—the steel blade, plastic handle, steel blade sleeve, and plastic slide button—are manufactured in Taiwan, leaving only simple assembly and packaging in China. In N350719, CBP held that for a retractable utility knife with a replaceable blade, the handle and blade together hold the essential identity, and assembly in China does not cause a substantial transformation. Thus, moving the handle and housing components to Taiwan changes origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "utility knife blade handle assembly China Taiwan",
+            "rulings": [
+              "N350719",
+              "N347603",
+              "N350962",
+              "N333337",
+              "N350796",
+              "N333023",
+              "N350389",
+              "N351687"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "snap-off blade knife origin assembly",
+            "rulings": [
+              "N350962",
+              "N350719",
+              "N350389",
+              "N333337",
+              "N350796",
+              "N351687",
+              "N347603",
+              "N345938"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350719",
+            "rulings": [
+              "N350719"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N350962",
+            "rulings": [
+              "N350962"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N333337",
+            "rulings": [
+              "N333337"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N308152"
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 12557,
+          "output_tokens": 356,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Snap-off blade utility knife. A snap-off blade style utility knife consisting of a stamped and ground steel blade, an injection-molded plastic blade slide button, a stamped steel blade sleeve, and an injection-molded plastic handle. The Snap-off blade utility knife is assembled in China using components sourced from Taiwan and China.\n\nThe Steel blade are produced in Taiwan. The Plastic blade slide button, Steel blade sleeve and Plastic handle material are produced in China. \n\nFinal assembly in China: Assembly of components; Packaging.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The utility knife handle, sleeve, and retraction mechanism"
+        ],
+        "decisive_step": "Manufacturing the handle, sleeve, and slide button and assembling the utility knife in China",
+        "confidence": 0.78,
+        "reasoning": "Unlike fixed or pocket knives (N350962) where the permanently attached blade imparts the essential character, a snap-off utility knife features a disposable, replaceable blade. As reflected in N350719 (citing N308152), the durable housing/handle mechanism and its assembly impart the essential character to a retractable utility knife with non-permanent blades. Because the plastic handle, steel blade sleeve, and slide button are all manufactured and assembled with the Taiwanese blade in China, the country of origin is China.",
+        "cited_rulings": [
+          "N350719",
+          "N350962"
+        ],
+        "precedents": [
+          "N347603",
+          "N350389",
+          "N350719",
+          "N350962",
+          "N351961"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2395,
+          "output_tokens": 222,
+          "latency_ms": 7714
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N352429); engine predicts China",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 17383,
+    "output_tokens": 780,
+    "engine_input_tokens": 4826,
+    "engine_output_tokens": 424,
+    "verifier_input_tokens": 12557,
+    "verifier_output_tokens": 356,
+    "wall_seconds": 27.614483709
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "hand_tools": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.042566,
+  "cost_usd_list": 0.085132,
+  "git_revision": "6e93ad439ceceaa321d4ca76b1298eb84e42ddba-dirty",
+  "time": "2026-11-21T15:17:36+08:00"
+}

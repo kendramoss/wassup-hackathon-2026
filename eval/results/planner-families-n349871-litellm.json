@@ -1,0 +1,244 @@
+{
+  "case_id": "fam-n349871",
+  "target": "Thailand",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607). Aluminum wheels used in semi-trailer trucks and trailers, produced by forging aluminum bars into a circular blank ('cookie'), flow forming and machining the rim, applying surface treatments, and installing a valve. The Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Aluminum bar / ingot and Forged circular aluminum blank ('cookie') are produced in China. The Valve are produced in Thailand. \n\nFinal assembly in Thailand: Loading valve; Marking, testing, and packaging.\n",
+    "prediction": {
+      "origin_country": "Thailand",
+      "key_factors": [
+        "Flow-formed and machined aluminum wheel rim"
+      ],
+      "decisive_step": "Flow forming, CNC machining, and surface treatment of the forged aluminum blank into a wheel rim in Thailand",
+      "confidence": 0.85,
+      "reasoning": "In China, aluminum bar is merely forged into a circular blank ('cookie'), which does not yet have the shape or character of a finished wheel. Similar to N346637 and N345286, where Chinese forged blanks were substantially transformed in Thailand via extensive machining and heat treatment, the flow forming, machining,表面 treatment, and valve assembly in Thailand transform the raw forging into a new article of commerce with a distinct name, character, and use.",
+      "cited_rulings": [
+        "N346637",
+        "N345286"
+      ],
+      "precedents": [
+        "H332525",
+        "N345286",
+        "N346637",
+        "N346947",
+        "N348296"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2614,
+        "output_tokens": 218,
+        "latency_ms": 8896
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N349871"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "housings_and_structures",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housings and structural parts in Thailand",
+      "variant_facts": "The merchandise under consideration is a Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607). Aluminum wheels used in semi-trailer trucks and trailers, produced by forging aluminum bars into a circular blank ('cookie'), flow forming and machining the rim, applying surface treatments, and installing a valve. The Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607) is assembled in Thailand using components sourced from Thailand.\n\nThe Aluminum bar / ingot, Forged circular aluminum blank ('cookie') and Valve are produced in Thailand. \n\nIn Thailand, the Aluminum bar / ingot and Forged circular aluminum blank ('cookie') will be produced in-house: Cutting aluminum bars; Heating, forging ingots into a circular shape, and expanding to form a 'cookie'; Flow forming (stretching the rim to the required size and structure); Pre-cleaning, burnishing (sanding), polishing inside and outside, applying special anti-oxidation coating, and removing polishing paste.\n\nFinal assembly in Thailand: Loading valve; Marking, testing, and packaging.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Forged and flow-formed aluminum wheel body"
+        ],
+        "decisive_step": "Forging, flow-forming, and machining the aluminum bar into a wheel in Thailand",
+        "confidence": 1,
+        "reasoning": "All raw materials (aluminum bar/ingot, valve) and intermediate components (forged circular blank) are wholly sourced and produced in Thailand. Furthermore, the complete manufacturing process—including cutting, heating, forging, flow forming, machining, surface treatment, and final assembly—occurs entirely within Thailand. Because the product is wholly obtained and substantially transformed from raw aluminum into a finished wheel in Thailand, the country of origin is unambiguously Thailand.",
+        "cited_rulings": [],
+        "precedents": [
+          "H332525",
+          "N345286",
+          "N346637",
+          "N346947",
+          "N348296"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2694,
+          "output_tokens": 213,
+          "latency_ms": 8832
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N346803",
+        "confidence": 0.94,
+        "reasoning": "In Variant A, the aluminum bar/ingot and forged circular aluminum blank ('cookie') are produced in China, imparting the essential character of the wheel, so CBP held the origin was China. In Variant B, all components (aluminum bar/ingot, forged circular blank, and valve) and all manufacturing operations (cutting, heating, forging the cookie, flow forming, machining, surface treatment, and final assembly) occur entirely in Thailand using components sourced solely from Thailand. Moving the production of the raw material and forged blank to Thailand makes the wheel wholly produced in Thailand (consistent with N346803 and N345444 regarding forged blanks), changing origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "aluminum wheel forging flow forming machining",
+            "rulings": [
+              "N346375",
+              "N346378",
+              "N345225",
+              "N346947",
+              "N348474",
+              "N345286",
+              "N349660",
+              "N343418"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "aluminum wheel forged blank Thailand China",
+            "rulings": [
+              "N346803",
+              "N346315",
+              "N345444",
+              "N346637",
+              "N345225",
+              "N335671",
+              "N345286",
+              "N349660"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"wheel\" forged aluminum origin",
+            "rulings": [
+              "N349660",
+              "N348532",
+              "N339011",
+              "N335716",
+              "N345225",
+              "N332515",
+              "H333250",
+              "N346803"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345444",
+            "rulings": [
+              "N345444"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"8708.70\" country of origin wheel",
+            "rulings": [
+              "N349660",
+              "N343952",
+              "N346802",
+              "N348474",
+              "N340233",
+              "N343295",
+              "N344082",
+              "N346900"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N346803",
+            "rulings": [
+              "N346803"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 11785,
+          "output_tokens": 371,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": 275000,
+      "net_priced": true,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607). Aluminum wheels used in semi-trailer trucks and trailers, produced by forging aluminum bars into a circular blank ('cookie'), flow forming and machining the rim, applying surface treatments, and installing a valve. The Aluminum wheels (FAW225X14M0 ALUM WHEEL MACH 0-OFFSET, Part Number 84U607) is assembled in Thailand using components sourced from China and Thailand.\n\nThe Aluminum bar / ingot and Forged circular aluminum blank ('cookie') are produced in China. The Valve are produced in Thailand. \n\nFinal assembly in Thailand: Loading valve; Marking, testing, and packaging.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "Flow-formed and machined aluminum wheel rim"
+        ],
+        "decisive_step": "Flow forming, CNC machining, and surface treatment of the forged aluminum blank into a wheel rim in Thailand",
+        "confidence": 0.85,
+        "reasoning": "In China, aluminum bar is merely forged into a circular blank ('cookie'), which does not yet have the shape or character of a finished wheel. Similar to N346637 and N345286, where Chinese forged blanks were substantially transformed in Thailand via extensive machining and heat treatment, the flow forming, machining,表面 treatment, and valve assembly in Thailand transform the raw forging into a new article of commerce with a distinct name, character, and use.",
+        "cited_rulings": [
+          "N346637",
+          "N345286"
+        ],
+        "precedents": [
+          "H332525",
+          "N345286",
+          "N346637",
+          "N346947",
+          "N348296"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2614,
+          "output_tokens": 218,
+          "latency_ms": 8896
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N349871); engine predicts Thailand",
+      "rejection_kind": "current_setup"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 4,
+    "verifier_tool_calls": 6,
+    "input_tokens": 17093,
+    "output_tokens": 802,
+    "engine_input_tokens": 5308,
+    "engine_output_tokens": 431,
+    "verifier_input_tokens": 11785,
+    "verifier_output_tokens": 371,
+    "wall_seconds": 29.070744917
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.042206,
+  "cost_usd_list": 0.084412,
+  "git_revision": "6f58d54e5df6eb2f4ba56d4aa6ddd813286e86b5",
+  "time": "2026-11-21T15:14:00+08:00"
+}
