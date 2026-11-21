@@ -1272,6 +1272,7 @@ paths:
                         snippet: { type: string, description: "The first 300 characters of the ruling's facts section" }
                         score: { type: number }
                         superseded: { $ref: "#/components/schemas/Superseded" }
+                        proposed: { $ref: "#/components/schemas/ProposedChange" }
                   disclaimer: { type: string }
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/TooManyRequests" }
@@ -2671,15 +2672,28 @@ components:
         url: { type: string, example: https://rulings.cbp.gov/ruling/N357771 }
         origin: { type: [string, "null"], description: "CBP's held origin; null when the ruling has no single held origin" }
         superseded: { $ref: "#/components/schemas/Superseded" }
+        proposed: { $ref: "#/components/schemas/ProposedChange" }
     Superseded:
       type: object
-      description: "Present only when a later CBP ruling in the corpus revoked or modified this one (D320). On GET /v1/rulings it is as of `before` (any known one without it); on GET /v1/rulings/{id} it is any known one. Precedent checks never cite such a ruling for a case dated on or after `date`."
+      description: "Present only when a later CBP ruling in the corpus, or a final notice in a fetched Customs Bulletin, revoked or modified this one (D320, D400). On GET /v1/rulings it is as of `before` (any known one without it); on GET /v1/rulings/{id} it is any known one. Precedent checks never cite such a ruling for a case dated after `date` (D370)."
       required: [by, kind, date, note]
       properties:
         by: { type: string, example: H325607 }
         kind: { type: string, enum: [revoked, modified] }
-        date: { type: string, format: date, description: "Issue date of the superseding ruling" }
+        date: { type: string, format: date, description: "Issue date of the superseding ruling; for a change read only from a Customs Bulletin notice, the notice's effective date" }
         note: { type: string, example: "revoked by H325607 on 2025-08-29" }
+        bulletin: { type: string, description: "The Customs Bulletin notice that published or confirmed the change (D400)", example: "Customs Bulletin vol. 59 no. 38, p. 1" }
+        bulletin_url: { type: string, description: "The bulletin's PDF on cbp.gov" }
+    ProposedChange:
+      type: object
+      description: "Present only when CBP proposed to revoke or modify this ruling in a fetched Customs Bulletin notice and no fetched notice made it final (D400). Information only: it never bars the ruling as a precedent."
+      required: [by, kind, bulletin, bulletin_url, note]
+      properties:
+        by: { type: string, description: "The proposed ruling attached to the notice", example: H341085 }
+        kind: { type: string, enum: [revoked, modified] }
+        bulletin: { type: string, example: "Customs Bulletin vol. 58 no. 44, p. 1" }
+        bulletin_url: { type: string }
+        note: { type: string, example: "CBP proposed to revoke it (H341085, Customs Bulletin vol. 58 no. 44, p. 1)" }
     Comparison:
       type: object
       description: Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced.

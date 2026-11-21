@@ -2064,8 +2064,9 @@ export interface components {
             /** @description CBP's held origin; null when the ruling has no single held origin */
             origin?: string | null;
             superseded?: components["schemas"]["Superseded"];
+            proposed?: components["schemas"]["ProposedChange"];
         };
-        /** @description Present only when a later CBP ruling in the corpus revoked or modified this one (D320). On GET /v1/rulings it is as of `before` (any known one without it); on GET /v1/rulings/{id} it is any known one. Precedent checks never cite such a ruling for a case dated on or after `date`. */
+        /** @description Present only when a later CBP ruling in the corpus, or a final notice in a fetched Customs Bulletin, revoked or modified this one (D320, D400). On GET /v1/rulings it is as of `before` (any known one without it); on GET /v1/rulings/{id} it is any known one. Precedent checks never cite such a ruling for a case dated after `date` (D370). */
         Superseded: {
             /** @example H325607 */
             by: string;
@@ -2073,10 +2074,32 @@ export interface components {
             kind: "revoked" | "modified";
             /**
              * Format: date
-             * @description Issue date of the superseding ruling
+             * @description Issue date of the superseding ruling; for a change read only from a Customs Bulletin notice, the notice's effective date
              */
             date: string;
             /** @example revoked by H325607 on 2025-08-29 */
+            note: string;
+            /**
+             * @description The Customs Bulletin notice that published or confirmed the change (D400)
+             * @example Customs Bulletin vol. 59 no. 38, p. 1
+             */
+            bulletin?: string;
+            /** @description The bulletin's PDF on cbp.gov */
+            bulletin_url?: string;
+        };
+        /** @description Present only when CBP proposed to revoke or modify this ruling in a fetched Customs Bulletin notice and no fetched notice made it final (D400). Information only: it never bars the ruling as a precedent. */
+        ProposedChange: {
+            /**
+             * @description The proposed ruling attached to the notice
+             * @example H341085
+             */
+            by: string;
+            /** @enum {string} */
+            kind: "revoked" | "modified";
+            /** @example Customs Bulletin vol. 58 no. 44, p. 1 */
+            bulletin: string;
+            bulletin_url: string;
+            /** @example CBP proposed to revoke it (H341085, Customs Bulletin vol. 58 no. 44, p. 1) */
             note: string;
         };
         /** @description Yearly money view of a scenario against the current setup (current origin = CBP's known holding if given, else the case prediction). Illustrative unless the economics are sourced. */
@@ -3758,6 +3781,7 @@ export interface operations {
                             snippet: string;
                             score: number;
                             superseded?: components["schemas"]["Superseded"];
+                            proposed?: components["schemas"]["ProposedChange"];
                         }[];
                         disclaimer: string;
                     };

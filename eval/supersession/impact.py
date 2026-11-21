@@ -84,7 +84,12 @@ def main(root, check):
     hits = []
     totals = {"rows_with_rulings": 0, "rows_showing_superseded": 0, "rows_citing_superseded": 0,
               "supported_verdicts_on_superseded": 0, "rows_undated": 0,
-              "undated_rows_naming_any_superseded": 0}
+              "undated_rows_naming_any_superseded": 0,
+              # D400: edges read from Customs Bulletin notices, any date and
+              # before the case date.
+              "rows_naming_bulletin_ruling_any_date": 0,
+              "rows_showing_or_citing_bulletin_superseded": 0}
+    bulletin_named = {}
     for path in files:
         # JSON keys must match the Linux-generated artifact on every platform.
         rel = os.path.relpath(path, root).replace(os.sep, "/")
@@ -98,6 +103,11 @@ def main(root, check):
             counter = as_list(r.get("counter_ruling"))
             if not (shown or cited or support or counter):
                 continue
+            named_b = sorted({i for i in shown + cited + support + counter if i in first and first[i].get("source") == "customs_bulletin"})
+            if named_b:
+                totals["rows_naming_bulletin_ruling_any_date"] += 1
+                for i in named_b:
+                    bulletin_named[i] = bulletin_named.get(i, 0) + 1
             date = r.get("date") or r.get("precedents_before") or bounds.get(r.get("id", ""))
             if not date and "heatgun" in os.path.basename(path):
                 date = HEATGUN_BOUND
@@ -119,6 +129,8 @@ def main(root, check):
             s_support = sup(support)
             if s_support and r.get("precedent_supported"):
                 f["supported_verdicts_on_superseded"] += 1
+            if any(first[i].get("source") == "customs_bulletin" for i in s_shown + s_cited):
+                totals["rows_showing_or_citing_bulletin_superseded"] += 1
             if s_shown or s_cited:
                 hits.append({"file": rel, "row": r.get("ruling") or r.get("id"), "case_date": date,
                              "shown_superseded": s_shown, "cited_superseded": s_cited,
@@ -131,13 +143,15 @@ def main(root, check):
                 totals[k] += f[k]
     out = {
         "note": "Offline count (D320, D370): committed result rows that showed or cited a CBP ruling revoked or modified before the row's case date (a change dated on the case date does not count). "
-                "No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured.",
+                "No model calls; nothing re-scored. The engine rows would now be predicted without those precedents; the effect on accuracy is not measured. "
+                "Edges read from Customs Bulletin notices (D400) are dated by their effective date; bulletin_rulings_named counts rows that name such a ruling at any date.",
         "map_version": version,
         "files_with_rulings": len(per_file),
         "totals": totals,
         "files": {k: v for k, v in per_file.items() if v["rows_showing_superseded"] or v["rows_citing_superseded"]},
         "undated_files": {k: v["rows_undated"] for k, v in per_file.items() if v["rows_undated"]},
         "rows": sorted(hits, key=lambda h: (h["file"], str(h["row"]))),
+        "bulletin_rulings_named": {i: {"rows": n, "superseded_by": first[i]["superseded_by"], "effective": first[i]["date"]} for i, n in sorted(bulletin_named.items())},
     }
     text = json.dumps(out, indent=1, sort_keys=True) + "\n"
     dest = os.path.join(root, OUT)

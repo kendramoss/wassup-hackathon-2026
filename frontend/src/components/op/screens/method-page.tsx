@@ -432,8 +432,10 @@ export function MethodPage() {
             above. A supported move below the bar is listed as below the bar; the closest one can still go to a broker, labelled as such. Shown moves rank in two tiers
             (<D id="D341" />): first those with a clear margin, a check of 0.93 or more and no counter-ruling, then those at the bar, which may not hold on a re-check. Within
             a tier they rank by the net per year on the duty and cost inputs. The move that changes the fewest parts is labelled the smallest supported move. A ruling CBP
-            later revoked or modified is never cited for a case dated after the change, and the site marks it &quot;superseded by&quot; (<D id="D320" />, <D id="D370" />): the
-            corpus records 35 such changes to 34 rulings, and before the guard 23 of 13,166 committed rows had shown one and 8 had cited one.
+            later revoked or modified is never cited for a case dated after the change, and the site marks it &quot;superseded by&quot; (<D id="D320" />, <D id="D370" />). The
+            map holds 144 such changes to 143 rulings: 35 read from later rulings in the corpus and 109 from final notices in 28 fetched Customs Bulletins, each
+            counted from its effective date (<D id="D400" />, <D id="D401" />). 78 changes CBP has only proposed are shown beside the ruling and never block it. Before
+            the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none.
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker

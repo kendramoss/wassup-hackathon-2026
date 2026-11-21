@@ -380,8 +380,9 @@ export function AccuracyPage() {
               </div>
               <p className="duo mt-3 max-w-[80ch] text-xs text-dim">
                 Revoked rulings are not cited. A ruling CBP later revoked or modified is never cited as support for a case dated after the change, and every ruling link on
-                the site says &quot;superseded by&quot; when one is known (D320, D370). The corpus records 35 such changes to 34 rulings. Before the guard, 23 of 13,166 committed
-                rows had shown one and 8 had cited one; the effect on accuracy has not been measured.
+                the site says &quot;superseded by&quot; when one is known (D320, D370). The map holds 144 such changes to 143 rulings, 109 of them from final notices in 28
+                fetched Customs Bulletins (D400). Before the guard, 23 of 13,166 committed rows had shown one and 8 had cited one; the bulletin changes add none, and the
+                effect on accuracy has not been measured.
               </p>
             </section>
           )}

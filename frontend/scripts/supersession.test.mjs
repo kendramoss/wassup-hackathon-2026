@@ -8,16 +8,48 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const { superseded, supersededAsOf } = await import("../src/lib/supersession.ts");
+const { superseded, supersededAsOf, proposed, proposalFor } = await import("../src/lib/supersession.ts");
 const map = JSON.parse(readFileSync(fileURLToPath(new URL("../../backend/internal/domain/supersession.json", import.meta.url)), "utf8"));
 
 test("the frontend map is the backend's, earliest edge per ruling", () => {
   const want = {};
   for (const e of map.edges) {
-    if (!want[e.ruling] || e.date < want[e.ruling].date) want[e.ruling] = { by: e.superseded_by, kind: e.kind, date: e.date };
+    if (!want[e.ruling] || e.date < want[e.ruling].date) {
+      want[e.ruling] = { by: e.superseded_by, kind: e.kind, date: e.date };
+      if (e.bulletin) want[e.ruling].bulletin = cite(e.bulletin);
+    }
   }
   assert.deepEqual(superseded, want);
   assert.equal(Object.keys(superseded).length, map.counts.superseded_rulings);
+});
+
+function cite(b) {
+  return `Customs Bulletin vol. ${b.volume} no. ${b.number}${b.page ? `, p. ${b.page}` : ""}`;
+}
+
+// D400: proposals CBP published and has not made final are mirrored too,
+// earliest per ruling, and only ever shown.
+test("the frontend's proposals are the backend's", () => {
+  const want = {};
+  for (const p of map.proposed ?? []) {
+    if (!want[p.ruling] || p.bulletin.date < want[p.ruling].date) want[p.ruling] = { by: p.proposed_by, kind: p.kind, bulletin: cite(p.bulletin), date: p.bulletin.date };
+  }
+  for (const k of Object.keys(want)) delete want[k].date;
+  assert.deepEqual(proposed, want);
+  assert.equal(proposalFor("N357771"), undefined);
+});
+
+test("a bulletin change cites the bulletin; a proposal is shown and still counted", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const React = await import("react");
+  const { RulingLink } = await import("../src/components/op/ui.tsx");
+  const olaf = renderToStaticMarkup(React.createElement(RulingLink, { id: "N325599", asOf: "2024-07-23", support: true }));
+  assert.match(olaf, /superseded by H325364/);
+  assert.match(olaf, /Customs Bulletin vol\. 58 no\. 20/);
+  assert.match(olaf, /not counted as support/);
+  const prop = renderToStaticMarkup(React.createElement(RulingLink, { id: "080651", asOf: "2026-11-01", support: true }));
+  assert.match(prop, /CBP proposed to revoke it in H346396/);
+  assert.doesNotMatch(prop, /not counted|superseded/);
 });
 
 test("a change on or after the case date is shown but does not bar the ruling", () => {

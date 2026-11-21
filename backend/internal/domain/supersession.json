@@ -1,23 +1,53 @@
 {
- "version": "supersession-v1",
- "rule": "A ruling is superseded when a later CBP ruling in the corpus states that it is revoked or modified: the EFFECT ON OTHER RULINGS section, any \"is/are hereby revoked/modified\" or \"we hereby revoke/modify\" sentence, a subject line that starts \"Revocation of\" or \"Modification of/to\", or a later ruling stating that one ruling \"was revoked/modified by\" another. The date is the superseding ruling's issue date. Notices of proposed revocation and affirmations are not supersessions. A ruling revoked after a case date stays usable for that case.",
+ "version": "supersession-v2",
+ "rule": "A ruling is superseded when a later CBP ruling in the corpus states that it is revoked or modified: the EFFECT ON OTHER RULINGS section, any \"is/are hereby revoked/modified\" or \"we hereby revoke/modify\" sentence, a subject line that starts \"Revocation of\" or \"Modification of/to\", or a later ruling stating that one ruling \"was revoked/modified by\" another. The date is the superseding ruling's issue date. Notices of proposed revocation and affirmations are not supersessions. A ruling revoked after a case date stays usable for that case. Final revocations and modifications published in fetched Customs Bulletin notices are added, dated by the notice's effective date, with the bulletin's volume, number, page and URL (D400); proposed ones are listed under \"proposed\" and never bar a precedent.",
  "counts": {
-  "edges": 35,
-  "edges_modified": 25,
-  "edges_revoked": 10,
+  "bulletin_edges_confirming_corpus": 8,
+  "bulletin_edges_new": 109,
+  "bulletin_issues": 28,
+  "bulletin_model_added": 2,
+  "bulletin_model_dropped": 0,
+  "bulletin_notices": 81,
+  "bulletin_notices_final": 38,
+  "bulletin_notices_flagged": 3,
+  "bulletin_notices_proposed": 42,
+  "bulletin_notices_withdrawn": 1,
+  "edges": 144,
+  "edges_modified": 74,
+  "edges_revoked": 70,
+  "proposed": 78,
+  "proposed_in_pool": 0,
   "rulings_read": 3275,
   "rulings_with_full_text": 3112,
+  "source_customs_bulletin": 109,
   "source_effect_on_other_rulings": 27,
   "source_hereby": 4,
   "source_reference": 1,
   "source_subject": 3,
-  "superseded_in_pool": 13,
-  "superseded_in_pool_general": 3,
+  "superseded_in_pool": 14,
+  "superseded_in_pool_general": 4,
   "superseded_in_pool_usmca": 10,
-  "superseded_rulings": 34,
-  "superseding_rulings": 28
+  "superseded_rulings": 143,
+  "superseding_rulings": 62
  },
  "edges": [
+  {
+   "ruling": "088829",
+   "superseded_by": "H331822",
+   "date": "2024-03-18",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H331822",
+   "quote": "EFFECT ON OTHER RULINGS: NY N319955, dated June 22, 2021, and HQ 088829, dated May 20, 1991, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 2,
+    "date": "2024-01-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Jan/Vol_58_No_02_complete.pdf",
+    "effective": "2024-03-18"
+   }
+  },
   {
    "ruling": "558009",
    "superseded_by": "H314649",
@@ -28,6 +58,227 @@
    "quote": "HQ 558009 is hereby MODIFIED"
   },
   {
+   "ruling": "563109",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 563109 and HQ 563125 are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "563125",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 563109 and HQ 563125 are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "809868",
+   "superseded_by": "H254420",
+   "date": "2026-04-19",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H254420",
+   "quote": "EFFECT ON OTHER RULINGS: NY 809868 is revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 7,
+    "date": "2026-02-18",
+    "page": 17,
+    "url": "https://www.cbp.gov/sites/default/files/2026-02/vol_60_no_7_complete.pdf",
+    "effective": "2026-04-19"
+   }
+  },
+  {
+   "ruling": "857905",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "870664",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": ". NY 870664, dated February 12, 1992, is hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "891547",
+   "superseded_by": "H332697",
+   "date": "2025-10-27",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H332697",
+   "quote": ". PC 891547, dated October 28, 1993, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 26,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "effective": "2025-10-27"
+   }
+  },
+  {
+   "ruling": "893829",
+   "superseded_by": "H332697",
+   "date": "2025-10-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H332697",
+   "quote": "EFFECT ON OTHER RULINGS: NY N301485, dated November 27, 2018, NY 893829, dated February 7, 1994 and NY N249028, dated February 3, 2014, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 26,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "effective": "2025-10-27"
+   }
+  },
+  {
+   "ruling": "898929",
+   "superseded_by": "H304529",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H304529",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 965520, dated July 9, 2002, and NY 898929, dated July 6, 1994, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "950426",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "957982",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "960319",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "With respect to the classification of the training pants, NY I89181, dated December 4, 2002, NY I83963, dated July 22, 2002, HQ 960319, dated September 23, 1997, and NY A86147, dated August 23, 1996, are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "962542",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "962731",
+   "superseded_by": "H314018",
+   "date": "2026-11-15",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H314018",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 962731, dated October 22, 2001, is hereby modified",
+   "bulletin": {
+    "volume": 60,
+    "number": 28,
+    "date": "2026-09-16",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0916_vol_60_no_28.pdf",
+    "effective": "2026-11-15"
+   }
+  },
+  {
    "ruling": "963233",
    "superseded_by": "H293881",
    "date": "2018-06-18",
@@ -35,6 +286,210 @@
    "source": "effect_on_other_rulings",
    "source_ruling": "H293881",
    "quote": "HQ 963233, dated December 13, 2000, is hereby MODIFIED"
+  },
+  {
+   "ruling": "964512",
+   "superseded_by": "H300624",
+   "date": "2025-03-08",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H300624",
+   "quote": "Accordingly, HQ 964512 is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "effective": "2025-03-08"
+   }
+  },
+  {
+   "ruling": "964598",
+   "superseded_by": "H304427",
+   "date": "2026-03-22",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H304427",
+   "quote": "G.V.W. [gross vehicle weight] not exceeding 5 metric tons.” HQ 965246 and HQ 964598 are hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 3,
+    "date": "2026-01-21",
+    "page": 71,
+    "url": "https://www.cbp.gov/sites/default/files/2026-01/Vol%2060_No_3_Complete_0.pdf",
+    "effective": "2026-03-22"
+   }
+  },
+  {
+   "ruling": "965246",
+   "superseded_by": "H304427",
+   "date": "2026-03-22",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H304427",
+   "quote": "G.V.W. [gross vehicle weight] not exceeding 5 metric tons.” HQ 965246 and HQ 964598 are hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 3,
+    "date": "2026-01-21",
+    "page": 71,
+    "url": "https://www.cbp.gov/sites/default/files/2026-01/Vol%2060_No_3_Complete_0.pdf",
+    "effective": "2026-03-22"
+   }
+  },
+  {
+   "ruling": "965520",
+   "superseded_by": "H304529",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H304529",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 965520, dated July 9, 2002, and NY 898929, dated July 6, 1994, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "965891",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "A86147",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "With respect to the classification of the training pants, NY I89181, dated December 4, 2002, NY I83963, dated July 22, 2002, HQ 960319, dated September 23, 1997, and NY A86147, dated August 23, 1996, are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "B80750",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "EFFECT ON OTHER RULINGS: NY R03338, dated March 13, 2006; NY C80101, dated October 3, 1997; NY B80750, dated January 16, 1997; and NY B82258, dated March 3, 1997; and NY N283432, dated March 15, 2017, are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "B82258",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "EFFECT ON OTHER RULINGS: NY R03338, dated March 13, 2006; NY C80101, dated October 3, 1997; NY B80750, dated January 16, 1997; and NY B82258, dated March 3, 1997; and NY N283432, dated March 15, 2017, are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "B84458",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "NY R03088, NY B84458, NY N289369, and NY N290319 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "C80101",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "EFFECT ON OTHER RULINGS: NY R03338, dated March 13, 2006; NY C80101, dated October 3, 1997; NY B80750, dated January 16, 1997; and NY B82258, dated March 3, 1997; and NY N283432, dated March 15, 2017, are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "E85172",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "E85902",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
   },
   {
    "ruling": "E87234",
@@ -53,6 +508,91 @@
    "source": "effect_on_other_rulings",
    "source_ruling": "H256782",
    "quote": "NY F88926, dated January 13, 2000, is hereby MODIFIED"
+  },
+  {
+   "ruling": "G80065",
+   "superseded_by": "H300624",
+   "date": "2025-03-08",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H300624",
+   "quote": "EFFECT ON OTHER RULINGS: NY G80065, dated August 15, 2019, is MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "effective": "2025-03-08"
+   }
+  },
+  {
+   "ruling": "H065718",
+   "superseded_by": "H256270",
+   "date": "2026-07-31",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H256270",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H065718, HQ H065720 and NY N233110 are revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 11,
+    "date": "2026-06-01",
+    "page": 13,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "effective": "2026-07-31"
+   }
+  },
+  {
+   "ruling": "H065720",
+   "superseded_by": "H256270",
+   "date": "2026-07-31",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H256270",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H065718, HQ H065720 and NY N233110 are revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 11,
+    "date": "2026-06-01",
+    "page": 13,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "effective": "2026-07-31"
+   }
+  },
+  {
+   "ruling": "H245902",
+   "superseded_by": "H346387",
+   "date": "2025-11-24",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H346387",
+   "quote": ", and HQ H245902 is modified",
+   "bulletin": {
+    "volume": 59,
+    "number": 39,
+    "date": "2025-09-24",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no_39_complete.pdf",
+    "effective": "2025-11-24"
+   }
+  },
+  {
+   "ruling": "H251033",
+   "superseded_by": "H346387",
+   "date": "2025-11-24",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H346387",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H251033 and NY N308565 are revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 39,
+    "date": "2025-09-24",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no_39_complete.pdf",
+    "effective": "2025-11-24"
+   }
   },
   {
    "ruling": "H265611",
@@ -85,7 +625,15 @@
    "kind": "revoked",
    "source": "effect_on_other_rulings",
    "source_ruling": "H304419",
-   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "effective": "2025-04-19"
+   }
   },
   {
    "ruling": "H303773",
@@ -94,7 +642,15 @@
    "kind": "revoked",
    "source": "hereby",
    "source_ruling": "H304419",
-   "quote": "we hereby revoke HQ H303773, HQ H303816, and NY N299944"
+   "quote": "we hereby revoke HQ H303773, HQ H303816, and NY N299944",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "effective": "2025-04-19"
+   }
   },
   {
    "ruling": "H303816",
@@ -103,7 +659,15 @@
    "kind": "revoked",
    "source": "effect_on_other_rulings",
    "source_ruling": "H304419",
-   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "effective": "2025-04-19"
+   }
   },
   {
    "ruling": "H82352",
@@ -124,6 +688,210 @@
    "quote": "NY H84143, dated August 6, 2001, is hereby MODIFIED"
   },
   {
+   "ruling": "H85742",
+   "superseded_by": "H310555",
+   "date": "2025-05-12",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H310555",
+   "quote": "EFFECT ON OTHER RULINGS: NY H85742, dated December 7, 2001, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 11,
+    "date": "2025-03-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-03/vol_59_no_11_complete.pdf",
+    "effective": "2025-05-12"
+   }
+  },
+  {
+   "ruling": "I80189",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "I83963",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "With respect to the classification of the training pants, NY I89181, dated December 4, 2002, NY I83963, dated July 22, 2002, HQ 960319, dated September 23, 1997, and NY A86147, dated August 23, 1996, are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "I89181",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "With respect to the classification of the training pants, NY I89181, dated December 4, 2002, NY I83963, dated July 22, 2002, HQ 960319, dated September 23, 1997, and NY A86147, dated August 23, 1996, are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "J85077",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "NY J85077 is hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "L83440",
+   "superseded_by": "H336925",
+   "date": "2026-11-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H336925",
+   "quote": ". NY L83440, dated April 18, 2005, is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 28,
+    "date": "2026-09-16",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0916_vol_60_no_28.pdf",
+    "effective": "2026-11-15"
+   }
+  },
+  {
+   "ruling": "L88167",
+   "superseded_by": "H331822",
+   "date": "2024-03-18",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331822",
+   "quote": ". NY N319421, dated May 26, 2021, and NY L88167, dated October 25, 2005, are hereby MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 2,
+    "date": "2024-01-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Jan/Vol_58_No_02_complete.pdf",
+    "effective": "2024-03-18"
+   }
+  },
+  {
+   "ruling": "M83046",
+   "superseded_by": "H336925",
+   "date": "2026-11-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H336925",
+   "quote": ". NY M83046, dated May 16, 2006, is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 28,
+    "date": "2026-09-16",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0916_vol_60_no_28.pdf",
+    "effective": "2026-11-15"
+   }
+  },
+  {
+   "ruling": "N011491",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "N022319",
+   "superseded_by": "H258594",
+   "date": "2025-10-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H258594",
+   "quote": "EFFECT ON OTHER RULINGS: NY N022319, dated February 8, 2008, is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "effective": "2025-10-27"
+   }
+  },
+  {
+   "ruling": "N023537",
+   "superseded_by": "H314991",
+   "date": "2026-11-29",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H314991",
+   "quote": "EFFECT ON OTHER RULINGS: NY N023537 (February 26, 2008) and NY R04119 (June 22, 2006) are revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 30,
+    "date": "2026-09-30",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0930_vol_60_no_30.pdf",
+    "effective": "2026-11-29"
+   }
+  },
+  {
+   "ruling": "N036984",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
    "ruling": "N047417",
    "superseded_by": "H266527",
    "date": "2016-04-11",
@@ -131,6 +899,40 @@
    "source": "effect_on_other_rulings",
    "source_ruling": "H266527",
    "quote": "NY R00721, dated September 17, 2004 and NY N047417, dated January 14, 2009, are hereby revoked"
+  },
+  {
+   "ruling": "N047756",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "N051615",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
   },
   {
    "ruling": "N057699",
@@ -142,6 +944,159 @@
    "quote": "Modification of New York Ruling Letter N057699, dated May 15, 2009"
   },
   {
+   "ruling": "N063923",
+   "superseded_by": "H314018",
+   "date": "2026-11-15",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H314018",
+   "quote": ". NY N063923, dated June 22, 2009, is hereby modified",
+   "bulletin": {
+    "volume": 60,
+    "number": 28,
+    "date": "2026-09-16",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0916_vol_60_no_28.pdf",
+    "effective": "2026-11-15"
+   }
+  },
+  {
+   "ruling": "N071646",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "N075840",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "N077475",
+   "superseded_by": "H338844",
+   "date": "2025-11-17",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H338844",
+   "quote": "EFFECT ON OTHER RULINGS: NY N077475, dated October 15, 2009, is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 32,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "effective": "2025-11-17"
+   }
+  },
+  {
+   "ruling": "N094595",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "N110556",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
+   "ruling": "N189364",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": ". NY N189364, dated November 4, 2011, NY N051615, dated February 12, 2009, NY N047756, January 6, 2009, HQ 965891, dated November 6, 2002, HQ 962542, July 9, 2001, NY E85902, August 20, 1999, and NY E85172, dated August 20, 1999, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "N212877",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "EFFECT ON OTHER RULINGS: NY N244949, dated August 26, 2013, NY N237226, dated January 17, 2013, and NY N212877, dated April 25, 2012, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "N224420",
+   "superseded_by": "H349848",
+   "date": "2026-11-29",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H349848",
+   "quote": "EFFECT ON OTHER RULINGS: NY N224420 is modified",
+   "bulletin": {
+    "volume": 60,
+    "number": 30,
+    "date": "2026-09-30",
+    "page": 7,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0930_vol_60_no_30.pdf",
+    "effective": "2026-11-29"
+   }
+  },
+  {
    "ruling": "N228118",
    "superseded_by": "H256781",
    "date": "2015-12-28",
@@ -149,6 +1104,125 @@
    "source": "effect_on_other_rulings",
    "source_ruling": "H256781",
    "quote": "NY N228118, dated August 8, 2012, is hereby MODIFIED"
+  },
+  {
+   "ruling": "N233110",
+   "superseded_by": "H256270",
+   "date": "2026-07-31",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H256270",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H065718, HQ H065720 and NY N233110 are revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 11,
+    "date": "2026-06-01",
+    "page": 13,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "effective": "2026-07-31"
+   }
+  },
+  {
+   "ruling": "N234669",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "N237226",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "EFFECT ON OTHER RULINGS: NY N244949, dated August 26, 2013, NY N237226, dated January 17, 2013, and NY N212877, dated April 25, 2012, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "N244949",
+   "superseded_by": "H325601",
+   "date": "2025-04-12",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325601",
+   "quote": "EFFECT ON OTHER RULINGS: NY N244949, dated August 26, 2013, NY N237226, dated January 17, 2013, and NY N212877, dated April 25, 2012, are REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 7,
+    "date": "2025-02-12",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_7_complete.pdf",
+    "effective": "2025-04-12"
+   }
+  },
+  {
+   "ruling": "N249028",
+   "superseded_by": "H332697",
+   "date": "2025-10-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H332697",
+   "quote": "EFFECT ON OTHER RULINGS: NY N301485, dated November 27, 2018, NY 893829, dated February 7, 1994 and NY N249028, dated February 3, 2014, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 26,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "effective": "2025-10-27"
+   }
+  },
+  {
+   "ruling": "N253032",
+   "superseded_by": "H324253",
+   "date": "2026-09-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H324253",
+   "quote": "EFFECT ON OTHER RULINGS: NY N253032, dated May 27, 2014, is REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 21,
+    "date": "2026-07-29",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2026-07/26_0729_vol_60_no_21.pdf",
+    "effective": "2026-09-27"
+   }
+  },
+  {
+   "ruling": "N260440",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
   },
   {
    "ruling": "N260916",
@@ -181,6 +1255,40 @@
    "quote": "Modification of N263735"
   },
   {
+   "ruling": "N263755",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
+   "ruling": "N266863",
+   "superseded_by": "H285657",
+   "date": "2024-10-01",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H285657",
+   "quote": "EFFECT ON OTHER RULINGS: NY N036984, NY N110556, NY N094595, NY N266863, NY N260440, HQ 950426, and HQ 957982 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 8,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
+  },
+  {
    "ruling": "N271090",
    "superseded_by": "H281296",
    "date": "2017-05-23",
@@ -188,6 +1296,40 @@
    "source": "hereby",
    "source_ruling": "H281296",
    "quote": "NY N271090, dated July 12, 2016, is hereby modified"
+  },
+  {
+   "ruling": "N283432",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "EFFECT ON OTHER RULINGS: NY R03338, dated March 13, 2006; NY C80101, dated October 3, 1997; NY B80750, dated January 16, 1997; and NY B82258, dated March 3, 1997; and NY N283432, dated March 15, 2017, are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "N283781",
+   "superseded_by": "H286664",
+   "date": "2026-08-23",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H286664",
+   "quote": "EFFECT ON OTHER RULINGS: NY N283781, dated March 23, 2017, is hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 16,
+    "date": "2026-06-24",
+    "page": 10,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no_16_complete.pdf",
+    "effective": "2026-08-23"
+   }
   },
   {
    "ruling": "N284181",
@@ -202,6 +1344,23 @@
    ]
   },
   {
+   "ruling": "N284950",
+   "superseded_by": "H293899",
+   "date": "2025-06-09",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H293899",
+   "quote": "EFFECT ON OTHER RULINGS: NY N284950, dated May 3, 2017, is REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 11,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
+  },
+  {
    "ruling": "N287930",
    "superseded_by": "H290258",
    "date": "2018-06-19",
@@ -212,6 +1371,57 @@
    "pools": [
     "usmca"
    ]
+  },
+  {
+   "ruling": "N289369",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "NY R03088, NY B84458, NY N289369, and NY N290319 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "N290319",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "NY R03088, NY B84458, NY N289369, and NY N290319 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "N294888",
+   "superseded_by": "H348342",
+   "date": "2026-07-31",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348342",
+   "quote": "EFFECT ON OTHER RULINGS: NY N294888, dated March 23, 2018, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 60,
+    "number": 11,
+    "date": "2026-06-01",
+    "page": 21,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "effective": "2026-07-31"
+   }
   },
   {
    "ruling": "N299096",
@@ -244,7 +1454,66 @@
    "kind": "revoked",
    "source": "effect_on_other_rulings",
    "source_ruling": "H304419",
-   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked"
+   "quote": "HQ H303733, HQ H303816, and NY N299944 are hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "effective": "2025-04-19"
+   }
+  },
+  {
+   "ruling": "N301485",
+   "superseded_by": "H332697",
+   "date": "2025-10-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H332697",
+   "quote": "EFFECT ON OTHER RULINGS: NY N301485, dated November 27, 2018, NY 893829, dated February 7, 1994 and NY N249028, dated February 3, 2014, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 26,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "effective": "2025-10-27"
+   }
+  },
+  {
+   "ruling": "N302039",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "To the extent that NY N302039, NY N302895, and NY N314064 expressed dicta suggesting a contrary principle, those rulings are hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "N302256",
+   "superseded_by": "H331366",
+   "date": "2025-06-09",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331366",
+   "quote": ". NY N011491, NY I80189, NY N071646, NY N075840, NY N234669, NY N263755, and NY N302256 are MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 15,
+    "date": "2025-04-09",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-04/vol_59_no_15_complete.pdf",
+    "effective": "2025-06-09"
+   }
   },
   {
    "ruling": "N302378",
@@ -253,7 +1522,32 @@
    "kind": "revoked",
    "source": "effect_on_other_rulings",
    "source_ruling": "H325607",
-   "quote": "NY N302378, dated February 15, 2019, and NY N331974, dated May 3, 2023, are hereby REVOKED"
+   "quote": "NY N302378, dated February 15, 2019, and NY N331974, dated May 3, 2023, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "effective": "2025-11-17"
+   }
+  },
+  {
+   "ruling": "N302895",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "To the extent that NY N302039, NY N302895, and NY N314064 expressed dicta suggesting a contrary principle, those rulings are hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
   },
   {
    "ruling": "N303338",
@@ -265,7 +1559,15 @@
    "quote": "The analysis applying the NAFTA Marking Rules in 19 CFR Part 102 is not applicable to the question of whether the computer server cabinet is subject to Section 301 duties under 9903.88.03, HTSUS, and NY N303338 is hereby MODIFIED",
    "pools": [
     "usmca"
-   ]
+   ],
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "effective": "2024-10-01"
+   }
   },
   {
    "ruling": "N306886",
@@ -292,6 +1594,397 @@
    ]
   },
   {
+   "ruling": "N307507",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N307863",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N308565",
+   "superseded_by": "H346387",
+   "date": "2025-11-24",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H346387",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H251033 and NY N308565 are revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 39,
+    "date": "2025-09-24",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no_39_complete.pdf",
+    "effective": "2025-11-24"
+   }
+  },
+  {
+   "ruling": "N308716",
+   "superseded_by": "H334777",
+   "date": "2025-04-19",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H334777",
+   "quote": "EFFECT ON OTHER RULINGS: NY N308716 (January 8, 2020) is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "effective": "2025-04-19"
+   }
+  },
+  {
+   "ruling": "N309629",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N309828",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310029",
+   "superseded_by": "H355209",
+   "date": "2026-10-18",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H355209",
+   "quote": "EFFECT ON OTHER RULINGS: NY N310029, dated March 24, 2020, is hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 24,
+    "date": "2026-08-19",
+    "page": 12,
+    "url": "https://www.cbp.gov/sites/default/files/2026-08/vol_60_no_24_complete.pdf",
+    "effective": "2026-10-18"
+   }
+  },
+  {
+   "ruling": "N310366",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310486",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310627",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310672",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310839",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310894",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310927",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N310929",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N314064",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "To the extent that NY N302039, NY N302895, and NY N314064 expressed dicta suggesting a contrary principle, those rulings are hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "N318221",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N319028",
+   "superseded_by": "H331151",
+   "date": "2024-10-14",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331151",
+   "quote": "EFFECT ON OTHER RULINGS: NY N319028, dated April 30, 2021, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 32,
+    "date": "2024-08-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_32_complete_0.pdf",
+    "effective": "2024-10-14"
+   }
+  },
+  {
+   "ruling": "N319324",
+   "superseded_by": "H345915",
+   "date": "2026-09-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H345915",
+   "quote": "EFFECT ON OTHER RULINGS: NY N319324 (May 25, 2021) is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 21,
+    "date": "2026-07-29",
+    "page": 17,
+    "url": "https://www.cbp.gov/sites/default/files/2026-07/26_0729_vol_60_no_21.pdf",
+    "effective": "2026-09-27"
+   }
+  },
+  {
+   "ruling": "N319421",
+   "superseded_by": "H331822",
+   "date": "2024-03-18",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H331822",
+   "quote": ". NY N319421, dated May 26, 2021, and NY L88167, dated October 25, 2005, are hereby MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 2,
+    "date": "2024-01-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Jan/Vol_58_No_02_complete.pdf",
+    "effective": "2024-03-18"
+   }
+  },
+  {
+   "ruling": "N319574",
+   "superseded_by": "H336925",
+   "date": "2026-11-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H336925",
+   "quote": "EFFECT ON OTHER RULINGS: NY N319574, dated June 2, 2021, is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 28,
+    "date": "2026-09-16",
+    "page": 30,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0916_vol_60_no_28.pdf",
+    "effective": "2026-11-15"
+   }
+  },
+  {
+   "ruling": "N319955",
+   "superseded_by": "H331822",
+   "date": "2024-03-18",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H331822",
+   "quote": "EFFECT ON OTHER RULINGS: NY N319955, dated June 22, 2021, and HQ 088829, dated May 20, 1991, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 2,
+    "date": "2024-01-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Jan/Vol_58_No_02_complete.pdf",
+    "effective": "2024-03-18"
+   }
+  },
+  {
+   "ruling": "N320463",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
    "ruling": "N322364",
    "superseded_by": "H323218",
    "date": "2025-12-16",
@@ -310,6 +2003,60 @@
    "quote": "NY N322681, dated December 1, 2021, is hereby REVOKED"
   },
   {
+   "ruling": "N324930",
+   "superseded_by": "H326595",
+   "date": "2026-09-27",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H326595",
+   "quote": "EFFECT ON OTHER RULINGS: NY N324930, dated April 14, 2022, is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 21,
+    "date": "2026-07-29",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2026-07/26_0729_vol_60_no_21.pdf",
+    "effective": "2026-09-27"
+   }
+  },
+  {
+   "ruling": "N325599",
+   "superseded_by": "H325364",
+   "date": "2024-07-22",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H325364",
+   "quote": "EFFECT ON OTHER RULINGS: NY N325599 is revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 20,
+    "date": "2024-05-22",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-05/vol_58_no_20_complete.pdf",
+    "effective": "2024-07-22"
+   }
+  },
+  {
+   "ruling": "N326416",
+   "superseded_by": "H342508",
+   "date": "2026-10-18",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H342508",
+   "quote": "EFFECT ON OTHER RULINGS: NY N326416, dated February 2, 2023, is MODIFIED",
+   "pools": [
+    "general"
+   ],
+   "bulletin": {
+    "volume": 60,
+    "number": 24,
+    "date": "2026-08-19",
+    "page": 6,
+    "url": "https://www.cbp.gov/sites/default/files/2026-08/vol_60_no_24_complete.pdf",
+    "effective": "2026-10-18"
+   }
+  },
+  {
    "ruling": "N326445",
    "superseded_by": "H335139",
    "date": "2024-05-01",
@@ -322,6 +2069,40 @@
    ]
   },
   {
+   "ruling": "N331356",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N331643",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
    "ruling": "N331974",
    "superseded_by": "H325607",
    "date": "2025-08-29",
@@ -331,7 +2112,83 @@
    "quote": "NY N302378, dated February 15, 2019, and NY N331974, dated May 3, 2023, are hereby REVOKED",
    "pools": [
     "general"
-   ]
+   ],
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "effective": "2025-11-17"
+   }
+  },
+  {
+   "ruling": "N331989",
+   "superseded_by": "H332598",
+   "date": "2025-03-08",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H332598",
+   "quote": "RE: Modification of NY N331989; tariff classification of steel assembly hardware sets from Vietnam",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 41,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "effective": "2025-03-08"
+   }
+  },
+  {
+   "ruling": "N332362",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N333795",
+   "superseded_by": "H348162",
+   "date": "2026-07-26",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H348162",
+   "quote": "EFFECT ON OTHER RULINGS: NY 857905, dated December 4, 1990; NY N307507, dated November 24, 2019; NY N307863, dated December 9, 2019; NY N309629, dated March 5, 2020; NY N309828, dated March 10, 2020; NY N310366, dated March 23, 2020; NY N310486, dated March 30, 2020; NY N310627, dated April 6, 2020…",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 29,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "effective": "2026-07-26"
+   }
+  },
+  {
+   "ruling": "N336132",
+   "superseded_by": "H338307",
+   "date": "2025-11-17",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H338307",
+   "quote": "EFFECT ON OTHER RULINGS: NY N336132, dated November 22, 2023, is hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 39,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "effective": "2025-11-17"
+   }
   },
   {
    "ruling": "N344694",
@@ -343,7 +2200,15 @@
    "quote": "NY N344694, dated January 14,2025, is hereby MODIFIED",
    "pools": [
     "general"
-   ]
+   ],
+   "bulletin": {
+    "volume": 60,
+    "number": 11,
+    "date": "2026-06-01",
+    "page": 6,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "effective": "2026-07-31"
+   }
   },
   {
    "ruling": "N345891",
@@ -374,6 +2239,1168 @@
    "source": "effect_on_other_rulings",
    "source_ruling": "H256784",
    "quote": "NY R02589, dated September 23, 2005, is hereby MODIFIED"
+  },
+  {
+   "ruling": "R03056",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "modified",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "with respect to the classification of the human urine specimens and human tissue specimens only . NY R03056, dated February 1, 2006, is hereby modified",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "R03088",
+   "superseded_by": "H328977",
+   "date": "2024-11-11",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H328977",
+   "quote": "NY R03088, NY B84458, NY N289369, and NY N290319 are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 77,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "effective": "2024-11-11"
+   }
+  },
+  {
+   "ruling": "R03338",
+   "superseded_by": "H317142",
+   "date": "2024-04-15",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H317142",
+   "quote": "EFFECT ON OTHER RULINGS: NY R03338, dated March 13, 2006; NY C80101, dated October 3, 1997; NY B80750, dated January 16, 1997; and NY B82258, dated March 3, 1997; and NY N283432, dated March 15, 2017, are hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 6,
+    "date": "2024-02-14",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2024-Feb/Vol_58_No_06_complete.pdf",
+    "effective": "2024-04-15"
+   }
+  },
+  {
+   "ruling": "R04119",
+   "superseded_by": "H314991",
+   "date": "2026-11-29",
+   "kind": "revoked",
+   "source": "customs_bulletin",
+   "source_ruling": "H314991",
+   "quote": "EFFECT ON OTHER RULINGS: NY N023537 (February 26, 2008) and NY R04119 (June 22, 2006) are revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 30,
+    "date": "2026-09-30",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2026-09/26_0930_vol_60_no_30.pdf",
+    "effective": "2026-11-29"
+   }
+  }
+ ],
+ "proposed": [
+  {
+   "ruling": "080651",
+   "proposed_by": "H346396",
+   "kind": "revoked",
+   "quote": "model read (D400)",
+   "bulletin": {
+    "volume": 60,
+    "number": 16,
+    "date": "2026-06-24",
+    "page": 58,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no_16_complete.pdf",
+    "comments_by": "2026-07-24"
+   }
+  },
+  {
+   "ruling": "085838",
+   "proposed_by": "H317626",
+   "kind": "revoked",
+   "quote": ". HQ 085838, dated December 21, 1989, is REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "086130",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "088976",
+   "proposed_by": "H317626",
+   "kind": "modified",
+   "quote": ", only with respect to the Salsa Base. HQ 088976, dated January 6, 1992, is MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "556449",
+   "proposed_by": "H330680",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 556449, dated May 5, 1992, is hereby modified",
+   "bulletin": {
+    "volume": 57,
+    "number": 32,
+    "date": "2023-09-06",
+    "page": 21,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Sep/Vol_57_No_32_complete.pdf",
+    "comments_by": "2023-10-06"
+   }
+  },
+  {
+   "ruling": "813853",
+   "proposed_by": "H327276",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY 813853, dated September 8, 1995, is hereby modified",
+   "bulletin": {
+    "volume": 57,
+    "number": 32,
+    "date": "2023-09-06",
+    "page": 21,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Sep/Vol_57_No_32_complete.pdf",
+    "comments_by": "2023-10-06"
+   }
+  },
+  {
+   "ruling": "817397",
+   "proposed_by": "H336180",
+   "kind": "modified",
+   "quote": ". NY 817397, dated January 11, 1996, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 34,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "817807",
+   "proposed_by": "H336180",
+   "kind": "revoked",
+   "quote": ". NY 817807, dated January 25, 1996, is hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 34,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "856914",
+   "proposed_by": "H317626",
+   "kind": "revoked",
+   "quote": "NY 856914, dated October 24, 1990, is REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "889417",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "890395",
+   "proposed_by": "H317626",
+   "kind": "modified",
+   "quote": "NY 890395, dated October 15, 1993, is MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "892226",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "950751",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 950751, dated December 9, 1991, HQ W968280, dated August 15, 2007, NY N31 1707, dated June 9, 2020, NY K83753, dated April 7, 2004, NY N204320, dated February 28, 2012, and NY N300387, dated September 27, 2018, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "952233",
+   "proposed_by": "H346396",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 952233, dated February 10, 1993, is hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 16,
+    "date": "2026-06-24",
+    "page": 58,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no_16_complete.pdf",
+    "comments_by": "2026-07-24"
+   }
+  },
+  {
+   "ruling": "956946",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "957575",
+   "proposed_by": "H267922",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 957575 is revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 16,
+    "date": "2026-06-24",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no_16_complete.pdf",
+    "comments_by": "2026-07-24"
+   }
+  },
+  {
+   "ruling": "957850",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "957915",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "958462",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "A85213",
+   "proposed_by": "H355932",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY A85213, dated July 25, 1996, is hereby modified",
+   "bulletin": {
+    "volume": 60,
+    "number": 7,
+    "date": "2026-02-18",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/2026-02/vol_60_no_7_complete.pdf",
+    "comments_by": "2026-03-20"
+   }
+  },
+  {
+   "ruling": "A85760",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "D80822",
+   "proposed_by": "H313006",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N283085, N166443, N025447, and D80822, dated February 28, 2017, May 31, 2011, April 18, 2008, and August 11, 1998, respectively, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 32,
+    "date": "2024-08-14",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_32_complete_0.pdf",
+    "comments_by": "2024-09-14"
+   }
+  },
+  {
+   "ruling": "D88850",
+   "proposed_by": "H317626",
+   "kind": "modified",
+   "quote": "NY D88850, dated May 12, 1999, is MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "E86552",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "F83624",
+   "proposed_by": "H299896",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY F83624, dated April 6, 2000, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 51,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "H027436",
+   "proposed_by": "H317528",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H027436, dated April 16, 2009, is hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 31,
+    "date": "2024-08-07",
+    "page": 42,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_31_complete.pdf",
+    "comments_by": "2024-09-07"
+   }
+  },
+  {
+   "ruling": "H155376",
+   "proposed_by": "H341085",
+   "kind": "revoked",
+   "quote": ". HQ H155376, dated June 22, 2021, is hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 44,
+    "date": "2024-11-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_44_complete.pdf",
+    "comments_by": "2024-12-06"
+   }
+  },
+  {
+   "ruling": "H258812",
+   "proposed_by": "H317626",
+   "kind": "revoked",
+   "quote": "HQ H258812, dated September 3, 2015, is REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "H259324",
+   "proposed_by": "H317626",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ H259324, dated September 3, 2015, is REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "H305437",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "HQ H305437, dated December 18, 2020, is MODIFIED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "H310928",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": ". HQ H310928, dated June 11, 2021, is MODIFIED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "H80038",
+   "proposed_by": "H331605",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N282485, dated February 8, 2017, NY H80038, dated May 10, 2001, NY N219961, dated June 28, 2012, NY N219968 dated June 28, 2012, and NY N317507, dated March 3, 2021, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 50,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "H89467",
+   "proposed_by": "H358835",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY H89467, dated March 28, 2002, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 60,
+    "number": 16,
+    "date": "2026-06-24",
+    "page": 47,
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no_16_complete.pdf",
+    "comments_by": "2026-07-24"
+   }
+  },
+  {
+   "ruling": "I80730",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "I88153",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "NY I80730, dated May 7, 2002, NY I88153, dated November 25, 2002, NY E86552, dated September 8, 1999, HQ 956946, dated April 6, 1995, HQ 957915, dated July 28, 1995, HQ 957850, dated July 5, 1995, and HQ 958462, dated November 2, 1995, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "K83276",
+   "proposed_by": "H338697",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY K83276, dated March 23, 2004, and NY N037877, dated September 17, 2008, are hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 3,
+    "date": "2026-01-21",
+    "page": 38,
+    "url": "https://www.cbp.gov/sites/default/files/2026-01/Vol%2060_No_3_Complete_0.pdf",
+    "comments_by": "2026-02-21"
+   }
+  },
+  {
+   "ruling": "K83753",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 950751, dated December 9, 1991, HQ W968280, dated August 15, 2007, NY N31 1707, dated June 9, 2020, NY K83753, dated April 7, 2004, NY N204320, dated February 28, 2012, and NY N300387, dated September 27, 2018, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "K86452",
+   "proposed_by": "H323071",
+   "kind": "modified",
+   "quote": ". NY K86452, dated June 8, 2004, is hereby MODIFIED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "L80040",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "L85660",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "L86382",
+   "proposed_by": "H344666",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N265988, dated July 17, 2015, and NY L86382, dated July 27, 2005, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 22,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "comments_by": "2025-10-17"
+   }
+  },
+  {
+   "ruling": "L87626",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "M83066",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "M87513",
+   "proposed_by": "H328910",
+   "kind": "modified",
+   "quote": "NY M87513, dated October 24, 2006 (with respect to Sample #1), NY M83066, dated May 5, 2006 (with respect to style EH63–060403), NY L87626, dated September 16, 2005 (with respect to style “Vietnam 7 x 7 CIS”), NY L85660, dated June 15, 2005 (with respect to items “C” and “D”), NY L80040, dated Octo…",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "N019900",
+   "proposed_by": "H272339",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N019900 (dated December 4, 2007) is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 7,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "N025447",
+   "proposed_by": "H313006",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N283085, N166443, N025447, and D80822, dated February 28, 2017, May 31, 2011, April 18, 2008, and August 11, 1998, respectively, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 32,
+    "date": "2024-08-14",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_32_complete_0.pdf",
+    "comments_by": "2024-09-14"
+   }
+  },
+  {
+   "ruling": "N037877",
+   "proposed_by": "H338697",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY K83276, dated March 23, 2004, and NY N037877, dated September 17, 2008, are hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 3,
+    "date": "2026-01-21",
+    "page": 38,
+    "url": "https://www.cbp.gov/sites/default/files/2026-01/Vol%2060_No_3_Complete_0.pdf",
+    "comments_by": "2026-02-21"
+   }
+  },
+  {
+   "ruling": "N068156",
+   "proposed_by": "H350330",
+   "kind": "revoked",
+   "quote": "NY N068156, dated August 6, 2009, is hereby revoked",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "comments_by": "2026-06-26"
+   }
+  },
+  {
+   "ruling": "N15997",
+   "proposed_by": "H272339",
+   "kind": "revoked",
+   "quote": ". NY N15997 (dated April 28, 2011) is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 7,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "N159975",
+   "proposed_by": "H272339",
+   "kind": "revoked",
+   "quote": "model read (D400)",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 7,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "N166443",
+   "proposed_by": "H313006",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N283085, N166443, N025447, and D80822, dated February 28, 2017, May 31, 2011, April 18, 2008, and August 11, 1998, respectively, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 32,
+    "date": "2024-08-14",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_32_complete_0.pdf",
+    "comments_by": "2024-09-14"
+   }
+  },
+  {
+   "ruling": "N195658",
+   "proposed_by": "H317626",
+   "kind": "modified",
+   "quote": "NY N195658, dated January 4, 2012, is MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 28,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "N204320",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 950751, dated December 9, 1991, HQ W968280, dated August 15, 2007, NY N31 1707, dated June 9, 2020, NY K83753, dated April 7, 2004, NY N204320, dated February 28, 2012, and NY N300387, dated September 27, 2018, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "N219961",
+   "proposed_by": "H331605",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N282485, dated February 8, 2017, NY H80038, dated May 10, 2001, NY N219961, dated June 28, 2012, NY N219968 dated June 28, 2012, and NY N317507, dated March 3, 2021, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 50,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "N219968",
+   "proposed_by": "H331605",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N282485, dated February 8, 2017, NY H80038, dated May 10, 2001, NY N219961, dated June 28, 2012, NY N219968 dated June 28, 2012, and NY N317507, dated March 3, 2021, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 50,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "N246928",
+   "proposed_by": "H323869",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY N246928, dated November 14, 2013, is MODIFIED",
+   "bulletin": {
+    "volume": 57,
+    "number": 32,
+    "date": "2023-09-06",
+    "page": 12,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Sep/Vol_57_No_32_complete.pdf",
+    "comments_by": "2023-10-06"
+   }
+  },
+  {
+   "ruling": "N250680",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N325833, dated May 25, 2022, NY N250680, dated March 25, 2014, NY N250876, and dated March 25, 2014, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "N250876",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N325833, dated May 25, 2022, NY N250680, dated March 25, 2014, NY N250876, and dated March 25, 2014, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "N265390",
+   "proposed_by": "H341079",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N340713, dated June 25, 2024, and NY N265390, dated June 26, 2015, are hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 18,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "comments_by": "2026-06-26"
+   }
+  },
+  {
+   "ruling": "N265988",
+   "proposed_by": "H344666",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N265988, dated July 17, 2015, and NY L86382, dated July 27, 2005, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 38,
+    "date": "2025-09-17",
+    "page": 22,
+    "url": "https://www.cbp.gov/sites/default/files/2025-09/vol_59_no._38_complete.pdf",
+    "comments_by": "2025-10-17"
+   }
+  },
+  {
+   "ruling": "N282485",
+   "proposed_by": "H331605",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N282485, dated February 8, 2017, NY H80038, dated May 10, 2001, NY N219961, dated June 28, 2012, NY N219968 dated June 28, 2012, and NY N317507, dated March 3, 2021, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 50,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "N283085",
+   "proposed_by": "H313006",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N283085, N166443, N025447, and D80822, dated February 28, 2017, May 31, 2011, April 18, 2008, and August 11, 1998, respectively, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 32,
+    "date": "2024-08-14",
+    "page": 9,
+    "url": "https://www.cbp.gov/sites/default/files/2024-08/vol_58_no_32_complete_0.pdf",
+    "comments_by": "2024-09-14"
+   }
+  },
+  {
+   "ruling": "N300387",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 950751, dated December 9, 1991, HQ W968280, dated August 15, 2007, NY N31 1707, dated June 9, 2020, NY K83753, dated April 7, 2004, NY N204320, dated February 28, 2012, and NY N300387, dated September 27, 2018, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "N306312",
+   "proposed_by": "H330361",
+   "kind": "revoked",
+   "quote": "RE: Revocation of NY N306312; Tariff classification of a plush stuffed pillow from China.",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 20,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "N307758",
+   "proposed_by": "H310888",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N307758, dated April 7, 2020, is hereby revoked",
+   "bulletin": {
+    "volume": 58,
+    "number": 36,
+    "date": "2024-09-11",
+    "page": 63,
+    "url": "https://www.cbp.gov/sites/default/files/2024-09/vol_58_no_36_complete.pdf",
+    "comments_by": "2024-10-11"
+   }
+  },
+  {
+   "ruling": "N308405",
+   "proposed_by": "H315652",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: NY N308405, dated January 9, 2020, is hereby modified",
+   "bulletin": {
+    "volume": 57,
+    "number": 32,
+    "date": "2023-09-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Sep/Vol_57_No_32_complete.pdf",
+    "comments_by": "2023-10-06"
+   }
+  },
+  {
+   "ruling": "N309547",
+   "proposed_by": "H339953",
+   "kind": "modified",
+   "quote": "EFFECT ON OTHER RULINGS: CBP Ruling NY N309547 is hereby MODIFIED",
+   "bulletin": {
+    "volume": 58,
+    "number": 47,
+    "date": "2024-11-27",
+    "page": 14,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_47_title_-_complete.pdf",
+    "comments_by": "2024-12-27"
+   }
+  },
+  {
+   "ruling": "N311707",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "we hereby revoke NY N311707, HQ 950751, HQ W968280, NY K83753, NY N204320, NY N300387, and modify NY K86452",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
+  },
+  {
+   "ruling": "N317507",
+   "proposed_by": "H331605",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N282485, dated February 8, 2017, NY H80038, dated May 10, 2001, NY N219961, dated June 28, 2012, NY N219968 dated June 28, 2012, and NY N317507, dated March 3, 2021, are hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 30,
+    "date": "2024-07-31",
+    "page": 50,
+    "url": "https://www.cbp.gov/sites/default/files/2024-07/customs_bulletin_weekly_vol._58_july_31_2024_no._30.pdf",
+    "comments_by": "2024-09-01"
+   }
+  },
+  {
+   "ruling": "N319771",
+   "proposed_by": "H341085",
+   "kind": "revoked",
+   "quote": ". NY N319771, dated June 22, 2021, is hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 44,
+    "date": "2024-11-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_44_complete.pdf",
+    "comments_by": "2024-12-06"
+   }
+  },
+  {
+   "ruling": "N325833",
+   "proposed_by": "H328910",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N325833, dated May 25, 2022, NY N250680, dated March 25, 2014, NY N250876, and dated March 25, 2014, are REVOKED",
+   "bulletin": {
+    "volume": 57,
+    "number": 46,
+    "date": "2023-12-13",
+    "page": 23,
+    "url": "https://www.cbp.gov/sites/default/files/assets/documents/2023-Dec/Vol_57_No_46_complete%20(1).pdf",
+    "comments_by": "2024-01-12"
+   }
+  },
+  {
+   "ruling": "N327317",
+   "proposed_by": "H340174",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N327317, dated July 28, 2022, is hereby revoked",
+   "bulletin": {
+    "volume": 59,
+    "number": 8,
+    "date": "2025-02-19",
+    "page": 21,
+    "url": "https://www.cbp.gov/sites/default/files/2025-02/vol_59_no_8_complete.pdf",
+    "comments_by": "2025-03-19"
+   }
+  },
+  {
+   "ruling": "N334409",
+   "proposed_by": "H336180",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N334409, dated August 17, 2023, is hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 35,
+    "date": "2025-08-27",
+    "page": 34,
+    "url": "https://www.cbp.gov/sites/default/files/2025-08/vol_59_no_35_complete.pdf",
+    "comments_by": "2025-09-27"
+   }
+  },
+  {
+   "ruling": "N335323",
+   "proposed_by": "H341085",
+   "kind": "revoked",
+   "quote": ". NY N335323, dated September 28, 2023, is hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 44,
+    "date": "2024-11-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_44_complete.pdf",
+    "comments_by": "2024-12-06"
+   }
+  },
+  {
+   "ruling": "N335325",
+   "proposed_by": "H341085",
+   "kind": "revoked",
+   "quote": ". NY N335325, dated September 28, 2023, is hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 44,
+    "date": "2024-11-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_44_complete.pdf",
+    "comments_by": "2024-12-06"
+   }
+  },
+  {
+   "ruling": "N335569",
+   "proposed_by": "H341085",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N335569, dated October 12, 2023, is hereby REVOKED",
+   "bulletin": {
+    "volume": 58,
+    "number": 44,
+    "date": "2024-11-06",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2024-11/vol_58_no_44_complete.pdf",
+    "comments_by": "2024-12-06"
+   }
+  },
+  {
+   "ruling": "N340713",
+   "proposed_by": "H341079",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: NY N340713, dated June 25, 2024, and NY N265390, dated June 26, 2015, are hereby REVOKED",
+   "bulletin": {
+    "volume": 60,
+    "number": 10,
+    "date": "2026-05-27",
+    "page": 18,
+    "url": "https://www.cbp.gov/sites/default/files/2026-05/vol_60_no_10_complete.pdf",
+    "comments_by": "2026-06-26"
+   }
+  },
+  {
+   "ruling": "W968280",
+   "proposed_by": "H323071",
+   "kind": "revoked",
+   "quote": "EFFECT ON OTHER RULINGS: HQ 950751, dated December 9, 1991, HQ W968280, dated August 15, 2007, NY N31 1707, dated June 9, 2020, NY K83753, dated April 7, 2004, NY N204320, dated February 28, 2012, and NY N300387, dated September 27, 2018, are hereby REVOKED",
+   "bulletin": {
+    "volume": 59,
+    "number": 2,
+    "date": "2025-01-08",
+    "page": 1,
+    "url": "https://www.cbp.gov/sites/default/files/2025-01/vol_59_no_2_complete.pdf",
+    "comments_by": "2025-02-08"
+   }
   }
  ]
 }

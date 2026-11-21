@@ -68,6 +68,8 @@ export const DECISIONS: Record<string, string> = {
   D362: "d362--the-rule-check-on-the-committed-part-102-rulings-results-22-nov",
   D363: "d363--the-rule-check-is-shown-beside-the-model-display-only-22-nov",
   D370: "d370--a-revocation-counts-from-the-day-after-the-revoking-rulings-date-22-nov-527-judge-panel-round-7-item-1",
+  D400: "d400--revocations-from-the-customs-bulletin-pre-registration-of-the-parse-22-nov-judge-panel-round-7-larger-build",
+  D401: "d401--customs-bulletin-revocations-results-22-nov",
   D380: "d380--hts-codes-suggested-for-each-part-so-the-10220-rule-check-can-run-the-route-is-on-by-default-22-nov",
   D382: "d382--per-part-hts-suggestions-results-22-nov",
 };

@@ -136,3 +136,22 @@ func TestMCPLookupTools(t *testing.T) {
 		t.Errorf("prompt: %v %v", err, pr)
 	}
 }
+
+// D400: the ruling API carries the Customs Bulletin citation of a change and
+// a pending proposal, which is information only.
+func TestRulingDTOsCiteTheCustomsBulletin(t *testing.T) {
+	s := supersededAsOf("N325599", time.Time{})
+	if s == nil || s.Bulletin != "Customs Bulletin vol. 58 no. 20, p. 1" || s.BulletinURL == "" {
+		t.Fatalf("N325599: %+v", s)
+	}
+	if supersededAsOf("N325599", time.Date(2024, 7, 22, 0, 0, 0, 0, time.UTC)) != nil {
+		t.Error("on its effective date N325599 was still CBP's position (D370)")
+	}
+	p := proposedFor("080651")
+	if p == nil || p.By != "H346396" || p.Kind != "revoked" || p.BulletinURL == "" || p.Note == "" {
+		t.Fatalf("080651: %+v", p)
+	}
+	if proposedFor("N357771") != nil || supersededAsOf("N357771", time.Time{}) != nil {
+		t.Error("N357771 has no change")
+	}
+}

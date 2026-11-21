@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -117,6 +118,48 @@ func TestACaseThatIsTheRevocationStillSeesTheRulingItRevokes(t *testing.T) {
 		}
 		if _, ok := SupersededAsOf(e.Ruling, d.AddDate(0, 0, 1)); !ok {
 			t.Errorf("%s: not hidden the day after %s", e.Ruling, e.Date)
+		}
+	}
+}
+
+// D400: a final Customs Bulletin change counts from the day after its
+// effective date, cites the bulletin, and a proposal never bars a ruling.
+func TestCustomsBulletinEdgesAndProposals(t *testing.T) {
+	s, ok := SupersededAsOf("N325599", time.Time{})
+	if !ok || s.By != "H325364" || s.Date != "2024-07-22" || s.Source != SourceCustomsBulletin || s.Bulletin == nil {
+		t.Fatalf("N325599 (vol. 58 no. 20): %+v %v", s, ok)
+	}
+	if s.Bulletin.Volume != 58 || s.Bulletin.Number != 20 || s.Bulletin.Page != 1 || !strings.HasPrefix(s.Bulletin.URL, "https://www.cbp.gov/") {
+		t.Errorf("citation %+v", s.Bulletin)
+	}
+	if want := "revoked by H325364 effective 2024-07-22 (Customs Bulletin vol. 58 no. 20, p. 1)"; s.Note() != want {
+		t.Errorf("note %q, want %q", s.Note(), want)
+	}
+	r := Ruling{ID: "N325599", Date: day("2022-04-27")}
+	if !r.UsableAsPrecedentFor("x", day("2024-07-22")) || r.UsableAsPrecedentFor("x", day("2024-07-23")) {
+		t.Error("N325599 must be usable through its effective date and barred after it")
+	}
+	// A corpus letter the bulletin confirms keeps the letter's date.
+	if s, _ := SupersededAsOf("N331974", time.Time{}); s.Date != "2025-08-29" || s.Source == SourceCustomsBulletin || s.Bulletin == nil || s.Bulletin.Number != 38 {
+		t.Errorf("N331974: %+v", s)
+	}
+	p, ok := ProposedFor("080651")
+	if !ok || p.By != "H346396" || p.Kind != "revoked" || p.Bulletin.Number != 16 {
+		t.Fatalf("080651 proposal: %+v %v", p, ok)
+	}
+	if !strings.Contains(p.Note(), "CBP proposed to revoke it (H346396, Customs Bulletin vol. 60 no. 16, p. 58)") {
+		t.Errorf("note %q", p.Note())
+	}
+	if _, barred := SupersededAsOf("080651", time.Time{}); barred {
+		t.Error("a proposal must not bar the ruling")
+	}
+	var m SupersessionMap
+	if err := json.Unmarshal(supersessionJSON, &m); err != nil {
+		t.Fatal(err)
+	}
+	for _, q := range m.Proposed {
+		if _, final := supersededBy[q.Ruling]; final && supersededBy[q.Ruling].By == q.By {
+			t.Errorf("%s: proposed and final by the same letter %s", q.Ruling, q.By)
 		}
 	}
 }
