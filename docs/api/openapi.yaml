@@ -599,6 +599,64 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "429": { $ref: "#/components/responses/Error" }
         "502": { $ref: "#/components/responses/Error" }
+  /v1/products/extract-media:
+    post:
+      summary: Draft an editable structured product from images or scanned PDFs (nothing is saved, nothing is predicted)
+      description: |
+        "Import from an image or scanned document". Upload a photo or screenshot of a bill of materials, a scanned BOM or spec-sheet PDF, or a product photo with its spec sheet. The engine model (Gemini, multimodal; ENGINE_MODEL) reads the files once and returns the same draft as POST /v1/products/extract, with rows citing the file and page they were read from instead of a paragraph. Parts printed without a country are listed in one warning, never guessed. Rows the model was not sure it read are marked `unclear`; places it could not read are listed in `unreadable` and in `warnings`.
+        The draft is for review: show it to a person, let them edit it, then send the product to POST /v1/cases/predict. Never predict from it unreviewed.
+        A separate endpoint from /v1/products/extract (JSON text) so each has one content type, one size limit and one schema.
+        Limits: 1 to 4 files, 8 MB together; images up to 12,000 pixels a side and 40 megapixels; PDFs up to 10 pages together; encrypted PDFs are refused. The type is sniffed from the bytes (the file name and declared Content-Type are ignored). Files are read into memory, sent to the model and dropped: they are not stored, cached or logged, and the response describes them by type, size and pages only.
+        With LLM_PROVIDER=fake the answer is a fixed example with `simulated: true` and a first warning saying so. Rate-limited as light. Through the web proxy the body limit is 9 MB.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: array
+                  minItems: 1
+                  maxItems: 4
+                  items: { type: string, format: binary }
+                  description: "repeat the field for each file: image/png, image/jpeg, image/webp or application/pdf"
+                family: { type: string, description: "needed for groups and capability questions" }
+                name: { type: string, maxLength: 512, description: "product name; defaults to the name printed in the files" }
+      responses:
+        "200":
+          description: The draft, to review and edit before predicting
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [product, components, operations, warnings, source, files, unreadable]
+                properties:
+                  product: { $ref: "#/components/schemas/Product" }
+                  plants: { type: array, items: { type: object, properties: { id: { type: string }, name: { type: string }, country: { type: string }, capabilities: { type: array, items: { type: string } }, name_guessed: { type: boolean } } } }
+                  components: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  operations: { type: array, items: { $ref: "#/components/schemas/DraftRow" } }
+                  warnings: { type: array, items: { type: string }, description: "what to check, in plain words; includes every unreadable place and unclear row" }
+                  questions: { type: array, items: { type: object, properties: { plant_id: { type: string }, ask: { type: string }, options: { type: array, items: { type: string } } } } }
+                  paragraphs: { type: integer, description: "always 0 for media" }
+                  source: { type: string, enum: [media] }
+                  files: { type: array, items: { $ref: "#/components/schemas/MediaFile" } }
+                  unreadable:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file: { type: integer, description: "1-based file position" }
+                        page: { type: integer, description: "1-based page; 0 if the model cited a page that does not exist" }
+                        what: { type: string, description: "what could not be read, e.g. \"row 7, the country is cut off\"" }
+                  simulated: { type: boolean, description: "true when the local fake model answered: the files were not read and the rows are a fixed example" }
+                  trace: { type: object, description: "provider, model_id, prompt_version (extract-image-v1), tokens, latency" }
+        "400": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+        "415": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
   /v1/products/hts-suggest:
     post:
       summary: Suggest up to 3 HTS subheadings from CBP rulings that state one (off unless HTS_SUGGEST=on, D64)
@@ -2057,8 +2115,20 @@ components:
         made_in: { type: string }
         plant: { type: string }
         group: { type: string, description: "template group id, or omitted" }
-        source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none" }
+        source_paragraph: { type: integer, description: "1-based paragraph of the facts; 0 if the model cited none, and always 0 for a draft read from media" }
+        source_file: { type: integer, description: "media drafts only: 1-based position of the uploaded file the row was read from; omitted if the model cited a file that was not sent" }
+        source_page: { type: integer, description: "media drafts only: 1-based page within that file (1 for an image); omitted if the page cited does not exist" }
+        unclear: { type: boolean, description: "media drafts only: true when the model was not sure it read the name or country correctly; check it against the document" }
         group_guessed: { type: boolean, description: "no valid group from the text; pick one" }
+    MediaFile:
+      type: object
+      description: What was checked about one uploaded file. Never its content or file name.
+      properties:
+        mime_type: { type: string, enum: [image/png, image/jpeg, image/webp, application/pdf], description: "sniffed from the bytes, not the declared type" }
+        bytes: { type: integer }
+        width: { type: integer, description: "images only, pixels" }
+        height: { type: integer, description: "images only, pixels" }
+        pages: { type: integer, description: "PDFs only" }
     TargetSummary:
       type: object
       properties:

@@ -26,7 +26,7 @@ frontend (Next.js, Cloud Run)  ──HTTP/JSON──►  backend (Go, Cloud Run)
 eval (Go CLI) → engine / router / verifier on frozen splits → eval/results/*.jsonl, eval/RESULTS.md
 ```
 
-1. **Predict.** Paste a CBP-style description, or upload the bill of materials as CSV or Excel (components, where each is made, operations by plant; `POST /v1/products/import`). The engine reads it with the five most similar CBP rulings dated before the case and returns origin, key factors, confidence and the rulings it relied on. The router labels the origin regime, and textile (19 CFR 102.21), USMCA/Part 102 and pharmaceutical-ingredient cases go to their own engines with their own fast-path bars (D51, D61, D62).
+1. **Predict.** Paste a CBP-style description, or upload the bill of materials as CSV or Excel (components, where each is made, operations by plant; `POST /v1/products/import`). A photo or scan of a BOM is read by Gemini into an editable draft that the user checks before predicting (`POST /v1/products/extract-media`; see [MULTIMODAL.md](MULTIMODAL.md), accuracy not yet measured). The engine reads it with the five most similar CBP rulings dated before the case and returns origin, key factors, confidence and the rulings it relied on. The router labels the origin regime, and textile (19 CFR 102.21), USMCA/Part 102 and pharmaceutical-ingredient cases go to their own engines with their own fast-path bars (D51, D61, D62).
 2. **Plan.** Pick a target origin. The planner moves *operation groups* (e.g. motor-fan assembly = stamp laminations, wind rotor, build stator, fit fan; PCBA SMT; housing moulding) to plants that can perform them, one, two or three groups at a time (three-group moves up to `PLAN_MAX_MOVES`, D84), and asks the engine about each variant. Before searching, `/plan/estimate` gives the number of moves, the time and the cost, with no model call (D87).
 3. **Verify.** For variants predicted to reach the target, an ADK agent searches and reads earlier CBP rulings and answers "precedent-supported" only when it finds one where CBP treated the same kind of change as decisive; it also returns a counter-ruling where a similar change did not work. Only precedent-supported plans with verifier confidence ≥ 0.92 are shown; the rest are returned greyed out with the reason.
    - **Visible search:** every verdict carries the agent's search trail, each query with the rulings it returned and each ruling read (D80).
@@ -115,7 +115,7 @@ make smoke        # one live model call (needs vertex credentials)
 make eval-report  # summaries of the committed eval runs, no model calls
 ```
 
-API: `POST /v1/products/import`, `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | compare-targets | ask | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
+API: `POST /v1/products/import`, `POST /v1/products/extract-media`, `POST /v1/cases/predict`, `GET /v1/cases`, `GET /v1/cases/{id}`, `POST /v1/cases/{id}/answers | plan | scenarios | compare-targets | ask | watch | export`, `POST /v1/watch/run`, `GET /v1/rulings/{id}`, `GET /v1/demos`, `GET /v1/eval/summary`.
 
 Eval commands (`backend/cmd/eval`): `run -split dev|final` (final needs `-confirm-final`; never tune on it), `compare`, `scope`, `flips`, `plan -fixture testdata/heatgun_2022.json`, `predict`, `clarify`, `torn`, `learnability`, `summary`, `report`. Every run is appended to `eval/results/RUNLOG.jsonl`.
 

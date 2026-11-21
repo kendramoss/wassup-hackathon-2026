@@ -159,10 +159,12 @@ async function idToken(audience: string): Promise<string> {
 }
 
 // MAX_BODY caps a proxied request body (security review L1, D58). The
-// largest legitimate body is a BOM or portfolio upload, which the backend
-// caps at 5 MB; this leaves room for multipart overhead. Without it the
-// proxy buffered anything up to Cloud Run's 32 MiB into memory.
-export const MAX_BODY = 6 << 20;
+// largest legitimate body is an image or scanned-PDF import
+// (/v1/products/extract-media), which the backend caps at 8 MB of files plus
+// 64 KB of form overhead; BOM and portfolio uploads are capped at 5 MB. This
+// leaves room for multipart boundaries. Without it the proxy buffered
+// anything up to Cloud Run's 32 MiB into memory.
+export const MAX_BODY = 9 << 20;
 
 // readCapped reads a request body, or returns null once it passes max bytes
 // (a declared Content-Length is checked first; a chunked body is counted).

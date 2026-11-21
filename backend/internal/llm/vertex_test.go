@@ -140,3 +140,65 @@ func TestVertexRejectsUnknownRole(t *testing.T) {
 		t.Fatal("want error for unknown role")
 	}
 }
+
+func TestVertexSendsInlineMediaParts(t *testing.T) {
+	var got map[string]any
+	v := newTestVertex(t, func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(b, &got)
+		_, _ = io.WriteString(w, `{"candidates":[{"finishReason":"STOP","content":{"role":"model","parts":[{"text":"{}"}]}}]}`)
+	})
+	png := []byte("\x89PNG\r\n\x1a\nrest")
+	if _, err := v.Generate(context.Background(), Request{Model: "m", Messages: []Message{
+		{Role: RoleUser, Content: "read this", Parts: []Part{{MIMEType: "image/png", Data: png}}},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	contents := got["contents"].([]any)
+	parts := contents[0].(map[string]any)["parts"].([]any)
+	if len(parts) != 2 || parts[0].(map[string]any)["text"] != "read this" {
+		t.Fatalf("parts = %v", parts)
+	}
+	inline := parts[1].(map[string]any)["inlineData"].(map[string]any)
+	if inline["mimeType"] != "image/png" || inline["data"] == "" {
+		t.Fatalf("inline = %v", inline)
+	}
+}
+
+func TestVertexTextOnlyUserTurnUnchanged(t *testing.T) {
+	plain, err := toGenaiContents([]Message{{Role: RoleUser, Content: "q"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	withNil, err := toGenaiContents([]Message{{Role: RoleUser, Content: "q", Parts: nil}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := json.Marshal(plain)
+	b, _ := json.Marshal(withNil)
+	if string(a) != string(b) || len(plain[0].Parts) != 1 || plain[0].Parts[0].Text != "q" {
+		t.Fatalf("text-only turn changed: %s vs %s", a, b)
+	}
+}
+
+func TestVertexRejectsMediaOutsideUserTurns(t *testing.T) {
+	for _, m := range []Message{
+		{Role: RoleAssistant, Parts: []Part{{MIMEType: "image/png", Data: []byte{1}}}},
+		{Role: RoleTool, Name: "x", Parts: []Part{{MIMEType: "image/png", Data: []byte{1}}}},
+		{Role: RoleUser, Parts: []Part{{MIMEType: "image/png"}}},
+	} {
+		if _, err := toGenaiContents([]Message{m}); err == nil {
+			t.Errorf("%s turn with %v: want an error", m.Role, m.Parts)
+		}
+	}
+}
+
+func TestMessagePartsAreNeverSerialised(t *testing.T) {
+	b, err := json.Marshal(Message{Role: RoleUser, Content: "q", Parts: []Part{{MIMEType: "image/png", Data: []byte("SECRETBYTES")}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "SECRET") || strings.Contains(string(b), "U0VDUkVU") || strings.Contains(string(b), "image/png") {
+		t.Fatalf("parts leaked into JSON: %s", b)
+	}
+}

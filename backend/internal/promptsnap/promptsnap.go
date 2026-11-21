@@ -22,6 +22,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/extract"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/media"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/nearmiss"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
@@ -79,6 +80,15 @@ func Prompts() []Prompt {
 		{"clarify.answers", clarify.AnswersVersion, answers},
 		{"extract.request", extract.PromptVersion, firstRequest(func(m llm.Model) {
 			_, _ = extract.New(m, "m").Extract(context.Background(), fixtureFacts+"\n\nThe housing is moulded in Vietnam.", "Widget", fixtureTemplate)
+		})},
+		// Import from an image or scan: system, the user text listing the
+		// files, and the schema. The media bytes themselves are not part of
+		// the prompt (llm.Message.Parts is never serialised).
+		{"extract.media_request", extract.MediaPromptVersion, firstRequest(func(m llm.Model) {
+			_, _ = extract.New(m, "m").ExtractMedia(context.Background(), []extract.File{
+				{Info: media.Info{MIMEType: media.PNG, Bytes: 4, Width: 1200, Height: 900}, Data: []byte("\x89PNG")},
+				{Info: media.Info{MIMEType: media.PDF, Bytes: 4, Pages: 2}, Data: []byte("%PDF")},
+			}, "Widget", fixtureTemplate)
 		})},
 		{"verifier.system", verifier.PromptVersion, verifier.System(6)},
 		{"verifier.task", verifier.PromptVersion, task.UserMessage()},

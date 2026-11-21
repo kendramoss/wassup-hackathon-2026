@@ -25,13 +25,25 @@ const (
 )
 
 // Message is one conversation turn. Assistant turns may carry ToolCalls;
-// tool turns answer one call (ToolCallID, Name) with Content.
+// tool turns answer one call (ToolCallID, Name) with Content. User turns may
+// also carry Parts: inline media (an image, a scanned PDF) sent after the
+// text. A message without Parts is sent exactly as before.
 type Message struct {
 	Role       Role       `json:"role"`
 	Content    string     `json:"content,omitempty"`
+	Parts      []Part     `json:"-"`
 	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
 	ToolCallID string     `json:"tool_call_id,omitempty"`
 	Name       string     `json:"name,omitempty"`
+}
+
+// Part is one inline media part of a user message. Data is the raw bytes;
+// it is held in memory for the call only. It is never serialised (the JSON
+// tag on Message.Parts is "-"), never logged and never cached: a part may be
+// a user's scanned bill of materials.
+type Part struct {
+	MIMEType string
+	Data     []byte
 }
 
 // ToolCall is a function call requested by the model. Signature is opaque

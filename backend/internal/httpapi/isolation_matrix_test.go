@@ -43,6 +43,7 @@ var routeTable = map[string]routeClass{
 	"GET /v1/cases":                                caseCreate,
 	"POST /v1/products/import":                     noCaseData,
 	"POST /v1/products/extract":                    noCaseData,
+	"POST /v1/products/extract-media":              noCaseData,
 	"POST /v1/products/money-prefill":              noCaseData,
 	"POST /v1/products/hts-suggest":                noCaseData,
 	"POST /v1/products/cost-estimate":              noCaseData,

@@ -69,6 +69,7 @@ var auditTable = map[string]auditRoute{
 	"GET /v1/cases":                                {auditDenyOnly, audit.CaseRead},
 	"POST /v1/products/import":                     {auditNone, ""},
 	"POST /v1/products/extract":                    {auditNone, ""},
+	"POST /v1/products/extract-media":              {auditNone, ""},
 	"POST /v1/products/money-prefill":              {auditNone, ""},
 	"POST /v1/products/hts-suggest":                {auditNone, ""},
 	"POST /v1/products/cost-estimate":              {auditNone, ""},

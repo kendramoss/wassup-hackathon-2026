@@ -16,6 +16,7 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/media"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 )
 
@@ -34,13 +35,19 @@ List:
 
 For "group", use one of the operation groups given (the id), or "" if none fits. Use only what the text says; never invent parts, countries or plants.`
 
-// Row is a drafted component or operation with where it came from.
+// Row is a drafted component or operation with where it came from. A row
+// drafted from text cites SourceParagraph; a row read from media cites
+// SourceFile and SourcePage (1-based) and has SourceParagraph 0. Unclear is
+// true when the model said it was not sure it read the row correctly.
 type Row struct {
 	Name            string `json:"name"`
 	MadeIn          string `json:"made_in"`
 	Plant           string `json:"plant"`
 	Group           string `json:"group"`
 	SourceParagraph int    `json:"source_paragraph"`
+	SourceFile      int    `json:"source_file,omitempty"`
+	SourcePage      int    `json:"source_page,omitempty"`
+	Unclear         bool   `json:"unclear,omitempty"`
 	GroupGuessed    bool   `json:"group_guessed"`
 }
 
@@ -71,28 +78,45 @@ type Draft struct {
 	Questions  []Question     `json:"questions"`
 	Paragraphs int            `json:"paragraphs"`
 	Trace      domain.Trace   `json:"trace"`
+	// Set only by ExtractMedia.
+	Source     string       `json:"source,omitempty"` // "media"
+	Files      []media.Info `json:"files,omitempty"`
+	Unreadable []Unreadable `json:"unreadable,omitempty"`
+	// Simulated is true when the draft came from the local fake model: it
+	// did not read the files and the rows are a fixed example.
+	Simulated bool `json:"simulated,omitempty"`
+}
+
+// Unreadable is a place in the media the model could not read.
+type Unreadable struct {
+	File int    `json:"file"`
+	Page int    `json:"page"`
+	What string `json:"what"`
+}
+
+// answerRow is one component or operation as the model lists it. Text
+// answers cite Paragraph; media answers cite File and Page and say Legible.
+type answerRow struct {
+	Name      string `json:"name"`
+	Country   string `json:"country"`
+	Group     string `json:"group"`
+	Paragraph int    `json:"paragraph"`
+	File      int    `json:"file"`
+	Page      int    `json:"page"`
+	Legible   *bool  `json:"legible"`
 }
 
 type answer struct {
-	Product    string `json:"product"`
-	Components []struct {
-		Name      string `json:"name"`
-		Country   string `json:"country"`
-		Group     string `json:"group"`
-		Paragraph int    `json:"paragraph"`
-	} `json:"components"`
-	Operations []struct {
-		Name      string `json:"name"`
-		Country   string `json:"country"`
-		Group     string `json:"group"`
-		Paragraph int    `json:"paragraph"`
-	} `json:"operations"`
-	Plants []struct {
+	Product    string      `json:"product"`
+	Components []answerRow `json:"components"`
+	Operations []answerRow `json:"operations"`
+	Plants     []struct {
 		Name    string `json:"name"`
 		Country string `json:"country"`
 	} `json:"plants"`
-	StatedCount *int     `json:"stated_component_count"`
-	Notes       []string `json:"notes"`
+	StatedCount *int         `json:"stated_component_count"`
+	Notes       []string     `json:"notes"`
+	Unreadable  []Unreadable `json:"unreadable"`
 }
 
 var rowSchema = map[string]any{
@@ -168,7 +192,7 @@ func (x *Extractor) Extract(ctx context.Context, facts, name string, tm *planner
 	if err := resp.DecodeJSON(&a); err != nil {
 		return Draft{}, fmt.Errorf("extract: %w", err)
 	}
-	d := build(a, paras, name, tm)
+	d := build(a, cites{paragraphs: len(paras)}, name, tm)
 	d.Trace = domain.Trace{Provider: resp.Provider, ModelID: resp.ModelID, PromptVersion: PromptVersion,
 		InputTokens: resp.Usage.InputTokens, OutputTokens: resp.Usage.OutputTokens, LatencyMS: resp.Latency.Milliseconds()}
 	return d, nil
@@ -178,9 +202,22 @@ var nonID = regexp.MustCompile(`[^a-z0-9]+`)
 
 func slug(s string) string { return strings.Trim(nonID.ReplaceAllString(strings.ToLower(s), "_"), "_") }
 
+// cites says what the model's citations point into: paragraphs of text, or
+// files (with pages) of media.
+type cites struct {
+	paragraphs int
+	pages      []int // media: pages per file (1 for an image); nil for text
+}
+
+func (c cites) media() bool { return c.pages != nil }
+
 // build turns the model's answer into a checked draft. Pure, for testing.
-func build(a answer, paras []string, name string, tm *planner.Template) Draft {
-	d := Draft{Plants: []Plant{}, Components: []Row{}, Operations: []Row{}, Warnings: []string{}, Questions: []Question{}, Paragraphs: len(paras)}
+func build(a answer, src cites, name string, tm *planner.Template) Draft {
+	d := Draft{Plants: []Plant{}, Components: []Row{}, Operations: []Row{}, Warnings: []string{}, Questions: []Question{}, Paragraphs: src.paragraphs}
+	noun := "text"
+	if src.media() {
+		noun = "document"
+	}
 	plantFor := map[string]string{} // country -> plant id
 	addPlant := func(pname, country string, guessed bool) string {
 		if id, ok := plantFor[country]; ok && guessed {
@@ -213,12 +250,26 @@ func build(a answer, paras []string, name string, tm *planner.Template) Draft {
 		}
 		return "", g != ""
 	}
-	para := func(n int, what string) int {
-		if n < 1 || n > len(paras) {
-			d.Warnings = append(d.Warnings, fmt.Sprintf("%q: the paragraph cited (%d) is not in the text", what, n))
-			return 0
+	// cite fills where a row came from, warning about a citation that points
+	// at nothing.
+	cite := func(r *Row, a answerRow) {
+		if !src.media() {
+			if a.Paragraph < 1 || a.Paragraph > src.paragraphs {
+				d.Warnings = append(d.Warnings, fmt.Sprintf("%q: the paragraph cited (%d) is not in the text", r.Name, a.Paragraph))
+				return
+			}
+			r.SourceParagraph = a.Paragraph
+			return
 		}
-		return n
+		r.Unclear = a.Legible != nil && !*a.Legible
+		if a.File < 1 || a.File > len(src.pages) {
+			d.Warnings = append(d.Warnings, fmt.Sprintf("%q: the file cited (%d) was not sent", r.Name, a.File))
+			return
+		}
+		r.SourceFile = a.File
+		if a.Page >= 1 && a.Page <= src.pages[a.File-1] {
+			r.SourcePage = a.Page
+		}
 	}
 	seen := map[string]bool{}
 	var noCountry []string
@@ -234,7 +285,8 @@ func build(a answer, paras []string, name string, tm *planner.Template) Draft {
 		}
 		g, bad := checkGroup(c.Group)
 		row := Row{Name: n, MadeIn: country, Plant: addPlant(country+" plant", country, true), Group: g,
-			SourceParagraph: para(c.Paragraph, n), GroupGuessed: tm != nil && (g == "" || bad)}
+			GroupGuessed: tm != nil && (g == "" || bad)}
+		cite(&row, c)
 		d.Components = append(d.Components, row)
 	}
 	for _, o := range a.Operations {
@@ -243,11 +295,13 @@ func build(a answer, paras []string, name string, tm *planner.Template) Draft {
 			continue
 		}
 		g, bad := checkGroup(o.Group)
-		d.Operations = append(d.Operations, Row{Name: n, MadeIn: country, Plant: addPlant(country+" plant", country, true), Group: g,
-			SourceParagraph: para(o.Paragraph, n), GroupGuessed: tm != nil && (g == "" || bad)})
+		row := Row{Name: n, MadeIn: country, Plant: addPlant(country+" plant", country, true), Group: g,
+			GroupGuessed: tm != nil && (g == "" || bad)}
+		cite(&row, o)
+		d.Operations = append(d.Operations, row)
 	}
 	if len(noCountry) > 0 {
-		d.Warnings = append(d.Warnings, fmt.Sprintf("The text mentions %s without saying where %s made; add %s if %s count.",
+		d.Warnings = append(d.Warnings, fmt.Sprintf("The "+noun+" mentions %s without saying where %s made; add %s if %s count.",
 			strings.Join(noCountry, ", "), map[bool]string{true: "it is", false: "they are"}[len(noCountry) == 1],
 			map[bool]string{true: "it", false: "them"}[len(noCountry) == 1], map[bool]string{true: "it should", false: "they should"}[len(noCountry) == 1]))
 	}
@@ -282,7 +336,7 @@ func build(a answer, paras []string, name string, tm *planner.Template) Draft {
 		}
 	}
 	if a.StatedCount != nil && *a.StatedCount > len(d.Components) {
-		d.Warnings = append(d.Warnings, fmt.Sprintf("The text says %d components; it names %d.", *a.StatedCount, len(d.Components)))
+		d.Warnings = append(d.Warnings, fmt.Sprintf("The %s says %d components; it names %d.", noun, *a.StatedCount, len(d.Components)))
 	}
 	ungrouped := 0
 	for _, r := range d.Components {
@@ -292,6 +346,33 @@ func build(a answer, paras []string, name string, tm *planner.Template) Draft {
 	}
 	if tm != nil && ungrouped > 0 {
 		d.Warnings = append(d.Warnings, fmt.Sprintf("%d component(s) have no operation group; the plan search cannot move them until you pick one.", ungrouped))
+	}
+	if src.media() {
+		var unclear []string
+		for _, r := range append(append([]Row{}, d.Components...), d.Operations...) {
+			if r.Unclear {
+				unclear = append(unclear, r.Name)
+			}
+		}
+		if len(unclear) > 0 {
+			d.Warnings = append(d.Warnings, fmt.Sprintf("Hard to read, check against the document: %s.", strings.Join(unclear, ", ")))
+		}
+		for _, u := range a.Unreadable {
+			what := strings.TrimSpace(u.What)
+			if what == "" || u.File < 1 || u.File > len(src.pages) {
+				continue
+			}
+			if u.Page < 1 || u.Page > src.pages[u.File-1] {
+				u.Page = 0
+			}
+			u.What = what
+			d.Unreadable = append(d.Unreadable, u)
+			where := fmt.Sprintf("File %d", u.File)
+			if u.Page > 0 && src.pages[u.File-1] > 1 {
+				where += fmt.Sprintf(", page %d", u.Page)
+			}
+			d.Warnings = append(d.Warnings, fmt.Sprintf("%s: could not read %s.", where, what))
+		}
 	}
 	for _, n := range a.Notes {
 		if n = strings.TrimSpace(n); n != "" {
