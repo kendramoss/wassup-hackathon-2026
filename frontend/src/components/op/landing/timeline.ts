@@ -26,12 +26,31 @@ export const STOPS: readonly number[] = [phaseStop(0), phaseStop(1), phaseStop(2
 // phases settle instantly; the two finished figures draw themselves in time.
 export const arrivalFor = (p: number): 2 | 3 | null => (p === ARRIVE[1] ? 2 : p === ARRIVE[2] ? 3 : null);
 
-// Past the last figure, the next down goes all the way to the page bottom;
-// back past the first, the next up goes all the way to the page top.
-export type Destination = { kind: "stop"; progress: number } | { kind: "top" } | { kind: "bottom" };
+// Below the pinned stage, the page's own sections are the stops. Each has a
+// guided top, but the space between them scrolls natively so its content can
+// be read without being stepped through (#409). Kept as selectors, not DOM
+// nodes, so the stop order is testable in Node.
+export const FREE_SECTIONS = [
+  { key: "can", selector: ".can" },
+  { key: "who", selector: ".who" },
+  { key: "story", selector: ".story" },
+  { key: "footer", selector: ".lpfoot" },
+] as const;
+
+export type Destination =
+  | { kind: "stop"; progress: number }
+  | { kind: "section"; index: number }
+  | { kind: "top" }
+  | { kind: "bottom" };
+
+// Past the last figure, the next down enters the free-scrolling content at
+// its first section rather than jumping to the page bottom; back past the
+// first, the next up goes all the way to the page top.
 export const nextDestination = (p: number, dir: 1 | -1): Destination => {
   const next = dir > 0 ? STOPS.find((s) => s > p + 0.05) : [...STOPS].reverse().find((s) => s < p - 0.05);
-  return next !== undefined ? { kind: "stop", progress: next } : dir > 0 ? { kind: "bottom" } : { kind: "top" };
+  if (next !== undefined) return { kind: "stop", progress: next };
+  if (dir < 0) return { kind: "top" };
+  return { kind: "section", index: 0 };
 };
 
 export const stepAt = (p: number) => (p < 0.2 ? 0 : p < 0.44 ? 1 : p < 0.76 ? 2 : 3);
