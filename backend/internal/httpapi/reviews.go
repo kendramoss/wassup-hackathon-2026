@@ -410,13 +410,20 @@ func indexOfReview(rvs []store.BrokerReview, id string) int {
 // that was revoked or has expired is a 410.
 func (a *api) reviewByToken(w http.ResponseWriter, r *http.Request) (store.Case, store.BrokerReview, bool) {
 	client := a.clientKey(r)
-	if ok, wait := a.reviewFails.allowed(client); !ok {
+	// Reserve a lookup slot under the bucket's lock (#386, as withAPIKeys
+	// does since #489), so concurrent bad tokens from one client cannot all
+	// pass the check before any failure is recorded and all reach the case
+	// store. Only a bad token spends a failure token; the slot is given back
+	// when this returns.
+	release, ok, wait := a.reviewFails.begin(client)
+	if !ok {
 		secs := max(1, int(math.Ceil(wait.Seconds())))
 		w.Header().Set("Retry-After", fmt.Sprint(secs))
 		writeError(w, http.StatusTooManyRequests, "auth_rate_limited",
 			fmt.Sprintf("too many invalid review links from this client; try again in %d s", secs), map[string]int{"retry_after_s": secs})
 		return store.Case{}, store.BrokerReview{}, false
 	}
+	defer release()
 	bad := func() (store.Case, store.BrokerReview, bool) {
 		a.reviewFails.fail(client)
 		a.auditAuthDenied(r)
