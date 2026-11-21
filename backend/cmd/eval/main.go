@@ -16,6 +16,9 @@
 //	eval routecompare -a BASE -b VARIANT
 //	    Paired comparison of two route files, overall and per gold engine,
 //	    with an exact McNemar test.
+//	eval routed -route FILE -general F -textile F -pharma F -usmca F
+//	    The routed end-to-end path: each ruling scored with the engine its
+//	    router label picks, beside each ruling scored by its own engine.
 //	eval plan   -fixture FILE [-search local|cross]
 //	    Run the planner end to end on a fixture (engine + verifier) and save
 //	    the result to eval/results/plan-<case>-<provider>.json.
@@ -129,6 +132,8 @@ func main() {
 		err = routeCmd(os.Args[2:])
 	case "routecompare":
 		err = routeCompareCmd(os.Args[2:])
+	case "routed":
+		err = routedCmd(os.Args[2:])
 	case "plan":
 		err = planCmd(os.Args[2:])
 	case "predict":
@@ -191,6 +196,7 @@ func run(args []string) error {
 	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
 	tag := fl.String("tag", "", "appended to the result file name, to keep a repeat run apart from an earlier file with the same configuration")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated; final2 needs ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl")
+	caseLabels := fl.String("case-labels", "", "extra label file(s), comma-separated, for split rulings missing from -labels; they are cases only, never precedents (D230: a regime engine run on another regime's rulings)")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
@@ -249,9 +255,21 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
+	var caseStore *corpus.Store
+	if *caseLabels != "" {
+		cl, err := loadLabelFiles(*caseLabels)
+		if err != nil {
+			return err
+		}
+		if caseStore, err = corpus.LoadDirs(cl, splitComma(*factsDir)...); err != nil {
+			return err
+		}
+	}
 	var cases []domain.Ruling
 	for _, id := range ids {
 		if r, ok := store.Get(id); ok {
+			cases = append(cases, r)
+		} else if r, ok := caseStoreGet(caseStore, id); ok {
 			cases = append(cases, r)
 		} else {
 			fmt.Fprintf(os.Stderr, "warning: %s has no facts or label; skipped\n", id)
@@ -441,7 +459,11 @@ func run(args []string) error {
 		go func(c domain.Ruling) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			row := evaluate(ctx, eng, rt, cfg, store, c, *split)
+			labelStore := store
+			if _, ok := store.Label(c.ID); !ok && caseStore != nil {
+				labelStore = caseStore // a -case-labels ruling: its label is there
+			}
+			row := evaluate(ctx, eng, rt, cfg, labelStore, c, *split)
 			row.Retrieval = *retrievalMode
 			if ctx.Err() != nil && row.Error != "" {
 				return // interrupted: leave the case for the next run
@@ -2391,4 +2413,12 @@ func votesSuffix(votes int) string {
 		return fmt.Sprintf("-vote%d", votes)
 	}
 	return ""
+}
+
+// caseStoreGet looks a ruling up in the optional -case-labels store.
+func caseStoreGet(s *corpus.Store, id string) (domain.Ruling, bool) {
+	if s == nil {
+		return domain.Ruling{}, false
+	}
+	return s.Get(id)
 }

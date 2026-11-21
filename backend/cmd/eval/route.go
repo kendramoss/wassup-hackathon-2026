@@ -26,6 +26,10 @@ import (
 // substantial_transformation both go to the general engine.
 const engineGeneral = "general"
 
+// goldNone marks a ruling that is routed but not scored for routing (no
+// single engine is right; build_router_split.py lists why).
+const goldNone = "none"
+
 // routedEngine is the engine the product runs for a router regime label
 // (httpapi dispatch with every specialist engine on, as in production).
 func routedEngine(regime string) string {
@@ -243,6 +247,9 @@ type routeSummary struct {
 func summarizeRoutes(rows []routeRow) routeSummary {
 	s := routeSummary{byGold: map[string]map[string]int{}}
 	for _, r := range rows {
+		if r.GoldEngine == goldNone {
+			continue
+		}
 		if r.Error != "" {
 			s.errs++
 			continue
@@ -298,7 +305,7 @@ func printRouteSummary(s routeSummary) {
 		}
 		return x / float64(s.n)
 	}
-	fmt.Printf("\nAll: %d/%d sent to the right engine (%.1f%%, %.1f–%.1f); specialist cases %d/%d (%.1f%%, %.1f–%.1f); errors %d; cost $%.4f ($%.6f per case); mean latency %.0f ms\n",
+	fmt.Printf("\nAll (gold engine known): %d/%d sent to the right engine (%.1f%%, %.1f–%.1f); specialist cases %d/%d (%.1f%%, %.1f–%.1f); errors %d; cost $%.4f ($%.6f per case); mean latency %.0f ms\n",
 		s.k, s.n, 100*p, 100*lo, 100*hi, spec, specN, 100*ps, 100*los, 100*his, s.errs, s.cost, mean(s.cost), mean(float64(s.latencyMS)))
 }
 
@@ -347,7 +354,7 @@ func routeCompareCmd(args []string) error {
 	var costA, costB float64
 	for _, y := range rb {
 		x, ok := byID[y.Ruling]
-		if !ok {
+		if !ok || y.GoldEngine == goldNone {
 			continue
 		}
 		costA += x.CostUSD
@@ -372,6 +379,113 @@ func routeCompareCmd(args []string) error {
 	}
 	if n := cells["all"]; n != nil && costA > 0 {
 		fmt.Printf("\nCost: A $%.4f, B $%.4f (B/A = %.2f) on %d shared rulings\n", costA, costB, costB/costA, n.n)
+	}
+	return nil
+}
+
+// routedCmd scores the routed end-to-end path (D230): every ruling of a
+// route file goes to the engine its router label picks, and the prediction
+// of that engine on that ruling is looked up in the engine result files.
+// A (ruling, engine) pair with no prediction is listed; it is run once with
+// `eval run -tag routed-...` on a split file holding just those rulings.
+func routedCmd(args []string) error {
+	fl := flag.NewFlagSet("routed", flag.ExitOnError)
+	routeFile := fl.String("route", "", "route result file (eval route)")
+	files := map[string]*string{
+		engineGeneral:        fl.String("general", "", "general engine result files, comma-separated"),
+		router.RegimeTextile: fl.String("textile", "", "textile engine result files, comma-separated"),
+		router.RegimePharma:  fl.String("pharma", "", "pharmaceutical engine result files, comma-separated"),
+		router.RegimeUSMCA:   fl.String("usmca", "", "Part 102 engine result files, comma-separated"),
+	}
+	_ = fl.Parse(args)
+	routes, err := readRouteRows(*routeFile)
+	if err != nil {
+		return err
+	}
+	pred := map[string]map[string]evalkit.Row{} // engine -> ruling -> row
+	for eng, list := range files {
+		pred[eng] = map[string]evalkit.Row{}
+		for _, f := range splitComma(*list) {
+			rows, err := readRows(f, nil)
+			if err != nil {
+				return err
+			}
+			for _, r := range rows {
+				pred[eng][r.Ruling] = r
+			}
+		}
+	}
+	// ownEngine is the engine D211 counts a ruling under (each ruling once):
+	// its gold engine, and the textile engine for the post-cutoff
+	// textile-rule rulings that are in no Part 102 split (gold "none" in
+	// final2; this command is for the final2 route files).
+	ownEngine := func(r routeRow) string {
+		if r.GoldEngine == goldNone {
+			return router.RegimeTextile
+		}
+		return r.GoldEngine
+	}
+	type cell struct{ n, routedOK, ownOK, misrouted, misroutedOK int }
+	cells := map[string]*cell{}
+	var missing []string
+	for _, r := range routes {
+		if r.Error != "" || r.Router == nil {
+			missing = append(missing, "router-error "+r.Ruling)
+			continue
+		}
+		own := ownEngine(r)
+		pr, okR := pred[r.Engine][r.Ruling]
+		po, okO := pred[own][r.Ruling]
+		if !okR {
+			missing = append(missing, r.Engine+" "+r.Ruling)
+		}
+		if !okO {
+			missing = append(missing, own+" "+r.Ruling+" (own engine)")
+		}
+		if !okR || !okO {
+			continue
+		}
+		for _, key := range []string{"all", r.GoldEngine} {
+			c := cells[key]
+			if c == nil {
+				c = &cell{}
+				cells[key] = c
+			}
+			c.n++
+			right := func(x evalkit.Row) bool { return x.Correct && x.Error == "" }
+			if right(pr) {
+				c.routedOK++
+			}
+			if right(po) {
+				c.ownOK++
+			}
+			if r.Engine != own {
+				c.misrouted++
+				if right(pr) {
+					c.misroutedOK++
+				}
+			}
+		}
+	}
+	if len(missing) > 0 {
+		slices.Sort(missing)
+		fmt.Println("missing predictions (engine ruling):")
+		for _, m := range missing {
+			fmt.Println("  " + m)
+		}
+		return fmt.Errorf("routed: %d predictions missing", len(missing))
+	}
+	fmt.Println("| Gold engine | n | routed path right | each ruling to its own engine (best case) | sent elsewhere | of those, right anyway |")
+	fmt.Println("|---|---:|---|---|---:|---:|")
+	for _, key := range append([]string{"all"}, append(slices.Clone(goldEngines), goldNone)...) {
+		c := cells[key]
+		if c == nil {
+			continue
+		}
+		pr, lr, hr := evalkit.Wilson(c.routedOK, c.n)
+		po, lo, ho := evalkit.Wilson(c.ownOK, c.n)
+		fmt.Printf("| %s | %d | %d (%.1f%%, %.1f–%.1f) | %d (%.1f%%, %.1f–%.1f) | %d | %d |\n", key, c.n,
+			c.routedOK, 100*pr, 100*lr, 100*hr, c.ownOK, 100*po, 100*lo, 100*ho, c.misrouted, c.misroutedOK)
 	}
 	return nil
 }

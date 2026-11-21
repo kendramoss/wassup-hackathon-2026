@@ -28,8 +28,9 @@
 #   general         the general engine's splits and the scope window's 9802
 #                   and single-country rulings (any regime the general
 #                   engine answers).
-# Left out and listed: textile-split rulings that neither apply 102.21 nor are
-# in a Part 102 split, and rulings in both the general and a Part 102 split.
+# Left out of routing accuracy and listed (gold engine "none", still routed):
+# textile-split rulings that neither apply 102.21 nor are in a Part 102
+# split, and rulings in both the general and a Part 102 split.
 
 import json
 import re
@@ -119,14 +120,19 @@ for a in range(len(names)):
 out = {
     "frozen_at": frozen_at,
     "source": "the committed engine splits (splits_final, splits_final2, splits_pharma[_final2], splits_usmca[_final2], splits_textile[_final2]) and the Jul-Dec 2025 scope window of eval/data/labels.jsonl",
-    "rule": "gold engine: pharma_api if in a pharmaceutical split; usmca_part102 if in a Part 102 split; textile_102_21 if in a textile split and the raw text applies 19 CFR 102.21 itself ('102.21('); general for the general engine's splits and the scope window's 9802 and single-country rulings. dev = rulings dated before 2026 (tune here only); final and final2 are held out: each router candidate is scored on them at most once (-confirm-final). Built without reading any model output (D230).",
+    "rule": "gold engine: pharma_api if in a pharmaceutical split; usmca_part102 if in a Part 102 split; textile_102_21 if in a textile split and the raw text applies 19 CFR 102.21 itself ('102.21('); general for the general engine's splits and the scope window's 9802 and single-country rulings; none (routed, not scored for routing) for textile-rule rulings that do not apply 102.21 and are in no Part 102 split, and for rulings in both the general and a Part 102 split. dev = rulings dated before 2026 (tune here only); final and final2 are held out: each router candidate is scored on them at most once (-confirm-final). Built without reading any model output (D230).",
     "counts": {},
     "left_out": {},
 }
 gold_all = {}
 for name, (gold, left) in splits.items():
+    # Left-out rulings stay in the split with gold engine "none": they are
+    # routed (the routed end-to-end path of D230 covers every ruling of the
+    # D211 pooled table) but not scored for routing.
+    for i in left:
+        gold[i] = "none"
     out[name] = sorted(gold)
-    out["counts"][name] = {e: sum(1 for v in gold.values() if v == e) for e in ("general", "pharma_api", "usmca_part102", "textile_102_21")}
+    out["counts"][name] = {e: sum(1 for v in gold.values() if v == e) for e in ("general", "pharma_api", "usmca_part102", "textile_102_21", "none")}
     out["left_out"][name] = left
     gold_all.update(gold)
 out["gold"] = dict(sorted(gold_all.items()))

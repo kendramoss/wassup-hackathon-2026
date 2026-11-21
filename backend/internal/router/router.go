@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
@@ -20,6 +21,7 @@ const PromptVersion = PromptV2
 const (
 	PromptV2 = "router-v2"
 	PromptV3 = "router-v3"
+	PromptV4 = "router-v4"
 )
 
 // routerMD is skill/specialists/ROUTER.md from
@@ -53,7 +55,7 @@ Also return "regime": the origin rule CBP will apply to the question asked.
 Final JSON: {"route": ..., "subfamily": ..., "regime": ..., "reason": ...}`
 
 // regimeAddendumV3 replaces regimeAddendum in router-v3 (D230). Error
-// analysis on the dev router split: router-v2 sent 37 of 70 dev Part 102
+// analysis on the dev router split: router-v2 sent 33 of 69 dev Part 102
 // rulings (non-textile goods) to the general engine. Most are goods made or
 // finished in Canada or Mexico, where CBP decides origin under the Part 102
 // tariff-shift rules; router-v2 told the model not to pick usmca_part102 for
@@ -69,6 +71,35 @@ Also return "regime": the origin rule CBP will apply to the question asked. Deci
 - unclear: you cannot tell from the facts.
 "reason" is one line that names both the route and the regime evidence.
 Final JSON: {"route": ..., "subfamily": ..., "regime": ..., "reason": ...}`
+
+// regimeAddendumV4 is router-v3's addendum with the textile scope of 19 CFR
+// 102.21 stated as the regulation states it (chapters 50-63 plus listed
+// headings outside them, such as surgical gauze and sponges, textile bags,
+// hats, umbrellas and bedding): router-v3 sent 3 dev textile rulings
+// (surgical sponges of heading 3005) to the general engine (D230).
+var regimeAddendumV4 = strings.Replace(regimeAddendumV3,
+	"classified in HTSUS chapters 50 to 63, whose origin follows the textile rules of 19 CFR 102.21. Goods classified outside those chapters (wipes, pads, diapers, footwear, furniture) are not textile goods even if they contain textile.",
+	"whose origin follows the textile rules of 19 CFR 102.21: goods of HTSUS chapters 50 to 63, and the textile goods 102.21 lists outside those chapters (surgical gauze, sponges and dressings of heading 3005, textile bags and cases of heading 4202, hats of headings 6501 to 6505, umbrellas, quilts and bedding of heading 9404). Other goods that merely contain textile (wipes, pet pads, footwear, furniture) are not textile goods.", 1)
+
+// partCue matches facts that discuss what the Part 102 rules need: the
+// tariff classification of the good or its materials, marking, or trade
+// programs. On the router-v3 dev rows, 55 of the 65 Part 102 labels on Part
+// 102 rulings had one (or named USMCA) and 5 of the 11 Part 102 labels on
+// general-engine rulings did (D230).
+var partCue = regexp.MustCompile(`(?i)classif|\bheading|subheading|HTSUS|\bHTS\b|chapter \d|\bmark(?:ing|ed)\b|trade program`)
+
+// usmcaRuleV4 is router-v3's check plus a second one: a Part 102 label on
+// facts that neither name USMCA or NAFTA nor discuss classification, marking
+// or trade programs becomes substantial_transformation (a goods-made-in-
+// Canada-or-Mexico label with nothing of the tariff-shift question in it).
+func usmcaRuleV4(facts string, l Label) Label {
+	l = usmcaRule(facts, l)
+	if l.Regime == RegimeUSMCA && l.Rule == "" && !mentionsUSMCA.MatchString(facts) && !partCue.MatchString(facts) {
+		l.Regime = "substantial_transformation"
+		l.Rule = "no-part102-cue"
+	}
+	return l
+}
 
 // mentionsUSMCA matches a request that names the agreement. On the dev
 // router split no general-engine ruling's facts name it (0 of 547) and 34 of
@@ -105,6 +136,8 @@ var prompts = map[string]routerPrompt{
 	PromptV2: {system: routerMD + regimeAddendum},
 	PromptV3: {system: routerMD + regimeAddendumV3, after: usmcaRule,
 		ruleText: "after the model: regime substantial_transformation or unclear and facts match " + mentionsUSMCA.String() + " -> usmca_part102 (rule usmca-named)"},
+	PromptV4: {system: routerMD + regimeAddendumV4, after: usmcaRuleV4,
+		ruleText: "after the model: regime substantial_transformation or unclear and facts match " + mentionsUSMCA.String() + " -> usmca_part102 (rule usmca-named); regime usmca_part102 from the model and facts match neither that nor " + partCue.String() + " -> substantial_transformation (rule no-part102-cue)"},
 }
 
 // Versions lists the selectable router prompt versions, sorted.
