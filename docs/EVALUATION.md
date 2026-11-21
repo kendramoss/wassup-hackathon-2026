@@ -382,3 +382,16 @@ Two products per family from development or train rulings (never a test split), 
 The two "does not" cases cite a ruling that holds China for an all-Chinese setup; both plans leave no Chinese part, so they are likely right on their face, but the citation does not show it. Per-run detail, closest rejected move and notes: `eval/results/planner-families-summary.json`, `eval/planner/spot_checks.json`. These are development checks with illustrative economics, one run each; no later ruling tells whether a shown plan would work.
 
 Recompute both summaries with `python3 -I eval/planner/summarize.py . --check` (part of `make reproduce`); the post-cutoff counts are also recomputed by `go run ./cmd/claimscheck` (`planner_post.*`).
+
+### 7.3 Post-cutoff flip-pair addendum (D192)
+
+Three more searches for pairs under the same rule: wider BM25 neighbours of the 85 post-cutoff rulings, the 78 post-cutoff rulings of other regimes, and a re-probe of 1,284 ruling numbers for rulings CBP posted since the first probe. The re-probe found none. Of 127 model proposals, 3 pairs passed a hand reading, all edge tier: one real change and two controls. They were frozen before scoring and scored once per mode.
+
+| Set | Pairs | Precision at 0.92, starting origin given | Recall, given | Controls shown | Precision, not given | Recall, not given |
+|---|---|---|---|---|---|---|
+| D170 | 15 (11 real, 4 controls) | 8/8 (67.6-100) | 8/11 = 72.7% (43.4-90.3) | 0/4 | 4/5 (37.6-96.4) | 4/11 = 36.4% (15.2-64.6) |
+| Addendum | 3 (1 real, 2 controls) | 1/1 | 1/1 | 0/2 | 1/1 | 1/1 |
+| Combined | 18 (12 real, 6 controls) | 9/9 (70.1-100) | 9/12 = 75.0% (46.8-91.1) | 0/6 (0-39.0) | 5/6 (43.7-97.0) | 5/12 = 41.7% (19.3-68.1) |
+
+One control run (not given mode) failed on a gateway timeout and counts as not shown. The addendum barely moves the intervals. A bigger clean test has to wait for CBP to publish more rulings. Source: `eval/results/planner-post-addendum-summary.json`, built by `python3 -I eval/planner/summarize_addendum.py .`.
+
