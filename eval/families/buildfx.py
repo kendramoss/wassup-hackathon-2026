@@ -6,7 +6,7 @@ REPO=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT=os.path.join(REPO,'backend/testdata/families')
 NOTE="Illustrative placeholder, not a sourced rate."
 def fx(fam):
-    return json.load(open(fWORK+'/fx_{fam}.json'))['product']
+    return json.load(open(f'{WORK}/fx_{fam}.json'))['product']
 def costs(groups, plants):
     # illustrative annual cost per group and plant: the target plant costs 25% more
     out={}

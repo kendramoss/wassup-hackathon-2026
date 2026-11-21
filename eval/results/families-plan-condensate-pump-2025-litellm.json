@@ -1,0 +1,834 @@
+{
+  "case_id": "condensate-pump-2025",
+  "target": "Thailand",
+  "family": "motors_pumps_compressors",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from China.\n\nThe 1/30 horsepower motor, impeller, fan and volute, tank, tank cover, motor cover and plastic enclosure and float switch, micro-switches, floats, brackets and wiring harness are produced in China. \n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+    "prediction": {
+      "origin_country": "China",
+      "key_factors": [
+        "The 1/30 horsepower motor, impeller, volute, tank, and switches produced in China"
+      ],
+      "decisive_step": "Manufacturing of the core pump components (motor, impeller, volute, tank, switches) in China",
+      "confidence": 0.9,
+      "reasoning": "Unlike N347272 or N338945 where significant component fabrication (stamping, molding) and complex subassembly occurred in Thailand, all components of the condensate pump—including the motor, impeller, volute, tank, and switches—are manufactured in China. The Chinese components, particularly the motor and pumping elements, impart the essential character. The operations in Thailand (screwing, pressing, simple welding, connecting wires) constitute mere simple assembly that does not substantially transform the pre-made Chinese components.",
+      "cited_rulings": [
+        "N347272",
+        "N338945"
+      ],
+      "precedents": [
+        "N338945",
+        "N346435",
+        "N347270",
+        "N347271",
+        "N347272"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "engine-v1",
+        "input_tokens": 2788,
+        "output_tokens": 226,
+        "latency_ms": 9021
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "China",
+    "ruling": "N347899"
+  },
+  "plans": [
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor stator and rotor in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from Thailand and China.\n\nThe 1/30 horsepower motor are produced in Thailand. The impeller, fan and volute, tank, tank cover, motor cover and plastic enclosure and float switch, micro-switches, floats, brackets and wiring harness are sourced from China. \n\nIn Thailand, the 1/30 horsepower motor will be produced in-house: Manufacture the motor stator and rotor from laminations and windings; Assemble the motor with capacitors, fan, shaft, mounting plate, and seals (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "1/30 horsepower electric motor (specifically the stator and rotor)"
+        ],
+        "decisive_step": "Manufacturing the motor stator and rotor from laminations and windings, assembling the motor, and final pump assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent for motorized pumps (e.g., N344081), the electric motor imparts the essential character of the condensate pump by providing the mechanical rotation necessary to move fluid. Because the motor—specifically its core stator and rotor—is manufactured from laminations and windings in Thailand, and combined there with Chinese-origin plastic housings, impeller, and switches during final assembly, all non-Thai components undergo a substantial transformation in Thailand.",
+        "cited_rulings": [
+          "N344081"
+        ],
+        "precedents": [
+          "H354721",
+          "N344081",
+          "N346435",
+          "N347271",
+          "N347272"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2727,
+          "output_tokens": 224,
+          "latency_ms": 9117
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344081",
+        "confidence": 0.94,
+        "reasoning": "In N344081 (citing H303864, N316014, N323054, and N324601), CBP held that the electric motor—principally comprised of the stator and rotor—imparts the essential character of a motorized pump because it turns the impeller and moves fluid through the pump. In Variant A, the motor and all other components are made in China and merely assembled in Thailand, resulting in Chinese origin. In Variant B, manufacturing the motor stator and rotor from laminations and windings, assembling the motor, and performing final pump assembly in Thailand substantially transforms the Chinese components, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "pump impeller volute motor origin assembly",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N345436",
+              "N343680",
+              "H337371",
+              "N344081",
+              "H326072",
+              "N346435"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pump motor stator rotor laminations windings origin",
+            "rulings": [
+              "N344002",
+              "N344081",
+              "H354721",
+              "N333849",
+              "H326072",
+              "H337371",
+              "N346961",
+              "N337565"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"condensate pump\" origin motor Thailand China",
+            "rulings": [
+              "H337371",
+              "N344081",
+              "N333514",
+              "N347081",
+              "N344692",
+              "H326072",
+              "N346435",
+              "N347256"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345436",
+            "rulings": [
+              "N345436"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343680",
+            "rulings": [
+              "N343680"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 9407,
+          "output_tokens": 979,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 22500,
+      "net_per_year": 277500,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor stator and rotor and Housing, chassis and machined block in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from Thailand and China.\n\nThe 1/30 horsepower motor and tank, tank cover, motor cover and plastic enclosure are produced in Thailand. The impeller, fan and volute and float switch, micro-switches, floats, brackets and wiring harness are sourced from China. \n\nIn Thailand, the 1/30 horsepower motor will be produced in-house: Manufacture the motor stator and rotor from laminations and windings; Assemble the motor with capacitors, fan, shaft, mounting plate, and seals (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the tank, tank cover, motor cover and plastic enclosure will be produced in-house: Machine, drill cylinders, heat treat, mill, and bore forged steel blocks into a finished fluid-end housing; Stamp, bend, weld, and powder coat steel sheet into chassis panels and mounting plates; Stretch, form, trim, flange, and punch steel coil into compressor outer shell cases; Cast or mold outer housings, bottom plates, shroud covers, and tanks (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "1/30 horsepower motor, tank, and enclosures manufactured in Thailand, combined with final pump assembly"
+        ],
+        "decisive_step": "Manufacturing of the motor, tank, and housings, and final assembly of the condensate pump in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with N344081, the motor imparts significant functional character to a pump. Here, the 1/30 horsepower motor (including stator and rotor fabrication), tank, covers, and plastic enclosure are all manufactured in Thailand. Combining these key Thai-origin components with Chinese-origin switches, impeller, and volute through welding, pressing, and wiring in Thailand substantially transforms the Chinese components into a new article of commerce.",
+        "cited_rulings": [
+          "N344081"
+        ],
+        "precedents": [
+          "N344002",
+          "N344081",
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2803,
+          "output_tokens": 220,
+          "latency_ms": 19927
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344081",
+        "counter_ruling": "N347081",
+        "confidence": 0.94,
+        "reasoning": "In N344081 (citing H303864, N316014, N323054, N324601), CBP held that for motorized pumps, the electric motor—principally the stator and rotor—imparts the essence of the pump because it turns the impeller and moves the fluid. In Variant B, manufacturing the motor (including stator and rotor from laminations and windings), along with the tank, covers, and plastic enclosure in Thailand, combined with final assembly in Thailand, substantially transforms the remaining Chinese components (impeller, switches, wiring) into a product of Thailand. N347081 (looking to the impeller) applies only to non-motorized belt-driven water pumps.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "condensate pump motor impeller volute origin",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N345436",
+              "N343680",
+              "H337371",
+              "N344081",
+              "N344861",
+              "N346435"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pump motor stator rotor laminations windings origin Thailand China",
+            "rulings": [
+              "N344002",
+              "N344081",
+              "H354721",
+              "N333849",
+              "H326072",
+              "H337371",
+              "N346961",
+              "N338794"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "water pump motor impeller housing origin",
+            "rulings": [
+              "N347081",
+              "N333514",
+              "N345436",
+              "N343680",
+              "N344081",
+              "H337371",
+              "N332816",
+              "N342443"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347081",
+            "rulings": [
+              "N347081"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343680",
+            "rulings": [
+              "N343680"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15299,
+          "output_tokens": 478,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 22500,
+      "net_per_year": 277500,
+      "net_priced": false,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "th"
+        },
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor stator and rotor and Impeller and rotary mechanism in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from Thailand and China.\n\nThe 1/30 horsepower motor and impeller, fan and volute are produced in Thailand. The tank, tank cover, motor cover and plastic enclosure and float switch, micro-switches, floats, brackets and wiring harness are sourced from China. \n\nIn Thailand, the 1/30 horsepower motor will be produced in-house: Manufacture the motor stator and rotor from laminations and windings; Assemble the motor with capacitors, fan, shaft, mounting plate, and seals (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the impeller, fan and volute will be produced in-house: Produce the impeller, cylinder block with piston bores, hydraulic pistons, and crankshaft; Cut, spline, and turn the power transmitting driveshaft; Drill balance holes, trim the outside diameter, and bore the inside diameter of the impeller; Construct compressor, evaporator, and condenser cooling subassemblies (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The 1/30 horsepower electric motor (stator and rotor) and impeller assembly"
+        ],
+        "decisive_step": "Manufacturing the motor stator, rotor, and impeller, and performing final assembly in Thailand",
+        "confidence": 0.95,
+        "reasoning": "Consistent with CBP precedent for motorized pumps (e.g., N344081), the electric motor and pumping mechanism (impeller/volute) impart the essential character of a condensate pump by providing the core fluid-moving functionality. In Thailand, the motor stator, rotor, impeller, fan, and volute are manufactured from raw/basic materials and integrated with Chinese-origin housings, switches, and tanks during final assembly. The Chinese components undergo a substantial transformation in Thailand into a new and different article of commerce.",
+        "cited_rulings": [
+          "N344081"
+        ],
+        "precedents": [
+          "H354721",
+          "N339166",
+          "N344002",
+          "N344048",
+          "N344081"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2678,
+          "output_tokens": 238,
+          "latency_ms": 8588
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344081",
+        "confidence": 0.95,
+        "reasoning": "In N344081 (citing H303864, N316014, N323054, and N324601), CBP held that the electric motor—principally the stator and rotor—imparts the essence of a motorized pump because it turns the impeller and moves fluid, and that manufacturing the stator and rotor plus final pump assembly in Thailand confers Thai origin even when housing and other components come from China. Additionally, N345436 and N347081 treat the impeller as the essential fluid-displacing component when assembly is simple. In Variant B, both the motor (including stator and rotor) and the impeller, fan, and volute are manufactured in Thailand alongside final assembly, shifting origin to Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "condensate pump motor impeller volute origin",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N345436",
+              "N343680",
+              "H337371",
+              "N344081",
+              "N344861",
+              "N346435"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "centrifugal pump motor impeller volute origin assembly",
+            "rulings": [
+              "N333514",
+              "N343680",
+              "N347081",
+              "N345436",
+              "H337371",
+              "N344081",
+              "N347272",
+              "N347271"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347081",
+            "rulings": [
+              "N347081"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345436",
+            "rulings": [
+              "N345436"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343680",
+            "rulings": [
+              "N343680"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 16325,
+          "output_tokens": 932,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 32500,
+      "net_per_year": 267500,
+      "net_priced": true,
+      "shown": true
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "th"
+        },
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Motor stator and rotor, Impeller and rotary mechanism and Housing, chassis and machined block in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from Thailand and China.\n\nThe 1/30 horsepower motor, impeller, fan and volute and tank, tank cover, motor cover and plastic enclosure are produced in Thailand. The float switch, micro-switches, floats, brackets and wiring harness are sourced from China. \n\nIn Thailand, the 1/30 horsepower motor will be produced in-house: Manufacture the motor stator and rotor from laminations and windings; Assemble the motor with capacitors, fan, shaft, mounting plate, and seals (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the impeller, fan and volute will be produced in-house: Produce the impeller, cylinder block with piston bores, hydraulic pistons, and crankshaft; Cut, spline, and turn the power transmitting driveshaft; Drill balance holes, trim the outside diameter, and bore the inside diameter of the impeller; Construct compressor, evaporator, and condenser cooling subassemblies (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the tank, tank cover, motor cover and plastic enclosure will be produced in-house: Machine, drill cylinders, heat treat, mill, and bore forged steel blocks into a finished fluid-end housing; Stamp, bend, weld, and powder coat steel sheet into chassis panels and mounting plates; Stretch, form, trim, flange, and punch steel coil into compressor outer shell cases; Cast or mold outer housings, bottom plates, shroud covers, and tanks (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The 1/30 horsepower electric motor, impeller, and volute"
+        ],
+        "decisive_step": "Manufacturing the motor, impeller, volute, and tank components and assembling the finished pump in Thailand",
+        "confidence": 0.98,
+        "reasoning": "Consistent with CBP precedents N344081 and N333514, the essential character of a motorized pump is imparted by its core pumping and driving components—specifically the motor (stator and rotor) and impeller. Here, the 1/30 horsepower motor, impeller, volute, and tank enclosure are all manufactured in Thailand, where final assembly also occurs. The Chinese components (switches, floats, brackets, wiring) are secondary and undergo a substantial transformation when integrated into the pump in Thailand.",
+        "cited_rulings": [
+          "N333514",
+          "N344081"
+        ],
+        "precedents": [
+          "N333514",
+          "N339166",
+          "N344002",
+          "N344048",
+          "N344081"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2858,
+          "output_tokens": 229,
+          "latency_ms": 6414
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N344081",
+        "confidence": 0.96,
+        "reasoning": "In Variant A, all major components (motor, impeller, volute, tank, enclosure, and switches) are made in China and merely assembled in Thailand, resulting in Chinese origin. In Variant B, the manufacturing of the 1/30 hp motor (including stator and rotor from laminations and windings), impeller, fan, volute, tank, and plastic enclosure shifts to Thailand, leaving only switches, brackets, and wiring harness from China. In N344081 (citing H303864, N316014, N323054, N324601) and N343680, CBP held that the electric motor (stator/rotor) and impeller/pump body impart the essence of a pump, so manufacturing them and assembling the pump in Thailand confers Thai origin.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "pump motor impeller volute origin assembly China Thailand",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N345436",
+              "H337371",
+              "N344081",
+              "N343680",
+              "N344692",
+              "H326072"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "centrifugal pump motor stator rotor impeller origin",
+            "rulings": [
+              "N344081",
+              "N343680",
+              "N344002",
+              "N333514",
+              "H354721",
+              "N347081",
+              "N345436",
+              "H326072"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "condensate pump motor impeller tank assembly origin",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N344081",
+              "H337371",
+              "N345436",
+              "N343680",
+              "N346435",
+              "N344847"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343680",
+            "rulings": [
+              "N343680"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N344081",
+            "rulings": [
+              "N344081"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "H337371",
+            "rulings": [
+              "H337371"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 10096,
+          "output_tokens": 409,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 32500,
+      "net_per_year": 267500,
+      "net_priced": false,
+      "shown": true
+    }
+  ],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from China.\n\nThe 1/30 horsepower motor, impeller, fan and volute, tank, tank cover, motor cover and plastic enclosure and float switch, micro-switches, floats, brackets and wiring harness are produced in China. \n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The 1/30 horsepower motor, impeller, volute, tank, and switches produced in China"
+        ],
+        "decisive_step": "Manufacturing of the core pump components (motor, impeller, volute, tank, switches) in China",
+        "confidence": 0.9,
+        "reasoning": "Unlike N347272 or N338945 where significant component fabrication (stamping, molding) and complex subassembly occurred in Thailand, all components of the condensate pump—including the motor, impeller, volute, tank, and switches—are manufactured in China. The Chinese components, particularly the motor and pumping elements, impart the essential character. The operations in Thailand (screwing, pressing, simple welding, connecting wires) constitute mere simple assembly that does not substantially transform the pre-made Chinese components.",
+        "cited_rulings": [
+          "N347272",
+          "N338945"
+        ],
+        "precedents": [
+          "N338945",
+          "N346435",
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2788,
+          "output_tokens": 226,
+          "latency_ms": 9021
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held China (N347899); engine predicts China",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "th"
+        },
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Impeller and rotary mechanism and Housing, chassis and machined block in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from China and Thailand.\n\nThe 1/30 horsepower motor and float switch, micro-switches, floats, brackets and wiring harness are produced in China. The impeller, fan and volute and tank, tank cover, motor cover and plastic enclosure are produced in Thailand. \n\nIn Thailand, the impeller, fan and volute will be produced in-house: Produce the impeller, cylinder block with piston bores, hydraulic pistons, and crankshaft; Cut, spline, and turn the power transmitting driveshaft; Drill balance holes, trim the outside diameter, and bore the inside diameter of the impeller; Construct compressor, evaporator, and condenser cooling subassemblies (assumed from the product-family template; no operations were supplied for this group).\n\nIn Thailand, the tank, tank cover, motor cover and plastic enclosure will be produced in-house: Machine, drill cylinders, heat treat, mill, and bore forged steel blocks into a finished fluid-end housing; Stamp, bend, weld, and powder coat steel sheet into chassis panels and mounting plates; Stretch, form, trim, flange, and punch steel coil into compressor outer shell cases; Cast or mold outer housings, bottom plates, shroud covers, and tanks (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "Thailand",
+        "key_factors": [
+          "The impeller, volute, tank, and motor (or the combination of fluid-moving and housing components produced and assembled in Thailand)"
+        ],
+        "decisive_step": "Production of the impeller, volute, and tank, combined with final assembly of the pump in Thailand",
+        "confidence": 0.78,
+        "reasoning": "For pumps, CBP often considers the fluid-moving components (impeller/volute) and motor to impart essential character (see N333514). Although the 1/30 HP motor and switches are from China, the impeller, volute, fan, tank, and enclosures are manufactured in Thailand, where all components are also assembled and welded into the finished condensate pump. Under the totality of the circumstances (similar to N347272), producing the impeller, volute, and housings plus final assembly in Thailand substantially transforms the Chinese components.",
+        "cited_rulings": [
+          "N333514",
+          "N347272"
+        ],
+        "precedents": [
+          "N333514",
+          "N339166",
+          "N344002",
+          "N344048",
+          "N347272"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2836,
+          "output_tokens": 258,
+          "latency_ms": 13599
+        }
+      },
+      "verdict": {
+        "precedent_supported": true,
+        "supporting_ruling": "N347081",
+        "confidence": 0.85,
+        "reasoning": "In Variant A, all pump components are produced in China and undergo simple final assembly in Thailand, resulting in Chinese origin. In Variant B, the impeller, fan, volute, tank, tank cover, motor cover, and plastic enclosure are all manufactured in Thailand, where final assembly also occurs. In N347081 and N345436 (citing HQ H313089), CBP held that when pump assembly is simple, the impeller is the essential component that imparts origin because it provides the force necessary to displace fluid. Similarly, in N343680, a pump assembled in Thailand primarily from Thai components including the impeller and housing originated in Thailand.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"pump\" motor impeller essential character origin",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "H337371",
+              "N345436",
+              "N343680",
+              "N339907",
+              "H327732",
+              "N344081"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "\"condensate pump\" origin motor impeller",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "N345436",
+              "N343680",
+              "H337371",
+              "N344081",
+              "N344861",
+              "N346435"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "pump motor impeller volute origin China Thailand",
+            "rulings": [
+              "N333514",
+              "N347081",
+              "H337371",
+              "N345436",
+              "N343680",
+              "N344081",
+              "N344692",
+              "H326072"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N347081",
+            "rulings": [
+              "N347081"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N345436",
+            "rulings": [
+              "N345436"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N343680",
+            "rulings": [
+              "N343680"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 15353,
+          "output_tokens": 1828,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": 300000,
+      "added_cost_per_year": 10000,
+      "net_per_year": 290000,
+      "net_priced": false,
+      "shown": false,
+      "rejection_reason": "precedent-supported but verifier confidence 0.85 is below 0.92",
+      "rejection_kind": "below_confidence_bar"
+    },
+    {
+      "move": [
+        {
+          "group": "fluid_rotary_mechanism",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Impeller and rotary mechanism in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from China and Thailand.\n\nThe 1/30 horsepower motor, tank, tank cover, motor cover and plastic enclosure and float switch, micro-switches, floats, brackets and wiring harness are produced in China. The impeller, fan and volute are produced in Thailand. \n\nIn Thailand, the impeller, fan and volute will be produced in-house: Produce the impeller, cylinder block with piston bores, hydraulic pistons, and crankshaft; Cut, spline, and turn the power transmitting driveshaft; Drill balance holes, trim the outside diameter, and bore the inside diameter of the impeller; Construct compressor, evaporator, and condenser cooling subassemblies (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "1/30 horsepower motor and major pump components (tank, switches, enclosure)"
+        ],
+        "decisive_step": "Production of the electric motor and key components in China",
+        "confidence": 0.85,
+        "reasoning": "For motorized pumps, CBP typically finds that the electric motor and primary functional components impart the essential character, or that simple assembly does not substantially transform the Chinese components. Here, the 1/30 hp motor, tank, switches, and enclosure are all made in China. Although the plastic impeller, fan, and volute are made in Thailand, screwing, pressing, and connecting these parts in Thailand constitutes relatively simple assembly that does not substantially transform the Chinese motor and components.",
+        "cited_rulings": [],
+        "precedents": [
+          "N333514",
+          "N339166",
+          "N344048",
+          "N344692",
+          "N346435"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2818,
+          "output_tokens": 218,
+          "latency_ms": 19844
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 10000,
+      "net_per_year": -10000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    },
+    {
+      "move": [
+        {
+          "group": "housing_and_chassis",
+          "to_plant": "th"
+        }
+      ],
+      "description": "Make Housing, chassis and machined block in Thailand",
+      "variant_facts": "The merchandise under consideration is a Condensate pump. A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor. The Condensate pump is assembled in Thailand using components sourced from China and Thailand.\n\nThe 1/30 horsepower motor, impeller, fan and volute and float switch, micro-switches, floats, brackets and wiring harness are produced in China. The tank, tank cover, motor cover and plastic enclosure are produced in Thailand. \n\nIn Thailand, the tank, tank cover, motor cover and plastic enclosure will be produced in-house: Machine, drill cylinders, heat treat, mill, and bore forged steel blocks into a finished fluid-end housing; Stamp, bend, weld, and powder coat steel sheet into chassis panels and mounting plates; Stretch, form, trim, flange, and punch steel coil into compressor outer shell cases; Cast or mold outer housings, bottom plates, shroud covers, and tanks (assumed from the product-family template; no operations were supplied for this group).\n\nFinal assembly in Thailand: screw the motor mounting plate onto the motor and place the water slinger on the shaft; screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "The 1/30 horsepower motor, impeller, volute, and float switches"
+        ],
+        "decisive_step": "Manufacturing of the core functional pumping and electrical components (motor, impeller, volute, switches) in China",
+        "confidence": 0.85,
+        "reasoning": "Unlike N347272 or N338945 where complex multi-stage fabrication and extensive assembly occurred in Thailand, here all critical functional components that impart the essential character of the condensate pump—specifically the motor, impeller, volute, and switches—are fully manufactured in China. Producing the plastic housings/tank in Thailand and performing simple assembly (screwing, pressing, wiring, fitting covers) does not rise to the level of substantial transformation of the Chinese pumping components.",
+        "cited_rulings": [
+          "N347272",
+          "N338945"
+        ],
+        "precedents": [
+          "N338945",
+          "N346435",
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "engine-v1",
+          "input_tokens": 2907,
+          "output_tokens": 224,
+          "latency_ms": 15477
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "net_priced": false,
+      "shown": false,
+      "rejection_reason": "engine predicts origin China, not Thailand",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 7,
+    "engine_calls": 8,
+    "verifier_runs": 5,
+    "verifier_cached": 0,
+    "verifier_model_calls": 18,
+    "verifier_tool_calls": 30,
+    "input_tokens": 88895,
+    "output_tokens": 6463,
+    "engine_input_tokens": 22415,
+    "engine_output_tokens": 1837,
+    "verifier_input_tokens": 66480,
+    "verifier_output_tokens": 4626,
+    "wall_seconds": 88.13344825
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motors_pumps_compressors": "1"
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.24242,
+  "cost_usd_list": 0.48484,
+  "git_revision": "71d926922a17e438da83b2951d4a727eb6efe896-dirty",
+  "time": "2026-11-21T17:35:54+08:00"
+}

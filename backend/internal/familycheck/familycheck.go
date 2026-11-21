@@ -101,9 +101,10 @@ func (c *Checker) CheckUsage(ctx context.Context, text string) (Result, llm.Usag
 		Messages:   []llm.Message{{Role: llm.RoleUser, Content: "PRODUCT:\n" + text}},
 		JSONSchema: c.schema(),
 		SchemaName: "family",
-		// 1024, not 400: with thinking billed as output, 400 cut off 31 of
-		// 469 development checks before the JSON (D138).
-		MaxOutputTokens: 1024,
+		// 2048: with thinking billed as output, 400 cut off 31 of 469
+		// development checks before the JSON (D138), and with 14 families
+		// 1024 still cut off 35 of 469 (D212).
+		MaxOutputTokens: 2048,
 	})
 	if err != nil {
 		return Result{}, llm.Usage{}, fmt.Errorf("familycheck: %w", err)

@@ -551,6 +551,22 @@ Disclosed runs that are not in the table: the first dev legacy run with the old 
 
 Command: `go run ./cmd/eval familycov -split dev|final -set legacy|all [-confirm-final]`.
 
+### Family 14: electric motors, pumps and compressors (21 Nov; D212)
+
+Written by the D138 method from the 10 assembled pool rulings in the `electric_motors_pumps_compressors` category (`results/families-selection.json`): a gemini-4-argon draft (`results/families14-draft.json`), every citation checked by gemini-3.8-flash against the ruling's facts and holding (18 of 30 supported; `results/families14-citation-checks.jsonl`), notes rewritten to cite only kept rulings. The template and the fixture were committed (0b956b2) before any coverage run. Adding a family made the family check fail more often at the 1,024-token cap (dev 35 failed, against 17 with 13 families), so the cap is now 2,048, chosen on dev (d7c58f3); the held-out split was then scored once.
+
+| Split | Templates | Matched / all (failed = not covered) | On rulings both runs answered | Failed checks | Cost (promo) | Rows |
+|---|---|---|---|---:|---:|---|
+| dev (469) | 13, cap 1,024 | 258 = 55.0% (50.5–59.5) | 253 / 446 | 17 | $1.09 | `results/families-coverage-dev-all-litellm.jsonl` |
+| dev (469) | 14, cap 1,024 | 248 = 52.9% | — | 35 | $1.25 | `results/families-coverage-dev-all-litellm-f14.jsonl` |
+| dev (469) | 14, cap 2,048 | 265 = 56.5% (52.0–60.9) | 258 / 446 (6 gained, 1 lost) | 9 | $1.23 | `results/families-coverage-dev-all-litellm-f14-cap2048.jsonl` |
+| held-out (377) | 13, cap 1,024 | 215 = 57.0% (52.0–61.9) | 214 / 367 | 9 | $0.82 | `results/families-coverage-final-all-litellm.jsonl` |
+| held-out (377) | 14, cap 2,048 | 224 = 59.4% (54.4–64.3) | 219 / 367 (6 gained, 1 lost; exact McNemar p = 0.125) | 4 | $0.87 | `results/families-coverage-final-all-litellm-f14.jsonl` |
+
+- **The family adds about one point of scope, like for like** (+1.1 dev, +1.4 held-out on rulings both runs answered). The rest of the held-out gain (59.4% against 57.0%) is fewer failed checks after the cap change, which helps every family. The new family matched 8 held-out rulings; 3 had matched another template before (PCBA devices, motorised tools, vehicle parts), as D138 expected from the overlap.
+- **Live check, one fixture** (`backend/testdata/families/condensate_pump_2025.json`, from N347899, CBP held China): engine China 0.90; 7 moves searched, 4 shown; the smallest is making the motor stator and rotor in Thailand, supported by N344081 (a vacuum pump whose stator and rotor were made in Thailand, held Thailand) at verifier confidence 0.94. $0.24 promo (`results/families-plan-condensate-pump-2025-litellm.json`). One development check, not an evaluation of plan quality.
+- Every coverage run is in `RUNLOG.jsonl`. Scope, not accuracy: a match means a template exists. One run each, through the gateway.
+
 ### Live plan checks on the new families (development, not an evaluation)
 
 One fixture per new family (`backend/testdata/families/`, built from pool rulings), each run once with `eval plan` (engine and verifier gemini-4-argon, verifier-v2, local corpus search, plan bar 0.92). Summary: `results/families-live-checks.json`; full results `results/families-plan-*-litellm.json`.

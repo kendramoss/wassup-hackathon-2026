@@ -271,7 +271,7 @@ The model emits about 11 distinct confidence values, so the first ECE uses one b
 - **The benchmark leaves out "A or B" holdings** (36 in the dev and final windows), which are real and harder cases.
 - **Labels are one pipeline plus a small audit**, not an expert panel, and the audit records are not committed.
 - **Inputs are CBP's restatements** of each request, not raw manufacturer BOMs. Real inputs will be messier.
-- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 13 families is checked on development rulings, not evaluated.
+- **The planner is the least tested part.** Its precedent check now has a clean post-25-Sep test (section 7), but only 15 pairs, so the intervals are wide; plan quality on the 14 families is checked on development rulings, not evaluated.
 - **Proxy runs.** Pharmaceutical and Part 102 held-out numbers, every ablation in section 3.4, the 21 Nov model sweep, the second held-out split and every precedent-check result came through the LiteLLM proxy or gateway with the same Gemini model, not the official Vertex AI path. Gateway and Vertex AI agree on the development set (same engine and model, exact McNemar p = 0.58, D151); these runs were not repeated on Vertex AI.
 - **The other regimes' post-cutoff splits are small** (17, 6 and 13), and their router path is not scored (section 6.1).
 - **The second held-out split is small and easier.** 83 rulings, 62 distinct subjects, and the most-mentioned-country rule gets 71.1% of it (60.7% on the first). It confirms the engine holds up after its cutoff; it does not show it improved.

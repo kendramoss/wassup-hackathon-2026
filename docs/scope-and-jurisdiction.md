@@ -87,7 +87,7 @@ Other product families are not planned. A request for a family with no template 
 
 Plan and country-comparison searches use the general engine only, with a precedent check. `planner.New(tmpls, predictor, ...)` receives the general (possibly cached) engine (`cmd/server/main.go:508`, `main.go:394`) and the planner calls it (`planner/plan.go:253`, `plan.go:376`); the compare call is `Planner.Plan` (`httpapi/compare.go:77`). So a plan for a textile, Part 102 or pharmaceutical product is not computed under that regime's rules. The export draft says so (`cases.go:1364`, `exportRegimeProvisionalNote`: "A plan search always uses the general engine"). Scenario re-runs are different: they dispatch with the case's pinned router label, so a specialist engine can answer them (`httpapi/scenarios.go:280-287`).
 
-`TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 13 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
+`TestTemplateSetIsPinned` (`planner/families_test.go`) pins the 14 families, and `TestTemplateCitationsAreRealRulings` checks every cited ruling against the bundled corpus.
 
 ## 5. Legal references and what each is
 

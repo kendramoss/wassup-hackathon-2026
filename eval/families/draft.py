@@ -22,6 +22,8 @@ FAM={
  "display_camera_modules":("Display modules and cameras",lambda r:r['category']=='optical_cameras'),
  "water_filters":("Water filters and filtration systems",lambda r:r['category']=='filters'),
  "furniture":("Furniture and mattresses",lambda r:r['category']=='furniture'),
+ # Family 14 (D212): the next candidate D138 named.
+ "motors_pumps_compressors":("Electric motors, pumps and compressors",lambda r:r['category']=='electric_motors_pumps_compressors'),
 }
 def facts(r,n):
     p=f'{REPO}/backend/data/facts/{r}.txt'
@@ -69,6 +71,6 @@ if __name__=='__main__':
     user=f"Family: {FAM[fam][0]}\n\nRulings ({len(ids)}):\n\n"+"\n\n".join(parts)
     out,c,u=call(model,SYS,user,SCHEMA)
     out['_input_rulings']=ids; out['_cost_usd']=c; out['_usage']=u; out['_model']=model
-    json.dump(out,open(fWORK+'/draft_{fam}.json','w'),indent=1)
+    json.dump(out,open(f'{WORK}/draft_{fam}.json','w'),indent=1)
     bad=[x for g in out['groups'] for x in g['precedent']['confers_origin']+g['precedent']['not_enough'] if x not in ids]
     print(fam,len(ids),'cost',c,'groups',[g['id'] for g in out['groups']],'bad ids',bad)

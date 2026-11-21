@@ -1,13 +1,13 @@
 # Families work (D138): see docs/DECISIONS.md D138. Model calls go to an OpenAI-compatible LiteLLM gateway to Gemini
 # (LITELLM_BASE_URL, LITELLM_API_KEY in the environment). Intermediate files go to $FAMILIES_WORK (default /tmp/families).
-import json,re,os,urllib.request,time
+import json,re,os,sys,urllib.request,time
 WORK=os.environ.get('FAMILIES_WORK','/tmp/families')
 REPO=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASE=os.environ['LITELLM_BASE_URL'].rstrip('/'); KEY=os.environ['LITELLM_API_KEY']
 V={}
 for l in open(WORK+'/verify.jsonl'):
     v=json.loads(l); V[(v['family'],v['group'],v['kind'],v['ruling'])]=v.get('supported',False)
-FAMS=['pcba_electronic_devices','vehicle_parts','hand_tools','cables_harnesses','power_supplies_chargers','gas_grills_cooking','medical_devices','display_camera_modules','water_filters','furniture']
+FAMS=sys.argv[1:] or ['pcba_electronic_devices','vehicle_parts','hand_tools','cables_harnesses','power_supplies_chargers','gas_grills_cooking','medical_devices','display_camera_modules','water_filters','furniture']
 cost=0
 def rewrite(note,keep_c,keep_n,dropped):
     global cost
@@ -20,7 +20,7 @@ def rewrite(note,keep_c,keep_n,dropped):
         cost+=float(resp.headers.get('x-litellm-response-cost') or 0); d=json.load(resp)
     return json.loads(d['choices'][0]['message']['content'])['note']
 for fam in FAMS:
-    d=json.load(open(fWORK+'/draft_{fam}.json'))
+    d=json.load(open(f'{WORK}/draft_{fam}.json'))
     for g in d['groups']:
         p=g['precedent']; dropped=[]
         for kind in ['confers_origin','not_enough']:
@@ -35,5 +35,5 @@ for fam in FAMS:
                 if set(re.findall(r'\b[HN]\d{6}\b',n))<=allowed: p['note']=n; break
             else: raise SystemExit(f'note rewrite failed {fam} {g["id"]}')
         print(fam,g['id'],len(p['confers_origin']),len(p['not_enough']))
-    json.dump(d,open(fWORK+'/final_{fam}.json','w'),indent=1)
+    json.dump(d,open(f'{WORK}/final_{fam}.json','w'),indent=1)
 print('cost',cost)

@@ -32,7 +32,7 @@ def one(item):
     return dict(family=fam,group=gid,kind=kind,ruling=r,error=err,cost_usd=0)
 items=[]
 for fam in sys.argv[1:]:
-    d=json.load(open(fWORK+'/draft_{fam}.json'))
+    d=json.load(open(f'{WORK}/draft_{fam}.json'))
     for g in d['groups']:
         for kind in ['confers_origin','not_enough']:
             for r in dict.fromkeys(g['precedent'][kind]):

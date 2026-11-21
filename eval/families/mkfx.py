@@ -32,5 +32,5 @@ with urllib.request.urlopen(req,timeout=300) as resp:
 p=json.loads(d['choices'][0]['message']['content'])
 gids={g['id'] for g in T['groups']}
 bad=[x['group'] for x in p['components']+p['operations'] if x['group'] not in gids]+[c for pl in p['plants'] for c in pl['capabilities'] if c not in gids]
-json.dump({"product":p,"cost":c},open(fWORK+'/fx_{fam}.json','w'),indent=1)
+json.dump({"product":p,"cost":c},open(f'{WORK}/fx_{fam}.json','w'),indent=1)
 print(fam,rid,'cost',round(c,4),'bad groups',bad)

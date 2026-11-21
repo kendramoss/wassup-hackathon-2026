@@ -396,8 +396,8 @@ export const copy = {
     },
     // "What you can do" (judge journey): every capability that is built and
     // running, each with a way in. Plain list, no numbers beyond NUMBERS.md
-    // rows (13 families, 11 MCP tools).
-    also: "Also built: a parts list read from a photo or scan, plan templates for 13 product families, and a connector for Claude.",
+    // rows (14 families, 11 MCP tools).
+    also: "Also built: a parts list read from a photo or scan, plan templates for 14 product families, and a connector for Claude.",
     alsoLink: "What you can do ↓",
     can: {
       title: "What you can do",
@@ -418,7 +418,7 @@ export const copy = {
         {
           key: "plan",
           what: "Plan a production move",
-          body: "For products in 13 families with a plan template, from heat guns and LiDAR to cables, chargers, hand tools and gas grills, it tries moving each group of work to another plant. An agent then checks each move against earlier rulings, for and against.",
+          body: "For products in 14 families with a plan template, from heat guns and LiDAR to cables, chargers, pumps, hand tools and gas grills, it tries moving each group of work to another plant. An agent then checks each move against earlier rulings, for and against.",
           link: "See the heat-gun plan →",
         },
         {
@@ -496,7 +496,7 @@ export const copy = {
     originScope: "U.S. origin only. Not for trade-agreement claims, certificates of origin or non-U.S. rules.",
     outOfScope: "This looks like a case this tool does not decide. A licensed customs broker should review it.",
     part102: "Marking origin under the Part 102 rules. This is not USMCA qualification or regional value content.",
-    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only products in a family with a plan template (13 families, listed in the family picker) are planned.",
+    planScope: "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules, and only products in a family with a plan template (14 families, listed in the family picker) are planned.",
     draftNote: "A draft ruling request for a broker to complete and file. It asks CBP a question; it is not a determination.",
     part177Label: "Ruling request letter (19 CFR Part 177)",
     part177Help: "Part 177 is how to ask CBP for a ruling. It is not an origin rule.",
