@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/bulletin"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
 // bulletinIssue is one row of eval/data/bulletins/index.jsonl: a fetched
@@ -30,6 +32,7 @@ type bulletinIssue struct {
 func (i bulletinIssue) base() string { return fmt.Sprintf("v%dn%d", i.Volume, i.Number) }
 
 const (
+	bulletinReads   = "../eval/data/bulletins/model_reads.jsonl"
 	bulletinIndex   = "../eval/data/bulletins/index.jsonl"
 	bulletinNotices = "../eval/data/bulletins/notices.jsonl"
 	bulletinDir     = "../data/corpus/bulletins"
@@ -46,6 +49,9 @@ const (
 //	    Cut DIR/text/*.txt into notices and write the committed excerpts.
 //	corpus bulletins parse   [-notices F]
 //	    Print each notice's parse and any problem (no files written).
+//	corpus bulletins model   [-notices F] [-out F] [-model M] [-cap USD]
+//	    Send each flagged notice to the model once (D400) and append its
+//	    reply to the committed reads. LITELLM_BASE_URL, LITELLM_API_KEY.
 func bulletins(args []string) error {
 	if len(args) == 0 {
 		return errors.New("usage: corpus bulletins fetch|extract [flags]")
@@ -57,6 +63,8 @@ func bulletins(args []string) error {
 		return bulletinsExtract(args[1:])
 	case "parse":
 		return bulletinsParse(args[1:])
+	case "model":
+		return bulletinsModel(args[1:])
 	}
 	return fmt.Errorf("unknown bulletins command %q", args[0])
 }
@@ -226,5 +234,58 @@ func bulletinsParse(args []string) error {
 		}
 	}
 	fmt.Printf("bulletins: %d notices, %d with a problem\n", len(notices), bad)
+	return nil
+}
+
+func bulletinsModel(args []string) error {
+	fl := flag.NewFlagSet("bulletins model", flag.ExitOnError)
+	path := fl.String("notices", bulletinNotices, "notice excerpts")
+	out := fl.String("out", bulletinReads, "model reads (committed)")
+	model := fl.String("model", bulletin.ReadModel, "model (D400 pre-registers gemini-3.5-flash)")
+	capUSD := fl.Float64("cap", 6, "stop when the reported spend reaches this")
+	_ = fl.Parse(args)
+	base, key := os.Getenv("LITELLM_BASE_URL"), os.Getenv("LITELLM_API_KEY")
+	if base == "" || key == "" {
+		return errors.New("LITELLM_BASE_URL and LITELLM_API_KEY must be set")
+	}
+	notices, err := loadNotices(*path)
+	if err != nil {
+		return err
+	}
+	done, err := bulletin.LoadReads(*out)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	ll := llm.NewLiteLLM(base, key, 2*time.Minute)
+	ll.SkipCache(true)
+	tally := &llm.CostTally{}
+	ctx := llm.ContextWithCostTally(context.Background(), tally)
+	f, err := os.OpenFile(*out, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	n := 0
+	for _, nt := range notices {
+		if bulletin.Parse(nt).Problem() == "" {
+			continue
+		}
+		if _, ok := done[nt.Key()]; ok {
+			continue
+		}
+		if tally.USD() >= *capUSD {
+			return fmt.Errorf("spend cap $%.2f reached", *capUSD)
+		}
+		before := tally.USD()
+		rd := bulletin.ReadNotice(ctx, ll, *model, nt)
+		rd.CostUSD = tally.USD() - before
+		b, _ := json.Marshal(rd)
+		if _, err := f.Write(append(b, '\n')); err != nil {
+			return err
+		}
+		n++
+		fmt.Printf("%s: %d rulings %s ($%.5f)\n", nt.Key(), len(rd.Rulings), rd.Error, rd.CostUSD)
+	}
+	fmt.Printf("bulletins: %d notices read, $%.5f reported by the gateway\n", n, tally.USD())
 	return nil
 }
