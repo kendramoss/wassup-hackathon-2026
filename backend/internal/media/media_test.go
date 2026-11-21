@@ -190,12 +190,12 @@ func pdfObjStreamWithFilter(n int, ascii85First bool) []byte {
 	if ascii85First {
 		filter = "[/ASCII85Decode /FlateDecode]"
 	}
-	var b bytes.Buffer
-	b.WriteString("%PDF-1.5\n")
-	fmt.Fprintf(&b, "9 0 obj\n<< /Type /ObjStm /N %d /First %d /Filter %s /Length %d >>\nstream\n",
-		2+n, header.Len(), filter, len(data))
-	b.Write(data)
-	b.WriteString("\nendstream\nendobj\ntrailer << /Root 1 0 R >>\n%%EOF\n")
+	b := newXS()
+	b.stream(900, fmt.Sprintf("/Type /ObjStm /N %d /First %d /Filter %s", 2+n, header.Len(), filter), data)
+	for i := 0; i < 2+n; i++ {
+		b.entries[i+1] = [3]int{2, 900, i}
+	}
+	b.xref(901, 1, false)
 	return b.Bytes()
 }
 
