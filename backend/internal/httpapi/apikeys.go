@@ -9,6 +9,10 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
+
+	"golang.org/x/time/rate"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/apikey"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
@@ -51,8 +55,20 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
+		// Throttle guessing before the key lookup: a client (its address;
+		// no key is known yet) that has failed too often waits (D137).
+		client := clientKey(r)
+		if ok, wait := a.authFails.allowed(client); !ok {
+			a.d.Logger.WarnContext(r.Context(), "api key failures limited", "request_id", requestRef(r.Context()))
+			secs := max(1, int(math.Ceil(wait.Seconds())))
+			w.Header().Set("Retry-After", fmt.Sprint(secs))
+			writeError(w, http.StatusTooManyRequests, "auth_rate_limited",
+				fmt.Sprintf("too many invalid API keys from this client; try again in %d s", secs), map[string]int{"retry_after_s": secs})
+			return
+		}
 		key, err := a.d.APIKeys.Authenticate(r.Context(), secret)
 		if errors.Is(err, apikey.ErrInvalid) {
+			a.authFails.fail(client)
 			a.auditAuthDenied(r)
 			writeError(w, http.StatusUnauthorized, "unauthorized", "the API key is invalid or disabled", nil)
 			return
@@ -62,8 +78,12 @@ func (a *api) withAPIKeys(next http.Handler) http.Handler {
 			return
 		}
 		ok, used, reset, err := a.d.APIKeys.Use(r.Context(), key)
-		if err != nil { // the counter is unavailable: serve, the rate limits still apply
+		if err != nil {
+			// The shared counter is unavailable: serve (fail open, for
+			// availability), but count on this instance so the key still
+			// stops at its quota here (D137). The rate limits still apply.
 			a.d.Logger.WarnContext(r.Context(), "api key quota not counted", "request_id", requestRef(r.Context()), keyAttr(key.ID), "err", logsafe.Err(err))
+			ok, used = a.quotaLocal.use(key.ID, key.DailyQuota, time.Now())
 		}
 		if !ok {
 			secs := max(1, int(math.Ceil(reset.Seconds())))
@@ -145,4 +165,92 @@ func (a *api) disableAPIKey(w http.ResponseWriter, r *http.Request) {
 	// was a 404 before this line). keyAttr drops anything without that shape.
 	a.d.Logger.InfoContext(r.Context(), "api key disabled", "request_id", requestRef(r.Context()), keyAttr(id))
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// authFailures counts invalid API keys per client, on this instance: a
+// bucket of Limits.AuthFailuresPerMin that refills over a minute. Only
+// failures take from it.
+type authFailures struct {
+	perMin  int
+	mu      sync.Mutex
+	clients map[string]*failBucket
+	now     func() time.Time
+}
+
+type failBucket struct {
+	b    *rate.Limiter
+	seen time.Time
+}
+
+func newAuthFailures(perMin int) *authFailures {
+	return &authFailures{perMin: perMin, clients: map[string]*failBucket{}, now: time.Now}
+}
+
+func (f *authFailures) bucket(client string, now time.Time) *failBucket {
+	fb, ok := f.clients[client]
+	if !ok {
+		fb = &failBucket{b: rate.NewLimiter(rate.Limit(float64(f.perMin)/60), f.perMin)}
+		f.clients[client] = fb
+		if len(f.clients) > 10000 { // forget idle clients so the map stays bounded
+			for k, v := range f.clients {
+				if now.Sub(v.seen) > 10*time.Minute {
+					delete(f.clients, k)
+				}
+			}
+		}
+	}
+	fb.seen = now
+	return fb
+}
+
+// allowed reports whether client may try a key now, and if not how long
+// until it may.
+func (f *authFailures) allowed(client string) (bool, time.Duration) {
+	if f == nil {
+		return true, 0
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	now := f.now()
+	fb, ok := f.clients[client]
+	if !ok {
+		return true, 0
+	}
+	if t := fb.b.TokensAt(now); t < 1 {
+		return false, time.Duration((1 - t) / float64(fb.b.Limit()) * float64(time.Second))
+	}
+	return true, 0
+}
+
+// fail records one invalid key from client.
+func (f *authFailures) fail(client string) {
+	if f == nil {
+		return
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	now := f.now()
+	f.bucket(client, now).b.AllowN(now, 1)
+}
+
+// localQuota counts API-key requests on this instance while the shared
+// usage counter is unavailable, per key and UTC day.
+type localQuota struct {
+	mu   sync.Mutex
+	day  string
+	used map[string]int64
+}
+
+func newLocalQuota() *localQuota { return &localQuota{used: map[string]int64{}} }
+
+// use counts one request for id now and reports whether it is within quota,
+// with the count.
+func (q *localQuota) use(id string, quota int, now time.Time) (bool, int64) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if day := now.UTC().Format(time.DateOnly); day != q.day {
+		q.day, q.used = day, map[string]int64{}
+	}
+	q.used[id]++
+	return q.used[id] <= int64(quota), q.used[id]
 }

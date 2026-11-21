@@ -26,6 +26,16 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Full plan, heat gun | $0.22 promo / $0.45 list, 33 s, 7 engine calls + 6 verifier runs | `eval/results/plan-heatgun-2022-local-litellm.json` | Proxy; demo fixture |
 | Latency per prediction | p50 4.6 s / p95 5.7 s | final Vertex rows | Official Vertex AI. The proxy run was p50 5.0 s / p95 6.4 s |
 
+## API limits (developers page, `docs/api/SECURITY.md`)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Requests a minute per client, routes without a model call | 120 | `RATE_BASIC_PER_MIN` default, `backend/internal/config/config.go` (D137) | Built; default, configurable |
+| Light / heavy model requests a minute per client | 20 / 4 | `RATE_LIGHT_PER_MIN`, `RATE_HEAVY_PER_MIN` defaults, same file (D45) | Built; default, configurable |
+| Model-calling requests running at once per client | 4 | `RATE_MAX_IN_FLIGHT` default (D137) | Built; per instance |
+| Invalid API keys a minute per address | 10 | `RATE_AUTH_FAILURES_PER_MIN` default (D137) | Built; per instance |
+| One client's share of the daily model budget | a tenth (0.1) | `DAILY_SPEND_CLIENT_SHARE` default (D137) | Built; applies only with `DAILY_SPEND_CAP_USD` set |
+
 ## Demo story
 
 | Number / claim | Value | Source | Status |

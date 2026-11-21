@@ -38,10 +38,19 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 			if d.RateStore != nil {
 				a.shared = newSharedLimiter(d.Limits, d.RateStore)
 			}
+			if d.Limits.MaxInFlight > 0 {
+				a.inflight = newInflight(d.Limits.MaxInFlight)
+			}
+		}
+		if d.APIKeys != nil {
+			if d.Limits.AuthFailuresPerMin > 0 {
+				a.authFails = newAuthFailures(d.Limits.AuthFailuresPerMin)
+			}
+			a.quotaLocal = newLocalQuota()
 		}
 		mux.HandleFunc("POST /v1/cases/predict", a.limit(light, a.predict))
 		mux.HandleFunc("POST /v1/cases/batch", a.limit(bulk, a.batch))
-		mux.HandleFunc("GET /v1/cases", a.listCases)
+		mux.HandleFunc("GET /v1/cases", a.cheap(a.listCases))
 		mux.HandleFunc("POST /v1/products/import", a.limit(light, a.importProduct))
 		mux.HandleFunc("POST /v1/products/extract", a.limit(light, a.extractProduct))
 		if d.MediaExtractor != nil {
@@ -63,37 +72,37 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		mux.HandleFunc("POST /v1/cases/{id}/scenarios", a.limit(light, a.scenarios))
 		mux.HandleFunc("POST /v1/cases/{id}/compare-targets", a.limit(heavy, a.compareTargets))
 		mux.HandleFunc("POST /v1/cases/{id}/ask", a.limit(light, a.ask))
-		mux.HandleFunc("PUT /v1/cases/{id}/economics", a.putEconomics)
+		mux.HandleFunc("PUT /v1/cases/{id}/economics", a.cheap(a.putEconomics))
 		mux.HandleFunc("PUT /v1/cases/{id}/pin", a.adminOnly(a.pinCase))
 		mux.HandleFunc("POST /v1/cases/{id}/watch", a.limit(light, a.watch))
 		mux.HandleFunc("POST /v1/watch/run", a.adminOnly(a.watchAll))
-		mux.HandleFunc("GET /v1/cases/{id}", a.getCase)
-		mux.HandleFunc("DELETE /v1/cases/{id}", a.deleteCase)
-		mux.HandleFunc("PATCH /v1/cases/{id}", a.renameCase)
+		mux.HandleFunc("GET /v1/cases/{id}", a.cheap(a.getCase))
+		mux.HandleFunc("DELETE /v1/cases/{id}", a.cheap(a.deleteCase))
+		mux.HandleFunc("PATCH /v1/cases/{id}", a.cheap(a.renameCase))
 		mux.HandleFunc("POST /v1/cases/{id}/plan", a.limit(heavy, a.plan))
 		if _, ok := d.Planner.(Estimator); ok {
 			mux.HandleFunc("POST /v1/cases/{id}/plan/estimate", a.rateOnly(light, a.planEstimate))
 		}
-		mux.HandleFunc("POST /v1/cases/{id}/export", a.export)
+		mux.HandleFunc("POST /v1/cases/{id}/export", a.cheap(a.export))
 		mux.HandleFunc("POST /v1/cases/{id}/answers", a.limit(light, a.answers))
-		mux.HandleFunc("GET /v1/rulings/{id}", a.ruling)
+		mux.HandleFunc("GET /v1/rulings/{id}", a.cheap(a.ruling))
 		if d.RulingSearch != nil {
 			mux.HandleFunc("GET /v1/rulings", a.rateOnly(lookup, a.searchRulings))
 		}
 		if !d.MCPOff {
-			mux.HandleFunc("POST /mcp", a.mcp(&root, info.Version)) // docs/MCP.md; its tools call the routes above in-process
+			mux.HandleFunc("POST /mcp", a.rateOnly(basic, a.mcp(&root, info.Version))) // docs/MCP.md; its tools call the routes above in-process
 		}
-		mux.HandleFunc("GET /v1/eval/summary", a.evalSummary)
-		mux.HandleFunc("GET /v1/duty-rates", a.dutyRates)
-		mux.HandleFunc("GET /v1/demos", a.listDemos)
-		mux.HandleFunc("GET /v1/demos/{id}", a.getDemo)
+		mux.HandleFunc("GET /v1/eval/summary", a.cheap(a.evalSummary))
+		mux.HandleFunc("GET /v1/duty-rates", a.cheap(a.dutyRates))
+		mux.HandleFunc("GET /v1/demos", a.cheap(a.listDemos))
+		mux.HandleFunc("GET /v1/demos/{id}", a.cheap(a.getDemo))
 		if d.Teams {
-			mux.HandleFunc("POST /v1/workspaces", a.createWorkspace)
-			mux.HandleFunc("GET /v1/workspaces/mine", a.myWorkspace)
-			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.addMember)
-			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.joinWorkspace)
-			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.setMemberRole)
-			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.removeMember)
+			mux.HandleFunc("POST /v1/workspaces", a.cheap(a.createWorkspace))
+			mux.HandleFunc("GET /v1/workspaces/mine", a.cheap(a.myWorkspace))
+			mux.HandleFunc("POST /v1/workspaces/{id}/members", a.cheap(a.addMember))
+			mux.HandleFunc("POST /v1/workspaces/{id}/join", a.cheap(a.joinWorkspace))
+			mux.HandleFunc("PUT /v1/workspaces/{id}/members/{email}/role", a.cheap(a.setMemberRole))
+			mux.HandleFunc("DELETE /v1/workspaces/{id}/members/{email}", a.cheap(a.removeMember))
 		}
 		if d.Audit != nil {
 			mux.HandleFunc("GET /v1/audit", a.rateOnly(light, a.auditList))
@@ -126,8 +135,42 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 	if a != nil && a.d.APIKeys != nil {
 		h = a.withAPIKeys(h)
 	}
-	root = withRequestLog(logger, h)
+	requireBearer := len(deps) > 0 && deps[0].RequireBearer
+	root = withRequestLog(logger, withSecurity(requireBearer, h))
 	return root
+}
+
+// withSecurity sets the response headers every API answer carries (D137):
+// nosniff, no referrer, and no caching of /v1 answers (case data). With
+// requireBearer it refuses, before any other check, a request other than
+// /health without an "Authorization: Bearer" header: deployed, Cloud Run
+// checks that token and the frontend proxy always sends one, so a request
+// without it did not come through Cloud Run's front door. No CORS headers
+// are ever sent: the API is for servers (X-API-Key) and for the frontend's
+// own proxy, not for cross-origin browser calls.
+func withSecurity(requireBearer bool, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("Referrer-Policy", "no-referrer")
+		if strings.HasPrefix(r.URL.Path, "/v1/") || r.URL.Path == "/mcp" {
+			h.Set("Cache-Control", "no-store")
+		}
+		// An MCP tool call re-enters this chain in-process (RequestURI is
+		// empty only then; the server always sets it): its /mcp request was
+		// already checked here, and the MCP guard drops Authorization.
+		inProcess := r.RequestURI == ""
+		if requireBearer && r.URL.Path != "/health" && !inProcess && !hasBearer(r) {
+			writeError(w, http.StatusUnauthorized, "unauthorized", "this API is reached through its gateway; the request has no bearer token", nil)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func hasBearer(r *http.Request) bool {
+	scheme, tok, ok := strings.Cut(strings.TrimSpace(r.Header.Get("Authorization")), " ")
+	return ok && strings.EqualFold(scheme, "Bearer") && strings.TrimSpace(tok) != ""
 }
 
 type ctxKey struct{}   // the request's logsafe.Ref

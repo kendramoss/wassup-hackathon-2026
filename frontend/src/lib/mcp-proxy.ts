@@ -15,14 +15,25 @@ import { clientIP, idToken, logProxyFailure, readCapped } from "./backend";
 // Cookies, the visitor ID, the user token and the admin token are never
 // forwarded; a request with the admin token is refused.
 // The response body is passed through as a stream (an MCP answer may be a
-// text/event-stream), with the MCP headers and Retry-After.
+// text/event-stream), with the MCP headers, Retry-After and the RateLimit
+// fields (D137). The site's security headers come from next.config.ts.
 
 // MAX_MCP_BODY matches the backend's cap on one MCP request: room for
 // extract_product_from_media's 8 MB of files in base64 and the JSON around it.
 export const MAX_MCP_BODY = 12 << 20;
 
 const FORWARD = ["content-type", "accept", "mcp-protocol-version", "mcp-session-id", "last-event-id"];
-const RETURN = ["content-type", "mcp-session-id", "mcp-protocol-version", "retry-after", "x-request-id", "allow"];
+const RETURN = [
+  "content-type",
+  "mcp-session-id",
+  "mcp-protocol-version",
+  "retry-after",
+  "ratelimit-limit",
+  "ratelimit-remaining",
+  "ratelimit-reset",
+  "x-request-id",
+  "allow",
+];
 
 const jsonError = (status: number, code: string, message: string) =>
   Response.json({ code, message }, { status, headers: { "Cache-Control": "no-store" } });

@@ -8,6 +8,9 @@ package spend
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"strings"
 	"sync"
 	"time"
 
@@ -27,15 +30,112 @@ type Meter struct {
 	cap   float64
 	now   func() time.Time
 
+	// share is the fraction of cap one client may spend in a day (D137);
+	// 0 disables the per-client cap.
+	share float64
+
 	mu    sync.Mutex
 	day   string
 	total float64 // last known total for day (this instance's view)
 	debt  float64 // spend counted locally after a failed store write; the store never saw it
+	// clients is this instance's view of each client's spend for day: what
+	// the store last said, plus anything the store did not take. Reset each
+	// day and capped in size.
+	clients map[string]float64
 }
+
+// maxLocalClients caps the per-client spend this instance remembers in a day.
+const maxLocalClients = 10000
 
 // New returns a meter; capUSD <= 0 disables the cap (Over is always false).
 func New(store Store, capUSD float64) *Meter {
 	return &Meter{store: store, cap: capUSD, now: time.Now}
+}
+
+// WithClientShare sets the share of the cap one client may spend in a UTC
+// day (D137), so one caller cannot use up the day for everyone. share <= 0
+// (or no cap) disables it. It returns m.
+func (m *Meter) WithClientShare(share float64) *Meter {
+	m.share = share
+	return m
+}
+
+type clientCtx struct{}
+
+// WithClient marks ctx's model calls as made for client (an API key or an
+// address), so they count toward its share of the cap.
+func WithClient(ctx context.Context, client string) context.Context {
+	return context.WithValue(ctx, clientCtx{}, client)
+}
+
+func clientFrom(ctx context.Context) string {
+	c, _ := ctx.Value(clientCtx{}).(string)
+	return c
+}
+
+// ClientDay is the store key for client's spend on day: the day, then a
+// hash of the client, so the store never holds an address and the key is a
+// valid document ID.
+func ClientDay(day, client string) string {
+	h := sha256.Sum256([]byte(client))
+	return day + "_c_" + hex.EncodeToString(h[:12])
+}
+
+func (m *Meter) clientCap() float64 {
+	if m.cap <= 0 || m.share <= 0 {
+		return 0
+	}
+	return m.cap * m.share
+}
+
+// resetDayLocked starts a new day's view. m.mu must be held.
+func (m *Meter) resetDayLocked(day string) {
+	if m.day != day {
+		m.day, m.total, m.debt, m.clients = day, 0, 0, nil
+	}
+}
+
+// addClient adds usd to client's spend for day (best effort: a store error
+// keeps the amount in this instance's view only).
+func (m *Meter) addClient(ctx context.Context, day, client string, usd float64) {
+	if m.clientCap() <= 0 || client == "" {
+		return
+	}
+	total, err := m.store.Add(context.WithoutCancel(ctx), ClientDay(day, client), usd)
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.resetDayLocked(day)
+	if m.clients == nil {
+		m.clients = map[string]float64{}
+	}
+	if _, ok := m.clients[client]; !ok && len(m.clients) >= maxLocalClients {
+		return
+	}
+	if err == nil {
+		m.clients[client] = max(total, m.clients[client])
+	} else {
+		m.clients[client] += usd
+	}
+}
+
+// ClientOver reports whether client has spent its share of today's cap,
+// with what it spent and its share in USD. With no per-client cap it is
+// always false. A store error falls back to this instance's view.
+func (m *Meter) ClientOver(ctx context.Context, client string) (bool, float64, float64) {
+	limit := m.clientCap()
+	if limit <= 0 || client == "" {
+		return false, 0, 0
+	}
+	day := m.today()
+	total, err := m.store.Total(ctx, ClientDay(day, client))
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.resetDayLocked(day)
+	spent := m.clients[client]
+	if err == nil {
+		spent = max(total, spent)
+	}
+	return spent >= limit, spent, limit
 }
 
 func (m *Meter) today() string { return m.now().UTC().Format(time.DateOnly) }
@@ -46,12 +146,11 @@ func (m *Meter) Add(ctx context.Context, usd float64) {
 		return
 	}
 	day := m.today()
+	m.addClient(ctx, day, clientFrom(ctx), usd)
 	total, err := m.store.Add(context.WithoutCancel(ctx), day, usd)
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if m.day != day {
-		m.day, m.total, m.debt = day, 0, 0
-	}
+	m.resetDayLocked(day)
 	if err == nil {
 		// The store's total covers every write that reached it. Our debt is
 		// still missing from that number, so keep it on top. max also keeps
@@ -74,9 +173,7 @@ func (m *Meter) Over(ctx context.Context) (bool, float64) {
 	total, err := m.store.Total(ctx, day)
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if m.day != day {
-		m.day, m.total, m.debt = day, 0, 0
-	}
+	m.resetDayLocked(day)
 	if err == nil {
 		m.total = max(total+m.debt, m.total)
 	}
@@ -127,10 +224,12 @@ func (x *metered) Generate(ctx context.Context, req llm.Request) (llm.Response, 
 	return resp, err
 }
 
-// Memory is an in-process Store (local runs and tests).
+// Memory is an in-process Store (local runs and tests). It keeps only the
+// newest day's totals (the day's own and each client's, see ClientDay).
 type Memory struct {
 	mu     sync.Mutex
 	totals map[string]float64
+	day    string
 }
 
 // NewMemory returns an empty store.
@@ -140,6 +239,14 @@ func NewMemory() *Memory { return &Memory{totals: map[string]float64{}} }
 func (s *Memory) Add(_ context.Context, day string, usd float64) (float64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if d, _, _ := strings.Cut(day, "_"); d > s.day { // a new day: forget the ended ones
+		s.day = d
+		for k := range s.totals {
+			if kd, _, _ := strings.Cut(k, "_"); kd < d {
+				delete(s.totals, k)
+			}
+		}
+	}
 	s.totals[day] += usd
 	return s.totals[day], nil
 }

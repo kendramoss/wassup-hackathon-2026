@@ -2,7 +2,9 @@ package store
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -15,6 +17,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/ratelimit"
 )
@@ -113,6 +116,55 @@ func (f *FirestoreCounters) Add(ctx context.Context, cs []ratelimit.Counter, exp
 		}
 	}
 	return out, nil
+}
+
+// Prune deletes up to limit counters whose window ended before before, and
+// returns how many it deleted. A TTL policy on expires_at does the same in
+// Firestore; Prune keeps the collection bounded when that policy is missing
+// (D137). It is one query and one Commit of deletes; deleting a counter
+// another instance already deleted is not an error.
+func (f *FirestoreCounters) Prune(ctx context.Context, before time.Time, limit int) (int, error) {
+	stream, err := f.client.RunQuery(metadata.AppendToOutgoingContext(ctx, "google-cloud-resource-prefix", f.db), &pb.RunQueryRequest{
+		Parent: f.db + "/documents",
+		QueryType: &pb.RunQueryRequest_StructuredQuery{StructuredQuery: &pb.StructuredQuery{
+			Select: &pb.StructuredQuery_Projection{Fields: []*pb.StructuredQuery_FieldReference{{FieldPath: "__name__"}}},
+			From:   []*pb.StructuredQuery_CollectionSelector{{CollectionId: RateLimitCollection}},
+			Where: &pb.StructuredQuery_Filter{FilterType: &pb.StructuredQuery_Filter_FieldFilter{FieldFilter: &pb.StructuredQuery_FieldFilter{
+				Field: &pb.StructuredQuery_FieldReference{FieldPath: "expires_at"},
+				Op:    pb.StructuredQuery_FieldFilter_LESS_THAN,
+				Value: &pb.Value{ValueType: &pb.Value_TimestampValue{TimestampValue: timestamppb.New(before)}},
+			}}},
+			Limit: wrapperspb.Int32(int32(limit)),
+		}},
+	})
+	if err != nil {
+		return 0, fmt.Errorf("store: prune rate counters: %w", err)
+	}
+	var names []string
+	for {
+		resp, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return 0, fmt.Errorf("store: prune rate counters: %w", err)
+		}
+		if d := resp.GetDocument(); d != nil && strings.HasPrefix(d.GetName(), f.db+"/documents/"+RateLimitCollection+"/") {
+			names = append(names, d.GetName())
+		}
+	}
+	if len(names) == 0 {
+		return 0, nil
+	}
+	writes := make([]*pb.Write, len(names))
+	for i, n := range names {
+		writes[i] = &pb.Write{Operation: &pb.Write_Delete{Delete: n}}
+	}
+	ctx = metadata.AppendToOutgoingContext(ctx, "google-cloud-resource-prefix", f.db)
+	if _, err := f.client.Commit(ctx, &pb.CommitRequest{Database: f.db, Writes: writes}); err != nil {
+		return 0, fmt.Errorf("store: prune rate counters: %w", err)
+	}
+	return len(names), nil
 }
 
 // emulatorOwner is the credential the Firestore emulator accepts as admin.

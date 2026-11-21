@@ -168,7 +168,9 @@ func TestRateLimitStore(t *testing.T) {
 		want string // the store; empty means a config error
 	}{
 		{"local by default", vertexEnv(), RateLocal},
-		{"local by default on Cloud Run", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}, RateLocal},
+		{"firestore by default on Cloud Run", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend"}, RateFirestore},
+		{"local on Cloud Run when asked", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend", "RATE_LIMIT_STORE": "local"}, RateLocal},
+		{"memory on Cloud Run when asked", map[string]string{"GOOGLE_CLOUD_PROJECT": "p", "K_SERVICE": "backend", "RATE_LIMIT_STORE": "memory"}, RateMemory},
 		{"firestore", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "Firestore"}), RateFirestore},
 		{"memory", merge(vertexEnv(), map[string]string{"RATE_LIMIT_STORE": "memory"}), RateMemory},
 		{"firestore needs a project", map[string]string{"LLM_PROVIDER": "fake", "RATE_LIMIT_STORE": "firestore"}, ""},
@@ -182,6 +184,8 @@ func TestRateLimitStore(t *testing.T) {
 				t.Errorf("error %v, want one naming RATE_LIMIT_STORE", err)
 			case tt.want != "" && (err != nil || c.RateLimitStore != tt.want):
 				t.Errorf("store = %q %v, want %q", c.RateLimitStore, err, tt.want)
+			case tt.want != "" && c.RateLimitStoreDefaulted != (tt.env["RATE_LIMIT_STORE"] == "" && tt.want == RateFirestore):
+				t.Errorf("defaulted = %t for %v", c.RateLimitStoreDefaulted, tt.env)
 			}
 		})
 	}
@@ -611,5 +615,39 @@ func TestAuditConfigRetentionStoreAndSecretHandling(t *testing.T) {
 	}
 	if f, err := FromEnv(getenv(merge(vertexEnv(), map[string]string{"AUDIT_STORE": "file"}))); err != nil || f.AuditDir != "../data/audit" {
 		t.Errorf("file store dir = %q %v", f.AuditDir, err)
+	}
+}
+
+func TestAPISecurityLimitsConfig(t *testing.T) {
+	c, err := FromEnv(getenv(vertexEnv()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.RateBasicPerMin != 120 || c.RateMaxInFlight != 4 || c.RateAuthFailuresPerMin != 10 || c.DailySpendClientShare != 0.1 || c.RequireBearer {
+		t.Fatalf("defaults basic=%d in_flight=%d auth_failures=%d share=%v bearer=%t", c.RateBasicPerMin, c.RateMaxInFlight, c.RateAuthFailuresPerMin, c.DailySpendClientShare, c.RequireBearer)
+	}
+	tests := []struct {
+		env     map[string]string
+		wantErr string
+	}{
+		{map[string]string{"RATE_BASIC_PER_MIN": "0", "RATE_MAX_IN_FLIGHT": "0", "DAILY_SPEND_CLIENT_SHARE": "0"}, ""},
+		{map[string]string{"DAILY_SPEND_CLIENT_SHARE": "1"}, ""},
+		{map[string]string{"REQUIRE_BEARER": "on"}, ""},
+		{map[string]string{"RATE_BASIC_PER_MIN": "-1"}, "RATE_BASIC_PER_MIN"},
+		{map[string]string{"RATE_MAX_IN_FLIGHT": "-2"}, "RATE_MAX_IN_FLIGHT"},
+		{map[string]string{"RATE_AUTH_FAILURES_PER_MIN": "-1"}, "RATE_AUTH_FAILURES_PER_MIN"},
+		{map[string]string{"DAILY_SPEND_CLIENT_SHARE": "1.5"}, "DAILY_SPEND_CLIENT_SHARE"},
+		{map[string]string{"DAILY_SPEND_CLIENT_SHARE": "-0.1"}, "DAILY_SPEND_CLIENT_SHARE"},
+		{map[string]string{"DAILY_SPEND_CLIENT_SHARE": "NaN"}, "DAILY_SPEND_CLIENT_SHARE"},
+		{map[string]string{"REQUIRE_BEARER": "maybe"}, "REQUIRE_BEARER"},
+	}
+	for _, tt := range tests {
+		_, err := FromEnv(getenv(merge(vertexEnv(), tt.env)))
+		switch {
+		case tt.wantErr == "" && err != nil:
+			t.Errorf("%v: %v", tt.env, err)
+		case tt.wantErr != "" && (err == nil || !strings.Contains(err.Error(), tt.wantErr)):
+			t.Errorf("%v: error %v, want one naming %s", tt.env, err, tt.wantErr)
+		}
 	}
 }
