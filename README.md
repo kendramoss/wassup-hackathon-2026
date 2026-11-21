@@ -159,7 +159,7 @@ Next.js frontend (Cloud Run)  ──►  Go backend (Cloud Run)  ──►  Gemi
 
 ## Run it locally
 
-You need Go 1.27, `make` and Node 24 for the web app. To reproduce the published numbers you also need Python 3.8+ and `shasum`, and an LF checkout (`.gitattributes` sets this; on Windows set `core.autocrlf=input` before cloning). Run `make doctor` first: it checks every prerequisite and the line endings and prints exactly what is missing. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
+You need Go 1.27, `make` and Node 24 for the web app (Node 26 also works: the script tests transpile their TypeScript through the repo's own `typescript` dependency, so no removed `--experimental-transform-types` flag is needed). To reproduce the published numbers you also need Python 3.8+ and `shasum`, and an LF checkout (`.gitattributes` sets this; on Windows set `core.autocrlf=input` before cloning). Run `make doctor` first: it checks every prerequisite and the line endings and prints exactly what is missing. The public-CBP-rulings corpus is already committed and bundled in the image, so you can start without fetching it (fetching is only needed to rebuild the corpus, ~50 minutes).
 
 ```bash
 make run                                # API on :8080, no GCP credentials needed for UI work

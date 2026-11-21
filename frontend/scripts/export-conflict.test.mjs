@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 
 // D97: recording an export answers with the letter as the case stands now.
 // The Draft screen must hold back a letter whose case changed since the
 // preview. Runs the real api.exportDraft and recordExport against a mocked
 // fetch.
-const client = fileURLToPath(new URL("../src/lib/api/client.ts", import.meta.url));
-const rec = fileURLToPath(new URL("../src/lib/record-export.ts", import.meta.url));
+const client = new URL("../src/lib/api/client.ts", import.meta.url).href;
+const rec = new URL("../src/lib/record-export.ts", import.meta.url).href;
+const registerTs = new URL("./register-ts-loader.mjs", import.meta.url).href;
 
 function run({ status, body, previewed, pick = {}, format = "markdown", network = false }) {
   const code = `
@@ -24,7 +24,7 @@ function run({ status, body, previewed, pick = {}, format = "markdown", network 
     const r = await recordExport(() => api.exportDraft("c1", { ...pick, format: ${JSON.stringify(format)} }), ${JSON.stringify(previewed)});
     console.log(JSON.stringify({ ok: r.ok, reason: r.reason, code: r.error?.code, status: r.error?.status, retryable: r.error?.retryable, message: r.error?.message, seen }));
   `;
-  const r = spawnSync(process.execPath, ["--experimental-transform-types", "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
+  const r = spawnSync(process.execPath, ["--import", registerTs, "--no-warnings", "--input-type=module", "-e", code], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr || r.stdout);
   return JSON.parse(r.stdout);
 }
