@@ -145,7 +145,7 @@ export default function Page() {
               <a href={adkDocs} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 ADK MCP tools
               </a>
-              , read 21 Nov 2026). We have not run them end to end ourselves; the server they reach is the same one Claude Code uses.
+              , read 21 Nov 2026). We ran both once on 21 Nov 2026 with the read-only tools (search_rulings, get_ruling), the model reached through a LiteLLM gateway to Gemini; transcripts are in docs/mcp-transcripts/. The server they reach is the same one Claude Code uses.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
