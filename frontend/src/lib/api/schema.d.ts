@@ -1009,6 +1009,8 @@ export interface components {
             scenario_count: number;
             /** @description A seeded demo case; listed first */
             pinned: boolean;
+            /** @description Present on pinned rows seeded from a demo fixture; the demo's id (#412) */
+            demo_id?: string;
             /** @description Present on list rows; whether the caller may change this case (#283). Computed by the server for each request with the same authorization the write routes use; hidden cases are never returned, and the value is never stored or taken from the client. Pinned demos are false for non-admin callers, but that means no persisted change only: Ask, scenarios and plan previews on a pinned demo stay read-only and allowed. The server still enforces every action (403 forbidden). */
             can_write?: boolean;
         };
@@ -3644,6 +3646,8 @@ export interface operations {
                             /** @example China (N328954) */
                             cbp_held?: string;
                             has_plan?: boolean;
+                            /** @description Present only when this demo has a pinned case on this site; absent means loading it starts a new live run (#412) */
+                            pinned_case_id?: string;
                             recorded?: components["schemas"]["DemoRecordedRun"];
                         }[];
                     };
