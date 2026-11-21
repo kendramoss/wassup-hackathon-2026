@@ -11,6 +11,7 @@ export const families: Family[] = [
   { id: "power_supplies_chargers", name: "Power supplies, adapters and chargers", groups: ["pcba_manufacturing", "power_charging_modules", "housing_cables_parts", "final_assembly"] },
   { id: "cables_harnesses", name: "Cables, cord sets and wire harnesses", groups: ["optical_fiber_drawing", "conductor_core_making", "cable_insulation_jacket", "connectors_and_housings", "final_assembly"] },
   { id: "vehicle_parts", name: "Vehicle parts (mechanical and electromechanical)", groups: ["electromechanical_core", "precision_machined_parts", "housings_and_structures", "final_assembly"] },
+  { id: "motors_pumps_compressors", name: "Electric motors, pumps and compressors", groups: ["motor_stator_rotor", "fluid_rotary_mechanism", "housing_and_chassis", "controls_and_valves", "final_assembly"] },
   { id: "hand_tools", name: "Hand tools and cutting tools", groups: ["primary_metal_forming", "machining_and_treatment", "handles_and_hardware", "final_assembly"] },
   { id: "medical_devices", name: "Medical devices and disposables", groups: ["metal_cannula_forging", "molded_barrels_chambers", "pcba_and_sensors", "hubs_clamps_housings", "final_assembly"] },
   { id: "display_camera_modules", name: "Display modules and cameras", groups: ["display_cell_fab", "camera_pcba_smt", "optical_lens_shaping", "final_assembly"] },

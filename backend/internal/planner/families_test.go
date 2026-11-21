@@ -18,13 +18,13 @@ import (
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
-// The families written from CBP precedent (D138), with the three earlier
+// The families written from CBP precedent (D138, D212), with the three earlier
 // templates. Pinning the set makes adding or dropping a family a visible
 // change.
 var allFamilies = []string{
 	"cables_harnesses", "display_camera_modules", "furniture", "gas_grills_cooking", "hand_tools",
 	"led_lights", "lidar_modules", "medical_devices", "motorised_tools_small_appliances",
-	"pcba_electronic_devices", "power_supplies_chargers", "vehicle_parts", "water_filters",
+	"motors_pumps_compressors", "pcba_electronic_devices", "power_supplies_chargers", "vehicle_parts", "water_filters",
 }
 
 func TestTemplateSetIsPinned(t *testing.T) {

@@ -1,0 +1,105 @@
+{
+  "_source": "CBP ruling N347899 (2 May 2025): condensate pump, every component sourced from China, subassemblies and final assembly in Thailand: CBP held China. In the selection pool; excluded. Thailand plant capabilities beyond assembly are an assumption; no later ruling on a changed setup.",
+  "case_id": "condensate-pump-2025",
+  "date": "2025-05-02",
+  "family": "motors_pumps_compressors",
+  "target": "Thailand",
+  "product": {
+    "name": "Condensate pump",
+    "description": "A pump that collects and removes condensate from air conditioning, refrigeration and dehumidification equipment: a plastic tank and enclosure, a float switch, a safety switch, an impeller and a 1/30 horsepower motor.",
+    "plants": [
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_stator_rotor",
+          "fluid_rotary_mechanism",
+          "housing_and_chassis",
+          "controls_and_valves"
+        ]
+      },
+      {
+        "id": "th",
+        "name": "Thailand assembly plant",
+        "country": "Thailand",
+        "capabilities": [
+          "motor_stator_rotor",
+          "fluid_rotary_mechanism",
+          "housing_and_chassis",
+          "controls_and_valves",
+          "final_assembly"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "1/30 horsepower motor",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "motor_stator_rotor"
+      },
+      {
+        "name": "impeller, fan and volute",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "fluid_rotary_mechanism"
+      },
+      {
+        "name": "tank, tank cover, motor cover and plastic enclosure",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "housing_and_chassis"
+      },
+      {
+        "name": "float switch, micro-switches, floats, brackets and wiring harness",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "controls_and_valves"
+      }
+    ],
+    "operations": [
+      {
+        "name": "assemble the overflow detection switch, float and tank cover subassemblies",
+        "plant": "th",
+        "group": "controls_and_valves"
+      },
+      {
+        "name": "screw the motor mounting plate onto the motor and place the water slinger on the shaft",
+        "plant": "th",
+        "group": "final_assembly"
+      },
+      {
+        "name": "screw the motor subassembly onto the tank cover, press the fan and impeller onto the motor shaft, weld the volute, connect the wiring, fit the motor cover and feet, test",
+        "plant": "th",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_stator_rotor": {
+        "cn": 90000,
+        "th": 112500
+      },
+      "fluid_rotary_mechanism": {
+        "cn": 40000,
+        "th": 50000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N347899"
+  ],
+  "current_origin": {
+    "country": "China",
+    "ruling": "N347899"
+  }
+}

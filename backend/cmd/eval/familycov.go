@@ -17,7 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/config"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/corpus"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/evalkit"
@@ -63,6 +62,7 @@ func familyCovCmd(args []string) error {
 	factsDir := fl.String("facts", "data/facts", "facts directory")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
 	model := fl.String("model", "gemini-3.8-flash", "family-check model")
+	tag := fl.String("tag", "", "appended to the result name, to keep a later template set apart (D212: f14)")
 	_ = fl.Parse(args)
 	if *split == "final" && !*confirmFinal {
 		return errors.New("familycov: the final split is held out: pass -confirm-final once the templates are frozen")
@@ -70,7 +70,7 @@ func familyCovCmd(args []string) error {
 	if *set != "legacy" && *set != "all" {
 		return fmt.Errorf("familycov: -set must be legacy or all, got %q", *set)
 	}
-	cfg, err := config.Load()
+	cfg, err := loadConfig() // accepts the gateway provider (D151), as the committed coverage runs used
 	if err != nil {
 		return err
 	}
@@ -121,6 +121,9 @@ func familyCovCmd(args []string) error {
 	}
 
 	name := fmt.Sprintf("families-coverage-%s-%s-%s", *split, *set, cfg.LLMProvider)
+	if *tag != "" {
+		name += "-" + *tag
+	}
 	path := filepath.Join(*resultsDir, name+".jsonl")
 	if _, err := os.Stat(path); err == nil && *split == "final" {
 		return fmt.Errorf("familycov: %s exists; the held-out split is scored once per set", path)

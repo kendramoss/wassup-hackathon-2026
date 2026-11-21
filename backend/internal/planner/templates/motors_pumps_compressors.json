@@ -1,0 +1,117 @@
+{
+  "family": "motors_pumps_compressors",
+  "version": "1",
+  "name": "Electric motors, pumps and compressors",
+  "note": "For electric motors, pumps, compressors, and related fluid-handling equipment, CBP usually finds that origin is conferred by the manufacture of the core functional mechanism, such as the stator and rotor, impeller, rotary group, compressor unit, or heavy-duty machined fluid-end housing, or by extensive local sheet-metal fabrication combined with multi-stage subassembly. Simple mechanical assembly of pre-manufactured motors, impellers, switches, valves, and control boards into a housing, or minor finishing of imported blanks, does not constitute a substantial transformation. Written from 10 CBP substantial-transformation rulings outside the dev and held-out splits (D212); every cited ruling was checked against its facts and holding. Costs are illustrative defaults; users edit them.",
+  "sources": [
+    "N333514",
+    "N344081",
+    "N347270",
+    "N347271",
+    "N347272",
+    "N347899",
+    "N351810"
+  ],
+  "groups": [
+    {
+      "id": "motor_stator_rotor",
+      "name": "Motor stator and rotor",
+      "operations": [
+        "Manufacture the motor stator and rotor from laminations and windings",
+        "Assemble the motor with capacitors, fan, shaft, mounting plate, and seals"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N344081"
+        ],
+        "note": "CBP found that manufacturing the stator and rotor in the assembly country conferred origin to a vacuum pump (N344081)."
+      }
+    },
+    {
+      "id": "fluid_rotary_mechanism",
+      "name": "Impeller and rotary mechanism",
+      "operations": [
+        "Produce the impeller, cylinder block with piston bores, hydraulic pistons, and crankshaft",
+        "Cut, spline, and turn the power transmitting driveshaft",
+        "Drill balance holes, trim the outside diameter, and bore the inside diameter of the impeller",
+        "Construct compressor, evaporator, and condenser cooling subassemblies"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N333514"
+        ],
+        "not_enough": [
+          "N333514"
+        ],
+        "note": "CBP held that the origin of a pump is determined by the country where the impeller is produced (N333514), while minor machining of an imported impeller and shaft was not enough to confer origin (N333514)."
+      }
+    },
+    {
+      "id": "housing_and_chassis",
+      "name": "Housing, chassis and machined block",
+      "operations": [
+        "Machine, drill cylinders, heat treat, mill, and bore forged steel blocks into a finished fluid-end housing",
+        "Stamp, bend, weld, and powder coat steel sheet into chassis panels and mounting plates",
+        "Stretch, form, trim, flange, and punch steel coil into compressor outer shell cases",
+        "Cast or mold outer housings, bottom plates, shroud covers, and tanks"
+      ],
+      "movable": true,
+      "precedent": {
+        "confers_origin": [
+          "N347270",
+          "N347271",
+          "N347272",
+          "N351810"
+        ],
+        "not_enough": [
+          "N344081"
+        ],
+        "note": "Stamping, welding, and powder coating steel chassis panels alongside subassembly production conferred origin (N347270, N347271, N347272), whereas supplying the outer housing and base plate of a vacuum pump did not control origin (N344081)."
+      }
+    },
+    {
+      "id": "controls_and_valves",
+      "name": "Control boards, switches and valves",
+      "operations": [
+        "Manufacture the printed circuit board assembly (PCBA) and main control board",
+        "Assemble float switches, micro-switches, thermostats, sensors, and brackets",
+        "Press valve inserts into valve bodies and assemble discharge flanges, tees, and O-rings"
+      ],
+      "movable": true,
+      "precedent": {
+        "not_enough": [
+          "N344081",
+          "N347271",
+          "N347899",
+          "N351810"
+        ],
+        "note": "Sourcing the PCBA or control board from China (N344081, N347271) or assembling switches, floats, and valves from imported parts (N347899, N351810) was not enough to confer origin over the country producing the core mechanical or structural assemblies."
+      }
+    },
+    {
+      "id": "final_assembly",
+      "name": "Final assembly and testing",
+      "operations": [
+        "Install the motor, impeller, rotary group, or valves into the main housing or chassis",
+        "Mount the PCBA, switches, sensors, and covers using fasteners, spacers, and seals",
+        "Apply grease or lubricating oil, seal the unit, and perform final testing"
+      ],
+      "movable": false,
+      "precedent": {
+        "confers_origin": [
+          "N347270",
+          "N347271",
+          "N347272"
+        ],
+        "not_enough": [
+          "N333514",
+          "N347899",
+          "N351810"
+        ],
+        "note": "Final assembly conferred origin when combined with local steel chassis fabrication and key subassembly manufacturing (N347270, N347271, N347272), but simply assembling imported components like impellers, motors, and housings was not enough (N333514, N347899, N351810)."
+      }
+    }
+  ]
+}
