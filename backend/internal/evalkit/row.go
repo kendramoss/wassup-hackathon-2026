@@ -36,4 +36,12 @@ type Row struct {
 	// calls (D151); zero on Vertex runs, which price tokens instead.
 	GatewayCostUSD float64 `json:"cost_usd_gateway,omitempty"`
 	Error          string  `json:"error,omitempty"`
+	// ErrorClass is "unavailable" when Error is a provider outage (a 429, a
+	// 5xx, a timeout or retries exhausted) rather than a bad answer, and
+	// "bad_response" when the provider answered unusably (D261).
+	ErrorClass string `json:"error_class,omitempty"`
+	// Retries counts whole-case re-runs after a provider outage (eval slice,
+	// D261); RetriedError is the error of the first try.
+	Retries      int    `json:"retries,omitempty"`
+	RetriedError string `json:"retried_error,omitempty"`
 }

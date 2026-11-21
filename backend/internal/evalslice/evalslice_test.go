@@ -279,3 +279,31 @@ func TestCommittedSlice(t *testing.T) {
 		t.Error("an empty run passed")
 	}
 }
+
+// Rows written before error_class existed are classified from their text
+// (D261): the 20 Nov run's Vertex 504s are outages; a bad answer or a
+// missing case is not.
+func TestTransient(t *testing.T) {
+	cases := []struct {
+		row  evalkit.Row
+		want bool
+	}{
+		{evalkit.Row{Error: "llm: model provider unavailable after 4 attempts: vertex: HTTP 504: Deadline expired before operation could complete."}, true},
+		{evalkit.Row{Error: "vertex: HTTP 503: overloaded"}, true},
+		{evalkit.Row{Error: "vertex: HTTP 429: quota"}, true},
+		{evalkit.Row{Error: "engine: predict N1: context deadline exceeded"}, true},
+		{evalkit.Row{Error: "engine: predict N1: unusable model response: no JSON object in response (13 chars)"}, false},
+		{evalkit.Row{Error: "vertex: HTTP 400: bad request"}, false},
+		{evalkit.Row{Error: "missing from the run"}, false},
+		{evalkit.Row{Error: "context canceled"}, false},
+		{evalkit.Row{}, false},
+		// The recorded class wins over the text.
+		{evalkit.Row{Error: "HTTP 504", ErrorClass: "bad_response"}, false},
+		{evalkit.Row{Error: "anything", ErrorClass: "unavailable"}, true},
+	}
+	for _, c := range cases {
+		if got := Transient(c.row); got != c.want {
+			t.Errorf("Transient(%q, class %q) = %v, want %v", c.row.Error, c.row.ErrorClass, got, c.want)
+		}
+	}
+}
