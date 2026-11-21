@@ -42,37 +42,39 @@ func testPNG(t *testing.T, w, h int) []byte {
 }
 
 func testPDF(pages int) []byte {
+	return testPDFWith(pages, "Page", "Pages", "")
+}
+
+// testPDFWith writes a classic PDF with a correct xref table, as the page
+// counter locates objects through it (#503).
+func testPDFWith(pages int, page, tree, preamble string) []byte {
 	var b strings.Builder
-	b.WriteString("%PDF-1.4\n")
+	b.WriteString("%PDF-1.4\n" + preamble)
 	var refs []string
 	for i := 0; i < pages; i++ {
 		refs = append(refs, fmt.Sprintf("%d 0 R", i+3))
 	}
-	fmt.Fprintf(&b, "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
-	fmt.Fprintf(&b, "2 0 obj << /Type /Pages /Kids [%s] /Count %d >> endobj\n", strings.Join(refs, " "), pages)
+	offs := []int{b.Len()}
+	b.WriteString("1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
+	offs = append(offs, b.Len())
+	fmt.Fprintf(&b, "2 0 obj << /Type /%s /Kids [%s] /Count %d >> endobj\n", tree, strings.Join(refs, " "), pages)
 	for i := 0; i < pages; i++ {
-		fmt.Fprintf(&b, "%d 0 obj << /Type /Page /Parent 2 0 R >> endobj\n", i+3)
+		offs = append(offs, b.Len())
+		fmt.Fprintf(&b, "%d 0 obj << /Type /%s /Parent 2 0 R >> endobj\n", i+3, page)
 	}
-	b.WriteString("%%EOF\n")
+	xref := b.Len()
+	fmt.Fprintf(&b, "xref\n0 %d\n0000000000 65535 f \n", len(offs)+1)
+	for _, o := range offs {
+		fmt.Fprintf(&b, "%010d 00000 n \n", o)
+	}
+	fmt.Fprintf(&b, "trailer << /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n", len(offs)+1, xref)
 	return []byte(b.String())
 }
 
 // testPDFEscapedPages is the #381 reproduction: the page tree and 40 pages
 // use PDF's #xx name escapes, plus a loose /Type /Page in a comment.
 func testPDFEscapedPages(pages int) []byte {
-	var b strings.Builder
-	b.WriteString("%PDF-1.5\n% /Type /Page\n")
-	var refs []string
-	for i := 0; i < pages; i++ {
-		refs = append(refs, fmt.Sprintf("%d 0 R", i+3))
-	}
-	b.WriteString("1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n")
-	fmt.Fprintf(&b, "2 0 obj << /Type /P#61ges /Kids [%s] /Count %d >> endobj\n", strings.Join(refs, " "), pages)
-	for i := 0; i < pages; i++ {
-		fmt.Fprintf(&b, "%d 0 obj << /Type /P#61ge /Parent 2 0 R >> endobj\n", i+3)
-	}
-	b.WriteString("%%EOF\n")
-	return []byte(b.String())
+	return testPDFWith(pages, "P#61ge", "P#61ges", "% /Type /Page\n")
 }
 
 type upload struct {

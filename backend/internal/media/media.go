@@ -93,8 +93,13 @@ func Sniff(b []byte) string {
 	return ""
 }
 
-// Check sniffs b and runs the checks for its type.
-func Check(b []byte) (Info, error) {
+// Check sniffs b and runs the checks for its type, with a budget of its own.
+// Several files of one upload share a budget through Budget.Check.
+func Check(b []byte) (Info, error) { return NewBudget().Check(b) }
+
+// Check sniffs b and runs the checks for its type, charging PDF stream
+// decoding and parse time to bg.
+func (bg *Budget) Check(b []byte) (Info, error) {
 	if len(b) == 0 {
 		return Info{}, rejected("the file is empty")
 	}
@@ -116,7 +121,7 @@ func Check(b []byte) (Info, error) {
 		if pdfEncrypted.Match(b) {
 			return Info{}, rejected("the PDF is encrypted; save an unprotected copy and try again")
 		}
-		n := PDFPages(b)
+		n := bg.pdfPages(b)
 		if n == 0 {
 			return Info{}, rejected("the PDF's pages could not be counted; it may be damaged")
 		}

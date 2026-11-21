@@ -140,8 +140,11 @@ func readMedia(w http.ResponseWriter, r *http.Request) (files []extract.File, na
 		return nil, "", "", fmt.Errorf("%w: a \"file\" field with an image or a scanned PDF is required", domain.ErrInvalid)
 	}
 	pages := 0
+	// One budget for the whole upload: PDF stream decoding and parse time
+	// are bounded across all files together (#504).
+	budget := media.NewBudget()
 	for i := range files {
-		info, cerr := media.Check(files[i].Data)
+		info, cerr := budget.Check(files[i].Data)
 		switch {
 		case errors.Is(cerr, media.ErrUnsupported):
 			return files, "", "", fmt.Errorf("%w: file %d: %v", errMediaType, i+1, cerr)
