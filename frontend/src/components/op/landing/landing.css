@@ -267,6 +267,10 @@
   .lp .caption p { font-size: 12.5px; }
   .lp .callout { font-size: 10px; }
   .lp .f2 .pin { height: auto; padding: 24px var(--gutter); }
+  /* The four sheets stack, so put the summary caption under the title instead
+     of squeezing it into the right-hand slot next to it (#507). */
+  .lp .f2 .head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .lp .f2 .now { width: 100%; }
   .lp .stage { height: auto; display: flex; flex-direction: column; gap: 22px; padding: 4px 0; }
   .lp .mini { position: relative; left: auto; top: auto; margin: 0; width: 100%; height: auto; min-height: 220px; transform: none !important; opacity: 1 !important; }
   .lp svg.path { display: none; }

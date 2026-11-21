@@ -333,6 +333,9 @@ export const copy = {
     fig2: "fig.2 — how it works",
     fig2Sub: "one case, four sheets · the heat gun",
     fig2Now: ["Product: every part and where it is made.", "Origin: the country CBP would likely assign.", "Plan: the move that would change it.", "Draft: the ruling request for a broker."],
+    // Phones show all four sheets at once, so no single sheet is "now". This
+    // is also the caption in the server-rendered HTML, before motion runs.
+    fig2NowStatic: "Product → origin → plan → draft, read in order.",
     fig2Foot: "The line is the heat gun's facts moving through the case",
     wires: ["facts", "origin", "moves"],
     fig3: "fig.3 — how accurate is it",

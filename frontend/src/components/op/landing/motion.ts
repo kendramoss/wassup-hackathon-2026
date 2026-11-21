@@ -242,7 +242,10 @@ export function startLanding(root: HTMLElement, { flag }: { flag: (c: Country) =
   };
   function layoutF2(p: number) {
     if (!wide()) {
+      // Phones stack all four sheets, so the per-sheet "now" below does not
+      // apply. Keep the summary caption instead of leaving it empty (#507).
       sheets.forEach((s) => s.classList.add("on"));
+      now.textContent = L.fig2NowStatic;
       return;
     }
     const W = stage.clientWidth, H = stage.clientHeight;
