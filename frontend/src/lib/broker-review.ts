@@ -1,6 +1,6 @@
 // Broker review links: the pure parts (labels, the link, comment checks, the
 // timeline). The screens are components/op/broker-reviews.tsx (owner, on the
-// Draft step) and components/op/screens/broker-review-page.tsx (/review/[token]).
+// Draft step) and components/op/screens/broker-review-page.tsx (/review#<token>).
 // Nothing here touches the network, storage or the console, so the token is
 // never logged or kept: it lives in the route param and one request header.
 import { formatDate } from "./format";
@@ -97,11 +97,20 @@ export function caseReviewChip(reviews: ReviewSummary[] | null | undefined, now 
   return { ...statusLabel(effectiveStatus(pick, now)), active: active.length };
 }
 
-// The full link to hand the broker. Only a /review/<token> path is accepted,
-// so a malformed answer never turns into a link to somewhere else.
+// The full link to hand the broker. Only "/review#<token>" is accepted, so a
+// malformed answer never turns into a link to somewhere else.
+// The token is the URL fragment (/review#<token>): browsers never send a
+// fragment to a server, so it reaches no request log and no Referer header.
+// A path that puts anything after /review other than "#token" is refused.
 export function reviewLink(origin: string, path: string | null | undefined): string | null {
-  if (!path || !/^\/review\/[A-Za-z0-9._~-]+$/.test(path)) return null;
+  if (!path || !/^\/review#[A-Za-z0-9._~-]+$/.test(path)) return null;
   return origin.replace(/\/+$/, "") + path;
+}
+
+// tokenFromHash reads the token from location.hash ("#ubr_..."), or null.
+export function tokenFromHash(hash: string | null | undefined): string | null {
+  const t = (hash ?? "").replace(/^#/, "");
+  return /^[A-Za-z0-9._~-]{1,256}$/.test(t) ? t : null;
 }
 
 // A token as it may travel in a header: printable ASCII, no spaces.

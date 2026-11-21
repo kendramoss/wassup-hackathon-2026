@@ -52,10 +52,27 @@ test("the case chip shows the newest active link, else the newest", () => {
   assert.equal(B.caseReviewChip([gone], NOW).label, "Revoked");
 });
 
-test("the link is the page origin plus a /review/<token> path, nothing else", () => {
-  assert.equal(B.reviewLink("https://undelabs.dev", "/review/ubr_abc-DEF_123"), "https://undelabs.dev/review/ubr_abc-DEF_123");
-  assert.equal(B.reviewLink("http://localhost:3000/", "/review/ubr_x"), "http://localhost:3000/review/ubr_x");
-  for (const bad of [null, "", "/cases/x", "https://evil.example/review/ubr_x", "//evil.example/review/x", "/review/ubr_x?y=1", "/review/a/b", "/review/"]) assert.equal(B.reviewLink("https://undelabs.dev", bad), null, String(bad));
+test("the link is the page origin plus /review#<token>, nothing else", () => {
+  assert.equal(B.reviewLink("https://undelabs.dev", "/review#ubr_abc-DEF_123"), "https://undelabs.dev/review#ubr_abc-DEF_123");
+  assert.equal(B.reviewLink("http://localhost:3000/", "/review#ubr_x"), "http://localhost:3000/review#ubr_x");
+  for (const bad of [null, "", "/cases/x", "https://evil.example/review#ubr_x", "//evil.example/review#x", "/review/ubr_x", "/review?t=ubr_x", "/review#ubr_x?y=1", "/review/a#b", "/review#"]) assert.equal(B.reviewLink("https://undelabs.dev", bad), null, String(bad));
+});
+
+test("the generated link never has the token in its path or query", () => {
+  const tok = "ubr_0123456789ab_" + "A".repeat(43);
+  const u = new URL(B.reviewLink("https://undelabs.dev", "/review#" + tok));
+  assert.equal(u.pathname, "/review");
+  assert.equal(u.search, "");
+  assert.equal(u.hash, "#" + tok);
+  assert.ok(!u.pathname.includes("ubr_") && !u.search.includes("ubr_"));
+  // What a browser sends to the server: no fragment.
+  assert.equal(u.origin + u.pathname + u.search, "https://undelabs.dev/review");
+});
+
+test("the token is read from the fragment only", () => {
+  assert.equal(B.tokenFromHash("#ubr_abc-DEF_1"), "ubr_abc-DEF_1");
+  assert.equal(B.tokenFromHash("ubr_x"), "ubr_x");
+  for (const bad of [null, undefined, "", "#", "#a b", "#<script>", "#" + "x".repeat(257)]) assert.equal(B.tokenFromHash(bad), null, String(bad));
 });
 
 test("the create body uses the draft step's own selection", () => {
@@ -151,7 +168,7 @@ test("owner calls hit the case's reviews routes", async () => {
   const seen = [];
   globalThis.fetch = async (url, init = {}) => {
     seen.push(`${init.method ?? "GET"} ${url}`);
-    return json({ review: base, reviews: [], token: "t", review_path: "/review/t" });
+    return json({ review: base, reviews: [], token: "t", review_path: "/review#t" });
   };
   await api.createReview("c 1", { format: "markdown", expires_in_days: 14 });
   await api.listReviews("c 1");
@@ -174,7 +191,7 @@ test("comments render as escaped text with pre-wrap, never as HTML or Markdown",
 });
 
 test("the review page is noindex, nofollow, no-referrer, titled Broker review", async () => {
-  const page = await readFile(new URL("../src/app/review/[token]/page.tsx", import.meta.url), "utf8");
+  const page = await readFile(new URL("../src/app/review/page.tsx", import.meta.url), "utf8");
   assert.match(page, /title: "Broker review"/);
   assert.match(page, /robots: \{ index: false, follow: false/);
   assert.match(page, /referrer: "no-referrer"/);
@@ -186,4 +203,20 @@ test("the review page is noindex, nofollow, no-referrer, titled Broker review", 
   const h = Object.fromEntries(review.headers.map((x) => [x.key, x.value]));
   assert.equal(h["Referrer-Policy"], "no-referrer");
   assert.equal(h["X-Robots-Tag"], "noindex, nofollow");
+  const exact = rules.find((r) => r.source === "/review");
+  assert.ok(exact && rules.indexOf(exact) > rules.findIndex((r) => r.source === "/:path*"), "a rule for /review itself, after the site-wide one");
+  const he = Object.fromEntries(exact.headers.map((x) => [x.key, x.value]));
+  assert.equal(he["Referrer-Policy"], "no-referrer");
+  assert.equal(he["X-Robots-Tag"], "noindex, nofollow");
+});
+
+test("a token in a path is never accepted: /review/[token] is only a 404", async () => {
+  const page = await readFile(new URL("../src/app/review/[token]/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /notFound\(\)/);
+  const code = page.replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(code, /params|redirect\(|BrokerReviewPage/);
+  const screen = await readFile(new URL("../src/components/op/screens/broker-review-page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(screen, /useParams/);
+  assert.match(screen, /tokenFromHash\(window\.location\.hash\)/);
+  assert.match(screen, /history\.replaceState\(null, "", window\.location\.pathname\)/);
 });

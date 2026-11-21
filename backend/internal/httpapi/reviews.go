@@ -33,8 +33,9 @@ import (
 // grants nothing on its own.
 //
 // The token travels in the X-Review-Token header, never in an API path or
-// query, so it is in no request log; the logs and the audit trail name the
-// route pattern and the case only.
+// query, and the review page's address carries it in the fragment
+// (/review#<token>), never in its path or query, so it is in no request log;
+// the logs and the audit trail name the route pattern and the case only.
 
 const (
 	reviewTokenHeader = "X-Review-Token"
@@ -87,6 +88,12 @@ func newReviewToken(caseID string) (string, error) {
 	}
 	return "ubr_" + hexID + "_" + base64.RawURLEncoding.EncodeToString(b), nil
 }
+
+// reviewPath is the review page's address for tok: the token rides in the
+// URL fragment, which browsers never send to a server, so it cannot reach a
+// request log (the frontend's, Cloud Run's or a proxy's) or a Referer
+// header. The page reads it client-side and drops it from the address bar.
+func reviewPath(tok string) string { return "/review#" + tok }
 
 // reviewTokenHash is the stored form of a token.
 func reviewTokenHash(tok string) string {
@@ -248,7 +255,7 @@ func (a *api) createReview(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusCreated, map[string]any{"review": summarizeReview(rv, now), "token": tok, "review_path": "/review/" + tok})
+	writeJSON(w, http.StatusCreated, map[string]any{"review": summarizeReview(rv, now), "token": tok, "review_path": reviewPath(tok)})
 }
 
 func (a *api) reviewFull(w http.ResponseWriter) {

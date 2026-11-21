@@ -205,7 +205,7 @@ Returns the letter text and reviewer notes. It is a draft: a licensed customs br
 		Name: "create_broker_review_link",
 		Description: `Make a link a licensed customs broker opens without an account to review one ruling-request draft of a case, and approve it, request changes or mark it to file as a binding ruling request.
 Use it when the user wants their broker to check the draft. Input: case_id; optional plan_index (a shown plan of the latest plan search), or target with move_key; format; expires_in_days (default 14, 1 to 30).
-Returns review_path (/review/<token> on the Unde web app) and the token, shown once: Unde stores only a hash, so it cannot be shown again. Anyone holding the link can read that one draft until it expires or is revoked; share it with the broker only. The draft is frozen when the link is made. Follow up with get_broker_review_status.
+Returns review_path (/review#<token> on the Unde web app; the token is the URL fragment, never sent to a server) and the token, shown once: Unde stores only a hash, so it cannot be shown again. Anyone holding the link can read that one draft until it expires or is revoked; share it with the broker only. The draft is frozen when the link is made. Follow up with get_broker_review_status.
 Not a ruling: the broker's answer is their professional view, not CBP's. REST: POST /v1/cases/{id}/reviews (operationId createBrokerReviewLink).`,
 		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),

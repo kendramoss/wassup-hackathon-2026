@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -48,8 +49,14 @@ func makeLink(t *testing.T, hs harness, id, body string, h map[string]string) (s
 		t.Fatalf("create link = %d %v", code, out)
 	}
 	tok, _ := out["token"].(string)
-	if !reviewTokenPattern.MatchString(tok) || out["review_path"] != "/review/"+tok {
+	if !reviewTokenPattern.MatchString(tok) || out["review_path"] != "/review#"+tok {
 		t.Fatalf("token %q path %v", tok, out["review_path"])
+	}
+	// The token is in the fragment only: never in the path or the query a
+	// browser sends to a server.
+	u, err := url.Parse("https://undelabs.dev" + out["review_path"].(string))
+	if err != nil || u.Path != "/review" || u.RawQuery != "" || strings.Contains(u.EscapedPath(), "ubr_") || u.Fragment != tok {
+		t.Fatalf("review link %v: the token must be the fragment only", out["review_path"])
 	}
 	return tok, out["review"].(map[string]any)
 }
@@ -270,7 +277,11 @@ func TestBrokerReviewBadTokensAndDemos(t *testing.T) {
 	id := hs.newCase(t, alice)
 	tok, _ := makeLink(t, hs, id, `{}`, alice)
 	client := map[string]string{"X-Client-IP": "203.0.113.9"}
-	bad := []string{"", "nope", tok[:len(tok)-1] + "A", tok + "x", strings.ToUpper(tok)}
+	last := "A"
+	if strings.HasSuffix(tok, "A") {
+		last = "B"
+	}
+	bad := []string{"", "nope", tok[:len(tok)-1] + last, tok + "x", strings.ToUpper(tok)}
 	for i, b := range bad[:3] {
 		if code, out := hs.doAs(t, "GET", "/v1/review", "", with(client, tokenHeader(b))); code != http.StatusNotFound || out["code"] != "not_found" {
 			t.Errorf("bad token %d = %d %v", i, code, out)

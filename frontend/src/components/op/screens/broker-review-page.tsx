@@ -1,7 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { api, ApiError } from "@/lib/api/client";
 import {
   COMMENT_MAX,
@@ -13,6 +12,7 @@ import {
   decisionLabel,
   effectiveStatus,
   plausibleToken,
+  tokenFromHash,
   statusLabel,
   type BrokerPacket,
   type DecisionKind,
@@ -50,15 +50,30 @@ export function BrokerReviewShell({ children }: { children: ReactNode }) {
 type State = { kind: "loading" } | { kind: "ready"; p: BrokerPacket } | { kind: "failed"; e: unknown };
 
 export function BrokerReviewPage() {
-  const { token: raw } = useParams<{ token: string }>();
-  // The token stays in this component: it goes out only in the
-  // X-Review-Token header (lib/api/client.ts), never in a URL, log or storage.
-  const token = typeof raw === "string" ? raw : "";
+  // The token is the URL fragment (/review#<token>), which the browser never
+  // sends to a server. It is read once, then dropped from the address bar
+  // and history; from then on it lives in this component's memory only and
+  // goes out only in the X-Review-Token header (lib/api/client.ts), never in
+  // a URL, a log or storage. A reload therefore needs the link again.
+  const [token, setToken] = useState<string | null>(null);
+  const [read, setRead] = useState(false);
   const valid = plausibleToken(token);
   const [state, setState] = useState<State>({ kind: "loading" });
 
+  // Read once: development's strict mode runs effects twice, and the second
+  // run would find the fragment already cleared.
+  const readOnce = useRef(false);
+  useEffect(() => {
+    if (readOnce.current) return;
+    readOnce.current = true;
+    const t = tokenFromHash(window.location.hash);
+    if (window.location.hash) window.history.replaceState(null, "", window.location.pathname);
+    setToken(t);
+    setRead(true);
+  }, []);
+
   const fetchPacket = useCallback(() => {
-    if (!valid) return;
+    if (!valid || !token) return;
     api.brokerReview(token).then(
       (p) => setState({ kind: "ready", p }),
       (e) => setState({ kind: "failed", e }),
@@ -74,7 +89,8 @@ export function BrokerReviewPage() {
     fetchPacket();
   };
 
-  if (!valid) return <Gone kind="not_found" />;
+  if (!read) return <Spinner label="Loading the review…" />;
+  if (!valid || !token) return <Gone kind={token === null ? "missing" : "not_found"} />;
   if (state.kind === "loading") return <Spinner label="Loading the review…" />;
   if (state.kind === "failed") {
     const kind = brokerFailure(state.e instanceof ApiError ? { status: state.e.status, code: state.e.code } : null);
@@ -97,6 +113,7 @@ export function BrokerReviewPage() {
 }
 
 const GONE = {
+  missing: { title: "Open the review link again", body: "This page needs the full link the sender gave you. For safety the link is cleared from the address bar once the page reads it, so a reload or a bookmark can't open the review. Open the link from their message again." },
   not_found: { title: "This link is not valid", body: "Check that you copied the whole link, or ask the person who sent it for a new one." },
   expired: { title: "This link has expired", body: "Review links work for a set number of days. Ask the person who sent it for a new one." },
   revoked: { title: "This link was revoked", body: "The sender turned this link off. Ask them for a new one if you still need to review the draft." },

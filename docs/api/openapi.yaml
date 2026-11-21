@@ -457,7 +457,7 @@ paths:
                 properties:
                   review: { $ref: "#/components/schemas/BrokerReview" }
                   token: { type: string, pattern: "^ubr_[0-9a-f]{12}_[A-Za-z0-9_-]{43}$", description: "The link's secret. Send as X-Review-Token on /v1/review. Not stored; shown only here." }
-                  review_path: { type: string, description: "The frontend path of the review page: /review/{token}." }
+                  review_path: { type: string, description: "The review page with the token as its URL fragment: /review#{token}. Browsers never send a fragment to a server, so the token reaches no request log or Referer. A token in a path (/review/{token}) is never accepted." }
         "400": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }

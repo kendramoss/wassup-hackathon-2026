@@ -369,7 +369,7 @@ func TestMCPBrokerReviewTools(t *testing.T) {
 	_, out := callTool(t, cs, "predict_origin", heatGunArgs(t))
 	id, key := out["id"].(string), out["case_access_key"].(string)
 	res, made := callTool(t, cs, "create_broker_review_link", map[string]any{"case_id": id, "case_access_key": key, "expires_in_days": 7})
-	if res.IsError || !strings.HasPrefix(made["review_path"].(string), "/review/ubr_") || !strings.Contains(text(res), "Not a ruling") {
+	if res.IsError || !strings.HasPrefix(made["review_path"].(string), "/review#ubr_") || !strings.Contains(text(res), "Not a ruling") {
 		t.Fatalf("create link: %s", text(res))
 	}
 	tok := made["token"].(string)

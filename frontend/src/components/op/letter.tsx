@@ -3,7 +3,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 // The broker letter as Markdown, shared by the Draft step and the broker
 // review page. The text is server-generated; react-markdown renders no raw
 // HTML and drops unsafe link protocols. Links open in a new tab with no
-// referrer, so a /review/<token> page never sends its address to a ruling site.
+// referrer, so the review page never sends its address to a ruling site.
 
 // The 19 CFR 177 letter marks what the case doesn't know as [FILL IN: …]
 // (D66). Wrapped as inline code so the letter can highlight them.

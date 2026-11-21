@@ -2621,7 +2621,7 @@ export interface operations {
                         review: components["schemas"]["BrokerReview"];
                         /** @description The link's secret. Send as X-Review-Token on /v1/review. Not stored; shown only here. */
                         token: string;
-                        /** @description The frontend path of the review page: /review/{token}. */
+                        /** @description The review page with the token as its URL fragment: /review#{token}. Browsers never send a fragment to a server, so the token reaches no request log or Referer. A token in a path (/review/{token}) is never accepted. */
                         review_path: string;
                     };
                 };

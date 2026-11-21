@@ -85,7 +85,7 @@ No tool deletes anything (`destructiveHint: false` on all). Inputs have closed J
 
 Results carry a short text summary (with the disclaimer) and `structuredContent`: the API's JSON answer, without bulky internals (verifier search trails, model traces, cost stats, case history and chat; `GET /v1/cases/{id}` over REST has them). An API error becomes a tool error with the status, code and message, and the retry time for a rate limit.
 
-`create_broker_review_link` returns `review_path` (`/review/<token>` on the Unde web app) and the token once: Unde keeps only a hash. Whoever holds the link can read that one draft until it expires or is revoked, so share it with the broker only. The broker answers on the web page; `get_broker_review_status` reads the status and comments and never returns a token. Revoking is on the web app or `DELETE /v1/cases/{id}/reviews/{review}`; there is no MCP tool for it.
+`create_broker_review_link` returns `review_path` (`/review#<token>` on the Unde web app: the token is the URL fragment, which browsers never send to a server) and the token once: Unde keeps only a hash. Whoever holds the link can read that one draft until it expires or is revoked, so share it with the broker only. The broker answers on the web page; `get_broker_review_status` reads the status and comments and never returns a token. Revoking is on the web app or `DELETE /v1/cases/{id}/reviews/{review}`; there is no MCP tool for it.
 
 Resources: `unde://demos` (the demo products) and `unde://demos/{id}` (one demo with ready request bodies). Prompt: `plan_production_move` (product text and a target country; walks extract, predict, plan, draft).
 

@@ -54,6 +54,10 @@ Every number that may appear in the demo, deck or results page. **Status** says 
 | Model-calling requests running at once per client | 4 | `RATE_MAX_IN_FLIGHT` default (D137) | Built; per instance |
 | Invalid API keys a minute per address | 10 | `RATE_AUTH_FAILURES_PER_MIN` default (D137) | Built; per instance |
 | One client's share of the daily model budget | a tenth (0.1) | `DAILY_SPEND_CLIENT_SHARE` default (D137) | Built; applies only with `DAILY_SPEND_CAP_USD` set |
+| Broker review link life | 14 days by default, 30 at most (1 to 30 accepted) | `reviewDefaultDays`, `reviewMaxDays` in `backend/internal/httpapi/reviews.go` (D200) | Built; checked by the server on every read and answer |
+| Broker comment length | 2,000 characters at most | `MaxReviewComment`, same file (D200) | Built |
+| Open broker review links per case | 5 | `maxActiveReviews`, same file (D200); 20 links kept per case, 20 answers per link | Built |
+| Broker review requests a minute per client | 30 | `RATE_REVIEW_PER_MIN` default, `backend/internal/config/config.go` (D200) | Built; default, configurable; per instance |
 
 ## Demo story
 
@@ -121,7 +125,7 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 
 | Number | Value | Source | Status |
 |---|---|---|---|
-| MCP tools | 11 | `docs/MCP.md` (Tools table), `backend/internal/mcpserver` | Built; a count of tools, not a result |
+| MCP tools | 13 (11 before the two broker review tools, D200) | `docs/MCP.md` (Tools table), `backend/internal/mcpserver` | Built; a count of tools, not a result |
 
 ## Image and scan import (built; see `docs/MULTIMODAL.md`)
 

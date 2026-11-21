@@ -339,7 +339,7 @@ export const api = {
   createReview: (id: string, body: CreateReviewBody) => post<CreateReviewResponse>(`/cases/${enc(id)}/reviews`, body),
   listReviews: (id: string) => call<ReviewList>(`/cases/${enc(id)}/reviews`),
   revokeReview: (id: string, reviewId: string) => call<{ review: ReviewSummary }>(`/cases/${enc(id)}/reviews/${enc(reviewId)}`, { method: "DELETE" }),
-  // Broker side (/review/[token]). The token travels ONLY in the
+  // Broker side (/review#<token>). The token travels ONLY in the
   // X-Review-Token header: never in the URL or a query string, never logged,
   // never stored.
   brokerReview: (token: string) => call<BrokerPacket>("/review", { headers: { "X-Review-Token": token } }),
