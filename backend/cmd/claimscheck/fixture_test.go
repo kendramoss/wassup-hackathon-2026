@@ -67,6 +67,11 @@ func fxLabel(id, date string, origin string) string {
 	return fmt.Sprintf(`{"ruling":%q,"date":%q,"primary_origin":%q}`+"\n", id, date, origin)
 }
 
+// fxCalMap is a two-step calibration map whose bar accepts exactly the
+// stated 0.92 cases.
+const fxCalMap = `{"version":"cal-fx","engine_prompt":"engine-v1","model":"gemini-4-argon","bar":0.9,
+ "steps":[{"from":0.5,"calibrated":0.6,"n":10,"correct":6},{"from":0.92,"calibrated":0.9,"n":10,"correct":9}]}`
+
 func newFixture(t *testing.T) *fixture {
 	t.Helper()
 	root := t.TempDir()
@@ -109,6 +114,7 @@ func newFixture(t *testing.T) *fixture {
 	}
 	write(t, root, "eval/results/calibration-by-family.json",
 		`{"splits":[{"split":"dev","n":3,"global":{"auto":2,"correct":1}},{"split":"final","n":10,"global":{"auto":6,"correct":5}}]}`)
+	write(t, root, "backend/internal/calibrate/map.json", fxCalMap)
 	write(t, root, "eval/results/slice30-baseline.json",
 		`{"source":"dev-gemini-4-argon-prec-engine-v1-vertex.jsonl","n":3,"correct":2,"band95_n":2,"band95_correct":2}`)
 	write(t, root, "eval/results/RUNLOG.jsonl",

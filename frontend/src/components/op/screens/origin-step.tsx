@@ -6,7 +6,7 @@ import { useState } from "react";
 import { api, type CaseResponse } from "@/lib/api/client";
 import { VIEWER_REASON, caseReadOnly, writeGate } from "@/lib/roles";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate, formatMonth, isProxy, shortSubject } from "@/lib/format";
+import { conf, formatDate, formatMonth, isProxy, originConf, originConfCaption, shortSubject } from "@/lib/format";
 import { HistoryDrawer } from "../history-drawer";
 import { CaseShell, currentOrigin, type CaseCtx } from "../case-shell";
 import { DemoNote, ErrorBox, Footer, Main, Next, NextSteps, StepEyebrow } from "../chrome";
@@ -14,6 +14,7 @@ import { Audit, RulingsList } from "../evidence";
 import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, RulingLink, Ruler, StatusChip, cx } from "../ui";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
+import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
 
@@ -49,7 +50,7 @@ function Result({ id, c, setCase }: CaseCtx) {
           {watchBoxed ? <WatchLine c={c} setCase={setCase} /> : null}
           {p.reasoning || p.key_factors?.length ? (
             <section aria-label="Why" className="border-l-2 border-ink pl-4">
-              <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(conf(p.confidence)) : "Why"}</h2>
+              <h2 className="eyebrow mb-1.5">{route === "auto" ? copy.result.whyAuto(originConf(p)) : "Why"}</h2>
               {p.reasoning ? <p className="read max-w-[75ch] text-[15px] leading-relaxed">{p.reasoning}</p> : null}
               {p.key_factors?.length ? (
                 <p className="duo mt-3 max-w-[75ch] text-sm">
@@ -195,10 +196,25 @@ export function VerdictBand({ c }: { c: CaseResponse }) {
             <StatusChip route={route} explain />
             {regime && <Chip>{regime.label}</Chip>}
           </span>
-          <Ruler value={p.confidence} label={`${BAR} auto-accept`} caption={`confidence ${conf(p.confidence)}`} />
+          <OriginRuler p={p} />
         </div>
       </div>
     </section>
+  );
+}
+
+// The origin ruler: calibrated probability against the calibrated bar when
+// the API returned one (D160), else the stated confidence against 0.92.
+function OriginRuler({ p, width }: { p: Parameters<typeof originConf>[0]; width?: number }) {
+  const o = originConf(p);
+  return (
+    <Ruler
+      value={o.value}
+      bar={o.bar}
+      label={`${o.bar.toFixed(2)} auto-accept`}
+      width={width}
+      caption={<Term explain={o.calibrated ? copy.terms.calibrated.text : copy.terms.stated.text}>{originConfCaption(o)}</Term>}
+    />
   );
 }
 
@@ -328,7 +344,7 @@ function ReviewPanel({ c }: { c: CaseResponse }) {
   return (
     <Panel tone="ask" aria-label={R.title}>
       <h2 className="text-base font-medium tracking-[-0.02em] text-ask">{R.title}</h2>
-      <p className="duo mt-1.5 text-sm">{R.body(conf(c.prediction?.confidence))}</p>
+      <p className="duo mt-1.5 text-sm">{R.body(originConf(c.prediction))}</p>
       <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
         <Link href={`/cases/${enc}/draft`} className="text-ok underline underline-offset-2">
           {R.draft}

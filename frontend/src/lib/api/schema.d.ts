@@ -898,6 +898,8 @@ export interface components {
             /** @enum {string|null} */
             triage_route: "auto" | "needs_review" | "needs_info" | null;
             confidence: number | null;
+            /** @description Calibrated probability (D160); null when the prediction has none */
+            calibrated_confidence?: number | null;
             /**
              * @description Furthest workflow step reached (export once a draft has been exported)
              * @enum {string}
@@ -1153,7 +1155,10 @@ export interface components {
         WhatIf: {
             change?: string;
             origin?: string;
+            /** @description The model's stated confidence */
             confidence?: number;
+            /** @description Calibrated probability when one applies (D160); see Prediction.calibrated_confidence */
+            calibrated_confidence?: number;
             decisive_step?: string;
             /** @description The revised facts the engine re-ran: trimmed, with one terminal newline. The same string is stored on the chat turn and is accepted unchanged by POST /v1/cases/{id}/scenarios (D116). */
             facts?: string;
@@ -1187,7 +1192,12 @@ export interface components {
             origin_country?: string;
             key_factors?: string[];
             decisive_step?: string;
+            /** @description The model's own stated confidence. Overconfident on average (stated 94.7% against 90.2% right on the 377 held-out rulings); use calibrated_confidence when present. */
             confidence?: number;
+            /** @description Probability that origin_country is right, from a calibration map fitted on the development set only (D160). Present only for the general engine (engine-v1) answered by the primary model; absent for the fallback model and the textile, Part 102 and pharmaceutical engines. With CALIBRATION=on (the default) the auto-accept bar is applied to this value (CALIBRATED_FAST_PATH, default 0.90). */
+            calibrated_confidence?: number;
+            /** @description Version of the calibration map behind calibrated_confidence, e.g. cal-v2 */
+            calibration?: string;
             reasoning?: string;
             /** @description Earlier rulings the model named (only rulings it was shown) */
             cited_rulings?: string[];
@@ -1200,7 +1210,7 @@ export interface components {
              * @enum {string}
              */
             route?: "auto" | "needs_review" | "needs_info";
-            /** @description Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). With FAST_PATH_BY_FAMILY=on (off by default, D63) the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)". When prediction.trace.model_id is the fallback engine rather than the primary, the reason is "answered by the fallback model (<id>) because the primary engine was unavailable" and the route is needs_review unless FALLBACK_FAST_PATH is set (D56). */
+            /** @description Starts with "out of scope: " for regimes the tool does not cover (textile_102_21 unless the textile engine is on; usmca_part102 unless the USMCA engine is on; pharma_api unless the pharma engine is on), with "textile rules (19 CFR 102.21)" when the textile engine predicted the case (prediction.trace.prompt_version textile-v1, D51), with "USMCA / Part 102 rules (19 CFR 102.11)" when the USMCA engine predicted it (prompt_version usmca-v1, USMCA_ENGINE=on, off by default; D61), or with "pharmaceutical rules (active ingredient)" when the pharma engine predicted it (prompt_version pharma-v1, PHARMA_ENGINE=on, off by default; D62). When prediction.calibrated_confidence is present (CALIBRATION=on, the default; D160) the confidence clause is "calibrated confidence <c> ≥ <bar> (<map>; model stated <s>)" or "... below <bar> ...". With FAST_PATH_BY_FAMILY=on (off by default, D63) the stated confidence and the family bars are used instead, and the confidence clause names the bar used, e.g. "(electronics family bar)" or "(global bar; no medical family bar)". When prediction.trace.model_id is the fallback engine rather than the primary, the reason is "answered by the fallback model (<id>) because the primary engine was unavailable" and the route is needs_review unless FALLBACK_FAST_PATH is set (D56). */
             reason?: string;
         };
         RouterLabel: {

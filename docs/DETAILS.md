@@ -15,7 +15,7 @@ frontend (Next.js, Cloud Run)  ──HTTP/JSON──►  backend (Go, Cloud Run)
                                                  ├─ router    Gemini 3.8 Flash: product family + origin-regime check
                                                  ├─ engine    Gemini 4 Argon + 5 earlier CBP rulings (BM25, dated strictly before the case)
                                                  │            → origin, key factors, confidence, cited rulings
-                                                 ├─ triage    confidence ≥ 0.92 and in scope → auto; otherwise needs expert review
+                                                 ├─ triage    calibrated confidence ≥ 0.90 and in scope → auto; otherwise needs expert review
                                                  ├─ clarify   below the bar: is an earlier ruling on point? conflicting rulings? follow-up questions
                                                  ├─ planner   single/double moves of operation groups to capable plants
                                                  │            → render variant facts → engine → keep moves that reach the target
@@ -56,7 +56,7 @@ Data: 2,790 labelled CBP rulings (2023-01-10 to 2026-09-25, rulings.cbp.gov, pub
 | Most-mentioned country (recomputed; the research figure, 60.5%, is unverified) | 60.7% (55.7–65.5) |
 | First country named in the facts (best simple rule; recomputed) | 63.4% (58.4–68.1) |
 | **Unde engine (Gemini 4 Argon + dated precedents), Vertex AI** | **90.2% (86.8–92.8)** |
-| Fast path (confidence ≥ 0.92 and in scope), Vertex AI | 79.6% of cases (300 of 377) at 96.0% (93.1–97.7), 288 of 300 |
+| Fast path (calibrated confidence ≥ 0.90, the same cases as stated ≥ 0.92, and in scope), Vertex AI | 79.6% of cases (300 of 377) at 96.0% (93.1–97.7), 288 of 300 |
 
 Recomputed baselines: `go run ./cmd/eval baselines` on the committed facts, no model (D155). The two Vertex rows are the official re-run of the frozen engine (engine-v1, BM25, K = 5, Gemini 4 Argon on Vertex AI, location `global`), scored once on the held-out split.
 
@@ -66,7 +66,7 @@ Proxy run of the held-out split, kept apart from the official rows above: fast p
 
 A second held-out split of 83 rulings published 28 Sep to 13 Nov 2026 scores 92.8% (85.1–96.6) through an OpenAI-compatible gateway to the same model, scored once ([EVALUATION.md](EVALUATION.md#6-the-second-held-out-split-21-nov-2026)).
 
-Cases below the bar go to expert review. 0.92 is the lowest bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](../eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
+Cases below the bar go to expert review. The bar is applied to the calibrated confidence (0.90, D160), which accepts exactly the cases a stated 0.92 does. 0.92 is the lowest stated bar at which accuracy stays at or above 95% on both splits (D32). Development numbers through the LiteLLM proxy (labelled "proxy, development only", not official) are in [eval/RESULTS.md](../eval/RESULTS.md): the Go engine reproduces the research result on the held-out split within the 2-point acceptance band, and the move verifier's development-set results are there with CIs. Change detection from scratch on 22 held-out 2026 pairs is weak (68% vs a 63.6% always-change baseline; balanced accuracy 61.6%) — which is why every proposed change must be backed by a precedent.
 
 ### Negative results (kept on purpose)
 - **One shared playbook** of legal guidance lowered accuracy versus the plain engine.

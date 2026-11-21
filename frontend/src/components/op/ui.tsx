@@ -49,29 +49,31 @@ export function Country({ name, size, className }: { name: string | null | undef
 type Tone = "ok" | "ask" | "none";
 
 // Confidence ruler: 0, .5, 1, a diamond at the value and a dashed blue line at
-// the 0.92 bar.
+// the bar (0.92 by default; the calibrated origin bar is 0.90).
 export function Ruler({
   value,
-  label = `${BAR} bar`,
+  bar = BAR,
+  label = `${bar} bar`,
   tone,
   width = 240,
   caption,
 }: {
   value: number | null | undefined;
+  bar?: number;
   label?: string;
   tone?: Tone;
   width?: number;
   caption?: ReactNode;
 }) {
   const v = value ?? 0;
-  const t = tone ?? (v >= BAR ? "ok" : "ask");
+  const t = tone ?? (v >= bar ? "ok" : "ask");
   return (
     <div>
       <div
         className="relative mt-4 h-[34px] max-w-full"
         style={{ width }}
         role="img"
-        aria-label={`Confidence ${conf(value)} against the ${BAR} bar`}
+        aria-label={`Confidence ${conf(value)} against the ${bar} bar`}
       >
         <div className="absolute inset-x-0 top-[14px] border-t border-ink" />
         {[0, 0.5, 1].map((x) => (
@@ -85,7 +87,7 @@ export function Ruler({
             style={{ left: `${v * 100}%` }}
           />
         )}
-        <div className="absolute top-0 h-[28px] border-l-[1.5px] border-dashed border-ok" style={{ left: `${BAR * 100}%` }}>
+        <div className="absolute top-0 h-[28px] border-l-[1.5px] border-dashed border-ok" style={{ left: `${bar * 100}%` }}>
           <b className="absolute right-1 top-[-16px] whitespace-nowrap text-[11px] font-medium text-ok">{label}</b>
         </div>
       </div>

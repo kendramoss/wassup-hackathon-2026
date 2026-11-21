@@ -2,6 +2,8 @@
 // Wording rules: plans are "precedent-supported" at most, never approved,
 // cheapest or guaranteed; follow-up questions make no accuracy claim; money
 // is "illustrative — editable" everywhere.
+import { conf, type OriginConf } from "./format";
+
 export const copy = {
   name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
@@ -72,14 +74,16 @@ export const copy = {
     rerun: "Add answers and re-run",
     rerunHint: "Enabled once one answer adds a fact",
     optional: "Answering is optional",
-    whyAuto: (c: string) => `Why · auto-accepted: ${c}, ${c === "0.92" ? "at" : "above"} the 0.92 bar`,
+    whyAuto: (o: OriginConf) =>
+      `Why · auto-accepted: ${o.calibrated ? "calibrated " : ""}${conf(o.value)}, ${conf(o.value) === o.bar.toFixed(2) ? "at" : "above"} the ${o.bar.toFixed(2)} auto-accept bar`,
     questionsNote: "optional; answers add facts and re-run the analysis",
     nextQuestions: (target: string) => `Add the facts CBP would ask about, or plan a move to ${target}.`,
     suggestAnswer: (n: number) => (n === 1 ? "Answer CBP's likely question" : `Answer CBP's ${n} likely questions`),
     conflict: "Earlier rulings disagree",
     review: {
-      title: "Below the 0.92 bar · worth a broker's look",
-      body: (c: string) => `Confidence is ${c}. On the 377 held-out rulings, cases under the bar were right 68% of the time, against 96% above it. No follow-up questions came back for this case.`,
+      title: "Below the auto-accept bar · worth a broker's look",
+      body: (o: OriginConf) =>
+        `${o.calibrated ? `Calibrated confidence is ${conf(o.value)} (the model stated ${conf(o.stated)})` : `Stated confidence is ${conf(o.value)}`}. On the 377 held-out rulings, cases under the bar were right 68% of the time, against 96% above it. No follow-up questions came back for this case.`,
       draft: "Draft a note for the broker →",
       addFacts: "Add facts",
     },
@@ -101,18 +105,26 @@ export const copy = {
       match: /precedent check/i,
       text: "An AI agent searches and reads earlier CBP rulings for one where the same kind of change decided origin.",
     },
+    calibrated: {
+      match: /calibrated/,
+      text: "The chance this origin is right, from a calibration map fitted on 463 development rulings. The model's own confidence runs high: on 377 held-out rulings it averaged 94.7% against 90.2% right; calibrated, 90.2%. Auto-accept needs 0.90 or more.",
+    },
+    stated: {
+      match: /^confidence \d/,
+      text: "The model's own confidence. No calibration map was fitted for this engine or model, and stated confidence runs high on average. Auto-accept needs 0.92 or more.",
+    },
     auto: {
       match: /Auto-accepted/,
-      text: "Confident enough (0.92 or more) to pass Unde's configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
+      text: "Confident enough (calibrated 0.90 or more, the same cases as a stated 0.92) to pass Unde's configured confidence and scope checks. That is not legal approval: it is still a prediction, and a licensed customs broker or counsel should review it before you rely on it. On 377 held-out rulings these were right 96% of the time.",
     },
     hts: { match: /HTS/, text: "The US tariff code. It sets the duty rate." },
     needsInfo: {
       match: /Needs more facts/,
-      text: "Under the 0.92 bar, and the facts leave out something CBP would ask about. Answer the questions to re-run it.",
+      text: "Under the auto-accept bar, and the facts leave out something CBP would ask about. Answer the questions to re-run it.",
     },
     needsReview: {
       match: /Needs expert review/,
-      text: "Under the 0.92 bar: a licensed customs broker should look at it before anyone relies on it.",
+      text: "Under the auto-accept bar: a licensed customs broker should look at it before anyone relies on it.",
     },
   },
 

@@ -127,8 +127,11 @@ type WhatIf struct {
 	Change     string  `json:"change"`
 	Origin     string  `json:"origin"`
 	Confidence float64 `json:"confidence"`
-	Decisive   string  `json:"decisive_step"`
-	Facts      string  `json:"facts,omitempty"`
+	// CalibratedConfidence is the prediction's calibrated probability when
+	// the dispatch attached one (D160); nil otherwise.
+	CalibratedConfidence *float64 `json:"calibrated_confidence,omitempty"`
+	Decisive             string   `json:"decisive_step"`
+	Facts                string   `json:"facts,omitempty"`
 	// Regime is the regime that answered ("unknown" when the trace does not
 	// say; "unclassified" when the predictor had no dispatch). Route and
 	// Reason are the review triage; Provisional is set, with its reason,
@@ -396,7 +399,7 @@ func (a *Agent) runWhatIf(ctx context.Context, c domain.Case, change string) (Wh
 			return WhatIf{}, "", err
 		}
 		p := k.Result.Prediction
-		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, Decisive: p.DecisiveStep, Facts: c.Facts,
+		w := WhatIf{Change: change, Origin: p.Origin, Confidence: p.Confidence, CalibratedConfidence: p.CalibratedConfidence, Decisive: p.DecisiveStep, Facts: c.Facts,
 			Regime: k.Regime, Specialist: k.Specialist, Scope: k.Scope, Route: k.Route, Reason: k.Reason, Provisional: k.Provisional()}
 		if w.Regime == "" {
 			w.Regime = "unknown"

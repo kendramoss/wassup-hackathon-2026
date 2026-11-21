@@ -8,7 +8,7 @@ import { VIEWER_REASON, caseReadOnly } from "@/lib/roles";
 import { askRequest, clearOwned } from "@/lib/ask-history";
 import { clearRich, commitPinnedAnswer, pinnedTurn, readRich } from "@/lib/ask-rich";
 import { copy } from "@/lib/copy";
-import { BAR, conf, formatDate } from "@/lib/format";
+import { formatDate, originConf, originConfCaption } from "@/lib/format";
 import { whatIfView } from "@/lib/whatif-state";
 import { Elapsed, ErrorBox } from "./chrome";
 import { Button, Country, Drawer, Flag, RulingLink, Ruler, cx } from "./ui";
@@ -334,9 +334,12 @@ export function TurnView({ t, caseId }: { t: Turn; caseId: string }) {
             </div>
             <div className="grid content-between gap-2">
               {v.showRuler ? (
-                <Ruler value={w.confidence} label={`${BAR} auto-accept`} width={150} caption={`confidence ${conf(w.confidence)}`} />
+                (() => {
+                  const o = originConf(w);
+                  return <Ruler value={o.value} bar={o.bar} label={`${o.bar.toFixed(2)} auto-accept`} width={150} caption={originConfCaption(o)} />;
+                })()
               ) : (
-                <p className="text-xs text-dim">confidence {conf(w.confidence)}</p>
+                <p className="text-xs text-dim">{originConfCaption(originConf(w))}</p>
               )}
               {w.change && (
                 <div>

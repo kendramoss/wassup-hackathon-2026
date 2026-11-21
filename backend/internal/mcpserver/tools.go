@@ -57,7 +57,7 @@ func (t tools) register(s *mcp.Server, search bool) {
 		Description: `Predict the country of origin U.S. Customs (CBP) would likely assign to a product (substantial-transformation test), citing earlier CBP rulings. Creates a case and returns its case_id.
 Use it when the user asks "what origin would CBP give this product" or before searching production moves.
 Input: facts (plain-language description of parts, where each is made and where it is assembled) and/or a structured product (extract_product drafts one); family helps plan search. 
-Returns: predicted origin, confidence (0-1), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
+Returns: predicted origin, confidence (0-1; calibrated_confidence is the calibrated probability when one applies, else only the model's stated value), decisive step, cited CBP rulings, triage route (auto, needs_review, needs_info) and the case_id. Without an API key it also returns a case_access_key to pass to later calls on the case.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predict (operationId predictCase).`,
 		InputSchema: &jsonschema.Schema{
 			Type: "object", AdditionalProperties: &jsonschema.Schema{Not: &jsonschema.Schema{}},
@@ -310,7 +310,7 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	out := trim(res.body)
 	var b strings.Builder
 	p := obj(out["prediction"])
-	fmt.Fprintf(&b, "Likely origin: %s (confidence %s).", str0(p["origin_country"], "unknown"), pct(p["confidence"]))
+	fmt.Fprintf(&b, "Likely origin: %s (%s).", str0(p["origin_country"], "unknown"), confPhrase(p))
 	if d := str0(p["decisive_step"], ""); d != "" {
 		fmt.Fprintf(&b, " Decisive step: %s.", d)
 	}
@@ -480,7 +480,7 @@ func (t tools) getCase(ctx context.Context, hdr http.Header, in caseIn) (*mcp.Ca
 	var b strings.Builder
 	fmt.Fprintf(&b, "Case %v %q (step %v).", out["id"], str0(out["display_name"], str0(obj(out["product"])["name"], "")), out["step"])
 	if len(p) > 0 {
-		fmt.Fprintf(&b, "\nPredicted origin: %s (confidence %s).", str0(p["origin_country"], "unknown"), pct(p["confidence"]))
+		fmt.Fprintf(&b, "\nPredicted origin: %s (%s).", str0(p["origin_country"], "unknown"), confPhrase(p))
 	}
 	if pl := obj(out["plan"]); len(pl) > 0 {
 		fmt.Fprintf(&b, "\nLatest plan search: target %v, %d shown plans.", pl["target"], len(list(pl["plans"])))
@@ -638,6 +638,16 @@ func str0(v any, def string) string {
 		return s
 	}
 	return def
+}
+
+// confPhrase names which confidence a prediction carries: the calibrated
+// probability when the API returned one (D160), else the model's stated
+// value, said to be uncalibrated.
+func confPhrase(p map[string]any) string {
+	if c, ok := p["calibrated_confidence"].(float64); ok {
+		return fmt.Sprintf("calibrated confidence %s; the model stated %s", pct(c), pct(p["confidence"]))
+	}
+	return fmt.Sprintf("confidence %s as stated by the model, not calibrated", pct(p["confidence"]))
 }
 
 func pct(v any) string {

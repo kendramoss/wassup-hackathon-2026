@@ -94,7 +94,7 @@ Tested on **377 real CBP rulings** from January to September 2026 that were neve
 | Best simple rule we recomputed (first country named in the facts; no model) | 63.4% (239 of 377) |
 | Most-mentioned country (recomputed; the research figure was 60.5%, unverified) | 60.7% (229 of 377) |
 | **Unde** (Gemini 4 Argon on Vertex AI + past rulings), all 377 cases | **90.2%** (340 of 377) |
-| Unde, confident cases only: confidence at least 0.92 and in scope, 79.6% of cases | 96.0% (288 of 300) |
+| Unde, confident cases only: calibrated confidence at least 0.90 (the same cases as a stated 0.92) and in scope, 79.6% of cases | 96.0% (288 of 300) |
 
 The 96.0% covers a subset the model's own confidence selected, so it is not comparable with the all-case baselines, and a gap in percentage points is not evidence that the confidence scores are calibrated. See [docs/claims-reconciliation.md](docs/claims-reconciliation.md). The baselines are recomputed by `go run ./cmd/eval baselines` from the committed facts ([D155](docs/DECISIONS.md)).
 

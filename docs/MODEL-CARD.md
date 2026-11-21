@@ -30,7 +30,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 
 **Primary users.** The lead above, their COO or supply-chain head, the U.S. brand that sources from them, and the customs broker or trade lawyer who reviews the result. The roles are described in the [README](../README.md#who-uses-it-and-who-benefits).
 
-**How the answer is meant to be used.** As a first check that decides whether a move is worth taking to a broker. At confidence 0.92 or more, with the router placing the case in scope, the answer is auto-accepted (the fast path); everything else is marked for review. Result screens, exports and API responses say the result is not a ruling.
+**How the answer is meant to be used.** As a first check that decides whether a move is worth taking to a broker. At calibrated confidence 0.90 or more (the same cases as a stated 0.92), with the router placing the case in scope, the answer is auto-accepted (the fast path); everything else is marked for review. Result screens, exports and API responses say the result is not a ruling.
 
 ## 3. Out-of-scope uses
 
@@ -47,7 +47,7 @@ Status words: **built** means in the code and running; **measured** means recomp
 The factors that change accuracy, from the evaluation and the failure analysis below:
 
 - **The origin CBP held.** Accuracy differs by country. It is lowest where CBP held China (section 6), which is also the case that matters most for a move out of China.
-- **Confidence.** Accepted cases above the 0.92 bar are more accurate than the rest. The confidence carries signal but is not a calibrated probability (section 5).
+- **Confidence.** The model's stated confidence runs high (94.7% stated against 90.2% right on the 377 held-out rulings). For the general engine on Gemini 4 Argon the product reports a calibrated confidence instead, from a map fitted on the development set (D160): on the same 377 it averages 90.2%. Auto-accept needs calibrated 0.90, the same cases as a stated 0.92. Other engines report stated confidence only (section 5).
 - **Type of good.** The engine is built and tuned for assembled manufactured goods. Food, natural products and single-material processing are where it is weakest (section 6).
 - **Ruling collection.** Most rulings are New York (NY) rulings; headquarters (HQ) rulings, which are usually harder, are only 13 of the 377 held-out cases, too few to report separately with a useful interval.
 - **Origin regime.** Textiles, Part 102 marking origin and pharmaceutical active ingredients have their own engines and their own, smaller held-out tests ([NUMBERS.md](NUMBERS.md)).

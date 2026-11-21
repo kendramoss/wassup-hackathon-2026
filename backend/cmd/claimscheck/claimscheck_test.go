@@ -437,3 +437,22 @@ func TestPlannerPostFigures(t *testing.T) {
 		t.Error("a pair with no post-cutoff ruling was accepted")
 	}
 }
+
+// D160: a calibration map whose bar would accept a different set of cases
+// than the stated 0.92 bar is a problem, not a silently new figure.
+func TestCalibratedBarMustMatchStatedBar(t *testing.T) {
+	f := newFixture(t)
+	f.edit(t, "backend/internal/calibrate/map.json", func(s string) string {
+		return strings.Replace(s, `"from":0.92`, `"from":0.95`, 1)
+	})
+	_, problems := Compute(f.root)
+	found := false
+	for _, p := range problems {
+		if strings.Contains(p, "accept different") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("problems = %v, want a calibrated-bar mismatch", problems)
+	}
+}

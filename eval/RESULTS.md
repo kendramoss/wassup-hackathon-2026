@@ -70,7 +70,7 @@ All numbers below are built by `python3 -I eval/charts/build_accuracy.py .` into
 | final2, 83 | 0.067 (0.039–0.126) | 0.038 (0.030–0.099) | 0.060 (0.021–0.109) | 0.051 (0.020–0.090) | 96.1% → 93.9% (92.8%) |
 | pooled, 460 | 0.055 (0.041–0.085) | 0.027 (0.017–0.053) | 0.077 (0.057–0.098) | 0.069 (0.053–0.085) | 95.0% → 91.0% (90.7%) |
 
-ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). The layer is not in the API; the fast path still uses the 0.92 bar on stated confidence.
+ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,000 resamples, seed 20261017). This is cal-v1, eval only. The product uses cal-v2 (next section).
 
 ### All regimes, held-out (first window, plus final2)
 
@@ -84,6 +84,35 @@ ECE uses one bin per emitted confidence value; intervals are bootstrap 95% (2,00
 | All four plus final2 (substantial transformation) | 619 | 89.3% (86.7–91.5) | mixed |
 
 Post-cutoff rulings of the other regimes were labelled (`data/labels_final2.jsonl`: 18 Part 102, 12 pharmaceutical) but not scored: their engines need their own precedent pools and splits. Planned.
+
+## Calibrated confidence in the product (21 Nov 2026; D160, D161)
+
+No model calls. `python3 -I eval/charts/build_accuracy.py .` fits cal-v2 on the dev rows of engine-v1 on Argon (Vertex AI), writes it to `backend/internal/calibrate/map.json` (embedded in the server) and applies it once, unchanged, to the committed held-out rows (`results/accuracy-v2-metrics.json`, `calibration_v2`). cal-v2 is the D156 fit with blocks of fewer than 20 dev cases pooled first (D160), so no step rests on one case.
+
+| Stated confidence | 0.65–0.89 | 0.90–0.91 | 0.92–0.94 | 0.95 | 0.96–0.97 | 0.98 | 0.99–1.00 |
+|---|---|---|---|---|---|---|---|
+| Calibrated (dev cases right) | 0.60 (27/45) | 0.7778 (35/45) | 0.90 (36/40) | 0.9016 (55/61) | 0.9355 (29/31) | 0.99 (113/114) | 0.99 (127/127) |
+
+Values under 0.65 take the lowest step; 0.99 is a cap.
+
+| Held-out set | Mean stated → calibrated (accuracy) | ECE stated → cal-v2 (95% CI) | Brier stated → cal-v2 (95% CI) |
+|---|---|---|---|
+| final, 377 (Vertex AI) | 94.7% → 90.2% (90.2%) | 0.059 → 0.028 (0.020–0.060) | 0.081 → 0.072 (0.056–0.092) |
+| final2, 83 (gateway) | 96.1% → 93.8% (92.8%) | 0.067 → 0.037 (0.030–0.099) | 0.060 → 0.051 (0.020–0.089) |
+| pooled, 460 | 95.0% → 90.9% (90.7%) | 0.055 → 0.026 (0.018–0.053) | 0.077 → 0.069 (0.053–0.085) |
+
+cal-v1 on the same rows: ECE 0.030, 0.038, 0.027. The two maps are level.
+
+**Auto-accept bar (rule in D160, fitted on dev).** Lowest map step with in-scope dev accuracy ≥ 96% on ≥ 100 cases: **0.90**. It accepts exactly the cases stated 0.92 accepted, so nothing moves:
+
+| Split | Auto-accepted (calibrated ≥ 0.90, in scope) | Right (95% CI) | Wrong |
+|---|---|---|---:|
+| dev, 463 (fitted here) | 368 = 79.5% | 96.5% (94.1–97.9) | 13 |
+| final, 377 | 300 = 79.6% | 96.0% (93.1–97.7) | 12 |
+| final2, 83 | 75 = 90.4% | 97.3% (90.8–99.3) | 2 |
+| pooled, 460 | 375 = 81.5% | 96.3% (93.8–97.8) | 14 |
+
+The next step down (0.7778, stated 0.90) would take 89.0% of dev at 94.4%, under the 96% target; the next up (0.9016, stated 0.95) 70.8% at 97.3%. `go run ./cmd/claimscheck` recomputes the auto-accept counts, means and ECE for dev and final in Go from the map and the rows, and fails if the calibrated and stated bars ever accept different cases.
 
 ## Auto-accept bar by product family (17 Oct 2026; D63) — not adopted
 

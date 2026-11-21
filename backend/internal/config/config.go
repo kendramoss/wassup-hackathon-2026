@@ -20,6 +20,13 @@ import (
 // and held-out (96.7%, 80%) through the proxy (D32).
 const DefaultFastPath = 0.92
 
+// DefaultCalibratedFastPath is the auto-accept bar on calibrated probability
+// (D160): the lowest step of the calibration map at which in-scope dev
+// accuracy is at least 96% on at least 100 cases. It must equal the bar in
+// internal/calibrate/map.json (checked by a test). On engine-v1 with Gemini
+// 4 Argon it accepts exactly the cases stated confidence 0.92 did.
+const DefaultCalibratedFastPath = 0.90
+
 // DefaultPlanBar is the verifier confidence a precedent-supported plan needs
 // to be shown; it matches the auto-accept bar (D35).
 const DefaultPlanBar = 0.92
@@ -248,6 +255,12 @@ type Config struct {
 	// (embedded in internal/triage); subfamilies without a fitted bar keep
 	// FastPathConfidence (D63).
 	FastPathByFamily string
+	// Calibration (on|off, default on) attaches the calibrated probability
+	// (internal/calibrate, D160) to predictions the map was fitted for, and
+	// triages them on CalibratedFastPath instead of FastPathConfidence. Off:
+	// stated confidence only, as before D160.
+	Calibration        string
+	CalibratedFastPath float64
 	// HTSSuggest (on|off, default off) serves POST /v1/products/hts-suggest:
 	// candidate HTS subheadings from rulings that state one, listed in
 	// HTSIndex (written by "corpus hts-index"; D64). Off: the endpoint is a 404.
@@ -369,6 +382,8 @@ func FromEnv(getenv func(string) string) (Config, error) {
 		PharmaRulings:          e.str("PHARMA_RULINGS", "data/pharma_rulings.json"),
 		PharmaFastPath:         e.float("PHARMA_FAST_PATH", 0),
 		FastPathByFamily:       strings.ToLower(e.str("FAST_PATH_BY_FAMILY", "off")),
+		Calibration:            strings.ToLower(e.str("CALIBRATION", "on")),
+		CalibratedFastPath:     e.float("CALIBRATED_FAST_PATH", DefaultCalibratedFastPath),
 		HTSIndex:               e.str("HTS_INDEX", "data/hts_index.json"),
 		DutyLiveMFNTTL:         e.duration("DUTY_LIVE_MFN_TTL", 24*time.Hour),
 		DutyLiveMFNTimeout:     e.duration("DUTY_LIVE_MFN_TIMEOUT", 5*time.Second),
@@ -525,6 +540,7 @@ func (c Config) validate() error {
 	for name, v := range map[string]float64{
 		"FALLBACK_FAST_PATH":       c.FallbackFastPath,
 		"FAST_PATH_CONFIDENCE":     c.FastPathConfidence,
+		"CALIBRATED_FAST_PATH":     c.CalibratedFastPath,
 		"PLAN_CONFIDENCE":          c.PlanConfidence,
 		"VERIFIER_PANEL_LOW":       c.VerifierPanelLow,
 		"VERIFIER_PANEL_HIGH":      c.VerifierPanelHigh,
@@ -567,7 +583,7 @@ func (c Config) validate() error {
 			bad("%s must not be empty", name)
 		}
 	}
-	for name, v := range map[string]float64{"FAST_PATH_CONFIDENCE": c.FastPathConfidence, "PLAN_CONFIDENCE": c.PlanConfidence} {
+	for name, v := range map[string]float64{"FAST_PATH_CONFIDENCE": c.FastPathConfidence, "CALIBRATED_FAST_PATH": c.CalibratedFastPath, "PLAN_CONFIDENCE": c.PlanConfidence} {
 		if v <= 0 || v > 1 {
 			bad("%s must be in (0, 1], got %v", name, v)
 		}
@@ -614,6 +630,9 @@ func (c Config) validate() error {
 	}
 	if c.TextilePrompt != "v1" && c.TextilePrompt != "v2" {
 		bad("TEXTILE_PROMPT must be v1 or v2, got %q", c.TextilePrompt)
+	}
+	if c.Calibration != "on" && c.Calibration != "off" {
+		bad("CALIBRATION must be on or off, got %q", c.Calibration)
 	}
 	if c.FastPathByFamily != "on" && c.FastPathByFamily != "off" {
 		bad("FAST_PATH_BY_FAMILY must be on or off, got %q", c.FastPathByFamily)
@@ -757,6 +776,9 @@ func (c Config) validate() error {
 // FamilyBars reports whether triage uses the per-subfamily bars (D63).
 func (c Config) FamilyBars() bool { return c.FastPathByFamily == "on" }
 
+// Calibrated reports whether calibrated probabilities are on (D160).
+func (c Config) Calibrated() bool { return c.Calibration == "on" }
+
 // String renders the config for startup logs; it holds no secrets.
 func (c Config) String() string {
 	fallback := "off"
@@ -765,7 +787,7 @@ func (c Config) String() string {
 	}
 	return fmt.Sprintf("provider=%s engine=%s router=%s verifier=%s fallback=%s k=%d fast_path=%.2f plan_conf=%.2f max_tool_calls=%d timeout=%s call_gap=%s max_in_flight=%d cloud_run=%t verifier_search=%s facts=%s cases=%s",
 		c.LLMProvider, c.EngineModel, c.RouterModel, c.VerifierModel, fallback, c.PrecedentK,
-		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore) + fmt.Sprintf(" audit=%t rate_store=%s", c.Audit, c.RateLimitStore)
+		c.FastPathConfidence, c.PlanConfidence, c.VerifierMaxToolCalls, c.LLMTimeout, c.LLMCallGap, c.LLMMaxInFlight, c.OnCloudRun, c.VerifierSearch, c.FactsDir, c.CasesStore) + fmt.Sprintf(" audit=%t rate_store=%s calibration=%s calibrated_fast_path=%.2f", c.Audit, c.RateLimitStore, c.Calibration, c.CalibratedFastPath)
 }
 
 // env parses typed values and collects parse errors.

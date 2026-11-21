@@ -68,6 +68,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/calibrate"
 	"log/slog"
 	"math"
 	"os"
@@ -1419,8 +1420,39 @@ func final2SummaryItems(resultsDir string) ([]evalsummary.Item, error) {
 	fp, flo, fhi := evalkit.Wilson(s.FastK, s.FastN)
 	return []evalsummary.Item{
 		{Key: "final2_accuracy", Label: label + " accuracy", Value: r6(s.Acc), CILow: r6(s.Lo), CIHigh: r6(s.Hi), N: s.N, Split: "final2", Source: src},
-		{Key: "final2_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r6(fp), CILow: r6(flo), CIHigh: r6(fhi), N: s.FastN, Split: "final2", Source: src},
+		{Key: "final2_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (calibrated confidence ≥ %.2f, the same cases as stated confidence ≥ %.2f, and in scope) accuracy", config.DefaultCalibratedFastPath, config.DefaultFastPath), Value: r6(fp), CILow: r6(flo), CIHigh: r6(fhi), N: s.FastN, Split: "final2", Source: src},
 		{Key: "final2_fastpath_coverage", Label: label + ": fast path coverage", Value: r6(float64(s.FastN) / float64(s.N)), N: s.N, Split: "final2", Source: src},
+	}, nil
+}
+
+// calibrationSummaryItems are the held-out calibration figures of the map the
+// server embeds (D160): mean stated confidence and mean calibrated
+// probability against accuracy, and ECE (one bin per value) for each. The map
+// was fitted on dev only; these rows are the held-out check.
+func calibrationSummaryItems(resultsDir string, run summaryRun) ([]evalsummary.Item, error) {
+	rows, err := readRows(filepath.Join(resultsDir, run.File), nil)
+	if err != nil {
+		return nil, err
+	}
+	m, err := calibrate.Load()
+	if err != nil {
+		return nil, err
+	}
+	var sc []calibrate.Scored
+	for _, r := range rows {
+		sc = append(sc, calibrate.Scored{Stated: r.Confidence, OK: r.Correct && r.Error == ""})
+	}
+	rep := m.Evaluate(sc)
+	// Six decimals: a page that rounds to one decimal of a percent must show
+	// the docs' 94.7%, not 94.8% from a value already rounded to 0.9475.
+	round := func(x float64) float64 { return math.Round(x*1e6) / 1e6 }
+	src := "eval/results/" + run.File + " + backend/internal/calibrate/map.json (" + m.Version + ", fitted on " + m.FittedOn + ")"
+	label := fmt.Sprintf("Held-out (%d rulings), calibration", rep.N)
+	return []evalsummary.Item{
+		{Key: "final_calibration_mean_stated", Label: label + ": mean stated confidence", Value: round(rep.MeanStated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_mean_calibrated", Label: label + ": mean calibrated probability", Value: round(rep.MeanCalibrated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_ece_stated", Label: label + ": ECE of stated confidence (one bin per value)", Value: round(rep.ECEStated), N: rep.N, Split: "final", Source: src},
+		{Key: "final_calibration_ece_calibrated", Label: label + ": ECE of calibrated probability (one bin per value)", Value: round(rep.ECECalibrated), N: rep.N, Split: "final", Source: src},
 	}, nil
 }
 
@@ -1517,7 +1549,7 @@ func summaryCmd(args []string) error {
 		items = append(items, item{Key: prefix + "_conf95_accuracy", Label: label + ": accuracy when confidence ≥ 0.95", Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.AtLeast95.N, Split: split, Source: src})
 		items = append(items, item{Key: prefix + "_conf95_coverage", Label: label + ": share of cases with confidence ≥ 0.95", Value: r4(float64(s.AtLeast95.N) / float64(s.N)), N: s.N, Split: split, Source: src})
 		p, lo, hi = pct(s.FastK, s.FastN)
-		items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (confidence ≥ %.2f and in scope) accuracy", config.DefaultFastPath), Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: scopeSrc})
+		items = append(items, item{Key: prefix + "_fastpath_accuracy", Label: label + fmt.Sprintf(": fast path (calibrated confidence ≥ %.2f, the same cases as stated confidence ≥ %.2f, and in scope) accuracy", config.DefaultCalibratedFastPath, config.DefaultFastPath), Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: s.FastN, Split: split, Source: scopeSrc})
 		items = append(items, item{Key: prefix + "_fastpath_coverage", Label: label + ": fast path coverage", Value: r4(float64(s.FastN) / float64(s.N)), N: s.N, Split: split, Source: scopeSrc})
 		items = append(items, item{Key: prefix + "_cost_per_case_usd", Label: label + ": cost per prediction (USD, promo price)", Value: r4(s.CostPerCase), N: s.N, Split: split, Source: src})
 		items = append(items, item{Key: prefix + "_latency_p50_s", Label: label + ": latency p50 (s, " + via + ")", Value: float64(s.LatencyP50) / 1000, Split: split, Source: src})
@@ -1555,6 +1587,13 @@ func summaryCmd(args []string) error {
 		return err
 	} else {
 		items = append(items, baseItems...)
+	}
+	if calItems, err := calibrationSummaryItems(*resultsDir, finalRun); errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(os.Stderr, "summary: skip calibration: %v\n", err)
+	} else if err != nil {
+		return err
+	} else {
+		items = append(items, calItems...)
 	}
 	if f2Items, err := final2SummaryItems(*resultsDir); errors.Is(err, os.ErrNotExist) {
 		fmt.Fprintf(os.Stderr, "summary: skip second held-out split: %v\n", err)
