@@ -557,7 +557,7 @@ func routerSummaryItems(dir string) ([]evalsummary.Item, error) {
 	for _, s := range []struct{ split, file, what string }{
 		{"dev", "route-dev-" + v + "-gemini-3.8-flash-litellm.jsonl", "development (before 2026)"},
 		{"final", "route-final-" + v + "-gemini-3.8-flash-litellm.jsonl", "held-out (Jan–Sep 2026)"},
-		{"final2", "route-final2-" + v + "-gemini-3.8-flash-litellm.jsonl", "post-cutoff held-out (28 Sep–13 Nov 2026)"},
+		{"final2", "route-final2-" + v + "-gemini-3.8-flash-litellm.jsonl", "post-cutoff (28 Sep–13 Nov 2026; NOT clean held-out for router-v3/v4: the \"trade programs\" cue came from reading this window's misses, #464)"},
 	} {
 		path := filepath.Join(dir, s.file)
 		rows, err := readRouteRows(path)
@@ -597,11 +597,11 @@ func routerSummaryItems(dir string) ([]evalsummary.Item, error) {
 		if err != nil {
 			return nil, err
 		}
-		add("all_regimes_final2_routed_accuracy", "All regimes, post-cutoff held-out (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router ("+v+") picks, each ruling once",
+		add("all_regimes_final2_routed_accuracy", "All regimes, post-cutoff (28 Sep–13 Nov 2026), routed path: each ruling answered by the engine the router ("+v+") picks, each ruling once. NOT clean held-out for router-v3/v4 (#464): without the 6 \"trade programs\" rulings it is 90/101, below router-v2's 91/101",
 			"final2", "eval/results/"+filepath.Base(routeFile)+" + the D211 and routed engine rows", k, n)
 	}
 	if k, n, err := routedScore(filepath.Join(dir, "route-final2-router-v2-d211.jsonl"), routedFiles(dir)); err == nil && v != router.PromptV2 {
-		add("all_regimes_final2_routed_accuracy_router_v2", "All regimes, post-cutoff held-out, routed path with the previous router (router-v2, as D211 ran it)",
+		add("all_regimes_final2_routed_accuracy_router_v2", "All regimes, post-cutoff, routed path with the previous router (router-v2, as D211 ran it). This is the baseline for router-v4, whose post-cutoff figure is NOT clean held-out (#464): without the 6 \"trade programs\" rulings v2 is 91/101, above v4's 90/101",
 			"final2", "eval/results/route-final2-router-v2-d211.jsonl + the D211 and routed-v2 engine rows", k, n)
 	}
 	return items, nil
