@@ -926,8 +926,10 @@ export function ProductStep() {
 
 // Inputs read as drawing-sheet fields: a firm edge on white, a blue edge and
 // a hard offset shadow when focused (the focus ring stays for keyboards).
+// focus-within, not focus: tabbing to the month, day or year part of a date
+// field focuses a part inside it, which only :focus-within matches.
 const input =
-  "h-11 w-full rounded-[2px] border border-edge bg-white px-3.5 text-[13.5px] text-ink placeholder:text-faint transition-shadow focus:border-ok focus:shadow-[3px_3px_0_var(--shadow)]";
+  "h-11 w-full rounded-[2px] border border-edge bg-white px-3.5 text-[13.5px] text-ink placeholder:text-faint transition-shadow focus-within:border-ok focus-within:shadow-[3px_3px_0_var(--shadow)] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent";
 
 // Table cells edit in place: quiet until hovered or focused.
 const cell =
