@@ -9,6 +9,13 @@
 //	    Run the router on labelled rulings of every regime in a date window
 //	    (dev window by default) and report how often each regime is routed
 //	    out of scope. Checks the scope guard; never touches the final split.
+//	eval route  -split dev|final|final2 [-prompt router-v2] [-confirm-final]
+//	    Run one router version on the router splits
+//	    (eval/splits/splits_router.json) and score the engine each case is
+//	    sent to against the engine its legal test belongs to (D230).
+//	eval routecompare -a BASE -b VARIANT
+//	    Paired comparison of two route files, overall and per gold engine,
+//	    with an exact McNemar test.
 //	eval plan   -fixture FILE [-search local|cross]
 //	    Run the planner end to end on a fixture (engine + verifier) and save
 //	    the result to eval/results/plan-<case>-<provider>.json.
@@ -118,6 +125,10 @@ func main() {
 		err = report(os.Args[2:])
 	case "scope":
 		err = scope(os.Args[2:])
+	case "route":
+		err = routeCmd(os.Args[2:])
+	case "routecompare":
+		err = routeCompareCmd(os.Args[2:])
 	case "plan":
 		err = planCmd(os.Args[2:])
 	case "predict":

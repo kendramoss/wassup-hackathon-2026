@@ -6,13 +6,21 @@ package router
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"slices"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/llm"
 )
 
-// PromptVersion is recorded with every route.
-const PromptVersion = "router-v2"
+// PromptVersion is the production router prompt, recorded with every route.
+// Other versions stay selectable for evaluation (NewVersion, eval route).
+const PromptVersion = PromptV2
+
+// Router prompt versions.
+const (
+	PromptV2 = "router-v2"
+	PromptV3 = "router-v3"
+)
 
 // routerMD is skill/specialists/ROUTER.md from
 // hackathon-research/experiments/origin-proof, verbatim.
@@ -44,8 +52,79 @@ Also return "regime": the origin rule CBP will apply to the question asked.
 - unclear: you cannot tell from the facts.
 Final JSON: {"route": ..., "subfamily": ..., "regime": ..., "reason": ...}`
 
-// System is the full router prompt.
-const System = routerMD + regimeAddendum
+// regimeAddendumV3 replaces regimeAddendum in router-v3 (D230). Error
+// analysis on the dev router split: router-v2 sent 37 of 70 dev Part 102
+// rulings (non-textile goods) to the general engine. Most are goods made or
+// finished in Canada or Mexico, where CBP decides origin under the Part 102
+// tariff-shift rules; router-v2 told the model not to pick usmca_part102 for
+// that cue. It also told the model nothing about how the route and the regime
+// relate, and scenario requests about drugs lost the pharma label. Tuned on
+// the dev router split only.
+const regimeAddendumV3 = `
+Also return "regime": the origin rule CBP will apply to the question asked. Decide it separately from "route": a scenario, set or commodity can have any regime.
+- textile_102_21: the product is a textile or apparel good (yarn, fabric, knit or woven garments, home textiles and bedding, sewn textile articles) classified in HTSUS chapters 50 to 63, whose origin follows the textile rules of 19 CFR 102.21. Goods classified outside those chapters (wipes, pads, diapers, footwear, furniture) are not textile goods even if they contain textile.
+- usmca_part102: CBP applies the Part 102 tariff-shift rules (19 CFR 102.11 and 102.20) to a non-textile good when: (a) the request asks about USMCA or NAFTA preference, eligibility, "trade programs" or "trade program status"; or (b) the good is made, processed, finished or assembled in Canada or Mexico (its last production step named in the facts is there) and the request asks its country of origin or marking. Choose usmca_part102 in these cases even when foreign components are named and even when the facts sound like a substantial-transformation question.
+- pharma_api: a drug, vitamin, supplement or medicinal preparation where the question turns on where the active pharmaceutical ingredient is made or processed. This holds for scenario requests too.
+- substantial_transformation: anything else, including goods last processed in Canada or Mexico when the request asks only about Section 301 duties or government procurement (Trade Agreements Act), and goods last processed outside Canada and Mexico with no USMCA or trade-program question.
+- unclear: you cannot tell from the facts.
+"reason" is one line that names both the route and the regime evidence.
+Final JSON: {"route": ..., "subfamily": ..., "regime": ..., "reason": ...}`
+
+// mentionsUSMCA matches a request that names the agreement. On the dev
+// router split no general-engine ruling's facts name it (0 of 547) and 34 of
+// 70 Part 102 rulings do (D230).
+var mentionsUSMCA = regexp.MustCompile(`(?i)\bUSMCA\b|\bNAFTA\b|United States[- ]Mexico[- ]Canada`)
+
+// usmcaRule is router-v3's deterministic check, applied after the model: a
+// general (or unclear) label on facts that name USMCA or NAFTA becomes
+// usmca_part102. Textile and pharmaceutical labels are kept.
+func usmcaRule(facts string, l Label) Label {
+	if (l.Regime == "substantial_transformation" || l.Regime == "unclear") && mentionsUSMCA.MatchString(facts) {
+		l.Regime = RegimeUSMCA
+		l.Rule = "usmca-named"
+	}
+	return l
+}
+
+// System is the full production router prompt.
+var System = prompts[PromptVersion].system
+
+// routerPrompt is one router version: its system prompt and the
+// deterministic rules applied to the facts before the model is asked (nil:
+// none).
+type routerPrompt struct {
+	system string
+	// after adjusts the model's label from the facts (nil: none); ruleText
+	// describes it for the prompt snapshot, so a change to the rule needs a
+	// version bump like a change to the prompt.
+	after    func(facts string, l Label) Label
+	ruleText string
+}
+
+var prompts = map[string]routerPrompt{
+	PromptV2: {system: routerMD + regimeAddendum},
+	PromptV3: {system: routerMD + regimeAddendumV3, after: usmcaRule,
+		ruleText: "after the model: regime substantial_transformation or unclear and facts match " + mentionsUSMCA.String() + " -> usmca_part102 (rule usmca-named)"},
+}
+
+// Versions lists the selectable router prompt versions, sorted.
+func Versions() []string {
+	var v []string
+	for k := range prompts {
+		v = append(v, k)
+	}
+	slices.Sort(v)
+	return v
+}
+
+// RuleText describes a router version's deterministic check ("" if none).
+func RuleText(version string) string { return prompts[version].ruleText }
+
+// SystemFor returns the system prompt of a router version.
+func SystemFor(version string) (string, bool) {
+	p, ok := prompts[version]
+	return p.system, ok
+}
 
 // Allowed values.
 var (
@@ -79,6 +158,9 @@ type Label struct {
 	InputTokens   int    `json:"input_tokens"`
 	OutputTokens  int    `json:"output_tokens"`
 	LatencyMS     int64  `json:"latency_ms"`
+	// Rule names the deterministic check that changed the model's regime
+	// (router-v3: "usmca-named"); empty when the model's label stands.
+	Rule string `json:"rule,omitempty"`
 }
 
 // RegimeTextile is the label for textile and apparel goods (19 CFR 102.21).
@@ -113,12 +195,28 @@ type Router struct {
 	model     llm.Model
 	modelID   string
 	maxTokens int
+	version   string
+	prompt    routerPrompt
 }
 
-// New returns a router using the given model ID (e.g. gemini-3.8-flash).
+// New returns a router with the production prompt using the given model ID
+// (e.g. gemini-3.8-flash).
 func New(model llm.Model, modelID string, maxTokens int) *Router {
-	return &Router{model: model, modelID: modelID, maxTokens: maxTokens}
+	r, _ := NewVersion(model, modelID, maxTokens, PromptVersion)
+	return r
 }
+
+// NewVersion returns a router with the named prompt version (Versions).
+func NewVersion(model llm.Model, modelID string, maxTokens int, version string) (*Router, error) {
+	p, ok := prompts[version]
+	if !ok {
+		return nil, fmt.Errorf("router: unknown prompt version %q (want one of %v)", version, Versions())
+	}
+	return &Router{model: model, modelID: modelID, maxTokens: maxTokens, version: version, prompt: p}, nil
+}
+
+// Version is the router's prompt version.
+func (r *Router) Version() string { return r.version }
 
 // RenderUser is the user message Classify sends.
 func RenderUser(facts string) string { return "CASE FACTS:\n" + facts }
@@ -127,7 +225,7 @@ func RenderUser(facts string) string { return "CASE FACTS:\n" + facts }
 func (r *Router) Classify(ctx context.Context, facts string) (Label, error) {
 	resp, err := r.model.Generate(ctx, llm.Request{
 		Model:           r.modelID,
-		System:          System,
+		System:          r.prompt.system,
 		Messages:        []llm.Message{{Role: llm.RoleUser, Content: RenderUser(facts)}},
 		JSONSchema:      Schema,
 		SchemaName:      "route",
@@ -143,7 +241,10 @@ func (r *Router) Classify(ctx context.Context, facts string) (Label, error) {
 	if !slices.Contains(Routes, l.Route) || !slices.Contains(Subfamilies, l.Subfamily) || !slices.Contains(Regimes, l.Regime) {
 		return Label{}, fmt.Errorf("router: classify: %w: route=%q subfamily=%q regime=%q", llm.ErrBadResponse, l.Route, l.Subfamily, l.Regime)
 	}
-	l.ModelID, l.Provider, l.PromptVersion = resp.ModelID, resp.Provider, PromptVersion
+	l.ModelID, l.Provider, l.PromptVersion = resp.ModelID, resp.Provider, r.version
 	l.InputTokens, l.OutputTokens, l.LatencyMS = resp.Usage.InputTokens, resp.Usage.OutputTokens, resp.Latency.Milliseconds()
+	if r.prompt.after != nil {
+		l = r.prompt.after(facts, l)
+	}
 	return l, nil
 }

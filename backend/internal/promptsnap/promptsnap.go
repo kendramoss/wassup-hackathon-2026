@@ -76,6 +76,9 @@ func Prompts() []Prompt {
 		{"engine.textile2", engine.TextileVersion2, engine.TextileSystem2},
 		{"router.system", router.PromptVersion, withSchema(router.System, router.Schema)},
 		{"router.user", router.PromptVersion, router.RenderUser(fixtureFacts)},
+		// Router versions kept selectable for evaluation (eval route, D230).
+		{"router.system.v2", router.PromptV2, withSchema(mustRouterSystem(router.PromptV2), router.Schema)},
+		{"router.system.v3", router.PromptV3, withSchema(mustRouterSystem(router.PromptV3), router.Schema)},
 		{"clarify.system", clarify.PromptVersion, withSchema(clarify.System, clarify.Schema)},
 		{"clarify.review", clarify.PromptVersion, clarify.RenderReview(fixtureFacts, pred, prec)},
 		{"clarify.answers", clarify.AnswersVersion, answers},
@@ -271,4 +274,15 @@ func Diff(old, cur Snapshot) []Problem {
 		}
 	}
 	return out
+}
+
+func mustRouterSystem(version string) string {
+	s, ok := router.SystemFor(version)
+	if !ok {
+		panic("promptsnap: no router prompt " + version)
+	}
+	if r := router.RuleText(version); r != "" {
+		s += "\n\n[deterministic check] " + r
+	}
+	return s
 }

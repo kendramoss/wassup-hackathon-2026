@@ -77,6 +77,14 @@
       "version": "router-v2",
       "sha256": "7b6bfeec948b5b66a03cf58b6a0d17e2fb9475e1c9825bfbfa686f6b37c91904"
     },
+    "router.system.v2": {
+      "version": "router-v2",
+      "sha256": "7b6bfeec948b5b66a03cf58b6a0d17e2fb9475e1c9825bfbfa686f6b37c91904"
+    },
+    "router.system.v3": {
+      "version": "router-v3",
+      "sha256": "321255499bfe4f0aaf10512280e5f6f6bc7cf639127bfbefe19711100455b1fa"
+    },
     "router.user": {
       "version": "router-v2",
       "sha256": "c4c3da4bf4fbed52add80e98461fac65c6b761effb5d5cedc2b3c97c7217fecb"
