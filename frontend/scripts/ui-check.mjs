@@ -318,6 +318,76 @@ for (const scheme of ["light", "dark"]) {
   }
 }
 
+// #548: the elapsed counter in a pending live region must not be announced
+// once a second. Enter both states with a delayed stub, let the counter tick,
+// and fail if the changing text is exposed to assistive tech.
+const delayed = async (route, body) => {
+  await new Promise((r) => setTimeout(r, 8000));
+  await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+};
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "/triage (running)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/triage (running)", console: String(e) }));
+  await page.route("**/api/v1/cases/batch", (route) =>
+    delayed(route, {
+      summary: { total: 1, failed: 0, auto: 0, needs_info: 0, needs_review: 1, out_of_scope: 0 },
+      rows: [],
+    }),
+  );
+  await page.goto(base + "/triage", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Try the sample/i }).click();
+  await page.getByRole("button", { name: /Triage 5 products/i }).click();
+  const region = page.locator('section[aria-live="polite"]');
+  await region.waitFor();
+  await page.waitForFunction(
+    () => [...document.querySelectorAll('section[aria-live="polite"] span')].some((s) => /^[1-9]\d* s$/.test(s.textContent.trim())),
+    null,
+    { timeout: 5000 },
+  );
+  const tick = await region.evaluate((el) => {
+    const t = [...el.querySelectorAll("span")].find((s) => /^\d+ s$/.test(s.textContent.trim()));
+    return { text: t?.textContent.trim() ?? null, hidden: Boolean(t?.closest('[aria-hidden="true"]')) };
+  });
+  if (!tick.text || !tick.hidden) problems.push({ page: "/triage (running)", focus: "ticking elapsed is exposed in a live region", ...tick });
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && problems.push({ page: "ask (pending)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "ask (pending)", console: String(e) }));
+  await page.route(`**/api/v1/cases/${reflowId}`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(reflowFixture) }),
+  );
+  await page.route(`**/api/v1/cases/${reflowId}/ask`, (route) => delayed(route, { reply: { answer: "ok" }, chat: [] }));
+  // The case shell estimates duty on mount; the local backend has no such
+  // endpoint for a pinned demo, so answer it to keep this state console-clean.
+  await page.route(`**/api/v1/cases/${reflowId}/plan/estimate`, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.goto(base + `/cases/${reflowId}`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Ask about this case/i }).first().click();
+  await page.getByRole("textbox", { name: "Your question" }).fill("Why China?");
+  await page.getByRole("button", { name: "Ask", exact: true }).click();
+  await page.waitForFunction(
+    () => {
+      const s = [...document.querySelectorAll('[role="status"]')].find((x) => x.textContent.includes("Reading the case"));
+      return [...(s?.querySelectorAll("span") ?? [])].some((x) => /^[1-9]\d* s$/.test(x.textContent.trim()));
+    },
+    null,
+    { timeout: 5000 },
+  );
+  const tick = await page.evaluate(() => {
+    const s = [...document.querySelectorAll('[role="status"]')].find((x) => x.textContent.includes("Reading the case"));
+    const t = [...s.querySelectorAll("span")].find((x) => /^\d+ s$/.test(x.textContent.trim()));
+    return { text: t?.textContent.trim() ?? null, hidden: Boolean(t?.closest('[aria-hidden="true"]')) };
+  });
+  if (!tick.text || !tick.hidden) problems.push({ page: "ask (pending)", focus: "ticking elapsed is exposed in a live region", ...tick });
+  await ctx.close();
+}
+
 await browser.close();
 await writeFile(`${out}/report.json`, JSON.stringify(problems, null, 2));
 console.log(`Screenshots and report.json in ${out}/ (${[...paths, reflowPath].join(", ")} x light/dark x desktop/mobile/narrow)`);

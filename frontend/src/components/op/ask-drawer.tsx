@@ -199,7 +199,9 @@ export function AskDrawer({ c, onClose, onChat }: { c: CaseResponse; onClose: ()
             <div data-latest="">
               <Q>{pending.q}</Q>
               <div className="mt-2.5 border border-dashed border-guide px-3.5 py-3 text-[12.5px] text-dim" role="status">
-                <span className="float-right">
+                {/* #548: role=status must announce the waiting message once,
+                    not a fresh elapsed second on every re-render. */}
+                <span className="float-right" aria-hidden="true">
                   <Elapsed since={pending.since} />
                 </span>
                 <b className="font-medium text-ink">Reading the case and earlier rulings…</b>

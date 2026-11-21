@@ -236,7 +236,11 @@ function Running({ count, since, onCancel }: { count?: number; since: number; on
     <section className="mt-8 border border-edge bg-sheet px-6 py-6 shadow-[4px_4px_0_var(--shadow)]" aria-live="polite">
       <p className="eyebrow">Triaging{count ? ` ${count} products` : ""}</p>
       <p className="mt-2 text-[44px] leading-none tracking-[-0.05em]">
-        <Elapsed since={since} />
+        {/* #548: this section is a live region; hide the ticking counter so
+            screen readers announce the status once, not a new second each time. */}
+        <span aria-hidden="true">
+          <Elapsed since={since} />
+        </span>
       </p>
       <div className="relative mt-5 h-1 overflow-hidden bg-wash" role="progressbar" aria-label="Triaging">
         <i className="absolute inset-y-0 w-1/3 animate-[slide_1.6s_ease-in-out_infinite] bg-ok" />
