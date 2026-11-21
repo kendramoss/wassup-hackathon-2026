@@ -9,6 +9,16 @@
 //	    Run the router on labelled rulings of every regime in a date window
 //	    (dev window by default) and report how often each regime is routed
 //	    out of scope. Checks the scope guard; never touches the final split.
+//	eval route  -split dev|final|final2 [-prompt router-v2] [-confirm-final]
+//	    Run one router version on the router splits
+//	    (eval/splits/splits_router.json) and score the engine each case is
+//	    sent to against the engine its legal test belongs to (D230).
+//	eval routecompare -a BASE -b VARIANT
+//	    Paired comparison of two route files, overall and per gold engine,
+//	    with an exact McNemar test.
+//	eval routed -route FILE -general F -textile F -pharma F -usmca F
+//	    The routed end-to-end path: each ruling scored with the engine its
+//	    router label picks, beside each ruling scored by its own engine.
 //	eval plan   -fixture FILE [-search local|cross]
 //	    Run the planner end to end on a fixture (engine + verifier) and save
 //	    the result to eval/results/plan-<case>-<provider>.json.
@@ -118,6 +128,12 @@ func main() {
 		err = report(os.Args[2:])
 	case "scope":
 		err = scope(os.Args[2:])
+	case "route":
+		err = routeCmd(os.Args[2:])
+	case "routecompare":
+		err = routeCompareCmd(os.Args[2:])
+	case "routed":
+		err = routedCmd(os.Args[2:])
 	case "plan":
 		err = planCmd(os.Args[2:])
 	case "predict":
@@ -180,6 +196,7 @@ func run(args []string) error {
 	confirmFinal := fl.Bool("confirm-final", false, "required to score a held-out split (final, final2)")
 	tag := fl.String("tag", "", "appended to the result file name, to keep a repeat run apart from an earlier file with the same configuration")
 	labelsPath := fl.String("labels", "../eval/data/labels.jsonl", "labels file(s), comma-separated; final2 needs ../eval/data/labels.jsonl,../eval/data/labels_final2.jsonl")
+	caseLabels := fl.String("case-labels", "", "extra label file(s), comma-separated, for split rulings missing from -labels; they are cases only, never precedents (D230: a regime engine run on another regime's rulings)")
 	splitsPath := fl.String("splits", "../eval/splits/splits_final.json", "splits file")
 	factsDir := fl.String("facts", "../data/corpus/facts", "facts directory (go run ./cmd/corpus build); comma-separated to add ../eval/data/facts_final2")
 	resultsDir := fl.String("results", "../eval/results", "results directory")
@@ -238,9 +255,21 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
+	var caseStore *corpus.Store
+	if *caseLabels != "" {
+		cl, err := loadLabelFiles(*caseLabels)
+		if err != nil {
+			return err
+		}
+		if caseStore, err = corpus.LoadDirs(cl, splitComma(*factsDir)...); err != nil {
+			return err
+		}
+	}
 	var cases []domain.Ruling
 	for _, id := range ids {
 		if r, ok := store.Get(id); ok {
+			cases = append(cases, r)
+		} else if r, ok := caseStoreGet(caseStore, id); ok {
 			cases = append(cases, r)
 		} else {
 			fmt.Fprintf(os.Stderr, "warning: %s has no facts or label; skipped\n", id)
@@ -430,7 +459,11 @@ func run(args []string) error {
 		go func(c domain.Ruling) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			row := evaluate(ctx, eng, rt, cfg, store, c, *split)
+			labelStore := store
+			if _, ok := store.Label(c.ID); !ok && caseStore != nil {
+				labelStore = caseStore // a -case-labels ruling: its label is there
+			}
+			row := evaluate(ctx, eng, rt, cfg, labelStore, c, *split)
 			row.Retrieval = *retrievalMode
 			if ctx.Err() != nil && row.Error != "" {
 				return // interrupted: leave the case for the next run
@@ -1713,6 +1746,11 @@ func summaryCmd(args []string) error {
 		return err
 	}
 	items = append(items, scopeItems...)
+	routerItems, err := routerSummaryItems(*resultsDir)
+	if err != nil {
+		return err
+	}
+	items = append(items, routerItems...)
 	cal, err := verifierCalibration(*resultsDir, config.DefaultPlanBar)
 	if err != nil {
 		return err
@@ -2247,7 +2285,7 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	}
 	if seen > 0 {
 		p, lo, hi := evalkit.Wilson(kept, seen)
-		items = append(items, evalsummary.Item{Key: "router_final2_out_of_scope_recall", Label: "Router, post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
+		items = append(items, evalsummary.Item{Key: "router_final2_out_of_scope_recall", Label: "Router-v2 (the router before D233), post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
 			Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: seen, Split: "final2",
 			Source: "eval/results/{pharma,usmca}-final2-*-router.jsonl (router_regime)"})
 	}
@@ -2368,9 +2406,9 @@ func scopeSummaryItems(dir, textileSplits string) ([]evalsummary.Item, error) {
 		return evalsummary.Item{Key: key, Label: label, Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: n, Split: "dev", DevelopmentOnly: true, Source: src}
 	}
 	return []evalsummary.Item{
-		item("router_out_of_scope_recall", "Router (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
-		item("router_textile_routing", "Router (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
-		item("router_false_out_of_scope", "Router (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
+		item("router_out_of_scope_recall", "Router-v2 (Jul–Dec 2025): pharmaceutical and USMCA rulings kept out of the substantial-transformation engine", oosK, oosN),
+		item("router_textile_routing", "Router-v2 (Jul–Dec 2025): textile (19 CFR 102.21) rulings sent to the textile engine", texK, texN),
+		item("router_false_out_of_scope", "Router-v2 (Jul–Dec 2025): substantial-transformation rulings wrongly sent out of scope", falseK, falseN),
 	}, nil
 }
 
@@ -2380,4 +2418,12 @@ func votesSuffix(votes int) string {
 		return fmt.Sprintf("-vote%d", votes)
 	}
 	return ""
+}
+
+// caseStoreGet looks a ruling up in the optional -case-labels store.
+func caseStoreGet(s *corpus.Store, id string) (domain.Ruling, bool) {
+	if s == nil {
+		return domain.Ruling{}, false
+	}
+	return s.Get(id)
 }

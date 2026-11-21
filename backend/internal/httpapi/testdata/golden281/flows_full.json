@@ -13,7 +13,7 @@
    "case_agent": "case-agent-v4",
    "clarify": "clarify-v2",
    "engine": "engine-v1",
-   "router": "router-v2",
+   "router": "router-v4",
    "verifier": "verifier-v1"
   },
   "targets": [
@@ -832,7 +832,7 @@
    "case_agent": "case-agent-v4",
    "clarify": "clarify-v2",
    "engine": "engine-v1",
-   "router": "router-v2",
+   "router": "router-v4",
    "verifier": "verifier-v1"
   },
   "router": {
@@ -1607,7 +1607,7 @@
    "case_agent": "case-agent-v4",
    "clarify": "clarify-v2",
    "engine": "engine-v1",
-   "router": "router-v2",
+   "router": "router-v4",
    "verifier": "verifier-v1"
   }
  },
@@ -2124,7 +2124,7 @@
     "case_agent": "case-agent-v4",
     "clarify": "clarify-v2",
     "engine": "engine-v1",
-    "router": "router-v2",
+    "router": "router-v4",
     "verifier": "verifier-v1"
    }
   },
@@ -3109,7 +3109,7 @@
    "case_agent": "case-agent-v4",
    "clarify": "clarify-v2",
    "engine": "engine-v1",
-   "router": "router-v2",
+   "router": "router-v4",
    "verifier": "verifier-v1"
   },
   "router": {

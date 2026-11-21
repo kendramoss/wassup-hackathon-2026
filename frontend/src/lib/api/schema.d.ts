@@ -1165,7 +1165,7 @@ export interface components {
             /**
              * @example {
              *       "engine": "engine-v1",
-             *       "router": "router-v2"
+             *       "router": "router-v4"
              *     }
              */
             prompt_versions: {
@@ -1303,6 +1303,11 @@ export interface components {
             /** @enum {string} */
             regime?: "substantial_transformation" | "textile_102_21" | "usmca_part102" | "pharma_api" | "unclear";
             reason?: string;
+            /**
+             * @description Present when a deterministic check after the model changed the regime (router-v4, D232): usmca-named (the facts name USMCA or NAFTA, so usmca_part102) or no-part102-cue (a usmca_part102 label on facts with no classification, marking, trade-program or USMCA wording, so substantial_transformation).
+             * @enum {string}
+             */
+            rule?: "usmca-named" | "no-part102-cue";
         };
         CaseResponse: components["schemas"]["Meta"] & {
             id?: string;

@@ -1,0 +1,7 @@
+{
+ "frozen_at": null,
+ "rule": "D230 routed path: post-cutoff rulings the router (eval/results/route-final2-router-v2-d211.jsonl) sends to the usmca_part102 engine that the D211 run of that engine did not score; each pair is run once.",
+ "final2": [
+  "N365940"
+ ]
+}

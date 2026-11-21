@@ -502,3 +502,32 @@ func TestAllRegimesFigures(t *testing.T) {
 		t.Error("a split ruling missing from its result file was accepted")
 	}
 }
+
+// TestRouterFigures recomputes the router's dev routing per gold engine and
+// router-v2's routed path on the post-cutoff rulings (D230-D232).
+func TestRouterFigures(t *testing.T) {
+	f := newFixture(t)
+	kv, problems := Compute(f.root)
+	if len(problems) > 0 {
+		t.Fatal(problems)
+	}
+	for k, want := range map[string]string{
+		"router.dev.v2.all.correct": "1", "router.dev.v2.all.n": "2", "router.dev.v2.specialist.correct": "0",
+		"router.dev.v3.general.correct": "0", "router.dev.v3.usmca_part102.correct": "1",
+		"router.dev.v4.all.pct": "100.0", "router.dev.v4.all.n": "2",
+		"router.w2.routed.v2.correct": "3", "router.w2.routed.v2.n": "5", "router.w2.routed.v2.pct": "60.0", "router.w2.routed.v2.sent_elsewhere": "2",
+		"router.final.v2.all.correct": "1", "router.final.v4.all.correct": "2", "router.final2.v4.general.correct": "1",
+		"router.w2.routed.v4.correct": "3", "router.w2.routed.v4.sent_elsewhere": "1",
+	} {
+		if got := lookup(kv, k); got != want {
+			t.Errorf("%s = %q, want %q", k, got, want)
+		}
+	}
+	// A routed ruling with no prediction from the engine it was sent to.
+	f.edit(t, "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-routed-v2.jsonl", func(string) string {
+		return fxEngine("P2", "2026-10-04", true, "Australia", .9)
+	})
+	if _, problems := Compute(f.root); len(problems) == 0 {
+		t.Fatal("a missing routed prediction passed")
+	}
+}

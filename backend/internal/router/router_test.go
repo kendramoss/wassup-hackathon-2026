@@ -49,3 +49,79 @@ func TestClassifyRejectsUnknownValues(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+func TestNewVersion(t *testing.T) {
+	if _, err := NewVersion(llm.FakeText("{}"), "m", 100, "router-v9"); err == nil {
+		t.Fatal("unknown version accepted")
+	}
+	for _, v := range Versions() {
+		sys, ok := SystemFor(v)
+		if !ok || !strings.Contains(sys, "Do not decide origin") {
+			t.Errorf("%s: system prompt missing", v)
+		}
+	}
+	if s, _ := SystemFor(PromptVersion); s != System {
+		t.Error("System is not the production version's prompt")
+	}
+}
+
+func TestV3USMCARule(t *testing.T) {
+	answer := func(regime string) *llm.Fake {
+		return llm.FakeText(`{"route":"assembly","subfamily":"motorised","regime":"` + regime + `","reason":"x"}`)
+	}
+	for _, tc := range []struct {
+		regime, facts, want, rule string
+	}{
+		{"substantial_transformation", "You ask whether the pump qualifies for USMCA preference.", RegimeUSMCA, "usmca-named"},
+		{"unclear", "A NAFTA ruling on a valve.", RegimeUSMCA, "usmca-named"},
+		{"substantial_transformation", "A heat gun assembled in Vietnam.", "substantial_transformation", ""},
+		{RegimeTextile, "Knit shirts; USMCA preference requested.", RegimeTextile, ""},
+		{RegimePharma, "Tablets; NAFTA.", RegimePharma, ""},
+		{"substantial_transformation", "Made by usmcab corp.", "substantial_transformation", ""},
+	} {
+		r, err := NewVersion(answer(tc.regime), "m", 100, PromptV3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		l, err := r.Classify(context.Background(), tc.facts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if l.Regime != tc.want || l.Rule != tc.rule || l.PromptVersion != PromptV3 {
+			t.Errorf("%q / %s: got %s rule %q version %s", tc.facts, tc.regime, l.Regime, l.Rule, l.PromptVersion)
+		}
+	}
+	// router-v2 has no rule.
+	r, _ := NewVersion(answer("substantial_transformation"), "m", 100, PromptV2)
+	if l, _ := r.Classify(context.Background(), "USMCA preference"); l.Regime != "substantial_transformation" || l.PromptVersion != PromptV2 {
+		t.Errorf("router-v2 changed the label: %+v", l)
+	}
+}
+
+func TestV4(t *testing.T) {
+	v3, _ := SystemFor(PromptV3)
+	v4, _ := SystemFor(PromptV4)
+	if v3 == v4 || !strings.Contains(v4, "heading 3005") || strings.Contains(v4, "classified in HTSUS chapters 50 to 63, whose") {
+		t.Fatal("router-v4 textile scope not applied")
+	}
+	answer := func(regime string) *llm.Fake {
+		return llm.FakeText(`{"route":"assembly","subfamily":"other","regime":"` + regime + `","reason":"x"}`)
+	}
+	for _, tc := range []struct{ regime, facts, want, rule string }{
+		{RegimeUSMCA, "Earrings assembled in Canada from Chinese parts.", "substantial_transformation", "no-part102-cue"},
+		{RegimeUSMCA, "Pumps assembled in Mexico; the parts are classified in heading 8413.", RegimeUSMCA, ""},
+		{RegimeUSMCA, "Valves finished in Mexico; how should they be marked?", RegimeUSMCA, ""},
+		{RegimeUSMCA, "Bicycles assembled in Canada; USMCA eligibility.", RegimeUSMCA, ""},
+		{"substantial_transformation", "Is this USMCA originating?", RegimeUSMCA, "usmca-named"},
+		{"substantial_transformation", "Assembled in Vietnam.", "substantial_transformation", ""},
+	} {
+		r, _ := NewVersion(answer(tc.regime), "m", 100, PromptV4)
+		l, err := r.Classify(context.Background(), tc.facts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if l.Regime != tc.want || l.Rule != tc.rule {
+			t.Errorf("%q / %s: got %s rule %q", tc.facts, tc.regime, l.Regime, l.Rule)
+		}
+	}
+}
