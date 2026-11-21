@@ -25,6 +25,12 @@
 //	    Walk a range of ruling numbers through /api/ruling/<id> (~1 request/s)
 //	    and save the origin rulings dated on or after -since; every number
 //	    and its answer go to eval/data/final2_probe.jsonl (D150).
+//	corpus label-check [-labels F] [-out F]
+//	    Re-label every ruling of labels.jsonl with corpus.LabelRuling and
+//	    report the agreement (regime, multi-country, held origin; D150).
+//	corpus final2-label [-index F] [-since 2026-09-26] [-manual F]
+//	    Label the rulings the probe saved, write their facts and
+//	    eval/data/labels_final2.jsonl (D150).
 //	corpus hts-index [-labels F] [-raw DIR] [-out FILE]
 //	    List the rulings whose text states the HTS subheading CBP applied
 //	    (data/hts_index.json, for POST /v1/products/hts-suggest, D64).
@@ -66,7 +72,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|probe|label-check|final2-label [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -91,6 +97,10 @@ func main() {
 		err = htsIndex(os.Args[2:])
 	case "probe":
 		err = probe(os.Args[2:])
+	case "label-check":
+		err = labelCheck(os.Args[2:])
+	case "final2-label":
+		err = final2Label(os.Args[2:])
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
