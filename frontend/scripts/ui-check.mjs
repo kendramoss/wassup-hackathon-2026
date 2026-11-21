@@ -214,6 +214,39 @@ for (const scheme of ["light", "dark"]) {
           problems.push({ page: `${path} (modal)`, vp, scheme, focus: "Escape did not return focus to the opener", ...restored });
         }
       }
+
+      // #539: a keyboard-opened popup must close when Tab carries focus out
+      // of the whole widget, not only on Escape or an outside mouse click.
+      // Both the case switcher (top bar of a case page) and the ⋯ row menu on
+      // /cases were observed staying open while focus moved on down the page.
+      const popups = [
+        { path: draftPath, selector: 'button[aria-label$="Switch case"]', name: "case switcher", max: 20 },
+        { path: "/cases", selector: 'button[aria-label^="Actions for"]', name: "row menu", max: 10 },
+      ];
+      for (const popup of popups) {
+        if (path !== popup.path) continue;
+        const trigger = page.locator(popup.selector).first();
+        if (!(await trigger.count())) continue;
+        await trigger.focus();
+        await page.keyboard.press("Enter");
+        if (vp === "desktop" && scheme === "light") {
+          await page.screenshot({ path: `${out}/${popup.name.replace(/\s+/g, "-")}-open-${vp}-${scheme}.png`, fullPage: true });
+        }
+        let left = false;
+        for (let i = 0; i < popup.max; i++) {
+          await page.keyboard.press("Tab");
+          left = await page.evaluate((sel) => {
+            const b = document.querySelector(sel);
+            return Boolean(b && !b.parentElement?.contains(document.activeElement));
+          }, popup.selector);
+          if (left) break;
+        }
+        const expanded = await trigger.getAttribute("aria-expanded");
+        const stillOpen = await page.locator('div[role="menu"]').count();
+        if (!left || expanded !== "false" || stillOpen) {
+          problems.push({ page: `${path} (${popup.name})`, vp, scheme, focus: "popup stayed open after Tab left it", left, expanded, stillOpen });
+        }
+      }
     }
     await ctx.close();
   }

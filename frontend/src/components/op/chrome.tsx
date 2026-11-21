@@ -316,7 +316,15 @@ function CaseSwitcher({ caseId, title }: { caseId?: string; title: ReactNode }) 
     };
   }, [open]);
   return (
-    <div className="relative min-w-0" ref={ref}>
+    <div
+      className="relative min-w-0"
+      ref={ref}
+      // #539: a menu-button popup must dismiss when focus leaves both the
+      // button and its menu, not just on Escape or an outside mouse click.
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
       <button
         ref={btn}
         type="button"
