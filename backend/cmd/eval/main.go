@@ -515,7 +515,7 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 	res, err := eng.Predict(ctx, domain.Case{ID: c.ID, Date: c.Date, Facts: c.Facts})
 	row.GatewayCostUSD = tally.USD()
 	if err != nil {
-		row.Error = err.Error()
+		row.Error, row.ErrorClass = err.Error(), errorClass(err)
 		return row
 	}
 	p := res.Prediction
@@ -530,6 +530,19 @@ func evaluate(ctx context.Context, eng *engine.Engine, rt *router.Router, cfg co
 	row.InScope = inScope
 	row.TriageRoute = string(triage.Decide(p, cfg.FastPathConfidence, inScope, scopeReason).Route)
 	return row
+}
+
+// errorClass names what kind of failure a case's error is (evalkit.Row
+// ErrorClass, D261): a provider outage the case may get past on a re-run, or
+// an unusable answer, which a re-run would only hide.
+func errorClass(err error) string {
+	switch {
+	case llm.Unavailable(err):
+		return "unavailable"
+	case errors.Is(err, llm.ErrBadResponse):
+		return "bad_response"
+	}
+	return ""
 }
 
 func newModel(ctx context.Context, cfg config.Config, logger *slog.Logger) (llm.Model, error) {

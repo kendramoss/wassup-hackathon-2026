@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"os"
+	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -206,6 +207,14 @@ type Report struct {
 	// outage), so the accuracy check was not judged (D88).
 	Inconclusive       bool
 	N, Correct, Errors int
+	// Unavailable counts the Errors that are provider outages still failing
+	// after the slice's retry (D261): they count as wrong for the gate, but
+	// they are not wrong answers. Retried and Recovered count cases re-run
+	// after a provider outage and those that then answered.
+	Unavailable, Retried, Recovered int
+	// UnavailableNoRetry is the part of Unavailable that was never re-run
+	// (a file from before D261, or -retry=false).
+	UnavailableNoRetry int
 	Band95N, Band95K   int
 	Checks             []Check
 	// Fixed and Broken are rulings the run gets right / wrong that the
@@ -240,6 +249,20 @@ func Compare(base Baseline, rows []evalkit.Row, tol Tolerance) Report {
 	}
 	s := evalkit.Summarize(cur)
 	rep := Report{N: s.N, Correct: s.Correct, Errors: s.Errors, Band95N: s.AtLeast95.N, Band95K: s.AtLeast95.K}
+	for _, r := range cur {
+		if r.Retries > 0 {
+			rep.Retried++
+			if r.Error == "" {
+				rep.Recovered++
+			}
+		}
+		if r.Error != "" && Transient(r) {
+			rep.Unavailable++
+			if r.Retries == 0 {
+				rep.UnavailableNoRetry++
+			}
+		}
+	}
 	for i, c := range base.Cases {
 		now := cur[i].Correct && cur[i].Error == ""
 		switch {
@@ -287,8 +310,17 @@ func (r Report) Markdown(title string, base Baseline) string {
 	}
 	fmt.Fprintf(&b, "## %s: %s\n\n", title, verdict)
 	fmt.Fprintf(&b, "- Baseline: `%s` (%s, %s, %s)\n", base.Source, base.Provider, base.Model, base.PromptVersion)
-	if r.Errors > 0 && !r.Inconclusive {
-		fmt.Fprintf(&b, "- %d of %d cases failed or are missing; counted as wrong\n", r.Errors, r.N)
+	if r.Retried > 0 {
+		fmt.Fprintf(&b, "- %d cases hit a model provider error (timeout, 5xx or 429) and were run once more after a cool-down; %d answered\n", r.Retried, r.Recovered)
+	}
+	if n := r.Unavailable - r.UnavailableNoRetry; n > 0 {
+		fmt.Fprintf(&b, "- %d cases unavailable after retry (model provider errors, not wrong answers); counted as wrong for the gate\n", n)
+	}
+	if r.UnavailableNoRetry > 0 {
+		fmt.Fprintf(&b, "- %d cases failed with a model provider error and were not re-run (not wrong answers); counted as wrong for the gate\n", r.UnavailableNoRetry)
+	}
+	if other := r.Errors - r.Unavailable; other > 0 {
+		fmt.Fprintf(&b, "- %d of %d cases failed for another reason or are missing; counted as wrong\n", other, r.N)
 	}
 	for _, c := range r.Checks {
 		mark := "pass"
@@ -306,6 +338,23 @@ func list(ids []string) string {
 		return "none"
 	}
 	return strings.Join(ids, ", ")
+}
+
+// transientText matches provider-outage errors in rows written before
+// error_class existed: retries exhausted, a 429 or 5xx, or a deadline.
+var transientText = regexp.MustCompile(`model provider unavailable|model_unavailable|HTTP (429|5\d\d)\b|deadline exceeded|Deadline expired|Client\.Timeout|i/o timeout`)
+
+// Transient reports whether a row failed because the model provider was busy
+// or down (a timeout, a 5xx, a 429), which a later re-run may not hit, rather
+// than because the answer was unusable or the case is missing (D261).
+func Transient(r evalkit.Row) bool {
+	if r.Error == "" {
+		return false
+	}
+	if r.ErrorClass != "" {
+		return r.ErrorClass == "unavailable"
+	}
+	return transientText.MatchString(r.Error)
 }
 
 // LoadSlice reads a slice file.

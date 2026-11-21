@@ -14,6 +14,9 @@ package main
 //	    has more than EVAL_SLICE_MAX_DROP fewer correct cases than the
 //	    baseline, or its accuracy at confidence ≥ 0.95 is under
 //	    EVAL_SLICE_BAND_MIN. .github/workflows/eval-slice.yml runs this.
+//	    A case that failed with a model provider error (timeout, 5xx, 429)
+//	    is re-run once after -retry-cooldown (D261); one that fails again is
+//	    reported as "unavailable after retry" and still counts as wrong.
 
 import (
 	"context"
@@ -59,6 +62,9 @@ func sliceCmd(args []string) error {
 	out := fl.String("out", "", "result file of the live run (default ../eval/results/slice30-<prompt>-<provider>.jsonl, overwritten)")
 	workers := fl.Int("workers", 6, "concurrent model calls")
 	useRouter := fl.Bool("router", true, "also run the router (its scope label is reported, not scored)")
+	retry := fl.Bool("retry", true, "re-run once, after -retry-cooldown, each case that failed with a model provider error (timeout, 5xx, 429)")
+	retryCool := fl.Duration("retry-cooldown", 60*time.Second, "wait before re-running cases that hit a provider error")
+	retryBudget := fl.Duration("retry-budget", 3*time.Minute, "time allowed for the re-runs after the cool-down; a case still running then stays unavailable (keeps the CI job under its 20-minute limit)")
 	_ = fl.Parse(args)
 
 	if *pick {
@@ -94,7 +100,7 @@ func sliceCmd(args []string) error {
 		if !cfg.EvalSlice {
 			return errors.New("slice: the live run makes model calls; set EVAL_SLICE=on (or pass -in FILE to compare an existing run)")
 		}
-		if resultPath, err = sliceRun(cfg, s, *labelsPath, *factsDir, *out, *workers, *useRouter); err != nil {
+		if resultPath, err = sliceRun(cfg, s, *labelsPath, *factsDir, *out, *workers, *useRouter, retryPolicy{on: *retry, cool: *retryCool, budget: *retryBudget, wait: sleepCtx}); err != nil {
 			return err
 		}
 	}
@@ -164,7 +170,7 @@ func slicePick(from, adjustPath, slicePath, basePath string) error {
 // sliceRun predicts every slice ruling with the production engine setup
 // (engine-v1, BM25 over the bundled corpus, K from the config) into a fresh
 // result file and returns its path.
-func sliceRun(cfg config.Config, s evalslice.Slice, labelsPath, factsDir, out string, workers int, useRouter bool) (string, error) {
+func sliceRun(cfg config.Config, s evalslice.Slice, labelsPath, factsDir, out string, workers int, useRouter bool, rp retryPolicy) (string, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -199,11 +205,13 @@ func sliceRun(cfg config.Config, s evalslice.Slice, labelsPath, factsDir, out st
 		out = filepath.Join("../eval/results", name+".jsonl")
 	}
 	start := time.Now()
-	rows := runCases(ctx, cases, workers, func(c domain.Ruling) evalkit.Row {
+	eval := func(ctx context.Context, c domain.Ruling) evalkit.Row {
 		row := evaluate(ctx, eng, rt, cfg, store, c, "slice30")
 		row.Retrieval = "bm25"
 		return row
-	})
+	}
+	rows := runCases(ctx, cases, workers, func(c domain.Ruling) evalkit.Row { return eval(ctx, c) })
+	rows = retryTransient(ctx, cases, rows, workers, rp, eval)
 	if err := writeRows(out, rows); err != nil {
 		return "", err
 	}
@@ -252,4 +260,71 @@ func writeRows(path string, rows []evalkit.Row) error {
 		}
 	}
 	return f.Close()
+}
+
+// retryPolicy is how eval slice handles cases that failed with a model
+// provider error (D261). wait is time.Sleep that stops on cancel; tests
+// replace it.
+type retryPolicy struct {
+	on     bool
+	cool   time.Duration
+	budget time.Duration // 0: no limit beyond the run's own context
+	wait   func(context.Context, time.Duration) error
+}
+
+// retryTransient re-runs, once and after a cool-down, every case whose row
+// failed with a provider outage (a timeout, a 5xx or a 429; evalslice.
+// Transient). Vertex 504s after the client's own retries otherwise count as
+// wrong answers and decide the gate. A case that fails again keeps its error
+// and is reported as unavailable after retry; it still counts as wrong. Bad
+// answers and other errors are never re-run: a second try would hide them.
+func retryTransient(ctx context.Context, cases []domain.Ruling, rows []evalkit.Row, workers int, rp retryPolicy, eval func(context.Context, domain.Ruling) evalkit.Row) []evalkit.Row {
+	if !rp.on {
+		return rows
+	}
+	var idx []int
+	for i, r := range rows {
+		if evalslice.Transient(r) {
+			idx = append(idx, i)
+		}
+	}
+	if len(idx) == 0 {
+		return rows
+	}
+	fmt.Fprintf(os.Stderr, "%d slice cases hit a model provider error; re-running them once after %s\n", len(idx), rp.cool)
+	if err := rp.wait(ctx, rp.cool); err != nil {
+		return rows
+	}
+	again := make([]domain.Ruling, len(idx))
+	for j, i := range idx {
+		again[j] = cases[i]
+	}
+	// The re-runs get a time budget: one case's own client retries can take
+	// four minutes against a struggling provider, and the workflow allows
+	// twenty for the whole job. A re-run cut off by it keeps an outage error.
+	rctx := ctx
+	if rp.budget > 0 {
+		var cancel context.CancelFunc
+		rctx, cancel = context.WithTimeout(ctx, rp.budget)
+		defer cancel()
+	}
+	redo := runCases(rctx, again, workers, func(c domain.Ruling) evalkit.Row { return eval(rctx, c) })
+	out := append([]evalkit.Row(nil), rows...)
+	for j, i := range idx {
+		r := redo[j]
+		r.Retries, r.RetriedError = rows[i].Retries+1, rows[i].Error
+		out[i] = r
+	}
+	return out
+}
+
+func sleepCtx(ctx context.Context, d time.Duration) error {
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-t.C:
+		return nil
+	}
 }
