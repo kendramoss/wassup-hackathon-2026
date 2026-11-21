@@ -252,6 +252,8 @@ The rule picks 0.90, the step stated 0.92 maps to, so the product accepts exactl
 
 The model emits about 11 distinct confidence values, so the first ECE uses one bin per value. The standard 10-bin ECE puts every case from 0.90 to 1.00 in one bin and reads lower. ECE on a few hundred cases is biased upward; the intervals show how wide it is.
 
+**What the intervals do and do not include.** The Wilson intervals and the fixed-seed bootstrap resample the same 377 or 463 labelled rows. They describe sampling error conditional on one scored run and approximately independent rows. They do **not** include variance across prompt/model/gateway runs, label error, the fitted calibration map, or the temporal and near-duplicate structure of split construction (the second split has 62 distinct subjects in 83 rulings, and earlier held-out rulings occupy 414 of 1,885 precedent slots in the first). The three development runs of D190 measure run-to-run changes separately, but the official held-out figures remain one run.
+
 ### 4.3 What we'd add next (planned)
 
 - **Multi-run variance.** The official engine numbers are one scored run. Earlier proxy runs moved fast-path coverage by about 3 points between runs (`eval/RESULTS.md`). Three or more seeded runs on dev would give a measured spread.
