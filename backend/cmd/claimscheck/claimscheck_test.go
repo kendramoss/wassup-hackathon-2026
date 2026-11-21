@@ -476,3 +476,29 @@ func TestCalibratedBarMustMatchStatedBar(t *testing.T) {
 		t.Fatalf("problems = %v, want a calibrated-bar mismatch", problems)
 	}
 }
+
+// TestAllRegimesFigures recomputes the D210 figures: per regime and window,
+// the sum of the splits and the de-duplicated pool, where a ruling in both
+// the textile and the Part 102 split counts once, under Part 102.
+func TestAllRegimesFigures(t *testing.T) {
+	f := newFixture(t)
+	kv, problems := Compute(f.root)
+	if len(problems) > 0 {
+		t.Fatal(problems)
+	}
+	for k, want := range map[string]string{
+		"regimes.w1.st.correct": "8", "regimes.w1.textile.correct": "2", "regimes.w1.part102.correct": "1",
+		"regimes.w1.overlap": "1", "regimes.w1.sum.n": "15", "regimes.w1.sum.correct": "12",
+		"regimes.w1.dedup.n": "14", "regimes.w1.dedup.correct": "11",
+		"regimes.w2.part102.correct": "1", "regimes.w2.sum.n": "5", "regimes.w2.sum.correct": "3", "regimes.w2.overlap": "0",
+		"regimes.all.sum.pct": "75.0", "regimes.all.dedup.n": "19", "regimes.all.dedup.correct": "14", "regimes.all.dedup.pct": "73.7",
+	} {
+		if got := lookup(kv, k); got != want {
+			t.Errorf("%s = %q, want %q", k, got, want)
+		}
+	}
+	f.edit(t, "eval/splits/splits_pharma_final2.json", func(string) string { return `{"final2":["P2","P3"]}` })
+	if _, problems := Compute(f.root); len(problems) == 0 {
+		t.Error("a split ruling missing from its result file was accepted")
+	}
+}

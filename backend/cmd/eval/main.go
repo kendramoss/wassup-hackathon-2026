@@ -2197,7 +2197,101 @@ func regimeSummaryItems(dir string) ([]evalsummary.Item, error) {
 	if err := add("usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "usmca_final", "Part 102 marking-origin rules, held-out (2026, usmca-v1)"); err != nil {
 		return nil, err
 	}
+	// D210: each regime's post-cutoff split (28 Sep-13 Nov 2026), frozen
+	// first and scored once through the gateway with the production engine.
+	for _, r := range []struct{ file, key, label string }{
+		{"textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl", "textile_final2_accuracy", "Textile rules, post-cutoff held-out (Sep–Nov 2026, textile-v2, gateway) accuracy"},
+		{"pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", "pharma_final2_accuracy", "Pharmaceutical rules, post-cutoff held-out (Sep–Nov 2026, pharma-v1, gateway) accuracy; under 10 rulings"},
+		{"usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl", "usmca_final2_accuracy", "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway) accuracy"},
+	} {
+		path := filepath.Join(dir, r.file)
+		if _, err := os.Stat(path); err != nil {
+			fmt.Fprintf(os.Stderr, "summary: skip %s: %v\n", r.file, err)
+			continue
+		}
+		rows, err := readRows(path, nil)
+		if err != nil {
+			return nil, err
+		}
+		s := evalkit.Summarize(rows)
+		items = append(items, evalsummary.Item{Key: r.key, Label: r.label, Value: r4(s.Acc), CILow: r4(s.Lo), CIHigh: r4(s.Hi), N: s.N, Split: "final2", Source: "eval/results/" + r.file})
+	}
+	// The router on the same post-cutoff rulings: pharmaceutical and Part 102
+	// cases it kept away from the substantial-transformation engine (D211).
+	var kept, seen int
+	for _, f := range []string{"pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", "usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl"} {
+		rows, err := readRows(filepath.Join(dir, f), nil)
+		if err != nil {
+			continue
+		}
+		for _, r := range rows {
+			seen++
+			if r.RouterRegime == "pharma_api" || r.RouterRegime == "usmca_part102" {
+				kept++
+			}
+		}
+	}
+	if seen > 0 {
+		p, lo, hi := evalkit.Wilson(kept, seen)
+		items = append(items, evalsummary.Item{Key: "router_final2_out_of_scope_recall", Label: "Router, post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
+			Value: r4(p), CILow: r4(lo), CIHigh: r4(hi), N: seen, Split: "final2",
+			Source: "eval/results/{pharma,usmca}-final2-*-router.jsonl (router_regime)"})
+	}
+	if it, ok, err := allRegimesItem(dir); err != nil {
+		return nil, err
+	} else if ok {
+		items = append(items, it)
+	}
 	return items, nil
+}
+
+// allRegimesItem pools every regime's held-out run in both windows, each
+// ruling once: a ruling in both the textile and the Part 102 split counts
+// under Part 102 (D210). The same figure is recomputed by claimscheck
+// (regimes.all.dedup.*) and by eval/charts/build_accuracy.py.
+func allRegimesItem(dir string) (evalsummary.Item, bool, error) {
+	windows := [][4]string{
+		{"final-gemini-4-argon-prec-engine-v1-vertex.jsonl", "textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl",
+			"pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", "usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"},
+		{"final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl", "textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl",
+			"pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", "usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl"},
+	}
+	var n, k int
+	for _, w := range windows {
+		got := make([]map[string]bool, len(w))
+		for i, f := range w {
+			path := filepath.Join(dir, f)
+			if _, err := os.Stat(path); err != nil {
+				fmt.Fprintf(os.Stderr, "summary: skip all-regimes item: %v\n", err)
+				return evalsummary.Item{}, false, nil
+			}
+			rows, err := readRows(path, nil)
+			if err != nil {
+				return evalsummary.Item{}, false, err
+			}
+			got[i] = map[string]bool{}
+			for _, r := range rows {
+				got[i][r.Ruling] = r.Correct && r.Error == ""
+			}
+		}
+		for i, m := range got {
+			for id, ok := range m {
+				if _, both := got[3][id]; i == 1 && both {
+					continue // textile and Part 102: counted under Part 102
+				}
+				n++
+				if ok {
+					k++
+				}
+			}
+		}
+	}
+	p, lo, hi := evalkit.Wilson(k, n)
+	r6 := func(x float64) float64 { return math.Round(x*1e6) / 1e6 }
+	return evalsummary.Item{Key: "all_regimes_heldout_accuracy",
+		Label: "All regimes, both held-out windows (Jan–Nov 2026), each ruling once: accuracy (Vertex AI, proxy and gateway runs pooled)",
+		Value: r6(p), CILow: r6(lo), CIHigh: r6(hi), N: n, Split: "final+final2",
+		Source: "eval/results/{final,final2,textile-final,textile-final2,pharma-final,pharma-final2,usmca-final,usmca-final2}-*.jsonl (eval/results/accuracy-v2-metrics.json, heldout_all_regimes_by_window)"}, true, nil
 }
 
 // scopeSummaryItems reports how the router routes cases outside the

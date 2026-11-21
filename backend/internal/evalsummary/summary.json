@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T07:34:00Z",
+  "generated_at": "2026-11-21T09:27:53Z",
   "status": "official: held-out engine and fast path are Gemini 4 Argon on Vertex AI (engine-v1, BM25, K=5). Development-split engine numbers are the development set on Vertex AI. Verifier and heat-gun plan figures remain proxy, development only.",
   "items": [
     {
@@ -592,6 +592,61 @@
       "split": "final",
       "development_only": false,
       "source": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl"
+    },
+    {
+      "key": "textile_final2_accuracy",
+      "label": "Textile rules, post-cutoff held-out (Sep–Nov 2026, textile-v2, gateway) accuracy",
+      "value": 0.8824,
+      "ci_low": 0.6566,
+      "ci_high": 0.9671,
+      "n": 17,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl"
+    },
+    {
+      "key": "pharma_final2_accuracy",
+      "label": "Pharmaceutical rules, post-cutoff held-out (Sep–Nov 2026, pharma-v1, gateway) accuracy; under 10 rulings",
+      "value": 0.6667,
+      "ci_low": 0.3,
+      "ci_high": 0.9032,
+      "n": 6,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "usmca_final2_accuracy",
+      "label": "Part 102 marking-origin rules, post-cutoff held-out (Sep–Nov 2026, usmca-v1, gateway) accuracy",
+      "value": 0.8462,
+      "ci_low": 0.5776,
+      "ci_high": 0.9567,
+      "n": 13,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl"
+    },
+    {
+      "key": "router_final2_out_of_scope_recall",
+      "label": "Router, post-cutoff held-out (Sep–Nov 2026): pharmaceutical and Part 102 rulings kept out of the substantial-transformation engine",
+      "value": 0.5789,
+      "ci_low": 0.3628,
+      "ci_high": 0.7686,
+      "n": 19,
+      "split": "final2",
+      "development_only": false,
+      "source": "eval/results/{pharma,usmca}-final2-*-router.jsonl (router_regime)"
+    },
+    {
+      "key": "all_regimes_heldout_accuracy",
+      "label": "All regimes, both held-out windows (Jan–Nov 2026), each ruling once: accuracy (Vertex AI, proxy and gateway runs pooled)",
+      "value": 0.887987,
+      "ci_low": 0.860638,
+      "ci_high": 0.910527,
+      "n": 616,
+      "split": "final+final2",
+      "development_only": false,
+      "source": "eval/results/{final,final2,textile-final,textile-final2,pharma-final,pharma-final2,usmca-final,usmca-final2}-*.jsonl (eval/results/accuracy-v2-metrics.json, heldout_all_regimes_by_window)"
     },
     {
       "key": "router_out_of_scope_recall",

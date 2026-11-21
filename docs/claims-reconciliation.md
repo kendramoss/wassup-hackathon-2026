@@ -128,6 +128,38 @@ Source files are listed in the checksum manifest (section 9). "Held-out" is the 
 | `repeat.answer_flips` | 4 | rulings whose answer differs between runs |
 | `repeat.correctness_flips` | 4 | rulings right in one run and wrong in another |
 | `repeat.fast_path_flips` | 8 | rulings in the fast path (in scope, stated 0.92) in one run and not another |
+| `regimes.w1.st.n` | 377 | held-out window 1 (Jan–Sep 2026), substantial transformation, rulings (Vertex AI) |
+| `regimes.w1.st.correct` | 340 | of those, correct |
+| `regimes.w1.textile.n` | 71 | window 1, textile split (19 CFR 102.21 rule, textile-v1, Vertex AI) |
+| `regimes.w1.textile.correct` | 61 | of those, correct |
+| `regimes.w1.pharma.n` | 56 | window 1, pharmaceutical split (pharma-v1, proxy) |
+| `regimes.w1.pharma.correct` | 50 | of those, correct |
+| `regimes.w1.part102.n` | 32 | window 1, Part 102 split (usmca-v1, proxy) |
+| `regimes.w1.part102.correct` | 25 | of those, correct |
+| `regimes.w1.overlap` | 27 | window 1 rulings in both the textile and the Part 102 split (D210) |
+| `regimes.w1.sum.correct` | 476 | window 1, the four splits added as they are |
+| `regimes.w1.sum.n` | 536 | window 1, rulings counted per split (27 twice) |
+| `regimes.w1.dedup.correct` | 451 | window 1, each ruling once (overlap counted under Part 102) |
+| `regimes.w1.dedup.n` | 509 | window 1, distinct rulings |
+| `regimes.w2.st.n` | 83 | held-out window 2 (28 Sep–13 Nov 2026), substantial transformation (gateway, D154) |
+| `regimes.w2.st.correct` | 77 | of those, correct |
+| `regimes.w2.textile.n` | 17 | window 2, textile split (textile-v2, gateway, D210) |
+| `regimes.w2.textile.correct` | 15 | of those, correct |
+| `regimes.w2.pharma.n` | 6 | window 2, pharmaceutical split (pharma-v1, gateway, D210); under 10 |
+| `regimes.w2.pharma.correct` | 4 | of those, correct |
+| `regimes.w2.part102.n` | 13 | window 2, Part 102 split (usmca-v1, gateway, D210) |
+| `regimes.w2.part102.correct` | 11 | of those, correct |
+| `regimes.w2.overlap` | 12 | window 2 rulings in both the textile and the Part 102 split |
+| `regimes.w2.sum.correct` | 107 | window 2, the four splits added |
+| `regimes.w2.sum.n` | 119 | window 2, rulings counted per split |
+| `regimes.w2.dedup.correct` | 96 | window 2, each ruling once |
+| `regimes.w2.dedup.n` | 107 | window 2, distinct rulings |
+| `regimes.all.sum.correct` | 583 | both windows, all regimes, splits added |
+| `regimes.all.sum.n` | 655 | both windows, rulings counted per split |
+| `regimes.all.sum.pct` | 89.0 | percent |
+| `regimes.all.dedup.correct` | 547 | both windows, all regimes, each ruling once |
+| `regimes.all.dedup.n` | 616 | both windows, distinct rulings |
+| `regimes.all.dedup.pct` | 88.8 | percent |
 | `cal.version` | cal-v2 | calibration map version (backend/internal/calibrate/map.json, D160) |
 | `cal.bar` | 0.9 | auto-accept bar on calibrated probability |
 | `final.cal.fast.n` | 300 | auto-accepted at the calibrated bar and in scope |
@@ -273,13 +305,13 @@ The same proposed replacements, as exact strings for the integrator, are in the 
 `eval/SHA256SUMS` already pins the labelled corpora and the splits, and `claimscheck` verifies it. The block below pins the other files the check reads (the facts directory is pinned by the digest of its sorted file-name list instead of repeating 3,081 hashes). A changed file fails the check until a person reviews it and refreshes the line. Regenerate with `cd backend && go run ./cmd/claimscheck -print-manifest`.
 
 ```
-bc657f2129107a9108f9198db2e68798bf492eb0a12cbdb1e221138bf57e4c6d  eval/SHA256SUMS
+5e9d1136b85f25bd108f9113ae442fee42a9b63f15aa6c4842aabd7e6362e891  eval/SHA256SUMS
 727918a055ad3bb10d13392c7859da004f2d8cea2b90fd4a564e71a326d326ad  eval/data/scoring_adjustments.json
 2d8a357af6eeb134485c05d60af08eb15f75c37b39ae49b9fc2a14203c34ec81  eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl
 f5c24fac4e27a88941c981c7ff042b8e4094d55441c7a6bf67280c342c164551  eval/results/scope-final-router-v2-vertex.jsonl
 c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/dev-gemini-4-argon-prec-engine-v1-vertex.jsonl
 48e86727d5bbc59c415c8b7ae84325a86ce008492f8c7a8711077718d9948f9d  eval/results/scope-dev-router-v2-vertex.jsonl
-4805a69a0cd93af11fd3954580dd3cc6a39c595ec32b301668987263c347183f  eval/results/RUNLOG.jsonl
+fdb352051890ac6a35c3325c1dc332509f62848d98cd883614876decbf42db44  eval/results/RUNLOG.jsonl
 38bdf2db05f4f56f0b13450ec4a4531940932d675bfc88a2288995b25ae06a47  eval/results/calibration-by-family.json
 705d40de8a3cf285471ba23589401c77504900eab36abd5c6db53efaf5083cb9  eval/results/slice30-baseline.json
 777614596d93d6c0e755809811a160b2dbbdc3a1f529f62eca6010e434c80057  eval/results/flips-post-verifier-v2-known-a-litellm.jsonl
@@ -287,6 +319,15 @@ c9e79d732fa25ecedd4213daeaf0b9d62ce86138a639d05ffde9697e156f0ba6  eval/results/d
 892ee5b05bb8ca6ff7ce9d0d3b112ff2dbbd5d1357749c8ae29fd217e003fba8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-gw.jsonl
 e8490aded389acb9265c7e8ff6af224be3739d8e76ae58bbbde75e65661050c8  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep2.jsonl
 23f0e962af0329ade017240fff571e0835cb1b5f7e5f62c75295ea809f492ceb  eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-router-rep3.jsonl
+601ec66605fe94a684f2e581e50ae8c6af8c6c92e2f56c7dc287baec6b1a7be5  eval/splits/splits_textile.json
+3d63b4d2b07d5b7f70387622441538f5aea09dc23cec4c4653dcdb27b9a8210e  eval/splits/splits_pharma.json
+8b2091d8c40316fb15011fa181d68e789a3b10eee5abdca19a710328f4d0b812  eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl
+5cd2dcb4a41f7d7cfe4927b25e441cf8d3c17e8df851458cc52f67bb0f3c2141  eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl
+3926aeda1afc83d5c0c07299ed4db7ea6aec5d0e4df8156ba3c09b14f6c77783  eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl
+978299d1a9d3816e51246f7716397146c5a83b2848e544b6b56bd6af00e02bbb  eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl
+47aab400b96076bdf57f3af80ba0a260d44cac03c29551f3ff9be428d19add18  eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl
+4b426c6fc9669cc7dba3baf74235b3135da71f02da88d00ac4c9ade48adecadf  eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl
+ba5c1652e19c972f55dde4c7cdf810abc4dd2e06962b8505389511079b03e718  eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl
 dc7e82fe63a2b4de2c77984169577387dd8816d73f66b6b43575d5b74f159b85  backend/data/labels.jsonl
 6040e8508af239d3d23fc360b2b5a8d06742125d3547ef298e35f8e71b600f9d  backend/data/labels_usmca.jsonl
 ad7227af446b0412395673de95749d0da1ab2ab54de3bd99c63e49084e4d7d08  names:backend/data/facts

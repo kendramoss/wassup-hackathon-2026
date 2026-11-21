@@ -87,6 +87,14 @@ export function AccuracyPage() {
   const usAcc = get("usmca_final_accuracy");
   const usAuto = get("usmca_final_conf95_accuracy");
   const usCov = get("usmca_final_conf95_coverage");
+  // D210: each regime's post-cutoff split, scored once through the gateway,
+  // and every regime pooled across both held-out windows, each ruling once.
+  const tex2 = get("textile_final2_accuracy");
+  const ph2 = get("pharma_final2_accuracy");
+  const us2 = get("usmca_final2_accuracy");
+  const allReg = get("all_regimes_heldout_accuracy");
+  const later = (it?: Item) => (it ? ` On ${it.n} later rulings (28 Sep to 13 Nov 2026, scored once): ${pct(it.value)} (${ci(it)}).` : "");
+  const routeOut2 = get("router_final2_out_of_scope_recall");
   const routeOut = get("router_out_of_scope_recall");
   const routeTex = get("router_textile_routing");
   const routeFalse = get("router_false_out_of_scope");
@@ -139,7 +147,8 @@ export function AccuracyPage() {
     const kind = it.key?.startsWith("baseline") ? "baseline, no model" : it.key?.startsWith("change_detection") ? "weak" : "research run";
     if (it.source?.startsWith("hackathon-research/") || it.source?.startsWith("unavailable:")) return { label: `${kind} · reported, unverified` };
     if (it.key?.startsWith("baseline")) return { label: "baseline, no model · recomputed" };
-    if (it.key?.startsWith("final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
+    if (it.key?.startsWith("final2_") || it.key?.includes("_final2_") || it.key?.startsWith("planner_post_")) return { label: "held-out · gateway, scored once" };
+    if (it.key === "all_regimes_heldout_accuracy") return { label: "held-out · pooled, mixed paths" };
     if (!it.development_only && it.source?.includes("litellm")) return { label: "held-out · LiteLLM proxy, not Vertex AI" };
     if (it.key?.startsWith("change_detection")) return { label: "weak" };
     return it.development_only ? { label: "development set" } : { label: "official", tone: "ok" };
@@ -348,28 +357,39 @@ export function AccuracyPage() {
             <section className="mt-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="eyebrow">Beyond substantial transformation</h2>
-                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and Part 102 marking held-out · router on the development window</span>
+                <span className="ml-auto text-[11px] text-dim">textile, pharmaceutical and Part 102 marking held-out, two windows · router on the development window</span>
               </div>
               <div className="mt-3 grid gap-5 md:grid-cols-3">
                 {texAcc && (
                   <Card title="Textile rules (19 CFR 102.21)" big={pct(texAcc.value)}>
                     on {texAcc.n} held-out 2026 textile rulings ({ci(texAcc)}). {pct(texAuto?.value)} right when sure enough to auto-accept, on {pct(texCov?.value, 0)} of them.
                     {texV2 ? ` The prompt now in use scored ${pct(texV2.value)} on the development set.` : ""}
+                    {later(tex2)}
                   </Card>
                 )}
                 {phAcc && (
                   <Card title="Pharmaceutical rules" big={pct(phAcc.value)}>
                     on {phAcc.n} held-out 2026 pharmaceutical rulings ({ci(phAcc)}). {pct(phAuto?.value)} right at confidence 0.95 or above, on {pct(phCov?.value, 0)} of them.
+                    {later(ph2)}
+                    {ph2 && (ph2.n ?? 0) < 10 ? " Too few to read much into." : ""}
                   </Card>
                 )}
                 {usAcc && (
                   <Card title="Part 102 marking origin" big={pct(usAcc.value)}>
                     on {usAcc.n} held-out 2026 Part 102 marking rulings ({ci(usAcc)}). {pct(usAuto?.value)} right at confidence 0.95 or above, on {pct(usCov?.value, 0)} of them.
+                    {later(us2)}
+                  </Card>
+                )}
+                {allReg && (
+                  <Card title="All regimes, both held-out windows" big={pct(allReg.value)}>
+                    on {allReg.n} held-out rulings from January to November 2026 ({ci(allReg)}), all four rule sets, each ruling counted once. Runs on Vertex AI, the earlier
+                    proxy and the gateway are pooled.
                   </Card>
                 )}
                 {routeOut && (
                   <Card title="Kept out of the general engine" big={pct(routeOut.value)}>
-                    of pharmaceutical and Part 102 marking rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}). Those go to their own rules, or to a person.
+                    of pharmaceutical and Part 102 marking rulings kept away from the substantial-transformation engine ({ci(routeOut)}, n {routeOut.n}), on the development window. Those go to their own rules, or to a person.
+                    {routeOut2 ? ` On the ${routeOut2.n} later rulings it kept only ${pct(routeOut2.value)} (${ci(routeOut2)}) away; the rest got the general engine.` : ""}
                   </Card>
                 )}
                 {routeTex && (

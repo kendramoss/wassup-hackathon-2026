@@ -10,7 +10,8 @@
 #         eval/data/scoring_adjustments.json, eval/splits/splits_final{,2}.json,
 #         eval/results/dev-*.jsonl, final-*.jsonl, final2-*.jsonl (listed in RUNS),
 #         eval/results/scope-{dev,final}-router-v2-vertex.jsonl,
-#         textile/pharma/usmca held-out result files (all-regimes report)
+#         textile/pharma/usmca held-out result files, both windows, and their
+#         post-cutoff splits (all-regimes report, D210)
 # Writes: eval/results/accuracy-v2-metrics.json
 #         backend/internal/calibrate/map.json (cal-v2 map and bar, D160; embedded in the server)
 #         docs/img/accuracy-v2-selective.svg
@@ -367,12 +368,79 @@ ALL_REGIMES = {
     "pharmaceutical": (R + "pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", "proxy"),
     "part102_marking": (R + "usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl", "proxy"),
 }
+# The second window of each regime (D210): frozen post-cutoff splits, each
+# scored once through the gateway with the production engine of its regime.
+ALL_REGIMES_FINAL2 = {
+    "substantial_transformation": (R + "final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl", "gateway, engine-v1", "eval/splits/splits_final2.json"),
+    "textile_102_21": (R + "textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl", "gateway, textile-v2", "eval/splits/splits_textile_final2.json"),
+    "pharmaceutical": (R + "pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", "gateway, pharma-v1", "eval/splits/splits_pharma_final2.json"),
+    "part102_marking": (R + "usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl", "gateway, usmca-v1", "eval/splits/splits_usmca_final2.json"),
+}
 
 
 def scored_router(p):
     """A run made with -router: the scope label is on the row itself."""
     scope = {r["ruling"]: r.get("in_scope", True) for r in jsonl(p)}
     return scored(p, scope)
+
+
+def last_rows(p):
+    """One row per ruling, the last one (a resumed run can repeat a ruling)."""
+    out = {}
+    for r in jsonl(p):
+        out[r["ruling"]] = r
+    return out
+
+
+def regime_block(rows, k=None):
+    n = len(rows)
+    k = sum(1 for r in rows.values() if r["correct"] and not r.get("error")) if k is None else k
+    a, lo, hi = wilson(k, n)
+    return {"n": n, "correct": k, "accuracy_pct": pct(a), "ci95_pct": [pct(lo), pct(hi)]}
+
+
+def all_regimes_by_window():
+    """D210: every regime's held-out run in both windows. "sum" adds the
+    splits as they are; "dedup" counts each ruling once, a ruling in both the
+    textile and the Part 102 split under Part 102 (fixed before the runs)."""
+    windows = {
+        "first_window_2026_jan_sep": {k: (p, via, None) for k, (p, via) in ALL_REGIMES.items()},
+        "second_window_2026_sep_nov": ALL_REGIMES_FINAL2,
+    }
+    out = {"dedup_rule": "a ruling in both the textile and the Part 102 split counts once, under Part 102 (D210)"}
+    tot = {"sum": [0, 0], "dedup": [0, 0]}
+    for w, runs in windows.items():
+        rs = {k: last_rows(p) for k, (p, _, _) in runs.items()}
+        block = {}
+        for k, (p, via, sp) in runs.items():
+            b = {"file": p, "via": via, **regime_block(rs[k])}
+            if sp is not None:
+                want = set(json.load(open(path(sp)))["final2"])
+                assert set(rs[k]) == want, f"{p}: rows differ from {sp}"
+                b["split"] = sp
+            block[k] = b
+        both = sorted(set(rs["textile_102_21"]) & set(rs["part102_marking"]))
+        tex_only = {i: r for i, r in rs["textile_102_21"].items() if i not in both}
+        block["textile_not_in_part102"] = regime_block(tex_only)
+        block["textile_and_part102_overlap"] = {
+            "n": len(both),
+            "textile_engine_correct": sum(1 for i in both if rs["textile_102_21"][i]["correct"]),
+            "part102_engine_correct": sum(1 for i in both if rs["part102_marking"][i]["correct"]),
+        }
+        sn = sum(len(v) for v in rs.values())
+        sk = sum(b["correct"] for k, b in block.items() if k in runs)
+        dn = sn - len(both)
+        dk = sk - block["textile_and_part102_overlap"]["textile_engine_correct"]
+        block["pooled_sum"] = regime_block({i: None for i in range(sn)}, sk)
+        block["pooled_dedup"] = regime_block({i: None for i in range(dn)}, dk)
+        for key, (n, k) in (("sum", (sn, sk)), ("dedup", (dn, dk))):
+            tot[key][0] += n
+            tot[key][1] += k
+        out[w] = block
+    for key in ("sum", "dedup"):
+        n, k = tot[key]
+        out["all_windows_" + key] = regime_block({i: None for i in range(n)}, k)
+    return out
 
 
 def final2_composition():
@@ -628,6 +696,7 @@ def main():
         a, lo, hi = wilson(tot_k + k2, tot_n + len(f2))
         regimes["pooled_with_final2"] = {"n": tot_n + len(f2), "correct": tot_k + k2, "accuracy_pct": pct(a), "ci95_pct": [pct(lo), pct(hi)]}
     metrics["heldout_all_regimes"] = regimes
+    metrics["heldout_all_regimes_by_window"] = all_regimes_by_window()
 
     if CANDIDATE:
         metrics["candidate"] = CANDIDATE

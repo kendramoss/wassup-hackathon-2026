@@ -140,6 +140,29 @@ func newFixture(t *testing.T) *fixture {
 		`{"id":"P1","precedent_supported":true,"confidence":0.95,"origin_b_ok":true}`+"\n"+
 			`{"id":"P2","precedent_supported":true,"confidence":0.85,"origin_b_ok":true}`+"\n"+
 			`{"id":"C1","precedent_supported":false,"confidence":0.9,"origin_b_ok":true}`+"\n")
+	// Other regimes, both windows (D210). Window 1: textile T1 right and B1
+	// right, pharma P1 right, Part 102 B1 wrong and U3 right; B1 is in both
+	// the textile and the Part 102 split. Window 2: substantial
+	// transformation S1 right and S2 wrong, textile T2 right, pharma P2
+	// wrong, Part 102 U4 right (after a failed first attempt).
+	write(t, root, "eval/splits/splits_textile.json", `{"final":["T1","B1"]}`)
+	write(t, root, "eval/splits/splits_pharma.json", `{"final":["P1"]}`)
+	write(t, root, "eval/splits/splits_usmca.json", `{"final":["B1","U3"]}`)
+	write(t, root, "eval/splits/splits_final2.json", `{"final2":["S1","S2"]}`)
+	write(t, root, "eval/splits/splits_textile_final2.json", `{"final2":["T2"]}`)
+	write(t, root, "eval/splits/splits_pharma_final2.json", `{"final2":["P2"]}`)
+	write(t, root, "eval/splits/splits_usmca_final2.json", `{"final2":["U4"]}`)
+	write(t, root, "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl",
+		fxEngine("T1", "2026-02-01", true, "China", .9)+fxEngine("B1", "2026-03-01", true, "Canada", .9))
+	write(t, root, "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl", fxEngine("P1", "2026-02-01", true, "India", .9))
+	write(t, root, "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+		fxEngine("B1", "2026-03-01", false, "China", .9)+fxEngine("U3", "2026-04-01", true, "Mexico", .9))
+	write(t, root, "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl",
+		fxEngine("S1", "2026-10-01", true, "China", .9)+fxEngine("S2", "2026-10-02", false, "China", .9))
+	write(t, root, "eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl", fxEngine("T2", "2026-10-03", true, "China", .9))
+	write(t, root, "eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl", fxEngine("P2", "2026-10-04", false, "India", .9))
+	write(t, root, "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
+		`{"ruling":"U4","date":"2026-10-05","correct":false,"pred":"","confidence":0,"error":"timeout"}`+"\n"+fxEngine("U4", "2026-10-05", true, "Canada", .9))
 	// eval/SHA256SUMS pins data files relative to eval/.
 	var sums strings.Builder
 	for _, rel := range []string{"data/labels.jsonl", "data/labels_usmca.jsonl", "splits/splits_final.json"} {

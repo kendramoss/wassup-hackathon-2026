@@ -1652,6 +1652,187 @@
    ]
   }
  },
+ "heldout_all_regimes_by_window": {
+  "dedup_rule": "a ruling in both the textile and the Part 102 split counts once, under Part 102 (D210)",
+  "first_window_2026_jan_sep": {
+   "substantial_transformation": {
+    "file": "eval/results/final-gemini-4-argon-prec-engine-v1-vertex.jsonl",
+    "via": "Vertex AI",
+    "n": 377,
+    "correct": 340,
+    "accuracy_pct": 90.2,
+    "ci95_pct": [
+     86.8,
+     92.8
+    ]
+   },
+   "textile_102_21": {
+    "file": "eval/results/textile-final-gemini-4-argon-prec-textile-v1-vertex.jsonl",
+    "via": "Vertex AI",
+    "n": 71,
+    "correct": 61,
+    "accuracy_pct": 85.9,
+    "ci95_pct": [
+     76.0,
+     92.2
+    ]
+   },
+   "pharmaceutical": {
+    "file": "eval/results/pharma-final-gemini-4-argon-prec-pharma-v1-litellm.jsonl",
+    "via": "proxy",
+    "n": 56,
+    "correct": 50,
+    "accuracy_pct": 89.3,
+    "ci95_pct": [
+     78.5,
+     95.0
+    ]
+   },
+   "part102_marking": {
+    "file": "eval/results/usmca-final-gemini-4-argon-prec-usmca-v1-litellm.jsonl",
+    "via": "proxy",
+    "n": 32,
+    "correct": 25,
+    "accuracy_pct": 78.1,
+    "ci95_pct": [
+     61.2,
+     89.0
+    ]
+   },
+   "textile_not_in_part102": {
+    "n": 44,
+    "correct": 36,
+    "accuracy_pct": 81.8,
+    "ci95_pct": [
+     68.0,
+     90.5
+    ]
+   },
+   "textile_and_part102_overlap": {
+    "n": 27,
+    "textile_engine_correct": 25,
+    "part102_engine_correct": 21
+   },
+   "pooled_sum": {
+    "n": 536,
+    "correct": 476,
+    "accuracy_pct": 88.8,
+    "ci95_pct": [
+     85.9,
+     91.2
+    ]
+   },
+   "pooled_dedup": {
+    "n": 509,
+    "correct": 451,
+    "accuracy_pct": 88.6,
+    "ci95_pct": [
+     85.6,
+     91.1
+    ]
+   }
+  },
+  "second_window_2026_sep_nov": {
+   "substantial_transformation": {
+    "file": "eval/results/final2-gemini-4-argon-prec-engine-v1-litellm-router.jsonl",
+    "via": "gateway, engine-v1",
+    "n": 83,
+    "correct": 77,
+    "accuracy_pct": 92.8,
+    "ci95_pct": [
+     85.1,
+     96.6
+    ],
+    "split": "eval/splits/splits_final2.json"
+   },
+   "textile_102_21": {
+    "file": "eval/results/textile-final2-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1-router.jsonl",
+    "via": "gateway, textile-v2",
+    "n": 17,
+    "correct": 15,
+    "accuracy_pct": 88.2,
+    "ci95_pct": [
+     65.7,
+     96.7
+    ],
+    "split": "eval/splits/splits_textile_final2.json"
+   },
+   "pharmaceutical": {
+    "file": "eval/results/pharma-final2-gemini-4-argon-prec-pharma-v1-litellm-router.jsonl",
+    "via": "gateway, pharma-v1",
+    "n": 6,
+    "correct": 4,
+    "accuracy_pct": 66.7,
+    "ci95_pct": [
+     30.0,
+     90.3
+    ],
+    "split": "eval/splits/splits_pharma_final2.json"
+   },
+   "part102_marking": {
+    "file": "eval/results/usmca-final2-gemini-4-argon-prec-usmca-v1-litellm-router.jsonl",
+    "via": "gateway, usmca-v1",
+    "n": 13,
+    "correct": 11,
+    "accuracy_pct": 84.6,
+    "ci95_pct": [
+     57.8,
+     95.7
+    ],
+    "split": "eval/splits/splits_usmca_final2.json"
+   },
+   "textile_not_in_part102": {
+    "n": 5,
+    "correct": 4,
+    "accuracy_pct": 80.0,
+    "ci95_pct": [
+     37.6,
+     96.4
+    ]
+   },
+   "textile_and_part102_overlap": {
+    "n": 12,
+    "textile_engine_correct": 11,
+    "part102_engine_correct": 10
+   },
+   "pooled_sum": {
+    "n": 119,
+    "correct": 107,
+    "accuracy_pct": 89.9,
+    "ci95_pct": [
+     83.2,
+     94.1
+    ]
+   },
+   "pooled_dedup": {
+    "n": 107,
+    "correct": 96,
+    "accuracy_pct": 89.7,
+    "ci95_pct": [
+     82.5,
+     94.2
+    ]
+   }
+  },
+  "all_windows_sum": {
+   "n": 655,
+   "correct": 583,
+   "accuracy_pct": 89.0,
+   "ci95_pct": [
+    86.4,
+    91.2
+   ]
+  },
+  "all_windows_dedup": {
+   "n": 616,
+   "correct": 547,
+   "accuracy_pct": 88.8,
+   "ci95_pct": [
+    86.1,
+    91.1
+   ]
+  }
+ },
  "candidate": {
   "decision": "D153",
   "engine": "engine-v1",

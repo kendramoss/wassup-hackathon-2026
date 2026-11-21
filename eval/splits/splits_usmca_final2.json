@@ -1,0 +1,53 @@
+{
+ "frozen_at": "2026-11-21T17:18+08:00",
+ "window": "rulings dated 2026-09-28 to 2026-11-13 in eval/data/labels_final2.jsonl (the second held-out window, D150)",
+ "scoring": "held out: scored once with the production engine of the regime, through the gateway (-split final2 -confirm-final, D210)",
+ "source": "eval/data/labels_usmca_final2.jsonl: the post-cutoff rulings whose raw text applies 19 CFR 102.11 / 102.20 to a non-textile good (corpus.USMCARegime), with a primary origin and a facts file (the build_usmca_split.py rule, D61)",
+ "rule": "the D61 Part 102 rule applied unchanged to the post-cutoff window. Rulings whose holding answers only a substantial-transformation, Section 301 or procurement question are precedents but not scored. Precedents: eval/data/labels_usmca.jsonl plus eval/data/labels_usmca_final2.jsonl, each usable only for cases dated after it.",
+ "funnel": {
+  "labelled_rulings": 163,
+  "part102_by_text": 15,
+  "with_primary_origin": 15,
+  "other_question_not_scored": 2,
+  "in_split": 13
+ },
+ "not_scored_other_question": [
+  "N365387",
+  "N365940"
+ ],
+ "also_in_textile_split": [
+  "N365110",
+  "N365145",
+  "N365214",
+  "N365695",
+  "N365856",
+  "N366014",
+  "N366064",
+  "N366125",
+  "N366147",
+  "N366698",
+  "N366722",
+  "N366728"
+ ],
+ "origins": {
+  "Canada": 8,
+  "France": 2,
+  "China": 2,
+  "Mexico": 1
+ },
+ "final2": [
+  "N365110",
+  "N365145",
+  "N365214",
+  "N366064",
+  "N365695",
+  "N366014",
+  "N365856",
+  "N366147",
+  "N366125",
+  "N366066",
+  "N366698",
+  "N366722",
+  "N366728"
+ ]
+}
