@@ -500,6 +500,43 @@ const delayed = async (route, body) => {
   await ctx.close();
 }
 
+// #564: a 429 rate limit ticks a countdown inside role=status. The seconds
+// must be hidden from assistive tech, with a stable phrase in their place,
+// or the status is announced again on every tick (#548 pattern).
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => {
+    // Chrome logs the deliberate 429 as a console error; that is the state.
+    if (m.type() === "error" && !m.text().includes("429")) problems.push({ page: "/triage (rate limited)", console: m.text() });
+  });
+  page.on("pageerror", (e) => problems.push({ page: "/triage (rate limited)", console: String(e) }));
+  await page.route("**/api/v1/cases/batch", (route) =>
+    route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      headers: { "Retry-After": "6" },
+      body: JSON.stringify({ code: "rate_limited", message: "Too many requests." }),
+    }),
+  );
+  await page.goto(base + "/triage", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Try the sample/i }).click();
+  await page.getByRole("button", { name: /Triage 5 products/i }).click();
+  const note = page.locator('div[role="status"]').filter({ hasText: "Too many requests" });
+  await note.waitFor();
+  await page.waitForFunction(
+    () => [...document.querySelectorAll('div[role="status"] span')].some((s) => /^[1-9]\d* s$/.test(s.textContent.trim())),
+    null,
+    { timeout: 5000 },
+  );
+  const tick = await note.evaluate((el) => {
+    const t = [...el.querySelectorAll("span")].find((s) => /^\d+ s$/.test(s.textContent.trim()));
+    return { text: t?.textContent.trim() ?? null, hidden: Boolean(t?.closest('[aria-hidden="true"]')), stable: el.textContent.includes("a moment") };
+  });
+  if (!tick.text || !tick.hidden || !tick.stable) problems.push({ page: "/triage (rate limited)", focus: "ticking countdown is exposed in the status live region", ...tick });
+  await ctx.close();
+}
+
 await browser.close();
 await writeFile(`${out}/report.json`, JSON.stringify(problems, null, 2));
 console.log(`Screenshots and report.json in ${out}/ (${[...paths, reflowPath].join(", ")} x light/dark x desktop/mobile/narrow)`);
