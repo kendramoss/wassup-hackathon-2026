@@ -5,7 +5,7 @@
 export const copy = {
   name: "Unde Labs",
   tagline: "Predicts the country of origin U.S. Customs would likely assign, citing earlier CBP rulings, and finds production moves that earlier rulings support.",
-  nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API" },
+  nav: { cases: "Cases", accuracy: "How accurate is it?", api: "API · MCP" },
 
   cases: {
     title: "Cases",
@@ -15,6 +15,8 @@ export const copy = {
     demos: "Demos · real CBP facts",
     demosNote: "Demos were picked because CBP ruled on the same product, so you can compare the answer with CBP's. They show how it works, not how often it is right.",
     demosMisses: "Every held-out ruling it got wrong →",
+    moreDemos: "More demos · not run yet",
+    moreDemosNote: "Loading one starts a new case from CBP's facts, and the origin and plan run live, so the result is new and may differ from any recorded run.",
     columns: ["Product", "Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"],
     notAnalysed: "Not analysed yet",
   },
@@ -47,6 +49,8 @@ export const copy = {
     bomBrowse: "Browse files",
     bomReplace: "Replace file",
     bomSamples: "Sample dataset (heat gun, 17 rows):",
+    bomSamplePhoto: "Photo (synthetic)",
+    bomSamplePhotoNote: "a synthetic, tilted rendering of the same table, to try photo import",
     bomTemplate: "Download CSV template",
     bomColumnsTitle: "Data requirements",
     bomColumnsNote: "Headers are matched without case and accept the aliases shown. A PDF needs these columns as a table with a header row.",
@@ -360,6 +364,60 @@ export const copy = {
         "Re-check the duty rates before moving anything; they change.",
       ],
       sources: "Sources and arithmetic: docs/NUMBERS.md and docs/DUTY-SOURCES.md.",
+    },
+    // "What you can do" (judge journey): every capability that is built and
+    // running, each with a way in. Plain list, no numbers beyond NUMBERS.md
+    // rows (13 families, 11 MCP tools).
+    also: "Also built: a parts list read from a photo or scan, plan templates for 13 product families, and a connector for Claude.",
+    alsoLink: "What you can do ↓",
+    can: {
+      title: "What you can do",
+      lead: "Each of these is built and running on this site. Open one to try it.",
+      items: [
+        {
+          key: "origin",
+          what: "Find the likely origin",
+          body: "Paste the facts you would send CBP, or list each part and where it is made. Gemini reads them against the most similar earlier CBP rulings and names the origin. When it is unsure, it asks what CBP would ask instead of guessing.",
+          link: "Open the heat-gun result →",
+        },
+        {
+          key: "import",
+          what: "Import a parts list",
+          body: "A CSV, Excel or PDF bill of materials, or a photo or scan of one. Gemini reads a photo or scan into a draft table that you check before anything runs.",
+          link: "Start a case →",
+        },
+        {
+          key: "plan",
+          what: "Plan a production move",
+          body: "For products in 13 families with a plan template, from heat guns and LiDAR to cables, chargers, hand tools and gas grills, it tries moving each group of work to another plant. An agent then checks each move against earlier rulings, for and against.",
+          link: "See the heat-gun plan →",
+        },
+        {
+          key: "compare",
+          what: "Compare countries",
+          body: "One plan search per country, ranked side by side, with the duty and cost inputs shown.",
+          link: "See a recorded comparison →",
+        },
+        {
+          key: "draft",
+          what: "Draft for a broker",
+          body: "A ruling request under 19 CFR Part 177, the regulation for asking CBP for a ruling, ready for a licensed customs broker to check and file.",
+          link: "See the draft →",
+        },
+        {
+          key: "mcp",
+          what: "Use it from Claude",
+          body: "The same tools over MCP, the protocol Claude uses to connect to other services. In Claude Code, one line adds it:",
+          code: "claude mcp add --transport http unde https://undelabs.dev/mcp",
+          link: "Setup for Claude.ai and Desktop, and the 11 tools →",
+        },
+        {
+          key: "misses",
+          what: "See where it fails",
+          body: "Every held-out ruling it got wrong is listed by name, beside the commands that recompute every number on the page from the repository.",
+          link: "Known failure cases →",
+        },
+      ],
     },
     footerDisclaimer: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
     built: "Built with Gemini on Vertex AI, ADK for Go and Cloud Run.",

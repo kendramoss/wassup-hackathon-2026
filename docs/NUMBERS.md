@@ -71,6 +71,13 @@ Built by `python3 -I eval/charts/build_trust_data.py .` from committed files; `-
 | Coverage, development (469, Jul–Dec 2025) | 23 (4.9%) before, 258 (55.0%) after; on the 452 that answered: 57.1% (52.5–61.6) | `eval/results/families-coverage-dev-{legacy,all}-litellm.jsonl` | Measured; say "development set" |
 | Family-check failures | 17 of 469 dev, 9 of 377 held-out at 1,024 output tokens; 31 of 469 dev at the old 400 | coverage rows above | Measured |
 | Live plan checks, new families | 7 of 10 fixtures show a precedent-supported plan, 3 go to a broker; $0.97 promo for the ten | `eval/results/families-live-checks.json` | Development checks on pool-ruling fixtures, one run each; not an evaluation |
+| Gas-grill demo, development check | engine China 0.95 (CBP held China, N335085 scenario 1); 7 moves searched, 1 shown: lid and firebox forming, burners and gas train, and cooking surface, panels and frame in Indonesia, check 0.96, supporting N333420; backtest: moves both parts CBP's scenario 2 moved, plus more. Duty rates, import value and costs are illustrative placeholders | `eval/results/families-plan-gas-grill-2023-litellm.json`; demo `backend/internal/demos/fixtures/gas_grill_2023.json` | One run through the LiteLLM gateway, not production. The demo runs live when loaded, so the site's answer may differ; quote the screen, not this row |
+
+## Claude connector (MCP; built, see `docs/MCP.md`)
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| MCP tools | 11 | `docs/MCP.md` (Tools table), `backend/internal/mcpserver` | Built; a count of tools, not a result |
 
 ## Image and scan import (built; see `docs/MULTIMODAL.md`)
 

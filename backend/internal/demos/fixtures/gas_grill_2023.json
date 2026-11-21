@@ -1,0 +1,229 @@
+{
+  "id": "gas-grill-2023",
+  "order": 6,
+  "title": "Gas grill, parts formed in China, enamelled and assembled in Indonesia",
+  "description": "A 2- or 3-burner gas grill. Lids, fireboxes, burners and frames are formed in China, then enamelled and assembled in Indonesia. CBP held China (N335085, scenario 1); with the lids and fireboxes formed in Indonesia, the same ruling held Indonesia (scenario 2).",
+  "source": "CBP ruling N335085 (14 Sep 2023), rulings.cbp.gov",
+  "cbp_held": "China (N335085, scenario 1)",
+  "notes": "One of the 10 product families added in D138 (gas grills and cooking appliances). The prediction and the plan search use the structured product built from CBP's scenario 1 facts. Precedents are limited to rulings dated before 1 Sep 2023, and N335085 itself is excluded. Duty rates, import value and group costs are illustrative placeholders, not sourced. A development check through an OpenAI-compatible LiteLLM gateway to Gemini (eval/results/families-plan-gas-grill-2023-litellm.json, one run) predicted China at 0.95 and showed one plan: lid and firebox forming, burners and gas train, and cooking surface, panels and frame in Indonesia, check 0.96 on N333420. It moves more than CBP's scenario 2 did. A run on this site is a new run and may differ.",
+  "predict": {
+    "date": "2023-09-01",
+    "product": {
+      "name": "Gas grills (2-burner and 3-burner models)",
+      "description": "2-burner and 3-burner gas grills consisting of a main lid, firebox, gas train assembly, control panel, cooking area, side shelf, cart frame, thermometer, and burners. In Scenario 1, components and sub-assemblies are formed and fabricated in China and shipped to Indonesia for porcelain enamel finishing, sub-assembly completion, final assembly, testing, and packaging.",
+      "plants": [
+        {
+          "id": "cn",
+          "name": "China suppliers",
+          "country": "China",
+          "capabilities": [
+            "lid_and_firebox",
+            "burners_and_gas_train",
+            "cooking_surface_frame"
+          ]
+        },
+        {
+          "id": "id",
+          "name": "Indonesia assembly plant",
+          "country": "Indonesia",
+          "capabilities": [
+            "lid_and_firebox",
+            "burners_and_gas_train",
+            "cooking_surface_frame",
+            "final_assembly"
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "Deep draw main lids",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Formed and punched fireboxes",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Lid handle, badges, and thermometer",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Manifold tube, regulator hose, fittings, and gas valves",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Manifold sub-assemblies",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "LP regulator sub-assembly",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Perforated tube steel, fuel mixer screw, spider mesh, and burner cap",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Burners",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Knobs",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Control panels",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "cooking_surface_frame"
+        },
+        {
+          "name": "Cart frames",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "cooking_surface_frame"
+        },
+        {
+          "name": "Side shelves",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "cooking_surface_frame"
+        },
+        {
+          "name": "Cooking area",
+          "made_in": "China",
+          "plant": "cn",
+          "group": "cooking_surface_frame"
+        },
+        {
+          "name": "Screws, bolts, and nuts",
+          "made_in": "Indonesia",
+          "plant": "id",
+          "group": "final_assembly"
+        }
+      ],
+      "operations": [
+        {
+          "name": "Forming, punching, and prepping steel sheets for deep draw into main lids",
+          "plant": "cn",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Forming and punching steel sheets into fireboxes",
+          "plant": "cn",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Adding gas valve port holes, bending manifold to shape, adding threaded connectors, assembling gas valves onto manifold, and conducting gas tightness test",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Cutting perforated tube steel, pressing and sealing ends to create a venturi funnel, adding a fuel mixer screw, punching a breather hole, and welding spider mesh and cap to make burners",
+          "plant": "cn",
+          "group": "burners_and_gas_train"
+        },
+        {
+          "name": "Manufacturing control panels, cart frames, side shelves, and cooking area",
+          "plant": "cn",
+          "group": "cooking_surface_frame"
+        },
+        {
+          "name": "Degreasing, pickling, rinsing, kiln drying, spraying porcelain enamel wet frit, furnace baking at 1,600 F for 25 minutes, and inspecting main lids and fireboxes",
+          "plant": "id",
+          "group": "lid_and_firebox"
+        },
+        {
+          "name": "Assembling gas manifold onto LP regulator sub-assembly and fire testing completed gas train assemblies",
+          "plant": "id",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Affixing lid handle, badges, and thermometer to complete the main lids",
+          "plant": "id",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Installing burners into fireboxes and fire testing completed firebox sub-assemblies",
+          "plant": "id",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Installing control panel, knobs, and gas train assembly onto fireboxes and testing for gas tightness, proper ignition, and combustion",
+          "plant": "id",
+          "group": "final_assembly"
+        },
+        {
+          "name": "Attaching remaining components with screws, bolts, and nuts, installing labels, cleaning surfaces, and packaging into retail boxes",
+          "plant": "id",
+          "group": "final_assembly"
+        }
+      ]
+    },
+    "family": "gas_grills_cooking",
+    "exclude_rulings": [
+      "N335085"
+    ],
+    "current_origin": {
+      "country": "China",
+      "ruling": "N335085"
+    }
+  },
+  "plan": {
+    "target": "Indonesia",
+    "economics": {
+      "illustrative": true,
+      "annual_import_value_usd": 1000000,
+      "duty_rates": {
+        "China": 0.425,
+        "Indonesia": 0.125
+      },
+      "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+      "group_costs": {
+        "lid_and_firebox": {
+          "cn": 200000,
+          "id": 250000
+        },
+        "burners_and_gas_train": {
+          "cn": 120000,
+          "id": 150000
+        },
+        "cooking_surface_frame": {
+          "cn": 150000,
+          "id": 187500
+        }
+      }
+    },
+    "actual_change": {
+      "_source": "CBP ruling N335085 (14 Sep 2023), scenario 2: lids and fireboxes formed in Indonesia from Chinese sheet steel; CBP held Indonesia",
+      "moved_to": "Indonesia",
+      "moved_to_thailand": [
+        "Deep draw main lids",
+        "Formed and punched fireboxes"
+      ],
+      "still_from_china": [
+        "Burners",
+        "Control panels",
+        "Cart frames"
+      ]
+    }
+  }
+}

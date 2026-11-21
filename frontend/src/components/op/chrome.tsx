@@ -9,7 +9,7 @@ import { ACTIONS_ON_TOP, ActionSlot, Portal, useActionSlot, useNextSlot } from "
 import { LogoMark } from "./logo";
 import { isDemoRefusal, isForbidden, isSigninRequired } from "@/lib/roles";
 import { SignIn, SignInRequired } from "./sign-in";
-import { Button, ButtonLink, cx } from "./ui";
+import { Button, ButtonLink, Spinner, cx } from "./ui";
 
 // The active section is passed in rather than read from the URL, so the bar
 // prerenders in the static shell of dynamic routes. Cases lives at /cases;
@@ -494,5 +494,15 @@ export function Next({ children }: { children: ReactNode }) {
       <span className="mr-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ok">Next</span>
       {children}
     </p>
+  );
+}
+
+// Shown while a page's client part loads (the Suspense fallback on case
+// pages), so a slow first load is never a blank grid (judge journey).
+export function PageLoading({ label = "Loading…" }: { label?: string }) {
+  return (
+    <Main>
+      <Spinner label={label} />
+    </Main>
   );
 }

@@ -35,6 +35,8 @@ export function CasesHome() {
 
   const pinned = cases?.filter((c) => c.pinned) ?? [];
   const yours = cases?.filter((c) => !c.pinned) ?? [];
+  const pinnedTitles = new Set(pinned.map((c) => c.display_name));
+  const unseeded = pinned.length > 0 ? (demos ?? []).filter((d) => d.title && !pinnedTitles.has(d.title)) : [];
 
   return (
     <Main>
@@ -77,6 +79,20 @@ export function CasesHome() {
               {copy.cases.demosMisses}
             </Link>
           </p>
+          {/* Demos with no pinned case yet (a newer product family, judge
+              journey): offered to load and run, so they are not hidden
+              behind the seeded ones. */}
+          {unseeded.length > 0 && (
+            <div className="mt-6">
+              <h3 className="eyebrow mb-1">{copy.cases.moreDemos}</h3>
+              <p className="read mb-3 max-w-[90ch] text-[12.5px] text-dim">{copy.cases.moreDemosNote}</p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {unseeded.map((d) => (
+                  <LoadDemoCard key={d.id} d={d} />
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
