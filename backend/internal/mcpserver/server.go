@@ -173,6 +173,7 @@ type apiCall struct {
 	raw          []byte // sent as is with contentType, instead of body
 	contentType  string
 	access       string // case access key (anonymous callers): sent as X-Visitor-ID
+	idempotency  string // sent as Idempotency-Key (plan searches, D402)
 }
 
 // apiResult is the REST answer: the status and the decoded JSON body.
@@ -234,6 +235,9 @@ func (t tools) call(ctx context.Context, from http.Header, c apiCall) (apiResult
 	}
 	if c.access != "" && req.Header.Get("X-API-Key") == "" {
 		req.Header.Set("X-Visitor-ID", c.access)
+	}
+	if c.idempotency != "" {
+		req.Header.Set("Idempotency-Key", c.idempotency)
 	}
 	rec := &recorder{header: http.Header{}}
 	t.api.ServeHTTP(rec, req)

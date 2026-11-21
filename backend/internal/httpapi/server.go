@@ -32,7 +32,7 @@ func NewHandler(logger *slog.Logger, info Info, deps ...Deps) http.Handler {
 		if d.Logger == nil {
 			d.Logger = logger
 		}
-		a = &api{d: d, rulingMemo: map[string]rulingDTO{}}
+		a = &api{d: d, rulingMemo: map[string]rulingDTO{}, flights: newPlanFlights()}
 		if d.Limits != (Limits{}) {
 			a.limiter = newLimiter(d.Limits)
 			if d.RateStore != nil {

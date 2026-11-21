@@ -266,6 +266,8 @@ type api struct {
 	rulingMemo  map[string]rulingDTO
 	askMu       sync.Mutex
 	askMemo     map[string]caseagent.Answer
+	// flights joins duplicate plan searches (D402); nil runs each request.
+	flights *planFlights
 }
 
 func (a *api) meta() map[string]any {
@@ -307,7 +309,7 @@ func (a *api) errorFor(r *http.Request, err error) (int, string, string) {
 		return http.StatusForbidden, "forbidden", forbiddenMessage
 	case errors.Is(err, errAuditUnavailable):
 		return http.StatusServiceUnavailable, "audit_unavailable", "the audit trail is unavailable, so this change was not made; try again"
-	case errors.Is(err, errSuperseded):
+	case errors.Is(err, errSuperseded), errors.Is(err, errIdempotencyReuse):
 		return http.StatusConflict, "conflict", err.Error()
 	case errors.Is(err, store.ErrNotFound), errors.Is(err, cross.ErrNotFound), errors.Is(err, apikey.ErrNotFound):
 		return http.StatusNotFound, "not_found", err.Error()
@@ -1085,18 +1087,48 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 		a.planStream(w, r, c, req, in.Economics, st)
 		return
 	}
-	fp := inputFingerprint(c)
-	res, err := a.d.Planner.Plan(r.Context(), req)
+	idem, err := idempotencyKey(r.Header.Get("Idempotency-Key"))
 	if err != nil {
 		a.fail(w, r, err)
 		return
 	}
+	fp := inputFingerprint(c)
+	readOnly := a.demoReadOnly(r, c)
+	search := func(ctx context.Context) (map[string]any, error) {
+		return a.planSearch(ctx, c, req, in, st, fp, readOnly)
+	}
+	var body map[string]any
+	if a.flights == nil {
+		body, err = search(r.Context())
+	} else {
+		// D402: the same case and inputs join the search already running.
+		key := "case:" + c.ID + ":" + planInputs(req, st.basis, fp, readOnly)
+		if idem != "" {
+			key = "idem:" + c.ID + ":" + idem
+		}
+		body, _, err = a.flights.do(r.Context(), key, planInputs(req, st.basis, fp, readOnly), idem != "", search)
+	}
+	if err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	a.respond(w, http.StatusOK, body)
+}
+
+// planSearch runs one plan search and stores its result on the case
+// (unless the caller may only read a demo). ctx may outlive the request
+// that started it (D402).
+func (a *api) planSearch(ctx context.Context, c store.Case, req planner.Request, in planRequest, st moneyStamp, fp string, readOnly bool) (map[string]any, error) {
+	res, err := a.d.Planner.Plan(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 	res = a.calibratedResult(res) // the response and the store carry what a read shows (D251)
 	stampBasis(&res, st.basis)
-	if !a.demoReadOnly(r, c) {
+	if !readOnly {
 		ev := a.planEvent(res)
 		now := time.Now().UTC()
-		if _, err := a.d.Cases.Update(r.Context(), c.ID, func(latest *store.Case) error {
+		if _, err := a.d.Cases.Update(ctx, c.ID, func(latest *store.Case) error {
 			if err := stillCurrent(latest, fp); err != nil {
 				return err
 			}
@@ -1105,14 +1137,13 @@ func (a *api) plan(w http.ResponseWriter, r *http.Request) {
 			}
 			latest.Plan, latest.UpdatedAt = &res, now
 			latest.Economics = economicsFrom(in.Economics, latest.Economics)
-			record(r.Context(), latest, ev)
+			record(ctx, latest, ev)
 			return nil
 		}); err != nil {
-			a.fail(w, r, err)
-			return
+			return nil, err
 		}
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "plan": res})
+	return map[string]any{"case_id": c.ID, "plan": res}, nil
 }
 
 // planRequestFor builds the planner request for a case and a plan body.

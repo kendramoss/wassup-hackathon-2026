@@ -100,12 +100,14 @@ Returns: product, plants, warnings and follow-up questions. Takes about 15 s. RE
 		Description: `Search production moves (which operation groups to move to plants in a target country) that earlier CBP rulings support for changing the product's origin to that country. Heavy: about 30 s or more, and a stricter rate limit.
 Use it after predict_origin when the user asks how to get a different origin (for example to lower duties).
 Input: case_id and target_country. The case needs a structured product with a family, and plants in the target country with capabilities.
+If a call times out, call again with the same input: the server joins the search still running instead of starting another. Pass the same idempotency_key on a retry to also get a search that has already finished (kept 15 minutes).
 Returns: precedent-supported plans (move, predicted origin, supporting ruling, check confidence, yearly figures when the case has economics), and rejected moves with reasons. Plans are precedent-supported at most, never approved.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/plan (operationId planCase).`,
 		InputSchema: object("", []string{"case_id", "target_country"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
 			"target_country":  country("Country of origin to aim for, e.g. Thailand."),
 			"case_access_key": accessKey(),
+			"idempotency_key": pattern("Optional. Any string you choose, the same on a retry; a new one for a new search.", `^[!-~]{1,200}$`, 200),
 		}),
 		Annotations: writes("Plan production moves"),
 	}, t.plan)
@@ -261,9 +263,10 @@ type extractIn struct {
 }
 
 type planIn struct {
-	CaseID    string `json:"case_id"`
-	Target    string `json:"target_country"`
-	AccessKey string `json:"case_access_key,omitempty"`
+	CaseID      string `json:"case_id"`
+	Target      string `json:"target_country"`
+	AccessKey   string `json:"case_access_key,omitempty"`
+	Idempotency string `json:"idempotency_key,omitempty"`
 }
 
 type compareIn struct {
@@ -409,7 +412,7 @@ func (t tools) extract(ctx context.Context, hdr http.Header, in extractIn) (*mcp
 }
 
 func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallToolResult, any, error) {
-	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/plan"), body: map[string]any{"target": in.Target}, access: in.AccessKey})
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/plan"), body: map[string]any{"target": in.Target}, access: in.AccessKey, idempotency: in.Idempotency})
 	if err != nil || !res.ok() {
 		return failed(res, err)
 	}

@@ -318,3 +318,23 @@ func TestToolRequestsDoNotInheritContextValues(t *testing.T) {
 		t.Error("isolated is not cancelled with its parent")
 	}
 }
+
+// D402: plan_production_moves sends its idempotency_key as the REST
+// Idempotency-Key header, and only when given.
+func TestPlanSendsTheIdempotencyKey(t *testing.T) {
+	api := &stubAPI{body: map[string]string{"POST /v1/cases/case_x/plan": `{"case_id":"case_x","plan":{"target":"Thailand","plans":[],"rejected":[]}}`}}
+	cs := connect(t, api, false, nil)
+	if res, txt, _ := call(t, cs, "plan_production_moves", map[string]any{"case_id": "case_x", "target_country": "Thailand", "idempotency_key": "retry-7f3a"}); res.IsError {
+		t.Fatal(txt)
+	}
+	if got := api.last().Header.Get("Idempotency-Key"); got != "retry-7f3a" {
+		t.Errorf("Idempotency-Key = %q", got)
+	}
+	call(t, cs, "plan_production_moves", map[string]any{"case_id": "case_x", "target_country": "Thailand"})
+	if got := api.last().Header.Get("Idempotency-Key"); got != "" {
+		t.Errorf("no key given, sent %q", got)
+	}
+	if res, _, _ := call(t, cs, "plan_production_moves", map[string]any{"case_id": "case_x", "target_country": "Thailand", "idempotency_key": "has space"}); !res.IsError {
+		t.Error("a key with a space must be refused by the schema")
+	}
+}
