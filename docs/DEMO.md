@@ -8,12 +8,21 @@ There is no deck, so the video carries every judging line. The official weights 
 
 The story follows one decision through the five roles on the landing page ("Who uses it, and who benefits"). They are roles Unde is designed around, not customers: it has none yet.
 
+### Plan screen: one canonical instruction, two branches
+
+The landing's "check 0.96" is a **recorded 18 Oct 2026 production run**, committed in section 6 below. The pinned case on this site came from a different run (section 4) whose plan is below the bar. Never call 0.96 the answer of the pinned case you are about to open.
+
+- **If the Plan screen shows a plan:** "This is the recorded 18 Oct run: motor-fan assembly, PCBA, switch, cord and minor parts in Thailand, check 0.96 on N345938, $285k a year on illustrative economics. The bar held the motor-fan-only move (0.90) back."
+- **If it shows no plan above the bar (the current pinned seed):** "No move cleared the 0.92 bar in this pinned run. The closest below-bar move is PCBA in Thailand at 0.75 on N345938. The landing shows a separate recorded 18 Oct run that did clear it at 0.96; the bar is deliberately conservative, so a below-bar result is not a failed search."
+
+Check which branch applies with `GET /v1/cases` (pinned `case_878d76540b91`) before the talk. The landing copy itself now labels the 0.96 as recorded and warns that the pinned demo may differ.
+
 | Time | Topic (judging line) | Screen | Say |
 |---|---|---|---|
 | 0:00–0:15 | **Problem** (Impact) | Landing page, hero | "When a factory moves out of China, US Customs decides where the product is *from*. For this heat gun, that's about 41.7% duty from China against 16.7% from Thailand." |
 | 0:15–0:30 | **Who, and why it's hard** (Impact) | Landing page, "Who uses it, and who benefits" | "The compliance lead at a Thai contract manufacturer asks the question. The COO pays for the move, a customs broker files the ruling request, and the U.S. importer carries the duty risk. Each ruling request takes about 20 hours to prepare, and recent origin rulings took a median of 21 days. Unde Labs answers first. *Unde* is Latin for 'from where?'." |
 | 0:30–0:50 | **Predict** (Gen AI) | "Try the heat-gun demo" → Origin | "Gemini reads CBP's own facts with the most similar earlier rulings. China, calibrated 0.60 (the model stated 0.85): under our 0.90 auto-accept bar, so it asks three questions instead of guessing." Open the cited rulings. |
-| 0:50–1:15 | **Plan and agent check** (Innovation, Gen AI) | Plan: shown plan → "How the check found this" → closest below-bar row | "It tries moving each group of work to the Thai plant. An ADK agent then searches real CBP rulings for and against each move. Shown: motor-fan assembly, PCBA, switch and cord in Thailand, 0.96, supported by N345938, $285k a year on illustrative economics. Motor-fan alone scored 0.90, so the 0.92 precedent-check bar held it back." |
+| 0:50–1:15 | **Plan and agent check** (Innovation, Gen AI) | Plan: shown plan → "How the check found this" → closest below-bar row | "It tries moving each group of work to the Thai plant. An ADK agent then searches real CBP rulings for and against each move. Use the two-branch instruction above: quote 0.96 only if the screen shows the recorded 18 Oct plan; if the pinned case shows no plan above the bar, say so and name its closest below-bar move." |
 | 1:15–1:25 | **Backtest** (Innovation, Impact) | Backtest panel | "The manufacturer really made this change. In 2026, CBP ruled Thailand, N357771: the same parts, plus outer shells that were already Thai here." |
 | 1:25–1:35 | **Hand-off** (UX, Impact) | Draft for broker (it opens on the shown plan) | "One click: a draft ruling request for the broker to check and file. Precedent-supported, not a ruling." |
 | 1:35–1:45 | **Photo import** (Gen AI, UX) | New case → Import BOM → click "Photo (synthetic)" (it loads in place) → Parts and plants | "A parts list can come in as a photo or a scan. Gemini reads it into a draft table, and the user checks every row before anything runs. On 20 synthetic images it read 151 of 170 part names, with no wrong country; real photos and scans are not measured yet, so every row is treated as unverified." |
