@@ -1,0 +1,127 @@
+{
+  "_source": "Reverse probe built from the facts of CBP ruling N366167 (2026-11-06): Waffle Cone air purifier; CBP held Indonesia. Same-day ruling N366168 on the same product with the parts listed in actual_change from China: CBP still held Indonesia. Post-cutoff control pair (D170). Filters are put in the motor-fan group (the air path); plant capabilities for China are an assumption.",
+  "case_id": "post-purifier-waffle-2026",
+  "date": "2026-11-06",
+  "family": "motorised_tools_small_appliances",
+  "target": "China",
+  "product": {
+    "name": "Waffle Cone air purifier",
+    "description": "A cylindrical home air purifier with a 3-in-1 filter, a motor and fan, power, converter and control boards, a dust sensor and a moulded plastic body.",
+    "plants": [
+      {
+        "id": "id",
+        "name": "Indonesia assembly plant",
+        "country": "Indonesia",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "cn",
+        "name": "China suppliers",
+        "country": "China",
+        "capabilities": [
+          "motor_fan_assembly",
+          "pcba",
+          "heating_element",
+          "housing_moulding",
+          "switch_cord_minor_parts"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "motor",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "fan",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "filters",
+        "made_in": "Indonesia",
+        "plant": "id",
+        "group": "motor_fan_assembly"
+      },
+      {
+        "name": "power board, converter board and control PCB assemblies",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "pcba"
+      },
+      {
+        "name": "dust sensor, power cable, LED light strip and wiring",
+        "made_in": "China",
+        "plant": "cn",
+        "group": "switch_cord_minor_parts"
+      }
+    ],
+    "operations": [
+      {
+        "name": "injection-mould the plastic housing parts",
+        "plant": "id",
+        "group": "housing_moulding"
+      },
+      {
+        "name": "pre-assemble the control, power and sensor sub-assemblies",
+        "plant": "id",
+        "group": "final_assembly"
+      },
+      {
+        "name": "install frame, fan and motor, filters, boards and housing; test and pack",
+        "plant": "id",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "China": 0.425,
+      "Indonesia": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "motor_fan_assembly": {
+        "id": 60000,
+        "cn": 50000
+      },
+      "pcba": {
+        "id": 40000,
+        "cn": 35000
+      },
+      "housing_moulding": {
+        "id": 30000,
+        "cn": 26000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N366167",
+    "N366168"
+  ],
+  "current_origin": {
+    "country": "Indonesia",
+    "ruling": "N366167"
+  },
+  "control": {
+    "_source": "CBP ruling N366168 (2026-11-06): CBP held Indonesia, not China",
+    "moved_to_china": [
+      "motor",
+      "fan",
+      "filters"
+    ],
+    "origin_changed": false
+  }
+}

@@ -161,6 +161,14 @@ func TestFamilyFixturesPlan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The planner evaluation's fixtures (D170, D171) run the same checks.
+	for _, dir := range []string{"planner_post", "planner_families"} {
+		more, err := filepath.Glob(filepath.Join("..", "..", "testdata", dir, "*.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		paths = append(paths, more...)
+	}
 	tmpls, err := LoadTemplates()
 	if err != nil {
 		t.Fatal(err)
