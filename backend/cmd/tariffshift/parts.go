@@ -90,6 +90,13 @@ type SuggestRow struct {
 // description from the facts the engine reads, HTS numbers removed) and,
 // for dev, the per-family fixtures (all dev or train).
 func evalProducts(split string) ([]EvalProduct, error) {
+	return evalProductsWith(split, stripCodes, stripCodes)
+}
+
+// evalProductsWith is evalProducts with given code strippers for the name
+// and the description; parts-eval rebuilds the inputs the committed runs saw
+// (stripCodesV1 on the description, the name as it was) (#576).
+func evalProductsWith(split string, stripName, strip func(string) string) ([]EvalProduct, error) {
 	ids, err := splitIDs(split)
 	if err != nil {
 		return nil, err
@@ -116,7 +123,7 @@ func evalProducts(split string) ([]EvalProduct, error) {
 		if err != nil {
 			return nil, err
 		}
-		p := domain.Product{Name: productName(labels[id].Subject), Description: stripCodes(string(facts))}
+		p := domain.Product{Name: stripName(productName(labels[id].Subject)), Description: strip(string(facts))}
 		for _, m := range r.Input.Materials {
 			p.Components = append(p.Components, domain.Component{Name: m.Name, MadeIn: m.Origin})
 		}
@@ -140,7 +147,7 @@ func evalProducts(split string) ([]EvalProduct, error) {
 			return nil, err
 		}
 		id := strings.ToUpper(strings.TrimSuffix(filepath.Base(f), ".json"))
-		p := domain.Product{Name: fx.Product.Name, Description: stripCodes(fx.Product.Description)}
+		p := domain.Product{Name: stripName(fx.Product.Name), Description: strip(fx.Product.Description)}
 		for _, c := range fx.Product.Components {
 			p.Components = append(p.Components, domain.Component{Name: c.Name, MadeIn: c.MadeIn})
 		}
@@ -215,11 +222,83 @@ func productName(subject string) string {
 	return name
 }
 
-var codeLike = regexp.MustCompile(`(?i)(?:sub)?headings?\s+\d{4}(?:\.\d{2})*(?:\.\d{2,4})?|\b\d{4}\.\d{2}(?:\.\d{2,4})*\b`)
+// HTS numbers in facts text (D381, fixed by D413 for #576). A code may be
+// glued to the word before it ("subheading8419.34.0000", a PDF-extraction
+// artifact) and a heading word may lead a list ("headings 8539 and 8540",
+// "headings 4015, 4016, and 8484").
+var (
+	codeNum  = `\d{4}(?:\.\d{2,4})*`
+	listTail = `(?:\s*(?:,\s*(?:and\s+|or\s+)?|\s(?:and|or|through|to)\s+)` + codeNum + `\b)*`
+	// a heading word, then a code and any codes listed after it
+	headingCode = regexp.MustCompile(`(?i)\b(?:sub)?headings?\s*` + codeNum + `\b` + listTail)
+	// a dotted code anywhere, even glued to a word before it
+	dottedCode = regexp.MustCompile(`\d{4}\.\d{2}(?:\.\d{2,4})*\b` + listTail)
+	// a bare 4-digit heading (or a list of them) then ", HTSUS" (a year
+	// such as "the 2024 HTSUS" has no comma and stays)
+	htsusCode = regexp.MustCompile(`\b\d{4}` + listTail + `(,\s+HTSU?S?\b)`)
+)
 
-// stripCodes removes HTS numbers from a description, so the suggester cannot
-// copy a code the facts state.
-func stripCodes(s string) string { return codeLike.ReplaceAllString(s, "[code removed]") }
+// stripCodes removes HTS numbers from a product's name and description, so
+// the suggester cannot copy a code the facts state.
+func stripCodes(s string) string {
+	s = headingCode.ReplaceAllString(s, "[code removed]")
+	s = dottedCode.ReplaceAllString(s, "[code removed]")
+	return htsusCode.ReplaceAllString(s, "[code removed]$1")
+}
+
+// stripCodesV1 is the stripper the committed suggestion runs used (D381,
+// frozen). It missed codes glued to a word, every code of a list but the
+// first, the last digits of 10-digit codes, and product names (#576).
+// parts-eval uses it to find which committed inputs carried a code.
+var codeLikeV1 = regexp.MustCompile(`(?i)(?:sub)?headings?\s+\d{4}(?:\.\d{2})*(?:\.\d{2,4})?|\b\d{4}\.\d{2}(?:\.\d{2,4})*\b`)
+
+func stripCodesV1(s string) string { return codeLikeV1.ReplaceAllString(s, "[code removed]") }
+
+var numTok = regexp.MustCompile(`\d{4}(?:\.\d{2,4})*`)
+
+// leftCodes lists the numbers of 4 digits or more that are in the input
+// the committed run saw (v1) but not in the input stripCodes makes now:
+// the HTS numbers that reached the suggester. A year such as "2024" is in
+// both and is not listed, nor are the 2 last digits of a 10-digit code v1
+// left behind ("[code removed]00").
+func leftCodes(v1, now domain.Product) []string {
+	have := map[string]int{}
+	for _, t := range numTok.FindAllString(now.Name+" "+now.Description, -1) {
+		have[t]++
+	}
+	var out []string
+	for _, t := range numTok.FindAllString(v1.Name+" "+v1.Description, -1) {
+		if have[t] > 0 {
+			have[t]--
+			continue
+		}
+		out = append(out, t)
+	}
+	return out
+}
+
+// inputCodes maps each product of a split whose committed input carried an
+// HTS number to those numbers.
+func inputCodes(split string) (map[string][]string, error) {
+	v1, err := evalProductsWith(split, func(s string) string { return s }, stripCodesV1)
+	if err != nil {
+		return nil, err
+	}
+	now, err := evalProducts(split)
+	if err != nil {
+		return nil, err
+	}
+	out := map[string][]string{}
+	for i := range v1 {
+		if v1[i].Ruling != now[i].Ruling {
+			return nil, fmt.Errorf("parts: products out of order: %s, %s", v1[i].Ruling, now[i].Ruling)
+		}
+		if l := leftCodes(v1[i].Product, now[i].Product); len(l) > 0 {
+			out[v1[i].Ruling] = l
+		}
+	}
+	return out, nil
+}
 
 // ---- gold ----
 
@@ -469,6 +548,30 @@ type PartsCell struct {
 	OutTokens int     `json:"output_tokens"`
 	// The rule check with the top suggestions (usmca only).
 	RuleCheck []RuleCheckCell `json:"rule_check,omitempty"`
+	// InputCodes lists the products whose committed input still carried an
+	// HTS number after the v1 stripper, with those numbers; Clean is the
+	// cell without them (post-freeze correction, #576, D413).
+	InputCodes []string     `json:"input_codes,omitempty"`
+	Clean      *CleanCounts `json:"without_input_codes,omitempty"`
+}
+
+// CleanCounts are a cell's counts without the products in InputCodes.
+type CleanCounts struct {
+	Products int `json:"products"`
+	Gold     int `json:"gold_parts"`
+	Top1     int `json:"top1"`
+	Top3     int `json:"top3"`
+	GoodGold int `json:"good_gold"`
+	GoodTop1 int `json:"good_top1"`
+	GoodTop3 int `json:"good_top3"`
+}
+
+// RuleClean is a rule-check cell without the products in InputCodes.
+type RuleClean struct {
+	N          int `json:"n"`
+	OutOfScope int `json:"out_of_scope"`
+	Decided    int `json:"decided"`
+	AgreeCBP   int `json:"agree_cbp"`
 }
 
 // RuleCheckCell is the rule check on one input variant.
@@ -481,6 +584,7 @@ type RuleCheckCell struct {
 	Reasons    map[string]int `json:"undetermined_reasons"`
 	Rulings    []string       `json:"decided_rulings,omitempty"`
 	Disagree   []string       `json:"disagree_cbp_rulings,omitempty"`
+	Clean      *RuleClean     `json:"without_input_codes,omitempty"`
 }
 
 func cmdPartsEval(args []string) error {
@@ -513,6 +617,10 @@ func cmdPartsEval(args []string) error {
 		for _, g := range gold {
 			goldBy[g.Ruling] = g
 		}
+		leaks, err := inputCodes(split)
+		if err != nil {
+			return err
+		}
 		inputs, err := readInputs(filepath.Join(evalDir, fmt.Sprintf("inputs-%s-full_text.jsonl", split)))
 		if err != nil {
 			return err
@@ -529,9 +637,17 @@ func cmdPartsEval(args []string) error {
 					{Input: "CBP's code for the good, top suggestion for every part", Reasons: map[string]int{}},
 					{Input: "top suggestion for the good and every part", Reasons: map[string]int{}}}
 			}
+			cl := &CleanCounts{}
+			rcl := make([]RuleClean, len(rc))
 			for _, s := range sugg {
 				if s.Set != set {
 					continue
+				}
+				leaked := len(leaks[s.Ruling]) > 0
+				if leaked {
+					c.InputCodes = append(c.InputCodes, s.Ruling+": "+strings.Join(leaks[s.Ruling], ", "))
+				} else {
+					cl.Products++
 				}
 				c.Products++
 				c.CostUSD += s.CostUSD
@@ -554,6 +670,9 @@ func cmdPartsEval(args []string) error {
 				}
 				for _, gp := range g.Gold {
 					c.Gold++
+					if !leaked {
+						cl.Gold++
+					}
 					cs := top[gp.Index]
 					for k, cand := range cs {
 						if !codeMatch(cand.HTS, gp.HTS) {
@@ -561,8 +680,14 @@ func cmdPartsEval(args []string) error {
 						}
 						if k == 0 {
 							c.Top1++
+							if !leaked {
+								cl.Top1++
+							}
 						}
 						c.Top3++
+						if !leaked {
+							cl.Top3++
+						}
 						break
 					}
 					if len(cs) > 0 {
@@ -589,12 +714,21 @@ func cmdPartsEval(args []string) error {
 				in := inBy[s.Ruling]
 				if cbp := in.Input.GoodHTS; cbp != "" && s.Good != nil {
 					c.GoodGold++
+					if !leaked {
+						cl.GoodGold++
+					}
 					for k, cand := range s.Good.Candidates {
 						if codeMatch(cand.HTS, cbp) {
 							if k == 0 {
 								c.GoodTop1++
+								if !leaked {
+									cl.GoodTop1++
+								}
 							}
 							c.GoodTop3++
+							if !leaked {
+								cl.GoodTop3++
+							}
 							break
 						}
 					}
@@ -611,7 +745,14 @@ func cmdPartsEval(args []string) error {
 				}
 				variants := []tariffshift.Input{in.Input, withParts(in.Input, in.Input.GoodHTS, top), withParts(in.Input, goodTop, top)}
 				for vi, v := range variants {
+					before := rc[vi]
 					scoreRule(&rc[vi], rules, v, s.Ruling, labels[s.Ruling].Origin)
+					if !leaked {
+						rcl[vi].N++
+						rcl[vi].OutOfScope += rc[vi].OutOfScope - before.OutOfScope
+						rcl[vi].Decided += rc[vi].Decided - before.Decided
+						rcl[vi].AgreeCBP += rc[vi].AgreeCBP - before.AgreeCBP
+					}
 				}
 			}
 			if c.Products == 0 {
@@ -625,12 +766,18 @@ func cmdPartsEval(args []string) error {
 				lo, hi = wilson(c.Top3, c.Gold)
 				c.Top3CI = &[2]float64{lo, hi}
 			}
+			if len(c.InputCodes) > 0 {
+				c.Clean = cl
+				for i := range rc {
+					rc[i].Clean = &rcl[i]
+				}
+			}
 			c.RuleCheck = rc
 			cells = append(cells, c)
 		}
 	}
 	b, _ := json.MarshalIndent(map[string]any{
-		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). Recompute: cd backend && go run ./cmd/tariffshift parts-eval -check",
+		"note":  "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. Recompute: cd backend && go run ./cmd/tariffshift parts-eval -check",
 		"cells": cells,
 	}, "", " ")
 	if err := writeOrCheck(filepath.Join(partsDir, "summary.json"), append(b, '\n'), *check); err != nil {
@@ -640,8 +787,15 @@ func cmdPartsEval(args []string) error {
 		fmt.Printf("%-14s %-6s products=%d parts=%d suggested=%d gold=%d top1=%d top3=%d heading=%d top1_rulings=%d/%d top1_model=%d/%d good=%d/%d/%d cost=$%.4f ($%.4f/product)\n",
 			c.Run, c.Set, c.Products, c.Parts, c.Suggested, c.Gold, c.Top1, c.Top3, c.Top1Heading, c.Top1FromRulingsRight, c.Top1FromRulings,
 			c.Top1FromModelRight, c.Top1FromModel, c.GoodTop1, c.GoodTop3, c.GoodGold, c.CostUSD, c.CostPer)
+		if c.Clean != nil {
+			fmt.Printf("    input carried a code (v1 strip, #576): %s\n    without them: products=%d gold=%d top1=%d top3=%d good=%d/%d/%d\n",
+				strings.Join(c.InputCodes, "; "), c.Clean.Products, c.Clean.Gold, c.Clean.Top1, c.Clean.Top3, c.Clean.GoodTop1, c.Clean.GoodTop3, c.Clean.GoodGold)
+		}
 		for _, r := range c.RuleCheck {
 			fmt.Printf("    rule check [%s]: n=%d out_of_scope=%d decided=%d agree_cbp=%d %v\n", r.Input, r.N, r.OutOfScope, r.Decided, r.AgreeCBP, r.Reasons)
+			if r.Clean != nil {
+				fmt.Printf("      without input codes: n=%d out_of_scope=%d decided=%d agree_cbp=%d\n", r.Clean.N, r.Clean.OutOfScope, r.Clean.Decided, r.Clean.AgreeCBP)
+			}
 		}
 	}
 	return nil

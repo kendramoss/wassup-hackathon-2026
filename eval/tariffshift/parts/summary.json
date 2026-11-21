@@ -118,7 +118,13 @@
      "decided_rulings": [
       "N344091",
       "N344002"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 36,
+      "decided": 2,
+      "agree_cbp": 2
+     }
     },
     {
      "input": "CBP's code for the good, top suggestion for every part",
@@ -143,7 +149,13 @@
       "N350133",
       "N352763",
       "N354024"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 36,
+      "decided": 8,
+      "agree_cbp": 8
+     }
     },
     {
      "input": "top suggestion for the good and every part",
@@ -170,9 +182,30 @@
      ],
      "disagree_cbp_rulings": [
       "N340017: Mexico"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 65,
+      "out_of_scope": 36,
+      "decided": 10,
+      "agree_cbp": 9
+     }
     }
-   ]
+   ],
+   "input_codes": [
+    "N339851: 4421",
+    "N343893: 4016, 8484",
+    "N352810: 3914",
+    "H342474: 8540"
+   ],
+   "without_input_codes": {
+    "products": 65,
+    "gold_parts": 26,
+    "top1": 20,
+    "top3": 21,
+    "good_gold": 64,
+    "good_top1": 34,
+    "good_top3": 39
+   }
   },
   {
    "run": "dev-v1",
@@ -254,7 +287,13 @@
      "decided_rulings": [
       "N360891",
       "N362506"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 12,
+      "decided": 2,
+      "agree_cbp": 2
+     }
     },
     {
      "input": "CBP's code for the good, top suggestion for every part",
@@ -278,7 +317,13 @@
      ],
      "disagree_cbp_rulings": [
       "N358639: Mexico"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 12,
+      "decided": 7,
+      "agree_cbp": 6
+     }
     },
     {
      "input": "top suggestion for the good and every part",
@@ -303,10 +348,32 @@
      ],
      "disagree_cbp_rulings": [
       "N358639: Mexico"
-     ]
+     ],
+     "without_input_codes": {
+      "n": 24,
+      "out_of_scope": 11,
+      "decided": 7,
+      "agree_cbp": 6
+     }
     }
-   ]
+   ],
+   "input_codes": [
+    "N357063: 3914",
+    "H355020: 3914, 3914",
+    "H351116: 9802.00.40, 9802.00.80, 5405",
+    "N363600: 8419.34.0000",
+    "N364586: 3914"
+   ],
+   "without_input_codes": {
+    "products": 24,
+    "gold_parts": 3,
+    "top1": 2,
+    "top3": 2,
+    "good_gold": 23,
+    "good_top1": 12,
+    "good_top3": 12
+   }
   }
  ],
- "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"
+ "note": "Per-part HTS suggestions (D380), scored as pre-registered in D381. A suggestion matches when it equals CBP's stated code at the level CBP stated (up to 8 digits). Gold: hts.PartStatements on the full ruling text, matched to the part by name. Suggestions see only rulings dated before the scored ruling, never the ruling itself; no CROSS search and no USITC check (offline). input_codes and without_input_codes (post-freeze, #576, D413): products whose committed input still carried an HTS number after the v1 code stripper, and each cell without them. Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift parts-eval -check"
 }

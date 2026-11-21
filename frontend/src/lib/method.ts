@@ -72,6 +72,7 @@ export const DECISIONS: Record<string, string> = {
   D401: "d401--customs-bulletin-revocations-results-22-nov",
   D380: "d380--hts-codes-suggested-for-each-part-so-the-10220-rule-check-can-run-the-route-is-on-by-default-22-nov",
   D382: "d382--per-part-hts-suggestions-results-22-nov",
+  D413: "d413--code-stripping-for-the-per-part-evaluation-the-leaked-inputs-reported-22-nov-576-post-freeze-correction",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;

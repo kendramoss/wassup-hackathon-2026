@@ -117,7 +117,9 @@ Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `ma
 | Parts with a suggestion | dev 389 of 393 (Part 102), 200 of 200 (families); final 225 of 245 | `eval/tariffshift/parts/summary.json` | Measured |
 | Top suggestion matches CBP's stated part code | dev 20 of 27 (55.3-86.8%), top 3: 22 of 27; families 2 of 2; final (held out) 2 of 3 (20.8-93.9%) | same | Measured, small n; always with n. Post hoc, 4 dev gold codes look wrong; without them 19 of 23 |
 | Good's code, top suggestion matches CBP's | dev 36 of 68, final 14 of 27 | same | Measured |
-| Rule check decided with suggested part codes (CBP's good code) | dev 9 of 69 (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only: 2 and 2 | same | Measured. Not product accuracy; most rulings stay out of scope |
+| Rule check decided with suggested part codes (CBP's good code) | dev 9 of 69 (9 agree with CBP), final 7 of 29 (6 agree); with CBP's stated codes only: 2 and 2 | same | Measured. Not product accuracy; most rulings stay out of scope. Give per split, never pooled (D413) |
+| Inputs that carried an HTS number past the v1 stripper (#576) | final 5 of 29 (N363600 with the importer's full code), dev 4 of 69 | `eval/tariffshift/parts/summary.json` (`input_codes`) | Measured, post-freeze correction (D413) |
+| Held-out figures without those inputs | every code suggested: 7 of 24 decided, 6 agree (8 of 29, 7 agree as run); CBP's good code: 7 of 24, 6 agree; good top-1 / top-3: 12 / 12 of 23 (14 / 15 of 27 as run) | same (`without_input_codes`) | Measured, post-freeze correction (D413); not re-run |
 | Cost per product | $0.0103 (dev Part 102), $0.0139 (families), $0.0123 (final); $1.42 for all runs | same; `eval/results/RUNLOG.jsonl` (`parts-hts-*`) | Measured, gateway-reported |
 
 ### Method page (/method): negative results, splits and leakage, already in the decision record
