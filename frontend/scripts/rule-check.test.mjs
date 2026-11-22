@@ -69,7 +69,16 @@ test("undetermined on a fact or a value: one calm line, no panel", () => {
   const dm = { ...decided, result: { status: "undetermined", reason: "r", rule, if_not_de_minimis: { origin: "China", basis: "b", condition: "c" } } };
   assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: dm } })), /: open on value: Mexico if the parts that do not shift are worth no more than 7% of the good, otherwise China\.$/);
   const oos = { ...decided, result: { status: "out_of_scope", reason: "r" } };
-  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: oos } })), /not encoded for this product's chapter yet\./);
+  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: oos } })), /not encoded for this product's chapter\. Encoded: chapters 15, 21, 39, .* 94 and 95\.$/);
+  const textile = { ...decided, result: { status: "out_of_scope", reason: "a chapter note sends 3921.12.15 to 19 CFR 102.21 (textile rules), which are not encoded" } };
+  assert.match(text(html(RuleCheckPanel, { c: { id: "x", rule_check: textile } })), /textile rules \(19 CFR 102\.21\)\.$/);
+});
+
+test("the out-of-scope line lists the chapters rules.json encodes (D460)", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const rules = JSON.parse(await readFile(new URL("../../backend/internal/tariffshift/rules.json", import.meta.url), "utf8"));
+  const { copy } = await import("../src/lib/copy.ts");
+  assert.deepEqual(copy.ruleCheck.chapters, rules.chapters);
 });
 
 test("Part 102 case with only the good's code: a line to add the part codes", () => {

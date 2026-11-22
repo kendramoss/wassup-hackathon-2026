@@ -129,5 +129,5 @@ type TableSource struct {
 // goods among the development Part 102 rulings and the earlier labelled
 // pool (15 fats and oils, 21 food preparations, 39 plastics, 40 rubber, 44
 // wood, 48 paper, 71 jewellery, 76 aluminium, 83 miscellaneous base metal,
-// 95 toys and sports goods). Other chapters are out of scope.
+// 95 toys, games and sports goods). Other chapters are out of scope.
 var ScopeChapters = []string{"15", "21", "39", "40", "44", "48", "71", "73", "76", "82", "83", "84", "85", "87", "90", "94", "95"}

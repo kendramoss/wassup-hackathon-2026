@@ -390,15 +390,15 @@ export function MethodPage() {
           the model&apos;s stated confidence into a probability, and the code that routes, checks and logs each answer.
         </p>
         <p>
-          <b className="font-medium text-ink">Rule check.</b> Beside the model sits a deterministic check of the 19 CFR 102.20 tariff-shift rules for seven HTS chapters
-          (<D id="D360" />). It runs only when the parts list gives HTS codes, says &quot;undetermined&quot; rather than guess, and never changes the answer or what is
-          auto-accepted (<D id="D363" />). On the committed Part 102 rulings it decides none from the facts the model reads, because they rarely give codes; from the full
-          ruling text it decides 4 of 104, each as CBP held (<D id="D362" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
+          <b className="font-medium text-ink">Rule check.</b> Beside the model sits a deterministic check of the 19 CFR 102.20 tariff-shift rules for 17 HTS chapters
+          (<D id="D360" />, <D id="D460" />). It runs only when the parts list gives HTS codes, says &quot;undetermined&quot; rather than guess, and never changes the answer or what is
+          auto-accepted (<D id="D363" />). On the committed Part 102 rulings it decides 1 of 117 from the facts the model reads, because they rarely give codes; from the full
+          ruling text it decides 12 of 104, each as CBP held (<D id="D362" />, <D id="D461" />). Since parts rarely come with codes, the parts table now suggests up to three per part,
           each marked as from an earlier CBP ruling on a similar part or as the model&apos;s own reading, and fills one in only when you accept it (<D id="D380" />). Where
           CBP states a part&apos;s code, the top suggestion matched it for 20 of 27 development parts. With CBP&apos;s code for the good and the suggested part codes,
-          the check decides 9 of 69 development rulings (all 9 agree with CBP) and, held out, 7 of 29 (6 agree); 7 of 24 (6 agree) without the inputs that
-          carried a code (<D id="D382" />, <D id="D413" />). With only the codes CBP states it decides 2 and 2. Run again over every combination of each
-          part&apos;s top three suggestions, 8 of the 9 development decisions and 6 of the 7 held-out ones give the same answer under every code; the held-out one
+          the check decides 16 of 69 development rulings (all 16 agree with CBP) and, held out, 14 of 29 (13 agree); 11 of 24 (10 agree) without the inputs that
+          carried a code (<D id="D382" />, <D id="D413" />, <D id="D461" />). With only the codes CBP states it decides 8 and 4. The first seven chapters gave 9 and 7. Run again over every combination of each
+          part&apos;s top three suggestions, 15 of the 16 development decisions and 13 of the 14 held-out ones give the same answer under every code; the held-out one
           that disagrees with CBP is the one that turns on a part&apos;s code (<D id="D430" />). The codes are unverified: check them with a broker.{" "}
           <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
             See a recorded example
