@@ -3,6 +3,7 @@ model, not by the detector's author (D680). Run once, before scoring.
 
     set -a; . <your gateway env>; set +a
     python3 -I eval/jurisdiction/gen_probes.py eval/jurisdiction/probes-model.jsonl
+    python3 -I eval/jurisdiction/gen_probes.py eval/jurisdiction/probes-model-2.jsonl 2   # set 2 (D681)
 
 Needs LITELLM_BASE_URL and LITELLM_API_KEY (an OpenAI-compatible LiteLLM
 gateway to Gemini). Prints counts and cost only."""
@@ -15,6 +16,9 @@ MARKETS = [("eu", "the European Union or one of its member states", 6), ("uk", "
 PROMPT = """Write {n} short, varied questions a business might ask about the customs country of origin of a manufactured or processed product it imports into {market}.
 Each question names the product, where its main parts or materials come from, and where it is processed or assembled. Make clear, in different ways, that the goods are imported into {market}: name the country or a city, the customs authority, a local law or tariff, a local currency, or a local sales channel. Vary the wording and length (20 to 70 words). Do not mention the United States as the destination.
 Return JSON: {{"questions": ["...", ...]}}"""
+# Set 2 and later add this line, so the gateway does not return set 1 again
+# and the products differ (D681).
+LATER = "\nThis is set {k}: use different products, countries and wording from any earlier set."
 
 
 def call(prompt):
@@ -28,13 +32,15 @@ def call(prompt):
     return json.loads(out["choices"][0]["message"]["content"])["questions"], cost, out.get("usage", {})
 
 
-def main(path):
+def main(path, k=1):
     rows, total = [], 0.0
     for code, market, n in MARKETS:
-        qs, cost, usage = call(PROMPT.format(n=n, market=market))
+        prompt = PROMPT.format(n=n, market=market) + (LATER.format(k=k) if k > 1 else "")
+        qs, cost, usage = call(prompt)
         total += cost
         for i, q in enumerate(qs[:n]):
-            rows.append({"id": f"m-{code}-{i+1:02d}", "want": code, "text": q, "model": MODEL})
+            pre = "m" if k == 1 else f"m{k}"
+            rows.append({"id": f"{pre}-{code}-{i+1:02d}", "want": code, "text": q, "model": MODEL})
         print(code, len(qs[:n]), "cost", round(cost, 6), usage)
     with open(path, "w") as f:
         for r in rows:
@@ -43,4 +49,4 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 1)
