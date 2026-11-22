@@ -166,6 +166,15 @@ func cmdPlans102Example(args []string) error {
 		return err
 	}
 	p := *fx.Product
+	// Plan sentences are rebuilt from the moves with the current wording
+	// (planner.Redescribe, as the server does for a stored search): the
+	// recorded run's titles predate D641. Moves, predictions and verdicts are
+	// as recorded.
+	tmpls, err := planner.LoadTemplates()
+	if err != nil {
+		return err
+	}
+	planner.Redescribe(&run.Result, &p, tmpls)
 	ann := planrule.Annotate(rules, p, run.Result, true)
 	target := domain.NormalizeCountry(ann.Target)
 
@@ -195,7 +204,7 @@ func cmdPlans102Example(args []string) error {
 	}
 	l := labels[fx.CurrentOrigin.Ruling]
 	ex := p102ExampleFile{
-		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift plans102-example -check`. Plan search: the D630 development run, as committed, in which the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicted each move; precedent checks and predictions as recorded, no new model call. Beside each move, the predictions for the same move in the D541 run (usmca-v1) and the D501 run (the general engine). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532, after the D501 and D541 runs; their recorded facts still use the ruling subject as the name and are not shown.",
+		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift plans102-example -check`. Plan search: the D630 development run, as committed, in which the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicted each move; precedent checks and predictions as recorded, no new model call; plan sentences rebuilt from the recorded moves with the current wording (D641). Beside each move, the predictions for the same move in the D541 run (usmca-v1) and the D501 run (the general engine). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532, after the D501 and D541 runs; their recorded facts still use the ruling subject as the name and are not shown.",
 		Ruling: fx.CurrentOrigin.Ruling, Date: fx.Date, Split: "dev", Run: "eval/tariffshift/plans102/runs/" + filepath.Base(runPath),
 		RunV1:     "eval/tariffshift/plans102/runs/" + filepath.Base(v1Path),
 		RunBefore: "eval/tariffshift/plans102/runs/" + filepath.Base(beforePath),

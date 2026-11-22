@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
@@ -45,7 +46,7 @@ func TestGroupPhraseNamesThePartsWhenTheTemplateNameDoesNotFit(t *testing.T) {
 		// Judge panel round 4 (D290): the PCR instrument's main board sits in
 		// "PCBA and sensors", and it has no sensor.
 		{"an item no part fits is dropped", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors"), comp("Temperature control module", "pcba_and_sensors")},
-			"pcba_and_sensors", "Move the PCBA and 1 other part to Vietnam"},
+			"pcba_and_sensors", "Move the PCBA and the temperature control module to Vietnam"},
 		{"only fitting parts: no count", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors")},
 			"pcba_and_sensors", "Move the PCBA to Vietnam"},
 		{"every item fits, the name stays", "medical_devices", []domain.Component{comp("Main printed circuit board", "pcba_and_sensors"), comp("Optical sensor array", "pcba_and_sensors")},
@@ -126,6 +127,58 @@ func TestGroupPhraseDropsMergedItemsThePartsDoNotHave(t *testing.T) {
 	for _, it := range []string{"dairy ingredients", "spirit bases", "precision-ground parts", "Motor stator", "Control boards"} {
 		if isProcess(it) {
 			t.Errorf("%q should not read as a process", it)
+		}
+	}
+}
+
+// D641 (judge panel round 14): a plan sentence names a single leftover part
+// instead of "1 other part", and joins the items of several groups once,
+// with commas and a final "and". The actuator of N348465: the control
+// boards' group holds a PCBA and an electrical apparatus.
+func TestDescribeNamesOneLeftoverAndJoinsOnce(t *testing.T) {
+	tms, err := LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join("..", "..", "testdata", "planner_part102", "n348465.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fx struct {
+		Family  string         `json:"family"`
+		Product domain.Product `json:"product"`
+	}
+	if err := json.Unmarshal(b, &fx); err != nil {
+		t.Fatal(err)
+	}
+	ca := ""
+	for _, pl := range fx.Product.Plants {
+		if pl.Country == "Canada" {
+			ca = pl.ID
+		}
+	}
+	if ca == "" {
+		t.Fatal("fixture has no Canadian plant")
+	}
+	tm := tms[fx.Family]
+	for _, c := range []struct {
+		groups []string
+		want   string
+	}{
+		{[]string{"controls_and_valves"}, "Move the control boards and the electrical apparatus to Canada"},
+		{[]string{"motor_stator_rotor", "controls_and_valves"}, "Move the motor stator, the control boards and the electrical apparatus to Canada"},
+		{[]string{"motor_stator_rotor", "fluid_rotary_mechanism"}, "Move the motor stator, the gearbox assembly and the screw drive to Canada"},
+	} {
+		var m domain.Move
+		for _, g := range c.groups {
+			m = append(m, domain.GroupMove{Group: g, ToPlant: ca})
+		}
+		got := Describe(fx.Product, tm, m)
+		if got != c.want {
+			t.Errorf("%v: %q, want %q", c.groups, got, c.want)
+		}
+		if strings.Count(got, " and ") > 1 || strings.Contains(got, "other part") {
+			t.Errorf("%v: %q chains \"and\" or counts one part", c.groups, got)
 		}
 	}
 }
