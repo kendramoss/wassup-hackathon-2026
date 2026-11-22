@@ -62,6 +62,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	python3 -I -B eval/planner/plan_bar.py . --check
 	python3 -I -B eval/planner/plan_stability.py . --check
 	python3 -I -B eval/planner/plan_rank.py . --check
+	python3 -I -B eval/agent/score.py . --check
 
 verify-data: ## check committed eval data against eval/SHA256SUMS and the bundled corpus against it
 	cd eval && shasum -a 256 -c SHA256SUMS

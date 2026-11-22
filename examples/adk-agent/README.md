@@ -1,6 +1,6 @@
 # Unde as tools for a Google ADK agent
 
-Status: built, and run end to end once against `https://undelabs.dev/mcp` on 22 Nov 2026 ([transcript](../../docs/mcp-transcripts/adk-full-flow.md)).
+Status: built. Run end to end against `https://undelabs.dev/mcp` on 22 Nov 2026 ([transcript](../../docs/mcp-transcripts/adk-full-flow.md)), then scored on 12 products, once each: 10 of 12 passed every check (see [Evaluation](#evaluation)).
 
 A [Google Agent Development Kit (ADK)](https://adk.dev) agent that works one U.S. country-of-origin case through Unde's MCP server. It reads a product description, then calls:
 
@@ -16,6 +16,7 @@ Files:
 
 - [`unde_agent/agent.py`](unde_agent/agent.py): the agent (`root_agent`), its instruction, the tool filter and the model choice.
 - [`run_case.py`](run_case.py): runs one case and prints each tool call and result, with timings, as a transcript.
+- [`run_eval.py`](run_eval.py): runs one product of the evaluation set and appends one row for the scorer (see Evaluation).
 - [`requirements.txt`](requirements.txt): pinned versions of the committed run.
 
 ## Install
@@ -77,6 +78,20 @@ It prints the model cost the gateway reports at the end.
 Pass your own case as one argument: `./.venv/bin/python run_case.py "A cordless drill: motor from China, ... Target country: Vietnam."`
 
 Without an API key, each run creates one anonymous case. `predict_origin` returns a `case_access_key`; the agent passes it to the later calls, and the transcript prints `<redacted key>` in its place.
+
+## Evaluation
+
+Built and run once per product on 22 Nov 2026 (D450, D451; [EVALUATION.md §12](../../docs/EVALUATION.md#12-agent-evaluation-the-adk-agent-on-12-products-22-nov-2026-d450-d451)). The set is [`eval/agent/products.jsonl`](../../eval/agent/products.jsonl): 14 products from development-split CBP rulings, each with a description, a family, a target country and CBP's origin. [`eval/agent/score.py`](../../eval/agent/score.py) checks tool order, arguments, that the answer states the origin `predict_origin` returned, that it cites only rulings the tools returned, and the "Not a ruling" line. Scores are in [`eval/agent/SUMMARY.md`](../../eval/agent/SUMMARY.md).
+
+On 12 products against `undelabs.dev`, Gemini 3.8 Flash through the gateway: 10 of 12 passed every check, no answer named a ruling the tools had not returned, $0.0394 of agent model cost a run on average, median 313 s a run. The two misses and what reading the answers found are in that section.
+
+Plumbing, with no model and no cost: start a local server in fake mode (`LLM_PROVIDER=fake make run`), then
+
+```bash
+UNDE_MCP_URL=http://localhost:8080/mcp ./.venv/bin/python run_eval.py --id a01 --scripted --out /tmp/plumbing.jsonl
+```
+
+A scored run uses the gateway variables above and `--out ../../eval/agent/results/<run>.jsonl`; then `python3 -I -B eval/agent/score.py .` from the repository root. Each run makes one case and one plan search.
 
 ## Limits
 

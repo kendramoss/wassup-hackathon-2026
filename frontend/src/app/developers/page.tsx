@@ -47,6 +47,8 @@ root_agent = LlmAgent(
 )`;
 const adkExample = `${copy.landing.repo}/tree/main/examples/adk-agent`;
 const adkTranscript = `${copy.landing.repo}/blob/main/docs/mcp-transcripts/adk-full-flow.md`;
+// docs/EVALUATION.md §12, eval/agent/summary.json (D450, D451).
+const adkEval = `${copy.landing.repo}/blob/main/docs/EVALUATION.md#12-agent-evaluation-the-adk-agent-on-12-products-22-nov-2026-d450-d451`;
 const desktopRelay = `{
   "mcpServers": {
     "unde": {
@@ -172,6 +174,13 @@ export default function Page() {
               {" · "}
               <a href={adkTranscript} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
                 The run&apos;s transcript
+              </a>
+            </p>
+            <p className="duo max-w-[72ch] text-[13px] text-dim">
+              Then scored on 12 products from earlier CBP rulings, one run each, with the checks written first: 10 of 12 passed every check, and no answer named a
+              ruling the tools had not returned. One miss retried a call the tool had refused; the other drafted the current setup when no plan was found.{" "}
+              <a href={adkEval} target="_blank" rel="noreferrer" className="text-ok underline underline-offset-2">
+                The agent evaluation
               </a>
             </p>
             <p className="duo max-w-[72ch] text-[13px] text-dim">

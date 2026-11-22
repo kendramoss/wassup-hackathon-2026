@@ -162,7 +162,8 @@ def score_run(row, prod):
     gold = None
     if origin:
         gold = {"cbp": prod["cbp_origin"], "predicted": origin, "agree": origin.lower() == prod["cbp_origin"].lower(),
-                "source_ruling_in_precedents": prod["ruling"] in (pf.get("precedents") or []) or prod["ruling"] in tool_rulings}
+                "source_ruling_in_precedents": prod["ruling"] in (pf.get("precedents") or []) or prod["ruling"] in tool_rulings,
+                "source_ruling_in_answer": prod["ruling"] in said}
     return {
         "id": row["id"], "run": row["run"], "model": row["model"], "mcp": row["mcp"],
         "tools": seq, "order_ok": order_ok, "order_issues": issues, "args_ok": args_ok, "arg_issues": sorted(set(arg_issues)),
@@ -201,7 +202,8 @@ def aggregate(scored):
         "pass_all": c(lambda s: s["pass"]),
         "gold_agree": [sum(1 for s in gold_n if s["gold"]["agree"]), len(gold_n)],
         "gold_source_in_precedents": sum(1 for s in gold_n if s["gold"]["source_ruling_in_precedents"]),
-        "wall_s": {"median": statistics.median(walls), "max": walls[-1], "min": walls[0]} if walls else None,
+        "gold_source_in_answer": sum(1 for s in gold_n if s["gold"]["source_ruling_in_answer"]),
+        "wall_s": {"median": round(statistics.median(walls), 1), "max": walls[-1], "min": walls[0]} if walls else None,
         "cost_usd": {"total": round(sum(costs), 4), "per_run_mean": round(sum(costs) / n, 4) if n else 0,
                      "per_run_max": round(max(costs), 4) if costs else 0},
     }
@@ -223,7 +225,7 @@ def render_md(summary):
                 f"| \"Not a ruling\" line, word for word | {pct(a['disclaimer'], a['runs'])} |",
                 f"| Target plant added when none was named | {pct(*a['target_plant_added'])} |",
                 f"| Passed every check | {pct(a['pass_all'], a['runs'])} |",
-                f"| predict_origin agrees with CBP (not an accuracy figure, see D450) | {pct(*a['gold_agree'])}; source ruling among the tools' rulings in {a['gold_source_in_precedents']} |",
+                f"| predict_origin agrees with CBP (not an accuracy figure, see D450) | {pct(*a['gold_agree'])}; the scored product's own ruling was among the tools' rulings in {a['gold_source_in_precedents']} and named in the answer in {a['gold_source_in_answer']} |",
                 f"| Wall time per run, median (min to max) | {a['wall_s']['median']} s ({a['wall_s']['min']} to {a['wall_s']['max']} s) |" if a["wall_s"] else "| Wall time | none |",
                 f"| Agent model cost (gateway-reported) | ${a['cost_usd']['total']:.4f} total, ${a['cost_usd']['per_run_mean']:.4f} mean per run, ${a['cost_usd']['per_run_max']:.4f} max |",
                 "", "| Product | Tools called | Order | Args | Origin said | Cites | Invented | Disclaimer | CBP / predicted | Time | Notes |",
