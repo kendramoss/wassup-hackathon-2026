@@ -37,7 +37,7 @@ const scenarios = [
   { label: "motor_fan_assembly in Thailand", product, prediction: { origin_country: "Thailand", confidence: 0.98, calibrated_confidence: 0.99 }, triage: { route: "auto" }, comparison: { net_usd: 380000, moved: [{ group: "motor_fan_assembly", to_plant: "th" }] }, plan_check: motorCheck },
   { label: "motor_fan_assembly + pcba in Thailand", product, prediction: { origin_country: "Thailand", confidence: 0.99, calibrated_confidence: 0.99 }, triage: { route: "auto" }, comparison: { net_usd: 320000, moved: [{ group: "motor_fan_assembly", to_plant: "th" }, { group: "pcba", to_plant: "th" }] }, plan_check: bothCheck },
 ];
-const best = { description: "Move the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts to Thailand", shown: true, net_per_year: 285000, net_priced: true, move: [{ group: "motor_fan_assembly", to_plant: "th" }, { group: "pcba", to_plant: "th" }], verdict: { confidence: 0.96, supporting_ruling: "N345938" }, prediction: { origin_country: "Thailand", confidence: 0.99 } };
+const best = { description: "Move the motor-fan assembly and the PCBA (SMT) to Thailand", shown: true, net_per_year: 320000, net_priced: true, move: [{ group: "motor_fan_assembly", to_plant: "th" }, { group: "pcba", to_plant: "th" }], verdict: { confidence: 0.94, supporting_ruling: "N347421" }, prediction: { origin_country: "Thailand", confidence: 0.99 } };
 const caseJson = {
   id: "c1", pinned: true, can_write: false, date: "2026-01-14", display_name: "Heat gun", step: "plan", facts: "In your letter dated October 25, 2022, you requested a ruling.", facts_source: "pasted",
   prediction: { origin_country: "China", confidence: 0.85, calibrated_confidence: 0.6 }, triage: { route: "needs_info" }, current_origin: { country: "China", ruling: "N328954" },
@@ -99,7 +99,7 @@ test("scenarios: the heat-gun cards agree with Plan", async () => {
   assert.doesNotMatch(text, /highest net/);
   assert.match(text, /Below the bar\s*0\.90 < 0\.92/);
   assert.match(text, /The plan search recommends:/);
-  assert.match(text, /Move the motor-fan assembly, the PCBA \(SMT\) and the switch, cord and minor parts to Thailand/);
+  assert.match(text, /Move the motor-fan assembly and the PCBA \(SMT\) to Thailand/);
   assert.match(text, /Engine: Thailand, 0\.99/);
   assert.match(text, /Two inputs, two answers/);
 });
@@ -113,7 +113,7 @@ test("origin: the pinned demo explains its watch and the second reading", async 
 });
 
 test("a plan names what it moves", () => {
-  assert.equal(movePhrase(best), "the motor-fan assembly, the PCBA (SMT) and the switch, cord and minor parts");
+  assert.equal(movePhrase(best), "the motor-fan assembly and the PCBA (SMT)");
   // Parts, not process steps; a group's steps only when none of its parts move (D270).
   assert.deepEqual(movedParts(product, { move: [{ group: "motor_fan_assembly", to_plant: "th" }] }), [{ group: "motor_fan_assembly", items: ["electric motor"] }]);
   const stepsOnly = { ...product, components: product.components.filter((c) => c.group !== "motor_fan_assembly") };

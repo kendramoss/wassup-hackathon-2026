@@ -350,7 +350,7 @@ export const copy = {
     demo: "Try the heat-gun demo →",
     fig1: "fig.1 — the heat gun",
     fig1Sub: "Kobalt 12.5-amp heat gun · real CBP rulings",
-    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. A recorded 18 Oct production run made those three groups in Thailand with a 0.96 precedent check, above its 0.92 bar (docs/DEMO.md, section 6). The pinned demo on this site shows the same plan at 0.96. In its real 2026 change the manufacturer made the motor, fan, PCBA, knob, power cord and back cover in Thailand and kept the switch, wires and fasteners in China, and CBP held Thailand.",
+    fig1Label: "fig.1, the heat gun, drawn in 3D. In 2022, assembled in Thailand with the motor-fan assembly, the PCBA and the switch, cord and minor parts from China, CBP held China. The pinned demo on this site (case_000e08240f23, seeded 22 Nov 2026) shows Origin as China (needs review, calibrated confidence below the auto-accept bar) and a best plan: move the motor-fan assembly and the PCBA (SMT) to Thailand with a precedent check 0.94, above the 0.92 plan bar (illustrative net $320k/yr). In the manufacturer\u2019s real 2026 change, motor, fan, PCBA, knob, power cord and back cover moved to Thailand while switch, wires and fasteners stayed in China, and CBP held Thailand (N357771).",
     steps: [
       { title: "2022 setup", body: "Assembled in Thailand, key parts from China. CBP held China", ruling: "N328954" },
       { title: "Taken apart", body: "Each part and where it is made." },

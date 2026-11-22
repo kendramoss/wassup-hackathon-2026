@@ -328,7 +328,7 @@ export function Landing() {
                           </p>
                           <details className="small">
                             <summary>Details</summary>
-                            Recorded 18 Oct production run (DEMO.md §6): check 0.96, above the 0.92 bar; the pinned case shows 0.96 (18 Oct).
+                            Live pinned demo (case_000e08240f23, seeded 22 Nov 2026): origin China (needs review); best plan moves motor-fan assembly and PCBA (SMT) to Thailand, precedent check 0.94 (above 0.92). See DEMO.md §9.
                           </details>
                         </div>
                       </div>

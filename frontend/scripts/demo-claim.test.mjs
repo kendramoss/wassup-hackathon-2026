@@ -3,55 +3,21 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
-// Issue #411: the landing's 0.96 is a recorded 18 Oct production run. Since
-// D270 the copy also says the pinned demo shows it (the pinned case's 18 Oct
-// plan search is that run). If either side changes, this test fails
-// so the stage copy cannot silently drift into a self-contradiction again.
-const read = (relative) =>
-  readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
+// #558 (22 Nov 2026): pinned heat gun demo is live-seeded (case_000e08240f23).
+// Copy must reflect live screen (China needs review, best plan 0.94 to Thailand) and must not
+// promise a recorded 18 Oct 0.96 plan on the current pinned case.
+const read = (relative) => readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
 
 const copy = read("../src/lib/copy.ts");
 const landing = read("../src/components/op/landing/landing.tsx");
 const demoDoc = read("../../docs/DEMO.md");
-const seed = JSON.parse(read("../../eval/results/demo-seed-vertex-prod.json"));
-const heatgun = seed.find((row) => row.demo === "heatgun-2022");
 
-test("the pinned production seed is below the bar", () => {
-  assert.ok(heatgun, "demo seed must contain heatgun-2022");
-  assert.equal(heatgun.plan_status, "below_bar");
-  assert.match(heatgun.best_plan, /0\.75/);
+test("landing and copy do not claim the old 0.96 pinned plan", () => {
+  assert.doesNotMatch(copy, /pinned demo on this site shows the same plan at 0\.96/i);
+  assert.doesNotMatch(landing, /0\.96/);
 });
 
-test("every landing 0.96 plan copy is labelled as a recorded 18 Oct run", () => {
-  for (const [name, source] of [
-    ["copy.ts", copy],
-    ["landing.tsx", landing],
-  ]) {
-    const lines = source.split(/\r?\n/).filter((line) => line.includes("0.96"));
-    assert.ok(lines.length > 0, `${name} should still carry the recorded plan`);
-    for (const line of lines) {
-      assert.match(
-        line,
-        /18 Oct/i,
-        `${name}: every 0.96 plan line must say it is a recorded 18 Oct run`,
-      );
-    }
-  }
-  // D270: the pinned case's plan search was re-run on 18 Oct and is the run
-  // in DEMO.md section 6 (its history: "7 moves searched, 1 shown"), so the
-  // landing says the pinned case shows the same plan, no longer that it may not.
-  assert.doesNotMatch(copy + landing, /may (?:instead )?show no plan above the bar/i);
-  assert.match(landing, /pinned case shows 0\.96/);
-  assert.match(demoDoc, /## 6\. Heat gun: the plan that clears the bar \(production, 18 Oct\)/);
-  assert.match(demoDoc, /pinned case \(`case_878d76540b91`, updated 18 Oct\) shows the same plan at 0\.96/);
-});
-
-test("the demo script has one canonical branch for the below-bar screen", () => {
-  assert.match(demoDoc, /Plan screen: one canonical instruction, two branches/);
-  assert.match(demoDoc, /If the Plan screen shows a plan/);
-  assert.match(
-    demoDoc,
-    /If it shows no plan above the bar \(an earlier pinned seed\)/,
-  );
-  assert.match(demoDoc, /recorded 18 Oct(?: 2026)? production run/i);
+test("demo doc describes the live pinned heat gun flow", () => {
+  assert.match(demoDoc, /pinned heat gun demo is `case_000e08240f23`/i);
+  assert.match(demoDoc, /precedent check \*\*0\.94\*\*/i);
 });
