@@ -273,9 +273,16 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 		}
 	}
 	seen := map[string]bool{}
-	var noCountry []string
+	var noCountry, shortened []string
+	short := func(n string) string {
+		if s, cut := shortName(n); cut {
+			shortened = append(shortened, s)
+			return s
+		}
+		return n
+	}
 	for _, c := range a.Components {
-		n, country := strings.TrimSpace(c.Name), domain.NormalizeCountry(c.Country)
+		n, country := short(strings.TrimSpace(c.Name)), domain.NormalizeCountry(c.Country)
 		if n == "" || seen[strings.ToLower(n)] {
 			continue
 		}
@@ -291,7 +298,7 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 		d.Components = append(d.Components, row)
 	}
 	for _, o := range a.Operations {
-		n, country := strings.TrimSpace(o.Name), domain.NormalizeCountry(o.Country)
+		n, country := short(strings.TrimSpace(o.Name)), domain.NormalizeCountry(o.Country)
 		if n == "" || country == "" {
 			continue
 		}
@@ -300,6 +307,9 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 			GroupGuessed: tm != nil && (g == "" || bad)}
 		cite(&row, o)
 		d.Operations = append(d.Operations, row)
+	}
+	for _, n := range shortened {
+		d.Warnings = append(d.Warnings, fmt.Sprintf("A name longer than %d characters was shortened to %q; edit it if the cut lost something.", MaxNameRunes, n))
 	}
 	if len(noCountry) > 0 {
 		d.Warnings = append(d.Warnings, fmt.Sprintf("The "+noun+" mentions %s without saying where %s made; add %s if %s count.",
@@ -398,6 +408,29 @@ func build(a answer, src cites, name string, tm *planner.Template) Draft {
 		d.Product.Operations = append(d.Product.Operations, domain.Operation{Name: r.Name, Plant: r.Plant, Group: r.Group})
 	}
 	return d
+}
+
+// MaxNameRunes is the longest part or operation name the draft keeps: the
+// MCP tools' product schema refuses longer names, so a draft predict_origin
+// would refuse is never returned (D470; D451's a06 had a 203-character
+// operation name from extract_product).
+const MaxNameRunes = 200
+
+// shortName cuts n to at most MaxNameRunes runes, at the last space or comma
+// when there is one in the second half, and says whether it cut.
+func shortName(n string) (string, bool) {
+	r := []rune(n)
+	if len(r) <= MaxNameRunes {
+		return n, false
+	}
+	r = r[:MaxNameRunes]
+	for i := len(r) - 1; i > MaxNameRunes/2; i-- {
+		if r[i] == ' ' || r[i] == ',' {
+			r = r[:i]
+			break
+		}
+	}
+	return strings.TrimRight(string(r), " ,;"), true
 }
 
 // unreadableWarning words one unreadable place for the user. The model

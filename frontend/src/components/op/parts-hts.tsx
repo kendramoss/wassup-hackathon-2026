@@ -46,12 +46,14 @@ export function withSuggested(c: Component, code: string, cands: PartHtsCandidat
 }
 
 // acceptAll fills the top suggestion into every part that has none yet;
-// codes the user typed are kept.
+// codes the user typed are kept. A code the server marks "check this code"
+// (D471) is passed over for the next one; a part whose every code is marked
+// is left for the user.
 export function acceptAll(product: Product, s: PartsSuggestions): { product: Product; filled: number } {
   let filled = 0;
   const components = product.components.map((c, i) => {
     const cands = suggestionFor(s, i, c);
-    const top = cands?.[0];
+    const top = cands?.find((x) => !x.check);
     if (!top?.hts || c.hts?.trim()) return c;
     filled++;
     return withSuggested(c, top.hts, cands ?? []);
@@ -222,6 +224,7 @@ function Candidates({ cands, value, onUse, label }: { cands: PartHtsCandidate[];
               {c.hts}
             </button>
             <Chip tone={rulings ? "ok" : "ask"}>{rulings ? P.fromRulings : P.fromModel}</Chip>
+            {c.check && <Chip tone="fail">{P.checkCode}</Chip>}
             <span className="duo min-w-0 basis-60 flex-1 text-body">
               {c.reason}
               {rulings && c.supporting_rulings?.length ? (
@@ -239,6 +242,7 @@ function Candidates({ cands, value, onUse, label }: { cands: PartHtsCandidate[];
                   )
                 </span>
               ) : null}
+              {c.check && <span className="block text-fail">{c.check}</span>}
             </span>
           </li>
         );

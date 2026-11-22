@@ -130,7 +130,8 @@ def score_run(row, prod):
             if pf.get("case_id") and a.get("case_id") != pf["case_id"]:
                 arg_issues.append("plan on another case")
         elif c["tool"] == "export_ruling_request_draft":
-            if a.get("move_key") is None and a.get("plan_index") is None:
+            # plan_id (D470) is the move key under its new name.
+            if a.get("move_key") is None and a.get("plan_index") is None and a.get("plan_id") is None:
                 arg_issues.append("export without move_key or plan_index")
             if pf.get("case_id") and a.get("case_id") != pf["case_id"]:
                 arg_issues.append("export on another case")

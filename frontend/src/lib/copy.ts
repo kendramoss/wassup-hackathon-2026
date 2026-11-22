@@ -678,6 +678,7 @@ export const copy = {
     unverified: "Unverified suggestions: check every code with your broker before you rely on it.",
     fromRulings: "earlier CBP ruling",
     fromModel: "model's reading, no ruling found",
+    checkCode: "Check this code",
     use: "Use",
     using: "Using",
     none: "No suggestion",

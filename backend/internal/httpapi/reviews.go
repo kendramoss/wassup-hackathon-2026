@@ -194,6 +194,7 @@ func reviewsField(rvs []store.BrokerReview, now time.Time) []reviewSummary {
 type createReviewRequest struct {
 	PlanIndex     *int   `json:"plan_index"`
 	MoveKey       string `json:"move_key"`
+	PlanID        string `json:"plan_id"`
 	Target        string `json:"target"`
 	Format        string `json:"format"`
 	ExpiresInDays *int   `json:"expires_in_days"`
@@ -230,7 +231,7 @@ func (a *api) createReview(w http.ResponseWriter, r *http.Request) {
 		a.fail(w, r, fmt.Errorf("%w: predict the origin before sending a draft for review", domain.ErrInvalid))
 		return
 	}
-	d, err := a.buildDraft(r, c, exportRequest{PlanIndex: in.PlanIndex, MoveKey: in.MoveKey, Target: in.Target, Format: in.Format})
+	d, err := a.buildDraft(r, c, exportRequest{PlanIndex: in.PlanIndex, MoveKey: in.MoveKey, PlanID: in.PlanID, Target: in.Target, Format: in.Format})
 	if err != nil {
 		a.fail(w, r, err)
 		return

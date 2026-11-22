@@ -206,3 +206,25 @@ func TestPartsHTSSuggestCacheIsPerCallerAndDescription(t *testing.T) {
 		t.Errorf("model calls = %d, want 5 (one per request but alice's repeat)", n)
 	}
 }
+
+// D471: the handler flags a code whose chapter is far from the product's
+// family, keeps it in place, and counts the flags.
+func TestPartsHTSSuggestFlagsImplausibleCodes(t *testing.T) {
+	m := &llm.Fake{Respond: func(req llm.Request) (llm.Response, error) {
+		return llm.Response{Text: `{"items":[{"key":"p0","candidates":[{"hts":"1704.90","reason":"Sugar confectionery.","cited":[]},{"hts":"8708.99","reason":"Parts of motor vehicles.","cited":[]}]}]}`}, nil
+	}}
+	hs := partsHarness(t, m, nil)
+	body := `{"product":{"name":"CV axle","family":"vehicle_parts","hts":"8708.99.81","components":[{"name":"centre bar","made_in":"China"}],"operations":[]}}`
+	code, out := hs.do(t, "POST", "/v1/products/parts-hts-suggest", body)
+	if code != http.StatusOK {
+		t.Fatalf("suggest = %d %v", code, out)
+	}
+	cs := out["parts"].([]any)[0].(map[string]any)["candidates"].([]any)
+	if len(cs) != 2 || out["flagged"] != 1.0 {
+		t.Fatalf("candidates %v, flagged %v", cs, out["flagged"])
+	}
+	c0, c1 := cs[0].(map[string]any), cs[1].(map[string]any)
+	if c0["hts"] != "1704.90" || !strings.Contains(fmt.Sprint(c0["check"]), "check this code") || c1["check"] != nil {
+		t.Errorf("flags: %v / %v", c0, c1)
+	}
+}

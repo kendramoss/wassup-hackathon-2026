@@ -73,6 +73,10 @@ type PartCandidate struct {
 	Reason     string    `json:"reason"`
 	Supporting []PartRef `json:"supporting_rulings"`
 	Cited      []string  `json:"cited"`
+	// Check, when set, says why the code looks wrong for the product (D471):
+	// a far chapter for its family, or a chapter of another material than
+	// the part's name says. The code is kept; the user should check it.
+	Check string `json:"check,omitempty"`
 }
 
 // PartSuggestion is the suggestion for the part at Index in the request.

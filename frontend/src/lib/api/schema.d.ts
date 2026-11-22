@@ -518,7 +518,7 @@ export interface paths {
          * Compare 2–4 target countries (one plan search each, in parallel) and rank them
          * @description Ranking: countries with a shown plan first (by their best plan's tier, clear margin before at the bar, then net per year; D371), then countries whose best precedent-supported plan is below the bar, then no supported plan, then no capable plant.
          *     Moves only go to plants the product lists in that country, so give the product plants (with capabilities) in each country to compare. Economics: given here, or the case's latest. Invalid economics is 400 before pricing (D106).
-         *     Draft a plan from a target with POST /export {"move_key", "target"}. Takes about as long as one plan search (~30 s).
+         *     Draft a plan from a target with POST /export {"plan_id", "target"} (the best plan's plan_id; move_key is the same value). Takes about as long as one plan search (~30 s).
          */
         post: operations["compareTargets"];
         delete?: never;
@@ -1004,6 +1004,13 @@ export interface components {
                 url?: string;
             }[];
             cited?: string[];
+            /**
+             * @description Present when the code looks wrong for the product (D471), with why and "check this code": a chapter far from the
+             *     product's family (food, clothing, footwear, jewellery and the like for a part of a machine, an appliance, a vehicle
+             *     or a device), or a chapter of another material than the part's name states (a "steel" part coded as plastics). A
+             *     deterministic check on the part candidates only. The code is kept in its place; nothing is removed or reordered.
+             */
+            check?: string;
         };
         Health: {
             /** @enum {string} */
@@ -1976,6 +1983,12 @@ export interface components {
             /** @description True on the shown plan that moves the fewest parts when two or more are shown (D340). A label, not a sort key. */
             smallest_supported?: boolean;
             rule_check?: components["schemas"]["PlanRuleCheck"];
+            /**
+             * @description The plan's stable identifier, its move key: each moved group and its plant, group@plant, joined by "+" in move
+             *     order (D470). Pass it as plan_id (or move_key) to exportCase or createBrokerReviewLink. Added when the plan is
+             *     returned or read, never stored. Absent on the baseline (no move).
+             */
+            plan_id?: string;
         };
         /**
          * @description The 19 CFR 102.20 rule check of the product as it would be after this move (D441): the moved parts take the
@@ -2811,11 +2824,13 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    /** @description Index into the latest plan's shown plans; omit both fields to draft for the current setup. */
+                    /** @description A plan's plan_id as plan responses return it (the same value as its move key, D470), e.g. motor_fan_assembly@th+pcba@th. Read like move_key; with move_key too, both must name the same plan. Not with plan_index. Omit plan_id, plan_index and move_key to draft for the current setup. */
+                    plan_id?: string;
+                    /** @description 0-based position in the latest plan search's shown plans: 0 is the first shown plan (D470). Prefer plan_id. Omit plan_id, plan_index and move_key to draft for the current setup. */
                     plan_index?: number;
-                    /** @description With move_key: draft from that country's search in the latest compare-targets call. */
+                    /** @description With plan_id or move_key: draft from that country's search in the latest compare-targets call. */
                     target?: string;
-                    /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
+                    /** @description Pick a plan by move key (e.g. motor_fan_assembly@th+pcba@th, the plan's plan_id): any shown plan, or a rejected plan with rejection_kind below_confidence_bar. Such a draft says near the top that the precedent check scored under the bar. Other rejected plans return 400. Not with plan_index. */
                     move_key?: string;
                     /** @description Render the draft without recording it: no exported event in history, exported_at and updated_at unchanged. The Draft screen previews on every visit and records on Download or Print. With workspace roles (#283) a viewer may export only with preview true; without it the export records and a viewer gets 403 forbidden. */
                     preview?: boolean;
@@ -2924,9 +2939,11 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    /** @description As in exportCase; omit plan_index and move_key for the current setup. */
+                    /** @description As in exportCase (D470). */
+                    plan_id?: string;
+                    /** @description As in exportCase: 0-based, 0 is the first shown plan. Omit plan_id, plan_index and move_key for the current setup. */
                     plan_index?: number;
-                    /** @description With move_key: a plan from that country's search in the latest compare-targets call. */
+                    /** @description With plan_id or move_key: a plan from that country's search in the latest compare-targets call. */
                     target?: string;
                     /** @description As in exportCase. */
                     move_key?: string;
@@ -3496,6 +3513,8 @@ export interface operations {
                         /** @example unverified suggestions — check every code with your customs broker before you rely on it */
                         note?: string;
                         reasons_unavailable?: boolean;
+                        /** @description How many part candidates carry a check note (D471) */
+                        flagged?: number;
                         trace?: Record<string, never> | null;
                         llm_provider?: string;
                         /** @example parts-hts-suggest-v1 */

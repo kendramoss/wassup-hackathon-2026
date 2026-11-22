@@ -71,3 +71,19 @@ test("an accepted code keeps the other suggested codes as alternatives", () => {
   });
   assert.deepEqual(r.product.components[0].hts_alternatives, ["3926.90"]);
 });
+
+// D471: a code the server marks "check this code" is shown with its note and
+// kept in place; accept-all passes over it for the part's next code.
+test("a flagged code is shown with its note and skipped by accept-all", () => {
+  const sugar = { hts: "1704.90", source: "rulings", reason: "", cited: [], supporting_rulings: [], check: "Chapter 17 (sugars and sugar confectionery) is unusual for a part of this product family (vehicle_parts); check this code." };
+  const axle = { hts: "8708.99", source: "model", reason: "Parts of motor vehicles.", cited: [], supporting_rulings: [] };
+  const out = text(html(PartSuggestionRow, { cands: [sugar, axle], value: "", onUse: () => {}, label: "centre bar", colSpan: 6 }));
+  assert.match(out, /1704\.90/, "the flagged code is still listed");
+  assert.match(out, /Check this code/);
+  assert.match(out, /sugars and sugar confectionery/);
+  const parts = new Map([[0, { name: "centre bar", candidates: [sugar, axle] }], [1, { name: "boot", candidates: [{ ...sugar, hts: "6401.10" }] }]]);
+  const r = acceptAll({ name: "axle", plants: [], operations: [], components: [{ name: "centre bar", made_in: "China" }, { name: "boot", made_in: "China" }] }, { ...sugg, parts });
+  assert.equal(r.product.components[0].hts, "8708.99");
+  assert.equal(r.product.components[1].hts, undefined, "every code flagged: left for the user");
+  assert.equal(r.filled, 1);
+});
