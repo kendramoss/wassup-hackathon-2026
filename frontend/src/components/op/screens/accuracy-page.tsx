@@ -232,6 +232,65 @@ function PlanEvidence({ calibration }: { calibration?: VerifierEvidence }) {
   );
 }
 
+// D691, D716 and D717. The first-render counts are pinned to
+// eval/rcep/japan-summary.json by the Accuracy copy test.
+const rcepEvidence = {
+  rulings: 98,
+  yes: 71,
+  undetermined: 27,
+  refusals: 0,
+  errors: 0,
+  criterionMatches: 71,
+  criteriaCompared: 71,
+  syntheticDevelopment: 162,
+  syntheticUnseen: 71,
+};
+
+function MarketEvidence() {
+  const result = rcepEvidence;
+
+  return (
+    <section id="market-evidence" aria-labelledby="acc-markets" className="mt-8 scroll-mt-20 rounded-[2px] border border-edge bg-sheet px-4 py-5 sm:px-6">
+      <h2 id="acc-markets" className="text-xl font-semibold tracking-tight">Market evidence</h2>
+      <div className="mt-4 grid gap-5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div>
+          <h3 className="text-sm font-semibold">RCEP preference calculator</h3>
+          <p className="read mt-1 text-sm text-dim">All {result.rulings} unseen Japan Customs rulings qualified in the published decisions.</p>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-[2px] bg-wash" aria-hidden="true">
+            <div className="h-full bg-ok" style={{ width: pct(result.yes / result.rulings, 4) }} />
+          </div>
+          <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums">
+            <span><strong>{result.yes}/{result.rulings}</strong> yes</span>
+            <span><strong>{result.undetermined}</strong> undetermined</span>
+            <span className="text-dim">{result.refusals} refusals · {result.errors} input errors</span>
+          </p>
+          <p className="read mt-2 text-sm text-dim">{result.criterionMatches}/{result.criteriaCompared} deciding criteria matched. Refusal performance on real cases remains unmeasured. Customs specialist review is pending.</p>
+          <Details title="RCEP evaluation details">
+            <p>
+              The calculator applies published rules without a model. All {result.syntheticDevelopment} development and {result.syntheticUnseen} unseen synthetic tariff-code variants were undetermined.
+            </p>
+            <p>
+              <a href={`${copy.landing.repo}/blob/main/eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717`} className="text-ok underline underline-offset-2">
+                See evaluation results and intervals →
+              </a>
+            </p>
+          </Details>
+        </div>
+        <dl className="grid content-start gap-3 border-t border-line pt-3 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+          <div>
+            <dt className="text-sm font-semibold">Canada marking</dt>
+            <dd className="read mt-0.5 text-sm text-dim">Rules check only. No accuracy figure.</dd>
+          </div>
+          <div>
+            <dt className="text-sm font-semibold">Japan model</dt>
+            <dd className="read mt-0.5 text-sm text-dim">Unavailable in production. The unseen-test requests yielded no measurement.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  );
+}
+
 export function AccuracyPage() {
   const [data, setData] = useState<EvalSummary | null>(null);
   const [error, setError] = useState<unknown>(null);
@@ -405,6 +464,7 @@ export function AccuracyPage() {
 
       <OutcomeMatrix />
       <PlanEvidence calibration={data?.verifier_calibration} />
+      <MarketEvidence />
 
       <section className="mt-8" aria-labelledby="acc-limits">
         <h2 id="acc-limits" className="eyebrow">Test limits</h2>

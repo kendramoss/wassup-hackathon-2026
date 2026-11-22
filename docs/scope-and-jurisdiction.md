@@ -2,16 +2,16 @@
 
 This is engineering documentation of what the code does and does not cover. It is not legal advice, a legal determination, or a certification of compliance, and no qualified legal review of it has been done. It states a scope, not a conclusion about any shipment.
 
-All `file:line` anchors are at commit `c0d3115` (the base of this change). The line is a hint; the symbol or text beside it is what to search for if the code has moved. Narrative in other documents is not evidence of runtime behaviour: every behaviour below was read from code and, where one exists, a test. Deployed values were not inspected (section 8).
+All `file:line` anchors are at commit `c0d3115` (the base of this change). The line is a hint; the symbol or text beside it is what to search for if the code has moved. Narrative in other documents is not evidence of runtime behaviour: every behaviour below was read from code and, where one exists, a test. The live market registry was checked on 23 November 2026. Per-engine settings are covered in section 8.
 
 ## 1. Summary
 
 | Question | Answer |
 |---|---|
-| Which jurisdiction? | U.S. CBP origin under four regimes (section 2); a Canadian marking rules check (D720–D725); and a Japan trade-agreement assessment when its gateway is configured (section 3.1). |
+| Which jurisdiction? | U.S. CBP origin prediction (section 2) and the [Canada marking rules check](#31-canada-marking-rules) are live. The [Japan model](#32-japan-trade-agreements) is disabled in production. |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
-| Preferential origin | RCEP has a standalone calculator (D690). The Japan assessment covers selected trade agreements for imports into Japan. USMCA regional value content is deferred (section 7). |
+| Preferential origin | The [standalone RCEP calculator](#33-rcep-preference-calculator) is live. USMCA regional value content is deferred (section 7). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
 | Does the Part 177 export decide origin? | No. It lays out a ruling request letter (section 5). |
 | What happens to a case outside the configured regimes? | Some paths fail closed to expert review, and some do not (section 3). The gaps are listed there. |
@@ -72,9 +72,15 @@ Gaps to state plainly:
 - Fail closed does not cover everything. A case the router calls `substantial_transformation` or `unclear` is handled by the general engine and, with enough confidence, auto-accepted, whether or not the facts are really a U.S. non-preferential origin question.
 - The market detector is a net, not a gate (D680-D682). On model-written non-U.S. questions it read 22 of 30 right and sent 4 more to review only if the router says `unclear`; the other 4 were read as U.S. and are answered as U.S. cases. It flagged none of 1,026 U.S. rulings. A caller who names the market is never second-guessed. The engine prompts still say they are for U.S. CBP (`prompt.go:20`, `usmca.go:12`).
 - A router configured on the server is always built (`cmd/server/main.go:502`). The "no router" state exists only in tests (`TestDispatchScopeStates`, case "no router"): there the scope label is absent and the case counts as in scope.
-- Deployed values are not known (section 8). Whether a specialist engine is on in the live service decides whether a textile, Part 102 or pharmaceutical case is answered by its own engine or goes to the general engine for review.
+- The public market registry reports market availability. On U.S. cases, the specialist switches determine whether textile, Part 102 or pharmaceutical questions go to their own engine or to the general engine for review (section 8).
 
-### 3.1 Japan trade agreements
+### 3.1 Canada marking rules
+
+The Canada case flow and `POST /v1/rules/canada-marking` apply the Schedule III tariff shifts and general rules in SOR/94-23 for marking goods from CUSMA countries. Supply the finished good and material tariff codes and the production country. The check runs without a model. Canada has too few published rulings for an accuracy figure (D720–D725).
+
+### 3.2 Japan trade agreements
+
+The Japan model is built for selected trade agreements and remains disabled in production (`jp.supported=false`). The unseen-test requests returned HTTP 403 and yielded no eligibility results (D714). The separate synthetic requests also yielded no results (D715).
 
 For imports into Japan, supply a trade agreement and the finished good's tariff classification in that agreement's HS edition, plus the materials and production facts. The engine uses product-specific rule text and earlier rulings from Japan Customs under the same agreement. See the [sources and HS editions](../backend/internal/jprules/README.md). The result gives likely eligibility, a preferential origin where known, and the sources. It goes to specialist review in every case. The published test rulings cover goods that qualified.
 
@@ -82,7 +88,15 @@ If the inputs or an applicable rule are missing, the assessment stays undetermin
 
 The Japan engine registers when the server has dedicated `JAPAN_LITELLM_BASE_URL` and `JAPAN_LITELLM_API_KEY` settings. The local fake provider can exercise the same route offline. Call `GET /v1/jurisdictions` to check availability on a deployment. Production enablement is tracked in [#694](https://github.com/kendramoss/wassup-hackathon-2026/issues/694).
 
+### 3.3 RCEP preference calculator
+
+`POST /v1/rcep/check` applies the RCEP Annex 3A rules in the HS 2022 tariff edition. It uses the supplied tariff codes and, where the rule requires them, values, weights and supplier origin declarations. This calculator runs without a model and has its own outcome (D690).
+
+In the unseen Japan Customs set, all 98 published rulings qualified. The calculator returned yes on 71 and undetermined on 27, with zero refusals or input errors. The deciding criterion agreed in all 71 decisions. The synthetic tariff-code mutations were all undetermined. Refusal performance on real cases remains unmeasured. [Evaluation rows and intervals](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717)
+
 ## 4. Planner coverage
+
+Plan search, target comparison, Ask, and the ruling-request and broker review workflows are available for U.S. cases. The Canada and RCEP rules checks have their own routes.
 
 The relocation planner has 26 templates, loaded by `planner.LoadTemplates` (`backend/internal/planner/template.go`, embedded `templates/*.json`). Eleven were chosen and written from CBP substantial-transformation precedent (D138, D212), and six from Part 102 marking rulings dated before 2024 (D580, `"regime": "part102"`); each of their groups cites the rulings where its work conferred origin or was not enough. In the six, each movable group makes one input whose tariff heading the 102.20 rule reads. Six more were written from substantial-transformation rulings dated before 2026 and in no development, held-out or tune-check split (D660), after counting the development and pool rulings of both regimes that had no template.
 
@@ -164,10 +178,10 @@ Three items in this repo's own wording that this review could not settle and sho
 
 None of the following is implemented. A result from this system must not be used for them:
 
-- Preferential duty claims under USMCA or any trade agreement, and any preferential-origin or "originating good" qualification. The RCEP rules check (D690) is a calculator over the facts the user gives; it is not a claim, a ruling or a certificate, and has not been reviewed by a qualified professional.
-- Regional value content, net cost, transaction value, tolerances or other RVC calculation.
+- Filing preferential duty claims or obtaining preferential-origin certificates. The RCEP calculator supports preliminary qualification from the supplied facts. It awaits qualified professional review (D690).
+- USMCA regional value content, net cost and transaction value calculations. The RCEP calculator uses the value-content methods in that agreement.
 - Certificates of origin, USMCA certification of origin, or any origin declaration for a trade agreement.
-- Other market regimes include EU Binding Origin Information and UK origin. Canada supports a marking check. Japan supports the trade-agreement scope in section 3.1 when its gateway is configured.
+- EU Binding Origin Information, UK origin and other customs regimes outside the shipped checks above. Japan model activation is tracked in section 3.2.
 - Duty drawback.
 - Antidumping and countervailing duty (AD/CVD) circumvention or scope determinations. No such code exists.
 - Section 232 and Section 301 origin determinations. Section 301 is only touched as a separate question that the Part 102 draft keeps apart (`export/regime.go:37`); the live duty note states Section 232 duties are not included (`internal/duty/live.go:371`).
@@ -177,26 +191,26 @@ None of the following is implemented. A result from this system must not be used
 
 ## 7. Deferral record
 
-Decision on the #282 acceptance criterion "implementation/defer decision, no invented international coverage": **defer both, as two separate roadmap scopes. Nothing here is implemented and no coverage is claimed.** The repository contains no EU data, no EU or USMCA RVC licence record, and no record of validation by a qualified legal professional, and none is invented here.
+Decision on the #282 acceptance criterion "implementation/defer decision, no invented international coverage": **defer both, as two separate roadmap scopes. Nothing here is implemented and no coverage is claimed.** An EU BOI corpus, licence records for these two scopes, and qualified professional validation remain prerequisites.
 
 Before any coverage claim for either scope, all of the following must exist as separate, reviewed artefacts:
 
 | Prerequisite | EU Binding Origin Information (scope A) | USMCA regional value content and preferential origin (scope B) |
 |---|---|---|
 | Data source and licensing | An identified source of BOI decisions, its terms of use and redistribution rights, and its coverage and update cadence. Not selected. | Identified authoritative rule texts and any ruling or determination sets (agreement text, 19 CFR Part 182, product-specific rules), their terms, and update path. Not selected. |
-| Deterministic rule encoding | Encoded EU origin rules and BOI decision structure in code or data, versioned, not left to a prompt. The current engines have none for any regime (section 2). | Encoded product-specific rules, RVC methods and thresholds as testable code, versioned. Not started. |
+| Deterministic rule encoding | Encoded EU origin rules and BOI decision structure in code or data, versioned, not left to a prompt. No EU origin schedule is encoded. | Encoded product-specific rules, RVC methods and thresholds as testable code, versioned. Not started. |
 | Separate evaluation set and protocol | A held-out set of EU decisions with its own labels, split and scoring protocol, separate from the U.S. sets, frozen before scoring. | A held-out set of preferential-origin cases and RVC calculations with its own protocol, separate from the marking sets (the existing Part 102 set is marking only). |
 | Review by a qualified professional | Review of rules, data use and output wording by a qualified EU customs or trade-law professional. Not done. | Review by a qualified U.S./USMCA customs or trade-law professional. Not done. |
 | Product and copy changes | Jurisdiction selection and results wording that cannot be read as U.S. output: built (D680; a market picker, a `jurisdiction` field, no answer for a market without an engine). Removal of the unsupported-use-case copy for this scope only after the above. | Preference/certificate wording, separation from marking origin on every result and export, and removal of the unsupported copy only after the above. |
 
-The two scopes are independent: finishing one gives no claim for the other. Until both are met for a scope, the product copy in section 6 stays. The product wording for what the tool is for is in the `jurisdiction.*` keys of `frontend/src/lib/copy.ts`; this document does not change the product.
+The prerequisites apply to each scope separately. The product wording is in the `jurisdiction.*` keys of `frontend/src/lib/copy.ts`.
 
 ## 8. What was not verified
 
-- Deployed values. As of 20 November 2026, `.github/workflows/deploy.yml:72` sets `TEXTILE_ENGINE=on`, `TEXTILE_FAST_PATH=0.95`, `TEXTILE_PROMPT=v2`, `PHARMA_ENGINE=on`, `PHARMA_FAST_PATH=0.85`, `USMCA_ENGINE=on`, `USMCA_FAST_PATH=0.95`, `EXPORT_CFR177=on` on deploy. That file is intended configuration, not proof of the live service, and the live service was not inspected: **LIVE UNVERIFIED**. The code defaults in section 2 differ from that intent (all engines off, fast paths 0). This review did not check that each deployed bar is backed by a recorded held-out run; `eval/RESULTS.md` records the held-out run for `textile-v2` as not run.
+- Live U.S. specialist switches and bars. As of 20 November 2026, `.github/workflows/deploy.yml:72` sets `TEXTILE_ENGINE=on`, `TEXTILE_FAST_PATH=0.95`, `TEXTILE_PROMPT=v2`, `PHARMA_ENGINE=on`, `PHARMA_FAST_PATH=0.85`, `USMCA_ENGINE=on`, `USMCA_FAST_PATH=0.95`, `EXPORT_CFR177=on` on deploy. That workflow records intended settings. The observed market registry reports market availability separately. The code defaults in section 2 differ from that intent (all engines off, fast paths 0). This review did not check that each deployed bar is backed by a recorded held-out run; `eval/RESULTS.md` records the held-out run for `textile-v2` as not run.
 - Which office accepts an origin ruling request, and the RVC "sliding-scale" wording (section 5).
 - Anything in CBP rulings retrieval (access was denied earlier and not retried).
-- Behaviour on non-U.S. text: the tests above submit non-U.S. facts and check that no engine runs; the detector was measured on synthetic questions only (D682), not on real non-U.S. requests.
+- Market detection on real non-U.S. requests. D682 measured synthetic questions.
 - Model output. Router labels, engine answers and the `unclear` outcome depend on a language model; the tests above use fakes.
 - Revocations outside the corpus. Precedent checks skip rulings that a revocation or modification letter in the corpus names (D320, `backend/internal/domain/supersession.json`), but CBP revocations published only in the Customs Bulletin, or by letters that are not in the corpus, are not detected. A cited ruling can still have been revoked; check it on rulings.cbp.gov before relying on it.
 

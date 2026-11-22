@@ -100,3 +100,21 @@ test("the recorded plan bars match the committed known-starting-origin results",
   assert.ok(pageText.includes("Strict Multi-Run & Interval Details"));
   assert.ok(pageText.includes(`Strict count: ${strictPass}/${strictTotal}`));
 });
+
+test("RCEP reports known positives, criterion agreement and separate synthetic results", async () => {
+  const { AccuracyPage } = await import("../src/components/op/screens/accuracy-page.tsx");
+  const markup = html(AccuracyPage, {});
+  const markets = text(markup.split('id="market-evidence"')[1].split("</section>")[0]);
+  const { held_out: unseen, development } = JSON.parse(read("../../eval/rcep/japan-summary.json"));
+  const { outcomes, deciding_criterion_agreement: criteria } = unseen.published_positives;
+
+  assert.ok(markets.includes(`All ${outcomes.yes.total} unseen Japan Customs rulings qualified in the published decisions.`));
+  assert.ok(markets.includes(`${outcomes.yes.count}/${outcomes.yes.total} yes ${outcomes.undetermined.count} undetermined`));
+  assert.ok(markets.includes(`${outcomes.no.count} refusals · ${outcomes.error.count} input errors`));
+  assert.ok(markets.includes(`${criteria.count}/${criteria.total} deciding criteria matched`));
+  assert.ok(markets.includes(`All ${development.synthetic_negatives.undetermined.count} development and ${unseen.synthetic_negatives.undetermined.count} unseen synthetic tariff-code variants were undetermined.`));
+  assert.match(markets, /Refusal performance on real cases remains unmeasured/);
+  assert.match(markets, /Customs specialist review is pending/);
+  assert.match(markets, /Canada marking Rules check only\. No accuracy figure/);
+  assert.match(markets, /Japan model Unavailable in production\. The unseen-test requests yielded no measurement/);
+});
