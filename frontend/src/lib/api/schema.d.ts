@@ -1084,6 +1084,8 @@ export interface components {
             proposed: number;
             /** @description On a case: final changes to rulings the prediction read but did not cite */
             read_only?: number;
+            /** @description Final changes to relied-on rulings whose held origin moved to or from the case's answer (D531); absent when none */
+            touches_answer?: number;
         };
         /** @description CBP's changes to the rulings a saved case relies on or read (D480), from backend/internal/domain/supersession.json (corpus letters and fetched Customs Bulletin notices). Present only when there is at least one. Information only: the stored answer is never changed. Re-check with POST /v1/cases/{id}/watch. */
         RulingAlerts: {
@@ -1116,6 +1118,19 @@ export interface components {
                 url?: string;
                 /** @description The change in words, e.g. revoked by H346161 on 2025-05-05 */
                 note: string;
+                /** @description The origin the changed ruling held, from the shipped labels (D531); absent when not known */
+                held_before?: string;
+                /** @description The origin the changing ruling holds, from the shipped labels (D531); absent when not known */
+                held_after?: string;
+                /** @description The case's predicted origin the change is compared with (D531) */
+                answer?: string;
+                /**
+                 * @description Whether the change bears on the answer (D531): touches_answer, the held origin moved to or from the answer's country; not_answer, it moved between two other countries; holding_unchanged, the same origin before and after; unknown, an origin or the answer is not known. Information only; a re-check is recommended either way.
+                 * @enum {string}
+                 */
+                relevance?: "touches_answer" | "not_answer" | "holding_unchanged" | "unknown";
+                /** @description The relevance in one or two sentences, as the site and MCP show it */
+                relevance_note?: string;
             }[];
         };
         Error: {

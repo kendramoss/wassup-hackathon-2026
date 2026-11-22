@@ -1,5 +1,5 @@
 {
- "note": "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/corpus alerts-example -check`. The answer is one committed development result row (no new model call). The box is worked out by the API's rule (domain.RulingAlerts, D480, D490) from the committed supersession map, as of 2026-11-22. Nothing is re-checked here.",
+ "note": "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/corpus alerts-example -check`. The answer is one committed development result row (no new model call). The box is worked out by the API's rule (domain.RulingAlerts, D480, D490) from the committed supersession map, as of 2026-11-22, and labelled by domain.WithRelevance (D531) from the shipped labels. Nothing is re-checked here.",
  "ruling": "N356467",
  "subject": "The country of origin of an electric scooter",
  "case_date": "2025-12-22",
@@ -42,7 +42,12 @@
     "in_effect": true,
     "bulletin": "Customs Bulletin vol. 60 no. 11, p. 6",
     "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
-    "note": "modified by H344999 on 2026-05-06"
+    "note": "modified by H344999 on 2026-05-06",
+    "held_before": "China",
+    "held_after": "Taiwan",
+    "answer": "Vietnam",
+    "relevance": "not_answer",
+    "relevance_note": "H344999 modified N344694, and the origin held moved from China to Taiwan. This case's answer was Vietnam, so the change does not touch the answer directly."
    }
   ]
  },

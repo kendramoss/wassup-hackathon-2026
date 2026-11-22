@@ -79,7 +79,7 @@ const userAgent = cross.UserAgent
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|part-hts-index|probe|label-check|final2-label|supersession|alerts|alerts-example [flags]")
+		fmt.Fprintln(os.Stderr, "usage: corpus fetch|build|bundle|compare|embed|reasoning|usmca-fetch|usmca-label|hts-index|part-hts-index|probe|label-check|final2-label|supersession|alerts|alerts-example|holdings [flags]")
 		os.Exit(2)
 	}
 	var err error
@@ -116,6 +116,8 @@ func main() {
 		err = supersession(os.Args[2:])
 	case "alerts":
 		err = revocationAlerts(os.Args[2:])
+	case "holdings":
+		err = rulingHoldings(os.Args[2:])
 	case "alerts-example":
 		err = revocationAlertExample(os.Args[2:])
 	default:

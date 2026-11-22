@@ -51,6 +51,8 @@ func main() {
 		err = cmdPlansEval(os.Args[2:])
 	case "plans-example":
 		err = cmdPlansExample(os.Args[2:])
+	case "plans102-example":
+		err = cmdPlans102Example(os.Args[2:])
 	case "plans102-eval":
 		err = cmdPlans102Eval(os.Args[2:])
 	default:

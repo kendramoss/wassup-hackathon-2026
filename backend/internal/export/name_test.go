@@ -2,6 +2,7 @@ package export
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,10 +37,13 @@ func fixtureNames(t *testing.T) map[string]string {
 func TestDraftName(t *testing.T) {
 	fx := fixtureNames(t)
 	for _, c := range []struct{ in, want, model string }{
-		// The Part 102 fixtures, as committed.
-		{fx["n348465"], "an electrical actuator", "Electrical actuator"},
-		{fx["n344002"], "hermetic compressors", "Hermetic compressors"},
-		{fx["n350133"], "a Walk-Behind Lawn Mower", "Walk-Behind Lawn Mower"},
+		// The Part 102 rulings' subjects, which the fixtures used as names
+		// until D532.
+		{"The country of origin of an electrical actuator", "an electrical actuator", "Electrical actuator"},
+		{"The country of origin of hermetic compressors", "hermetic compressors", "Hermetic compressors"},
+		{"The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower", "a Walk-Behind Lawn Mower", "Walk-Behind Lawn Mower"},
+		// The fixtures' names since D532 are kept as given.
+		{fx["n348465"], "DC motor actuator", "DC motor actuator"},
 		// Case and spacing of the opening do not matter.
 		{"  country of origin of a heat gun ", "a heat gun", "Heat gun"},
 		{"THE COUNTRY OF ORIGIN OF an air fryer", "an air fryer", "Air fryer"},
@@ -60,9 +64,10 @@ func TestDraftName(t *testing.T) {
 			t.Errorf("modelName(%q) = %q, want %q", c.in, got, c.model)
 		}
 	}
-	for id, want := range map[string]string{"n348465": "The country of origin of an electrical actuator", "n344002": "The country of origin of hermetic compressors"} {
-		if fx[id] != want {
-			t.Fatalf("fixture %s name is %q; update this test", id, fx[id])
+	// D532: the fixtures name the product, not the ruling's subject.
+	for id, name := range fx {
+		if strings.HasPrefix(strings.ToLower(strings.TrimPrefix(name, "The ")), "country of origin") {
+			t.Errorf("fixture %s is named by a ruling subject again: %q", id, name)
 		}
 	}
 }
@@ -71,7 +76,12 @@ func TestDraftName(t *testing.T) {
 // origin of the country of origin of ..." anywhere in either letter: the
 // opening, the RE line, the transaction, the merchandise and the question.
 func TestNoDoubledSubjectInDrafts(t *testing.T) {
-	for id, name := range fixtureNames(t) {
+	names := fixtureNames(t)
+	for i, subj := range []string{"The country of origin of an electrical actuator", "The country of origin of hermetic compressors",
+		"The country of origin and eligibility of the United States-Mexico-Canada Agreement (USMCA) of a Walk-Behind Lawn Mower"} {
+		names[fmt.Sprintf("subject%d", i)] = subj
+	}
+	for id, name := range names {
 		for _, part102 := range []bool{false, true} {
 			in := Input{ProductName: name, Facts: "Final assembly in Mexico.", Requested: "Mexico", Part102: part102}
 			for format, render := range bothFormats {

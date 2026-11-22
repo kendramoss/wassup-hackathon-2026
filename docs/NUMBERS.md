@@ -151,6 +151,7 @@ Three development rulings, one plan search each through an OpenAI-compatible Lit
 | Current setup: rule gives CBP's holding | 2 of 3 (the actuator is undetermined: the motor does not shift unless de minimis) | same | Measured |
 | Later ruling, rule on its setup (N354024) | Mexico, as CBP held | same | Measured. A later product, not a plan move: no plan backtest (0) |
 | Cost | $0.4333 for the 3 searches (actuator $0.3542, 79 s) | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d501-litellm`) | Measured, gateway-reported |
+| Engine predicts the target on actuator moves the rule says do not shift | 3 (gearbox and controls 0.85; gearbox 0.75; gearbox and housings 0.75) | `frontend/src/lib/part102-plan-example.json` from `go run ./cmd/tariffshift plans102-example -check` (D532) | Measured, from the same run. The recorded page shows each |
 
 ### Part 102 plan searches with the Part 102 engine (D540, D541)
 
@@ -232,6 +233,8 @@ Built by `go run ./cmd/corpus supersession` (from `backend/`; `-check` verifies)
 | H325607 (the letter that revoked N331974) | wrong in 20 of 20 development engine runs (19 Spain, 1 China), each of which showed N331974 | `eval/results/dev-*-engine-v1*.jsonl`, rows with `ruling` H325607 (one per file; `correct`, `pred`, `precedents`); recomputed by `TestH325607DevRuns` in `backend/cmd/claimscheck`. Since D370 these rows are no longer in `supersession-impact.json` (#566) | Measured. Not re-run with the guard, so no effect is claimed |
 | First held-out split rows that showed N331974 | 8 over 4 runs (N361172, N364229), all correct | same file | Measured. Held-out figures unchanged |
 | Revocation alerts on committed results (D480, D481; recounted in D490) | of 13,107 result rows naming rulings: 2 rely on a ruling changed on or after their case date (N356467 citing N344694, modified by H344999, in 2 development runs), 7 on one changed before it (7 of the 8 above; the eighth also cites the revoker), 0 on a proposed change only; 64 only read a changed ruling. Before D490 the count was 4, 8 and 85: a revoking ruling (H325607) was alerted on the ruling it revokes. Stored case documents: 0 of 7; demo fixtures: 0 of 10 | `eval/supersession/alerts.json` (`rows`, `row_examples`, `cases`, `demo_fixtures`) from `go run ./cmd/corpus alerts`; `TestCommittedAlertCount` | Measured offline as of 22 Nov 2026; no model call |
+| Revocation alerts by relevance to the answer (D531) | of the 9 relied-on final changes in committed rows (2 after the case date, 7 before): 2 do not touch the answer (N344694, China to Taiwan; the answer was Vietnam), 3 keep the same held origin (N345891 and H346161, both Taiwan by the labels), 4 not known; 0 touch the answer | `eval/supersession/alerts.json` (`relevance_final_relied`, `row_examples`) from `go run ./cmd/corpus alerts` | Measured offline as of 22 Nov 2026; no model call. Held origins from the shipped labels |
+| Held origins known for rulings in the revocation map (D531) | 37 of 308 rulings (changed or changing) have a label; 30 give one origin. H325607 is left unknown: its label was read from its account of N331974 | `backend/internal/domain/ruling_holdings.json` from `go run ./cmd/corpus holdings` | Measured. Most changed rulings are classification letters with no origin label |
 
 ## Planner product scope (D138)
 

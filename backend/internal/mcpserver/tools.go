@@ -610,7 +610,15 @@ func rulingAlertLines(out map[string]any) string {
 			if a["in_effect"] != true {
 				l = fmt.Sprintf("Ruling %s relied on by this case is scheduled to be %s.", str0(a["ruling"], ""), str0(a["note"], "changed"))
 			}
-			lines = append(lines, l+" Re-check recommended.")
+			if n := str0(a["relevance_note"], ""); n != "" {
+				l += " " + n
+			}
+			if r := a["relevance"]; r == "not_answer" || r == "holding_unchanged" {
+				l += " Re-check still recommended."
+			} else {
+				l += " Re-check recommended."
+			}
+			lines = append(lines, l)
 		default:
 			lines = append(lines, fmt.Sprintf("Ruling %s relied on by this case: %s; proposed, not final, so information only.", str0(a["ruling"], ""), str0(a["note"], "")))
 		}
@@ -681,6 +689,9 @@ func (t tools) listCases(ctx context.Context, hdr http.Header, in listIn) (*mcp.
 		fmt.Fprintf(&b, "\n%v%s: %v. Origin %s, step %v.", c["id"], demo, c["display_name"], str0(c["predicted_origin"], "not analysed"), c["step"])
 		if n := obj(c["ruling_alerts"]); len(n) > 0 {
 			fmt.Fprintf(&b, " Changed rulings it relies on: %v final, %v proposed.", n["final"], n["proposed"])
+			if t, ok := n["touches_answer"]; ok {
+				fmt.Fprintf(&b, " %v bear on the answer.", t)
+			}
 		}
 	}
 	return done(b.String(), out)

@@ -57,6 +57,7 @@ func revocationAlerts(args []string) error {
 	rowHits, caseHits := []map[string]any{}, []map[string]any{}
 	caseDocs := []string{}
 	rulingsFinal, rulingsProposed := map[string]int{}, map[string]int{}
+	relevanceFinal := map[string]int{} // relied-on final changes by D531 relevance, rows and cases
 	for _, path := range files {
 		rel, _ := filepath.Rel(*root, path)
 		rel = filepath.ToSlash(rel)
@@ -77,7 +78,8 @@ func revocationAlerts(args []string) error {
 						return false
 					}
 					cd, _ := time.Parse(time.DateOnly, c.Date)
-					as := domain.RulingAlerts(cd, asOf, c.RulingRefs())
+					as := domain.WithRelevance(domain.RulingAlerts(cd, asOf, c.RulingRefs()), c.Prediction.Origin)
+					tallyRelevance(as, relevanceFinal)
 					cat := alertCategory(as, true)
 					caseTotals["cases"]++
 					caseDocs = append(caseDocs, rel+" "+c.ID)
@@ -120,7 +122,12 @@ func revocationAlerts(args []string) error {
 					refs = append(refs, domain.RulingRef{ID: id, Role: domain.RoleRead})
 				}
 				cd, _ := time.Parse(time.DateOnly, date)
-				as := domain.RulingAlerts(cd, asOf, refs)
+				answer := str(m["pred"])
+				if answer == "" {
+					answer = str(m["predicted_origin"])
+				}
+				as := domain.WithRelevance(domain.RulingAlerts(cd, asOf, refs), answer)
+				tallyRelevance(as, relevanceFinal)
 				cat := alertCategory(as, date != "")
 				rowTotals["rows_with_rulings"]++
 				if date == "" {
@@ -159,7 +166,7 @@ func revocationAlerts(args []string) error {
 		return rowHits[i]["file"].(string)+"\x00"+rowHits[i]["row"].(string) < rowHits[j]["file"].(string)+"\x00"+rowHits[j]["row"].(string)
 	})
 	doc := map[string]any{
-		"note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). " +
+		"note": "Offline count (D480): committed demo cases and committed result rows that would show a revocation alert, by the API's rule (domain.RulingAlerts): a ruling the case or row relies on (cited, a plan's supporting ruling, CBP's holding on the current setup) has a final revocation or modification (final_after_case: dated on or after the case date; final_before_case: dated before it, which the guard of D320/D370 would refuse today; final_undated: the row has no date) or a pending proposal only (proposed). read_only_final: only a ruling read and not cited changed (a calm line, no badge). relevance_final_relied counts the relied-on final changes by whether the change bears on the row's or case's answer (domain.WithRelevance, D531: touches_answer, not_answer, holding_unchanged, unknown). " +
 			"Rows are every JSON object in eval/results that names rulings, as eval/supersession/impact.py reads them, except stored case documents (an id case_..., a date and a prediction), which are counted once as cases. No model call; in effect is judged as of " + alertsAsOf + ".",
 		"as_of":                   alertsAsOf,
 		"map":                     "backend/internal/domain/supersession.json",
@@ -171,6 +178,7 @@ func revocationAlerts(args []string) error {
 		"demo_fixtures":           demos,
 		"rulings_final_relied":    rulingsFinal,
 		"rulings_proposed_relied": rulingsProposed,
+		"relevance_final_relied":  relevanceFinal,
 	}
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
@@ -222,6 +230,15 @@ func alertCategory(as []domain.RulingAlert, dated bool) string {
 	return cat
 }
 
+// tallyRelevance counts the relied-on final changes by relevance (D531).
+func tallyRelevance(as []domain.RulingAlert, n map[string]int) {
+	for _, a := range as {
+		if a.Relied() && a.Status == domain.AlertFinal {
+			n[a.Relevance]++
+		}
+	}
+}
+
 func alertWords(as []domain.RulingAlert) []string {
 	out := []string{}
 	for _, a := range as {
@@ -233,6 +250,9 @@ func alertWords(as []domain.RulingAlert) []string {
 			if !a.InEffect {
 				s += " (scheduled)"
 			}
+		}
+		if a.Relevance != "" {
+			s += " [" + a.Relevance + "]"
 		}
 		out = append(out, s)
 	}

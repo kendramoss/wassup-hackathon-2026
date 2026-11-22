@@ -110,9 +110,9 @@ func revocationAlertExample(args []string) error {
 		refs = append(refs, domain.RulingRef{ID: id, Role: domain.RoleRead})
 	}
 	cd, _ := time.Parse(time.DateOnly, row.Date)
-	items := domain.RulingAlerts(cd, asOf, refs)
+	items := domain.WithRelevance(domain.RulingAlerts(cd, asOf, refs), row.Pred)
 	counts := domain.CountAlerts(items)
-	if counts.Final != 1 || counts.Proposed != 0 || len(items) != 1 || items[0].BeforeCase || !items[0].InEffect {
+	if counts.Final != 1 || counts.Proposed != 0 || len(items) != 1 || items[0].BeforeCase || !items[0].InEffect || items[0].Relevance != domain.RelevanceNotAnswer {
 		return fmt.Errorf("%s no longer shows one in-force change since the case date: %+v", alertExampleRuling, items)
 	}
 
@@ -121,7 +121,7 @@ func revocationAlertExample(args []string) error {
 		return err
 	}
 	ex := alertExampleFile{
-		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/corpus alerts-example -check`. The answer is one committed development result row (no new model call). The box is worked out by the API's rule (domain.RulingAlerts, D480, D490) from the committed supersession map, as of " + alertsAsOf + ". Nothing is re-checked here.",
+		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/corpus alerts-example -check`. The answer is one committed development result row (no new model call). The box is worked out by the API's rule (domain.RulingAlerts, D480, D490) from the committed supersession map, as of " + alertsAsOf + ", and labelled by domain.WithRelevance (D531) from the shipped labels. Nothing is re-checked here.",
 		Ruling: row.Ruling, Subject: labels[row.Ruling].Subject, CaseDate: row.Date, Split: row.Split, Run: alertExampleRun,
 		Model: row.Model, Prompt: row.Prompt, Predicted: row.Pred, Confidence: row.Confidence, CBPOrigin: row.Gold,
 		Cited: row.Cited, Read: row.Precedents, Reasoning: row.Reasoning, AsOf: alertsAsOf,
