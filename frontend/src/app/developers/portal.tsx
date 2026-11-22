@@ -1,53 +1,35 @@
 "use client";
 
 import { useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
-import { Fold } from "@/components/op/ui";
-import type { CaseResponse } from "@/lib/api/client";
-import { filterTools, rates, toolGroups, tools, type ToolGroup } from "./catalog";
+import { filterTools, rates, tools, type ToolGroup, type ToolName } from "./catalog";
+import { endpoints, keyHeader, mcpEndpoint, setupExamples, toolExamples } from "./examples";
 
-const geminiAdd = "gemini mcp add --transport http unde https://undelabs.dev/mcp";
-const endpoint = "https://undelabs.dev/api/v1/cases/predict";
-const auth = "X-API-Key: op_...";
-const payload = JSON.stringify({
-  date: "2026-06-01",
-  facts: "A heat gun is assembled in Thailand from a motor and control board made in China.",
-  jurisdiction: "us",
-});
-const predictCommand = [
-  `curl -X POST ${endpoint}`,
-  `  -H "${auth}"`,
-  '  -H "Content-Type: application/json"',
-  `  -d '${payload}'`,
-].join(" \\\n");
-const anonymousCommand = [
-  `curl -c jar -b jar -X POST ${endpoint}`,
-  '  -H "Content-Type: application/json"',
-  `  -d '${payload}'`,
-].join(" \\\n");
-const response = JSON.stringify({
-  id: "case_0123456789ab",
-  jurisdiction: "us",
-  prediction: {
-    origin_country: "Thailand",
-    confidence: 0.86,
-    cited_rulings: ["N328954"],
-  },
-  triage: { route: "needs_review" },
-  disclaimer: "Not a ruling. Confirm with a licensed customs broker or a CBP binding ruling.",
-} satisfies Pick<CaseResponse, "id" | "jurisdiction" | "prediction" | "triage" | "disclaimer">, null, 2);
+type Mode = "mcp" | "api";
+type Client = keyof typeof setupExamples;
+type Endpoint = keyof typeof endpoints;
+type Tab<Key extends string> = { key: Key; label: string; subtext?: string };
 
-const tabs = [
-  { key: "mcp", label: "MCP server", audience: "AI agents" },
-  { key: "api", label: "REST API", audience: "Customs brokers" },
-] as const;
-type Mode = (typeof tabs)[number]["key"];
-
+const modes: Tab<Mode>[] = [
+  { key: "mcp", label: "MCP Server", subtext: "Claude · Gemini · ADK" },
+  { key: "api", label: "REST API (v1)", subtext: "Customs & ERP software" },
+];
+const clients: Tab<Client>[] = [
+  { key: "gemini", label: "Gemini CLI" },
+  { key: "claude", label: "Claude Desktop" },
+  { key: "adk", label: "ADK for Go" },
+];
+const categories: [ToolGroup | "", string][] = [
+  ["", `All ${tools.length}`],
+  ["origin", "Origin"],
+  ["planning", "Plan"],
+  ["tariff", "Tariff-shift"],
+  ["broker", "Draft"],
+];
 const docLink = "text-ok underline underline-offset-3 hover:text-ink";
-const panel = "min-w-0 rounded-sm border border-edge bg-sheet shadow-[3px_3px_0_var(--shadow)]";
+const panel = "min-w-0 rounded-sm border border-edge bg-sheet";
 const heading = "text-xl font-medium tracking-[-0.04em] sm:text-2xl";
-const lab = "block text-xs font-medium text-dim";
-const field = "mt-1.5 min-h-11 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
-const groups = Object.entries(toolGroups) as [ToolGroup, string][];
+const field = "min-h-10 w-full rounded-sm border border-edge bg-sheet px-3 text-sm text-ink";
+const json = (value: unknown) => JSON.stringify(value, null, 2);
 
 function modeFromURL(): Mode {
   const hash = window.location.hash;
@@ -68,58 +50,85 @@ function selectMode(mode: Mode) {
   window.dispatchEvent(new Event("hashchange"));
 }
 
-export function DevelopersPortal({ repo }: { repo: string }) {
-  const mode = useSyncExternalStore(onHashChange, modeFromURL, defaultMode);
-
-  function moveTab(event: KeyboardEvent<HTMLButtonElement>, current: Mode) {
-    const choices: Record<string, Mode> = {
-      ArrowRight: current === "mcp" ? "api" : "mcp",
-      ArrowLeft: current === "mcp" ? "api" : "mcp",
-      Home: "mcp",
-      End: "api",
-    };
-    const next = choices[event.key];
-    if (!next) return;
+function Tabs<Key extends string>({
+  label, prefix, items, active, select, compact = false,
+}: {
+  label: string;
+  prefix: string;
+  items: Tab<Key>[];
+  active: Key;
+  select: (key: Key) => void;
+  compact?: boolean;
+}) {
+  function moveTab(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const last = items.length - 1;
+    const next = {
+      ArrowLeft: index === 0 ? last : index - 1,
+      ArrowRight: index === last ? 0 : index + 1,
+      Home: 0,
+      End: last,
+    }[event.key];
+    if (next === undefined) return;
     event.preventDefault();
-    selectMode(next);
-    document.getElementById(`tab-${next}`)?.focus();
+    const key = items[next].key;
+    select(key);
+    document.getElementById(`${prefix}${key}-tab`)?.focus();
   }
 
   return (
+    <div
+      role="tablist"
+      aria-label={label}
+      className={`grid gap-px rounded-sm border border-edge bg-edge ${compact ? "grid-cols-3" : "grid-cols-2"}`}
+    >
+      {items.map(({ key, label, subtext }, index) => {
+        const selected = active === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            id={`${prefix}${key}-tab`}
+            role="tab"
+            aria-selected={selected}
+            aria-controls={`${prefix}${key}`}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => select(key)}
+            onKeyDown={(event) => moveTab(event, index)}
+            className={`relative min-w-0 border-b-2 px-2.5 py-2.5 text-left font-semibold hover:bg-wash ${compact ? "text-xs sm:px-3 sm:text-sm" : "text-base sm:px-5 sm:py-3.5 sm:text-lg"} ${selected ? "border-ok bg-ok-wash text-ok" : "border-transparent bg-sheet text-ink"}`}
+          >
+            {label}
+            {subtext && <span className="mt-0.5 block text-xs font-normal text-dim">{subtext}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function DevelopersPortal({ repo }: { repo: string }) {
+  const mode = useSyncExternalStore(onHashChange, modeFromURL, defaultMode);
+  return (
     <>
-      <div role="tablist" aria-label="Integration mode" className="grid grid-cols-2 divide-x divide-line rounded-sm border border-edge bg-sheet">
-        {tabs.map(({ key, label, audience }) => {
-          const selected = mode === key;
-          return (
-            <button
-              key={key}
-              id={`tab-${key}`}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              aria-controls={key}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => selectMode(key)}
-              onKeyDown={(event) => moveTab(event, key)}
-              className={`min-w-0 border-b-2 px-3 py-3 text-left hover:bg-wash sm:px-5 sm:py-4 ${selected ? "border-ok bg-ok-wash text-ok" : "border-transparent text-ink"}`}
-            >
-              <span className="block text-base font-semibold sm:text-lg">{label}</span>
-              <span className="mt-0.5 block text-xs text-dim">{audience}</span>
-            </button>
-          );
-        })}
+      <Tabs label="Integration mode" prefix="" items={modes} active={mode} select={selectMode} />
+      <div id="mcp" role="tabpanel" aria-labelledby="mcp-tab" tabIndex={0} hidden={mode !== "mcp"}>
+        <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
+          <Quickstart repo={repo} />
+          <ToolExplorer repo={repo} />
+        </div>
       </div>
-      <div id="mcp" role="tabpanel" aria-labelledby="tab-mcp" tabIndex={0} hidden={mode !== "mcp"}>
-        <McpMode repo={repo} />
-      </div>
-      <div id="api" role="tabpanel" aria-labelledby="tab-api" tabIndex={0} hidden={mode !== "api"}>
-        <RestMode repo={repo} />
+      <div id="api" role="tabpanel" aria-labelledby="api-tab" tabIndex={0} hidden={mode !== "api"}>
+        <RestConsole repo={repo} />
       </div>
     </>
   );
 }
 
-function CopyCode({ label, value, language }: { label: string; value: string; language?: "json" }) {
+function CopyCode({ label, value, language, dark = false }: {
+  label: string;
+  value: string;
+  language?: "json";
+  dark?: boolean;
+}) {
   const code = useRef<HTMLElement>(null);
   const [feedback, setFeedback] = useState("");
   const [copied, setCopied] = useState(false);
@@ -144,22 +153,22 @@ function CopyCode({ label, value, language }: { label: string; value: string; la
   }
 
   return (
-    <div className={panel}>
-      <div className="flex min-h-11 items-center justify-between gap-3 border-b border-line bg-wash px-3 sm:px-4">
-        <p className="min-w-0 text-xs font-medium text-ink [overflow-wrap:anywhere]">{label}</p>
+    <div className={`min-w-0 rounded-sm border ${dark ? "border-ink bg-ink text-paper shadow-[3px_3px_0_var(--shadow)]" : "border-edge bg-sheet"}`}>
+      <div className={`flex min-h-10 items-center justify-between gap-2 border-b px-3 sm:px-4 ${dark ? "border-dim bg-body" : "border-line bg-wash"}`}>
+        <p className="min-w-0 text-xs font-medium [overflow-wrap:anywhere]">{label}</p>
         <button
           type="button"
           aria-label={`Copy ${label}`}
           onClick={copyCode}
-          className="my-1.5 min-h-8 shrink-0 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
+          className="my-1 min-h-8 shrink-0 rounded-sm border border-edge bg-sheet px-2.5 text-xs font-medium text-ok hover:bg-ok-wash"
         >
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="min-w-0 px-3 py-3 text-[12px] leading-6 whitespace-pre-wrap [overflow-wrap:anywhere] sm:px-4 sm:text-[13px]">
+      <pre className="min-w-0 px-3 py-3 text-[12px] leading-5 whitespace-pre-wrap [overflow-wrap:anywhere] sm:px-4 sm:text-[13px]">
         <code ref={code}>{language === "json" ? <HighlightedJSON value={value} /> : value}</code>
       </pre>
-      <p role="status" className={copied || !feedback ? "sr-only" : "px-3 pb-3 text-xs text-dim"}>
+      <p role="status" className={copied || !feedback ? "sr-only" : "px-3 pb-3 text-xs"}>
         {feedback}
       </p>
     </div>
@@ -167,172 +176,158 @@ function CopyCode({ label, value, language }: { label: string; value: string; la
 }
 
 function HighlightedJSON({ value }: { value: string }) {
-  const tokens = value.split(/("(?:[^"\\]|\\.)*"|\b\d+(?:\.\d+)?\b)/g);
+  const tokens = value.split(/("(?:[^"\\]|\\.)*"|\b(?:\d+(?:\.\d+)?|true|false|null)\b)/g);
   return tokens.map((token, index) => {
     if (index % 2 === 0) return token;
-    const color = token.startsWith('"') ? (tokens[index + 1]?.trimStart().startsWith(":") ? "text-ok" : "text-body") : "text-dimension";
-    return (
-      <span key={index} className={color}>
-        {token}
-      </span>
-    );
+    const isString = token.startsWith('"');
+    const color = !isString ? "text-dimension" : tokens[index + 1]?.trimStart().startsWith(":") ? "text-ok" : "text-body";
+    return <span key={index} className={color}>{token}</span>;
   });
 }
 
-function McpMode({ repo }: { repo: string }) {
+function Quickstart({ repo }: { repo: string }) {
+  const [client, setClient] = useState<Client>("gemini");
+  return (
+    <section aria-labelledby="quickstart-heading" className="grid items-start gap-3 lg:grid-cols-[minmax(0,0.55fr)_minmax(0,1.45fr)] lg:gap-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 lg:block">
+        <h2 id="quickstart-heading" className={heading}>Connect a client</h2>
+        <a className={`${docLink} text-xs lg:mt-2 lg:inline-block`} href={`${repo}/blob/main/docs/MCP.md`}>Setup guide ↗</a>
+      </div>
+      <div className="min-w-0">
+        <Tabs label="MCP clients" prefix="setup-" items={clients} active={client} select={setClient} compact />
+        {clients.map(({ key }) => {
+          const setup = setupExamples[key];
+          return (
+            <div id={`setup-${key}`} key={key} role="tabpanel" aria-labelledby={`setup-${key}-tab`} hidden={client !== key}>
+              <div className="mt-2">
+                <CopyCode label={setup.label} value={setup.code} dark />
+              </div>
+              {setup.note && <p className="duo mt-2 text-xs text-dim">{setup.note}</p>}
+              {key === "claude" && <p className="mt-1 text-xs"><code>{mcpEndpoint}</code></p>}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ToolExplorer({ repo }: { repo: string }) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState<ToolGroup | "">("");
+  const [active, setActive] = useState<ToolName>("predict_origin");
   const filtered = filterTools(query, group);
+  const selected = filtered.find(([name]) => name === active) ?? filtered[0];
 
   return (
-    <div className="flex min-w-0 flex-col gap-7 sm:gap-9">
-      <section aria-labelledby="mcp-setup" className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-8">
-        <div>
-          <h2 id="mcp-setup" className={heading}>Connect Gemini CLI</h2>
-          <p className="duo mt-2 text-sm text-dim">No key needed to start. Ask where CBP would say your product is from.</p>
-          <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-            <a className={docLink} href={`${repo}/blob/main/docs/MCP.md`}>MCP setup guide ↗</a>
-            <a className={docLink} href={`${repo}/tree/main/examples/adk-agent`}>Google ADK example ↗</a>
-          </div>
-        </div>
-        <CopyCode label="Gemini CLI command" value={geminiAdd} />
-      </section>
-
-      <section aria-labelledby="tool-heading" className="border-t border-line pt-5 sm:pt-6">
-        <div className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,230px)_minmax(0,245px)]">
-          <h2 id="tool-heading" className={heading}>
-            {filtered.length === tools.length ? tools.length : `${filtered.length} of ${tools.length}`} MCP tools
-          </h2>
-          <label className={lab}>
-            Search tools
-            <input type="search" className={field} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name or task" />
-          </label>
-          <label className={lab}>
-            Category
-            <select className={field} value={group} onChange={(event) => setGroup(event.target.value as ToolGroup | "")}>
-              <option value="">All categories</option>
-              {groups.map(([key, name]) => <option key={key} value={key}>{name}</option>)}
-            </select>
-          </label>
-        </div>
-        <p role="status" className="sr-only">{filtered.length} tools match</p>
-        {filtered.length ? (
-          <div className="mt-4 grid items-start gap-3 sm:gap-4 min-[700px]:grid-cols-2 min-[1050px]:grid-cols-4">
-            {groups.map(([key, name]) => {
-              const members = filtered.filter((tool) => tool[1] === key);
-              if (!members.length) return null;
-              return (
-                <section key={key} aria-labelledby={`catalog-${key}`} className="min-w-0 rounded-sm border border-line bg-sheet">
-                  <h3 id={`catalog-${key}`} className="border-b border-line bg-wash px-3 py-2.5 text-sm font-semibold sm:px-4">{name}</h3>
-                  {key === "tariff" && <p className="duo border-b border-line px-3 py-2 text-xs text-dim sm:px-4">U.S. predictions can include the 102.20 check when you provide tariff codes.</p>}
-                  <ul className="divide-y divide-line">
-                    {members.map(([id, , , input, output]) => (
-                      <li key={id} className="px-3 py-2.5 sm:px-4">
-                        <code className="text-[12px] font-medium text-ok [overflow-wrap:anywhere] sm:text-[13px]">{id}</code>
-                        <p className="duo mt-0.5 text-[13px] text-dim">{input} <span aria-hidden="true">→</span><span className="sr-only">returns</span> {output}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="duo mt-4 rounded-sm border border-line bg-sheet p-4 text-sm text-dim">No tools match. Try another search or category.</p>
-        )}
-        <p className="duo mt-4 text-sm text-dim">Without an API key, keep the private <code>case_access_key</code> to reopen your case.</p>
-        <div className="mt-3">
-          <Fold title="Tool access and rule checks">
-            <div className="duo flex max-w-[72ch] flex-col gap-2 text-sm text-dim">
-              <p>With a key, send <code>Authorization: Bearer op_...</code>. No tool deletes anything.</p>
-              <p>Use <code>GET /v1/jurisdictions</code> to see supported markets. Plan search and country comparison work on U.S. cases only.</p>
-              <p>When you enter tariff codes for the finished good and its parts, <code>predict_origin</code> and <code>get_case</code> can return the 19 CFR 102.20 rule check. Suggested codes need review. The Canada check is rules only, with no accuracy figure.</p>
-              <p>Each tool uses the limit of its REST operation. Live ruling and duty lookups can also use the ruling-lookup bucket.</p>
+    <section aria-labelledby="tool-heading" className="border-t border-line pt-5 sm:pt-6">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="tool-heading" className={heading}>MCP tool explorer</h2>
+        <a className={`${docLink} text-xs`} href={`${repo}/blob/main/docs/MCP.md#tools`}>Tool reference ↗</a>
+      </div>
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)]">
+        <div className={panel}>
+          <div className="space-y-2 border-b border-line bg-wash p-3">
+            <input
+              type="search"
+              aria-label="Search tools"
+              className={field}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search tools"
+            />
+            <div role="group" aria-label="Tool category" className="flex flex-wrap gap-1.5">
+              {categories.map(([key, text]) => (
+                <button
+                  type="button"
+                  key={key}
+                  aria-pressed={group === key}
+                  onClick={() => setGroup(key)}
+                  className={`min-h-9 rounded-full border border-edge px-2.5 text-xs hover:bg-ok-wash ${group === key ? "bg-ok-wash text-ok" : "bg-sheet text-ink"}`}
+                >
+                  {text}
+                </button>
+              ))}
             </div>
-          </Fold>
+          </div>
+          <div role="region" aria-label="Matching tools" tabIndex={0} className="max-h-52 divide-y divide-line overflow-y-auto lg:max-h-[27rem]">
+            {filtered.map(([name]) => (
+              <button
+                type="button"
+                key={name}
+                aria-pressed={selected?.[0] === name}
+                aria-controls="tool-inspector"
+                onClick={() => setActive(name)}
+                className={`block min-h-10 w-full border-l-2 px-3 py-2 text-left text-xs [overflow-wrap:anywhere] hover:bg-wash ${selected?.[0] === name ? "border-ok bg-ok-wash font-medium text-ok" : "border-transparent text-ink"}`}
+              >
+                {name}
+              </button>
+            ))}
+            {!filtered.length && <p className="duo px-3 py-3 text-sm text-dim">No matching tools.</p>}
+          </div>
         </div>
-      </section>
+
+        <div id="tool-inspector" className="min-w-0">
+          <p className="sr-only" role="status">{filtered.length} tools match{selected ? `, showing ${selected[0]}` : ""}</p>
+          {selected && <ToolInspector key={selected[0]} tool={selected} />}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ToolInspector({ tool: [name, group, rate, input, output] }: { tool: (typeof tools)[number] }) {
+  const example = toolExamples[name];
+  return (
+    <div className={`${panel} space-y-3 p-3 sm:p-4`}>
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
+        <h3 className="min-w-0 text-base font-semibold text-ink [overflow-wrap:anywhere] sm:text-lg">{name}</h3>
+        <span className="rounded-sm border border-line bg-wash px-2 py-1 text-xs text-dim">{rates[rate]}</span>
+      </div>
+      <p className="duo text-sm text-dim">{input} <span aria-hidden="true">→</span><span className="sr-only"> returns </span> {output}</p>
+      <div className="grid items-start gap-3 xl:grid-cols-2">
+        <CopyCode label="JSON input" value={json(example.input)} language="json" />
+        <CopyCode label="Structured output · example" value={json(example.output)} language="json" />
+      </div>
+      {example.note && <p className="duo text-xs text-dim">{example.note}</p>}
+      {group === "tariff" && <p className="duo text-xs text-dim">For U.S. Part 102, supply tariff codes to <code>predict_origin</code>.</p>}
     </div>
   );
 }
 
-const limitRows = [
-  ["Read-only and other basic calls", rates.basic],
-  ["Light model calls", rates.light],
-  ["Plan search and comparison", rates.heavy],
-  ["Ruling lookups", rates.lookup],
-  ["Concurrent model calls", "4"],
-];
-
 const statuses = [
-  { code: "401", detail: "unauthorized", meaning: "Key invalid or disabled", color: "border-fail/40 bg-fail-wash text-fail" },
-  { code: "429", detail: "rate_limited / quota_exceeded", meaning: "Slow down or wait for quota reset", color: "border-ok/40 bg-ok-wash text-ok" },
-  { code: "503", detail: "budget_reached", meaning: "Daily model budget reached", color: "border-ask-line bg-ask-wash text-ask" },
+  { label: "401 Unauthorized", color: "border-fail/40 bg-fail-wash text-fail" },
+  { label: "429 Rate limit", color: "border-ok/40 bg-ok-wash text-ok" },
+  { label: "503 Daily cap", color: "border-ask-line border-dashed bg-ask-wash text-ask" },
 ];
 
-function RestMode({ repo }: { repo: string }) {
+function RestConsole({ repo }: { repo: string }) {
+  const [endpoint, setEndpoint] = useState<Endpoint>("predict");
+  const example = endpoints[endpoint];
+
   return (
-    <div className="flex min-w-0 flex-col gap-7 sm:gap-9">
-      <section aria-labelledby="rest-predict">
-        <h2 id="rest-predict" className={heading}>Predict origin</h2>
-        <div className="mt-3 grid gap-4 md:grid-cols-2">
-          <div id="keys" className="flex min-w-0 flex-col gap-3">
-            <div className="rounded-sm border border-line bg-sheet px-3 py-3 sm:px-4">
-              <h3 className="text-sm font-semibold">Authentication</h3>
-              <p className="duo mt-1 text-sm text-dim">Call from your server. Request a key from Unde Labs and send <code className="whitespace-nowrap">{auth}</code>.</p>
-            </div>
-            <CopyCode label="POST /v1/cases/predict" value={predictCommand} />
-            <Fold title="Try without a key">
-              <p className="duo mb-2 text-sm text-dim">Reuse the cookie jar on every call to keep access to your case.</p>
-              <CopyCode label="Anonymous cURL request" value={anonymousCommand} />
-            </Fold>
-          </div>
-          <div className="min-w-0">
-            <CopyCode label="201 response excerpt · illustrative" value={response} language="json" />
-          </div>
+    <section aria-labelledby="rest-heading">
+      <h2 id="rest-heading" className={`${heading} mb-3`}>API console</h2>
+      <div className="grid items-start gap-4 md:grid-cols-2">
+        <div id="keys" className="flex min-w-0 flex-col gap-2">
+          <label className="block text-xs font-medium text-dim">
+            Endpoint
+            <select className={`${field} mt-1`} value={endpoint} onChange={(event) => setEndpoint(event.target.value as Endpoint)}>
+              {Object.entries(endpoints).map(([key, entry]) => <option key={key} value={key}>{entry.label}</option>)}
+            </select>
+          </label>
+          <code className="self-start rounded-sm border border-edge bg-sheet px-2 py-1 text-xs">{keyHeader}</code>
+          <CopyCode key={endpoint} label="cURL request" value={example.command} />
+          {example.note && <p className="duo text-xs text-dim">{example.note}</p>}
         </div>
-      </section>
-      <section id="limits" aria-labelledby="limit-heading" className="border-t border-line pt-5 sm:pt-6">
-        <h2 id="limit-heading" className={heading}>Rate limits</h2>
-        <div className="mt-3 grid gap-4 md:grid-cols-2">
-          <div className="rounded-sm border border-line bg-sheet">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-line bg-wash">
-                  <th scope="col" className="px-3 py-2.5 font-medium sm:px-4">Request class</th>
-                  <th scope="col" className="px-3 py-2.5 font-medium whitespace-nowrap sm:px-4">Per client</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {limitRows.map(([name, value]) => (
-                  <tr key={name}>
-                    <th scope="row" className="duo px-3 py-2.5 font-normal sm:px-4">{name}</th>
-                    <td className="px-3 py-2.5 font-medium whitespace-nowrap sm:px-4">{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <ul aria-label="HTTP error responses" className="grid content-start gap-2">
-            {statuses.map(({ code, detail, meaning, color }) => (
-              <li key={code} className="rounded-sm border border-line bg-sheet px-3 py-2.5 sm:px-4">
-                <code className={`inline-block max-w-full rounded-sm border px-2 py-1 text-[11px] leading-normal whitespace-normal ${color}`}>{code} {detail}</code>
-                <p className="duo mt-1 text-[13px] text-dim">{meaning}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <p className="duo mt-3 text-sm text-dim">A 429 includes <code>Retry-After</code>. Daily quotas and budgets reset at 00:00 UTC.</p>
-        <div className="mt-3">
-          <Fold title="Quotas, keys and deployment">
-            <div className="duo flex max-w-[72ch] flex-col gap-2 text-sm text-dim">
-              <p>Other 429 codes include <code>too_many_in_flight</code>, <code>client_budget_reached</code> and <code>auth_rate_limited</code>. Without a key, limits apply per address.</p>
-              <p>The REST API takes <code>X-API-Key</code> and serves server-to-server requests. MCP uses a bearer key.</p>
-              <p>API keys, private cases and a model spend cap are on. The audit trail and required sign-in are available to operators. <a className={docLink} href={`${repo}/blob/main/docs/api/SECURITY.md#as-built-vs-as-deployed-21-nov-2026`}>Deployment settings ↗</a></p>
-            </div>
-          </Fold>
-        </div>
-      </section>
-    </div>
+        <CopyCode key={endpoint} label={`${example.status} response · example`} value={json(example.output)} language="json" />
+      </div>
+      <div id="limits" role="group" aria-label="Rate limits" className="mt-5 flex flex-wrap items-center gap-2 border-y border-line py-3 text-xs">
+        <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.light}</strong> predict</span>
+        <span className="rounded-sm border border-line bg-sheet px-2 py-1.5"><strong>{rates.heavy}</strong> plan search</span>
+        {statuses.map(({ label, color }) => <span key={label} className={`rounded-sm border px-2 py-1.5 ${color}`}>{label}</span>)}
+        <a className={docLink} href={`${repo}/blob/main/docs/api/SECURITY.md`}>Limits and errors ↗</a>
+      </div>
+    </section>
   );
 }
