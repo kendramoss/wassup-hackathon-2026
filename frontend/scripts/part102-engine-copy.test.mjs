@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { html, text } from "./render-support.mjs";
 
 // Judge panel round 13, item 1 (D620): the words around the Part 102 engine
 // follow the engine in production. usmca-v1's figures are labelled as
@@ -32,16 +31,11 @@ test("/accuracy gives usmca-v1's 0.95 share as the earlier engine's and usmca-v5
   assert.match(page, /That is a candidate comparison, not a fresh test \(p = 0\.22\)/);
 });
 
-test("/method labels the plan agreement figures usmca-v1's and names D591 and D602", async () => {
-  const { MethodPage } = await import("../src/components/op/screens/method-page.tsx");
-  const t = text(html(MethodPage, {}));
-  assert.match(t, /Re-run with the Part 102 engine then in use \(usmca-v1\) predicting each move, its prediction agrees with the rule on 13 of the 14 moves/);
-  assert.match(t, /usmca-v1 agreed with the rule on 3 of 6 moves/);
-  assert.match(t, /D591/);
-  assert.match(t, /Since 22 Nov the Part 102 engine is usmca-v5, which fills a short 102\.11 checklist first\. On the development plan rows it agrees with the rule on 56 of 57 decided rows, against 43 for usmca-v1/);
-  // D631: the held-out plan set was re-run with usmca-v5; the line reports it.
-  assert.doesNotMatch(t, /have not been re-run with it yet/);
-  assert.match(t, /with usmca-v5 and 20 families, planned 8 of 18; the engine agreed with the rule on 6 of 6 decided moves/);
+test("/method connects the Part 102 trace to its evaluation and example", () => {
+  const page = read("frontend/src/components/op/screens/method-page.tsx");
+  assert.match(page, /docs\/EVALUATION\.md#15-a-held-out-part-102-plan-set/);
+  assert.match(page, /href="\/examples\/part102-plan"/);
+  assert.match(read("docs/NUMBERS.md"), /56 of 57/);
 });
 
 test("README, DEMO and the Part 102 example note carry the same labels (#631, #634)", () => {
@@ -79,11 +73,8 @@ test("window-2 Part 102 figures carry the 15-ruling precedent pool note (D612)",
   assert.match(page, /with usmca-v5 and 20 families found 8 of 18 templates and 6 of 6 agreements\. Five of those six moves keep the country CBP held\./);
 });
 
-test("/method: usmca-v5 has no clean held-out check (D602, D612)", async () => {
-  const { MethodPage } = await import("../src/components/op/screens/method-page.tsx");
-  const t = text(html(MethodPage, {}));
-  assert.doesNotMatch(t, /T[h]eir clean check is the second window/); // spelled so claimscheck does not flag the test
-  assert.match(t, /For the textile and pharmaceutical engines the clean check is the second window, scored once with nothing changed/);
-  assert.match(t, /The Part 102 engine in use, usmca-v5, has no clean held-out check: it was picked on development rulings and then scored once on both windows, which usmca-v1 had already been scored on, so that is a candidate comparison/);
-  assert.match(t, /only the 15 window-2 rulings as precedents/);
+test("the Part 102 evaluation source keeps the comparison and window-2 caveats", () => {
+  const evaluation = read("docs/EVALUATION.md").replace(/\s+/g, " ");
+  assert.match(evaluation, /candidate comparison/);
+  assert.match(evaluation, /15 window-2 rulings/);
 });

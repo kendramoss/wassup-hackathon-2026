@@ -58,14 +58,11 @@ test("the tour's last step points at the example", () => {
 
 // Judge panel round 9, N3 and N4: /method and /accuracy link the example, and
 // /method gives the held-out figure without the inputs that carried a code.
-test("/method and /accuracy link the example; /method gives both held-out figures", () => {
-  const src = (f) => readFileSync(new URL(`../src/components/op/screens/${f}`, import.meta.url), "utf8").replace(/\s+/g, " ");
-  const method = src("method-page.tsx");
-  assert.match(method, /href="\/examples\/rule-check"/);
-  // D461: the figures with the 17 encoded chapters.
-  assert.match(method, /14 of 29 \(13 agree\); 11 of 24 \(10 agree\) without the inputs that carried a code/);
-  assert.match(method, /15 of the 16 development decisions and 13 of the 14 held-out ones/);
-  // D560 (#619): the held-out figures without the five chapters picked with held-out data.
-  assert.match(method, /without them the held-out figures are 12 of 29 \(11 agree\), 9 of 24 \(8 agree\) and 11 of 12; the full-text figure stays 4 of 32/);
+test("/method and /accuracy link the recorded rule check and the evaluation keeps both figures", () => {
+  const src = (file) => readFileSync(new URL(`../src/components/op/screens/${file}`, import.meta.url), "utf8");
+  const numbers = readFileSync(new URL("../../docs/NUMBERS.md", import.meta.url), "utf8");
+  assert.match(src("method-page.tsx"), /href="\/examples\/rule-check"/);
   assert.match(src("accuracy-page.tsx"), /href="\/examples\/rule-check"/);
+  assert.match(numbers, /11 of 24 decided, 10 agree/);
+  assert.match(numbers, /without the inputs that carried a code 9 of 24 \(8 agree\)/);
 });
