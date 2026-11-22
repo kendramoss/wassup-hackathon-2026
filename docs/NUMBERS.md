@@ -181,6 +181,23 @@ Development only, one run each through an OpenAI-compatible LiteLLM gateway to G
 | Contradicts the 102.20 check, of the 10 it decides | B 2, V 2 (N341152, N352059) | same; `eval/tariffshift/results-dev-full_text.jsonl` | Measured |
 | Cost | B $0.6881, V $0.7114 (1.03 ×); $1.3995 in all | same; `eval/results/RUNLOG.jsonl` (`usmca-dev-gemini-4-argon-prec-usmca-v{1,2}-litellm-d550`) | Measured, gateway-reported |
 
+### Held-out Part 102 plan set (D570, D571)
+
+The first held-out evaluation of the Part 102 plan pipeline: held-out Part 102 rulings frozen by a fixed rule before any run, then the production family check, fixtures built by fixed rules and one plan search each with the Part 102 engine. Scored by `cd backend && go run ./cmd/tariffshift plans102-eval -series heldout -check`; the set by `python3 -I eval/planner/part102_heldout.py freeze . --check` (both in `make reproduce`).
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Held-out Part 102 rulings considered; frozen | 45 (window 1, 32; window 2, 13); 18, all window 1 | `eval/tariffshift/plans102/heldout/frozen.json` | Measured, held out. Frozen before any run |
+| Frozen rulings with a plan template (family check) | 6 of 18 (33%, 95% CI 16–56%): 3 furniture, 3 vehicle parts | `eval/results/families-coverage-final-all-litellm-p102-heldout.jsonl`; `summary-heldout.json` | Measured, held out |
+| Plan searches run; failed | 6; 0 (none re-run) | `eval/tariffshift/plans102/summary-heldout.json` | Measured, held out |
+| Moves; decided by the 102.20 rule | 6 in 4 searches; 6 (3 shift, 3 another country) | same; `moves-heldout.jsonl` | Measured, held out |
+| Part 102 engine agrees with the rule, decided moves | 3 of 6 (95% CI 19–81%) | same | Measured, held out. Moves in a search are not independent |
+| Shown plans; the rule says they shift | 1; 1 (N358639, pipes and flange to Mexico) | same | Measured, held out |
+| Moves precedent supports while the rule gives another country | 0 | same | Measured, held out |
+| Current setup: rule gives CBP's holding; engine gives CBP's holding | 5 of 6 decided (95% CI 44–97%); 5 of 6 (44–97%). N358639 is the miss for both | same | Measured, held out |
+| Backtests on a later CBP ruling | 0 (no later ruling names a frozen one) | `frozen.json` (`later_rulings`) | Measured |
+| Cost | $0.3016 in all: plan searches $0.2195 (7 to 35 s each), family check $0.0404, group call $0.0245, development group check $0.0172 | `eval/results/RUNLOG.jsonl` (`planner-part102-heldout-litellm`, `families-coverage-final-all-litellm-p102-heldout`, `part102-heldout-groups`, `part102-heldout-groups-dev`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

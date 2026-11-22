@@ -1,0 +1,161 @@
+{
+  "case_id": "p102h-n357951",
+  "target": "United States",
+  "family": "furniture",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany, China and Canada.\n\nThe black walnut hardwood, textile backing and glue are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. The white oak hardwood are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to heading 9403"
+      ],
+      "decisive_step": "Processing of raw materials and final assembly into wooden furniture in Canada",
+      "confidence": 0.95,
+      "reasoning": "Under 19 CFR 102.11(a)(3), the country of origin is where foreign materials undergo the applicable tariff shift in 19 CFR 102.20. For wooden furniture of heading 9403 (subheadings 9403.10-9403.89), the rule requires a change from any other subheading outside that group. The foreign materials—U.S. black walnut hardwood (Chapter 44), textile backing, and glue (Chapter 35); German metal inserts and screws (Chapter 73); and Chinese magnets (heading 8505)—all shift to heading 9403 during production and assembly in Canada.",
+      "cited_rulings": [],
+      "precedents": [
+        "H345343",
+        "N261965",
+        "N317251",
+        "N326725",
+        "N354024"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 2967,
+        "output_tokens": 281,
+        "latency_ms": 8185
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N357951"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany, China and Canada.\n\nThe black walnut hardwood, textile backing and glue are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. The white oak hardwood are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to heading 9403"
+        ],
+        "decisive_step": "Processing of raw materials and final assembly into wooden furniture in Canada",
+        "confidence": 0.95,
+        "reasoning": "Under 19 CFR 102.11(a)(3), the country of origin is where foreign materials undergo the applicable tariff shift in 19 CFR 102.20. For wooden furniture of heading 9403 (subheadings 9403.10-9403.89), the rule requires a change from any other subheading outside that group. The foreign materials—U.S. black walnut hardwood (Chapter 44), textile backing, and glue (Chapter 35); German metal inserts and screws (Chapter 73); and Chinese magnets (heading 8505)—all shift to heading 9403 during production and assembly in Canada.",
+        "cited_rulings": [],
+        "precedents": [
+          "H345343",
+          "N261965",
+          "N317251",
+          "N326725",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2967,
+          "output_tokens": 281,
+          "latency_ms": 8185
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N357951); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "frame_metal_fabrication",
+          "to_plant": "united_states"
+        }
+      ],
+      "description": "Move the black walnut hardwood and the white oak hardwood to United States",
+      "variant_facts": "The merchandise under consideration is a wooden furniture.. The product of CBP ruling N357951, as its facts describe it. The wooden furniture. is assembled in Canada using components sourced from United States, Germany and China.\n\nThe black walnut hardwood, textile backing, glue and white oak hardwood are produced in United States. The metal threaded inserts and screws are sourced from Germany. The magnets are sourced from China. \n\nIn United States, the black walnut hardwood and white oak hardwood will be produced in-house: make the white oak hardwood; make the black walnut hardwood.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to heading 9403"
+        ],
+        "decisive_step": "Assembly and fabrication of the foreign wood, textile, glue, hardware, and magnets into finished wooden furniture in Canada",
+        "confidence": 0.85,
+        "reasoning": "The finished wooden furniture is classified in heading 9403 (or 9401). The foreign materials imported into Canada are raw hardwoods (Chapter 44), textile backing (Section XI), glue (Chapter 35), metal inserts/screws (Chapter 73), and magnets (heading 8505). Under 19 CFR 102.20(r), goods of headings 9401-9403 require a change from any other chapter or from parts (9401.91-9403.99) except by simple assembly. Because all foreign materials are classified outside Chapter 94, they undergo the required tariff shift in Canada under 19 CFR 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "H345343",
+          "N261965",
+          "N317251",
+          "N348465",
+          "N354024"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2888,
+          "output_tokens": 330,
+          "latency_ms": 9940
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Canada, not United States",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 5855,
+    "output_tokens": 611,
+    "engine_input_tokens": 5855,
+    "engine_output_tokens": 611,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 9.941519875000001
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "furniture": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.01782,
+  "cost_usd_list": 0.03564,
+  "gateway_cost_usd": 0.017820000000000003,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "4a5d6a9da5896d1101c02bdd33df07986c07274d",
+  "time": "2026-11-22T13:13:37+08:00"
+}

@@ -1,0 +1,250 @@
+{
+  "case_id": "p102h-n362414",
+  "target": "China",
+  "family": "vehicle_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a turbo thruster kit. The product of CBP ruling N362414, as its facts describe it. The turbo thruster kit is assembled in Canada using components sourced from China, United States, Malaysia and Canada.\n\nThe silicone boot, bolts, backplate, compressor cover, turbine housing, turbine wheel, actuator, heat shield and bearing housing are produced in China. The clamp are sourced from United States. The compressor wheel are sourced from Malaysia. The rod end are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to subheading 8414.80 from parts of subheading 8414.90"
+      ],
+      "decisive_step": "Assembly of the turbocharger components into the finished turbo thruster kit in Canada",
+      "confidence": 0.9,
+      "reasoning": "The finished turbo thruster kit (a turbocharger) is classified in subheading 8414.80, HTSUS. Under 19 CFR 102.11(a)(3), the applicable 102.20 rule for 8414.10-8414.80 requires a change to subheading 8414.80 from any other subheading, including another subheading within heading 8414. The foreign turbocharger parts (turbine wheel, compressor wheel, housings, backplate) are classified in subheading 8414.90, and other parts (bolts, boot, actuator) are in other headings. Because all foreign materials undergo the required tariff shift upon assembly in Canada, the origin is Canada.",
+      "cited_rulings": [],
+      "precedents": [
+        "H312745",
+        "N317575",
+        "N334104",
+        "N354024",
+        "N357851"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 2998,
+        "output_tokens": 323,
+        "latency_ms": 14072
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N362414"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a turbo thruster kit. The product of CBP ruling N362414, as its facts describe it. The turbo thruster kit is assembled in Canada using components sourced from China, United States, Malaysia and Canada.\n\nThe silicone boot, bolts, backplate, compressor cover, turbine housing, turbine wheel, actuator, heat shield and bearing housing are produced in China. The clamp are sourced from United States. The compressor wheel are sourced from Malaysia. The rod end are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 8414.80 from parts of subheading 8414.90"
+        ],
+        "decisive_step": "Assembly of the turbocharger components into the finished turbo thruster kit in Canada",
+        "confidence": 0.9,
+        "reasoning": "The finished turbo thruster kit (a turbocharger) is classified in subheading 8414.80, HTSUS. Under 19 CFR 102.11(a)(3), the applicable 102.20 rule for 8414.10-8414.80 requires a change to subheading 8414.80 from any other subheading, including another subheading within heading 8414. The foreign turbocharger parts (turbine wheel, compressor wheel, housings, backplate) are classified in subheading 8414.90, and other parts (bolts, boot, actuator) are in other headings. Because all foreign materials undergo the required tariff shift upon assembly in Canada, the origin is Canada.",
+        "cited_rulings": [],
+        "precedents": [
+          "H312745",
+          "N317575",
+          "N334104",
+          "N354024",
+          "N357851"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2998,
+          "output_tokens": 323,
+          "latency_ms": 14072
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N362414); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "precision_machined_parts",
+          "to_plant": "china"
+        }
+      ],
+      "description": "Move the compressor wheel, the turbine wheel and the rod end to China",
+      "variant_facts": "The merchandise under consideration is a turbo thruster kit. The product of CBP ruling N362414, as its facts describe it. The turbo thruster kit is assembled in Canada using components sourced from China and United States.\n\nThe silicone boot, bolts, backplate, compressor wheel, compressor cover, turbine housing, turbine wheel, rod end, actuator, heat shield and bearing housing are produced in China. The clamp are sourced from United States. \n\nIn China, the compressor wheel, turbine wheel and rod end will be produced in-house: make the rod end; make the turbine wheel; make the compressor wheel.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n",
+      "prediction": {
+        "origin_country": "China",
+        "key_factors": [
+          "(b) essential character of the Chinese turbocharger components (turbine wheel, compressor wheel, and housings)"
+        ],
+        "decisive_step": "Manufacturing of the core turbocharger components (turbine wheel, compressor wheel, turbine housing, compressor cover, and bearing housing) in China",
+        "confidence": 0.92,
+        "reasoning": "Following N348465 and H312745, the turbo thruster kit is neither wholly obtained nor made exclusively from domestic materials in Canada under 102.11(a)(1)-(2). Simple assembly in Canada of the complete set of Chinese core turbocharger components (wheels, housings, backplate, actuator) with U.S. clamps fails the 102.11(a)(3) tariff shift (including per 102.17/GRI 2(a)). Under 102.11(b) and 102.18(b), the Chinese turbocharger components impart the essential character of the finished kit, making China the country of origin.",
+        "cited_rulings": [
+          "H312745",
+          "N348465"
+        ],
+        "precedents": [
+          "H312745",
+          "N334104",
+          "N348465",
+          "N354024",
+          "N357851"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 2946,
+          "output_tokens": 787,
+          "latency_ms": 12863
+        }
+      },
+      "verdict": {
+        "precedent_supported": false,
+        "counter_ruling": "N359690",
+        "confidence": 0.75,
+        "reasoning": "In Variant A, CBP determined that the country of origin of the turbo thruster kit is Canada (N362414), despite the vast majority of major components (turbine wheel, turbine housing, bearing housing, compressor cover, actuator, backplate, heat shield) being produced in China, with only the minor rod end made in Canada and the compressor wheel from Malaysia. Because CBP held that final assembly in Canada substantially transformed the components into the finished turbo thruster kit, shifting the sourcing of the compressor wheel (from Malaysia) and the minor rod end (from Canada) to China does not alter the decisive Canadian assembly operation.",
+        "trail": [
+          {
+            "tool": "search",
+            "query": "\"turbo\" kit assembly Canada China origin",
+            "rulings": [
+              "N362413",
+              "N331524",
+              "N334104",
+              "N357927",
+              "H341208",
+              "N339814",
+              "N335049",
+              "N340542"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "turbocharger assembly compressor wheel turbine wheel origin",
+            "rulings": [
+              "N348532",
+              "N343953",
+              "N344809",
+              "H326072",
+              "N351860",
+              "N352067",
+              "N351901",
+              "N339173"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "turbocharger turbine housing bearing housing compressor cover origin",
+            "rulings": [
+              "N352067",
+              "N348532",
+              "N351922",
+              "N359690",
+              "N355567",
+              "N360226",
+              "N345436",
+              "N348913"
+            ]
+          },
+          {
+            "tool": "search",
+            "query": "turbocharger country of origin",
+            "rulings": [
+              "H351139",
+              "N344327",
+              "N343888",
+              "N333594",
+              "N339353",
+              "N349326",
+              "N353454",
+              "N330321"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N352067",
+            "rulings": [
+              "N352067"
+            ]
+          },
+          {
+            "tool": "read",
+            "query": "N359690",
+            "rulings": [
+              "N359690"
+            ]
+          }
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "prompt_version": "verifier-v2+known-a",
+          "input_tokens": 7983,
+          "output_tokens": 351,
+          "latency_ms": 0
+        }
+      },
+      "duty_effect_per_year": -300000,
+      "added_cost_per_year": 25000,
+      "net_per_year": -325000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "no earlier ruling found where CBP held this kind of change decisive",
+      "rejection_kind": "no_supporting_precedent"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 1,
+    "verifier_cached": 0,
+    "verifier_model_calls": 3,
+    "verifier_tool_calls": 6,
+    "input_tokens": 13927,
+    "output_tokens": 1461,
+    "engine_input_tokens": 5944,
+    "engine_output_tokens": 1110,
+    "verifier_input_tokens": 7983,
+    "verifier_output_tokens": 351,
+    "wall_seconds": 32.037990666
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "vehicle_parts": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.042464,
+  "cost_usd_list": 0.084928,
+  "gateway_cost_usd": 0.042464,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "4a5d6a9da5896d1101c02bdd33df07986c07274d",
+  "time": "2026-11-22T13:15:30+08:00"
+}
