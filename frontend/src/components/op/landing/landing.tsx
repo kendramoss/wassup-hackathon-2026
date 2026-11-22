@@ -116,6 +116,10 @@ function canHref(key: string, l: DemoLinks): string {
       return l.compare;
     case "draft":
       return l.heat ? `${l.heat}/draft` : l.demo;
+    case "rules":
+      return "/examples/plan-rule-check";
+    case "alerts":
+      return "/examples/revocation-alert";
     case "mcp":
       return "/developers#mcp";
     case "method":

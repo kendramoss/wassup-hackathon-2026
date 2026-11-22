@@ -403,6 +403,10 @@ export function MethodPage() {
           <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
             See a recorded example
           </Link>
+          , and{" "}
+          <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
+            one on a plan move
+          </Link>
           .
         </p>
         <p>
@@ -445,7 +449,11 @@ export function MethodPage() {
             counted from its effective date (<D id="D400" />, <D id="D401" />). 78 changes CBP has only proposed are shown beside the ruling and never block it. Before
             the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none. When CBP changes a ruling a saved
             case relies on after the case was decided, the case and the cases list say so and offer a re-check; the saved answer is never changed (<D id="D480" />).
-            In the committed results 2 rows rely on a ruling changed on or after their case date, and none on a change that is only proposed. A revoking ruling that cites the ruling it revokes is not alerted on itself (<D id="D490" />).
+            In the committed results 2 rows rely on a ruling changed on or after their case date, and none on a change that is only proposed. A revoking ruling that cites the ruling it revokes is not alerted on itself (<D id="D490" />).{" "}
+            <Link href="/examples/revocation-alert" className="text-ok underline underline-offset-2">
+              See a recorded alert
+            </Link>
+            .
           </li>
           <li>
             <b className="font-medium text-ink">The tariff-shift rule beside it.</b> When the case is routed to the Part 102 rules, or every part has an HTS code, each move
@@ -453,7 +461,11 @@ export function MethodPage() {
             under 102.20, does not, or is undetermined, and why. It never changes which moves are shown or their order. A move an earlier ruling supports but the rule does
             not is flagged for a broker. On the 23 per-family searches, with part codes from the development suggestion run, it decides 25 of 57 moves and agrees with the
             precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
-            accuracy, and there is no Part 102 plan search with codes to score yet (<D id="D442" />).
+            accuracy, and there is no Part 102 plan search with codes to score yet (<D id="D442" />).{" "}
+            <Link href="/examples/plan-rule-check" className="text-ok underline underline-offset-2">
+              See a recorded move check
+            </Link>
+            .
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker

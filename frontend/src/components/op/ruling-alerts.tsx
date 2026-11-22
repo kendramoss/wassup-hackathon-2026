@@ -19,8 +19,10 @@ function CbpLink({ id }: { id: string }) {
 // CBP changed, or proposed to change, a ruling this case relies on (D480).
 // Shown above every step of the case. The saved answer is never changed:
 // Re-check now runs the ruling watch, which predicts again with today's
-// rulings and leaves out revoked ones.
-export function RulingAlertsBanner({ c, setCase }: { c: CaseResponse; setCase: (c: CaseResponse) => void }) {
+// rulings and leaves out revoked ones. recorded draws the same box on the
+// /examples/revocation-alert page: no page padding, and Re-check now is shown
+// disabled, since a recorded example runs nothing.
+export function RulingAlertsBanner({ c, setCase, recorded }: { c: CaseResponse; setCase: (c: CaseResponse) => void; recorded?: boolean }) {
   const ra = c.ruling_alerts as RulingAlerts | undefined;
   const tone = alertTone(ra);
   const [busy, setBusy] = useState(false);
@@ -43,7 +45,7 @@ export function RulingAlertsBanner({ c, setCase }: { c: CaseResponse; setCase: (
     }
   };
   return (
-    <div className="no-print mx-auto w-full max-w-[1240px] px-5 pt-3">
+    <div className={recorded ? "" : "no-print mx-auto w-full max-w-[1240px] px-5 pt-3"}>
       <section
         aria-label="Changed rulings"
         className={cx("duo flex flex-col gap-1.5 border p-3 text-[13px]", tone === "attention" ? "border-ask-line bg-ask-wash text-ask" : "border-line bg-sheet text-body")}
@@ -86,7 +88,14 @@ export function RulingAlertsBanner({ c, setCase }: { c: CaseResponse; setCase: (
                 .{" "}
               </>
             ) : null}
-            {demo ? (
+            {recorded ? (
+              <>
+                <button type="button" disabled aria-describedby="recheck-recorded" className="inline-flex min-h-6 cursor-not-allowed items-center border border-line px-1.5 text-dim">
+                  Re-check now
+                </button>{" "}
+                <span id="recheck-recorded">(recorded example: nothing is run here)</span>
+              </>
+            ) : demo ? (
               "This demo can't be re-checked; start a new case from the demo to run one."
             ) : (
               <button

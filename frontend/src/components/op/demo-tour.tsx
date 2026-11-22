@@ -121,6 +121,18 @@ export function DemoTour({ id, tab }: { id: string; tab: CaseTab }) {
             </Link>
           )}
         </span>
+        {/* The tour's last step lists every recorded example (judge panel
+            round 10, item 2): features the demo case cannot show. */}
+        {tab === "draft" ? (
+          <p className="flex basis-full flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-2 text-dim">
+            <span>{T.more}</span>
+            {T.examples.map((e) => (
+              <Link key={e.href} href={`${e.href}?tour=1&from=${encodeURIComponent(id)}`} className="inline-flex min-h-6 items-center text-ok underline underline-offset-2">
+                {e.label}
+              </Link>
+            ))}
+          </p>
+        ) : null}
       </div>
     </nav>
   );

@@ -1,0 +1,75 @@
+{
+ "note": "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/corpus alerts-example -check`. The answer is one committed development result row (no new model call). The box is worked out by the API's rule (domain.RulingAlerts, D480, D490) from the committed supersession map, as of 2026-11-22. Nothing is re-checked here.",
+ "ruling": "N356467",
+ "subject": "The country of origin of an electric scooter",
+ "case_date": "2025-12-22",
+ "split": "dev",
+ "run": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl",
+ "model": "gemini-4-argon",
+ "prompt": "engine-v1+reasoning-v1",
+ "predicted_origin": "Vietnam",
+ "confidence": 0.92,
+ "cbp_origin": "Vietnam",
+ "cited": [
+  "N349019",
+  "N344694"
+ ],
+ "read": [
+  "N343888",
+  "N344694",
+  "N348937",
+  "N349019",
+  "N349255"
+ ],
+ "reasoning": "Consistent with CBP precedent on two-wheeled vehicles and e-scooters (e.g., N349019 and N344694), CBP holds that the frame imparts the essential character of a scooter or bike. Here, the aluminum frame components (head tube, oblique tube, brackets, etc.) are extruded, CNC-machined, and welded into a complete frame assembly in Vietnam. The subsequent assembly of Chinese-origin components (motor, battery, wheels, electronics) onto the Vietnamese frame in China does not substantially transform the frame. Thus, the country of origin is Vietnam.",
+ "as_of": "2026-11-22",
+ "ruling_alerts": {
+  "counts": {
+   "final": 1,
+   "proposed": 0
+  },
+  "items": [
+   {
+    "ruling": "N344694",
+    "roles": [
+     "cited",
+     "read"
+    ],
+    "status": "final",
+    "kind": "modified",
+    "by": "H344999",
+    "date": "2026-05-06",
+    "in_effect": true,
+    "bulletin": "Customs Bulletin vol. 60 no. 11, p. 6",
+    "url": "https://www.cbp.gov/sites/default/files/2026-06/vol_60_no._11_complete.pdf",
+    "note": "modified by H344999 on 2026-05-06"
+   }
+  ]
+ },
+ "changed_rulings": [
+  {
+   "ruling": "N344694",
+   "date": "2025-01-14",
+   "subject": "The tariff classification and country of origin of an e-scooter",
+   "primary_origin": "China",
+   "evidence": [
+    "Accordingly, the merchandise will be a product of China, and the Section 301 measures will apply."
+   ]
+  }
+ ],
+ "changed_by": [
+  {
+   "ruling": "H344999",
+   "date": "2026-05-06",
+   "subject": "Modification of NY N344694; Country of origin of an e-scooter",
+   "primary_origin": "Taiwan",
+   "evidence": [
+    "HOLDING: The country of origin of the e-scooter for purposes of applying trade remedies under Section 301 of the Trade Act of 1974 is Taiwan."
+   ]
+  }
+ ],
+ "counts": {
+  "final": 0,
+  "proposed": 0
+ }
+}
