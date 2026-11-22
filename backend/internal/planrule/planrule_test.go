@@ -1,6 +1,8 @@
 package planrule
 
 import (
+	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -168,3 +170,16 @@ func TestAnnotateNeverChangesThePlans(t *testing.T) {
 }
 
 func ptr(b bool) *bool { return &b }
+
+// Every need tariffshift can name has short words for the chip.
+func TestShortNeedsCoverTariffshift(t *testing.T) {
+	src, err := os.ReadFile("../tariffshift/evaluate.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range regexp.MustCompile(`need[A-Za-z]+\s+= "([^"]+)"`).FindAllStringSubmatch(string(src), -1) {
+		if _, ok := shortNeeds[m[1]]; !ok {
+			t.Errorf("no short words for %q", m[1])
+		}
+	}
+}

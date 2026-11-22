@@ -240,6 +240,17 @@ func shortList(xs []string) string {
 	}
 }
 
+// shortNeeds words tariffshift's needs for a chip.
+var shortNeeds = map[string]string{
+	"a person to read an alternative written by goods description":     "a rule sentence names goods in words",
+	"whether the change is pursuant to GRI 2(a)":                       "needs the GRI 2(a) fact",
+	"whether the work is a simple assembly":                            "needs whether it is a simple assembly",
+	"whether the goods match a description in the rule":                "needs a goods description match",
+	"whether the tubes are bent to shape":                              "needs whether tubes are bent",
+	"a longer HTS code":                                                "needs a longer code",
+	"the material's own HTS code (only a code it is outside is known)": "needs a part's own code",
+}
+
 func whyWords(c *domain.PlanRuleCheck, res tariffshift.Result) string {
 	switch c.Why {
 	case WhyOutOfScope:
@@ -267,6 +278,9 @@ func whyWords(c *domain.PlanRuleCheck, res tariffshift.Result) string {
 	case WhyNeedsFact:
 		for _, m := range res.Materials {
 			if m.Foreign && m.Status == tariffshift.MatNeedsFact && len(m.Needs) > 0 {
+				if w, ok := shortNeeds[m.Needs[0]]; ok {
+					return w
+				}
 				return "needs " + m.Needs[0]
 			}
 		}
