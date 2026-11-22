@@ -152,6 +152,19 @@ Three development rulings, one plan search each through an OpenAI-compatible Lit
 | Later ruling, rule on its setup (N354024) | Mexico, as CBP held | same | Measured. A later product, not a plan move: no plan backtest (0) |
 | Cost | $0.4333 for the 3 searches (actuator $0.3542, 79 s) | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d501-litellm`) | Measured, gateway-reported |
 
+### Part 102 plan searches with the Part 102 engine (D540, D541)
+
+The same three searches run again with the Part 102 engine predicting each move, scored by `cd backend && go run ./cmd/tariffshift plans102-eval -series d540 -check` (in `make reproduce`). Seen development products, one run each: a re-run, not new evidence of accuracy.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Engine agrees with the 102.20 rule, decided moves | 7 of 8 (general engine, D502: 6 of 8) | `eval/tariffshift/plans102/summary-d540.json`; `summary.json` for D502 | Measured, development |
+| Engine agrees with the rule's lean, moves undetermined only for de minimis | 6 of 6, all on the actuator (D502: 3 of 6) | same; `moves-dev-d540.jsonl` | Measured, development |
+| Moves sent to the precedent check | 7 (D502: 11) | same | Measured |
+| Actuator plans shown | 2, both moves the rule says shift (D502: 1) | same | Measured. The precedent check varies run to run |
+| Moves precedent supports while the rule gives another country | 1, the compressors (D502: 2) | same | Measured. The Part 102 engine still predicts China there |
+| Cost | $0.3416 for the 3 searches (actuator $0.2770, 37 s); $0.1724 more for an invalid first attempt with no local corpus, not scored | same; `eval/results/RUNLOG.jsonl` (`planner-part102-d540-litellm`, `planner-part102-d540-nocorpus-litellm`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

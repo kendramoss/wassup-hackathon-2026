@@ -639,6 +639,19 @@ Source: `eval/tariffshift/plans/summary.json` and `moves-dev.jsonl`, recomputed 
 
 **Not done.** No Part 102 move has a later CBP ruling on the changed setup, so there is no plan backtest (0). Three searches, one run each, on products chosen to exercise the rule: a demonstration of the mechanism on real rulings, not an accuracy figure. Source: `eval/tariffshift/plans102/summary.json` and `moves-dev.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans102-eval -check` (in `make reproduce`); runs `eval/tariffshift/plans102/runs/plan-p102-*-d501-litellm.json`. Cost $0.4333, gateway-reported.
 
+**Re-run with the Part 102 engine (D540, D541).** Plan searches on Part 102 cases now predict each move with the Part 102 engine, the engine the router sends those cases to, instead of the general engine. Pre-registered in D540 before any run, the three searches above were run again, one each, with nothing else changed. These are seen development products: a re-run, not new evidence of accuracy.
+
+| Ruling (target) | Engine | Engine agrees with the rule: decided moves | Moves undetermined only for de minimis | Precedent-checked moves | Shown | Cost |
+|---|---|---:|---:|---:|---:|---:|
+| N348465 actuator (Canada) | general | 6/6 | 3/6 | 9 | 1 | $0.3542 |
+| | Part 102 | 6/6 | 6/6 | 6 | 2 | $0.2770 |
+| N344002 compressors (China) | general | 0/1 | none | 1 | 0 | $0.0433 |
+| | Part 102 | 0/1 | none | 1 | 0 | $0.0465 |
+| N350133 lawn mower (China) | general | 0/1 | none | 1 | 0 | $0.0358 |
+| | Part 102 | 1/1 | none | 0 | 0 | $0.0180 |
+
+Agreement with the 102.20 rule went from 9 of 14 moves to 13 of 14. On the actuator the Part 102 engine sends the 3 moves without the motor to China, as the rule's lean says, and both shown plans are moves the rule says shift. On the lawn mower it predicts Mexico, as the rule does. On the compressors it still predicts China: it applied an exception for parts of 8414.90 that the 102.20 text for 8414.10 to 8414.80 does not have. The precedent check is unchanged and varies from run to run (the actuator's shown plans differ from D502's for that reason). A first attempt ran without the local corpus, so neither engine nor the check saw any ruling; it is disclosed in D541 and not scored. Source: `eval/tariffshift/plans102/summary-d540.json` and `moves-dev-d540.jsonl`, recomputed by `cd backend && go run ./cmd/tariffshift plans102-eval -series d540 -check` (in `make reproduce`). Cost $0.3416 scored, plus $0.1724 for the invalid attempt.
+
 ## 12. Agent evaluation: the ADK agent on 12 products (22 Nov 2026, D450, D451)
 
 **What it is.** The Google ADK agent in [`examples/adk-agent`](../examples/adk-agent/) works one case through Unde's MCP server: extract the product, predict the origin, plan moves to a target country, draft a ruling request for a broker. Before this it had run once, on one product (D391, D422). This scores it on twelve.
