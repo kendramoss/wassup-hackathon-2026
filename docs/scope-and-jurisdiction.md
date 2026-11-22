@@ -11,7 +11,7 @@ All `file:line` anchors are at commit `c0d3115` (the base of this change). The l
 | Which jurisdiction? | United States only: the U.S. Customs and Border Protection (CBP) country-of-origin question for non-preferential purposes, under four regimes (section 2). No other jurisdiction is encoded. |
 | Which products does the planner cover? | 26 families with templates (section 4): three earlier ones, eleven added from CBP precedent (ten in D138, one in D212), six written from Part 102 marking rulings (D580) and six picked from rulings with no template in either regime (D660). |
 | EU Binding Origin Information (BOI) | Unsupported. Deferred (section 7). |
-| USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). |
+| USMCA regional value content (RVC) and any preferential-origin qualification | Unsupported. Deferred (section 7). One exception is built: an RCEP rules check (`POST /v1/rcep/check`, D690), deterministic, separate from every origin answer, not reviewed by a qualified professional and not yet scored on rulings (D691). |
 | Does "Part 102" in this repo mean USMCA qualification? | No. It means the Part 102 marking-origin rules (section 5). |
 | Does the Part 177 export decide origin? | No. It lays out a ruling request letter (section 5). |
 | What happens to a case outside the configured regimes? | Some paths fail closed to expert review, and some do not (section 3). The gaps are listed there. |
@@ -144,7 +144,7 @@ Three items in this repo's own wording that this review could not settle and sho
 
 None of the following is implemented. A result from this system must not be used for them:
 
-- Preferential duty claims under USMCA or any trade agreement, and any preferential-origin or "originating good" qualification.
+- Preferential duty claims under USMCA or any trade agreement, and any preferential-origin or "originating good" qualification. The RCEP rules check (D690) is a calculator over the facts the user gives; it is not a claim, a ruling or a certificate, and has not been reviewed by a qualified professional.
 - Regional value content, net cost, transaction value, tolerances or other RVC calculation.
 - Certificates of origin, USMCA certification of origin, or any origin declaration for a trade agreement.
 - Non-U.S. jurisdictions and their origin rules, including EU Binding Origin Information and EU, UK or other non-preferential and preferential origin regimes.

@@ -17,6 +17,7 @@ import { Button, ButtonLink, Chip, Country, Dimension, Flag, Fold, Panel, Ruling
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { RuleCheckPanel } from "../rule-check";
+import { RcepCheck } from "../rcep-check";
 import { Term } from "../term";
 import { regimeOf } from "@/lib/regime";
 import { blankAnswers, buildAnswerPayload, reconcileAnswers, type AnswerState } from "@/lib/answer-state";
@@ -102,6 +103,7 @@ function Result({ id, c, setCase }: CaseCtx) {
                 </ul>
               </Fold>
             ) : null}
+            <RcepCheck c={c} />
             {!watchBoxed ? (
               <Fold title="Ruling watch" meta={demoWatch ? "not available on this demo" : c.watch ? (wk === "recheck" ? wv.label.toLowerCase() : `${wk === "unchanged" ? "unchanged" : "checked"}, ${formatDate(c.watch.checked_at)}`) : "not re-checked"}>
                 {demoWatch ? <DemoWatchNote c={c} /> : <WatchLine c={c} setCase={setCase} />}

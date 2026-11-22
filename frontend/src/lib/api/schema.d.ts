@@ -708,6 +708,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/rcep/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * RCEP preferential origin check from a bill of materials (deterministic, no model call)
+         * @description Does a good made in an RCEP Party qualify as RCEP originating, so it can claim the RCEP preferential tariff when imported into another Party? Deterministic code over the official Annex 3A product-specific rules (HS 2022 transposition, parsed from the RCEP Secretariat PDF and cross-checked against the Australian Border Force copy; `backend/internal/rcep`, D690). Implements Art. 3.2 (wholly obtained, only originating materials, or the Annex 3A rule), Art. 3.4 cumulation (a material counts as originating only when declared originating and from a Party), Art. 3.5 RVC by both formulas (materials of undetermined origin count as non-originating), Art. 3.6 minimal operations and Art. 3.7 de minimis (10 % of FOB value; also 10 % of weight for chapters 50 to 63). Not covered: packaging (3.8), accessories (3.9), indirect and fungible materials (3.10, 3.11), direct consignment (3.15) and proof-of-origin procedures. Missing facts make the answer `undetermined`, never `no`. This is preferential origin only: it is separate from the marking and non-preferential origin every case answer gives, and every response says so (`regime: rcep_preferential`). Nothing is stored. Not a ruling and not a certificate of origin. Cheap class (120 a minute); a malformed body is 400 `invalid_input`.
+         */
+        post: operations["checkRcepPreference"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/demos": {
         parameters: {
             query?: never;
@@ -4032,6 +4052,141 @@ export interface operations {
                 };
             };
             404: components["responses"]["Error"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    checkRcepPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description The good's HS code, 4 to 10 digits; the rule is looked up at 6 digits (HS 2022)
+                     * @example 0910.91
+                     */
+                    hs: string;
+                    /**
+                     * @description Where the good is produced: country name or ISO alpha-2 code. A non-Party is `no`.
+                     * @example Malaysia
+                     */
+                    produced_in: string;
+                    /** @description FOB value of the good; needed for RVC and the value de minimis */
+                    fob?: number;
+                    /** @description Weight of the good; used for the chapters 50-63 de minimis */
+                    weight?: number;
+                    /** @description The producer states the good is wholly obtained in the Party (Art. 3.3) */
+                    wholly_obtained?: boolean;
+                    /** @description What is done to the non-originating materials. If every entry is an Art. 3.6 key (preserving, packaging, simple_processes, marking, dilution, disassembly, slaughtering, simple_painting_polishing, simple_peeling, simple_mixing), the good does not qualify. Any other word (e.g. assembly) counts as real production. */
+                    operations?: string[];
+                    /** @description A chemical reaction took place in a Party (Annex 3A CR rule). Unset: not stated. */
+                    chemical_reaction?: boolean;
+                    /** @description For the eight rows whose rule depends on the product (e.g. 0304.39 carp vs other fish), the branch id from `rule.variants`. Unset: decided only if every branch agrees. */
+                    variant?: string;
+                    /** @description Heading 38.08 only: share by weight of the active ingredients that is originating */
+                    active_ingredient_originating_pct?: number;
+                    /** @description Build-up (direct) formula terms, Art. 3.5.1(b); same currency as fob */
+                    costs?: {
+                        labour?: number;
+                        overhead?: number;
+                        profit?: number;
+                        other?: number;
+                    };
+                    materials?: {
+                        name?: string;
+                        /** @description The material's HS code, 2 to 10 digits; the rule needs 2, 4 or 6 */
+                        hs?: string;
+                        /** @description CIF at import, or the earliest price paid in the Party (Art. 3.5.3) */
+                        value?: number;
+                        weight?: number;
+                        /** @description Where the material originates */
+                        country?: string;
+                        /**
+                         * @description originating: the supplier's declaration or proof of origin says it is RCEP originating
+                         * @default unknown
+                         * @enum {string}
+                         */
+                        status?: "originating" | "non_originating" | "unknown";
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description The answer, with the rule used and plain-English reasons */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        outcome?: "yes" | "no" | "undetermined";
+                        /**
+                         * @description Art. 3.2 limb of a yes
+                         * @enum {string}
+                         */
+                        basis?: "WO" | "PE" | "PSR";
+                        /**
+                         * @description The alternative that decided a yes, e.g. CTH, RVC40, CC except from chapter 10
+                         * @example RVC40
+                         */
+                        applied?: string;
+                        rule?: {
+                            /** @example 0910.91 */
+                            code?: string;
+                            /** @enum {string} */
+                            level?: "chapter" | "heading" | "subheading";
+                            description?: string;
+                            /** @example CC or RVC40 */
+                            text?: string;
+                            /** @example rcep-psr-hs2022-r2022-08-20 */
+                            version?: string;
+                            variants?: Record<string, never>[];
+                        };
+                        rvc?: {
+                            /** @example 40 */
+                            threshold?: number;
+                            /** @description (FOB - VNM) / FOB x 100 */
+                            build_down?: number;
+                            /** @description (VOM + labour + overhead + profit + other) / FOB x 100 */
+                            build_up?: number;
+                            vnm?: number;
+                            vom?: number;
+                        };
+                        de_minimis?: {
+                            used?: boolean;
+                            /** @description per cent of FOB */
+                            value_share?: number;
+                            /** @description per cent of the good's weight */
+                            weight_share?: number;
+                        };
+                        /** @description Originating materials from another Party were counted (Art. 3.4) */
+                        accumulation?: boolean;
+                        /** @description Materials that fail (or cannot be tested against) the tariff-shift rule; empty on a yes */
+                        failing?: {
+                            index?: number;
+                            name?: string;
+                            hs?: string;
+                            reason?: string;
+                        }[];
+                        alternatives?: {
+                            rule?: string;
+                            /** @enum {string} */
+                            outcome?: "yes" | "no" | "undetermined";
+                            reasons?: string[];
+                        }[];
+                        reasons?: string[];
+                        /** @enum {string} */
+                        regime?: "rcep_preferential";
+                        note?: string;
+                    };
+                };
+            };
+            400: components["responses"]["Error"];
             429: components["responses"]["TooManyRequests"];
         };
     };

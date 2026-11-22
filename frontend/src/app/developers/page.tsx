@@ -79,6 +79,7 @@ const tools: [string, string][] = [
   ["create_broker_review_link", "Make a link your broker opens to approve the draft or ask for changes."],
   ["get_broker_review_status", "Read the broker's answer and comments on each link."],
   ["suggest_part_hts", "Suggest HTS codes for each part, each marked as from an earlier ruling or the model's reading, so the tariff-shift rule check can run. A code whose chapter looks wrong for the product is marked to check."],
+  ["check_rcep_preference", "Check if a good made in an RCEP country qualifies for the RCEP tariff. Rules only, no model. Separate from the origin answer."],
 ];
 
 // The MCP one-liners wrap on a phone so the whole command shows.
