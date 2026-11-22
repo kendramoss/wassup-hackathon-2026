@@ -95,6 +95,12 @@ export const DECISIONS: Record<string, string> = {
   D602: "d602--a-short-10211-checklist-usmca-v5-is-the-production-part-102-engine-22-nov",
   D612: "d612--window-2s-part-102-runs-had-almost-no-precedents-eval-run-now-stops-on-a-missing-facts-directory-22-nov-follow-up-to-d602",
   D502: "d502--part-102-aware-plans-finished-the-check-in-the-draft-and-the-comparison-the-d500-order-and-the-three-d501-searches-22-nov-judge-panel-round-10-item-4",
+  D601: "d601--owner-decision-22-nov-cost-cap-removed-for-part-102-engine-variants-cost-and-latency-reported-not-gating-amendment-to-d590-and-d600-22-nov",
+  D650: "d650--pre-registration-a-compact-component-checklist-for-the-substantial-transformation-engine-22-nov-follow-up-to-d157-d164-and-d602",
+  D651: "d651--the-component-checklist-did-not-pass-on-development-vb-not-run-no-held-out-split-scored-22-nov-results-of-d650",
+  D652: "d652--amendment-to-d650-this-items-spend-cap-raised-to-25-and-vb-run-22-nov",
+  D653: "d653--vb-did-not-pass-on-development-either-no-held-out-split-scored-22-nov-results-of-d650-as-amended-by-d652",
+  D670: "d670--amendment-to-d631-the-second-held-out-plan-pass-is-a-candidate-comparison-not-new-held-out-evidence-22-nov-649-judge-panel-round-15-item-1",
 };
 
 export const decisionHref = (id: string) => `${blob("docs/DECISIONS.md")}#${DECISIONS[id]}`;
@@ -206,6 +212,9 @@ export const ARMS: { group: string; rows: Arm[] }[] = [
       { label: "Adjudicator, narrow", v: 0.901, vs: "fixed 2, broke 7, p = 0.18", note: "failed its rule", refs: ["D164"] },
       { label: "Adjudicator, symmetric", v: 0.909, vs: "fixed 9, broke 10, p = 1.0", note: "failed its rule", refs: ["D164"] },
       { label: "Adjudicator, moves away from China only", v: 0.92, vs: "fixed 7, broke 3, p = 0.34", note: "picked after seeing the two above, so not a fair test; failed its rule", refs: ["D164"] },
+      // docs/NUMBERS.md "Component checklist for the general engine" (D650 to D653).
+      { label: "Component checklist (st-checklist-v1)", v: 0.911, lo: 0.882, hi: 0.934, vs: "fixed 5, broke 8, p = 0.58 (vs the first gateway run)", note: "failed its rule; not adopted", refs: ["D650", "D651"] },
+      { label: "Checklist plus closest precedents (st-checklist-v2)", v: 0.914, lo: 0.884, hi: 0.936, vs: "fixed 5, broke 7, p = 0.77 (vs the first gateway run)", note: "failed its rule; not adopted", refs: ["D650", "D652", "D653"] },
     ],
   },
 ];

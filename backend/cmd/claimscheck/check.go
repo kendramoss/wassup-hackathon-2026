@@ -379,6 +379,15 @@ var stalePhrases = []struct {
 		why:    "window 2's Part 102 counts were measured with only the 15 window-2 rulings as precedents; say so beside them (D612, #643, D642)",
 		unless: regexp.MustCompile(`D612|15 window-2 rulings`),
 	},
+	{
+		re:  regexp.MustCompile(`(?i)\bfirst held-out evidence\b|\bD602 change carries over\b`),
+		why: "the D631 plan pass is a candidate comparison on window-1 rulings usmca-v5 was scored on in D601 before its adoption, not new held-out evidence (#649, D670)",
+	},
+	{
+		re:     regexp.MustCompile(`(?i)usmca-v5[^.]{0,160}\bheld-out evidence\b|\bheld-out evidence\b[^.]{0,160}usmca-v5`),
+		why:    "usmca-v5 has no clean held-out check: its held-out scores and the D631 plan pass are candidate comparisons (D602, #649, D670)",
+		unless: regexp.MustCompile(`(?i)\bnot (clean |new )?held-out evidence\b|candidate comparison`),
+	},
 }
 
 // staleRoots are the public texts checkStalePhrases reads: the README, the

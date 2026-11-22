@@ -653,7 +653,8 @@ function HowBuilt() {
         Beside the engine, a deterministic 19 CFR 102.20 tariff-shift check runs when the parts carry HTS codes, and the parts table can suggest those codes. It never
         changes the answer or what is auto-accepted. Plan searches on Part 102 cases were scored twice on a held-out set frozen before the first run.
         With usmca-v1 and 14 families, 6 of 18 rulings had a plan template and usmca-v1 agreed with the 102.20 rule on 3 of 6 decided moves; with usmca-v5 and 20
-        families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held. Each time the one plan shown is a move the rule says shifts. Too few to read as an accuracy figure.{" "}
+        families, 8 of 18 and 6 of 6; five of the six are moves where the rule keeps the country CBP held. Each time the one plan shown is a move the rule says shifts. The second pass
+        is a candidate comparison, not new held-out evidence: its 8 rulings are from the window usmca-v5 was scored on before it was adopted. Too few to read as an accuracy figure.{" "}
         <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
           Per-part codes and the rule check, a recorded example →
         </Link>
