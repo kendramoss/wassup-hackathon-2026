@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { kobalt, kobaltSources, methodExperiments } from "../src/lib/method-inspector.ts";
 import { ARMS, BANDS, DECISIONS, LEAK, PLAN_FAMILIES, PLAN_POST, POST_REVIEW, ROUTER_V3, TIMELINE, ghSlug } from "../src/lib/method.ts";
 
 // The /method page links decision entries by their GitHub anchor and quotes
@@ -22,6 +23,10 @@ test("every decision anchor matches a heading in docs/DECISIONS.md", () => {
 
 test("every decision the page and timeline cite has an anchor", () => {
   const cited = new Set([...page.matchAll(/<D id="(D\d+)"/g)].map((m) => m[1]));
+  for (const { failedDecision, fixDecision } of methodExperiments) {
+    cited.add(failedDecision);
+    cited.add(fixDecision);
+  }
   for (const s of TIMELINE) s.refs.forEach((r) => cited.add(r));
   for (const g of ARMS) for (const r of g.rows) r.refs.forEach((x) => cited.add(x));
   for (const id of cited) assert.ok(DECISIONS[id], `${id} is cited but has no anchor`);
@@ -29,6 +34,7 @@ test("every decision the page and timeline cite has an anchor", () => {
 
 test("linked files exist, and section anchors match their headings", () => {
   const paths = [...page.matchAll(/blob\("([^"]+)"\)/g)].map((m) => m[1]);
+  paths.push(...Object.values(kobaltSources));
   for (const s of TIMELINE) for (const f of s.files ?? []) paths.push(f.path);
   for (const p of paths) {
     const [file, anchor] = p.split("#");
@@ -58,14 +64,11 @@ test("every figure on the page is in docs/NUMBERS.md", () => {
 
 // #480 / D266: the router cue is a protocol shortfall, not a clean example.
 // Every surface that publishes the post-cutoff router figures must say so.
-test("the method page qualifies the router's development split and cue", () => {
-  assert.match(page, /On development rulings, by rules written down first/);
-  assert.doesNotMatch(page, /On development rulings only/);
-  assert.match(page, /trade programs/);
-  assert.match(page, /729-ruling development split \(25 Jan 2024 to 31\s+Dec 2025\)/);
-  const lib = readFileSync(new URL("../src/lib/method.ts", import.meta.url), "utf8");
-  assert.match(lib, /729-ruling dev split/);
-  const accuracy = readFileSync(new URL("../src/components/op/screens/accuracy-page.tsx", import.meta.url), "utf8");
+test("the evaluation source and accuracy page qualify the router's development split and cue", () => {
+  assert.match(page, /id="clean"[\s\S]*?377 CBP rulings was frozen before scoring[\s\S]*?blob\("docs\/EVALUATION\.md#2-how-the-validation-and-test-sets-are-built"\)/);
+  assert.match(read("docs/EVALUATION.md"), /trade programs/);
+  assert.match(read("frontend/src/lib/method.ts"), /729-ruling dev split/);
+  const accuracy = read("frontend/src/components/op/screens/accuracy-page.tsx");
   assert.match(accuracy, /\{" "\}Caveat: the &quot;trade programs/);
 });
 
@@ -84,7 +87,7 @@ test("the plan section's figures are in docs/NUMBERS.md", () => {
   assert.ok(numbers.includes("moves all 6 parts whose origin CBP's N357771 change switched from China to Thailand"));
   assert.ok(numbers.includes("Also moves 3 parts that change kept in China: the switch, wires and fasteners"));
   assert.doesNotMatch(page, /6 of its 7 parts/);
-  assert.match(page, /id: "plans", q: "How are plans searched and checked\?"/);
+  assert.match(page, /id="plans"/);
 });
 
 test("the 21 Nov steps are labelled as post-review hardening, with exact dates", () => {
@@ -96,13 +99,40 @@ test("the 21 Nov steps are labelled as post-review hardening, with exact dates",
 
 // D441, D442: the plan section's rule-check figures are registered.
 test("the plan section's per-move rule-check figures are in docs/NUMBERS.md", () => {
-  assert.match(page, /decides 25 of 57 moves and agrees with the\s+precedent check on 21 of 23/);
   assert.ok(numbers.includes("25 of 57 moves") && numbers.includes("21 of 23 decided moves"));
 });
 
 // D500, D502: the plan section's Part 102 search figures are registered.
 test("the plan section's Part 102 plan-search figures are in docs/NUMBERS.md", () => {
-  assert.match(page, /the rule picked the 6 actuator moves/);
-  assert.match(page, /it flagged 2 moves to China/);
   assert.ok(numbers.includes("6 of 12 (every move with the motor)") && numbers.includes("| Moves precedent supports while the rule gives another country | 2 "));
+});
+
+test("the Method Kobalt excerpts match the committed recordings", () => {
+  const prediction = JSON.parse(read(kobaltSources.prediction));
+  const plan = JSON.parse(read(kobaltSources.plan));
+  const ask = JSON.parse(read(kobaltSources.ask));
+  const fixture = JSON.parse(read(kobaltSources.fixture));
+  assert.equal(prediction.date, kobalt.cutoff.date);
+  assert.equal(fixture.predict.date, kobalt.cutoff.date);
+  assert.match(fixture.source, /N328954 \(15 Nov 2022\)/);
+  assert.match(fixture.source, /N357771 \(29 Jan 2026\)/);
+  assert.equal(prediction.router.route, kobalt.route);
+  assert.equal(prediction.router.regime, kobalt.regime);
+  assert.equal(prediction.prediction.origin_country, kobalt.origin);
+  assert.equal(prediction.prediction.confidence, kobalt.statedConfidence);
+  assert.equal(prediction.triage.route, kobalt.triage);
+  assert.deepEqual(prediction.prediction.cited_rulings, kobalt.citations);
+  assert.ok(prediction.precedents_detail.every((item) => item.date < kobalt.cutoff.date));
+  assert.match(prediction.clarify.questions[0], /heating element manufactured in Thailand/);
+  assert.equal(plan.target, kobalt.target);
+  assert.equal(plan.stats.moves_searched, kobalt.movesSearched);
+  assert.equal(plan.plans.length, kobalt.movesShown);
+  const shown = plan.plans[0];
+  assert.equal(shown.shown, true);
+  assert.equal(shown.verdict.supporting_ruling, kobalt.supporting.id);
+  assert.equal(shown.verdict.counter_ruling ?? null, kobalt.counterRuling);
+  assert.equal(shown.verdict.confidence, kobalt.verifierScore);
+  assert.ok(shown.verdict.trail.some(({ tool }) => tool === "search"));
+  assert.ok(ask.reply.steps.some(({ tool, arg }) => tool === kobalt.askTool && arg === kobalt.askChange));
+  assert.ok(ask.reply.what_ifs.some(({ change, origin, confidence }) => change === kobalt.askChange && origin === kobalt.askOrigin && confidence === kobalt.askStatedConfidence));
 });

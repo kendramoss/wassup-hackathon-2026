@@ -106,17 +106,12 @@ test("the tour's last step lists every recorded example; earlier steps do not", 
   assert.doesNotMatch(text(html(DemoTour, { id: "case_878d76540b91", tab: "plan" })), /More recorded examples/);
 });
 
-test("/method and the landing link both examples", () => {
+test("/method links the recorded examples", () => {
   const src = (f) => readFileSync(new URL(`../src/components/op/${f}`, import.meta.url), "utf8");
   const method = src("screens/method-page.tsx");
   assert.match(method, /href="\/examples\/plan-rule-check"/);
   assert.match(method, /href="\/examples\/revocation-alert"/);
   assert.match(method, /href="\/examples\/part102-plan"/);
-  const landing = src("landing/landing.tsx");
-  assert.match(landing, /"\/examples\/plan-rule-check"/);
-  assert.match(landing, /"\/examples\/revocation-alert"/);
-  // Judge panel round 12, N9: the landing links the Part 102 plan too.
-  assert.match(landing, /"\/examples\/part102-plan"/);
 });
 
 // Judge panel round 11, N1: a merge left "See a recorded move check.
@@ -129,7 +124,7 @@ test("/method has no sentence that starts with a lowercase word", async () => {
   const allowed = new Set(["router", "git"]);
   const broken = [...t.matchAll(/[a-z)]\. ([a-z][a-z]+)\b/g)].filter((m) => !allowed.has(m[1])).map((m) => t.slice(Math.max(0, m.index - 40), m.index + 30));
   assert.deepEqual(broken, []);
-  assert.match(t, /On three scored Part 102 plan searches on development rulings/);
+  assert.match(t, /Dual-sided precedent gate/);
   assert.doesNotMatch(t, /accuracy \(D442\)\. On three|move check\. accuracy/);
 });
 
