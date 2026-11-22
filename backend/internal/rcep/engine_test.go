@@ -506,3 +506,47 @@ func TestComputedNonFiniteIsBadInput(t *testing.T) {
 		})
 	}
 }
+
+// #673: a short material whose known digits already fall outside an exclusion
+// cannot be in the excluded subheading, so it must not be marked untestable.
+// Good 8458.11 has rule "CTH except from subheading 8537.10, or RVC40".
+func TestExclusionPrefixOutsideIsTestable(t *testing.T) {
+	for _, tc := range []struct {
+		hs, want string
+	}{
+		{"8471", Yes},          // 84.71 is outside 85.37.10 whatever follows
+		{"8537", Undetermined}, // could still be 8537.10
+		{"8537.10", No},        // exactly the excluded subheading
+	} {
+		t.Run(tc.hs, func(t *testing.T) {
+			r := check(t, Input{HS: "8458.11", ProducedIn: "Japan", FOB: f(100), Materials: []Material{
+				nonOrig("board", tc.hs, 100),
+			}})
+			if r.Outcome != tc.want {
+				t.Fatalf("material %s: got %s %v, want %s", tc.hs, r.Outcome, r.Reasons, tc.want)
+			}
+			if tc.want == Yes && !strings.Contains(r.Applied, "CTH") {
+				t.Errorf("material %s: applied %q, want a CTH alternative", tc.hs, r.Applied)
+			}
+		})
+	}
+}
+
+// #673: the same prefix rule at chapter level: a 2-digit material against a
+// heading-level exclusion in a CC rule.
+func TestHeadingExclusionPrefixOutsideIsTestable(t *testing.T) {
+	a := Alternative{Criterion: "CC", Except: []Range{{Level: "heading", From: "85.37", To: "85.37"}}}
+	for _, tc := range []struct {
+		hs, want string
+	}{
+		{"84", Yes}, {"85", Undetermined}, {"8537", No},
+	} {
+		t.Run(tc.hs, func(t *testing.T) {
+			mats := []mat{{Material: Material{HS: tc.hs, Value: f(100), Status: StatusNonOriginating}, idx: 0}}
+			out, _, _, _ := tariffShift(Input{FOB: f(100)}, "9011.10", mats, a)
+			if out != tc.want {
+				t.Fatalf("material %s: got %s, want %s", tc.hs, out, tc.want)
+			}
+		})
+	}
+}

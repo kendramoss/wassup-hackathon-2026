@@ -586,11 +586,20 @@ func tariffShift(in Input, good string, mats []mat, a Alternative) (string, []st
 		excluded, short := false, false
 		for _, x := range a.Except {
 			k := levelDigits[x.Level]
+			from, to := digits(x.From), digits(x.To)
 			if len(md) < k {
-				short = true
+				// #673: a short material is untestable only when its known
+				// digits could still be inside the excluded range. If every
+				// k-digit code with this prefix is outside [from, to], the
+				// exclusion cannot apply and the material passes the shift.
+				lo := md + strings.Repeat("0", k-len(md))
+				hi := md + strings.Repeat("9", k-len(md))
+				if hi >= from && lo <= to {
+					short = true
+				}
 				continue
 			}
-			if code := md[:k]; code >= digits(x.From) && code <= digits(x.To) {
+			if code := md[:k]; code >= from && code <= to {
 				excluded = true
 				iss.Reason = fmt.Sprintf("comes from %s %s, which the rule excludes", x.Level, dottedN(md, k))
 				break
