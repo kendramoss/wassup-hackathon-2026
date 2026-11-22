@@ -22,7 +22,7 @@ const reflowPath = `/cases/${reflowId}/scenarios`;
 const draftPath = `/cases/${reflowId}/draft`;
 const newCasePath = "/cases/new";
 const paths = args.filter((a) => a.startsWith("/"));
-if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage", newCasePath, draftPath);
+if (paths.length === 0) paths.push("/", "/cases", "/accuracy", "/triage", newCasePath, draftPath, "/examples/rule-check");
 const out = ".ui-check";
 
 const viewports = { desktop: { width: 1280, height: 860 }, mobile: { width: 390, height: 844 }, narrow: { width: 320, height: 720 } };
