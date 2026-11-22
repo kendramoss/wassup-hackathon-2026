@@ -293,6 +293,30 @@ func TestBaselineWordingLint(t *testing.T) {
 	}
 }
 
+func TestStalePart102PlanPhraseFails(t *testing.T) {
+	for name, line := range map[string]string{
+		"readme":   "There is no scored Part 102 plan search yet.",
+		"site":     "No Part 102 plan search with codes has been scored yet.",
+		"roadmap":  "EVALUATION.md §11, which has no Part 102 plan search with codes to score yet",
+		"searches": "no Part 102 plan searches exist",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "frontend/src/lib/copy.ts", "const x = \""+line+"\";\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	// The dated decision log keeps what an entry said at the time.
+	f := newFixture(t)
+	write(t, f.root, "docs/DECISIONS.md", "There is no Part 102 plan search with codes to score yet.\n")
+	write(t, f.root, "README.md", "Three Part 102 plan searches were scored (D502).\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("DECISIONS.md and current wording should pass, got %v", r.Failures)
+	}
+}
+
 func TestBaselineSourceAppearingFailsCheck(t *testing.T) {
 	// If the research baseline file is ever committed, the "unverifiable"
 	// finding is stale and the doc must be revisited.

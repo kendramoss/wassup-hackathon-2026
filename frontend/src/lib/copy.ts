@@ -721,7 +721,7 @@ export const copy = {
     engine: (c: string) => `Origin model after the move: ${c}.`,
     why: "Why the two disagree",
     whyBody: "Every move here leaves the final assembly in the China plant. Under 102.20 the good is a product of the country where it is finished when each foreign part makes the required tariff change there, so the rule gives China. The precedent check read earlier rulings where the steel tool body decides origin, and supports moving its machining to Vietnam. A broker should look at that disagreement before anyone moves work.",
-    honest: "One search, picked because it is the only committed one where the two checks disagree (2 of 23 decided moves with a precedent check, D442). These cases are decided under substantial transformation, so 102.20 is shown for comparison here, not as the test. Neither flagged move cleared the 0.92 bar. No Part 102 plan search with codes has been scored yet.",
+    honest: "One search, picked because it is the only committed one where the two checks disagree (2 of 23 decided moves with a precedent check, D442). These cases are decided under substantial transformation, so 102.20 is shown for comparison here, not as the test. Neither flagged move cleared the 0.92 bar. Part 102 plan searches, where 102.20 is the test, are scored apart: three on development rulings (D502).",
     source: "Rebuilt from committed files, no model call:",
   },
 

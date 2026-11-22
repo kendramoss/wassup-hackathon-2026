@@ -55,6 +55,7 @@ func Check(root, docPath string) Report {
 	checkShippedCopies(root, &r)
 	checkResultsMD(root, kv, &r)
 	checkBaselineSource(root, &r)
+	checkStalePhrases(root, &r)
 
 	docName := rel(docPath)
 	b, err := os.ReadFile(docPath)
@@ -303,6 +304,65 @@ func checkWording(doc, docName string, r *Report) {
 	}
 	if bad == 0 {
 		r.pass(docName + ": wording rules hold")
+	}
+}
+
+// stalePhrases are statements that later work made false. They fail
+// wherever they appear in public text, so a merge cannot bring one back.
+// docs/DECISIONS.md is exempt: it is a dated log, and an entry stays as
+// written when a later entry supersedes it.
+var stalePhrases = []struct {
+	re  *regexp.Regexp
+	why string
+}{
+	{
+		regexp.MustCompile(`(?i)\bno (scored )?part 102 plan searche?s?\b|part 102 plan searche?s?[^.]{0,40}\b(scored|to score) yet`),
+		"three Part 102 plan searches were scored in D502",
+	},
+}
+
+// staleRoots are the public texts checkStalePhrases reads: the README, the
+// docs, the site, the MCP server and the backend's user-facing strings.
+var staleRoots = []string{"README.md", "docs", "frontend/src", "frontend/scripts", "mcp", "backend/internal", "examples"}
+
+// checkStalePhrases fails on any stalePhrases match in staleRoots.
+func checkStalePhrases(root string, r *Report) {
+	exts := map[string]bool{".md": true, ".ts": true, ".tsx": true, ".mjs": true, ".go": true, ".py": true, ".json": true, ".txt": true, ".yaml": true, ".yml": true}
+	bad := 0
+	for _, top := range staleRoots {
+		start := filepath.Join(root, filepath.FromSlash(top))
+		_ = filepath.WalkDir(start, func(p string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return nil // a missing root is fine: not every checkout has every part
+			}
+			if d.IsDir() {
+				if n := d.Name(); n == "node_modules" || n == ".next" || n == "testdata" {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			rel, _ := filepath.Rel(root, p)
+			rel = filepath.ToSlash(rel)
+			if !exts[filepath.Ext(p)] || rel == "docs/DECISIONS.md" {
+				return nil
+			}
+			b, err := os.ReadFile(p)
+			if err != nil {
+				return nil
+			}
+			for i, line := range strings.Split(string(b), "\n") {
+				for _, sp := range stalePhrases {
+					if m := sp.re.FindString(line); m != "" {
+						r.fail("%s:%d: wording: stale phrase %q (%s)", rel, i+1, m, sp.why)
+						bad++
+					}
+				}
+			}
+			return nil
+		})
+	}
+	if bad == 0 {
+		r.pass("no stale phrases in the public text")
 	}
 }
 

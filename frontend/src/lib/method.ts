@@ -81,6 +81,7 @@ export const DECISIONS: Record<string, string> = {
   D461: "d461--ten-more-chapters-in-the-rule-check-results-22-nov",
   D490: "d490--a-revoking-ruling-is-not-alerted-on-the-ruling-it-revokes-recount-of-d481-22-nov-judge-panel-round-10-n4",
   D500: "d500--pre-registration-on-a-part-102-case-rank-shown-plans-by-tier-then-the-10220-rule-check-then-net-22-nov-judge-panel-round-10-item-4",
+  D501: "d501--pre-registration-three-scored-part-102-plan-searches-with-codes-22-nov-judge-panel-round-10-item-4",
   D502: "d502--part-102-aware-plans-finished-the-check-in-the-draft-and-the-comparison-the-d500-order-and-the-three-d501-searches-22-nov-judge-panel-round-10-item-4",
 };
 
