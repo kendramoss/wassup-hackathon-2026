@@ -100,7 +100,10 @@ test("the Part 102 chip and card are named for what they are; internal regime id
   const { readFile } = await import("node:fs/promises");
   const src = await readFile(new URL("../src/components/op/screens/accuracy-page.tsx", import.meta.url), "utf8");
   assert.doesNotMatch(src, /USMCA rules \(19 CFR 102\)/);
-  assert.match(src, /Card title="Part 102 marking origin"/);
+  // Copy sweep 2 (#669): the bar row reads "Marking rules" for a first-time
+  // visitor; the Details fold keeps the full name.
+  assert.match(src, /label: "Marking rules, earlier engine"/);
+  assert.match(src, /Part 102 marking origin: \{pct\(usAcc\.value\)\}/);
 });
 
 test("the accuracy page lists what is not covered, with no detector claim and no invented Section 301 limit", async () => {
