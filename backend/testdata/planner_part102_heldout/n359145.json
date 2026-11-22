@@ -1,0 +1,120 @@
+{
+  "_source": "Built mechanically from the facts of CBP ruling N359145 (2026-03-02, held-out Part 102 window final; subject: \"The tariff classification, United States-Mexico-Canada Trade Agreement (USMCA), and country of origin of wooden furniture.\"). Frozen by the D570 rule before any run. CBP held Canada. Components: the D362 materials; part codes: the top D381 held-out suggestion (unverified, D382); the good's code: CBP's (9403.60.8040). Family and name: the family check (furniture, 1); name from the subject (D381 rule). Materials with no country left out (3: eco-poxy resin, dyes, pigments). Groups: one model call with the production extractor's group rule (groups.jsonl). Plants one per country; operations one per group and plant plus final assembly in Canada. Target Thailand by the D171 rule counted mechanically; plant capabilities for Thailand are an assumption. Economics illustrative. D570.",
+  "case_id": "p102h-n359145",
+  "date": "2026-03-02",
+  "family": "furniture",
+  "target": "Thailand",
+  "product": {
+    "name": "wooden furniture.",
+    "description": "The product of CBP ruling N359145, as its facts describe it.",
+    "hts": "9403.60.8040",
+    "plants": [
+      {
+        "id": "canada",
+        "name": "Canada plant",
+        "country": "Canada",
+        "capabilities": [
+          "frame_metal_fabrication",
+          "final_assembly"
+        ]
+      },
+      {
+        "id": "thailand",
+        "name": "Thailand suppliers",
+        "country": "Thailand",
+        "capabilities": [
+          "tabletop_fabrication",
+          "frame_metal_fabrication"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "name": "slab of unfinished wood",
+        "made_in": "Thailand",
+        "plant": "thailand",
+        "group": "tabletop_fabrication",
+        "hts": "4407.99",
+        "hts_alternatives": [
+          "4403.99"
+        ]
+      },
+      {
+        "name": "wooden root",
+        "made_in": "Thailand",
+        "plant": "thailand",
+        "group": "frame_metal_fabrication",
+        "hts": "4403.99",
+        "hts_alternatives": [
+          "4407.99",
+          "4421.99"
+        ]
+      },
+      {
+        "name": "steel plates",
+        "made_in": "Canada",
+        "plant": "canada",
+        "group": "frame_metal_fabrication",
+        "hts": "8302.42",
+        "hts_alternatives": [
+          "7326.90",
+          "7325.99"
+        ]
+      },
+      {
+        "name": "assembly hardware (fasteners)",
+        "made_in": "Canada",
+        "plant": "canada",
+        "hts": "7318.15",
+        "hts_alternatives": [
+          "7318.19",
+          "7318.29"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "name": "make the slab of unfinished wood",
+        "plant": "thailand",
+        "group": "tabletop_fabrication"
+      },
+      {
+        "name": "make the steel plates",
+        "plant": "canada",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "make the wooden root",
+        "plant": "thailand",
+        "group": "frame_metal_fabrication"
+      },
+      {
+        "name": "assemble the parts into the finished good",
+        "plant": "canada",
+        "group": "final_assembly"
+      }
+    ]
+  },
+  "economics": {
+    "illustrative": true,
+    "annual_import_value_usd": 1000000,
+    "duty_rates": {
+      "Canada": 0.125,
+      "Thailand": 0.125
+    },
+    "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+    "group_costs": {
+      "frame_metal_fabrication": {
+        "canada": 100000,
+        "thailand": 125000
+      }
+    }
+  },
+  "exclude_rulings": [
+    "N359145"
+  ],
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N359145"
+  }
+}

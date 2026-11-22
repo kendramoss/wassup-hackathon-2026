@@ -49,8 +49,8 @@ INPUTS = {
     'suggestions_final': 'eval/tariffshift/parts/suggest-final.jsonl',
     'labels': 'eval/data/labels.jsonl',
     'labels_final2': 'eval/data/labels_final2.jsonl',
-    'protocol': 'eval/planner/part102_heldout.py',
 }
+PROTOCOL = 'eval/planner/part102_heldout.py'
 
 RULE = (
     'Every ruling of the held-out Part 102 windows (splits_usmca.json final, 32; splits_usmca_final2.json final2, 13; '
@@ -138,6 +138,7 @@ def freeze():
             'later_ruling_rule': 'a later CBP ruling is any ruling in the committed label files dated after the frozen ruling whose committed facts name its number; a backtest needs one whose setup is a move the plan search could make',
             'scoring': 'held out: each frozen ruling gets one plan search, once (D570); no tuning after any result',
             'inputs_sha256': {k: sha(v) for k, v in INPUTS.items()},
+            'protocol_sha256_at_freeze': sha(PROTOCOL),
             'counts': {'final': len(w1), 'final2': len(w2), 'frozen': len(kept),
                        'out': dict(Counter(r['out'] for r in rows if 'out' in r))},
             'final': kept, 'rulings': rows}
@@ -147,7 +148,9 @@ def cmd_freeze():
     f = freeze()
     if '--check' in ARGS:
         old = json.load(open(FROZEN))
-        f['frozen_at'] = old['frozen_at']
+        # The protocol script may be fixed after the freeze (each fix is in
+        # D571); the hash it had when the set was frozen is kept as it was.
+        f['frozen_at'], f['protocol_sha256_at_freeze'] = old['frozen_at'], old['protocol_sha256_at_freeze']
         if f != old:
             for k in f:
                 if f[k] != old.get(k):
@@ -266,6 +269,33 @@ def slug(c):
     return re.sub(r'[^a-z0-9]+', '_', c.lower()).strip('_')
 
 
+SUBJECT_KEYS = ['origin', 'classification', 'marking', 'usmca)', 'nafta)', 'agreement', 'eligibility', 'purposes']
+
+
+def product_name(subject):
+    # The D381 rule (cmd/tariffshift parts.go productName): the words after
+    # the subject's last "origin" / "classification" / "marking" phrase.
+    low, cut = subject.lower(), -1
+    for k in SUBJECT_KEYS:
+        i = low.rfind(k)
+        if i >= 0 and i + len(k) > cut:
+            cut = i + len(k)
+    name = subject[cut:] if 0 <= cut < len(subject) else subject
+    while True:
+        t = name.lstrip(' ,;:')
+        for w in ('and ', 'of ', 'for ', 'an ', 'a ', 'the '):
+            if t.lower().startswith(w):
+                t = t[len(w):]
+                break
+        if t == name:
+            break
+        name = t
+    name = name.strip()
+    if len(name) < 3:
+        name = subject
+    return name[:200]
+
+
 def build_one(rid, row, famrow, grow, lab, inp, sug):
     fam = famrow['family']
     T = template(fam)
@@ -276,15 +306,19 @@ def build_one(rid, row, famrow, grow, lab, inp, sug):
     countries = sorted({norm(m['origin']) for m in mats if m.get('origin')} | {produced}, key=lambda c: (c != produced, c))
     plants = [{'id': slug(c), 'name': f'{c} plant' if c == produced else f'{c} suppliers', 'country': c, 'capabilities': []} for c in countries]
     pid = {p['country']: p['id'] for p in plants}
-    comps = []
+    comps, dropped = [], []
     for p in sug['parts']:
         i = p['index']
         m = mats[i]
         origin = norm(m.get('origin'))
-        c = {'name': m['name'], 'made_in': origin}
-        if origin:
-            c['plant'] = pid[origin]
-        g = grow['groups'][i] if origin else ''
+        if not origin:
+            # A material with no country is left out, as the production
+            # extractor leaves out a part whose country the text does not
+            # state (internal/extract); the product needs made_in (D571).
+            dropped.append(m['name'])
+            continue
+        c = {'name': m['name'], 'made_in': origin, 'plant': pid[origin]}
+        g = grow['groups'][i]
         if g:
             c['group'] = g
         if p['candidates']:
@@ -317,13 +351,15 @@ def build_one(rid, row, famrow, grow, lab, inp, sug):
             if x['group'] == g:
                 return x['plant']
     gc = {g: {where(g): 100000, tp['id']: 125000} for g in present if where(g) and where(g) != tp['id']}
-    name = (famrow.get('product_name') or lab['subject']).strip()
+    # familycov rows keep no product_name, so the name is the D381 subject
+    # rule's (D571); an empty subject gets a plain placeholder.
+    name = product_name(lab['subject']) or f'Product of ruling {rid}'
     product = {'name': name, 'description': f'The product of CBP ruling {rid}, as its facts describe it.', 'hts': row['good_hts'],
                'plants': plants, 'components': comps, 'operations': ops}
     src = (f'Built mechanically from the facts of CBP ruling {rid} ({lab["date"]}, held-out Part 102 window {row["window"]}; subject: "{lab["subject"]}"). '
            f'Frozen by the D570 rule before any run. CBP held {held}. Components: the D362 materials; part codes: the top D381 held-out suggestion '
            f'(unverified, D382); the good\'s code: CBP\'s ({row["good_hts"]}). Family and name: the family check ({fam}, '
-           f'{famrow.get("confidence")}). Groups: one model call with the production extractor\'s group rule (groups.jsonl). Plants one per '
+           f'{famrow.get("confidence")}); name from the subject (D381 rule). Materials with no country left out ({len(dropped)}: {", ".join(dropped) or "none"}). Groups: one model call with the production extractor\'s group rule (groups.jsonl). Plants one per '
            f'country; operations one per group and plant plus final assembly in {produced}. Target {target} by the D171 rule counted mechanically; '
            f'plant capabilities for {target} are an assumption. Economics illustrative. D570.')
     return {'_source': src, 'case_id': f'p102h-{rid.lower()}', 'date': lab['date'], 'family': fam, 'target': target, 'product': product,
