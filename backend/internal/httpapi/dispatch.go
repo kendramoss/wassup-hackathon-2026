@@ -8,6 +8,7 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/logsafe"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/triage"
@@ -67,6 +68,15 @@ type Dispatch struct {
 	// whether or not its engine is enabled.
 	Selected   string
 	Specialist SpecialistState
+	// Market is the case's market (D680); the United States when the case
+	// has none.
+	Market domain.Jurisdiction
+	// Unsupported is set when Market has no registered authority: no
+	// engine ran and Result is empty.
+	Unsupported bool
+	// Authority is the registered non-U.S. market whose engine answered (""
+	// for the U.S. dispatch).
+	Authority string
 }
 
 // Regime is the regime whose engine actually produced Result.
@@ -131,7 +141,23 @@ func isSpecialist(regime string) bool {
 // only if the specialist fails (provisional answer). A general error is
 // returned only when nothing else can answer. st may be nil.
 func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinned) (Dispatch, error) {
-	d := Dispatch{Scope: ScopeNoRouter}
+	d := Dispatch{Scope: ScopeNoRouter, Market: jurisdiction.Of(c.Jurisdiction)}
+	// The market comes first (D680): a market with no registered authority
+	// runs no engine, so no U.S. answer is shown for it; a registered
+	// non-U.S. authority answers with its own engine.
+	auth, ok := a.markets().Authority(d.Market.Code)
+	if !ok {
+		d.Unsupported = true
+		return d, nil
+	}
+	if auth.Engine != nil {
+		res, err := auth.Engine.Predict(ctx, c)
+		if err != nil {
+			return Dispatch{}, fmt.Errorf("%s engine failed: %w", d.Market.Code, err)
+		}
+		d.Result, d.Authority = res, auth.Market
+		return d, nil
+	}
 	general := func(cx context.Context) (engine.Result, error) {
 		if st != nil {
 			cx = engine.WithProgress(cx, st.engineProgress)
@@ -247,6 +273,39 @@ func (a *api) dispatch(ctx context.Context, c domain.Case, st *stages, pin *pinn
 // must not run (out of scope, specialist regimes, scope unavailable).
 // Family bars and the fallback-model check keep their existing order.
 func (a *api) decide(d Dispatch) (domain.Triage, bool) {
+	switch {
+	case d.Unsupported:
+		return domain.Triage{Route: domain.RouteNeedsReview, Reason: jurisdiction.UnsupportedReason(d.Market.Code)}, false
+	case d.Authority != "":
+		auth, _ := a.markets().Authority(d.Authority)
+		return marketTriage(d.Result.Prediction, auth), false
+	}
+	tr, inScope := a.decideUS(d)
+	// A market the caller did not choose can still send a U.S. case to
+	// review (D680): U.S. and non-U.S. cues of equal weight, or a weak
+	// non-U.S. hint on a case the router could not label.
+	if d.Market.Source != jurisdiction.SourceChosen && tr.Route == domain.RouteAuto {
+		switch {
+		case d.Market.Conflict:
+			return domain.Triage{Route: domain.RouteNeedsReview, Reason: jurisdiction.ConflictReason}, false
+		case d.Market.Hint != "" && d.Label != nil && d.Label.Regime == "unclear":
+			return domain.Triage{Route: domain.RouteNeedsReview, Reason: jurisdiction.HintReason(d.Market.Hint)}, false
+		}
+	}
+	return tr, inScope
+}
+
+// marketTriage is the triage of a registered non-U.S. authority's answer:
+// auto only at or above its fast path, and never with fast path 0.
+func marketTriage(p domain.Prediction, auth jurisdiction.Authority) domain.Triage {
+	if auth.FastPath > 0 && p.Confidence >= auth.FastPath {
+		return domain.Triage{Route: domain.RouteAuto, Reason: fmt.Sprintf("confidence %.2f ≥ %.2f (%s rules)", p.Confidence, auth.FastPath, jurisdiction.Name(auth.Market))}
+	}
+	return domain.Triage{Route: domain.RouteNeedsReview, Reason: fmt.Sprintf("%s rules are new here and have no held-out result yet; an expert reviews", jurisdiction.Name(auth.Market))}
+}
+
+// decideUS is the U.S. triage policy: regime engines, bars and scope.
+func (a *api) decideUS(d Dispatch) (domain.Triage, bool) {
 	p := d.Result.Prediction
 	switch d.Specialist {
 	case SpecialistOK:

@@ -28,12 +28,15 @@ func (e classedError) LogClass() string { return e.class }
 
 // Case is a stored case with everything computed for it.
 type Case struct {
-	ID            string               `json:"id"`
-	Date          string               `json:"date"`
-	Facts         string               `json:"facts"`
-	Family        string               `json:"family,omitempty"`
-	Product       *domain.Product      `json:"product,omitempty"`
-	Exclude       []string             `json:"exclude_rulings,omitempty"`
+	ID      string          `json:"id"`
+	Date    string          `json:"date"`
+	Facts   string          `json:"facts"`
+	Family  string          `json:"family,omitempty"`
+	Product *domain.Product `json:"product,omitempty"`
+	Exclude []string        `json:"exclude_rulings,omitempty"`
+	// Jurisdiction is the market the question is asked for (D680); nil for
+	// a case made before it, read as the United States.
+	Jurisdiction  *domain.Jurisdiction `json:"jurisdiction,omitempty"`
 	CurrentOrigin *planner.KnownOrigin `json:"current_origin,omitempty"`
 	Prediction    domain.Prediction    `json:"prediction"`
 	Triage        domain.Triage        `json:"triage"`

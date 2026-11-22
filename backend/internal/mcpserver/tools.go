@@ -76,6 +76,7 @@ Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/predi
 				}),
 				"display_name":    str("Optional name for the case.", 1, 200),
 				"case_access_key": accessKey(),
+				"jurisdiction":    market("Market the goods enter: us (default), eu, uk, ca, jp, kr, au, mx or other. Omitted: read from the facts (an authority such as HMRC, \"imported into <place>\"), else us. Only us has an origin engine; any other market returns no origin and goes to review."),
 			},
 		},
 		Annotations: writes("Predict country of origin"),
@@ -108,6 +109,7 @@ Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/
 			"target_country":  country("Country of origin to aim for, e.g. Thailand."),
 			"case_access_key": accessKey(),
 			"idempotency_key": pattern("Optional. Any string you choose, the same on a retry; a new one for a new search.", `^[!-~]{1,200}$`, 200),
+			"jurisdiction":    market("Optional. Must be the case's market; plan search works on U.S. cases only."),
 		}),
 		Annotations: writes("Plan production moves"),
 	}, t.plan)
@@ -122,6 +124,7 @@ Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/
 			"case_id":         caseID(),
 			"targets":         uniq(array("Target countries.", country(""), 2, 4)),
 			"case_access_key": accessKey(),
+			"jurisdiction":    market("Optional. Must be the case's market; comparison works on U.S. cases only."),
 		}),
 		Annotations: writes("Compare target countries"),
 	}, t.compare)
@@ -256,6 +259,7 @@ type predictIn struct {
 	CurrentOrigin *knownOrigin   `json:"current_origin,omitempty"`
 	DisplayName   string         `json:"display_name,omitempty"`
 	AccessKey     string         `json:"case_access_key,omitempty"`
+	Jurisdiction  string         `json:"jurisdiction,omitempty"`
 }
 
 type extractIn struct {
@@ -265,16 +269,18 @@ type extractIn struct {
 }
 
 type planIn struct {
-	CaseID      string `json:"case_id"`
-	Target      string `json:"target_country"`
-	AccessKey   string `json:"case_access_key,omitempty"`
-	Idempotency string `json:"idempotency_key,omitempty"`
+	CaseID       string `json:"case_id"`
+	Target       string `json:"target_country"`
+	AccessKey    string `json:"case_access_key,omitempty"`
+	Idempotency  string `json:"idempotency_key,omitempty"`
+	Jurisdiction string `json:"jurisdiction,omitempty"`
 }
 
 type compareIn struct {
-	CaseID    string   `json:"case_id"`
-	Targets   []string `json:"targets"`
-	AccessKey string   `json:"case_access_key,omitempty"`
+	CaseID       string   `json:"case_id"`
+	Targets      []string `json:"targets"`
+	AccessKey    string   `json:"case_access_key,omitempty"`
+	Jurisdiction string   `json:"jurisdiction,omitempty"`
 }
 
 type searchIn struct {
@@ -348,6 +354,9 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	if in.DisplayName != "" {
 		body["display_name"] = in.DisplayName
 	}
+	if in.Jurisdiction != "" {
+		body["jurisdiction"] = in.Jurisdiction
+	}
 	// An anonymous caller gets a case access key: without one, a case made
 	// with CASE_OWNERSHIP on could not be read back (nothing else ties two
 	// stateless MCP requests to the same caller).
@@ -363,6 +372,15 @@ func (t tools) predict(ctx context.Context, hdr http.Header, in predictIn) (*mcp
 	out := trim(res.body)
 	var b strings.Builder
 	p := obj(out["prediction"])
+	if md := obj(out["jurisdiction_detail"]); md["supported"] == false {
+		// No engine ran for this market (D680): say so, never an origin.
+		fmt.Fprintf(&b, "Market: %s. %s. No origin was predicted.", str0(md["name"], "unknown"), str0(obj(out["triage"])["reason"], "Not supported yet"))
+		fmt.Fprintf(&b, "\nIf the goods enter the United States, call predict_origin again with jurisdiction \"us\".\nCase id: %v.", out["id"])
+		if access != "" && !hasKey(hdr) {
+			out["case_access_key"] = access
+		}
+		return done(b.String(), out)
+	}
 	fmt.Fprintf(&b, "Likely origin: %s (%s).", str0(p["origin_country"], "unknown"), confPhrase(p))
 	if d := str0(p["decisive_step"], ""); d != "" {
 		fmt.Fprintf(&b, " Decisive step: %s.", d)
@@ -416,7 +434,11 @@ func (t tools) extract(ctx context.Context, hdr http.Header, in extractIn) (*mcp
 }
 
 func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallToolResult, any, error) {
-	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/plan"), body: map[string]any{"target": in.Target}, access: in.AccessKey, idempotency: in.Idempotency})
+	body := map[string]any{"target": in.Target}
+	if in.Jurisdiction != "" {
+		body["jurisdiction"] = in.Jurisdiction
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/plan"), body: body, access: in.AccessKey, idempotency: in.Idempotency})
 	if err != nil || !res.ok() {
 		return failed(res, err)
 	}
@@ -465,7 +487,11 @@ func planRuleNote(part102 bool) string {
 const NoPlanLine = "No move is supported by an earlier ruling; do not claim a move changes origin."
 
 func (t tools) compare(ctx context.Context, hdr http.Header, in compareIn) (*mcp.CallToolResult, any, error) {
-	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/compare-targets"), body: map[string]any{"targets": in.Targets}, access: in.AccessKey})
+	body := map[string]any{"targets": in.Targets}
+	if in.Jurisdiction != "" {
+		body["jurisdiction"] = in.Jurisdiction
+	}
+	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/compare-targets"), body: body, access: in.AccessKey})
 	if err != nil || !res.ok() {
 		return failed(res, err)
 	}

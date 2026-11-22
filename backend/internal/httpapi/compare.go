@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/store"
 )
@@ -17,8 +18,10 @@ import (
 const MaxTargets = 4
 
 type compareRequest struct {
-	Targets   []string          `json:"targets"`
-	Economics planner.Economics `json:"economics"`
+	Targets []string `json:"targets"`
+	// Jurisdiction, when given, must be the case's market (D680).
+	Jurisdiction string            `json:"jurisdiction"`
+	Economics    planner.Economics `json:"economics"`
 }
 
 // compareTargets runs the plan search for 2–MaxTargets target countries in
@@ -39,6 +42,10 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 	}
 	var in compareRequest
 	if err := decode(w, r, &in); err != nil {
+		a.fail(w, r, err)
+		return
+	}
+	if err := a.requireMarket(c, in.Jurisdiction); err != nil {
 		a.fail(w, r, err)
 		return
 	}
@@ -128,7 +135,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": a.rankedTargets(c, cmp)})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "jurisdiction": jurisdiction.Of(c.Jurisdiction).Code, "targets": a.rankedTargets(c, cmp)})
 }
 
 // Target statuses, best first.
