@@ -162,19 +162,46 @@
       "name": "Vd: usmca-v5, window 1",
       "file": "eval/tariffshift/p102ck/runs/usmca-final-gemini-4-argon-prec-usmca-v5-litellm-d601.jsonl",
       "held_out": true,
-      "run": false,
-      "compared_with": "final_v1"
+      "run": true,
+      "n": 32,
+      "correct": 29,
+      "gateway_cost_usd": 0.3188,
+      "promo_cost_usd": 0.3292,
+      "compared_with": "final_v1",
+      "won": [
+        "N357770",
+        "N359690",
+        "N361490",
+        "N363092",
+        "N363600"
+      ],
+      "lost": [
+        "N358639"
+      ],
+      "mcnemar_p": 0.2188,
+      "latency_p50_ms": 7733,
+      "latency_p95_ms": 27815,
+      "output_tokens": 8500
     },
     {
       "key": "final2_vd_v5",
       "name": "Vd: usmca-v5, window 2 (router)",
       "file": "eval/tariffshift/p102ck/runs/usmca-final2-gemini-4-argon-prec-usmca-v5-litellm-router-d601.jsonl",
       "held_out": true,
-      "run": false,
-      "compared_with": "final2_v1"
+      "run": true,
+      "n": 13,
+      "correct": 11,
+      "gateway_cost_usd": 0.1548,
+      "promo_cost_usd": 0.1184,
+      "compared_with": "final2_v1",
+      "mcnemar_p": 1,
+      "latency_p50_ms": 7420,
+      "latency_p95_ms": 17505,
+      "output_tokens": 3478
     }
   ],
   "held_out_pooled_correct": {
-    "usmca-v1": 36
+    "usmca-v1": 36,
+    "vd_v5": 40
   }
 }
