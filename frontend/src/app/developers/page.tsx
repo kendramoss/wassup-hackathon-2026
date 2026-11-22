@@ -111,6 +111,18 @@ curl -X POST "$UNDE_API/v1/cases/predict" \\
   -H "Content-Type: application/json" \\
   -d '{"date": "2026-06-01", "facts": "Each heat gun is assembled in Thailand from 24 components…"}'`;
 
+// Without a key the proxy keys cases to the op_visitor cookie it sets on the
+// first response (lib/visitor.ts, lib/backend.ts); a caller's own
+// X-Visitor-ID is not forwarded. A cookie jar keeps the case reachable.
+const keyless = `UNDE_API=https://undelabs.dev/api
+
+curl -c jar -b jar -X POST "$UNDE_API/v1/cases/predict" \\
+  -H "Content-Type: application/json" \\
+  -d '{"date": "2026-06-01", "facts": "Each heat gun is assembled in Thailand from 24 components…"}'
+
+# then, with the case_id from the answer
+curl -c jar -b jar "$UNDE_API/v1/cases/<case_id>"`;
+
 // How a broker calls the API with a key (D69). Keys are issued by the admin;
 // the browser never manages them, so this page only documents their use.
 export default function Page() {
@@ -242,7 +254,12 @@ export default function Page() {
           <h2 className="text-xl tracking-[-0.04em]">Call the REST API</h2>
           <p className="duo mt-2 max-w-[72ch] text-[13.5px]">
             Brokers can send cases to Unde from their own tools with an API key. The Unde Labs team issues keys; there&apos;s no key management in the browser. Requests without a key work as
-            they do on this site.
+            they do on this site, with the same anonymous limits, if they keep the site&apos;s visitor cookie (below). The base URL is{" "}
+            <code className="font-mono">https://undelabs.dev/api</code>, the first server in the{" "}
+            <a href={spec} className="text-ok underline underline-offset-2">
+              OpenAPI spec
+            </a>
+            .
           </p>
         </div>
 
@@ -250,8 +267,19 @@ export default function Page() {
           <h2 className="eyebrow">Send the key with every request</h2>
           <Code label="REST request with an API key">{example}</Code>
           <p className="duo text-[13px] text-dim">
-            A key is <code className="font-mono">op_</code> plus 43 characters, sent as the <code className="font-mono">X-API-Key</code> header. Responses are the same JSON this site uses, with the
-            disclaimer on every one.
+            A key is <code className="font-mono">op_</code> plus 43 characters, sent as the <code className="font-mono">X-API-Key</code> header. The REST API does not take{" "}
+            <code className="font-mono">Authorization: Bearer</code>; that form works only on <code className="font-mono">/mcp</code>. Responses are the same JSON this site uses;
+            every origin answer and plan carries the model ids, prompt versions and the disclaimer.
+          </p>
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <h2 className="eyebrow">Without a key, keep the cookie</h2>
+          <Code label="REST request without a key, with a cookie jar">{keyless}</Code>
+          <p className="duo text-[13px] text-dim">
+            Without a key, the site&apos;s proxy keys your cases to the <code className="font-mono">op_visitor</code> cookie it sets on your first request (HttpOnly, one
+            year). Send it back on every call, as <code className="font-mono">-c jar -b jar</code> does, or a later request cannot see the case and gets 404. An{" "}
+            <code className="font-mono">X-Visitor-ID</code> header you send yourself is not passed on. Whoever holds the cookie can read and change those cases.
           </p>
         </section>
 
@@ -260,8 +288,9 @@ export default function Page() {
           <ul className="duo flex list-disc flex-col gap-1.5 pl-5 text-[13.5px]">
             <li>Each key has a number of requests per UTC day. Past it: 429 <code className="font-mono">quota_exceeded</code>, with Retry-After set to the next UTC day.</li>
             <li>
-              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, import, scenarios, code suggestions) and 4 a minute for plan searches. Reads and
-              other requests without a model call: 120 a minute. Over that: 429 <code className="font-mono">rate_limited</code> with Retry-After.
+              Model calls are limited per key: 20 a minute for light requests (predict, answers, ask, extract from text or files, import, money prefill, code suggestions for the good
+              and its parts, cost estimate, family check, scenarios, ruling watch, BOM version) and 4 a minute for plan searches and target comparisons. Reads and other requests
+              without a model call: 120 a minute. Over that: 429 <code className="font-mono">rate_limited</code> with Retry-After.
             </li>
             <li>
               Every limited response carries <code className="font-mono">RateLimit-Limit</code>, <code className="font-mono">RateLimit-Remaining</code> and{" "}
