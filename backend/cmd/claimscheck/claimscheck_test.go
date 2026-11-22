@@ -317,6 +317,29 @@ func TestStalePart102PlanPhraseFails(t *testing.T) {
 	}
 }
 
+// Judge panel round 12, item 1 (D562): the phrasings fixed in that change.
+func TestStaleRound12PhrasesFail(t *testing.T) {
+	for name, line := range map[string]string{
+		"plan scope":   "Plans use the general origin test. They do not apply textile, Part 102 or pharmaceutical rules.",
+		"readme":       "- **The rule check on each plan move (built, display only).** Each move gets a chip.",
+		"example":      "Origin model after the move (general engine, in this run): Canada.",
+		"adk headline": "After fixes, a second evaluation with stricter checks passed 9 of 12.",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newFixture(t)
+			write(t, f.root, "frontend/src/lib/copy.ts", "const x = \""+line+"\";\n")
+			if r := Check(f.root, f.doc); !hasFailure(r, "stale phrase") {
+				t.Fatalf("want a stale-phrase failure, got %v", r.Failures)
+			}
+		})
+	}
+	f := newFixture(t)
+	write(t, f.root, "frontend/src/lib/copy.ts", "const x = \"Plans use the general origin test, except on Part 102 cases. Plans do not apply textile or pharmaceutical rules. Origin after the move, Part 102 engine: Canada. The 8 runs the budget did not touch passed; 9 of 12 as scored.\";\n")
+	if r := Check(f.root, f.doc); hasFailure(r, "stale phrase") {
+		t.Fatalf("current wording should pass, got %v", r.Failures)
+	}
+}
+
 func TestBaselineSourceAppearingFailsCheck(t *testing.T) {
 	// If the research baseline file is ever committed, the "unverifiable"
 	// finding is stale and the doc must be revisited.

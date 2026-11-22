@@ -1,15 +1,19 @@
 package main
 
 // The recorded example on the site's /examples/part102-plan page (judge
-// panel round 11, item 3): the scored D501 plan search for N348465, an
-// electrical actuator finished in Canada from Chinese parts (CBP held
-// China). Each move carries the 19 CFR 102.20 check as on a Part 102 case
+// panel round 11, item 3; round 12, item 4): the D541 plan search for
+// N348465, an electrical actuator finished in Canada from Chinese parts (CBP
+// held China), in which the Part 102 engine predicted each move (D540). The
+// general engine's prediction for the same move in the D501 run is shown
+// beside it. Each move carries the 19 CFR 102.20 check as on a Part 102 case
 // (D441), the shown plans are in the D500 order, and the broker draft's
-// tariff-shift paragraph and Part 102 question (D502, D520) are built from
-// the shown plan by the export package. The run file is read as committed
-// and never re-run; the product's name comes from the fixture, cleaned in
-// D532 after the run (the recorded run's facts still carry the ruling
-// subject as the name, so the page does not show them). Nothing is called:
+// tariff-shift paragraph, Part 102 question and regime note (D502, D520) are
+// built from the first shown plan by the export package, with the regime
+// read from the plan's own prediction as the API does. The run files are
+// read as committed and never re-run; the product's name comes from the
+// fixture, cleaned in D532 after both runs (their recorded facts still carry
+// the ruling subject as the name, so the page does not show them). Nothing
+// is called:
 //
 //	go run ./cmd/tariffshift plans102-example [-check]   (in make reproduce)
 
@@ -24,8 +28,10 @@ import (
 
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/export"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/httpapi"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planner"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/planrule"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/router"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/tariffshift"
 )
 
@@ -35,15 +41,18 @@ const (
 )
 
 type p102ExampleMove struct {
-	Key           string                `json:"key"`
-	Description   string                `json:"description"`
-	PartsMoved    []string              `json:"parts_moved"`
-	MovesMotor    bool                  `json:"moves_motor"`
-	Shown         bool                  `json:"shown"`
-	RejectionKind domain.RejectionKind  `json:"rejection_kind,omitempty"`
-	Verdict       *planExampleVerdict   `json:"verdict,omitempty"`
-	EngineOrigin  string                `json:"engine_origin,omitempty"`
-	RuleCheck     *domain.PlanRuleCheck `json:"rule_check"`
+	Key           string               `json:"key"`
+	Description   string               `json:"description"`
+	PartsMoved    []string             `json:"parts_moved"`
+	MovesMotor    bool                 `json:"moves_motor"`
+	Shown         bool                 `json:"shown"`
+	RejectionKind domain.RejectionKind `json:"rejection_kind,omitempty"`
+	Verdict       *planExampleVerdict  `json:"verdict,omitempty"`
+	EngineOrigin  string               `json:"engine_origin,omitempty"`
+	// EngineBefore is the general engine's prediction for the same move in
+	// the D501 run (before D540).
+	EngineBefore string                `json:"engine_origin_d501,omitempty"`
+	RuleCheck    *domain.PlanRuleCheck `json:"rule_check"`
 }
 
 type p102ExampleDraft struct {
@@ -59,29 +68,37 @@ type p102ExampleDraft struct {
 }
 
 type p102ExampleFile struct {
-	Note       string             `json:"note"`
-	Ruling     string             `json:"ruling"`
-	Subject    string             `json:"subject"`
-	Date       string             `json:"date"`
-	Split      string             `json:"split"`
-	Run        string             `json:"run"`
-	Fixture    string             `json:"fixture"`
-	Product    string             `json:"product"`
-	Family     string             `json:"family"`
-	Target     string             `json:"target"`
-	GoodHTS    string             `json:"good_hts"`
-	CBPOrigin  string             `json:"cbp_origin"`
-	Ranking    string             `json:"ranking"`
-	Parts      []planExamplePart  `json:"parts"`
-	Baseline   p102ExampleMove    `json:"baseline"`
-	Shown      []p102ExampleMove  `json:"shown"`
-	Others     []p102ExampleMove  `json:"others"`
-	RuleShifts int                `json:"rule_shifts"`
-	MotorMoves int                `json:"motor_moves"`
-	Draft      p102ExampleDraft   `json:"draft"`
-	GatewayUSD float64            `json:"gateway_cost_usd"`
-	Plants     []domain.Plant     `json:"plants"`
-	Operations []domain.Operation `json:"operations"`
+	Note       string            `json:"note"`
+	Ruling     string            `json:"ruling"`
+	Subject    string            `json:"subject"`
+	Date       string            `json:"date"`
+	Split      string            `json:"split"`
+	Run        string            `json:"run"`
+	RunBefore  string            `json:"run_d501"`
+	Engine     string            `json:"engine"`
+	Fixture    string            `json:"fixture"`
+	Product    string            `json:"product"`
+	Family     string            `json:"family"`
+	Target     string            `json:"target"`
+	GoodHTS    string            `json:"good_hts"`
+	CBPOrigin  string            `json:"cbp_origin"`
+	Ranking    string            `json:"ranking"`
+	Parts      []planExamplePart `json:"parts"`
+	Baseline   p102ExampleMove   `json:"baseline"`
+	Shown      []p102ExampleMove `json:"shown"`
+	Others     []p102ExampleMove `json:"others"`
+	RuleShifts int               `json:"rule_shifts"`
+	MotorMoves int               `json:"motor_moves"`
+	// Moves counts the moves shown and not shown; EngineAgrees those whose
+	// engine prediction is the target exactly when the rule says the move
+	// shifts, in this run and in the D501 run.
+	Moves              int                `json:"moves"`
+	EngineAgrees       int                `json:"engine_agrees_with_rule"`
+	EngineAgreesBefore int                `json:"engine_agrees_with_rule_d501"`
+	Draft              p102ExampleDraft   `json:"draft"`
+	GatewayUSD         float64            `json:"gateway_cost_usd"`
+	Plants             []domain.Plant     `json:"plants"`
+	Operations         []domain.Operation `json:"operations"`
 }
 
 func cmdPlans102Example(args []string) error {
@@ -105,20 +122,33 @@ func cmdPlans102Example(args []string) error {
 	if err := json.Unmarshal(b, &fx); err != nil || fx.Product == nil || fx.CurrentOrigin == nil {
 		return fmt.Errorf("%s: %v", fxPath, err)
 	}
-	runs, _ := filepath.Glob(fmt.Sprintf(plans102Runs, p102ExampleFixture, "d501"))
-	if len(runs) != 1 {
-		return fmt.Errorf("%s: want one D501 run, found %d", p102ExampleFixture, len(runs))
-	}
-	rb, err := os.ReadFile(runs[0])
-	if err != nil {
-		return err
-	}
-	var run struct {
+	type runFile struct {
 		planner.Result
 		GatewayUSD float64 `json:"gateway_cost_usd"`
 	}
-	if err := json.Unmarshal(rb, &run); err != nil {
+	load := func(series string) (runFile, string, error) {
+		var run runFile
+		runs, _ := filepath.Glob(fmt.Sprintf(plans102Runs, p102ExampleFixture, series))
+		if len(runs) != 1 {
+			return run, "", fmt.Errorf("%s: want one %s run, found %d", p102ExampleFixture, series, len(runs))
+		}
+		rb, err := os.ReadFile(runs[0])
+		if err != nil {
+			return run, "", err
+		}
+		return run, runs[0], json.Unmarshal(rb, &run)
+	}
+	run, runPath, err := load("d540")
+	if err != nil {
 		return err
+	}
+	before, beforePath, err := load("d501")
+	if err != nil {
+		return err
+	}
+	engineBefore := map[string]string{}
+	for _, pl := range append(append([]domain.Plan(nil), before.Plans...), before.Rejected...) {
+		engineBefore[pl.Move.Key()] = domain.NormalizeCountry(pl.Prediction.Origin)
 	}
 	labels, err := usmcaLabels()
 	if err != nil {
@@ -136,7 +166,7 @@ func cmdPlans102Example(args []string) error {
 	}
 	mk := func(pl domain.Plan) p102ExampleMove {
 		m := p102ExampleMove{Key: pl.Move.Key(), Description: pl.Description, Shown: pl.Shown, RejectionKind: pl.RejectionKind,
-			EngineOrigin: domain.NormalizeCountry(pl.Prediction.Origin), RuleCheck: pl.RuleCheck}
+			EngineOrigin: domain.NormalizeCountry(pl.Prediction.Origin), EngineBefore: engineBefore[pl.Move.Key()], RuleCheck: pl.RuleCheck}
 		for _, gm := range pl.Move {
 			if motor[gm.Group] {
 				m.MovesMotor = true
@@ -154,9 +184,10 @@ func cmdPlans102Example(args []string) error {
 	}
 	l := labels[fx.CurrentOrigin.Ruling]
 	ex := p102ExampleFile{
-		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift plans102-example -check`. Plan search: the D501 development run, as committed (precedent checks and the general engine's predictions as recorded; no new model call). Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the shown plan (D502, D520). The product's name is the fixture's since D532; the recorded run's own facts still use the ruling subject as the name and are not shown.",
-		Ruling: fx.CurrentOrigin.Ruling, Date: fx.Date, Split: "dev", Run: "eval/tariffshift/plans102/runs/" + filepath.Base(runs[0]),
-		Fixture: "backend/" + fxPath, Product: p.Name, Family: fx.Family, Target: target, GoodHTS: p.HTS,
+		Note:   "Recorded example, rebuilt from committed files by `cd backend && go run ./cmd/tariffshift plans102-example -check`. Plan search: the D541 development run, as committed, in which the Part 102 engine (usmca-v1) predicted each move (D540); precedent checks and predictions as recorded, no new model call. Beside each move, the general engine's prediction for the same move in the D501 run. Codes: the top D381 development suggestion for each part, unverified; the good's code is CBP's. Rule check and order: the 19 CFR 102.20 layer on the product after each move, as on a Part 102 case (D441), and the D500 order. Draft: the export package's Part 102 letter for the first shown plan, under the regime of that plan's prediction as the API reads it (D502, D520). The product's name is the fixture's since D532; the recorded runs' own facts still use the ruling subject as the name and are not shown.",
+		Ruling: fx.CurrentOrigin.Ruling, Date: fx.Date, Split: "dev", Run: "eval/tariffshift/plans102/runs/" + filepath.Base(runPath),
+		RunBefore: "eval/tariffshift/plans102/runs/" + filepath.Base(beforePath),
+		Fixture:   "backend/" + fxPath, Product: p.Name, Family: fx.Family, Target: target, GoodHTS: p.HTS,
 		CBPOrigin: domain.NormalizeCountry(fx.CurrentOrigin.Country), Ranking: planrule.RankingRule, GatewayUSD: round4(run.GatewayUSD),
 		Plants: p.Plants, Operations: p.Operations,
 	}
@@ -177,7 +208,21 @@ func cmdPlans102Example(args []string) error {
 		}
 		ex.Others = append(ex.Others, mk(pl))
 	}
+	agrees := func(origin string, m p102ExampleMove) bool {
+		shifts := m.RuleCheck != nil && m.RuleCheck.Status == planrule.Shifts
+		return origin != "" && (origin == target) == shifts
+	}
 	for _, m := range append(append([]p102ExampleMove(nil), ex.Shown...), ex.Others...) {
+		ex.Moves++
+		if agrees(m.EngineOrigin, m) {
+			ex.EngineAgrees++
+		}
+		if agrees(m.EngineBefore, m) {
+			ex.EngineAgreesBefore++
+		}
+		if m.EngineBefore == "" {
+			return fmt.Errorf("%s: move %s is not in the D501 run", p102ExampleFixture, m.Key)
+		}
 		if m.RuleCheck != nil && m.RuleCheck.Status == planrule.Shifts {
 			ex.RuleShifts++
 			if !m.MovesMotor {
@@ -195,12 +240,19 @@ func cmdPlans102Example(args []string) error {
 		return fmt.Errorf("%s: no shown plan", p102ExampleFixture)
 	}
 
-	// The draft for the first shown plan, as the API builds it for a case
-	// routed to Part 102 whose plan came from the general engine (D520).
+	// The draft for the first shown plan, as the API builds it: the regime
+	// is the one that made the plan's prediction, read from its trace (the
+	// Part 102 engine here, D540); a general-engine plan on a Part 102 case
+	// would be asked under Part 102 with D520's note instead.
 	top := ann.Plans[0]
 	moved := planner.Apply(p, top.Move)
+	regime := httpapi.PredictionRegime(top.Prediction)
+	ex.Engine = top.Prediction.Trace.PromptVersion
+	if regime != router.RegimeUSMCA {
+		return fmt.Errorf("%s: the shown plan's prediction is not the Part 102 engine's (%q)", p102ExampleFixture, top.Prediction.Trace.PromptVersion)
+	}
 	in := export.Input{ProductName: p.Name, Product: &moved, Facts: "[FACTS OF THE PROPOSED SETUP]", Requested: top.Prediction.Origin, Prediction: top.Prediction,
-		PlanSummary: top.Description, RuleCheck: top.RuleCheck, Part102: true}
+		PlanSummary: top.Description, RuleCheck: top.RuleCheck, Regime: regime}
 	if v := top.Verdict; v != nil {
 		in.Supporting, in.Counter = v.SupportingRuling, v.CounterRuling
 	}
@@ -226,7 +278,7 @@ func cmdPlans102Example(args []string) error {
 	if err := writeOrCheck(p102ExampleOut, append(out, '\n'), *check); err != nil {
 		return fmt.Errorf("%w (plans102-example)", err)
 	}
-	fmt.Printf("plans102-example %s: %d shown, %d other moves, %d shift (all %d motor moves)\n", ex.Ruling, len(ex.Shown), len(ex.Others), ex.RuleShifts, ex.MotorMoves)
+	fmt.Printf("plans102-example %s: %d shown, %d other moves, %d shift (all %d motor moves); engine agrees with the rule on %d of %d (D501 general engine: %d)\n", ex.Ruling, len(ex.Shown), len(ex.Others), ex.RuleShifts, ex.MotorMoves, ex.EngineAgrees, ex.Moves, ex.EngineAgreesBefore)
 	return nil
 }
 

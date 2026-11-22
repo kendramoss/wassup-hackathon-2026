@@ -15,6 +15,7 @@ const { RevocationExample } = await import("../src/components/op/screens/revocat
 const { RuleCheckExample } = await import("../src/components/op/screens/rule-check-example.tsx");
 const { Part102PlanExample } = await import("../src/components/op/screens/part102-plan-example.tsx");
 const { DemoTour } = await import("../src/components/op/demo-tour.tsx");
+const { copy } = await import("../src/lib/copy.ts");
 const json = (f) => JSON.parse(readFileSync(new URL(`../src/lib/${f}`, import.meta.url), "utf8"));
 const plan = json("plan-rule-example.json");
 const rev = json("revocation-example.json");
@@ -115,6 +116,9 @@ test("/method and the landing link both examples", () => {
   const landing = src("landing/landing.tsx");
   assert.match(landing, /"\/examples\/plan-rule-check"/);
   assert.match(landing, /"\/examples\/revocation-alert"/);
+  // Judge panel round 12, N9: the landing links the Part 102 plan too.
+  assert.match(landing, /"\/examples\/part102-plan"/);
+  assert.match(copy.landing.can.items.find((i) => i.key === "part102").link, /Part 102 plan/);
 });
 
 // Judge panel round 11, N1: a merge left "See a recorded move check.
@@ -131,8 +135,10 @@ test("/method has no sentence that starts with a lowercase word", async () => {
   assert.doesNotMatch(t, /accuracy \(D442\)\. On three|move check\. accuracy/);
 });
 
-// Judge panel round 11, item 3: the scored D501 actuator search (N348465),
-// rebuilt by plans102-example in make reproduce.
+// Judge panel round 11, item 3; round 12, item 4: the D541 actuator search
+// (N348465), with the Part 102 engine predicting each move and the D501
+// general-engine prediction beside it, rebuilt by plans102-example in make
+// reproduce.
 const p102 = json("part102-plan-example.json");
 
 test("the Part 102 example is N348465's development search: every motor move shifts to Canada, no other move does", () => {
@@ -145,12 +151,21 @@ test("the Part 102 example is N348465's development search: every motor move shi
   assert.equal(all.length, 12);
   for (const m of all) assert.equal(m.rule_check.status === "shifts", m.moves_motor, m.key);
   assert.equal(all.filter((m) => m.moves_motor).length, 6);
-  assert.equal(p102.shown.length, 1);
-  assert.ok(p102.shown[0].moves_motor && p102.shown[0].verdict.confidence >= 0.92);
+  assert.equal(p102.shown.length, 2);
+  for (const m of p102.shown) assert.ok(m.moves_motor && m.verdict.confidence >= 0.92);
   const alone = all.find((m) => m.parts_moved.length === 1 && m.moves_motor);
-  assert.equal(alone.verdict.confidence, 0.82);
+  assert.equal(alone.verdict.confidence, 0.85);
   assert.equal(alone.shown, false);
   assert.doesNotMatch(p102.product, /country of origin/i, "the fixture names the product (D532)");
+  // D541: the run is the Part 102 engine's; it agrees with the rule on every move, the D501 general engine on 9.
+  assert.match(p102.run, /-d540-litellm\.json$/);
+  assert.match(p102.run_d501, /-d501-litellm\.json$/);
+  assert.equal(p102.engine, "usmca-v1");
+  assert.equal(p102.moves, 12);
+  assert.equal(p102.engine_agrees_with_rule, 12);
+  assert.equal(p102.engine_agrees_with_rule_d501, 9);
+  for (const m of all) assert.equal(m.engine_origin === "Canada", m.moves_motor, m.key);
+  assert.equal(all.filter((m) => !m.moves_motor && m.engine_origin_d501 === "Canada").length, 3);
 });
 
 test("the Part 102 page shows the moves, the shown plan, the draft's Part 102 question and 102.20 paragraph, and stays read only", () => {
@@ -158,15 +173,24 @@ test("the Part 102 page shows the moves, the shown plan, the draft's Part 102 qu
   const t = text(m);
   assert.match(t, /Recorded example/);
   assert.match(t, /nothing here calls a model or saves anything/);
-  assert.match(t, /Moves that bring the motor to Canada \(5\)/);
+  assert.match(t, /The shown plans \(2\)/);
+  assert.match(t, /Other moves that bring the motor to Canada \(4\)/);
   assert.match(t, /Moves without the motor \(6\)/);
-  assert.equal((m.match(/data-move="shown"/g) ?? []).length, 1);
+  assert.equal((m.match(/data-move="shown"/g) ?? []).length, 2);
   assert.match(t, /The smallest move the rule supports\./);
   assert.match(t, /under the Part 102 rules of origin \(the general rules of 19 C\.F\.R\. § 102\.11, applied in order, with the tariff shifts of § 102\.20\)/);
   assert.match(t, /Tariff-shift check \(19 C\.F\.R\. § 102\.20\): applied to the component codes/);
   assert.match(t, /the rule gives Canada/);
-  assert.match(t, /The general engine predicted Canada here; the rule says the move does not shift\./);
-  assert.match(t, /cleaned after the scored run \(D532\)/);
+  // The 3 moves the general engine sent to Canada in D502 stay visible as corrected.
+  assert.equal((t.match(/The general engine predicted Canada here, though the rule says the move does not shift; the Part 102 engine does not\./g) ?? []).length, 3);
+  assert.doesNotMatch(t, /The Part 102 engine and the rule disagree/);
+  assert.match(t, /On 12 of 12 moves it agrees with the rule/);
+  assert.match(t, /the general engine agreed on 9 of 12 \(D502\)/);
+  // Round 12, N6: the order key is not shown raw; round 12, N5: the note beside the letter is the Part 102 engine's.
+  assert.doesNotMatch(t, /tier_then_rule_then_net/);
+  assert.match(t, /Asked under the Part 102 rules \(19 C\.F\.R\. § 102\.11\) for marking because the prediction behind the requester's position was made under that regime/);
+  assert.doesNotMatch(t, /made by Unde's general engine/);
+  assert.match(t, /cleaned after both runs \(D532\)/);
   assert.doesNotMatch(t, /a The country of origin|of the country of origin of/i);
   assert.doesNotMatch(m, /<form|<button|cases\/new/);
 });
