@@ -123,6 +123,18 @@ Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `ma
 | Rule-check decisions that hold under every suggested part code (D430) | CBP's good code and top part suggestions: dev 8 of 9 decided (8 agree with CBP), final 6 of 7 (6 agree; the one disagreeing, N358639, depends on a part's code). Suggested good code: dev 9 of 10 (8 agree), final 6 of 8 (6 agree). Without the inputs that carried a code: dev 7 of 8, final 6 of 7 and 5 of 7 | `eval/tariffshift/parts/summary.json` (`robustness`) | Measured offline, no model calls, committed suggestions; added after the freeze. Each part's top-3 codes; past 81 combinations a deterministic sample of 81 (4 dev, 3 final decided rulings) |
 | Cost per product | $0.0103 (dev Part 102), $0.0139 (families), $0.0123 (final); $1.42 for all runs | same; `eval/results/RUNLOG.jsonl` (`parts-hts-*`) | Measured, gateway-reported |
 
+### The rule check on each plan move (D440-D442)
+
+Recomputed by `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`) from committed plan runs, fixtures and the development suggestions; no model calls.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Committed plan products with every code as committed; Part 102 plan searches | 0 of 43; 0 | `eval/tariffshift/plans/summary.json` | Measured. The reason the count below uses suggested codes |
+| Per-family plan moves decided (development suggestions) | 25 of 57 moves (22 shift to the target, 3 give another country), in 14 of 23 searches | same | Measured, development and train fixtures. Informational: every search is decided under substantial transformation. 9 of the 22 shifts are moves that put every part in the target |
+| Agreement with the precedent check | 21 of 23 decided moves with a check; 2 flagged (precedent supports, rule gives China, N354220, both below the bar); shown plans 15 of 19 decided, all 15 shift | same; `eval/tariffshift/plans/moves-dev.jsonl` | Measured. Not accuracy: Part 102 is not the test for these cases |
+| Current setup | 11 of 23 decided; 4 give CBP's held origin | same | Measured. The difference between the two tests, not an error rate |
+| Moves compared with a later CBP ruling | 0 | same | No committed move has both codes and a later ruling |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

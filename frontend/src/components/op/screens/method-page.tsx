@@ -446,6 +446,14 @@ export function MethodPage() {
             the guard 23 of 13,166 committed rows had shown a changed ruling and 8 had cited one; the bulletin changes add none.
           </li>
           <li>
+            <b className="font-medium text-ink">The tariff-shift rule beside it.</b> When the case is routed to the Part 102 rules, or every part has an HTS code, each move
+            also gets the 19 CFR 102.20 rule check of the product after the move, made where its final assembly would be (<D id="D441" />). It says whether the move shifts
+            under 102.20, does not, or is undetermined, and why. It never changes which moves are shown or their order. A move an earlier ruling supports but the rule does
+            not is flagged for a broker. On the 23 per-family searches, with part codes from the development suggestion run, it decides 25 of 57 moves and agrees with the
+            precedent check on 21 of 23; the 2 it flags are below the bar. Those cases are decided under substantial transformation, so this is a comparison, not
+            accuracy, and there is no Part 102 plan search with codes to score yet (<D id="D442" />).
+          </li>
+          <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker
             checks and files. Only CBP&apos;s ruling binds.
           </li>
