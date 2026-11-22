@@ -11,7 +11,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1231428", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1231442", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-US TA", "criteria": ["WO"], "criterion": "WO", "id": "1231443", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1231444", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1231444", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1231445", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "AJCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1231446", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1231447", "outcome": "positive", "stated_origin": "Myanmar"}
@@ -41,7 +41,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1231473", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1231474", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1231475", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1231476", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1231476", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1231477", "outcome": "positive", "stated_origin": null}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1231478", "outcome": "positive", "stated_origin": "China"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1231479", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -291,7 +291,7 @@
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1231726", "outcome": "positive", "stated_origin": null}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1231727", "outcome": "positive", "stated_origin": "New Zealand"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1231728", "outcome": "positive", "stated_origin": "New Zealand"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1231729", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1231729", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240001", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240002", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240003", "outcome": "positive", "stated_origin": "Cambodia"}
@@ -421,7 +421,7 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240127", "outcome": "positive", "stated_origin": "Thailand"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240128", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240129", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240130", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240130", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-US TA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240131", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240132", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240133", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -462,14 +462,14 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240168", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240169", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240170", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240171", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240171", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240172", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240173", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240174", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240175", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240175", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-Malaysia EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240176", "outcome": "positive", "stated_origin": "Malaysia"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240177", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240178", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240177", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240178", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240179", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240180", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240181", "outcome": "positive", "stated_origin": "EU"}
@@ -488,7 +488,7 @@
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240194", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240195", "outcome": "positive", "stated_origin": null}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240196", "outcome": "positive", "stated_origin": "China"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240197", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240197", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240198", "outcome": "positive", "stated_origin": "Nepal"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240199", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240200", "outcome": "positive", "stated_origin": "EU"}
@@ -554,7 +554,7 @@
 {"agreement": "JP-Thailand EPA", "criteria": ["CC"], "criterion": "CC", "id": "1240261", "outcome": "positive", "stated_origin": "Thailand"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240262", "outcome": "positive", "stated_origin": null}
 {"agreement": "JP-Australia EPA", "criteria": ["CC"], "criterion": "CC", "id": "1240263", "outcome": "positive", "stated_origin": "Australia"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240264", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240264", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-UK CEPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240265", "outcome": "positive", "stated_origin": "United Kingdom"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240266", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240267", "outcome": "positive", "stated_origin": "EU"}
@@ -655,7 +655,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240363", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240364", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240365", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-UK CEPA", "criteria": ["WO"], "criterion": "WO", "id": "1240366", "outcome": "positive", "stated_origin": "United Kingdom"}
+{"agreement": "JP-UK CEPA", "criteria": ["SP"], "criterion": "SP", "id": "1240366", "outcome": "positive", "stated_origin": "United Kingdom"}
 {"agreement": "JP-US TA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240367", "outcome": "positive", "stated_origin": null}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240368", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240369", "outcome": "positive", "stated_origin": "EU"}
@@ -860,7 +860,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240570", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1240571", "outcome": "positive", "stated_origin": null}
 {"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240572", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240573", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240573", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240574", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240575", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240576", "outcome": "positive", "stated_origin": "EU"}
@@ -869,10 +869,10 @@
 {"agreement": "CPTPP", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240579", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240580", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240581", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240582", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240582", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-UK CEPA", "criteria": ["SP"], "criterion": "SP", "id": "1240583", "outcome": "positive", "stated_origin": "United Kingdom"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240584", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240585", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240585", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240586", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240587", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240588", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -965,8 +965,8 @@
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240676", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240677", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240678", "outcome": "positive", "stated_origin": "China"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240679", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240680", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240679", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240680", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240681", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240682", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240683", "outcome": "positive", "stated_origin": "EU"}
@@ -981,7 +981,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240693", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1240695", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1240696", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1240697", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1240697", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1240698", "outcome": "positive", "stated_origin": "China"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240699", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1240700", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -1483,11 +1483,11 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1241199", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1241200", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1241201", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1241202", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1241203", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1241204", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1241205", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1241206", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1241202", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1241203", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1241204", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1241205", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1241206", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1241207", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1241208", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1241209", "outcome": "positive", "stated_origin": null}
@@ -1588,8 +1588,8 @@
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1241305", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250001", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["WO"], "criterion": "WO", "id": "1250002", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250003", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250004", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250003", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250004", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250005", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250006", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250007", "outcome": "positive", "stated_origin": null}
@@ -1662,8 +1662,8 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250075", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1250076", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250077", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250078", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250079", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250078", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250079", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250080", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250081", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-Philippines EPA", "criteria": ["CC"], "criterion": "CC", "id": "1250082", "outcome": "positive", "stated_origin": "Philippines"}
@@ -1671,20 +1671,20 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250084", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1250085", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250086", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250087", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250088", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250089", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250090", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250087", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250088", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250089", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250090", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250091", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250092", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250093", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250094", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250095", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250096", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250097", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250098", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250099", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250100", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250095", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250096", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250097", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250098", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250099", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250100", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-Indonesia EPA", "criteria": ["CC"], "criterion": "CC", "id": "1250101", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250102", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250103", "outcome": "positive", "stated_origin": "Indonesia"}
@@ -1817,7 +1817,7 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250231", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "JP-Indonesia EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250232", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250233", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250234", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250234", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CC"], "criterion": "CC", "id": "1250235", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250236", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250237", "outcome": "positive", "stated_origin": "EU"}
@@ -1887,8 +1887,8 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250301", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250302", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250304", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250305", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250306", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250305", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250306", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250307", "outcome": "positive", "stated_origin": null}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250308", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250309", "outcome": "positive", "stated_origin": "EU"}
@@ -1961,7 +1961,7 @@
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250377", "outcome": "positive", "stated_origin": "Thailand"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250378", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250379", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-India CEPA", "criteria": ["WO"], "criterion": "WO", "id": "1250380", "outcome": "positive", "stated_origin": "India"}
+{"agreement": "JP-India CEPA", "criteria": ["SP"], "criterion": "SP", "id": "1250380", "outcome": "positive", "stated_origin": "India"}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1250381", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["WO"], "criterion": "WO", "id": "1250382", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250383", "outcome": "positive", "stated_origin": null}
@@ -1995,7 +1995,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250411", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250412", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250413", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250414", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250414", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250415", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250416", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250417", "outcome": "positive", "stated_origin": "EU"}
@@ -2014,8 +2014,8 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250430", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250431", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-US TA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250432", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250433", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250434", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250433", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250434", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250435", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250437", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250438", "outcome": "positive", "stated_origin": "EU"}
@@ -2188,15 +2188,15 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250609", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250610", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250611", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250612", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250612", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250613", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "Non-preferential", "criteria": ["CTH"], "criterion": "CTH", "id": "1250614", "outcome": "positive", "stated_origin": "United States"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250615", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250616", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250617", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250618", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250619", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250620", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250619", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250620", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250621", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250622", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250623", "outcome": "positive", "stated_origin": "EU"}
@@ -2222,7 +2222,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250643", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250644", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250645", "outcome": "positive", "stated_origin": "Cambodia"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250646", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250646", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250647", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250648", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1250649", "outcome": "positive", "stated_origin": "EU"}
@@ -2291,9 +2291,9 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250712", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250713", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250714", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250715", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250716", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250717", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250715", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250716", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250717", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250718", "outcome": "positive", "stated_origin": null}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250719", "outcome": "positive", "stated_origin": "China"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250720", "outcome": "positive", "stated_origin": null}
@@ -2464,7 +2464,7 @@
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250885", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250886", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250887", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250888", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250888", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250889", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250890", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250891", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -2474,8 +2474,8 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250895", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250896", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250900", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250901", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250903", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250901", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250903", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250904", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250905", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1250906", "outcome": "positive", "stated_origin": "EU"}
@@ -2497,7 +2497,7 @@
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250922", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250923", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1250924", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1250925", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1250925", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250926", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1250927", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1250928", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -2592,8 +2592,8 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1251022", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1251023", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1251024", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251025", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251026", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251025", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251026", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251027", "outcome": "positive", "stated_origin": "Vietnam"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251028", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251029", "outcome": "positive", "stated_origin": "Vietnam"}
@@ -2603,7 +2603,7 @@
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251033", "outcome": "positive", "stated_origin": null}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251034", "outcome": "positive", "stated_origin": "South Korea"}
 {"agreement": "RCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251035", "outcome": "positive", "stated_origin": "South Korea"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251036", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251036", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251037", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251038", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251039", "outcome": "positive", "stated_origin": "Bangladesh"}
@@ -2801,7 +2801,7 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251238", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251239", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251240", "outcome": "positive", "stated_origin": "China"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251241", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251241", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251242", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251243", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251244", "outcome": "positive", "stated_origin": "Indonesia"}
@@ -2812,14 +2812,14 @@
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251249", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251250", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251251", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251252", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251252", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251253", "outcome": "positive", "stated_origin": null}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251254", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251255", "outcome": "positive", "stated_origin": "Indonesia"}
 {"agreement": "AJCEP", "criteria": ["CC"], "criterion": "CC", "id": "1251256", "outcome": "positive", "stated_origin": "Vietnam"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251257", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251258", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251259", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251257", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251258", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251259", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251260", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251261", "outcome": "positive", "stated_origin": "South Korea"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251262", "outcome": "positive", "stated_origin": "South Korea"}
@@ -2834,8 +2834,8 @@
 {"agreement": "GSP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251271", "outcome": "positive", "stated_origin": "Cambodia"}
 {"agreement": "JP-EU EPA", "criteria": ["CTH"], "criterion": "CTH", "id": "1251272", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251273", "outcome": "positive", "stated_origin": null}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251274", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251275", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251274", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251275", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "RCEP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251276", "outcome": "positive", "stated_origin": "China"}
 {"agreement": "JP-US TA", "criteria": ["CTSH"], "criterion": "CTSH", "id": "1251277", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CTH"], "criterion": "CTH", "id": "1251278", "outcome": "positive", "stated_origin": null}
@@ -2870,7 +2870,7 @@
 {"agreement": "JP-US TA", "criteria": ["CC"], "criterion": "CC", "id": "1251311", "outcome": "positive", "stated_origin": null}
 {"agreement": "JP-EU EPA", "criteria": ["CC"], "criterion": "CC", "id": "1251312", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "JP-EU EPA", "criteria": ["CC"], "criterion": "CC", "id": "1251313", "outcome": "positive", "stated_origin": "EU"}
-{"agreement": "JP-EU EPA", "criteria": ["WO"], "criterion": "WO", "id": "1251314", "outcome": "positive", "stated_origin": "EU"}
+{"agreement": "JP-EU EPA", "criteria": ["SP"], "criterion": "SP", "id": "1251314", "outcome": "positive", "stated_origin": "EU"}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251315", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251316", "outcome": "positive", "stated_origin": null}
 {"agreement": "CPTPP", "criteria": ["CC"], "criterion": "CC", "id": "1251317", "outcome": "positive", "stated_origin": null}

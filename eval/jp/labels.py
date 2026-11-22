@@ -11,8 +11,8 @@ criterion: the rule the reasoning (認定理由) says the good meets.
   PE   produced exclusively from originating materials (原産材料のみから生産)
   CC   change of chapter      CTH  change of heading      CTSH change of subheading
   RVC  value content (RVC, VA, QVC, MaxNOM, 付加価値, 原産割合)
-  SP   a specific process (knitting, cutting and sewing, a chemical reaction, blending, ...):
-       any quoted product-specific rule that is not a change of classification, value test or WO
+  SP   any other product-specific rule: a specific process (knitting, cutting and sewing, a
+       chemical reaction, blending, ...) or a condition that certain materials be wholly obtained
 The rule text quoted before を満たす / が行われている is classified first; the
 whole reasoning is the fallback. A ruling may meet several (an alternative
 rule, or different rules for different inputs); `criteria` keeps them all and
@@ -60,6 +60,10 @@ def classify(q):
     m = re.search(r"\b(CTSH|CTH|CC)\b", q)
     if m:
         return m.group(1)
+    if re.search(r"完全に得られ|完全に生産", q) and "材料" in q:
+        # A product-specific rule that certain materials be wholly obtained
+        # (Japan-EU EPA cheese, flour): a rule condition, not the WO criterion.
+        return "SP"
     for code, pat in QUOTE_RULES[1:]:
         if re.search(pat, q):
             return code

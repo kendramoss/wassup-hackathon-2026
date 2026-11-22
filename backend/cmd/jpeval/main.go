@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -260,6 +261,7 @@ type Summary struct {
 	CostPerCase       float64         `json:"cost_per_case_usd"`
 	P50MS             int64           `json:"latency_p50_ms"`
 	P95MS             int64           `json:"latency_p95_ms"`
+	LabelsSHA256      string          `json:"labels_dev_sha256"`
 	Note              string          `json:"note"`
 }
 
@@ -269,6 +271,12 @@ func score(rows []Row, c *jpcorpus.Corpus, sp jpcorpus.Splits, labels map[string
 	var ck, cn, ak, qk, qn, ok, on int
 	agK, agN := map[string]int{}, map[string]int{}
 	var lat []int64
+	// Gold labels come from labels-dev.jsonl as committed now, not from the
+	// copy stored in each row at run time, so a label fix re-scores old rows.
+	for i, r := range rows {
+		l := labels[r.ID]
+		rows[i].GoldCriterion, rows[i].GoldCriteria, rows[i].StatedOrigin = l.Criterion, l.Criteria, l.StatedOrigin
+	}
 	for _, r := range rows {
 		s.CostUSD += r.CostUSD
 		if r.Error != "" {
@@ -364,6 +372,11 @@ func summary(args []string) error {
 	}
 	s := score(rows, c, sp, labels)
 	s.Run, s.Split = *run, "dev_eval"
+	lb, err := os.ReadFile(filepath.Join(dataDir, "labels-dev.jsonl"))
+	if err != nil {
+		return err
+	}
+	s.LabelsSHA256 = fmt.Sprintf("%x", sha256.Sum256(lb))
 	b, _ := json.MarshalIndent(s, "", " ")
 	b = append(b, '\n')
 	p := filepath.Join(outDir, "baseline-dev-metrics.json")

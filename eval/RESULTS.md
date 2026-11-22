@@ -953,3 +953,9 @@ Six templates written from the 239 pre-2024 Part 102 rulings in no development o
 - Held out, pre-registered in D660 (pushed as 145a9913 before the calls), run once each: the 377, 298 (79.0%, 74.7–82.9) against 224 with 14, template coverage (scope, not accuracy); the rise mixes D580's and D660's families (41 of the 71 gains from D580's six, 28 from this round's); the frozen Part 102 set, 8 of 18 as with 20. `results/families-coverage-final-all-litellm-{f26,p102-heldout-f26}.jsonl`; comparisons `results/families-r3-coverage.json`.
 - Live plan checks, one per family on pool-ruling fixtures: 5 of 6 precedent-supported, 1 to a broker. `results/families-r3-live-checks.json`, `results/plan-*-d660-litellm.json`.
 - Cost $6.78 (family checks $5.34, labels, drafts, checks and notes $0.87, live checks $0.57).
+
+## Japan Customs advance rulings on origin: development baseline (gateway, 22 Nov; D710, D711)
+- Split frozen in D710 (cc617a3a, pushed 20:02 +08:00) before any held-out ruling was read: development 2,973 (before 2026), held-out 633, `dev_eval` 400. Snapshot of 3,606 rulings, translations and BM25 index: D711.
+- Baseline `jp-baseline-v1` (engine-v1's prompt adapted to Japanese preference under the claimed agreement), Gemini 4 Argon, BM25, K = 5, development precedents issued before each case: criterion match 370 of 400 = 92.5% (89.5–94.7); 368 with the labels before D711's two disclosed pattern changes; majority baseline 36.0%. Says originating 396 of 400; named origin 110 of 111. $0.0073 a case, p50 6.7 s, p95 11.1 s. No failed call.
+- Format check first, 5 cases, not scored for anything: `jp/runs/jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-smoke.jsonl` ($0.04).
+- Rows `jp/runs/jp-dev_eval-gemini-4-argon-jp-baseline-v1-litellm-d711.jsonl`; summary `jp/baseline-dev-metrics.json` (`cd backend && go run ./cmd/jpeval summary -check`). No held-out ruling scored.
