@@ -126,6 +126,11 @@ type P102Series struct {
 	McNemarP *float64 `json:"mcnemar_p_vs_b,omitempty"`
 	// CostRatio is this series' gateway cost over B's on the same calls.
 	CostRatio *float64 `json:"cost_ratio_vs_b,omitempty"`
+	// SafetyFlags: decided rows the D590 safety change S would flag (a
+	// current setup the rule gives another country than the engine; a move
+	// the rule says shifts while the engine predicts another country), of
+	// the decided rows.
+	SafetyFlags P102Count `json:"safety_flags_s"`
 }
 
 // P102MovesSummary is summary-moves.json.
@@ -187,6 +192,13 @@ func cmdP102ErrMoves(args []string) error {
 				continue
 			}
 			out.Decided.add(agree, what)
+			flag := r.Error == "" && r.Engine != "" && ((r.Kind == "baseline" && r.Engine != r.Origin) ||
+				(r.Kind == "move" && r.Status == planrule.Shifts && r.Engine != r.Target))
+			out.SafetyFlags.N++
+			if flag {
+				out.SafetyFlags.K++
+				out.SafetyFlags.Disagree = append(out.SafetyFlags.Disagree, r.key())
+			}
 			c := out.BySet[r.Set]
 			c.add(agree, "")
 			out.BySet[r.Set] = c

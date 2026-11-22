@@ -212,6 +212,24 @@ Six templates written from Part 102 marking rulings dated before 2024 and in no 
 | Frozen held-out Part 102 rulings with a plan template | 8 of 18 (44.4%, 95% CI 24.6–66.3) with 20 families against 6 of 18 with 14; 1 failed check counted as none; on the 17 both answered 8 against 5 | `eval/results/families-coverage-final-all-litellm-p102-heldout-f20.jsonl` | Measured, held out. Pre-registered in D580, run once |
 | Cost | $3.01: family checks $2.25, pool labels $0.28, drafts $0.22, citation checks $0.25, notes $0.01 | `eval/results/RUNLOG.jsonl`; `families102-*` files (`cost_usd`) | Measured, gateway-reported or token-priced at promo rates |
 
+### Part 102 engine against the 102.20 rule: development error analysis and two fixes (D590, D591)
+
+Development only, through an OpenAI-compatible LiteLLM gateway to Gemini, one run per series. Scored by `cd backend && go run ./cmd/tariffshift p102err-single -check` and `p102err-moves -check` (in `make reproduce`). Neither fix passed the D590 rule; not adopted; held out not scored. Agreement with the rule is not accuracy.
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Development Part 102 rulings the 102.20 check decides / leans on (three committed inputs) | 20 / 8 of 72; the check gives CBP's holding on 26 of the 28 | `eval/tariffshift/p102err/summary-single.json` | Computed, no model |
+| Engine agrees with the check on single setups, decided / leans | October usmca-v1 14 of 20 / 6 of 8; D550 B 15 / 6; D550 V 14 / 7 | same | Computed from committed rows |
+| Development plan fixtures built by the fixed D570 rules | 13 (46 development rulings pass the D570 steps; the family check finds a template for 13) | `eval/tariffshift/p102err/dev-set.json`, `eval/results/families-coverage-dev-all-litellm-p102-dev.jsonl`, `backend/testdata/planner_part102_dev/` | Measured, development |
+| Engine calls per series (current setups and moves the check decides or leans on) | 97 | `eval/tariffshift/p102err/summary-moves.json` | Computed |
+| B (production): agrees with the check on decided rows / leans / CBP's holding on Part 102 current setups | 43 of 57 / 17 of 23 / 8 of 16 | same; `runs/moves-d590-b-*.jsonl` | Measured, development |
+| Disagreement categories, plan rows (B) | 20: classification 15, assembly 3, invented exception 1, rule input 1; 12 also cite simple assembly or 102.17 | `eval/tariffshift/p102err/categories-dev.json` | Hand-assigned before any variant ran |
+| Disagreement categories, single setups | 8: classification 4, assembly 1, invented exception 1, rule input 2 | same | Hand-assigned |
+| Va (product's codes in the plan facts) | 46 of 57 / 23 of 23 / 11 of 16; won 4, lost 1, exact McNemar p = 0.375; cost 1.03 × B | `summary-moves.json`; `runs/moves-d590-va.jsonl` | Measured, development. Did not pass (net gain under 6) |
+| Vb (codes and the usmca-v3 checklist) | 54 of 57 / 21 of 23 / 9 of 16; won 11, lost 0, p = 0.001; cost 1.78 × B; 84,147 output tokens against B's 28,462 | `summary-moves.json`; `runs/moves-d590-vb.jsonl` | Measured, development. Did not pass (cost over 1.5 × B) |
+| Safety flag S: decided development rows it flags under B | 9 of 57 | `summary-moves.json` (`safety_flags_s`) | Computed. Ships; changes no answer |
+| Cost of this item | $3.4375 (family check $0.0908, group call $0.0457, B $0.8661, Va $0.8941, Vb $1.5408) | `eval/results/RUNLOG.jsonl` (`families-coverage-dev-all-litellm-p102-dev`, `part102-dev-groups-d590`, `p102moves-d590-*`) | Measured, gateway-reported |
+
 ### Method page (/method): negative results, splits and leakage, already in the decision record
 
 These rows register, for the /method page, figures that are already committed in `docs/EVALUATION.md` and `docs/DECISIONS.md`. No new run produced them.

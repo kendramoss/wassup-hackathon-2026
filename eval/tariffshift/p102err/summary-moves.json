@@ -77,7 +77,22 @@
       },
       "gateway_cost_usd": 0.8661,
       "output_tokens": 28462,
-      "input_tokens": 291443
+      "input_tokens": 291443,
+      "safety_flags_s": {
+        "k": 9,
+        "n": 57,
+        "disagree": [
+          "family/n335263/baseline/",
+          "family/n350383/baseline/",
+          "family/n350727/baseline/",
+          "family/n350727/move/housing_and_cables@th",
+          "family/n350769/baseline/",
+          "family/n354175/baseline/",
+          "family/n354220/baseline/",
+          "part102-dev/n338219/baseline/",
+          "part102-dev/n343893/baseline/"
+        ]
+      }
     },
     {
       "key": "va",
@@ -152,7 +167,19 @@
         "part102-d501/n348465/move/motor_stator_rotor@ca+controls_and_valves@ca"
       ],
       "mcnemar_p_vs_b": 0.375,
-      "cost_ratio_vs_b": 1.0323
+      "cost_ratio_vs_b": 1.0323,
+      "safety_flags_s": {
+        "k": 6,
+        "n": 57,
+        "disagree": [
+          "family/n350383/baseline/",
+          "family/n350727/baseline/",
+          "family/n350727/move/housing_and_cables@th",
+          "family/n354220/baseline/",
+          "part102-d501/n348465/move/motor_stator_rotor@ca+controls_and_valves@ca",
+          "part102-dev/n343893/baseline/"
+        ]
+      }
     },
     {
       "key": "vb",
@@ -229,7 +256,14 @@
         "part102-dev/n343893/move/housings_and_structures@india"
       ],
       "mcnemar_p_vs_b": 0.001,
-      "cost_ratio_vs_b": 1.779
+      "cost_ratio_vs_b": 1.779,
+      "safety_flags_s": {
+        "k": 1,
+        "n": 57,
+        "disagree": [
+          "family/n350727/move/housing_and_cables@th"
+        ]
+      }
     }
   ]
 }
