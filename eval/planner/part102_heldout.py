@@ -4,6 +4,8 @@
 #   python3 -I eval/planner/part102_heldout.py freeze <repo> --check
 #   python3 -I eval/planner/part102_heldout.py groups <repo> [--dev]   (model calls)
 #   python3 -I eval/planner/part102_heldout.py build <repo> [--check]
+#   python3 -I eval/planner/part102_heldout.py groups2 <repo>   (model calls)
+#   python3 -I eval/planner/part102_heldout.py build2 <repo> [--check]
 #
 # freeze: no model calls. Applies the D570 rule to every held-out Part 102
 # ruling (splits_usmca.json final, splits_usmca_final2.json final2; no Part
@@ -25,6 +27,13 @@
 # its hand steps replaced by fixed rules: name from the family check, groups
 # from the call above, plants one per country, operations one per group and
 # country plus final assembly, target by the D171 rule counted mechanically.
+#
+# groups2 / build2: the second pass on the same frozen set (D630). The
+# template comes from the 20-family check committed in D581 (not re-run).
+# A ruling whose D581 family is the family D571 planned it with keeps its
+# committed group row and fixture, unchanged; every other ruling with a
+# template gets one group call by the same rule (groups-f20.jsonl) and a
+# fixture by the same builder, in testdata/planner_part102_heldout2.
 import hashlib, json, os, re, sys, time, urllib.request
 from collections import Counter
 
@@ -37,6 +46,10 @@ GROUPS_DEV = f'{OUTDIR}/groups-dev.jsonl'
 FAMILY = f'{REPO}/eval/results/families-coverage-final-all-litellm-p102-heldout.jsonl'
 FIXTURES = f'{REPO}/backend/testdata/planner_part102_heldout'
 FAMILY_BAR = 0.6  # the BOM import's and familycov's bar (httpapi/products.go)
+# The second pass (D630).
+FAMILY2 = f'{REPO}/eval/results/families-coverage-final-all-litellm-p102-heldout-f20.jsonl'
+GROUPS2 = f'{OUTDIR}/groups-f20.jsonl'
+FIXTURES2 = f'{REPO}/backend/testdata/planner_part102_heldout2'
 TEMPLATE_FILE = {'motorised_tools_small_appliances': 'motorised_tools'}
 
 INPUTS = {
@@ -214,9 +227,9 @@ def facts_of(rid):
     return ''
 
 
-def families():
+def families(path=None):
     fam = {}
-    for r in jl(FAMILY.replace(REPO + '/', '')):
+    for r in jl((path or FAMILY).replace(REPO + '/', '')):
         ok = not r.get('error') and r.get('covered') and r.get('family') not in ('', 'none')
         fam[r['ruling']] = r
         r['use'] = ok
@@ -296,7 +309,7 @@ def product_name(subject):
     return name[:200]
 
 
-def build_one(rid, row, famrow, grow, lab, inp, sug):
+def build_one(rid, row, famrow, grow, lab, inp, sug, groups_file='groups.jsonl', decision='D570'):
     fam = famrow['family']
     T = template(fam)
     order = [g['id'] for g in T['groups']]
@@ -359,9 +372,9 @@ def build_one(rid, row, famrow, grow, lab, inp, sug):
     src = (f'Built mechanically from the facts of CBP ruling {rid} ({lab["date"]}, held-out Part 102 window {row["window"]}; subject: "{lab["subject"]}"). '
            f'Frozen by the D570 rule before any run. CBP held {held}. Components: the D362 materials; part codes: the top D381 held-out suggestion '
            f'(unverified, D382); the good\'s code: CBP\'s ({row["good_hts"]}). Family and name: the family check ({fam}, '
-           f'{famrow.get("confidence")}); name from the subject (D381 rule). Materials with no country left out ({len(dropped)}: {", ".join(dropped) or "none"}). Groups: one model call with the production extractor\'s group rule (groups.jsonl). Plants one per '
+           f'{famrow.get("confidence")}); name from the subject (D381 rule). Materials with no country left out ({len(dropped)}: {", ".join(dropped) or "none"}). Groups: one model call with the production extractor\'s group rule ({groups_file}). Plants one per '
            f'country; operations one per group and plant plus final assembly in {produced}. Target {target} by the D171 rule counted mechanically; '
-           f'plant capabilities for {target} are an assumption. Economics illustrative. D570.')
+           f'plant capabilities for {target} are an assumption. Economics illustrative. {decision}.')
     return {'_source': src, 'case_id': f'p102h-{rid.lower()}', 'date': lab['date'], 'family': fam, 'target': target, 'product': product,
             'economics': {'illustrative': True, 'annual_import_value_usd': 1000000,
                           'duty_rates': {c: duty(c) for c in sorted({p['country'] for p in plants})},
@@ -400,4 +413,78 @@ def cmd_build():
         print(n, fx['family'], fx['current_origin']['country'], '->', fx['target'], 'groups moving', sorted(fx['economics']['group_costs']))
 
 
-{'freeze': cmd_freeze, 'groups': cmd_groups, 'build': cmd_build}[CMD]()
+def second_pass():
+    # (ruling, D581 family row, group row or None, reuse) for every frozen
+    # ruling with a template in the 20-family check, in frozen order.
+    fz = json.load(open(FROZEN))
+    fam1, fam2 = families(), families(FAMILY2)
+    grp1 = {r['ruling']: r for r in jl(GROUPS.replace(REPO + '/', ''))}
+    grp2 = {r['ruling']: r for r in jl(GROUPS2.replace(REPO + '/', ''))} if os.path.exists(GROUPS2) else {}
+    out = []
+    for rid in fz['final']:
+        f2 = fam2.get(rid)
+        if not f2 or not f2['use']:
+            continue
+        f1, g1 = fam1.get(rid), grp1.get(rid)
+        if f1 and f1['use'] and g1 and not g1.get('error') and f1['family'] == f2['family']:
+            out.append((rid, f1, g1, True))  # D571's family, group row and fixture, unchanged
+        else:
+            out.append((rid, f2, grp2.get(rid), False))
+    return fz, out
+
+
+def cmd_groups2():
+    if os.path.exists(GROUPS2):
+        sys.exit('groups-f20.jsonl exists: the second-pass group call runs once')
+    _, todo = second_pass()
+    ex = {r['ruling']: r for r in jl(INPUTS['extraction_final_full_text'])}
+    out = []
+    for rid, f, _, reuse in todo:
+        if reuse:
+            print(rid, f['family'], 'reused from groups.jsonl')
+            continue
+        r = ask(rid, f.get('product_name') or '', facts_of(rid), ex[rid]['input']['materials'], f['family'])
+        out.append(r)
+        print(rid, f['family'], r.get('groups'), r.get('cost_usd'), r.get('error', ''))
+    with open(GROUPS2, 'w') as fh:
+        for r in out:
+            fh.write(json.dumps(r, ensure_ascii=False) + '\n')
+    print('cost', round(sum(r['cost_usd'] for r in out), 4))
+
+
+def cmd_build2():
+    fz, todo = second_pass()
+    labels = {r['ruling']: r for r in jl(INPUTS['labels_usmca'])}
+    ex = {r['ruling']: r for r in jl(INPUTS['extraction_final_full_text'])}
+    sugg = {r['ruling']: r for r in jl(INPUTS['suggestions_final']) if r['set'] == 'usmca'}
+    rows = {r['ruling']: r for r in fz['rulings']}
+    want = {}
+    for rid, f, g, reuse in todo:
+        if not g or g.get('error'):
+            continue
+        name = f'{rid.lower()}.json'
+        if reuse:
+            fx = build_one(rid, rows[rid], f, g, labels[rid], ex[rid]['input'], sugg[rid])
+            if json.load(open(f'{FIXTURES}/{name}')) != fx:
+                sys.exit(f'{name}: the reused fixture differs from the committed D571 one')
+        else:
+            fx = build_one(rid, rows[rid], f, g, labels[rid], ex[rid]['input'], sugg[rid], 'groups-f20.jsonl, D630', 'D570 set, second pass D630')
+        want[name] = fx
+    if '--check' in ARGS:
+        have = sorted(os.listdir(FIXTURES2)) if os.path.isdir(FIXTURES2) else []
+        if have != sorted(want):
+            sys.exit(f'fixtures differ: {have} vs {sorted(want)}')
+        for n, fx in want.items():
+            if json.load(open(f'{FIXTURES2}/{n}')) != fx:
+                sys.exit(f'{n} differs from the builder')
+        print(f'held-out Part 102 fixtures, second pass: {len(want)} rebuilt, unchanged ({sum(1 for t in todo if t[3])} reused from D571)')
+        return
+    os.makedirs(FIXTURES2, exist_ok=True)
+    for n, fx in want.items():
+        with open(f'{FIXTURES2}/{n}', 'w') as fh:
+            json.dump(fx, fh, indent=2, ensure_ascii=False)
+            fh.write('\n')
+        print(n, fx['family'], fx['current_origin']['country'], '->', fx['target'], 'groups moving', sorted(fx['economics']['group_costs']))
+
+
+{'freeze': cmd_freeze, 'groups': cmd_groups, 'build': cmd_build, 'groups2': cmd_groups2, 'build2': cmd_build2}[CMD]()

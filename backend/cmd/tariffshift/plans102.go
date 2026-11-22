@@ -2,7 +2,7 @@ package main
 
 // The scored Part 102 plan searches of D501, read offline (no model calls):
 //
-//	go run ./cmd/tariffshift plans102-eval [-series d501|d540|heldout] [-check]   (all in make reproduce)
+//	go run ./cmd/tariffshift plans102-eval [-series d501|d540|heldout|heldout2] [-check]   (all in make reproduce)
 //
 // Each fixture (testdata/planner_part102, development rulings) has one
 // plan search per series through the gateway
@@ -11,7 +11,11 @@ package main
 // the first held-out evaluation (D570): the rulings frozen in
 // eval/tariffshift/plans102/heldout/frozen.json, fixtures in
 // testdata/planner_part102_heldout built by fixed rules, the Part 102
-// engine on every move.
+// engine on every move. heldout2 is the second, pre-registered pass on the
+// same frozen set (D630): the 20-family check of D581, fixtures in
+// testdata/planner_part102_heldout2 (D571's where the family is unchanged),
+// the production Part 102 engine (usmca-v5, the product's codes in the
+// facts, D602).
 // The 19 CFR 102.20 check runs on every move as on a Part 102 case (D441),
 // and the shown plans are put in the D500 order.
 
@@ -41,11 +45,14 @@ const (
 	plans102HeldoutRuns     = plans102Dir + "/runs/plan-p102h-%s-local-verifier-*%s-litellm.json"
 	plans102Frozen          = plans102Dir + "/heldout/frozen.json"
 	plans102FamilyCheck     = "../eval/results/families-coverage-final-all-litellm-p102-heldout.jsonl"
+	// The second pass on the same set (D630).
+	plans102Heldout2Fixtures = "testdata/planner_part102_heldout2"
+	plans102FamilyCheck2     = "../eval/results/families-coverage-final-all-litellm-p102-heldout-f20.jsonl"
 )
 
 // plans102Series are the scored series and their output names: d501 keeps
 // the file names D502 published.
-var plans102Series = map[string]string{"d501": "", "d540": "-d540", "heldout": "-heldout"}
+var plans102Series = map[string]string{"d501": "", "d540": "-d540", "heldout": "-heldout", "heldout2": "-heldout2"}
 
 // plans102Later is the later CBP ruling on a changed setup of a picked
 // product (D501): the rule is checked on its setup, not on a plan move.
@@ -103,6 +110,11 @@ type Search102 struct {
 	PartsLeftOut  *int     `json:"parts_left_out,omitempty"`
 	EngineCurrent *bool    `json:"current_setup_engine_agrees_with_cbp,omitempty"`
 	LeakedInput   bool     `json:"suggester_input_carried_a_code,omitempty"`
+	// Second pass only (D630): rows (current setup and moves) the rule
+	// check marks for review (the D441 precedent note or the D591 engine
+	// note), and whether the fixture is D571's, byte for byte.
+	ReviewFlags *int  `json:"rows_flagged_for_review,omitempty"`
+	SameFixture *bool `json:"fixture_same_as_d571,omitempty"`
 }
 
 // FrozenRow is one ruling of the frozen held-out set and what became of it.
@@ -149,6 +161,7 @@ type Pooled102 struct {
 	CurrentEngineAgrees  Rate `json:"current_setup_engine_agrees_with_cbp"`
 	Backtests            int  `json:"backtests"`
 	WithoutLeakedPlanned int  `json:"planned_without_leaked_inputs"`
+	ReviewFlags          *int `json:"rows_flagged_for_review,omitempty"`
 }
 
 // Later is the rule check on a later ruling's setup (CBP's good code, top
@@ -169,21 +182,29 @@ type Summary102 struct {
 	GatewayUSD float64     `json:"gateway_cost_usd"`
 	Frozen     []FrozenRow `json:"frozen_set,omitempty"`
 	Pooled     *Pooled102  `json:"pooled,omitempty"`
+	// Second pass only (D630): the pooled figures on the searches whose
+	// fixture is D571's, so only the engine (and the run) differs.
+	PooledSameFixture *Pooled102 `json:"pooled_same_fixture_as_d571,omitempty"`
 }
 
 func cmdPlans102Eval(args []string) error {
 	fl := flag.NewFlagSet("plans102-eval", flag.ExitOnError)
 	check := fl.Bool("check", false, "recompute and fail if the committed files differ")
-	series := fl.String("series", "d501", "run series: d501 (general engine), d540 (Part 102 engine) or heldout (D570)")
+	series := fl.String("series", "d501", "run series: d501 (general engine), d540 (Part 102 engine), heldout (D570) or heldout2 (D630)")
 	_ = fl.Parse(args)
 	suffix, ok := plans102Series[*series]
 	if !ok {
-		return fmt.Errorf("-series must be d501, d540 or heldout")
+		return fmt.Errorf("-series must be d501, d540, heldout or heldout2")
 	}
-	heldout := *series == "heldout"
+	second := *series == "heldout2"
+	heldout := *series == "heldout" || second
 	fixtures, runsPattern, movesName := plans102Fixtures, plans102Runs, "/moves-dev"
+	familyCheck := plans102FamilyCheck
 	if heldout {
 		fixtures, runsPattern, movesName = plans102HeldoutFixtures, plans102HeldoutRuns, "/moves"
+	}
+	if second {
+		fixtures, familyCheck = plans102Heldout2Fixtures, plans102FamilyCheck2
 	}
 	rules, err := tariffshift.Default()
 	if err != nil {
@@ -201,11 +222,14 @@ func cmdPlans102Eval(args []string) error {
 	if heldout {
 		note = "The first held-out evaluation of the Part 102 plan pipeline (D570): held-out Part 102 rulings frozen by a fixed rule before any run (heldout/frozen.json), the production family check, fixtures built by fixed rules, one plan search each with the Part 102 engine predicting every move, through an OpenAI-compatible LiteLLM gateway to Gemini. Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441); shown plans are put in the D500 order. Part codes are unverified held-out suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -series heldout -check"
 	}
+	if second {
+		note = "The second, pre-registered pass on the D570 held-out Part 102 plan set (D630): the same 18 frozen rulings, the second scoring of this set. Templates from the 20-family check committed in D581 (not re-run); D571's group rows and fixtures where the family is unchanged, otherwise one group call and a fixture by the same fixed rules; one plan search each with the production Part 102 engine (usmca-v5, the product's codes in the facts, D602) predicting every move, through an OpenAI-compatible LiteLLM gateway to Gemini. Scored as D571. Part codes are unverified held-out suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -series heldout2 -check"
+	}
 	sum := Summary102{Note: note}
 	frozenMats := map[string]int{}
 	leaked := map[string]bool{"H351116": true, "N357063": true} // D413: the two frozen rulings whose suggester input carried a code
 	if heldout {
-		fr, err := heldoutFrozen()
+		fr, err := heldoutFrozen(familyCheck)
 		if err != nil {
 			return err
 		}
@@ -267,6 +291,21 @@ func cmdPlans102Eval(args []string) error {
 			left := frozenMats[s.Ruling] - len(fx.Product.Components)
 			agrees := s.BaselineEngine == s.CBP
 			s.PartsLeftOut, s.EngineCurrent, s.LeakedInput = &left, &agrees, leaked[s.Ruling]
+			if second {
+				old, err := os.ReadFile(filepath.Join(plans102HeldoutFixtures, filepath.Base(f)))
+				same := err == nil && string(old) == string(b)
+				s.SameFixture = &same
+				n := 0
+				if bc.Review {
+					n++
+				}
+				for _, pl := range append(append([]domain.Plan(nil), ann.Plans...), ann.Rejected...) {
+					if pl.RejectionKind != domain.RejectCurrentSetup && pl.RuleCheck != nil && pl.RuleCheck.Review {
+						n++
+					}
+				}
+				s.ReviewFlags = &n
+			}
 			for _, pl := range ann.Plans {
 				st := "undetermined"
 				if pl.RuleCheck != nil {
@@ -321,6 +360,17 @@ func cmdPlans102Eval(args []string) error {
 	sum.GatewayUSD = round4(sum.GatewayUSD)
 	if heldout {
 		sum.Pooled = pool102(sum)
+	}
+	if second {
+		same := sum
+		same.Searches, same.Frozen = nil, nil
+		for _, s := range sum.Searches {
+			if s.SameFixture != nil && *s.SameFixture {
+				same.Searches = append(same.Searches, s)
+			}
+		}
+		sum.PooledSameFixture = pool102(same)
+		sum.PooledSameFixture.Frozen, sum.PooledSameFixture.Template, sum.PooledSameFixture.Planned = 0, Rate{}, Rate{}
 	}
 	sb, _ := json.MarshalIndent(sum, "", "  ")
 	if !*check {
@@ -398,7 +448,7 @@ type frozenSet struct {
 
 // heldoutFrozen reads the frozen set (D570) and the family check run on it:
 // a ruling whose answer is "none" or below the bar has no plan template.
-func heldoutFrozen() (frozenSet, error) {
+func heldoutFrozen(familyCheck string) (frozenSet, error) {
 	var fz struct {
 		Final   []string `json:"final"`
 		Rulings []struct {
@@ -422,7 +472,7 @@ func heldoutFrozen() (frozenSet, error) {
 		Covered    bool    `json:"covered"`
 		Error      string  `json:"error"`
 	}
-	fams, err := readJSONL[famRow](plans102FamilyCheck)
+	fams, err := readJSONL[famRow](familyCheck)
 	if err != nil {
 		return frozenSet{}, err
 	}
@@ -511,5 +561,15 @@ func pool102(sum Summary102) *Pooled102 {
 	p.CurrentRuleAgrees = rate(curAgree, curDecided)
 	p.CurrentEngineAgrees = rate(curEngine, ran)
 	p.WithoutLeakedPlanned = plannedClean
+	flags, seen := 0, false
+	for _, s := range sum.Searches {
+		if s.ReviewFlags != nil {
+			flags += *s.ReviewFlags
+			seen = true
+		}
+	}
+	if seen {
+		p.ReviewFlags = &flags
+	}
 	return p
 }
