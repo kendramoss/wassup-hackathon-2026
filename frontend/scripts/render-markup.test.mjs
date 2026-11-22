@@ -128,12 +128,26 @@ test("the below-bar note stays the amber one and nothing is dropped", () => {
   assert.equal(html(ReviewNotes, { notes: [] }), "");
 });
 
+// ---- Judge panel round 10, N7: the list stacks below 640 px ---------------
+
+test("below 640 px the cases list stacks: no minimum width, no header row, each cell names its column", () => {
+  const m = html(YourCases, { onChange() {}, cases: [row({ watch_status: "changed" })] });
+  const table = m.match(/<table[^>]*class="([^"]*)"/)[1].split(" ");
+  assert.ok(table.includes("sm:min-w-[760px]") && !table.includes("min-w-[760px]"), "the 760 px minimum applies from 640 px only");
+  assert.ok(table.includes("max-sm:block"));
+  assert.match(m, /<thead class="max-sm:hidden">/);
+  assert.match(m, /<tr class="[^"]*max-sm:grid[^"]*"/);
+  for (const label of ["Likely origin", "Status", "Ruling watch", "Scenarios", "Where you left off"]) {
+    assert.match(m, new RegExp(`<td data-label="${label}" class="[^"]*max-sm:before:content-\\[attr\\(data-label\\)\\]`), label);
+  }
+});
+
 // ---- N1: the list cell's colour class and the changed+review detail ---------
 
 const cellOf = (extra) => {
   const m = html(YourCases, { onChange() {}, cases: [row(extra)] });
   // The watch cell is the 4th <td> of the row (Product, origin, Status, Ruling watch).
-  const cells = [...m.matchAll(/<td class="([^"]*)">([\s\S]*?)<\/td>/g)];
+  const cells = [...m.matchAll(/<td(?: data-label="[^"]*")? class="([^"]*)">([\s\S]*?)<\/td>/g)];
   assert.ok(cells.length >= 4, "row has its cells");
   return { cls: cells[3][1], label: text(cells[3][2]) };
 };

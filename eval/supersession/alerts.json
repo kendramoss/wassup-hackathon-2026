@@ -111,30 +111,12 @@
  "row_examples": [
   {
    "alerts": [
-    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
-   ],
-   "case_date": "2025-08-29",
-   "category": "final_after_case",
-   "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl",
-   "row": "H325607"
-  },
-  {
-   "alerts": [
     "N344694 (cited, read): modified by H344999 on 2026-05-06"
    ],
    "case_date": "2025-12-22",
    "category": "final_after_case",
    "file": "eval/results/dev-gemini-4-argon-prec-engine-v1-litellm-reasoning-v1.jsonl",
    "row": "N356467"
-  },
-  {
-   "alerts": [
-    "N331974 (cited, read): revoked by H325607 on 2025-08-29"
-   ],
-   "case_date": "2025-08-29",
-   "category": "final_after_case",
-   "file": "eval/results/dev-gemini-4-carbon-prec-engine-v1-litellm.jsonl",
-   "row": "H325607"
   },
   {
    "alerts": [
@@ -205,31 +187,22 @@
    ],
    "case_date": "2025-12-15",
    "category": "final_before_case",
-   "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-litellm-reasoning-v1.jsonl",
-   "row": "N356391"
-  },
-  {
-   "alerts": [
-    "N345891 (cited, read): revoked by H346161 on 2025-05-05"
-   ],
-   "case_date": "2025-12-15",
-   "category": "final_before_case",
    "file": "eval/results/textile-dev-gemini-4-argon-prec-textile-v2-vertex-reasoning-v1.jsonl",
    "row": "N356391"
   }
  ],
  "rows": {
-  "final_after_case": 4,
-  "final_before_case": 8,
-  "read_only_final": 85,
+  "final_after_case": 2,
+  "final_before_case": 7,
+  "read_only_final": 64,
   "rows_undated": 342,
   "rows_with_rulings": 13107
  },
  "rulings_final_relied": {
   "N322364": 1,
-  "N331974": 5,
+  "N331974": 3,
   "N344694": 2,
-  "N345891": 4
+  "N345891": 3
  },
  "rulings_proposed_relied": {}
 }
