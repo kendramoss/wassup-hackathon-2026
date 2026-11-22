@@ -471,6 +471,68 @@ for (const scheme of ["light", "dark"]) {
   await ctx.close();
 }
 
+// #607: an invalid cost-basis select must point at its error paragraph, like
+// the neighbouring number and text fields do.
+{
+  const ctx = await browser.newContext({ viewport: viewports.desktop });
+  const page = await ctx.newPage();
+  page.on("console", (m) => m.type() === "error" && !/400 \(Bad Request\)/.test(m.text()) && problems.push({ page: "/cases/new (cost basis)", console: m.text() }));
+  page.on("pageerror", (e) => problems.push({ page: "/cases/new (cost basis)", console: String(e) }));
+  const product = {
+    name: "Probe gun",
+    plants: [
+      { id: "p1", name: "CN plant", country: "CN" },
+      { id: "p2", name: "TH plant", country: "TH" },
+    ],
+    components: [
+      { name: "Fan", made_in: "CN", plant: "p1", group: "motor_fan_assembly" },
+      { name: "Board", made_in: "TH", plant: "p2", group: "pcba" },
+    ],
+  };
+  await page.route("**/api/v1/products/extract", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ product, warnings: [] }) }),
+  );
+  await page.route("**/api/v1/duty-rates", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.route("**/api/v1/products/hts-suggest", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  await page.route("**/api/v1/products/parts-hts-suggest", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ parts: [], good: null, max_parts: 20 }) }),
+  );
+  await page.route("**/api/v1/cases/predict", (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: "application/json",
+      body: JSON.stringify({
+        code: "invalid_input",
+        message: "economics: operations.groups: operations.groups.motor_fan_assembly.cost_basis: Choose whether labour and logistics are inside or on top of the group cost.",
+        retryable: false,
+      }),
+    }),
+  );
+  await page.goto(base + newCasePath, { waitUntil: "networkidle" });
+  await page.getByRole("tab", { name: "Paste a description" }).click();
+  await page.locator("textarea").first().fill("Each heat gun is assembled in Thailand using components sourced from China and Thailand, with a fan and a board and a housing.");
+  await page.getByRole("button", { name: "Turn into parts and plants" }).click();
+  await page.getByRole("button", { name: /Find the likely origin/i }).first().click();
+  await page.getByRole("alert").filter({ hasText: "Choose whether" }).waitFor({ timeout: 8000 });
+  await page.getByRole("button", { name: /money inputs/i }).first().click();
+  await page.getByRole("dialog", { name: "Money inputs" }).waitFor();
+  await page.getByRole("switch", { name: "Include operating costs when ranking moves" }).focus();
+  await page.keyboard.press("Space");
+  const basis = await page.evaluate(() => {
+    const select = [...document.querySelectorAll('select[aria-invalid="true"]')].find((el) => el.id.endsWith("-basis"));
+    const error = select ? document.getElementById(`${select.id}-e`) : null;
+    return {
+      describedby: select?.getAttribute("aria-describedby") ?? null,
+      errorId: error?.id ?? null,
+      errorText: (error?.textContent ?? "").trim(),
+    };
+  });
+  if (!basis.errorText || !basis.describedby?.split(/\s+/).includes(basis.errorId)) {
+    problems.push({ page: "/cases/new (cost basis)", focus: "invalid select does not describe its error", basis });
+  }
+  await ctx.close();
+}
+
 // #548: the elapsed counter in a pending live region must not be announced
 // once a second. Enter both states with a delayed stub, let the counter tick,
 // and fail if the changing text is exposed to assistive tech.

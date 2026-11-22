@@ -386,6 +386,7 @@ export function OperationalFields({
                       value={og?.cost_basis ?? ""}
                       disabled={readOnly}
                       aria-invalid={byKey[gKey(g, "cost_basis")] ? true : undefined}
+                      aria-describedby={byKey[gKey(g, "cost_basis")] ? `${id}-${g}-basis-e` : undefined}
                       onChange={(ev) => set(setGroup(value, g, "cost_basis", ev.target.value === "" ? undefined : ev.target.value))}
                     >
                       <option value="">{copy.ops.basisNone}</option>
