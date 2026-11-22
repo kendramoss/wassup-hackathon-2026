@@ -1,0 +1,161 @@
+{
+  "case_id": "p102h-n360891",
+  "target": "China",
+  "family": "plastic_articles",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a insulating panel. The product of CBP ruling N360891, as its facts describe it. The insulating panel is assembled in Canada using components sourced from United States and China.\n\nThe Plaskolite Tuffac polycarbonate sheet are produced in United States. The double-sided adhesive nano tape are sourced from China. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the insulating panel (the finished good), 8708.29.5160; the Plaskolite Tuffac polycarbonate sheet (made in United States), 3920.61.00; the double-sided adhesive nano tape (made in China), 3919.10.20.\n",
+    "prediction": {
+      "origin_country": "Canada",
+      "key_factors": [
+        "(a)(3) tariff shift to subheading 8708.29"
+      ],
+      "decisive_step": "Assembly of the polycarbonate sheet and adhesive tape into the insulating panel in Canada",
+      "confidence": 0.9,
+      "reasoning": "Under 19 CFR 102.20(p), subheading 8708.29 requires a change from any other subheading. Both the U.S. polycarbonate sheet (3920.61.00) and Chinese adhesive tape (3919.10.20) undergo the required tariff shift to 8708.29.5160 in Canada under 19 CFR 102.11(a)(3).",
+      "cited_rulings": [],
+      "precedents": [
+        "H349670",
+        "N328711",
+        "N354024",
+        "N356280",
+        "N357851"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v5",
+        "input_tokens": 3609,
+        "output_tokens": 285,
+        "latency_ms": 7112
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N360891"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a insulating panel. The product of CBP ruling N360891, as its facts describe it. The insulating panel is assembled in Canada using components sourced from United States and China.\n\nThe Plaskolite Tuffac polycarbonate sheet are produced in United States. The double-sided adhesive nano tape are sourced from China. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the insulating panel (the finished good), 8708.29.5160; the Plaskolite Tuffac polycarbonate sheet (made in United States), 3920.61.00; the double-sided adhesive nano tape (made in China), 3919.10.20.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 8708.29"
+        ],
+        "decisive_step": "Assembly of the polycarbonate sheet and adhesive tape into the insulating panel in Canada",
+        "confidence": 0.9,
+        "reasoning": "Under 19 CFR 102.20(p), subheading 8708.29 requires a change from any other subheading. Both the U.S. polycarbonate sheet (3920.61.00) and Chinese adhesive tape (3919.10.20) undergo the required tariff shift to 8708.29.5160 in Canada under 19 CFR 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "H349670",
+          "N328711",
+          "N354024",
+          "N356280",
+          "N357851"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3609,
+          "output_tokens": 285,
+          "latency_ms": 7112
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N360891); engine predicts Canada",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "film_sheet_cutting",
+          "to_plant": "china"
+        }
+      ],
+      "description": "Move the film extrusion and sheet cutting to China",
+      "variant_facts": "The merchandise under consideration is a insulating panel. The product of CBP ruling N360891, as its facts describe it. The insulating panel is assembled in Canada using components sourced from China.\n\nThe Plaskolite Tuffac polycarbonate sheet and double-sided adhesive nano tape are produced in China. \n\nIn China, the Plaskolite Tuffac polycarbonate sheet will be produced in-house: make the Plaskolite Tuffac polycarbonate sheet.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the insulating panel (the finished good), 8708.29.5160; the Plaskolite Tuffac polycarbonate sheet (made in China), 3920.61.00; the double-sided adhesive nano tape (made in China), 3919.10.20.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to subheading 8708.29"
+        ],
+        "decisive_step": "Assembly of the polycarbonate sheet and adhesive tape in Canada",
+        "confidence": 0.95,
+        "reasoning": "The finished insulating panel is classified in 8708.29.5160. The 102.20 rule for 8708.29 requires a change from any other subheading. Both Chinese materials (3920.61 and 3919.10) undergo the required tariff shift during assembly in Canada under 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [
+          "H349670",
+          "N301448",
+          "N328711",
+          "N356280",
+          "N357851"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3651,
+          "output_tokens": 262,
+          "latency_ms": 16467
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Canada, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 7260,
+    "output_tokens": 547,
+    "engine_input_tokens": 7260,
+    "engine_output_tokens": 547,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 16.468448792
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "plastic_articles": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.01999,
+  "cost_usd_list": 0.03998,
+  "gateway_cost_usd": 0.01999,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "667537a4a3923fa4e37327823a414aea5e429939",
+  "time": "2026-11-22T16:14:23+08:00"
+}

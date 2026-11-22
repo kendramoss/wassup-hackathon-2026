@@ -1,0 +1,161 @@
+{
+  "case_id": "p102h-n363381",
+  "target": "Vietnam",
+  "family": "machinery_parts",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a (“USMCA”) of a forklift dust mop attachment. The product of CBP ruling N363381, as its facts describe it. The (“USMCA”) of a forklift dust mop attachment is assembled in Canada using components sourced from United States, Vietnam and Canada.\n\nThe dust mop are produced in United States. The cotton yarn and synthetic backing material are sourced from Vietnam. The mop frame and hitch system are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the (“USMCA”) of a forklift dust mop attachment (the finished good), 9603.90.8050; the dust mop (made in United States), 9603.90; the cotton yarn (made in Vietnam), 5205.12; the synthetic backing material (made in Vietnam), 5407.72; the mop frame (made in Canada), 9603.90; the hitch system (made in Canada), 8431.20.\n",
+    "prediction": {
+      "origin_country": "United States",
+      "key_factors": [
+        "(b) single failing material imparting essential character"
+      ],
+      "decisive_step": "Production of the dust mop in the United States",
+      "confidence": 0.95,
+      "reasoning": "The rule for 9603.90 requires a shift from any other heading. The U.S.-origin dust mop is already classified in 9603.90 and fails the shift in Canada. As the only failing foreign material, it imparts essential character under 102.11(b).",
+      "cited_rulings": [],
+      "precedents": [
+        "H350291",
+        "N317251",
+        "N354024",
+        "N356280",
+        "N357951"
+      ],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v5",
+        "input_tokens": 3597,
+        "output_tokens": 211,
+        "latency_ms": 7719
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Canada",
+    "ruling": "N363381"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a (“USMCA”) of a forklift dust mop attachment. The product of CBP ruling N363381, as its facts describe it. The (“USMCA”) of a forklift dust mop attachment is assembled in Canada using components sourced from United States, Vietnam and Canada.\n\nThe dust mop are produced in United States. The cotton yarn and synthetic backing material are sourced from Vietnam. The mop frame and hitch system are produced in Canada. \n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the (“USMCA”) of a forklift dust mop attachment (the finished good), 9603.90.8050; the dust mop (made in United States), 9603.90; the cotton yarn (made in Vietnam), 5205.12; the synthetic backing material (made in Vietnam), 5407.72; the mop frame (made in Canada), 9603.90; the hitch system (made in Canada), 8431.20.\n",
+      "prediction": {
+        "origin_country": "United States",
+        "key_factors": [
+          "(b) single failing material imparting essential character"
+        ],
+        "decisive_step": "Production of the dust mop in the United States",
+        "confidence": 0.95,
+        "reasoning": "The rule for 9603.90 requires a shift from any other heading. The U.S.-origin dust mop is already classified in 9603.90 and fails the shift in Canada. As the only failing foreign material, it imparts essential character under 102.11(b).",
+        "cited_rulings": [],
+        "precedents": [
+          "H350291",
+          "N317251",
+          "N354024",
+          "N356280",
+          "N357951"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3597,
+          "output_tokens": 211,
+          "latency_ms": 7719
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Canada (N363381); engine predicts United States",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "minor_machining_finish",
+          "to_plant": "vietnam"
+        }
+      ],
+      "description": "Move the mop frame and the hitch system to Vietnam",
+      "variant_facts": "The merchandise under consideration is a (“USMCA”) of a forklift dust mop attachment. The product of CBP ruling N363381, as its facts describe it. The (“USMCA”) of a forklift dust mop attachment is assembled in Canada using components sourced from United States and Vietnam.\n\nThe dust mop are produced in United States. The cotton yarn, synthetic backing material, mop frame and hitch system are sourced from Vietnam. \n\nIn Vietnam, the mop frame and hitch system will be produced in-house: make the mop frame, hitch system.\n\nFinal assembly in Canada: assemble the parts into the finished good.\n\nTariff classifications given with the product (HTSUS; the product's own codes, not verified by CBP): the (“USMCA”) of a forklift dust mop attachment (the finished good), 9603.90.8050; the dust mop (made in United States), 9603.90; the cotton yarn (made in Vietnam), 5205.12; the synthetic backing material (made in Vietnam), 5407.72; the mop frame (made in Vietnam), 9603.90; the hitch system (made in Vietnam), 8431.20.\n",
+      "prediction": {
+        "origin_country": "Canada",
+        "key_factors": [
+          "(a)(3) tariff shift to 9603.10-9603.90 from any other heading"
+        ],
+        "decisive_step": "Assembly of the dust mop, mop frame, and hitch system in Canada",
+        "confidence": 0.75,
+        "reasoning": "The 102.20 rule for 9603.10-9603.90 allows a change from any other heading, or from brush-making/mop components within 9603.90. Otherwise, under 102.11(b)(1), the U.S. dust mop or Vietnamese frame would impart essential character.",
+        "cited_rulings": [],
+        "precedents": [
+          "H350291",
+          "N317251",
+          "N354024",
+          "N356280",
+          "N357951"
+        ],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v5",
+          "input_tokens": 3615,
+          "output_tokens": 246,
+          "latency_ms": 7938
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Canada, not Vietnam",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 7212,
+    "output_tokens": 457,
+    "engine_input_tokens": 7212,
+    "engine_output_tokens": 457,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 7.939158959
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "machinery_parts": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.018994,
+  "cost_usd_list": 0.037988,
+  "gateway_cost_usd": 0.018994,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "667537a4a3923fa4e37327823a414aea5e429939",
+  "time": "2026-11-22T16:15:00+08:00"
+}
