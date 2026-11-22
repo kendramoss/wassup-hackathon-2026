@@ -15,7 +15,6 @@ const { RevocationExample } = await import("../src/components/op/screens/revocat
 const { RuleCheckExample } = await import("../src/components/op/screens/rule-check-example.tsx");
 const { Part102PlanExample } = await import("../src/components/op/screens/part102-plan-example.tsx");
 const { DemoTour } = await import("../src/components/op/demo-tour.tsx");
-const { copy } = await import("../src/lib/copy.ts");
 const json = (f) => JSON.parse(readFileSync(new URL(`../src/lib/${f}`, import.meta.url), "utf8"));
 const plan = json("plan-rule-example.json");
 const rev = json("revocation-example.json");
@@ -118,7 +117,6 @@ test("/method and the landing link both examples", () => {
   assert.match(landing, /"\/examples\/revocation-alert"/);
   // Judge panel round 12, N9: the landing links the Part 102 plan too.
   assert.match(landing, /"\/examples\/part102-plan"/);
-  assert.match(copy.landing.can.items.find((i) => i.key === "part102").link, /Part 102 plan/);
 });
 
 // Judge panel round 11, N1: a merge left "See a recorded move check.

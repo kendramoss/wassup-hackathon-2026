@@ -1,75 +1,26 @@
 "use client";
 
-// Landing page (DESIGN.md, locked 17 Oct, frame p-landing-3d.html): the hero,
-// then one stage pinned on wide screens whose three figures scroll sideways
-// as you scroll down (D93): fig.1, the heat gun as a 3D blueprint that
-// explodes and moves its Chinese parts to Thailand, a caption box naming
-// each phase; fig.2, one case as four sheets of real output with the facts
-// drawn through them; fig.3, a test sheet for the 377 held-out rulings,
-// ending on the way into the cases. Phones keep the figures stacked. After
-// "Who it's for", fig.4 tells the impact as one illustrative story. Every
-// number comes from docs/NUMBERS.md.
 import Link from "next/link";
-import { Explained } from "../term";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api/client";
 import { copy } from "@/lib/copy";
 import { ButtonLink, RulingLink } from "../ui";
-import { startLanding } from "./motion";
+import { JudgeImpact, JudgeProof } from "./judge-proof";
+import { JudgePersonas, JudgeTabs } from "./judge-tabs";
+import { startHeatGun } from "./motion";
 import "./landing.css";
 
 const L = copy.landing;
-const S = L.story;
-const K = copy.stakeholders;
-const flag = (c: "China" | "Thailand") => `/flags/${c === "China" ? "cn" : "th"}.svg`;
-const Flag = ({ c, h }: { c: "China" | "Thailand"; h?: number }) => (
-  // eslint-disable-next-line @next/next/no-img-element
-  <img className="flag" alt="" src={flag(c)} style={h ? { height: h } : undefined} />
-);
-
-// A secondary block that phones get folded (judge panel round 3, D270: the
-// phone landing was 11,470 px tall). Wide screens always show it open, with
-// no summary line; below 901 px it starts folded behind a summary that says
-// what is inside. The server renders it open, so nothing is hidden without
-// script; the fold applies on mount, far below the first screen.
-function PhoneFold({ summary, children }: { summary: string; children: ReactNode }) {
-  const phone = useSyncExternalStore(onPhoneChange, isPhone, () => false);
-  const [userOpen, setUserOpen] = useState(false);
-  const open = !phone || userOpen;
-  return (
-    <details
-      className="pfold"
-      open={open}
-      onToggle={(e) => {
-        if (phone) setUserOpen((e.currentTarget as HTMLDetailsElement).open);
-      }}
-    >
-      <summary>
-        <span aria-hidden="true" className="pfmark">
-          ▸
-        </span>
-        {summary}
-      </summary>
-      {children}
-    </details>
-  );
-}
-const PHONE = "(max-width: 900px)";
-const isPhone = () => matchMedia(PHONE).matches;
-function onPhoneChange(cb: () => void) {
-  const mq = matchMedia(PHONE);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
+const flag = (country: "China" | "Thailand") => `/flags/${country === "China" ? "cn" : "th"}.svg`;
 
 // The demo links: straight to the pinned heat-gun case when there is one,
 // otherwise the demo loaded into a new case, and /cases if the API is down.
 // The pinned comparison case is a separate demo (its comparison is recorded).
 // The hero's button opens the tour on the plan (judge panel round 4): the
 // origin step, which opens on "needs more facts", is one click from there.
-type DemoLinks = { demo: string; tour: string; heat: string | null; compare: string };
+type DemoLinks = { demo: string; tour: string; compare: string };
 function useDemoLinks(): DemoLinks {
-  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", heat: null, compare: "/cases" });
+  const [links, setLinks] = useState<DemoLinks>({ demo: "/cases", tour: "/cases", compare: "/cases" });
   useEffect(() => {
     let live = true;
     (async () => {
@@ -87,7 +38,6 @@ function useDemoLinks(): DemoLinks {
         setLinks({
           demo: heatCase ? `${heatCase}/origin` : fallback,
           tour: heatCase ? `${heatCase}/plan?tour=1` : fallback,
-          heat: heatCase,
           compare: cmp ? `/cases/${encodeURIComponent(cmp.id)}/compare` : "/cases",
         });
       } catch {
@@ -101,635 +51,184 @@ function useDemoLinks(): DemoLinks {
   return links;
 }
 
-const C = L.can;
-// Where each "What you can do" line leads. Heat-gun steps fall back to the
-// demo link (a new case from the demo, or /cases) when no pinned case loads.
-function canHref(key: string, l: DemoLinks): string {
-  switch (key) {
-    case "origin":
-      return l.demo;
-    case "import":
-      return "/cases/new";
-    case "plan":
-      return l.heat ? `${l.heat}/plan` : l.demo;
-    case "compare":
-      return l.compare;
-    case "draft":
-      return l.heat ? `${l.heat}/draft` : l.demo;
-    case "rules":
-      return "/examples/plan-rule-check";
-    case "part102":
-      return "/examples/part102-plan";
-    case "alerts":
-      return "/examples/revocation-alert";
-    case "mcp":
-      return "/developers#mcp";
-    case "method":
-      return "/method";
-    default:
-      return "/accuracy#misses";
-  }
+const heatGunPhases = [
+  { label: "2022 setup", text: "Final assembly in Thailand. Key parts came from China, where CBP held the heat gun originated." },
+  { label: "Parts", text: "Inspect where the housing, heater, motor, circuit board and electrical parts were made." },
+  { label: "Proposed move", text: "Make the motor, circuit board, switch and cord in Thailand. An earlier ruling supports the move." },
+  { label: "2026 ruling", text: "The manufacturer made six more parts in Thailand and kept the switch, wires and fasteners in China. CBP held Thailand." },
+] as const;
+
+function VerificationPill({ id, label }: { id: string; label: string }) {
+  return (
+    <div className="lp-ruling-reference">
+      <RulingLink id={id} className="lp-ruling-pill" />
+      <span>{label}</span>
+    </div>
+  );
 }
 
-export function Landing() {
-  const root = useRef<HTMLDivElement>(null);
-  const links = useDemoLinks();
-  const demoHref = links.tour;
-  useEffect(() => startLanding(root.current!, { flag }), []);
-
-  const hero = (
-    <>
-      <span className="dimn">{L.eyebrow}</span>
-      <h1>{L.title}</h1>
-      <p className="sub read">{L.sub}</p>
-      <p className="novel read">
-        <b>{copy.novel.lead}</b> {copy.novel.text}
-      </p>
-      <div className="ctas">
-        <ButtonLink href={demoHref}>{L.demo}</ButtonLink>
-        <ButtonLink href="/cases/new" variant="ghost">
-          {copy.cases.newCase}
-        </ButtonLink>
-      </div>
-      <p className="also read">
-        <a href="#can">{L.alsoLink}</a>
-      </p>
-    </>
-  );
+function HeatGunCase() {
+  const [phase, setPhase] = useState(0);
+  const visual = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (visual.current) return startHeatGun(visual.current, flag);
+  }, []);
 
   return (
-    <div className="lp" ref={root}>
-      <main id="main">
-        <section className="hero">{hero}</section>
-
-        {/* Wide screens: the stage stays pinned and the track moves sideways
-            as the page scrolls down; phones stack the three panes. */}
-        <div className="hz" data-k="hz">
-          <div className="hzpin" data-k="hzpin">
-            <div className="track" data-k="track">
-              <div className="pane p1" data-k="pane">
-                <div className="scroller" data-k="scroller">
-                  <figure className="sheet" aria-label={L.fig1Label} data-k="gunsheet">
-                    <canvas data-k="canvas" aria-hidden="true" />
-                    <div className="overlay" aria-hidden="true">
-                      <svg data-k="leaders" />
-                      <div data-k="labels" />
-                    </div>
-                    <div className="sheethead">
-                      <div>
-                        <div className="eyebrow">{L.fig1}</div>
-                        <div className="dimn">{L.fig1Sub}</div>
-                          <div className="note">{L.schematic}</div>
-                      </div>
-                    </div>
-                    <div className="stamp" data-k="stamp" aria-live="polite" />
-                    <div className="plannote" data-k="plannote">
-                      {L.planNote}
-                      <br />
-                      {L.planMove}
-                    </div>
-                    <div className="tblock" aria-hidden="true">
-                      <span>{copy.name}</span>
-                      <span>Heat gun · Kobalt 12.5-amp · model 5208257</span>
-                      <span>fig.1</span>
-                      <span data-k="tbstate">{L.sheetStates[0]}</span>
-                    </div>
-                    <div className="caption" data-k="caption">
-                      {L.steps.map((st, i) => (
-                        <div key={st.title} className="cap" data-k="cap" hidden={i > 0}>
-                          <span className="eyebrow">
-                            {L.stepOf(i + 1)} · {st.title}
-                          </span>
-                          <p className="read">
-                            {i === 2 ? <Explained text={st.body} terms={["pcba", "check", "bar"]} /> : st.body}
-                            {"ruling" in st && st.ruling ? (
-                              <>
-                                {" "}
-                                (<RulingLink id={st.ruling} />).
-                              </>
-                            ) : null}
-                            {"for" in st && st.for ? (
-                              <>
-                                {" "}
-                                (<RulingLink id={st.for} /> for; no counter-ruling found).
-                              </>
-                            ) : null}
-                          </p>
-                        </div>
-                      ))}
-                      <div className="legend" aria-hidden="true">
-                        <span>
-                          <i className="cn" />
-                          {L.legendCn}
-                        </span>
-                        <span>
-                          <i />
-                          {L.legendTh}
-                        </span>
-                        <span>{L.drag}</span>
-                      </div>
-                    </div>
-                  </figure>
-                </div>
-              </div>
-
-              <section className="pane f2" data-k="f2" aria-labelledby="f2h">
-                <div className="pin">
-                  <div className="head">
-                    <div>
-                      <h2 id="f2h" className="eyebrow">
-                        {L.fig2}
-                      </h2>
-                      <span className="dimn">{L.fig2Sub}</span>
-                    </div>
-                    <div className="now duo" data-k="now">
-                      {L.fig2NowStatic}
-                    </div>
-                  </div>
-                  <div className="stage" data-k="stage">
-                    <svg className="path" data-k="pathsvg" aria-hidden="true">
-                      <path data-k="wire" fill="none" stroke="var(--ok)" strokeWidth="1.5" />
-                    </svg>
-                    <article className="mini" data-k="mini">
-                      <div className="hd">
-                        <span>
-                          <span className="ball">1</span>Product
-                        </span>
-                        <span>sheet 1/4</span>
-                      </div>
-                      <div className="bd">
-                        <div className="real">
-                          <table>
-                            <tbody>
-                              {(
-                                [
-                                  ["Main housing", "Thailand"],
-                                  ["Heating element", "Thailand"],
-                                  ["Motor-fan assembly", "China"],
-                                  ["PCBA", "China"],
-                                  ["Switch, cord, minor", "China"],
-                                ] as const
-                              ).map(([p, c], i) => (
-                                <tr key={p}>
-                                  <td className={i === 2 ? "hl" : undefined}>{p}</td>
-                                  <td>
-                                    <Flag c={c} /> {c}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          <p className="duo small">Final assembly in Thailand.</p>
-                        </div>
-                      </div>
-                      <div className="ft">Router · Gemini 3.8 Flash</div>
-                    </article>
-                    <article className="mini" data-k="mini">
-                      <div className="hd">
-                        <span>
-                          <span className="ball">2</span>Origin
-                        </span>
-                        <span>sheet 2/4</span>
-                      </div>
-                      <div className="bd">
-                        <div className="real">
-                          <span className="eyebrow">Likely origin</span>
-                          <div className="big">
-                            <Flag c="China" h={22} />
-                            China
-                          </div>
-                          <p className="duo body">Read against earlier CBP rulings, each one linked.</p>
-                          <p className="duo small">
-                            CBP held China (<RulingLink id="N328954" />
-                            ).
-                          </p>
-                        </div>
-                      </div>
-                      <div className="ft">Origin engine · Gemini 4 Argon</div>
-                    </article>
-                    <article className="mini plan" data-k="mini">
-                      <div className="hd">
-                        <span>
-                          <span className="ball">3</span>Plan
-                        </span>
-                        <span>sheet 3/4</span>
-                      </div>
-                      <div className="bd">
-                        <div className="real">
-                          <p className="duo">Make the motor-fan, PCBA, switch and cord in Thailand</p>
-                          <p className="gap">
-                            <span className="chip">✓ Backed by an earlier ruling</span>
-                          </p>
-                          <p className="small">
-                            For <RulingLink id="N345938" /> · against: none
-                          </p>
-                          <p className="duo small">
-                            ✓ Moves all 6 parts CBP&apos;s 2026 change (<RulingLink id="N357771" />) moved, plus 3 it kept.
-                          </p>
-                          <details className="small">
-                            <summary>Details</summary>
-                            Recorded 18 Oct production run (DEMO.md §6): check 0.96, above the 0.92 bar; the pinned case shows 0.96 (18 Oct).
-                          </details>
-                        </div>
-                      </div>
-                      <div className="ft">Planner + verifier agent</div>
-                    </article>
-                    <article className="mini" data-k="mini">
-                      <div className="hd">
-                        <span>
-                          <span className="ball">4</span>Draft
-                        </span>
-                        <span>sheet 4/4</span>
-                      </div>
-                      <div className="bd">
-                        <div className="real">
-                          <div className="letter duo">
-                            Request for a binding ruling on the country of origin of a heat gun…
-                            <i />
-                            <i style={{ width: "80%" }} />
-                            <i style={{ width: "90%" }} />
-                            <i style={{ width: "60%" }} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="ft">For a licensed customs broker</div>
-                    </article>
-                  </div>
-                  <div className="foot">
-                    <span>{L.fig2Foot}</span>
-                    <span>{L.fig2BacktestNote}</span>
-                  </div>
-                </div>
-              </section>
-
-              <div className="pane f3wrap" data-k="f3pane">
-                <section className="test" data-k="f3" aria-labelledby="f3h">
-                  <span className="reg tl">
-                    <i />
-                  </span>
-                  <span className="reg tr">
-                    <i />
-                  </span>
-                  <span className="reg bl">
-                    <i />
-                  </span>
-                  <span className="reg br">
-                    <i />
-                  </span>
-                  <span className="crop tl" />
-                  <span className="crop tr" />
-                  <span className="crop bl" />
-                  <span className="crop br" />
-                  <div className="testhead">
-                    <div>
-                      <div className="eyebrow">{L.fig3}</div>
-                      <h2 id="f3h">{L.fig3Title}</h2>
-                    </div>
-                    <div>
-                      <div className="meta">{L.fig3Meta}</div>
-                      <div className="swatches" aria-hidden="true">
-                        {["--ink", "--ok", "--ask", "--fail", "--edge", "--wash"].map((v) => (
-                          <i key={v} style={{ background: `var(${v})` }} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="panels">
-                    <div className="panel">
-                      <div className="ph">
-                        <span className="eyebrow">{L.scaleHead}</span>
-                        <span className="dimn">brackets = 95% interval</span>
-                      </div>
-                      <div className="meas" aria-hidden="true">
-                        <span className="mv" data-k="mv">
-                          90.2%
-                        </span>
-                        <span className="ml">
-                          <i />
-                          <b>86.8–92.8 · 95% interval</b>
-                          <i />
-                        </span>
-                      </div>
-                      <svg
-                        className="ruler"
-                        data-k="ruler"
-                        viewBox="0 0 700 190"
-                        role="img"
-                        aria-label="Origin accuracy 90.2% (86.8 to 92.8) against 63.4% for the best simple rule we recomputed, the first country named. Auto-accepted cases, 79.6% of all, 96.0% correct (93.1 to 97.7)."
-                      />
-                      <div className="claims">
-                        <p className="duo">
-                          <b>90.2%</b> {L.claimAccuracy}
-                        </p>
-                        <p className="duo">
-                          <b>96.0%</b> {L.claimAuto}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="panel">
-                      <div className="ph">
-                        <span className="eyebrow">{L.squaresHead}</span>
-                        <span className="dimn">sorted by outcome</span>
-                      </div>
-                      <div
-                        className="field"
-                        data-k="field"
-                        role="img"
-                        aria-label="377 held-out rulings: 288 auto-accepted and right, 12 auto-accepted and wrong, 52 sent to review and right, 25 sent to review and wrong."
-                      />
-                      <div className="key">
-                        <span>
-                          <i className="ka" />
-                          auto-accepted, right <b>288</b>
-                        </span>
-                        <span>
-                          <i className="kb" />
-                          wrong <b>12</b>
-                        </span>
-                        <span>
-                          <i className="kc" />
-                          to review, right <b>52</b>
-                        </span>
-                        <span>
-                          <i className="kd" />
-                          wrong <b>25</b>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* C: the plan check, measured on later rulings (judge panel
-                      round 4). A measured finding, so bars with their numbers
-                      (docs/NUMBERS.md, "Post-cutoff flip-pair addendum"). */}
-                  <div className="plancheck" aria-labelledby="pch">
-                    <div className="ph">
-                      <span id="pch" className="eyebrow">
-                        {L.planCheck.head}
-                      </span>
-                      <span className="dimn">{L.planCheck.meta}</span>
-                    </div>
-                    <ul className="pcrows">
-                      {L.planCheck.rows.map((r) => (
-                        <li key={r.label} className="pc">
-                          <span className="pcv">
-                            <b>
-                              {r.k} of {r.n}
-                            </b>{" "}
-                            {r.label}
-                          </span>
-                          <span className="pcbar" aria-hidden="true">
-                            <i className={r.lowerIsBetter ? "bad" : undefined} style={{ width: `${(r.k / r.n) * 100}%` }} />
-                          </span>
-                          <span className="pcci" aria-hidden="true">
-                            <i style={{ left: `${r.lo}%`, width: `${r.hi - r.lo}%` }} />
-                          </span>
-                          <span className="dimn">95% interval {r.lo}–{r.hi}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <details className="pcfoot dimn">
-                      <summary>{L.planCheck.details}</summary>
-                      <p className="read">{L.planCheck.lead}</p>
-                      <p className="read">{L.planCheck.foot}</p>
-                    </details>
-                    <p className="pcfoot dimn">
-                      <Link href="/accuracy#plan-checks">{L.planCheck.link}</Link>
-                    </p>
-                  </div>
-                  <div className="testfoot">
-                    <span>{copy.name} · test sheet 01</span>
-                    <span className="endcta" data-k="endcta">
-                      <Link href="/accuracy">{L.more}</Link>
-                      <ButtonLink href="/cases">{L.cta}</ButtonLink>
-                    </span>
-                  </div>
-                </section>
-              </div>
-            </div>
+    <section className="lp-section lp-case" id="heat-gun" aria-labelledby="heat-gun-title">
+      <div className="lp-section-head">
+        <span className="lp-figure-label">Fig. 1</span>
+        <h2 id="heat-gun-title">Kobalt heat-gun case study</h2>
+      </div>
+      <div className="lp-case-board">
+        <div className="lp-case-visual" ref={visual} data-phase={phase} aria-hidden="true">
+          <canvas />
+          <svg />
+          <div data-labels />
+          <span className="lp-visual-note">Schematic from published ruling facts</span>
+        </div>
+        <div className="lp-case-story">
+          <ol className="lp-case-steps" aria-label="Heat-gun case steps">
+            {heatGunPhases.map((step, index) => (
+              <li key={step.label}>
+                <button type="button" aria-pressed={phase === index} onClick={() => setPhase(index)}>
+                  <span className="lp-step-number">{index + 1}</span>
+                  {step.label}
+                </button>
+              </li>
+            ))}
+          </ol>
+          <div className="lp-case-caption" aria-live="polite" aria-atomic="true">
+            <h3>{heatGunPhases[phase].label}</h3>
+            <p>{heatGunPhases[phase].text}</p>
+          </div>
+          <div className="lp-ruling-references" role="group" aria-label="Verify the CBP rulings">
+            <VerificationPill id="N328954" label="2022 origin" />
+            <VerificationPill id="N345938" label="Plan precedent" />
+            <VerificationPill id="N357771" label="2026 origin" />
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {/* What you can do (judge journey): every built capability with a
-            way in, so the newer ones are found without reading the docs. */}
-        <section className="can" id="can" aria-labelledby="canh">
-          <h2 id="canh" className="eyebrow">
-            {C.title}
-          </h2>
-          <p className="read canlead">{C.lead}</p>
-          <dl>
-            {C.items.map((it) => (
-              <div key={it.key} className="canrow">
-                <dt className="read">
-                  <Explained text={it.what} terms={["tariffRule", "marking"]} />
-                </dt>
-                <dd>
-                  <p className="read">
-                    <Explained text={it.body} terms={["tariffRule"]} />
-                  </p>
-                  {"code" in it && it.code ? (
-                    <pre className="cancode">
-                      <code>{it.code}</code>
-                    </pre>
-                  ) : null}
-                  <Link href={canHref(it.key, links)}>{it.link}</Link>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+const workflow = [
+  {
+    label: "Product",
+    subtitle: "Gemini 3.8 Flash",
+    content: (
+      <div className="lp-workflow">
+        <div>
+          <h3>Start with your parts list</h3>
+          <p>Enter the parts and where they’re made. Gemini routes the case to the applicable origin rules.</p>
+        </div>
+        <dl className="lp-workflow-sample">
+          <div><dt>Final assembly</dt><dd>Thailand</dd></div>
+          <div><dt>Motor and circuit board</dt><dd>China</dd></div>
+        </dl>
+      </div>
+    ),
+  },
+  {
+    label: "Origin",
+    subtitle: "Gemini 4 Argon",
+    content: (
+      <div className="lp-workflow">
+        <div>
+          <h3>Find the likely origin</h3>
+          <p>Gemini reads earlier rulings and shows what drove its estimate.</p>
+        </div>
+        <div className="lp-workflow-sample">
+          <span className="lp-review-tag">Needs more facts</span>
+          <p><b>Likely China</b> · CBP held China in <RulingLink id="N328954" className="lp-ruling-pill" /></p>
+          <Link href="/examples/revocation-alert">See a ruling-change alert →</Link>
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: "Plan",
+    subtitle: "Planner + Verifier",
+    content: (
+      <div className="lp-workflow">
+        <div>
+          <h3>Test a production move</h3>
+          <p>The planner proposes moves. The verifier looks for rulings that support or challenge them.</p>
+        </div>
+        <div className="lp-workflow-sample">
+          <p><b>Move component production to Thailand.</b></p>
+          <p>Not a blind test: some moves were added after the change was public.</p>
+          <details>
+            <summary>Recorded plan and examples</summary>
+            <p>Recorded 18 Oct production run: check 0.96, above 0.92. The pinned case shows 0.96. The plan moved all parts that CBP’s later ruling describes, plus others the manufacturer kept in China.</p>
+            <ul>
+              <li><Link href="/examples/plan-rule-check">See a tariff-shift check →</Link></li>
+              <li><Link href="/examples/part102-plan">See a Part 102 plan →</Link></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: "Draft",
+    subtitle: "Ruling request template",
+    content: (
+      <div className="lp-workflow">
+        <div>
+          <h3>Draft for a customs broker</h3>
+          <p>Unde fills a ruling-request template with the case facts and supporting citations.</p>
+        </div>
+        <div className="lp-workflow-sample">
+          <span className="lp-review-tag">Broker review</span>
+          <blockquote>Request for a binding ruling on the country of origin of a heat gun…</blockquote>
+        </div>
+      </div>
+    ),
+  },
+];
 
-        <section className="who" aria-labelledby="whoh">
-          <h2 id="whoh" className="eyebrow">
-            {L.whoTitle}
-          </h2>
-          <div className="whobox">
-            <p className="read">{L.who}</p>
-            <p className="read">{L.whoFact}</p>
-          </div>
-          {/* Who uses it and who benefits (review follow-up): roles the
-              product is designed for, plain text with no numbers. */}
-          <section className="roles" aria-labelledby="rolesh">
-            <h3 id="rolesh" className="eyebrow">
-              {K.title}
-            </h3>
-            <p className="read rolelead">{K.lead}</p>
-            <PhoneFold summary={L.foldRoles(K.roles.map((r) => r.role))}>
-              <dl>
-                {K.roles.map((r) => (
-                  <div key={r.role} className="role">
-                    <dt>
-                      <span className="eyebrow">{r.role}</span>
-                      <span className="read">{r.who}</span>
-                    </dt>
-                    <dd className="read">{r.gets}</dd>
-                  </div>
-                ))}
-              </dl>
-            </PhoneFold>
-          </section>
-        </section>
+export function Landing() {
+  const links = useDemoLinks();
 
-        {/* fig.4, the impact told as one story (review follow-up). It sits
-            after "Who it's for" so the reader meets the user first and then
-            follows one of them through a decision. Measured figures get bars
-            with their values on them; system properties are plain text. The
-            firm is a labelled composite. */}
-        <section className="story" aria-labelledby="storyh">
-          <div className="storysheet">
-            <div className="storyhead">
-              <div>
-                <div className="eyebrow">{S.fig}</div>
-                <h2 id="storyh">{S.title}</h2>
-              </div>
-              <p className="illus">{S.label}</p>
-            </div>
-            <PhoneFold summary={L.foldStory(Object.values(S.beats))}>
-            <ol className="beats">
-              <li className="beat">
-                <span className="bn">
-                  <b>1</b>
-                  {S.beats.decision}
-                </span>
-                <div className="bc">
-                  {S.decision.map((t) => (
-                    <p key={t} className="read">
-                      {t}
-                    </p>
-                  ))}
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>2</b>
-                  {S.beats.oldWay}
-                </span>
-                <div className="bc">
-                  <p className="read">{S.oldWayLead}</p>
-                  <div className="cmp">
-                    <div className="cmphead dimn" aria-hidden="true">
-                      <span>
-                        <i className="bw" />
-                        {S.keyBefore}
-                      </span>
-                      <span>
-                        <i className="bu" />
-                        {S.keyAfter}
-                      </span>
-                    </div>
-                    {S.rows.map((r) => (
-                      <div key={r.label} className="cmprow">
-                        <span className="eyebrow">{r.label}</span>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className="bw" />
-                          </span>
-                          <span className="val">
-                            <b>{r.before}</b> {r.beforeNote}
-                          </span>
-                        </div>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className="bu" style={{ width: `max(2px, ${(r.ratio * 100).toFixed(6)}%)` }} />
-                          </span>
-                          <span className="val">
-                            <b className="ok">{r.after}</b> {r.afterNote}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="dimn">{S.minBar}</div>
-                  </div>
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>3</b>
-                  {S.beats.withUnde}
-                </span>
-                <div className="bc">
-                  {S.withUnde.map((t, i) => (
-                    <p key={t} className="read">
-                      {t}
-                      {i === 1 ? (
-                        <>
-                          {" "}
-                          {S.withUndeRuling} <RulingLink id="N345938" />.
-                        </>
-                      ) : null}
-                    </p>
-                  ))}
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>4</b>
-                  {S.beats.outcome}
-                </span>
-                <div className="bc">
-                  <p className="read">{S.outcomeLead}</p>
-                  <div className="cmp">
-                    <div className="cmphead dimn" aria-hidden="true">
-                      {S.dutyHead}
-                    </div>
-                    {S.duty.map((d) => (
-                      <div key={d.country} className="cmprow">
-                        <span className="eyebrow">
-                          <Flag c={d.country} /> {d.country} origin · {d.rate}
-                        </span>
-                        <div className="bar">
-                          <span className="bt" aria-hidden="true">
-                            <i className={d.country === "China" ? "bw" : "bu"} style={{ width: `${(d.share / S.duty[0].share) * 100}%` }} />
-                          </span>
-                          <span className="val">
-                            <b className={d.country === "China" ? undefined : "ok"}>{d.value}</b> {d.sum}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <ul className="sums read">
-                    <li>{S.dutyGap}</li>
-                    <li>{S.dutyCost}</li>
-                    <li>
-                      <b>{S.dutyNet}</b>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li className="beat">
-                <span className="bn">
-                  <b>5</b>
-                  {S.beats.broker}
-                </span>
-                <div className="bc">
-                  <ul className="todo read">
-                    {S.broker.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            </ol>
-            </PhoneFold>
-            <div className="storyfoot">
-              <span>{S.sources}</span>
-              <span>{copy.name} · sheet 04</span>
-            </div>
+  return (
+    <div className="lp">
+      <main id="main">
+        <section className="lp-hero" aria-labelledby="landing-title">
+          <p className="lp-figure-label">U.S. customs origin</p>
+          <h1 id="landing-title">{L.title}</h1>
+          <p className="lp-hero-prop">{L.sub}</p>
+          <div className="lp-hero-actions">
+            <ButtonLink href={links.tour}>{L.demo}</ButtonLink>
+            <ButtonLink href="/cases/new" variant="ghost">{copy.cases.newCase}</ButtonLink>
+            <a href="#proof" className="lp-hero-jump">See the benchmarks ↓</a>
           </div>
         </section>
+
+        <HeatGunCase />
+        <section className="lp-section" id="how-it-works" aria-labelledby="f2h">
+          <div className="lp-section-head">
+            <span className="lp-figure-label">Fig. 2</span>
+            <h2 id="f2h">How it works</h2>
+          </div>
+          <JudgeTabs label="How it works" items={workflow} />
+        </section>
+        <JudgeProof />
+        <JudgeImpact />
+        <JudgePersonas demoHref={links.demo} compareHref={links.compare} />
       </main>
+
       <footer className="lpfoot">
-        <span>{L.footerDisclaimer}</span>
-        <span>{L.built}</span>
-        <a href={L.repo} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-        <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">
-          {L.roadmap}
-        </a>
-        <Link href="/method">{copy.method.footer}</Link>
-        <Link href="/developers">{copy.nav.api}</Link>
-        <Link href="/privacy">{copy.legal.footer.privacy}</Link>
-        <Link href="/terms">{copy.legal.footer.terms}</Link>
+        <p>{L.footerDisclaimer}</p>
+        <nav aria-label="More about Unde Labs">
+          <a href={L.repo} target="_blank" rel="noreferrer">GitHub</a>
+          <a href={`${L.repo}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">{L.roadmap}</a>
+          <Link href="/method">{copy.method.footer}</Link>
+          <Link href="/developers">{copy.nav.api}</Link>
+          <Link href="/privacy">{copy.legal.footer.privacy}</Link>
+          <Link href="/terms">{copy.legal.footer.terms}</Link>
+        </nav>
       </footer>
     </div>
   );
