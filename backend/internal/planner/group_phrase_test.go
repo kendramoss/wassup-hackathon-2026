@@ -258,3 +258,45 @@ func TestDescribeDropsAbsentItemsWithIngWords(t *testing.T) {
 		}
 	}
 }
+
+// #651: a one-word item that names a process ("sewing", "machining",
+// "finishing") is work, not a part, so it stays in the plan sentence even
+// when no part's name contains it. The D660 plush fixture read "Move the
+// plush cutting to Vietnam" and left out the sewing that CBP held decisive
+// with the cutting in N343777 scenario 2.
+func TestDescribeKeepsOneWordProcesses(t *testing.T) {
+	tms, err := LoadTemplates()
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join("..", "..", "testdata", "families", "plush_dinosaur_2024.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fx struct {
+		Family  string         `json:"family"`
+		Product domain.Product `json:"product"`
+	}
+	if err := json.Unmarshal(b, &fx); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := Describe(fx.Product, tms[fx.Family], domain.Move{{Group: "plush_shell_cut_sew", ToPlant: "vn"}}), "Move the plush cutting and sewing to Vietnam"; got != want {
+		t.Errorf("plush: %q, want %q", got, want)
+	}
+
+	plants := []domain.Plant{{ID: "cn", Country: "China"}, {ID: "vn", Country: "Vietnam"}}
+	p := domain.Product{Plants: plants, Components: []domain.Component{
+		{Name: "Heat-treated steel jaw", MadeIn: "China", Plant: "cn", Group: "machining_and_treatment"},
+	}}
+	if got, want := Describe(p, tms["hand_tools"], domain.Move{{Group: "machining_and_treatment", ToPlant: "vn"}}), "Move the machining, heat treatment and finishing to Vietnam"; got != want {
+		t.Errorf("hand tool: %q, want %q", got, want)
+	}
+
+	// A one-word item that names a thing is still dropped when no part fits it.
+	p = domain.Product{Plants: plants, Components: []domain.Component{
+		{Name: "Main printed circuit board", MadeIn: "China", Plant: "cn", Group: "pcba_and_sensors"},
+	}}
+	if got, want := Describe(p, tms["medical_devices"], domain.Move{{Group: "pcba_and_sensors", ToPlant: "vn"}}), "Move the PCBA to Vietnam"; got != want {
+		t.Errorf("PCBA only: %q, want %q", got, want)
+	}
+}
