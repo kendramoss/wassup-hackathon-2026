@@ -115,7 +115,8 @@ func (a *api) partsHTSSuggest(w http.ResponseWriter, r *http.Request) {
 		}
 		a.d.Logger.WarnContext(r.Context(), "parts hts reasons failed; ruling candidates without reasons", "request_id", requestRef(r.Context()), "err", logsafe.Err(err))
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"parts": res.Parts, "good": res.Good, "note": res.Note,
+	flagged := hts.FlagImplausible(&res, p) // D471: flags, never removes
+	writeJSON(w, http.StatusOK, map[string]any{"parts": res.Parts, "good": res.Good, "note": res.Note, "flagged": flagged,
 		"reasons_unavailable": res.ReasonsUnavailable, "trace": res.Trace, "llm_provider": a.d.Provider,
 		"prompt_version": hts.PartsPromptVersion, "max_parts": hts.MaxParts, "disclaimer": domain.Disclaimer})
 }

@@ -2,6 +2,474 @@
  "rules": "docs/DECISIONS.md D450",
  "products": 14,
  "runs": {
+  "fixcheck-d470-local-attempt1": {
+   "note": "Fix check (D470), first attempt, not a score: the changed agent on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini against a local server built from this branch, products a03, a04, a06, a10, a12, 22 Nov 2026 about 08:59-09:01 +08:00. The local server's daily spend cap (0.35 USD) gives one client 10% of it by default, so after about 0.05 USD of server model calls it refused further calls and every run stopped early on a tool error. Kept as run; it tests none of the issues. The second attempt is fixcheck-d470-local.",
+   "file": "eval/agent/results/fixcheck-d470-local-attempt1.jsonl",
+   "aggregate": {
+    "runs": 5,
+    "completed": 5,
+    "order_ok": 1,
+    "args_ok": 1,
+    "origin_consistent": [
+     2,
+     2
+    ],
+    "cites_tool_ruling": 2,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 5,
+    "disclaimer_lenient": 5,
+    "target_plant_added": [
+     0,
+     2
+    ],
+    "pass_all": 1,
+    "gold_agree": [
+     2,
+     2
+    ],
+    "gold_source_in_precedents": 2,
+    "gold_source_in_answer": 2,
+    "wall_s": {
+     "median": 47.1,
+     "max": 53.9,
+     "min": 7.8
+    },
+    "cost_usd": {
+     "total": 0.0973,
+     "per_run_mean": 0.0195,
+     "per_run_max": 0.0295
+    }
+   },
+   "scored": [
+    {
+     "id": "a03",
+     "run": "fixcheck-d470-local-attempt1",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "predict_origin"
+     ],
+     "wall_s": 47.1,
+     "cost_usd": 0.019743,
+     "model_calls": 3,
+     "gold": null,
+     "pass": false
+    },
+    {
+     "id": "a04",
+     "run": "fixcheck-d470-local-attempt1",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Indonesia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "plan_production_moves"
+     ],
+     "wall_s": 53.9,
+     "cost_usd": 0.029455,
+     "model_calls": 5,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "Indonesia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a06",
+     "run": "fixcheck-d470-local-attempt1",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "suggest_part_hts"
+     ],
+     "wall_s": 49.6,
+     "cost_usd": 0.026022,
+     "model_calls": 4,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false
+    },
+    {
+     "id": "a10",
+     "run": "fixcheck-d470-local-attempt1",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing predict_origin",
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": false,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "extract_product"
+     ],
+     "wall_s": 7.8,
+     "cost_usd": 0.012146,
+     "model_calls": 2,
+     "gold": null,
+     "pass": false
+    },
+    {
+     "id": "a12",
+     "run": "fixcheck-d470-local-attempt1",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product"
+     ],
+     "order_ok": false,
+     "order_issues": [
+      "missing predict_origin",
+      "missing plan_production_moves"
+     ],
+     "args_ok": false,
+     "arg_issues": [],
+     "target_plant_added": false,
+     "predicted": null,
+     "origin_consistent": null,
+     "cites_tool_ruling": false,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "extract_product"
+     ],
+     "wall_s": 8.4,
+     "cost_usd": 0.009929,
+     "model_calls": 2,
+     "gold": null,
+     "pass": false
+    }
+   ]
+  },
+  "fixcheck-d470-local": {
+   "note": "Fix check (D470), not a score and not pooled with D451: the changed agent on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini against a local server built from this branch (engine, router and verifier on Gemini 3.8 Flash through the same gateway; local server spend cap 0.30 USD), products a03, a04, a06, a10, a12 once each, 22 Nov 2026 about 09:02-09:05 +08:00. a10's plan search hit that cap, so a10 tests nothing; see D472 for the per-issue reading.",
+   "file": "eval/agent/results/fixcheck-d470-local.jsonl",
+   "aggregate": {
+    "runs": 5,
+    "completed": 5,
+    "order_ok": 5,
+    "args_ok": 3,
+    "origin_consistent": [
+     5,
+     5
+    ],
+    "cites_tool_ruling": 5,
+    "runs_with_invented_rulings": 0,
+    "disclaimer": 5,
+    "disclaimer_lenient": 5,
+    "target_plant_added": [
+     2,
+     2
+    ],
+    "pass_all": 3,
+    "gold_agree": [
+     5,
+     5
+    ],
+    "gold_source_in_precedents": 5,
+    "gold_source_in_answer": 5,
+    "wall_s": {
+     "median": 98.5,
+     "max": 116.2,
+     "min": 78.2
+    },
+    "cost_usd": {
+     "total": 0.1751,
+     "per_run_mean": 0.035,
+     "per_run_max": 0.0452
+    }
+   },
+   "scored": [
+    {
+     "id": "a03",
+     "run": "fixcheck-d470-local",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": null,
+     "predicted": "Cambodia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "suggest_part_hts"
+     ],
+     "wall_s": 98.5,
+     "cost_usd": 0.04522,
+     "model_calls": 7,
+     "gold": {
+      "cbp": "Cambodia",
+      "predicted": "Cambodia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false
+    },
+    {
+     "id": "a04",
+     "run": "fixcheck-d470-local",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": null,
+     "predicted": "Indonesia",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 85.0,
+     "cost_usd": 0.038529,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Indonesia",
+      "predicted": "Indonesia",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a06",
+     "run": "fixcheck-d470-local",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": false,
+     "arg_issues": [
+      "export without move_key or plan_index"
+     ],
+     "target_plant_added": null,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [],
+     "wall_s": 78.2,
+     "cost_usd": 0.03029,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": false
+    },
+    {
+     "id": "a10",
+     "run": "fixcheck-d470-local",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 0,
+     "tool_errors": [
+      "plan_production_moves"
+     ],
+     "wall_s": 106.5,
+     "cost_usd": 0.031255,
+     "model_calls": 5,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    },
+    {
+     "id": "a12",
+     "run": "fixcheck-d470-local",
+     "model": "gemini-3.8-flash",
+     "mcp": "local",
+     "tools": [
+      "extract_product",
+      "predict_origin",
+      "suggest_part_hts",
+      "plan_production_moves",
+      "export_ruling_request_draft"
+     ],
+     "order_ok": true,
+     "order_issues": [],
+     "args_ok": true,
+     "arg_issues": [],
+     "target_plant_added": true,
+     "predicted": "Vietnam",
+     "origin_consistent": true,
+     "cites_tool_ruling": true,
+     "invented_rulings": [],
+     "disclaimer": true,
+     "disclaimer_lenient": true,
+     "completed": true,
+     "error": null,
+     "plans_shown": 2,
+     "tool_errors": [],
+     "wall_s": 116.2,
+     "cost_usd": 0.029805,
+     "model_calls": 6,
+     "gold": {
+      "cbp": "Vietnam",
+      "predicted": "Vietnam",
+      "agree": true,
+      "source_ruling_in_precedents": true,
+      "source_ruling_in_answer": true
+     },
+     "pass": true
+    }
+   ]
+  },
   "live-gemini-3.8-flash-undelabs": {
    "note": "Scored run (D450): the agent from examples/adk-agent, unchanged, on Gemini 3.8 Flash through an OpenAI-compatible LiteLLM gateway to Gemini, against https://undelabs.dev/mcp anonymously, on products a01-a12, one run each, three at a time, 22 Nov 2026 08:10-08:35 +08:00. Each run made one anonymous case and one plan search; the tools' own model calls ran on Unde's side and are not in the cost.",
    "file": "eval/agent/results/live-gemini-3.8-flash-undelabs.jsonl",

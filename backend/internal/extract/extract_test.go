@@ -73,3 +73,28 @@ func TestExtractNeedsFacts(t *testing.T) {
 		t.Error("empty facts accepted")
 	}
 }
+
+// D470: a name longer than the MCP product schema allows (D451's a06 had a
+// 203-character operation) is cut at a word boundary, with a warning, so the
+// draft can go to predict_origin as returned.
+func TestExtractShortensLongNames(t *testing.T) {
+	long := "grinding, turning, demagnetising and heat treating the rings to form the raceways, drilling and tapping the flange holes, and press-fitting the rings with the balls, cage, seals, grease and magnetic ring"
+	if n := len([]rune(long)); n <= MaxNameRunes {
+		t.Fatalf("fixture is %d runes", n)
+	}
+	r := strings.Replace(reply, `"press fit the fan to the motor"`, `"`+long+`"`, 1)
+	d, err := New(llm.FakeText(r), "m").Extract(context.Background(), facts, "", tmpl(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := d.Product.Operations[0].Name
+	if n := len([]rune(got)); n > MaxNameRunes || n < MaxNameRunes/2 || !strings.HasPrefix(long, got) || strings.HasSuffix(got, ",") {
+		t.Errorf("shortened name (%d runes) %q", n, got)
+	}
+	if !strings.Contains(strings.Join(d.Warnings, " | "), "was shortened to") {
+		t.Errorf("no warning: %v", d.Warnings)
+	}
+	if s, cut := shortName("motor"); cut || s != "motor" {
+		t.Error("a short name was changed")
+	}
+}

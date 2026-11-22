@@ -127,7 +127,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": cmp.Ranked})
+	a.respond(w, http.StatusOK, map[string]any{"case_id": c.ID, "targets": withTargetPlanIDs(cmp.Ranked)})
 }
 
 // Target statuses, best first.

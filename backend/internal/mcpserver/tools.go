@@ -101,7 +101,7 @@ Returns: product, plants, warnings and follow-up questions. Takes about 15 s. RE
 Use it after predict_origin when the user asks how to get a different origin (for example to lower duties).
 Input: case_id and target_country. The case needs a structured product with a family, and plants in the target country with capabilities.
 If a call times out, call again with the same input: the server joins the search still running instead of starting another. Pass the same idempotency_key on a retry to also get a search that has already finished (kept 15 minutes).
-Returns: precedent-supported plans (move, predicted origin, supporting ruling, check confidence, yearly figures when the case has economics), and rejected moves with reasons. Plans are precedent-supported at most, never approved.
+Returns: precedent-supported plans (move, predicted origin, supporting ruling, check confidence, yearly figures when the case has economics), and rejected moves with reasons. Each plan has a plan_id (its move key) and, for shown plans, a plan_index counted from 0; pass the plan_id to export_ruling_request_draft. When no plan is shown, no move is supported by an earlier ruling: do not say that a move changes the origin. Plans are precedent-supported at most, never approved.
 Not a ruling: confirm with a licensed customs broker. REST: POST /v1/cases/{id}/plan (operationId planCase).`,
 		InputSchema: object("", []string{"case_id", "target_country"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
@@ -193,14 +193,15 @@ REST: GET /v1/cases (operationId listCases).`,
 		Name: "export_ruling_request_draft",
 		Description: `Draft a CBP binding-ruling request letter (Markdown) for a case, for a customs broker to review and complete. A preview: nothing is recorded on the case.
 Use it when the user wants to ask CBP for a binding ruling on the current setup or on a plan.
-Input: case_id; optional plan_index (a shown plan of the latest plan search), or target with move_key (a plan from compare_target_countries); format markdown (short) or cfr177 (19 C.F.R. 177.2 layout with [FILL IN] gaps, when the server enables it).
+Input: case_id; to draft a plan, its plan_id from plan_production_moves (or plan_index, counted from 0: 0 is the first shown plan), or target with plan_id for a plan from compare_target_countries; format markdown (short) or cfr177 (19 C.F.R. 177.2 layout with [FILL IN] gaps, when the server enables it). With no plan_id, plan_index or move_key the draft is for the current setup: the right call when the plan search showed no plan.
 Returns the letter text and reviewer notes. It is a draft: a licensed customs broker must review it. REST: POST /v1/cases/{id}/export (operationId exportCase).`,
 		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
 			"format":          enum("markdown (default) or cfr177.", "markdown", "cfr177"),
-			"plan_index":      integer("Index into the latest plan search's shown plans; omit for the current setup.", 0, 100),
-			"target":          country("With move_key: the country of a compare_target_countries search."),
-			"move_key":        str("A plan's move key, e.g. motor_fan_assembly@th+pcba@th.", 1, 300),
+			"plan_id":         str("A plan's plan_id as plan_production_moves or compare_target_countries returned it, e.g. motor_fan_assembly@th+pcba@th. Omit plan_id, plan_index and move_key for the current setup.", 1, 300),
+			"plan_index":      integer("0-based position in the latest plan search's shown plans: 0 is the first plan. Prefer plan_id. Not with plan_id.", 0, 100),
+			"target":          country("With plan_id (or move_key): the country of a compare_target_countries search."),
+			"move_key":        str("The same value as plan_id (the older name).", 1, 300),
 			"case_access_key": accessKey(),
 		}),
 		Annotations: readOnly("Draft a ruling request", false),
@@ -209,15 +210,16 @@ Returns the letter text and reviewer notes. It is a draft: a licensed customs br
 	add(s, &mcp.Tool{
 		Name: "create_broker_review_link",
 		Description: `Make a link a licensed customs broker opens without an account to review one ruling-request draft of a case, and approve it, request changes or mark it to file as a binding ruling request.
-Use it when the user wants their broker to check the draft. Input: case_id; optional plan_index (a shown plan of the latest plan search), or target with move_key; format; expires_in_days (default 14, 1 to 30).
+Use it when the user wants their broker to check the draft. Input: case_id; optional plan_id (or plan_index, counted from 0), or target with plan_id; none of them for the current setup; format; expires_in_days (default 14, 1 to 30).
 Returns review_path (/review#<token> on the Unde web app; the token is the URL fragment, never sent to a server) and the token, shown once: Unde stores only a hash, so it cannot be shown again. Anyone holding the link can read that one draft until it expires or is revoked; share it with the broker only. The draft is frozen when the link is made. Follow up with get_broker_review_status.
 Not a ruling: the broker's answer is their professional view, not CBP's. REST: POST /v1/cases/{id}/reviews (operationId createBrokerReviewLink).`,
 		InputSchema: object("", []string{"case_id"}, map[string]*jsonschema.Schema{
 			"case_id":         caseID(),
 			"format":          enum("markdown (default) or cfr177.", "markdown", "cfr177"),
-			"plan_index":      integer("Index into the latest plan search's shown plans; omit for the current setup.", 0, 100),
-			"target":          country("With move_key: the country of a compare_target_countries search."),
-			"move_key":        str("A plan's move key, e.g. motor_fan_assembly@th+pcba@th.", 1, 300),
+			"plan_id":         str("A plan's plan_id as plan_production_moves or compare_target_countries returned it, e.g. motor_fan_assembly@th+pcba@th. Omit plan_id, plan_index and move_key for the current setup.", 1, 300),
+			"plan_index":      integer("0-based position in the latest plan search's shown plans: 0 is the first plan. Prefer plan_id. Not with plan_id.", 0, 100),
+			"target":          country("With plan_id (or move_key): the country of a compare_target_countries search."),
+			"move_key":        str("The same value as plan_id (the older name).", 1, 300),
 			"expires_in_days": integer("Days until the link stops working (default 14).", 1, 30),
 			"case_access_key": accessKey(),
 		}),
@@ -303,6 +305,7 @@ type exportIn struct {
 	CaseID    string `json:"case_id"`
 	Format    string `json:"format,omitempty"`
 	PlanIndex *int   `json:"plan_index,omitempty"`
+	PlanID    string `json:"plan_id,omitempty"`
 	Target    string `json:"target,omitempty"`
 	MoveKey   string `json:"move_key,omitempty"`
 	AccessKey string `json:"case_access_key,omitempty"`
@@ -312,6 +315,7 @@ type createReviewIn struct {
 	CaseID        string `json:"case_id"`
 	Format        string `json:"format,omitempty"`
 	PlanIndex     *int   `json:"plan_index,omitempty"`
+	PlanID        string `json:"plan_id,omitempty"`
 	Target        string `json:"target,omitempty"`
 	MoveKey       string `json:"move_key,omitempty"`
 	ExpiresInDays *int   `json:"expires_in_days,omitempty"`
@@ -426,10 +430,18 @@ func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallT
 			fmt.Fprintf(&b, "\n... %d more in plan.plans.", len(plans)-5)
 			break
 		}
-		fmt.Fprintf(&b, "\n%d. %s", i+1, planLine(obj(x)))
+		p := obj(x)
+		p["plan_index"] = i
+		fmt.Fprintf(&b, "\n- plan_id %s (plan_index %d): %s", str0(p["plan_id"], "?"), i, planLine(p))
 	}
-	if len(plans) == 0 && len(rejected) > 0 {
-		fmt.Fprintf(&b, "\nClosest rejected: %s", planLine(obj(rejected[0])))
+	if len(plans) > 0 {
+		b.WriteString("\nTo draft a plan, pass its plan_id to export_ruling_request_draft.")
+	} else {
+		b.WriteString("\n" + NoPlanLine)
+		if len(rejected) > 0 {
+			fmt.Fprintf(&b, "\nClosest rejected: %s", planLine(obj(rejected[0])))
+		}
+		b.WriteString("\nTo draft for the current setup, call export_ruling_request_draft without plan_id, plan_index or move_key.")
 	}
 	if rc := obj(obj(pl["baseline"])["rule_check"]); len(rc) > 0 {
 		b.WriteString("\nThe 19 CFR 102.20 rule check on each move (rule_check) is display only: it never changes which plans are shown or their order.")
@@ -439,6 +451,11 @@ func (t tools) plan(ctx context.Context, hdr http.Header, in planIn) (*mcp.CallT
 	}
 	return done(b.String(), out)
 }
+
+// NoPlanLine is what plan_production_moves says when it shows no plan
+// (D470): the agent evaluation (D451, a03) saw an agent claim a move
+// would change the origin after a search that supported none.
+const NoPlanLine = "No move is supported by an earlier ruling; do not claim a move changes origin."
 
 func (t tools) compare(ctx context.Context, hdr http.Header, in compareIn) (*mcp.CallToolResult, any, error) {
 	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/compare-targets"), body: map[string]any{"targets": in.Targets}, access: in.AccessKey})
@@ -452,7 +469,7 @@ func (t tools) compare(ctx context.Context, hdr http.Header, in compareIn) (*mcp
 		ts := obj(x)
 		fmt.Fprintf(&b, "\n%v. %v: %v", ts["rank"], ts["target"], ts["status"])
 		if best := obj(ts["best"]); len(best) > 0 {
-			fmt.Fprintf(&b, ". Best: %s", planLine(best))
+			fmt.Fprintf(&b, ". Best: plan_id %s: %s", str0(best["plan_id"], "?"), planLine(best))
 		}
 	}
 	return done(b.String(), out)
@@ -670,6 +687,9 @@ func (t tools) export(ctx context.Context, hdr http.Header, in exportIn) (*mcp.C
 	if in.MoveKey != "" {
 		body["move_key"] = in.MoveKey
 	}
+	if in.PlanID != "" {
+		body["plan_id"] = in.PlanID
+	}
 	res, err := t.call(ctx, hdr, apiCall{method: "POST", path: casePath(in.CaseID, "/export"), body: body, access: in.AccessKey})
 	if err != nil || !res.ok() {
 		return failed(res, err)
@@ -699,6 +719,9 @@ func (t tools) createReview(ctx context.Context, hdr http.Header, in createRevie
 	}
 	if in.MoveKey != "" {
 		body["move_key"] = in.MoveKey
+	}
+	if in.PlanID != "" {
+		body["plan_id"] = in.PlanID
 	}
 	if in.ExpiresInDays != nil {
 		body["expires_in_days"] = *in.ExpiresInDays

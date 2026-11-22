@@ -1,0 +1,127 @@
+{
+ "_source": "D471: hts.PlausibilityNote on the committed per-part suggestion rows (eval/tariffshift/parts, D381/D382), gold by D381's rule. Family rows take the fixture's family; Part 102 rows have none and use the good's top suggestion as the product's chapter. Recomputed by backend/internal/hts/plausible_eval_test.go (go test).",
+ "cells": {
+  "dev": {
+   "family": {
+    "products": 23,
+    "parts": 200,
+    "candidates": 380,
+    "flagged": 0,
+    "flagged_far_from_family": 0,
+    "flagged_far_from_product_chapter": 0,
+    "flagged_material": 0,
+    "parts_with_every_code_flagged": 0,
+    "gold_parts": 2,
+    "gold_part_candidates": 4,
+    "gold_part_candidates_wrong": 2,
+    "gold_part_candidates_flagged": 0,
+    "flagged_and_wrong": 0,
+    "flagged_but_right": 0,
+    "wrong_not_flagged": 2,
+    "gold_part_top1_flagged": 0
+   },
+   "usmca": {
+    "products": 69,
+    "parts": 393,
+    "candidates": 680,
+    "flagged": 0,
+    "flagged_far_from_family": 0,
+    "flagged_far_from_product_chapter": 0,
+    "flagged_material": 0,
+    "parts_with_every_code_flagged": 0,
+    "gold_parts": 27,
+    "gold_part_candidates": 41,
+    "gold_part_candidates_wrong": 13,
+    "gold_part_candidates_flagged": 0,
+    "flagged_and_wrong": 0,
+    "flagged_but_right": 0,
+    "wrong_not_flagged": 13,
+    "gold_part_top1_flagged": 0
+   }
+  },
+  "final": {
+   "usmca": {
+    "products": 29,
+    "parts": 245,
+    "candidates": 424,
+    "flagged": 5,
+    "flagged_far_from_family": 0,
+    "flagged_far_from_product_chapter": 5,
+    "flagged_material": 0,
+    "parts_with_every_code_flagged": 3,
+    "gold_parts": 3,
+    "gold_part_candidates": 4,
+    "gold_part_candidates_wrong": 2,
+    "gold_part_candidates_flagged": 0,
+    "flagged_and_wrong": 0,
+    "flagged_but_right": 0,
+    "wrong_not_flagged": 2,
+    "gold_part_top1_flagged": 0
+   }
+  }
+ },
+ "flagged": {
+  "final": [
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "1704.90.10",
+    "note": "Chapter 17 (sugars and sugar confectionery) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "1704.90.10",
+    "note": "Chapter 17 (sugars and sugar confectionery) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "2008.11.60",
+    "note": "Chapter 20 (vegetable and fruit preparations) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "nuts",
+    "hts": "2008.11.60",
+    "note": "Chapter 20 (vegetable and fruit preparations) is far from the product's chapter 84; check this code."
+   },
+   {
+    "ruling": "N359001",
+    "set": "usmca",
+    "part": "temperature transmitters",
+    "hts": "2106.90",
+    "note": "Chapter 21 (miscellaneous food preparations) is far from the product's chapter 84; check this code."
+   }
+  ]
+ },
+ "families": {
+  "H304679": "led_lights",
+  "H339955": "water_filters",
+  "H345343": "furniture",
+  "N333453": "medical_devices",
+  "N335263": "led_lights",
+  "N349871": "vehicle_parts",
+  "N350058": "cables_harnesses",
+  "N350152": "medical_devices",
+  "N350310": "motorised_tools_small_appliances",
+  "N350383": "power_supplies_chargers",
+  "N350678": "furniture",
+  "N350727": "pcba_electronic_devices",
+  "N350769": "cables_harnesses",
+  "N350826": "water_filters",
+  "N351922": "motorised_tools_small_appliances",
+  "N352073": "vehicle_parts",
+  "N352223": "display_camera_modules",
+  "N352230": "pcba_electronic_devices",
+  "N352355": "power_supplies_chargers",
+  "N352429": "hand_tools",
+  "N354175": "display_camera_modules",
+  "N354220": "hand_tools",
+  "N354448": "gas_grills_cooking"
+ }
+}

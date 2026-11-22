@@ -72,8 +72,8 @@ func (t tools) registerPrompts(s *mcp.Server) {
 
 1. Call extract_product with the product text, and show me the parts and plants it found. Ask me about anything it flags.
 2. Call predict_origin with the facts and the reviewed product. Tell me the likely origin, the confidence and the cited CBP rulings.
-3. Call plan_production_moves with the case id and %s. Summarise the precedent-supported plans and why the closest rejected moves failed.
-4. Offer export_ruling_request_draft for the best plan.
+3. Call plan_production_moves with the case id and %s. Summarise the precedent-supported plans and why the closest rejected moves failed. If it shows no plan, say that no move is supported by an earlier ruling and do not say any move changes the origin.
+4. Offer export_ruling_request_draft for the best plan, with its plan_id (or, with no plan, for the current setup: no plan_id).
 
 Say clearly that these are predictions, not rulings, and that a licensed customs broker or a CBP binding ruling must confirm them.
 

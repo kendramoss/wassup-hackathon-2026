@@ -68,17 +68,17 @@ const tools: [string, string][] = [
   ["predict_origin", "Predict the origin from facts or a structured product. Starts a case."],
   ["extract_product", "Turn a description into a structured product to check."],
   ["extract_product_from_media", "Read a photo or scan of a bill of materials into a draft product."],
-  ["plan_production_moves", "Search production moves for a case and check each against earlier rulings."],
+  ["plan_production_moves", "Search production moves for a case and check each against earlier rulings. Each plan has a plan_id."],
   ["compare_target_countries", "Run one plan search per country (2 to 4) and rank them."],
   ["search_rulings", "Search the CBP rulings Unde reads."],
   ["get_ruling", "Fetch one CBP ruling."],
   ["get_duty_rates", "Look up the duty rates Unde uses for a tariff code."],
   ["get_case", "Read a case."],
   ["list_cases", "List your cases and the demos."],
-  ["export_ruling_request_draft", "Preview the draft ruling request for a broker."],
+  ["export_ruling_request_draft", "Preview the draft ruling request for a broker: a plan by its plan_id, or the current setup with none."],
   ["create_broker_review_link", "Make a link your broker opens to approve the draft or ask for changes."],
   ["get_broker_review_status", "Read the broker's answer and comments on each link."],
-  ["suggest_part_hts", "Suggest HTS codes for each part, each marked as from an earlier ruling or the model's reading, so the tariff-shift rule check can run."],
+  ["suggest_part_hts", "Suggest HTS codes for each part, each marked as from an earlier ruling or the model's reading, so the tariff-shift rule check can run. A code whose chapter looks wrong for the product is marked to check."],
 ];
 
 // The MCP one-liners wrap on a phone so the whole command shows.

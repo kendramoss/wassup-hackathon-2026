@@ -164,6 +164,17 @@ type Plan struct {
 	// never stored; it does not change Shown, the verdict or the ranking.
 	// Absent when the product does not give the codes the check needs.
 	RuleCheck *PlanRuleCheck `json:"rule_check,omitempty"`
+	// PlanID is the plan's stable identifier, its move key (D470): pass it
+	// as plan_id (or move_key) to export or a broker review link. Added when
+	// a plan is returned or read, like RuleCheck, and never stored. Absent
+	// on the baseline (no move).
+	PlanID string `json:"plan_id,omitempty"`
+}
+
+// WithID is p with PlanID set from its move (a copy).
+func (p Plan) WithID() Plan {
+	p.PlanID = p.Move.Key()
+	return p
 }
 
 // PlanRuleCheck is the 102.20 rule check of one move (D441).

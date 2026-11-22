@@ -31,6 +31,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 3,
+     "plan_id": "motor_fan_assembly@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -229,6 +230,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 3,
+     "plan_id": "motor_fan_assembly@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -282,6 +284,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 1,
+     "plan_id": "pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -340,6 +343,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "motor_fan_assembly@th+pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -397,6 +401,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 6,
+     "plan_id": "motor_fan_assembly@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -454,6 +459,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 6,
+     "plan_id": "motor_fan_assembly@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -511,6 +517,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -568,6 +575,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -629,6 +637,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 7,
+     "plan_id": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -690,6 +699,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 7,
+     "plan_id": "motor_fan_assembly@th+pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -783,6 +793,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -823,6 +834,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -867,6 +879,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1334,6 +1347,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 3,
+      "plan_id": "motor_fan_assembly@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -1460,6 +1474,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 3,
+     "plan_id": "motor_fan_assembly@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1513,6 +1528,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 1,
+     "plan_id": "pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1571,6 +1587,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "motor_fan_assembly@th+pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1628,6 +1645,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 6,
+     "plan_id": "motor_fan_assembly@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1685,6 +1703,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 6,
+     "plan_id": "motor_fan_assembly@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1742,6 +1761,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1799,6 +1819,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 4,
+     "plan_id": "pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1860,6 +1881,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 7,
+     "plan_id": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -1921,6 +1943,7 @@
      "net_per_year": 500000,
      "net_priced": true,
      "parts_moved": 7,
+     "plan_id": "motor_fan_assembly@th+pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -2014,6 +2037,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -2054,6 +2078,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -2098,6 +2123,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -2254,6 +2280,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 3,
+      "plan_id": "motor_fan_assembly@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2307,6 +2334,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 1,
+      "plan_id": "pcba@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2365,6 +2393,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 4,
+      "plan_id": "motor_fan_assembly@th+pcba@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2422,6 +2451,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 6,
+      "plan_id": "motor_fan_assembly@th+switch_cord_minor_parts@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2479,6 +2509,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 6,
+      "plan_id": "motor_fan_assembly@th+cord_knobs_covers@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2536,6 +2567,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 4,
+      "plan_id": "pcba@th+switch_cord_minor_parts@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2593,6 +2625,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 4,
+      "plan_id": "pcba@th+cord_knobs_covers@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2654,6 +2687,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 7,
+      "plan_id": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2715,6 +2749,7 @@
       "net_per_year": 500000,
       "net_priced": true,
       "parts_moved": 7,
+      "plan_id": "motor_fan_assembly@th+pcba@th+cord_knobs_covers@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2808,6 +2843,7 @@
       ],
       "net_per_year": 0,
       "net_priced": true,
+      "plan_id": "switch_cord_minor_parts@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2848,6 +2884,7 @@
       ],
       "net_per_year": 0,
       "net_priced": true,
+      "plan_id": "cord_knobs_covers@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2892,6 +2929,7 @@
       ],
       "net_per_year": 0,
       "net_priced": true,
+      "plan_id": "switch_cord_minor_parts@th+cord_knobs_covers@th",
       "prediction": {
        "cited_rulings": [
         "N350001"
@@ -2964,6 +3002,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3008,6 +3047,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3067,6 +3107,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3126,6 +3167,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th+pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3189,6 +3231,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th+pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3252,6 +3295,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th+pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3311,6 +3355,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "motor_fan_assembly@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3366,6 +3411,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "pcba@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3425,6 +3471,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "pcba@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3484,6 +3531,7 @@
      ],
      "net_per_year": 500000,
      "net_priced": true,
+     "plan_id": "pcba@th+switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3539,6 +3587,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th",
      "prediction": {
       "cited_rulings": [
        "N350001"
@@ -3587,6 +3636,7 @@
      ],
      "net_per_year": 0,
      "net_priced": true,
+     "plan_id": "switch_cord_minor_parts@th+cord_knobs_covers@th",
      "prediction": {
       "cited_rulings": [
        "N350001"

@@ -64,8 +64,13 @@ Work in this order and call each tool once unless a call fails:
    "<case_id>-plan-<target country>" (no spaces). If the call times out, call it again with
    the same input and key: the server joins the search already running. Report the best plan: which
    groups move, the predicted origin after the move, and why earlier rulings support it.
-5. export_ruling_request_draft for that plan (pass its move_key and the target, or its
-   plan_index). Give the draft's opening lines and say it is a draft for a broker to review.
+   If the search shows no precedent-supported plan, say only that: no move to the target country
+   is supported by an earlier ruling, so the predicted origin stands. Do not say or suggest that any
+   move would change the origin, and do not describe a rejected move as one that works.
+5. export_ruling_request_draft once. For a plan, pass its plan_id exactly as the plan search
+   returned it (plan_index, if you use it instead, counts from 0: 0 is the first plan). With no
+   plan, call it without plan_id or plan_index: that drafts the current setup. Give the draft's
+   opening lines and say it is a draft for a broker to review.
 
 Rules:
 - Without an API key, predict_origin returns a case_access_key. Pass it unchanged to every

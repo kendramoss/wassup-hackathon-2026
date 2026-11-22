@@ -1413,6 +1413,9 @@ type exportRequest struct {
 	// MoveKey picks a plan by move, among shown plans or rejected plans whose
 	// precedent check was below the bar.
 	MoveKey string `json:"move_key"`
+	// PlanID is a plan's plan_id as plan responses carry it (D470): the
+	// same value as its move key, accepted under either name.
+	PlanID string `json:"plan_id"`
 	// Target, with MoveKey, picks from that country's search in the latest
 	// country comparison instead of the latest plan search.
 	Target string `json:"target"`
@@ -1531,15 +1534,22 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	if c.CurrentOrigin != nil {
 		ex.CurrentRuled = strings.TrimSpace(c.CurrentOrigin.Country + " (" + c.CurrentOrigin.Ruling + ")")
 	}
+	switch id := strings.TrimSpace(in.PlanID); {
+	case id == "":
+	case in.MoveKey != "" && in.MoveKey != id:
+		return draftResult{}, fmt.Errorf("%w: plan_id and move_key name different plans; give one", domain.ErrInvalid)
+	default:
+		in.MoveKey = id
+	}
 	if in.PlanIndex != nil && in.MoveKey != "" {
-		return draftResult{}, fmt.Errorf("%w: give plan_index or move_key, not both", domain.ErrInvalid)
+		return draftResult{}, fmt.Errorf("%w: give plan_index or plan_id (move_key), not both", domain.ErrInvalid)
 	}
 	var chosen *domain.Plan
 	var chosenRes *planner.Result // the plan search chosen came from
 	switch {
 	case in.PlanIndex != nil:
 		if c.Plan == nil || *in.PlanIndex < 0 || *in.PlanIndex >= len(c.Plan.Plans) {
-			return draftResult{}, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan", domain.ErrInvalid, *in.PlanIndex)
+			return draftResult{}, fmt.Errorf("%w: plan_index %d: run a plan search first and pick a shown plan (plan_index starts at 0: 0 is the first shown plan)", domain.ErrInvalid, *in.PlanIndex)
 		}
 		chosen, chosenRes = &c.Plan.Plans[*in.PlanIndex], c.Plan
 	case in.MoveKey != "":
