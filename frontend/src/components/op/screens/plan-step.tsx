@@ -19,7 +19,7 @@ import { isCostRejection, netText } from "../ops-view";
 import { PrefillBar } from "../money-prefill";
 import { PlanRuleChip, PlanRuleNote, planRuleCaption } from "../plan-rule";
 import { EconomicsEditor, MoveIncludes, PlantDiagram, TierChip, agreementWords, andList, backtestView, checkWords, moveKey, movePhrase, partsMoved, rejectionLabels, smallestSupported, type ActualChangeExtras, type BacktestView } from "../plan-bits";
-import { planTemplateVersion } from "@/lib/families";
+import { families, planTemplateVersion } from "@/lib/families";
 import { planTarget } from "../plan-target";
 import { ReviewNote } from "../review-note";
 import { backtestState, type DemoChangeLookup } from "../plan-bits";
@@ -36,7 +36,69 @@ type Row = { key: string; description: string; plan?: Plan; started?: boolean; a
 function PlanScreen(ctx: CaseCtx) {
   const regime = regimeOf(ctx.c);
   if (regime) return <NoPlanForRegime id={ctx.id} label={regime.label} />;
+  // A case with parts but no plan template (no family, or a family the
+  // planner has no template for): the search would fail with backend text.
+  // A stored plan is still shown. A case with no parts keeps the "add parts
+  // and plants" hint below.
+  if (!ctx.c.plan && ctx.c.product?.components?.length && !hasPlanTemplate(ctx.c)) return <NoPlanTemplate id={ctx.id} family={ctx.c.family} />;
   return <PlanSearch {...ctx} />;
+}
+
+// The plan search needs a structured product and a family with a plan
+// template (backend planRequestFor, planner.ErrUnknownFamily). The families
+// list mirrors the backend's templates (scripts/families.test.mjs).
+export function hasPlanTemplate(c: Pick<CaseResponse, "product" | "family">): boolean {
+  return Boolean(c.product && c.family && families.some((f) => f.id === c.family));
+}
+
+// The backend's refusal for the same cases, for a case whose data the screen
+// could not judge (an older case, a family list behind the backend's).
+export function isNoTemplateError(e: unknown): boolean {
+  const m = e instanceof Error ? e.message : "";
+  return (e as { code?: string } | null)?.code === "invalid_input" && /plan search needs a case created from a structured product|unknown product family/.test(m);
+}
+
+// No plan template for this product: the next step is a ruling request for a
+// broker, or a new case with a family that has a template.
+export function NoPlanTemplate({ id, family }: { id: string; family?: string }) {
+  const stepNo = useStepLabel("plan", "Step 3 of 4");
+  return (
+    <>
+      <Main className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex flex-col gap-3">
+          <p className="eyebrow">{stepNo} · Plan</p>
+          <h1 className="text-xl tracking-[-0.04em]">No plan template for this product yet</h1>
+          <p className="duo max-w-[72ch] text-sm text-dim">
+            The plan search moves work between plants using a template of the product family&apos;s production steps. {family ? "This case's family has no template yet" : "This case has no product family"}, so
+            the search can&apos;t run here. Draft a ruling request for a broker to review the origin instead.
+          </p>
+        </div>
+        <NextSteps
+          steps={[{ label: "Draft for the current setup", href: `/cases/${encodeURIComponent(id)}/draft` }]}
+          suggestions={[{ label: "Start a new case with a product family", href: `/cases/new?from=${encodeURIComponent(id)}` }]}
+        />
+      </Main>
+      <Footer>
+        <Next>Draft the ruling request for a broker to review.</Next>
+        <div className="ml-auto">
+          <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`}>Draft for a broker →</ButtonLink>
+        </div>
+      </Footer>
+    </>
+  );
+}
+
+// The same next step inside the search screen, when the backend refused.
+function NoPlanTemplateNote({ id }: { id: string }) {
+  return (
+    <div role="status" className="border border-dashed border-guide bg-sheet px-4 py-3 text-[13px]">
+      <p className="duo font-medium text-ink">No plan template for this product yet.</p>
+      <p className="duo mt-1">The plan search can&apos;t run on this case. Draft a ruling request for a broker to review the origin instead.</p>
+      <ButtonLink href={`/cases/${encodeURIComponent(id)}/draft`} className="mt-2">
+        Draft for a broker →
+      </ButtonLink>
+    </div>
+  );
 }
 
 // Textile, USMCA and pharmaceutical cases: moves aren't modelled under those
@@ -411,7 +473,7 @@ function PlanSearch({ id, c, setCase }: CaseCtx) {
         <StartBand target={target} c={c} />
       )}
       <Main className="flex flex-col gap-8">
-        {error ? <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
+        {error ? isNoTemplateError(error) ? <NoPlanTemplateNote id={id} /> : <ErrorBox error={error} onRetry={run} demoTitle={c.display_name} /> : null}
         {result && !searching && stale && <StaleMoneyBanner kind="plan" onRun={run} readOnly={readOnly} busy={!req} />}
         {result && !searching && <ReviewNote place="plan" best={Boolean(best)} />}
         {!result && !searching && (

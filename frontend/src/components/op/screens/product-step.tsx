@@ -326,6 +326,9 @@ export function ProductStep() {
   const [busySince, setBusySince] = useState(0);
   const [stages, setStages] = useState<PredictStage[]>([]);
   const [error, setError] = useState<unknown>(null);
+  // "Turn into parts and plants" fails on its own: its retry re-runs the
+  // draft, never Find origin (judge panel round 16).
+  const [draftError, setDraftError] = useState<unknown>(null);
 
   useEffect(() => {
     if (!demoId) return;
@@ -430,7 +433,7 @@ export function ProductStep() {
 
   const draftParts = async () => {
     setDrafting({ since: Date.now() });
-    setError(null);
+    setDraftError(null);
     try {
       const r = await api.extract({ facts, family: family || undefined, name: name.trim() || undefined });
       if (r.product) {
@@ -442,7 +445,7 @@ export function ProductStep() {
         setTab("parts");
       }
     } catch (e) {
-      setError(e);
+      setDraftError(e);
     } finally {
       setDrafting(null);
     }
@@ -883,6 +886,11 @@ export function ProductStep() {
             </p>
           )}
 
+          {draftError && tab === "paste" ? (
+            <div className="mt-3">
+              <ErrorBox error={draftError} onRetry={facts.trim().length > 20 && drafting === null ? draftParts : undefined} lead="Drafting parts and plants didn't work." />
+            </div>
+          ) : null}
           {error ? (
             <div className="mt-6">
               <ErrorBox error={error} onRetry={submit} />
