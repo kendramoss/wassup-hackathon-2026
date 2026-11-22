@@ -57,6 +57,7 @@ reproduce: ## recompute every published number from committed files: no model ca
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans102-eval -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans102-eval -series d540 -check
+	python3 -I -B eval/planner/part102_heldout.py freeze . --check
 	cd $(GO_DIR) && go run ./cmd/tariffshift plans102-example -check
 	cd $(GO_DIR) && go run ./cmd/tariffshift ground102-eval -check
 	python3 -I -B eval/tariffshift/chapter_counts.py . --check
