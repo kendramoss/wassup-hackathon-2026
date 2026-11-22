@@ -794,7 +794,7 @@ Total $0.97 promo / $1.95 list. The engine's view of the current setup disagreed
 - `tariffshift/plans/moves-dev.jsonl`, `tariffshift/plans/summary.json`; `cd backend && go run ./cmd/tariffshift plans-eval -check` (in `make reproduce`). No RUNLOG line: nothing ran against a model.
 
 ## ADK agent evaluation, 12 products (gateway agent model, live MCP, 22 Nov; D450, D451)
-- The agent in `examples/adk-agent`, unchanged, on Gemini 3.8 Flash through the gateway, against `https://undelabs.dev/mcp` anonymously; products a01–a12 of `agent/products.jsonl` (development-split rulings only), one run each. Rules pre-registered in D450 (commit e40b6d3d, before the run). A scripted plumbing run against a local fake server came first (no model, no cost) and is scored separately; it says nothing about the agent.
+- The agent in `examples/adk-agent`, unchanged, on Gemini 3.8 Flash through the gateway, against `https://undelabs.dev/mcp` anonymously; products a01–a12 of `agent/products.jsonl` (development-split rulings only), one run each. Rules pre-registered in D450 (commit f84111df, authored 08:10:27 +08:00; the first run started about 08:10:48). A scripted plumbing run against a local fake server came first (no model, no cost) and is scored separately; it says nothing about the agent.
 
 | Run | Runs | Passed all | Order | Args | Origin stated | Cites a tool ruling | Invented rulings | Disclaimer | Agent cost | Wall time, median |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|

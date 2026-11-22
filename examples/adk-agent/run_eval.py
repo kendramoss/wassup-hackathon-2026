@@ -195,6 +195,7 @@ async def run_one(prod, scripted, label):
     calls, final, error, access_key = [], "", None, None
     pending = {}
     t0 = time.monotonic()
+    started = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     msg = types.Content(role="user", parts=[types.Part(text=prod["prompt"])])
     try:
         async for ev in runner.run_async(user_id="eval", session_id=session.id, new_message=msg):
@@ -252,7 +253,7 @@ async def run_one(prod, scripted, label):
         "run": label, "id": prod["id"], "ruling": prod["ruling"], "target": prod["target"],
         "model": "scripted" if scripted else os.environ.get("ADK_MODEL", "gemini-3.8-flash" if os.environ.get("LITELLM_BASE_URL") else "gemini-flash-latest"),
         "mcp": "local" if "localhost" in unde.MCP_URL or "127.0.0.1" in unde.MCP_URL else unde.MCP_URL,
-        "tools_offered": offered, "started": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "tools_offered": offered, "started": started, "finished": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "wall_s": wall, "calls": calls, "final": final.strip(), "error": error,
         "cost_usd": round(COST["usd"], 6) if COST["calls"] else 0.0, "model_calls": COST["calls"],
         "priced_calls": COST["priced"], "prompt_tokens": COST["prompt_tokens"], "completion_tokens": COST["completion_tokens"],
