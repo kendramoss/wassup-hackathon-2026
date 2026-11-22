@@ -215,20 +215,30 @@ func TestExportRegimeWithoutRequestedCountry(t *testing.T) {
 }
 
 // enginePlanner is the real planner's behaviour: plan variants are predicted
-// by the general engine, so each plan carries an engine-v1 trace.
-type enginePlanner struct{ *fakePlanner }
+// by the general engine, so each plan carries an engine-v1 trace, except on
+// a request routed to Part 102 when the Part 102 engine is on (part102),
+// whose plans carry a usmca-v1 trace (D540).
+type enginePlanner struct {
+	*fakePlanner
+	part102 bool
+}
 
 func (p enginePlanner) Plan(ctx context.Context, r planner.Request) (planner.Result, error) {
 	res, err := p.fakePlanner.Plan(ctx, r)
+	v := engine.PromptVersion
+	if p.part102 && r.Regime == router.RegimeUSMCA {
+		v = engine.USMCAVersion
+	}
 	for i := range res.Plans {
-		res.Plans[i].Prediction.Trace = domain.Trace{ModelID: "gemini-4-argon", PromptVersion: engine.PromptVersion}
+		res.Plans[i].Prediction.Trace = domain.Trace{ModelID: "gemini-4-argon", PromptVersion: v}
 	}
 	return res, err
 }
 
-// A plan draft in a specialist-labelled case: the plan's own (general engine)
-// prediction decides the regime, and the note describes that honestly
-// (general planner, not a claimed failure, nothing confirmed).
+// A plan draft in a specialist-labelled case whose plan came from the general
+// engine (textile and pharmaceutical cases; a Part 102 case searched before
+// D540): the plan's own prediction decides the regime, and the note describes
+// that honestly (general planner, not a claimed failure, nothing confirmed).
 func TestExportPlanDraftInSpecialistCase(t *testing.T) {
 	for _, regime := range []string{router.RegimeTextile, router.RegimeUSMCA, router.RegimePharma} {
 		t.Run(regime, func(t *testing.T) {
@@ -236,7 +246,7 @@ func TestExportPlanDraftInSpecialistCase(t *testing.T) {
 			hs := newHarnessWith(t, regime, func(d *Deps) {
 				d.ExportCFR177 = true
 				d.Engine = traceEngine{version: engine.PromptVersion, origin: "China"}
-				d.Planner = enginePlanner{&fakePlanner{}}
+				d.Planner = enginePlanner{fakePlanner: &fakePlanner{}}
 				d.Textile, d.USMCA, d.Pharma = spec, spec, spec
 			})
 			_, c := hs.do(t, "POST", "/v1/cases/predict", heatGunBody(t))
@@ -267,7 +277,11 @@ func TestExportPlanDraftInSpecialistCase(t *testing.T) {
 				} else if strings.Contains(letter, "102.21") || strings.Contains(letter, "Part 102 rules") || strings.Contains(letter, "active pharmaceutical ingredient") {
 					t.Errorf("%s plan letter claims a specialist framework", format)
 				}
-				for _, w := range []string{"Legal framework not confirmed", "made by Unde's general engine", "A plan search always uses the general engine", "must select the appropriate framework"} {
+				planWords := "Plan searches use the general engine except on Part 102 cases"
+				if regime == router.RegimeUSMCA {
+					planWords = "this is a plan searched before that change"
+				}
+				for _, w := range []string{"Legal framework not confirmed", "made by Unde's general engine", planWords, "must select the appropriate framework"} {
 					if !strings.Contains(notes, w) {
 						t.Errorf("%s notes missing %q: %s", format, w, notes)
 					}

@@ -82,6 +82,7 @@ func (a *api) compareTargets(w http.ResponseWriter, r *http.Request) {
 			results[i], errs[i] = a.d.Planner.Plan(r.Context(), planner.Request{
 				CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: t,
 				Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
+				Regime: planRegime(c),
 			})
 		}(i, t)
 	}

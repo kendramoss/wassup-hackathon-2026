@@ -18,6 +18,18 @@ func part102Case(c store.Case) bool {
 	return c.Router != nil && c.Router.Regime == router.RegimeUSMCA
 }
 
+// planRegime is the regime a plan search on c asks the planner for (D540):
+// usmca_part102 on a case routed to Part 102, so the Part 102 engine
+// predicts every move when it is on; "" (the general engine) otherwise.
+// Textile and pharmaceutical cases keep the general engine: plan searches
+// under those engines have not been checked.
+func planRegime(c store.Case) string {
+	if part102Case(c) {
+		return router.RegimeUSMCA
+	}
+	return ""
+}
+
 // planRuleApplies is where the per-move check applies on c.
 func planRuleApplies(c store.Case) string {
 	if part102Case(c) {

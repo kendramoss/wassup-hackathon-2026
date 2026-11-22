@@ -100,7 +100,7 @@ func (p *Planner) Estimate(ctx context.Context, req Request) (Estimate, error) {
 	moves := EnumerateUpTo(req.Product, tm, target, req.Economics.GroupCosts, p.opts.MaxMoves) // the moves Plan searches (D84)
 	est := Estimate{Target: target, Moves: len(moves), EngineCalls: len(moves) + 1,
 		Panel: p.opts.Panel, NearMiss: p.opts.NearMiss != nil, MaxInFlight: p.opts.MaxInFlight}
-	pp, _ := p.engine.(predictionPeeker)
+	pp, _ := p.engineFor(req).(predictionPeeker)
 	vp, _ := p.verifier.(verdictPeeker)
 	ap, _ := p.opts.NearMiss.(advicePeeker)
 

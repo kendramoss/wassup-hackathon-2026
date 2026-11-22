@@ -1174,7 +1174,7 @@ func (a *api) planRequestFor(r *http.Request, c store.Case, in planRequest, fetc
 	req = planner.Request{
 		CaseID: c.ID, Date: planner.Date{Time: date}, Family: c.Family, Target: in.Target,
 		Product: *c.Product, Economics: econ, Exclude: c.Exclude, CurrentOrigin: c.CurrentOrigin,
-		ActualChange: in.ActualChange,
+		ActualChange: in.ActualChange, Regime: planRegime(c),
 	}
 	return req, st, req.Validate()
 }
@@ -1629,7 +1629,8 @@ func (a *api) buildDraft(r *http.Request, c store.Case, in exportRequest) (draft
 	regimeNote := ""
 	ex.Regime, regimeNote = exportRegime(c, ex.Prediction)
 	// A case routed to Part 102 asks the Part 102 marking question even when
-	// the general engine made the prediction (every plan search); the export
+	// the general engine made the prediction (a plan searched before D540, or
+	// a Part 102 engine that was off or failed); the export
 	// package's note says the position is not a Part 102 determination (D520).
 	ex.Part102 = ex.Regime == "" && regimeNote == "" && part102Case(c)
 	content := export.Markdown(ex)
@@ -1649,8 +1650,9 @@ const (
 	exportRegimeUnknownNote = "Legal framework not confirmed: the engine that produced this prediction is not recorded, so Unde cannot tell which legal framework it was made under. This draft asks the general substantial-transformation question and makes no textile, Part 102 marking or pharmaceutical determination. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
 	// exportRegimeProvisionalNote: a specialist-labelled case whose prediction
 	// (the case's, or a plan's) came from the general engine. Not necessarily
-	// a failure: plan searches always use the general engine.
-	exportRegimeProvisionalNote = "Legal framework not confirmed: this case looks like a %s case, but the prediction behind this draft was made by Unde's general engine, not that framework's engine. (A plan search always uses the general engine; the %s engine may also have been unavailable.) This draft asks the general substantial-transformation question and makes no %s determination, so treat the requester's position as provisional. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
+	// a failure: plan searches on textile and pharmaceutical cases use the
+	// general engine (D540 gives only Part 102 cases their engine).
+	exportRegimeProvisionalNote = "Legal framework not confirmed: this case looks like a %s case, but the prediction behind this draft was made by Unde's general engine, not that framework's engine. (Plan searches use the general engine except on Part 102 cases; the %s engine may also have been unavailable.) This draft asks the general substantial-transformation question and makes no %s determination, so treat the requester's position as provisional. The broker or counsel must select the appropriate framework before filing. This is a draft aid, not validated legal advice."
 )
 
 // exportRegimeLabel is a regime in words for the reviewer note.

@@ -1,0 +1,143 @@
+{
+  "case_id": "p102-n344002",
+  "target": "China",
+  "family": "motors_pumps_compressors",
+  "baseline": {
+    "move": [],
+    "description": "No change: keep the current setup",
+    "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from Mexico, China, India and United States.\n\nThe stator and rotor are produced in Mexico. The steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are sourced from China. The aluminum ingot are sourced from India. The assembly oil are sourced from United States. \n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+    "prediction": {
+      "origin_country": "Mexico",
+      "key_factors": [
+        "(a)(3) tariff shift to 8414.30"
+      ],
+      "decisive_step": "Manufacturing the stator and rotor and assembling the compressor in Mexico",
+      "confidence": 0.95,
+      "reasoning": "The hermetic compressor is classified in subheading 8414.30. Under 19 CFR 102.20(o), the required tariff shift for 8414.10-8414.80 is a change to subheading 8414.30 from any other subheading, including another subheading within heading 8414. In Mexico, raw materials are processed into the stator and rotor, and foreign parts (classified in 8414.90 or other headings) are assembled into the finished compressor. Because all foreign materials undergo the required tariff shift in Mexico, origin is Mexico under 19 CFR 102.11(a)(3).",
+      "cited_rulings": [],
+      "precedents": [],
+      "trace": {
+        "llm_provider": "litellm",
+        "model_id": "gemini-4-argon",
+        "requested_model": "gemini-4-argon",
+        "prompt_version": "usmca-v1",
+        "input_tokens": 1095,
+        "output_tokens": 272,
+        "latency_ms": 10711
+      }
+    },
+    "duty_effect_per_year": 0,
+    "added_cost_per_year": 0,
+    "net_per_year": 0,
+    "shown": false
+  },
+  "current_origin": {
+    "country": "Mexico",
+    "ruling": "N344002"
+  },
+  "plans": [],
+  "rejected": [
+    {
+      "move": [],
+      "description": "No change: keep the current setup",
+      "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from Mexico, China, India and United States.\n\nThe stator and rotor are produced in Mexico. The steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are sourced from China. The aluminum ingot are sourced from India. The assembly oil are sourced from United States. \n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(3) tariff shift to 8414.30"
+        ],
+        "decisive_step": "Manufacturing the stator and rotor and assembling the compressor in Mexico",
+        "confidence": 0.95,
+        "reasoning": "The hermetic compressor is classified in subheading 8414.30. Under 19 CFR 102.20(o), the required tariff shift for 8414.10-8414.80 is a change to subheading 8414.30 from any other subheading, including another subheading within heading 8414. In Mexico, raw materials are processed into the stator and rotor, and foreign parts (classified in 8414.90 or other headings) are assembled into the finished compressor. Because all foreign materials undergo the required tariff shift in Mexico, origin is Mexico under 19 CFR 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 1095,
+          "output_tokens": 272,
+          "latency_ms": 10711
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 0,
+      "net_per_year": 0,
+      "shown": false,
+      "rejection_reason": "current setup: CBP held Mexico (N344002); engine predicts Mexico",
+      "rejection_kind": "current_setup"
+    },
+    {
+      "move": [
+        {
+          "group": "motor_stator_rotor",
+          "to_plant": "cn"
+        }
+      ],
+      "description": "Move the motor stator and rotor to China",
+      "variant_facts": "The merchandise under consideration is a The country of origin of hermetic compressors. The product of CBP ruling N344002, as its facts describe it. The The country of origin of hermetic compressors is assembled in Mexico using components sourced from China and United States.\n\nThe stator, rotor, steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, aluminum ingot, housing, crankcase, crankshaft, piston, piston pin, connecting rod, internal discharge tube, oil pump, valve components, cover, screws, washers, wire, gaskets, ball bearings, internal springs and muffler are produced in China. The assembly oil are sourced from United States. \n\nIn China, the stator, rotor, steel lamination sheet, copper wires, polyester film slot insulation, wire harness, heat shrink tubes, aluminum ingot and wire will be produced in-house: stamp, stack and wind the stator; cast the rotor in aluminium.\n\nFinal assembly in Mexico: assemble the motor, cylinder and valves into the bottom housing; weld the shell; charge and test.\n",
+      "prediction": {
+        "origin_country": "Mexico",
+        "key_factors": [
+          "(a)(3) tariff shift to 8414.30"
+        ],
+        "decisive_step": "Final assembly of the motor, cylinder, and valves into the housing, welding the shell, and testing in Mexico",
+        "confidence": 0.95,
+        "reasoning": "The finished hermetic compressor is classified in subheading 8414.30. For subheading 8414.30, 19 CFR 102.20(o) requires a change to subheading 8414.10 through 8414.80 from any other subheading, including another subheading within that group. The Chinese mechanical parts (8414.90), motor parts (8503), and other components, along with the U.S. oil (Ch. 27), are assembled in Mexico into the finished compressor, satisfying the required tariff shift under 19 CFR 102.11(a)(3).",
+        "cited_rulings": [],
+        "precedents": [],
+        "trace": {
+          "llm_provider": "litellm",
+          "model_id": "gemini-4-argon",
+          "requested_model": "gemini-4-argon",
+          "prompt_version": "usmca-v1",
+          "input_tokens": 1134,
+          "output_tokens": 307,
+          "latency_ms": 6949
+        }
+      },
+      "duty_effect_per_year": 0,
+      "added_cost_per_year": 25000,
+      "net_per_year": -25000,
+      "net_priced": true,
+      "shown": false,
+      "rejection_reason": "engine predicts origin Mexico, not China",
+      "rejection_kind": "engine_other_origin"
+    }
+  ],
+  "stats": {
+    "moves_searched": 1,
+    "engine_calls": 2,
+    "verifier_runs": 0,
+    "verifier_cached": 0,
+    "verifier_model_calls": 0,
+    "verifier_tool_calls": 0,
+    "input_tokens": 2229,
+    "output_tokens": 579,
+    "engine_input_tokens": 2229,
+    "engine_output_tokens": 579,
+    "verifier_input_tokens": 0,
+    "verifier_output_tokens": 0,
+    "wall_seconds": 10.711547708
+  },
+  "economics_illustrative": true,
+  "duty_rates_note": "Illustrative placeholder, not a sourced rate.",
+  "template_versions": {
+    "motors_pumps_compressors": "1"
+  },
+  "ranking": {
+    "rule": "tier_then_net",
+    "bar": 0.92,
+    "clear_from": 0.93
+  },
+  "llm_provider": "litellm",
+  "verifier_search": "local",
+  "cost_usd_promo": 0.010248,
+  "cost_usd_list": 0.020496,
+  "gateway_cost_usd": 0.010248,
+  "verifier_config": "prompt=v2 panel=off votes=1 near_miss=false follow=false bar=0.92",
+  "llm_no_cache": true,
+  "git_revision": "ca54e1fbb034271c6528d9500ac18e92e9f55900-dirty",
+  "time": "2026-11-22T11:43:24+08:00"
+}

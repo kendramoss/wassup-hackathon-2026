@@ -74,6 +74,10 @@ func Prompts() []Prompt {
 		{"engine.rules2", engine.RulesVersion2, engine.Rules2},
 		{"engine.textile", engine.TextileVersion, engine.TextileSystem},
 		{"engine.textile2", engine.TextileVersion2, engine.TextileSystem2},
+		// The Part 102 and pharmaceutical engines' prompts: case predictions,
+		// and since D540 every plan search on a Part 102 case.
+		{"engine.usmca", engine.USMCAVersion, engine.USMCASystem},
+		{"engine.pharma", engine.PharmaVersion, engine.PharmaSystem},
 		{"router.system", router.PromptVersion, withSchema(mustRouterSystem(router.PromptVersion), router.Schema)},
 		{"router.user", router.PromptVersion, router.RenderUser(fixtureFacts)},
 		// Router versions kept selectable for evaluation (eval route, D230).

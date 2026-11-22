@@ -2,10 +2,12 @@ package main
 
 // The scored Part 102 plan searches of D501, read offline (no model calls):
 //
-//	go run ./cmd/tariffshift plans102-eval [-check]   (in make reproduce)
+//	go run ./cmd/tariffshift plans102-eval [-series d501|d540] [-check]   (both in make reproduce)
 //
 // Each fixture (testdata/planner_part102, development rulings) has one
-// plan search through the gateway (eval/results/plan-p102-*-d501-*.json).
+// plan search per series through the gateway
+// (eval/tariffshift/plans102/runs/plan-p102-*-<series>-*.json): d501 with the
+// general engine (D501), d540 with the Part 102 engine (D540).
 // The 19 CFR 102.20 check runs on every move as on a Part 102 case (D441),
 // and the shown plans are put in the D500 order.
 
@@ -28,8 +30,12 @@ import (
 const (
 	plans102Dir      = evalDir + "/plans102"
 	plans102Fixtures = "testdata/planner_part102"
-	plans102Runs     = plans102Dir + "/runs/plan-p102-%s-local-verifier-*d501-litellm.json"
+	plans102Runs     = plans102Dir + "/runs/plan-p102-%s-local-verifier-*%s-litellm.json"
 )
+
+// plans102Series are the scored series and their output names: d501 keeps
+// the file names D502 published.
+var plans102Series = map[string]string{"d501": "", "d540": "-d540"}
 
 // plans102Later is the later CBP ruling on a changed setup of a picked
 // product (D501): the rule is checked on its setup, not on a plan move.
@@ -62,11 +68,23 @@ type Search102 struct {
 	OrderBefore []string `json:"shown_order_planner"`
 	OrderAfter  []string `json:"shown_order_d500"`
 	// Engine against the rule on decided moves (target or not).
-	Decided     int     `json:"moves_decided"`
-	EngineAgree int     `json:"decided_engine_agrees_with_rule"`
-	GatewayUSD  float64 `json:"gateway_cost_usd"`
-	WallSeconds float64 `json:"wall_seconds"`
-	Later       *Later  `json:"later_ruling,omitempty"`
+	Decided     int `json:"moves_decided"`
+	EngineAgree int `json:"decided_engine_agrees_with_rule"`
+	// Lean: moves the rule leaves undetermined only for de minimis while
+	// naming a part that fails the shift (it does not shift unless de
+	// minimis); the engine agrees when it does not predict the target (D540).
+	Lean            int `json:"moves_rule_leans_no_shift"`
+	LeanEngineAgree int `json:"lean_engine_agrees_with_rule"`
+	// EnginePrompt is the prompt version of the engine that predicted the
+	// moves (engine-v1: general; usmca-v1: Part 102); BaselineEngine its
+	// origin for the current setup; Checked the moves sent to the precedent
+	// check.
+	EnginePrompt   string  `json:"engine_prompt"`
+	BaselineEngine string  `json:"current_setup_engine_origin"`
+	Checked        int     `json:"moves_precedent_checked"`
+	GatewayUSD     float64 `json:"gateway_cost_usd"`
+	WallSeconds    float64 `json:"wall_seconds"`
+	Later          *Later  `json:"later_ruling,omitempty"`
 }
 
 // Later is the rule check on a later ruling's setup (CBP's good code, top
@@ -90,7 +108,12 @@ type Summary102 struct {
 func cmdPlans102Eval(args []string) error {
 	fl := flag.NewFlagSet("plans102-eval", flag.ExitOnError)
 	check := fl.Bool("check", false, "recompute and fail if the committed files differ")
+	series := fl.String("series", "d501", "run series: d501 (general engine) or d540 (Part 102 engine)")
 	_ = fl.Parse(args)
+	suffix, ok := plans102Series[*series]
+	if !ok {
+		return fmt.Errorf("-series must be d501 or d540")
+	}
 	rules, err := tariffshift.Default()
 	if err != nil {
 		return err
@@ -100,7 +123,11 @@ func cmdPlans102Eval(args []string) error {
 		return err
 	}
 	sort.Strings(files)
-	sum := Summary102{Note: "The scored Part 102 plan searches pre-registered in D501 (development rulings, one run each through an OpenAI-compatible LiteLLM gateway to Gemini). Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441), and shown plans are put in the D500 order. Part codes are unverified suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -check"}
+	note := "The scored Part 102 plan searches pre-registered in D501 (development rulings, one run each through an OpenAI-compatible LiteLLM gateway to Gemini; the general engine predicts each move). Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441), and shown plans are put in the D500 order. Part codes are unverified suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -check"
+	if *series == "d540" {
+		note = "The D540 re-run of the three D501 searches with the Part 102 engine predicting each move (seen development products, one run each through an OpenAI-compatible LiteLLM gateway to Gemini; not new evidence of accuracy). Scored as D501. Part codes are unverified suggestions (D382). Recompute: cd backend && go run ./cmd/tariffshift plans102-eval -series d540 -check"
+	}
+	sum := Summary102{Note: note}
 	var rows []MoveRow
 	for _, f := range files {
 		id := strings.TrimSuffix(filepath.Base(f), ".json")
@@ -118,7 +145,7 @@ func cmdPlans102Eval(args []string) error {
 		_ = json.Unmarshal(b, &fam)
 		s := Search102{Ruling: fx.CurrentOrigin.Ruling, Family: fam.Family, Target: domain.NormalizeCountry(fx.Target),
 			CBP: domain.NormalizeCountry(fx.CurrentOrigin.Country), ByStatus: map[string]int{}}
-		runs, _ := filepath.Glob(fmt.Sprintf(plans102Runs, id))
+		runs, _ := filepath.Glob(fmt.Sprintf(plans102Runs, id, *series))
 		if len(runs) != 1 {
 			s.Failed = true // no result file (the search failed or did not run)
 			sum.Searches = append(sum.Searches, s)
@@ -138,6 +165,9 @@ func cmdPlans102Eval(args []string) error {
 		res := run.Result
 		s.Moves, s.Shown = res.Stats.MovesSearched, len(res.Plans)
 		s.GatewayUSD, s.WallSeconds = round4(run.GatewayUSD), res.Stats.WallSeconds
+		s.EnginePrompt = res.Baseline.Prediction.Trace.PromptVersion
+		s.BaselineEngine = domain.NormalizeCountry(res.Baseline.Prediction.Origin)
+		s.Checked = res.Stats.VerifierRuns
 		sum.GatewayUSD += run.GatewayUSD
 		for _, pl := range res.Plans {
 			s.OrderBefore = append(s.OrderBefore, pl.Move.Key())
@@ -169,10 +199,17 @@ func cmdPlans102Eval(args []string) error {
 			if pl.Verdict != nil && pl.Verdict.PrecedentSupported && (c.Status == planrule.NoShift || c.Status == planrule.OtherCountry) {
 				s.Flagged = append(s.Flagged, key)
 			}
+			predictsTarget := domain.NormalizeCountry(pl.Prediction.Origin) == s.Target
 			if decided(c.Status) {
 				s.Decided++
-				if (domain.NormalizeCountry(pl.Prediction.Origin) == s.Target) == (c.Status == planrule.Shifts) {
+				if predictsTarget == (c.Status == planrule.Shifts) {
 					s.EngineAgree++
+				}
+			}
+			if c.Status == planrule.Undetermined && c.Why == planrule.WhyDeMinimis && len(c.Failing) > 0 {
+				s.Lean++
+				if !predictsTarget {
+					s.LeanEngineAgree++
 				}
 			}
 		}
@@ -192,15 +229,15 @@ func cmdPlans102Eval(args []string) error {
 			return err
 		}
 	}
-	if err := writeOrCheckPlans(plans102Dir+"/moves-dev.jsonl", jsonlOf(rows), *check); err != nil {
+	if err := writeOrCheckPlans(plans102Dir+"/moves-dev"+suffix+".jsonl", jsonlOf(rows), *check); err != nil {
 		return err
 	}
-	if err := writeOrCheckPlans(plans102Dir+"/summary.json", append(sb, '\n'), *check); err != nil {
+	if err := writeOrCheckPlans(plans102Dir+"/summary"+suffix+".json", append(sb, '\n'), *check); err != nil {
 		return err
 	}
 	for _, s := range sum.Searches {
-		fmt.Printf("plans102-eval: %s → %s: %d moves, %d shown, rule shifts %d (shown %d), flagged %d, current setup %s %s\n",
-			s.Ruling, s.Target, s.Moves, s.Shown, len(s.RuleShifts), len(s.ShownShifts), len(s.Flagged), s.Baseline.Status, s.Baseline.Origin)
+		fmt.Printf("plans102-eval %s: %s → %s: %d moves, %d shown, rule shifts %d (shown %d), flagged %d, engine agrees %d/%d decided, %d/%d lean, current setup %s %s\n",
+			*series, s.Ruling, s.Target, s.Moves, s.Shown, len(s.RuleShifts), len(s.ShownShifts), len(s.Flagged), s.EngineAgree, s.Decided, s.LeanEngineAgree, s.Lean, s.Baseline.Status, s.Baseline.Origin)
 	}
 	return nil
 }

@@ -89,7 +89,7 @@ func TestDiff(t *testing.T) {
 // prompt the snapshot covers must be non-empty and carry a version.
 func TestTakeCoversEveryPrompt(t *testing.T) {
 	s := Take()
-	for _, name := range []string{"engine.system", "engine.user", "engine.user_reasoning", "engine.rules", "engine.textile", "engine.textile2",
+	for _, name := range []string{"engine.system", "engine.user", "engine.user_reasoning", "engine.rules", "engine.textile", "engine.textile2", "engine.usmca", "engine.pharma",
 		"router.system", "router.user", "clarify.system", "clarify.review", "clarify.answers", "extract.request", "extract.media_request",
 		"verifier.system", "verifier.task", "verifier.request", "caseagent.system", "caseagent.request"} {
 		e, ok := s.Prompts[name]

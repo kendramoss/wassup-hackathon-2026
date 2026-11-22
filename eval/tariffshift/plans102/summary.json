@@ -1,5 +1,5 @@
 {
-  "note": "The scored Part 102 plan searches pre-registered in D501 (development rulings, one run each through an OpenAI-compatible LiteLLM gateway to Gemini). Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441), and shown plans are put in the D500 order. Part codes are unverified suggestions (D382). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-eval -check",
+  "note": "The scored Part 102 plan searches pre-registered in D501 (development rulings, one run each through an OpenAI-compatible LiteLLM gateway to Gemini; the general engine predicts each move). Each move carries the 19 CFR 102.20 check as on a Part 102 case (D441), and shown plans are put in the D500 order. Part codes are unverified suggestions (D382). Recompute: cd backend \u0026\u0026 go run ./cmd/tariffshift plans102-eval -check",
   "searches": [
     {
       "ruling": "N344002",
@@ -26,6 +26,11 @@
       "shown_order_d500": null,
       "moves_decided": 1,
       "decided_engine_agrees_with_rule": 0,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "engine-v1",
+      "current_setup_engine_origin": "Mexico",
+      "moves_precedent_checked": 1,
       "gateway_cost_usd": 0.0433,
       "wall_seconds": 28.010785
     },
@@ -65,6 +70,11 @@
       ],
       "moves_decided": 6,
       "decided_engine_agrees_with_rule": 6,
+      "moves_rule_leans_no_shift": 6,
+      "lean_engine_agrees_with_rule": 3,
+      "engine_prompt": "engine-v1",
+      "current_setup_engine_origin": "China",
+      "moves_precedent_checked": 9,
       "gateway_cost_usd": 0.3542,
       "wall_seconds": 79.492961292
     },
@@ -93,6 +103,11 @@
       "shown_order_d500": null,
       "moves_decided": 1,
       "decided_engine_agrees_with_rule": 0,
+      "moves_rule_leans_no_shift": 0,
+      "lean_engine_agrees_with_rule": 0,
+      "engine_prompt": "engine-v1",
+      "current_setup_engine_origin": "Mexico",
+      "moves_precedent_checked": 1,
       "gateway_cost_usd": 0.0358,
       "wall_seconds": 26.226507167,
       "later_ruling": {
