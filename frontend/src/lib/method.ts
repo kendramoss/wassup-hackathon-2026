@@ -87,6 +87,8 @@ export const DECISIONS: Record<string, string> = {
   D541: "d541--part-102-engine-in-plan-searches-built-and-the-d540-check-on-the-three-d501-products-22-nov-judge-panel-round-11-item-5",
   D550: "d550--pre-registration-ground-the-part-102-engine-in-the-quoted-10220-rule-text-22-nov-follow-up-to-d541",
   D551: "d551--quoting-the-10220-rule-text-to-the-part-102-engine-did-not-pass-on-development-not-adopted-22-nov",
+  D570: "d570--pre-registration-a-held-out-part-102-plan-set-frozen-before-any-run-22-nov-judge-panel-round-12",
+  D571: "d571--held-out-part-102-plan-set-results-22-nov",
   D502: "d502--part-102-aware-plans-finished-the-check-in-the-draft-and-the-comparison-the-d500-order-and-the-three-d501-searches-22-nov-judge-panel-round-10-item-4",
 };
 

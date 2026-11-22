@@ -478,7 +478,9 @@ export function MethodPage() {
             <Link href="/examples/part102-plan" className="text-ok underline underline-offset-2">
               the recorded actuator search
             </Link>
-            .
+            . On a held-out set frozen before any run (<D id="D570" />), 6 of 18 held-out Part 102 rulings had a plan template; there the one shown plan is a move
+            the rule says shifts, and the Part 102 engine agreed with the rule on 3 of 6 moves (<D id="D571" />,{" "}
+            <Ext href={blob("docs/EVALUATION.md#15-a-held-out-part-102-plan-set-22-nov-2026-d570-d571")}>EVALUATION.md §15</Ext>).
           </li>
           <li>
             <b className="font-medium text-ink">Shown, then drafted for a broker.</b> The shown move and its ruling go into the draft ruling request a licensed customs broker

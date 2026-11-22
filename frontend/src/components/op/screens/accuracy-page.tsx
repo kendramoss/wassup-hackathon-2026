@@ -632,7 +632,8 @@ function HowBuilt() {
       </p>
       <p className="read mt-3 max-w-[95ch] text-[13.5px] text-dim">
         Beside the engine, a deterministic 19 CFR 102.20 tariff-shift check runs when the parts carry HTS codes, and the parts table can suggest those codes. It never
-        changes the answer or what is auto-accepted.{" "}
+        changes the answer or what is auto-accepted. Plan searches on Part 102 cases had one held-out run, on a set frozen before it: 6 of 18 held-out Part 102
+        rulings had a plan template, and the one plan shown is a move the 102.20 rule says shifts. Too few to read as an accuracy figure.{" "}
         <Link href="/examples/rule-check" className="text-ok underline underline-offset-2">
           Per-part codes and the rule check, a recorded example →
         </Link>
