@@ -89,6 +89,8 @@ export const DECISIONS: Record<string, string> = {
   D551: "d551--quoting-the-10220-rule-text-to-the-part-102-engine-did-not-pass-on-development-not-adopted-22-nov",
   D570: "d570--pre-registration-a-held-out-part-102-plan-set-frozen-before-any-run-22-nov-judge-panel-round-12",
   D571: "d571--held-out-part-102-plan-set-results-22-nov",
+  D630: "d630--pre-registration-a-second-pass-on-the-frozen-held-out-part-102-plan-set-with-usmca-v5-and-20-families-22-nov-judge-panel-round-13-item-3",
+  D631: "d631--held-out-part-102-plan-set-second-pass-usmca-v5-agrees-with-the-rule-on-6-of-6-decided-moves-against-3-of-6-22-nov-results-of-d630",
   D502: "d502--part-102-aware-plans-finished-the-check-in-the-draft-and-the-comparison-the-d500-order-and-the-three-d501-searches-22-nov-judge-panel-round-10-item-4",
 };
 

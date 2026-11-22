@@ -2411,3 +2411,41 @@ Committed and pushed before any held-out call of this item. Nothing below change
 - **The actuator page (development ruling N348465, not held out).** `/examples/part102-plan` is re-recorded from one new search, `go run ./cmd/eval plan -regime usmca_part102 -fixture testdata/planner_part102/n348465.json -tag d630`, the same configuration, run once; the page shows that run, with `usmca-v1` (D541) and the general engine (D501) as before columns, and says which run and engine each is. Whatever it gives is shown; it is not re-run for a better page. `plans102-example -check` stays in `make reproduce`.
 - **Budget:** at most $2.5 gateway-reported for the held-out pass (group calls about $0.02; searches about $0.3 to $1.2) and $0.3 for the actuator. If the running total of the held-out pass would pass $2.2 before every search has run, the rest are not run and are reported as not run.
 - **Reading.** Fixtures are built by fixed rules, so plants, groups and operations are cruder than a user's; part codes are unverified suggestions (D382); the target plant's capabilities are assumed; one run per ruling. Agreement with the rule is not accuracy. Small n.
+
+## D631 — Held-out Part 102 plan set, second pass: `usmca-v5` agrees with the rule on 6 of 6 decided moves, against 3 of 6 (22 Nov, results of D630)
+- **Run as pre-registered in D630** (D630 committed and pushed as 59f94639 at 16:11 +08:00, before the group calls at 16:11; group rows and fixtures committed and pushed as 667537a4 at 16:12, before the first plan search at 16:12; hashes before the rebase onto main). Each step once; no group call or search failed and none was re-run. Before the runs the local corpus was linked and its facts were checked: all 473 labelled Part 102 rulings and all 2,790 general labelled rulings have facts. Scored by `go run ./cmd/tariffshift plans102-eval -series heldout2` (in `make reproduce`): `eval/tariffshift/plans102/summary-heldout2.json`, `moves-heldout2.jsonl`. This is the second scoring of the D570 set and the only one of `usmca-v5` with 20 families on it.
+- **Products.** 8 of the 18 frozen rulings have a template in D581's 20-family check. Four fixtures are D571's, byte for byte (N357951, N359145, N359690, N362414). Four were built by the D570 rules after one group call each ($0.0126): N358639 with the metal-products template (one movable group, so one move, where the vehicle-parts fixture had three), N360891, N362347 and N363381. N363381's name came out of the subject rule as "(“USMCA”) of a forklift dust mop attachment": the rule does not strip curly quotes; it was kept, as the rule is fixed. N364328 (no template in D581, a failed check) was not planned; its D571 search had no move.
+
+  | Ruling (CBP → target) | Family | Moves | Shown (rule) | Rule on the moves | Engine agrees with the rule (D571) | Current setup: rule / engine (CBP) | Parts left out | Cost, wall |
+  |---|---|---:|---|---|---:|---|---:|---|
+  | N357951 wooden furniture (Canada → United States) | furniture | 1 | 0 | 1 another country | 1/1 (1/1) | Canada / Canada (Canada) | 1 of 8 | $0.0199, 10 s |
+  | N358639 pipe assembly (South Korea → Mexico) | metal products | 1 | 1 (shifts) | 1 shifts | 1/1 (2/3, other fixture) | Mexico / Mexico (South Korea) | 0 of 3 | $0.0410, 40 s |
+  | N359145 wooden furniture (Canada → Thailand) | furniture | 1 | 0 | 1 another country | 1/1 (0/1) | Canada / Canada (Canada) | 3 of 7 | $0.0199, 15 s |
+  | N359690 truck air conditioner (Canada → China) | vehicle parts | 0 | 0 | none | – (–) | Canada / Canada (Canada) | 14 of 19 | $0.0098, 10 s |
+  | N360891 insulating panel (Canada → China) | plastic articles | 1 | 0 | 1 another country | 1/1 (not planned) | Canada / Canada (Canada) | 0 of 2 | $0.0200, 16 s |
+  | N362347 multilayered wood flooring (Canada → Paraguay) | wood panels and flooring | 1 | 0 | 1 another country | 1/1 (not planned) | Canada / Canada (Canada) | 1 of 4 | $0.0197, 8 s |
+  | N362414 turbo thruster kit (Canada → China) | vehicle parts | 1 | 0 | 1 another country | 1/1 (0/1) | Canada / Canada (Canada) | 10 of 22 | $0.0263, 16 s |
+  | N363381 forklift dust mop attachment (Canada → Vietnam) | machinery parts | 1 | 0 | 1 undetermined (chapter 96 not encoded) | – (not planned) | undetermined / United States (Canada) | 8 of 13 | $0.0190, 8 s |
+
+- **Side by side with D571.**
+
+  | Figure | D571: `usmca-v1`, 14 families | D631: `usmca-v5`, 20 families |
+  |---|---|---|
+  | Planned end to end, of 18 | 6 (33%, 95% CI 16–56%) | 8 (44%, 25–66%) |
+  | Searches with a move; moves; decided | 4; 6; 6 (3 shift, 3 another country) | 7; 7; 6 (1 shifts, 5 another country) |
+  | **Engine agrees with the rule, decided moves** | **3 of 6 (19–81%)** | **6 of 6 (61–100%)** |
+  | Same, on the four fixtures both runs share | 1 of 3 | 3 of 3 |
+  | Shown plans; the rule says they shift | 1; 1 | 1; 1 |
+  | Moves precedent supports while the rule gives another country | 0 | 0 |
+  | Rows marked for review (D441 or D591, scored by today's code) | 1 (N358639, the brackets move) | 0 |
+  | Current setup: rule decides; gives CBP's holding | 6 of 6; 5 | 7 of 8; 6 |
+  | Current setup: engine gives CBP's holding | 5 of 6 | 6 of 8 |
+  | Backtests | 0 | 0 |
+  | Plan-search cost, total; a search | $0.2195; $0.037 | $0.1757; $0.022 |
+  | Search wall time, median / 95th percentile | 20.0 s / 35.0 s | 12.5 s / 40.2 s |
+
+- **Against the D630 expectations.** Agreement rose, as expected, to 6 of 6; on the four shared fixtures 3 of 3, at the top of the expected 2 to 3. Shown plans stayed few (1), and coverage is D581's 8 of 18.
+- **Where it changed.** The two D571 misses on shared fixtures were reverse probes (N359145 to Thailand, N362414 to China), where `usmca-v1` predicted the target although final assembly stays in Canada; `usmca-v5` keeps Canada on both, as the rule does. N358639 is not like for like: the metal-products fixture puts all three Korean parts in one group, so its one move is the pipes, flange and brackets together, which the rule says shifts, the engine predicts Mexico, and the precedent check supports at 0.95 (N353124); it is the one shown plan. D571's lone disagreement there (the brackets alone) is not a move in this fixture.
+- **Reading.** Five of the six decided moves are moves where the rule keeps the country CBP held, so an engine that never predicted the target would also agree on 5 of 6; the figure says `usmca-v5` no longer reads reverse probes as shifts, and agrees on the one move that does shift. On the current setup the engine missed one more ruling than before: N363381, where it gives the United States (the dust mop is made there) and CBP held Canada; the rule cannot decide that good (chapter 96 is not encoded). N358639 is still missed by both, as in D571. Moves within a search are not independent, 6 is small, and each search ran once. Agreement with the rule is not accuracy. This is the first held-out evidence that the D602 change carries over to plan searches, not only to single setups.
+- **The actuator page (development, D630).** One search, `eval plan -regime usmca_part102 -fixture testdata/planner_part102/n348465.json -tag d630`, at 16:15, $0.2923, 47 s. `usmca-v5` agrees with the rule on 12 of 12 moves; `usmca-v1` in D541 also 12 of 12, the general engine 9 of 12. Two shown plans, both motor moves the rule says shift (motor with controls, and motor with gearbox and controls, precedent check 0.92 citing H322161); the D541 run showed two others citing N346297. `/examples/part102-plan` now shows this run, with the `usmca-v1` and general-engine predictions beside each move, and says which run and engine each is (`plans102-example -check` in `make reproduce`). The other two development searches were not re-run, so the compressors move (wrong under `usmca-v1`, D541) is not re-measured.
+- **Spend:** $0.4806 gateway-reported: group calls $0.0126, held-out plan searches $0.1757, actuator search $0.2923. Within D630's $2.5 and $0.3.
