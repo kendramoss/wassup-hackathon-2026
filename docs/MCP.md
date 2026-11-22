@@ -30,7 +30,7 @@ Gemini CLI turns MCP servers off in folders it does not trust; trust the folder 
 }
 ```
 
-Leave out `headers` for the anonymous tier.
+Leave out `headers` for the anonymous tier. Gemini CLI's per-server `timeout` defaults to 600,000 ms (10 minutes), which covers a plan search; to match the ADK setting below, add `"timeout": 900000` beside `httpUrl`.
 
 ### Google ADK agent (Python)
 
@@ -58,7 +58,7 @@ root_agent = LlmAgent(
 )
 ```
 
-Plan search can take minutes. ADK's default MCP read timeout is 300 s; pass `sse_read_timeout=900` to `StreamableHTTPConnectionParams` so a slow plan call is not cut off and retried (D391). If a client does time out and call again with the same input, the server joins the search still running rather than starting (and paying for) a second one; pass the same `idempotency_key` on the retry to also get a search that already finished (kept 15 minutes, D402). Joining works within one server instance. On the hosted endpoint a plan call that runs past 300 s can still fail once on the server's side; call again with the same input and key and it joins the running search (D422).
+Plan search often takes one to several minutes: the recorded heat-gun search took 33 s, the six D661 live checks a median of 49 s and up to 101 s, and the ADK run's first plan call was cut off at 300 s (D391). ADK's default MCP read timeout is 300 s; pass `sse_read_timeout=900` to `StreamableHTTPConnectionParams` so a slow plan call is not cut off and retried (D391). If a client does time out and call again with the same input, the server joins the search still running rather than starting (and paying for) a second one; pass the same `idempotency_key` on the retry to also get a search that already finished (kept 15 minutes, D402). Joining works within one server instance. On the hosted endpoint a plan call that runs past 300 s can still fail once on the server's side; call again with the same input and key and it joins the running search (D422).
 
 ### Claude Code
 
@@ -102,6 +102,9 @@ Environment: `UNDE_API_KEY` (optional, `op_...`, sent as a bearer token) and `UN
 
 ## API keys
 
+The bearer form (`Authorization: Bearer op_...`) works only on `/mcp`. The REST API at `https://undelabs.dev/api/v1/...` takes the key only as `X-API-Key: op_...`; a bearer header there is dropped ([api/openapi.yaml](api/openapi.yaml)).
+
+
 Keys (`op_...`) are issued by the Unde admin, not self-service. An admin issues one with `go run ./cmd/apikey issue -name "..." -quota N` (see `backend/cmd/apikey`) or `POST /v1/admin/api-keys` with the admin token. Ask the team for one. A key:
 
 - has its own rate-limit buckets and a daily request quota (each tool call is one request);
@@ -112,7 +115,7 @@ The admin token is never accepted on `/mcp` (403).
 
 ## Tools
 
-Each tool runs exactly one REST operation in-process, so it has that operation's rate-limit class, quota, spend cap, case isolation and audit row. Tool names follow the OpenAPI `operationId`s in [api/openapi.yaml](api/openapi.yaml).
+Each tool runs exactly one REST operation in-process, so it has that operation's rate-limit class, quota, spend cap, case isolation and audit row. Classes, per client (code defaults; the deployed values are in [api/SECURITY.md](api/SECURITY.md)): basic 120 a minute (no model call), light 20 a minute, heavy 4 a minute, ruling lookup 30 a minute (ruling searches, and rulings fetched from CBP). No tool is unlimited. Tool names follow the OpenAPI `operationId`s in [api/openapi.yaml](api/openapi.yaml).
 
 | Tool | REST operation (operationId) | Limit class | Annotations |
 |---|---|---|---|
@@ -122,11 +125,11 @@ Each tool runs exactly one REST operation in-process, so it has that operation's
 | `plan_production_moves` | `POST /v1/cases/{id}/plan` (`planCase`) | heavy | writes the case's plan |
 | `compare_target_countries` | `POST /v1/cases/{id}/compare-targets` (`compareTargets`) | heavy | writes the case's comparison |
 | `search_rulings` | `GET /v1/rulings?q=` (`searchRulings`) | ruling lookup | read-only |
-| `get_ruling` | `GET /v1/rulings/{id}` (`getRuling`) | ruling lookup (CBP fetches only) | read-only, open world |
-| `get_duty_rates` | `GET /v1/duty-rates` (`getDutyRates`) | lookup (live fetches only) | read-only, open world |
-| `get_case` | `GET /v1/cases/{id}` (`getCase`) | none | read-only |
-| `list_cases` | `GET /v1/cases` (`listCases`) | none | read-only |
-| `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | none | read-only (a preview records nothing) |
+| `get_ruling` | `GET /v1/rulings/{id}` (`getRuling`) | basic; a fetch from CBP also takes the ruling-lookup bucket | read-only, open world |
+| `get_duty_rates` | `GET /v1/duty-rates` (`getDutyRates`) | basic; a live fetch also takes the ruling-lookup bucket | read-only, open world |
+| `get_case` | `GET /v1/cases/{id}` (`getCase`) | basic | read-only |
+| `list_cases` | `GET /v1/cases` (`listCases`) | basic | read-only |
+| `export_ruling_request_draft` | `POST /v1/cases/{id}/export` with `preview: true` (`exportCase`) | basic | read-only (a preview records nothing) |
 | `create_broker_review_link` | `POST /v1/cases/{id}/reviews` (`createBrokerReviewLink`) | basic | writes a link on the case (D200) |
 | `get_broker_review_status` | `GET /v1/cases/{id}/reviews` (`listBrokerReviewLinks`) | basic | read-only |
 | `suggest_part_hts` | `POST /v1/products/parts-hts-suggest` (`suggestPartsHts`) | light | read-only, open world (listed when the server serves the route; on by default, D380) |
@@ -159,7 +162,7 @@ The hosted server is stateless (several instances serve it), so two MCP requests
 
 ## Limits
 
-The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file): per-client buckets (by API key, else by the caller's address), light and heavy classes, a separate ruling-lookup bucket, a global cap and the daily spend cap. Over a limit, the tool result is an error with `rate_limited`, `quota_exceeded` or `budget_reached` and when to retry. One MCP request body is capped at 12 MB (room for 8 MB of files in base64). Plan search and target comparison take about as long as on the website (tens of seconds).
+The same as the REST API ([api/openapi.yaml](api/openapi.yaml), top of the file): per-client buckets (by API key, else by the caller's address), light and heavy classes, a separate ruling-lookup bucket, a global cap and the daily spend cap. Over a limit, the tool result is an error with the API's status, code and message, and when to retry: `rate_limited` (429, the class's per-minute limit), `too_many_in_flight` (429, the client already has 4 model calls running), `quota_exceeded` (429, the API key's daily quota, until the next UTC day), `client_budget_reached` (429, this key or address has spent its tenth of the day's model budget, until 00:00 UTC) or `budget_reached` (503, the day's model budget is spent, until 00:00 UTC). Tools without a model call (`get_case`, `list_cases`, `search_rulings`, the review links and the draft preview) keep working past the budget. One MCP request body is capped at 12 MB (room for 8 MB of files in base64). Plan search and target comparison take as long as on the website, often one to several minutes (see the ADK timeout note above).
 
 ## Privacy
 
