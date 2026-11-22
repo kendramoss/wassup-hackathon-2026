@@ -916,3 +916,9 @@ D710 froze the chronological split. D712 and D713 froze the same-agreement retri
 | Fictional negative cases | Eight requests, each HTTP 403. The attempt produced no model predictions. |
 
 The development baseline and the rule-grounded candidate use different criteria for when they answer. The public test cohort covers qualifying goods only. No held-out accuracy or refusal rate is available. The [results record](../eval/RESULTS.md) links every run and summary, including the interrupted development attempt.
+
+## 19. RCEP calculator on Japan Customs rulings
+
+D691 froze the evaluation rules. D716 fixed the facts-only mapping before scoring. The calculator reads the stated country of manufacture and the published material classifications. An originating material requires an explicit claim in the material entry. Japanese reasoning supplies the scoring label only. Both splits retain their D710 dates and use the same Annex 3A HS 2022 table.
+
+The published set contains affirmative decisions. The score measures how often the calculator finds a qualifying rule when given incomplete public facts. A published ruling can rely on declarations, values or other evidence that is absent from those facts. An undetermined result is a request for that evidence. Synthetic changes to a material's tariff code test the calculator's response to a changed input separately. The counts and Wilson intervals are in [RESULTS](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717).

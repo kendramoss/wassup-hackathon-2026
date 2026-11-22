@@ -2731,3 +2731,19 @@ The synthetic command's initial validation rejected the fixture dates before ope
 ## D715 — Separate synthetic RCEP attempt and release status (23 Nov, #682)
 
 After the D714 date correction was pushed at `bff2b807341970615321bd8b84bbd96bbc95fe75`, the eight fictional cases were sent through LiteLLM once. Each returned HTTP 403. The gateway reported $0 and no refusal assessment came back. Keep the synthetic rows separate from the Japan Customs results. The planned accuracy and refusal measurements remain unavailable. Production activation and customs specialist review remain open in #694 and #665. This change supplies the four embedded schedule scopes listed in D712.
+
+## D716 — RCEP Japan reproduction protocol details (#666, 23 Nov)
+
+D691 is the pre-registration. The bundled Annex 3A HS 2022 table has the same version and contents as D690. Score the maintained engine after the three pre-existing input and rule-lookup fixes (#671 to #673, commit `0de8dcb8`). Those fixes landed before this evaluation. Keep the engine and inputs fixed after the development run.
+
+The input builder reads the parsed material entries and the explicit manufacturing country at the start of the published production field. Tariff codes keep their published precision, and inconsistent material codes stay unknown. A material is originating only when the material entry makes that statement. A country of manufacture does not establish preferential origin. Values, weights, variant choices and production declarations are left unset. Japanese reasoning is used only after input construction to read the frozen criterion label and the tariff scope or rule-row reference. A general Annex 3A citation does not identify a row. Report a prefix-compatibility check for a cited tariff scope separately from exact-row agreement.
+
+Score the frozen development split before recording the held-out split. Mutate the first input the engine counts as non-originating by replacing its tariff code with the finished good's four-digit heading after a tariff-shift yes. This is a synthetic stress test. A missing fact or an incomplete tariff classification may make the result undetermined. Report that outcome separately from an explicit refusal. Wilson intervals use the outcome's stated denominator.
+
+## D717 — RCEP check on the frozen Japan Customs set (#666, 23 Nov)
+
+D716 was pushed at `cd40dacfb35c106c6be3bcc291549ea1ca5da732` before scoring. The bundled rule table is unchanged from D690. All 402 RCEP rulings in the D710 snapshot qualify in the published decision. The check recognized 162 of 304 development positives and 71 of 98 held-out positives. The other rows were undetermined. There were no refusals or input errors. The published case files often omit preferential-origin declarations and the values needed for value-based tests and de minimis.
+
+On held-out tariff-shift cases with enough material-code digits to test the cited change, 71 of 72 qualified. All 71 decisions matched the published criterion. The only criterion disagreement across the two splits was development ruling 1240464. It cites wholly obtained, and the calculator found a change of chapter without a wholly obtained declaration in the parsed inputs. No ruling explicitly named a unique Annex 3A row. For each of the 388 comparable rulings, the separately cited tariff scope and the calculator's row had compatible prefixes. That checks code consistency.
+
+The synthetic mutations changed 233 affirmative tariff-shift outcomes to undetermined. None produced an explicit refusal or stayed yes. Neither test set measures refusal performance on real rulings, and the corpus had no primary RVC labels. Run recordings, Wilson intervals and limits are in [RESULTS](../eval/RESULTS.md#rcep-calculator-on-japan-customs-rulings-d691-d716-d717). The run made no model calls and cost $0.
