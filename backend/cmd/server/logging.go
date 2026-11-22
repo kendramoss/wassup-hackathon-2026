@@ -56,7 +56,7 @@ func logPolicy(cfg config.Config) *logsafe.Policy {
 // configuredModels lists every model id the config can send a request to.
 func configuredModels(cfg config.Config) []string {
 	var out []string
-	for _, m := range []string{cfg.EngineModel, cfg.RouterModel, cfg.CaseAgentModel, cfg.VerifierModel, cfg.FallbackEngineModel} {
+	for _, m := range []string{cfg.EngineModel, cfg.RouterModel, cfg.CaseAgentModel, cfg.VerifierModel, cfg.FallbackEngineModel, japanModel} {
 		if m != "" {
 			out = append(out, m)
 		}

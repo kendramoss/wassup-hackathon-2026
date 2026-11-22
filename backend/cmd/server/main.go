@@ -440,14 +440,23 @@ func newDeps(cfg config.Config, model, engineModel llm.Model, cases store.Cases,
 	// Canada's marking rules (SOR/94-23, D720): a rules check on its own
 	// route, on with the rule check.
 	var canadaMarking *tariffshift.Rules
-	var markets *jurisdiction.Registry // nil: the United States only (D680)
+	markets := jurisdiction.Default()
 	if cfg.RuleCheck {
 		if canadaMarking, err = tariffshift.CanadaRules(); err != nil {
 			return httpapi.Deps{}, err
 		}
 		// Canada is a rules-only market (D725): its cases get the SOR/94-23
 		// check from the product's codes, always reviewed.
-		if markets, err = jurisdiction.NewRegistry(jurisdiction.USAuthority, httpapi.CanadaAuthority(canadaMarking)); err != nil {
+		if err = markets.Register(httpapi.CanadaAuthority(canadaMarking)); err != nil {
+			return httpapi.Deps{}, err
+		}
+	}
+	japan, err := japanAuthority(cfg, meter, logger)
+	if err != nil {
+		return httpapi.Deps{}, err
+	}
+	if japan.Engine != nil {
+		if err := markets.Register(japan); err != nil {
 			return httpapi.Deps{}, err
 		}
 	}

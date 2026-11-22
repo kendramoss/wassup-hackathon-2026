@@ -1,11 +1,14 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
 
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/domain"
+	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/engine"
 	"github.com/kendramoss/wassup-hackathon-2026/backend/internal/jurisdiction"
 )
 
@@ -234,5 +237,55 @@ func TestListJurisdictions(t *testing.T) {
 		if (mm["code"] == "us") != (mm["supported"] == true) || (mm["code"] == "us") != (mm["follow_ups"] == true) {
 			t.Errorf("market %v", mm)
 		}
+	}
+}
+
+type japanPredictFunc func(context.Context, domain.Case) (engine.Result, error)
+
+func (f japanPredictFunc) Predict(ctx context.Context, c domain.Case) (engine.Result, error) {
+	return f(ctx, c)
+}
+
+func TestJapanCaseUsesTradeAgreementAndStaysInReview(t *testing.T) {
+	calls := 0
+	jp := japanPredictFunc(func(_ context.Context, c domain.Case) (engine.Result, error) {
+		calls++
+		if c.Japan == nil || c.Japan.Agreement != "RCEP" || c.Japan.HS != "4412.31" || c.Jurisdiction.MarketCode() != "jp" {
+			t.Fatalf("Japan engine input: %+v", c)
+		}
+		return engine.Result{Prediction: domain.Prediction{
+			Confidence: 0.99,
+			Japan:      &domain.JapanResult{Agreement: c.Japan.Agreement, HS: c.Japan.HS, Outcome: "undetermined", ReviewReason: "Give the tariff codes for the materials."},
+		}}, nil
+	})
+	reg := jurisdiction.Default()
+	if err := reg.Register(jurisdiction.Authority{Market: jurisdiction.JP, Engine: jp, FastPath: 0.05}); err != nil {
+		t.Fatal(err)
+	}
+	h := newHarnessWith(t, RegimeGeneral, func(d *Deps) { d.Jurisdictions = reg })
+	body := `{"date":"2026-03-01","facts":"Plywood made and pressed in Vietnam from imported veneers.","japan":{"agreement":"RCEP","hs":"4412.31"}}`
+	code, out := h.do(t, "POST", "/v1/cases/predict", body)
+	if code != http.StatusCreated || calls != 1 || h.engine.calls != 0 {
+		t.Fatalf("Japan dispatch: %d %v; Japan calls %d, U.S. calls %d", code, out, calls, h.engine.calls)
+	}
+	check := func(out map[string]any) {
+		t.Helper()
+		p := out["prediction"].(map[string]any)
+		if out["disclaimer"] != domain.JapanDisclaimer || out["step"] != "origin" || out["jurisdiction"] != "jp" ||
+			detail(t, out)["follow_ups"] != false || out["triage"].(map[string]any)["route"] != "needs_review" ||
+			p["origin_country"] != "" || p["japan_preference"].(map[string]any)["outcome"] != "undetermined" ||
+			out["japan"].(map[string]any)["agreement"] != "RCEP" {
+			t.Errorf("unexpected Japan response: %v", out)
+		}
+	}
+	check(out)
+	code, saved := h.do(t, "GET", "/v1/cases/"+out["id"].(string), "")
+	if code != http.StatusOK {
+		t.Fatalf("case read: %d %v", code, saved)
+	}
+	check(saved)
+	code, _ = h.do(t, "POST", "/v1/cases/predict", strings.Replace(body, `"japan":`, `"jurisdiction":"us","japan":`, 1))
+	if code != http.StatusBadRequest || calls != 1 || h.engine.calls != 0 {
+		t.Errorf("mixed-market input got status %d, Japan calls %d, U.S. calls %d", code, calls, h.engine.calls)
 	}
 }

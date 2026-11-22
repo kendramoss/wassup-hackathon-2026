@@ -384,7 +384,7 @@ Built by `go run ./cmd/corpus supersession` (from `backend/`; `-check` verifies)
 
 ## Japan Customs advance rulings on origin (D710, D711; eval only, not in the product)
 
-Built by `eval/jp/*.py` and `go run ./cmd/jpeval` (from `backend/`); `make reproduce` checks the split, labels, translation check, index stats and baseline metrics. Development figures only: no held-out ruling has been scored.
+Built by `eval/jp/*.py` and `go run ./cmd/jpeval` (from `backend/`); `make reproduce` checks the split, labels, translation check, index stats and baseline metrics. These are phase-one development figures. D714 records the phase-two attempt.
 
 | Number | Value | Source | Status |
 |---|---|---|---|
@@ -509,3 +509,13 @@ Rules: small-n numbers carry CIs; development-only numbers say "development set"
 | Non-U.S. questions read correctly, model-written probe set 2 (unseen) | v2: 22 of 30 exact market, 26 of 30 kept from a U.S. auto-answer; v1: 19 and 23. No text got a wrong non-U.S. market | `eval/results/market-detect-probes-probes-model-2-d681-v{1,2}.json`; probes `eval/jurisdiction/probes-model-2.jsonl` | Measured once each. Synthetic, illustrative questions written by gemini-3.8-flash, not customer text. Say "about three in four", never "detects non-U.S. questions" |
 | Not independent: hand set and model set 1 | hand set 30 of 30 exact, 10 of 10 U.S. controls clean (v1 and v2; same author as the detector); model set 1 v1 16 of 30, v2 25 of 30 (read to write v2) | `eval/results/market-detect-probes-probes-{hand,model}-d68*.json` | Measured; do not quote as accuracy |
 | Probe set cost | $0.0821 for both model-written sets (gateway-reported) | D680, D681 | Measured |
+
+## Japan trade-agreement candidate (D712–D715)
+
+| Measure | Value | Source | Status |
+|---|---|---|---|
+| Exact criterion on development | 243 of 400 (60.75%, 95% Wilson interval 55.88–65.41) | `eval/jp/jp-dev_eval-gemini-4-argon-jp-engine-v1-litellm-d712-dev-complete-metrics.json` | Measured. Includes cases the candidate could not decide. |
+| Development outcomes and named origin | 244 qualifying, 155 undetermined, one failed. 51 of 111 named countries and 177 of 292 named origins including the EU | Same development metrics | Measured on published affirmative cases. |
+| Development run cost and latency | $2.9794 total, $0.0074 per case, p50 6.971 s, p95 10.079 s among model-call cases | Same development metrics | Measured through the gateway. An interrupted attempt logged a further $0.0414 on 17 saved rows. |
+| One-time unseen test | 633 positive labels, 251 no-call abstentions, 382 HTTP 403 responses, zero model results, $0 reported | `eval/jp/jp-held_out-gemini-4-argon-jp-engine-v1-litellm-metrics.json` and matching rows under `eval/jp/runs/` | Gateway failure. An accuracy estimate is unavailable. |
+| Separate synthetic negatives | Eight fictional cases, eight HTTP 403 responses, zero model results, $0 reported | `eval/jp/jp-synthetic-gemini-4-argon-jp-engine-v1-litellm-metrics.json` and matching rows under `eval/jp/runs/` | Gateway failure. A refusal rate is unavailable. |

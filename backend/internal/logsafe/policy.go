@@ -215,7 +215,7 @@ func DefaultPolicy() *Policy {
 		"PROHIBITED_CONTENT", "SPII", "MALFORMED_FUNCTION_CALL", "IMAGE_SAFETY", "UNEXPECTED_TOOL_CALL",
 		"FINISH_REASON_UNSPECIFIED", "stop", "length", "tool_calls", "content_filter", "function_call")
 	p.keys["regime"] = OneOf("substantial_transformation", "textile_102_21", "usmca_part102", "pharma_api", "unknown")
-	p.keys["provider"] = OneOf("vertex", "fake", "litellm-eval")
+	p.keys["provider"] = OneOf("vertex", "fake", "litellm", "litellm-eval")
 	p.keys["method"] = OneOf("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
 	for _, k := range []string{"request_id", "case", "key_id"} {
 		p.keys[k] = refRule

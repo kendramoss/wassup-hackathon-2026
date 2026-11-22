@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/client";
 import { clonedFamily } from "@/lib/clone-family";
 import { copy } from "@/lib/copy";
+import { japanAgreements, japanTariffEditions, supportedJapanAgreements, validJapanHS } from "@/lib/japan-preference";
 import { rememberDemo } from "@/lib/demo-store";
 import { predictBody, productSignature, type Carried } from "@/lib/product-facts-reconcile";
 import { ActionSlotProvider } from "../action-bar";
@@ -280,6 +281,9 @@ export function ProductStep() {
   // picker lets the server read the market from the text.
   const [market, setMarket] = useState<MarketCode>("us");
   const [marketPicked, setMarketPicked] = useState(false);
+  const [japanAgreement, setJapanAgreement] = useState("");
+  const [japanHts, setJapanHts] = useState("");
+  const japan = market === "jp";
   const [family, setFamily] = useState("motorised_tools_small_appliances");
   const [facts, setFacts] = useState("");
   const [hts, setHts] = useState("");
@@ -369,6 +373,14 @@ export function ProductStep() {
       setName(c.product?.name || c.display_name || "");
       if (c.date) setDate(c.date);
       setFacts(c.facts ?? "");
+      if (c.jurisdiction === "jp") {
+        setMarket("jp");
+        setMarketPicked(true);
+        const preference = c.prediction?.japan_preference;
+        const agreement = (preference?.agreement || c.japan?.agreement || "").toLowerCase();
+        setJapanAgreement(supportedJapanAgreements.find((code) => code.toLowerCase() === agreement) ?? "");
+        setJapanHts(c.japan?.hs || preference?.hs || "");
+      }
       setHts(c.product?.hts ?? "");
       // The source case's family decides which planner groups exist. The old
       // default is motorised tools, which silently drops LED/LiDAR moves (#298).
@@ -458,7 +470,7 @@ export function ProductStep() {
   };
 
   const submit = async () => {
-    if (noCreate) return;
+    if (noCreate || !ready) return;
     setBusy(true);
     setBusySince(Date.now());
     setError(null);
@@ -467,9 +479,10 @@ export function ProductStep() {
     // Facts and the demo's current origin ride along only while the parts
     // still match what they were taken from (#292).
     const body: PredictRequest = {
-      ...predictBody({ date, tab, name, hts, family, facts, product, extra }),
-      economics: hasAnyMoney(economics) ? economics : undefined,
+      ...predictBody({ date, tab, name, hts: japan ? "" : hts, family: japan ? "" : family, facts, product, extra }),
+      economics: !japan && hasAnyMoney(economics) ? economics : undefined,
       jurisdiction: marketPicked ? market : undefined,
+      japan: japan ? { agreement: japanAgreement, hs: japanHts.trim() } : undefined,
     };
     setStages([]);
     try {
@@ -489,7 +502,9 @@ export function ProductStep() {
 
   // The main button says what's still missing instead of just looking off.
   // Each gap names the field to take the user to (18 Oct).
-  const gap = findGap(tab, name, date, facts, product, imported !== null, importFailed);
+  let gap = findGap(tab, name, date, facts, product, imported !== null, importFailed);
+  if (japan && !japanAgreement) gap = { field: "[data-field=japan-agreement]", message: copy.japan.needAgreement };
+  else if (japan && !validJapanHS(japanHts)) gap = { field: "[data-field=japan-hts]", message: copy.japan.needTariffCode };
   const missing: string | null = gap?.message ?? null;
   const ready = missing === null;
   // Not ready: the button stays focusable and takes you to what's missing.
@@ -511,13 +526,13 @@ export function ProductStep() {
 
   return (
     <ActionSlotProvider>
-      <CaseTabs current="product" reached={1} title={name || "New case"} />
+      <CaseTabs current="product" reached={1} title={name || "New case"} followUps={!japan} />
       <Main>
         <div className="min-w-0 max-w-[1020px]">
-          <p className="eyebrow">Step 1 of 4 · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
+          <p className="eyebrow">{japan ? "Step 1 of 2" : "Step 1 of 4"} · Product{demoTitle && <> · demo: {demoTitle}</>}</p>
           <h1 className="mt-1 text-[28px] tracking-[-0.05em]">{copy.product.title}</h1>
           <p className="duo mt-1 max-w-[80ch] text-[13px] text-dim">
-            {copy.product.lede}{" "}
+            {japan ? copy.japan.scope : copy.product.lede}{" "}
             {!demoId && (
               <Link href="/cases" className="text-ok underline underline-offset-2">
                 Or load a demo.
@@ -529,8 +544,8 @@ export function ProductStep() {
               them: name it, describe it, check what that unlocks and go. An
               import still fills the name. */}
           <SectionHead n={1} title="The product" />
-          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]">
-            <Field label={copy.product.name} help={askName && !name.trim() ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
+          <div className={cx("mt-3 grid gap-4 sm:grid-cols-2", japan ? "lg:grid-cols-[minmax(0,1fr)_170px_200px]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_170px_200px]")}>
+            <Field label={copy.product.name} help={askName && !name.trim() && !japan ? "Name the product as you would to CBP. It heads the ruling letter." : undefined}>
               {(id) => (
                 <input
                   id={id}
@@ -546,34 +561,36 @@ export function ProductStep() {
                 />
               )}
             </Field>
-            <Field label={copy.product.family}>
-              {(id) => (
-                <>
-                  <Combobox
-                    id={id}
-                    className={input}
-                    value={family}
-                    onChange={pickFamily}
-                    options={familyOptions}
-                    placeholder="Search, or type your product type"
-                    allowCustom
-                    customLabel={(t) => `Check “${t}” with AI`}
-                    customHint="finds the closest family"
-                  />
-                  {famCheck && (
-                    <FamilyNote
-                      check={famCheck}
-                      onUse={(f) => {
-                        familyReq.current++;
-                        setFamily(f);
-                        setFamilyTouched(true);
-                        setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
-                      }}
+            {!japan && (
+              <Field label={copy.product.family}>
+                {(id) => (
+                  <>
+                    <Combobox
+                      id={id}
+                      className={input}
+                      value={family}
+                      onChange={pickFamily}
+                      options={familyOptions}
+                      placeholder="Search, or type your product type"
+                      allowCustom
+                      customLabel={(t) => `Check “${t}” with AI`}
+                      customHint="finds the closest family"
                     />
-                  )}
-                </>
-              )}
-            </Field>
+                    {famCheck && (
+                      <FamilyNote
+                        check={famCheck}
+                        onUse={(f) => {
+                          familyReq.current++;
+                          setFamily(f);
+                          setFamilyTouched(true);
+                          setFamCheck(famCheck.state === "match" ? { ...famCheck, applied: true } : null);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </Field>
+            )}
             <Field label={copy.product.date} help={copy.product.dateHelp}>
               {(id) => <input id={id} data-field="date" type="date" className={cx(input, "tabular-nums")} value={date} onChange={(e) => setDate(e.target.value)} />}
             </Field>
@@ -591,7 +608,43 @@ export function ProductStep() {
             </Field>
           </div>
 
-          <SectionHead n={2} title="Describe it" hint="Parts and plants unlock the plan search." />
+          {japan && (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label={copy.japan.agreement}>
+                {(id) => (
+                  <select
+                    id={id}
+                    data-field="japan-agreement"
+                    className={cx(input, "min-w-0")}
+                    value={japanAgreement}
+                    aria-required
+                    onChange={(e) => setJapanAgreement(e.target.value)}
+                  >
+                    <option value="">{copy.japan.chooseAgreement}</option>
+                    {supportedJapanAgreements.map((code) => (
+                      <option key={code} value={code}>{japanAgreements[code]}</option>
+                    ))}
+                  </select>
+                )}
+              </Field>
+              <Field label={japanTariffEditions[japanAgreement] ? copy.japan.tariffCodeFor(japanTariffEditions[japanAgreement]) : copy.japan.tariffCode}>
+                {(id) => (
+                  <input
+                    id={id}
+                    data-field="japan-hts"
+                    className={input}
+                    inputMode="decimal"
+                    placeholder="e.g. 6403.99"
+                    value={japanHts}
+                    aria-required
+                    onChange={(e) => setJapanHts(e.target.value)}
+                  />
+                )}
+              </Field>
+            </div>
+          )}
+
+          <SectionHead n={2} title="Describe it" hint={japan ? undefined : "Parts and plants unlock the plan search."} />
           {/* ARIA tabs (#99): one Tab stop, arrow keys move between tabs. */}
           <div role="tablist" aria-label="How to describe the product" className="mt-3 inline-flex flex-wrap border border-edge bg-sheet">
             {tabOrder.map((t) => (
@@ -641,12 +694,12 @@ export function ProductStep() {
             {tab === "parts" && (
               <PartsEditor
                 product={product}
-                family={family}
-                economics={economics}
+                family={japan ? undefined : family}
+                economics={japan ? undefined : economics}
                 onChange={setProduct}
                 name={name}
                 suggestions={partsSugg}
-                onSuggestions={setPartsSugg}
+                onSuggestions={japan ? undefined : setPartsSugg}
                 goodHts={hts}
                 onGoodHts={(v) => {
                   autoHts.current = false;
@@ -656,7 +709,7 @@ export function ProductStep() {
             )}
             {tab === "paste" && (
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
-                <Field label={copy.product.facts}>
+                <Field label={japan ? copy.japan.facts : copy.product.facts}>
                   {(id) => (
                     <div className="border border-edge bg-white shadow-[4px_4px_0_var(--shadow)] focus-within:border-ok">
                       <textarea
@@ -664,12 +717,12 @@ export function ProductStep() {
                         className="duo block min-h-[320px] w-full resize-y bg-transparent px-4 py-3.5 text-[13.5px] leading-[1.7] outline-none placeholder:text-faint"
                         maxLength={12000}
                         value={facts}
-                        placeholder="Each heat gun is assembled in Thailand using 24 components sourced from China and Thailand. The main housing, front cover and heating element are produced in Thailand…"
+                        placeholder={japan ? copy.japan.factsExample : "Each heat gun is assembled in Thailand using 24 components sourced from China and Thailand. The main housing, front cover and heating element are produced in Thailand…"}
                         onChange={(e) => setFacts(e.target.value)}
                         aria-describedby={`${id}-count`}
                       />
                       <div className="flex items-center justify-between gap-3 border-t border-dashed border-guide px-4 py-2 text-[11.5px] text-dim">
-                        <span className="duo">{copy.product.factsHelp}</span>
+                        <span className="duo">{japan ? copy.japan.factsHelp : copy.product.factsHelp}</span>
                         <span id={`${id}-count`} className="shrink-0 tabular-nums">
                           {facts.length.toLocaleString("en-US")} / 12,000
                         </span>
@@ -683,7 +736,7 @@ export function ProductStep() {
                     <li>What the product is and what it does.</li>
                     <li>Every part and the country it&apos;s made in.</li>
                     <li>What happens in each country, step by step: moulding, winding, soldering, assembly, testing.</li>
-                    <li>Write it like a ruling request to CBP. A ruling&apos;s own text works.</li>
+                    {japan ? <li>Include the tariff code for each material, where known.</li> : <li>Write it like a ruling request to CBP. A ruling&apos;s own text works.</li>}
                   </ul>
                 </aside>
               </div>
@@ -691,7 +744,7 @@ export function ProductStep() {
             {tab === "bom" && (
               <BomImport
                 name={nameIsAuto ? "" : name}
-                family={familyTouched ? family : ""}
+                family={!japan && familyTouched ? family : ""}
                 draftFamily={family}
                 onDrafted={(r) => {
                   // An image or scan was read into a draft (nothing saved, nothing
@@ -774,7 +827,7 @@ export function ProductStep() {
                     }
                     said.push(`Product name “${filledName}”, ${r.name_source === "file_name" ? "from the file's name" : how(r.name_source)}.`);
                   }
-                  if (r.family && familyFree && (r.family_source === "file" || r.family_source === "ai")) {
+                  if (!japan && r.family && familyFree && (r.family_source === "file" || r.family_source === "ai")) {
                     autoFamily.current = true;
                     said.push(`Product family ${familyName(r.family)}, ${how(r.family_source)}${r.family_reason ? `: ${r.family_reason}` : "."}`);
                   }
@@ -795,7 +848,7 @@ export function ProductStep() {
                   }
                   setFilled(null);
                   const mine = ++lookup.current;
-                  void prefillMoney({ ...r.product, name: r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
+                  if (!japan) void prefillMoney({ ...r.product, name: r.product.name || "Product" }, fromFile, r.economics_sources).then(({ economics: e, filled: f }) => {
                     if (lookup.current !== mine) return; // a newer file, or the page is gone
                     if (e && e !== fromFile) {
                       // Rates land on the money as it is now, blank countries only.
@@ -825,84 +878,91 @@ export function ProductStep() {
             )}
           </div>
 
-          <div className="mt-6">
-            <HtsField
-              inputId="field-good-hts"
-              value={hts}
-              onChange={(v) => {
-                autoHts.current = false;
-                setHts(v);
-              }}
-              source={htsSource}
-              inputClass={input}
-              onNeedSource={showMissing}
-              help={
-                tab === "paste"
-                  ? "Sets duty rates for the plan, once the case has parts and plants. Optional."
-                  : "Sets duty rates for the plan. Optional."
-              }
-            />
-          </div>
-
-          <SectionHead n={3} title="Check and go" />
-          <ul aria-label="What this input unlocks" className="mt-3 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
-            {tiers.map((t, i) => (
-              <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
-                <span
-                  aria-hidden="true"
-                  className={cx(
-                    "mt-0.5 inline-grid size-4 shrink-0 place-items-center border text-[11px] leading-none",
-                    t.state === "done" ? "border-ok bg-ok text-white" : t.state === "limited" ? "border-ask text-ask" : "border-edge",
-                  )}
-                >
-                  {t.state === "done" ? "✓" : t.state === "limited" ? "!" : ""}
-                </span>
-                <div className="min-w-0 text-[12.5px]">
-                  <p className="font-medium text-ink">
-                    {t.label}
-                    <span className="sr-only">: {t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}</span>
-                  </p>
-                  <p className={cx("duo mt-0.5", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}>{t.note}</p>
-                  {t.key === "plan" && tab === "paste" && (
-                    <button
-                      type="button"
-                      onClick={draftParts}
-                      disabled={facts.trim().length <= 20 || drafting !== null}
-                      className="mt-2 inline-flex min-h-8 items-center gap-1.5 border border-ok bg-white px-2.5 text-[12px] text-ok shadow-[2px_2px_0_var(--shadow)] hover:bg-ok-wash disabled:cursor-not-allowed disabled:border-line disabled:text-dim disabled:shadow-none"
-                    >
-                      {drafting ? (
-                        <>
-                          Drafting… <Elapsed since={drafting.since} />
-                        </>
-                      ) : (
-                        "Turn into parts and plants"
-                      )}
-                    </button>
-                  )}
-                  {t.key === "money" && (
-                    <button type="button" onClick={() => setMoneyOpen(true)} className="mt-2 min-h-7 text-[12px] text-ok hover:underline">
-                      {hasAnyMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-          {autoFilled && tab === "bom" && (
-            <div role="status" className="mt-3 border border-ok bg-ok-wash px-4 py-3 text-[12.5px] leading-relaxed">
-              <p className="font-medium text-ink">Filled in from your BOM · check above and change anything</p>
-              <ul className="mt-1 text-body">
-                {autoFilled.map((s) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ul>
+          {!japan && (
+            <div className="mt-6">
+              <HtsField
+                inputId="field-good-hts"
+                value={hts}
+                onChange={(v) => {
+                  autoHts.current = false;
+                  setHts(v);
+                }}
+                source={htsSource}
+                inputClass={input}
+                onNeedSource={showMissing}
+                help={
+                  tab === "paste"
+                    ? "Sets duty rates for the plan, once the case has parts and plants. Optional."
+                    : "Sets duty rates for the plan. Optional."
+                }
+              />
             </div>
           )}
-          {filled && tab === "bom" && <PrefillNote f={filled} onEdit={() => setMoneyOpen(true)} className="mt-3" />}
-          {tab !== "paste" && product.components.length > 0 && (
-            <p className="mt-3 text-[12px] text-dim">
-              {product.components.length} components · {product.operations?.length ?? 0} operations · {product.plants?.length ?? 0} plants · {groups.length} groups to move
-            </p>
+
+          {!japan && (
+            <>
+              <SectionHead n={3} title="Check and go" />
+              <ul aria-label="What this input unlocks" className="mt-3 grid border border-edge bg-sheet shadow-[4px_4px_0_var(--shadow)] sm:grid-cols-3">
+                {tiers.map((t, i) => (
+                  <li key={t.key} className={cx("flex gap-3 px-4 py-3.5", i > 0 && "border-t border-dashed border-guide sm:border-l sm:border-t-0")}>
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        "mt-0.5 inline-grid size-4 shrink-0 place-items-center border text-[11px] leading-none",
+                        t.state === "done" ? "border-ok bg-ok text-white" : t.state === "limited" ? "border-ask text-ask" : "border-edge",
+                      )}
+                    >
+                      {t.state === "done" ? "✓" : t.state === "limited" ? "!" : ""}
+                    </span>
+                    <div className="min-w-0 text-[12.5px]">
+                      <p className="font-medium text-ink">
+                        {t.label}
+                        <span className="sr-only">: {t.state === "done" ? "ready" : t.state === "limited" ? "limited" : "not yet"}</span>
+                      </p>
+                      <p className={cx("duo mt-0.5", t.state === "done" ? "text-ok" : t.state === "limited" ? "text-ask" : "text-dim")}>{t.note}</p>
+                      {t.key === "plan" && tab === "paste" && (
+                        <button
+                          type="button"
+                          onClick={draftParts}
+                          disabled={facts.trim().length <= 20 || drafting !== null}
+                          className="mt-2 inline-flex min-h-8 items-center gap-1.5 border border-ok bg-white px-2.5 text-[12px] text-ok shadow-[2px_2px_0_var(--shadow)] hover:bg-ok-wash disabled:cursor-not-allowed disabled:border-line disabled:text-dim disabled:shadow-none"
+                        >
+                          {drafting ? (
+                            <>
+                              Drafting… <Elapsed since={drafting.since} />
+                            </>
+                          ) : (
+                            "Turn into parts and plants"
+                          )}
+                        </button>
+                      )}
+                      {t.key === "money" && (
+                        <button type="button" onClick={() => setMoneyOpen(true)} className="mt-2 min-h-7 text-[12px] text-ok hover:underline">
+                          {hasAnyMoney(economics) ? "Edit money inputs" : "+ Add money inputs"}
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {autoFilled && tab === "bom" && (
+                <div role="status" className="mt-3 border border-ok bg-ok-wash px-4 py-3 text-[12.5px] leading-relaxed">
+                  <p className="font-medium text-ink">Filled in from your BOM · check above and change anything</p>
+                  <ul className="mt-1 text-body">
+                    {autoFilled.map((s) => (
+                      <li key={s}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {filled && tab === "bom" && <PrefillNote f={filled} onEdit={() => setMoneyOpen(true)} className="mt-3" />}
+              {tab !== "paste" && product.components.length > 0 && (
+                <p className="mt-3 text-[12px] text-dim">
+                  {product.components.length} components · {product.operations?.length ?? 0} operations · {product.plants?.length ?? 0} plants · {groups.length} groups to move
+                </p>
+              )}
+
+            </>
           )}
 
           {draftError && tab === "paste" ? (
@@ -917,7 +977,7 @@ export function ProductStep() {
           ) : null}
           {/* Step 1 is a form: its action sits after the fields, not above the heading. */}
           <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-            <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. Progress is shown below."}</Next>
+            {!japan && <Next>{busy ? "Finding the likely origin. Progress is shown below." : missing ? "Describe the product, then find its likely origin." : "Find the likely origin. Progress is shown below."}</Next>}
             <div className="ml-auto flex items-center gap-3">
               {!busy && missing ? (
                 <span id="go-why" className="text-[13px] text-dim">
@@ -932,12 +992,12 @@ export function ProductStep() {
                     Finding… <Elapsed since={busySince} />
                   </>
                 ) : (
-                  <>{copy.product.go} →</>
+                  <>{japan ? copy.japan.check : copy.product.go} →</>
                 )}
               </Button>
             </div>
           </div>
-          {busy && <PredictStatus since={busySince} date={date} stages={stages} />}
+          {busy && <PredictStatus since={busySince} date={date} stages={stages} japan={japan} />}
         </div>
       </Main>
       {/* The same action in the top bar, where every other step has its main
@@ -960,11 +1020,11 @@ export function ProductStep() {
               Finding… <Elapsed since={busySince} />
             </>
           ) : (
-            <>{copy.product.go} →</>
+            <>{japan ? copy.japan.check : copy.product.go} →</>
           )}
         </Button>
       </Footer>
-      {moneyOpen && (
+      {!japan && moneyOpen && (
         <MoneyDrawer
           value={economics}
           product={product}
@@ -996,7 +1056,7 @@ const cell =
 // While the prediction runs: what the engine is doing, how long it usually
 // takes, and a plain note if it runs long, so a quiet screen never reads as
 // a stuck one (#144).
-function PredictStatus({ since, date, stages }: { since: number; date: string; stages: PredictStage[] }) {
+function PredictStatus({ since, date, stages, japan }: { since: number; date: string; stages: PredictStage[]; japan: boolean }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -1008,7 +1068,7 @@ function PredictStatus({ since, date, stages }: { since: number; date: string; s
     <div id="go-status" role="status" aria-live="polite" className={cx("mt-4 border px-4 py-3.5 text-[13px]", slow ? "border-ask-line bg-ask-wash" : "border-ok bg-ok-wash")}>
       <p className={cx("flex items-center gap-2 font-medium", slow ? "text-ask" : "text-ok")}>
         <span className={cx("size-2 rotate-45 motion-safe:animate-pulse", slow ? "bg-ask" : "bg-ok")} aria-hidden="true" />
-        {slow ? "Taking longer than usual. Still working." : "Working on it. Progress is shown below."}
+        {slow ? "Taking longer than usual. Still working." : japan ? copy.japan.checking : "Working on it. Progress is shown below."}
         <span className="ml-auto font-normal tabular-nums text-dim" aria-hidden="true">
           {secs} s
         </span>
@@ -1018,7 +1078,7 @@ function PredictStatus({ since, date, stages }: { since: number; date: string; s
       </div>
       {/* The backend streams its real steps (D71); until the first arrives,
           say what they will be. */}
-      {stages.length > 0 ? (
+      {japan ? null : stages.length > 0 ? (
         <StageList stages={stages} />
       ) : (
         <ol className="duo mt-3 flex list-decimal flex-col gap-1 pl-5 text-body">

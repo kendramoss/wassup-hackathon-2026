@@ -904,3 +904,15 @@ The development rulings were counted to pick the families, so their gain is not 
 **Live plan checks, one per family (development).** On fixtures built from a cited pool ruling, 5 of 6 searches show a precedent-supported plan and 1 goes to a broker (`eval/results/families-r3-live-checks.json`). Four are reverse probes, where CBP did not hold China. The plush toy found the move CBP itself held Vietnam on, but the check scored it 0.90, below the 0.92 bar. On the AGV, CBP's later case moved one frame; that move scored 0.90 too, so the plan shown moves both. $0.57 for six searches, median 49 s.
 
 **Not done.** No held-out plan search was run. Car filters and bicycles were counted but have too few pool rulings to write from. The rulings with no template that fit no type (229, 67 of them chemicals and pharmaceuticals) are not addressed. Sources: `eval/results/families-r3-*.json*`, `families-coverage-*-f26.jsonl`; cost $6.78 for D660 and D661.
+
+## 18. Japan preferential origin
+
+D710 froze the chronological split. D712 and D713 froze the same-agreement retrieval protocol and selected the rule-grounded candidate before the unseen test. Retrieval uses rulings dated strictly before each case. The model gets published facts and rule text. The Japanese-text scoring labels stay local. D712 covers RCEP, Japan–EU EPA, CPTPP and AJCEP. The [rule-source record](../backend/internal/jprules/README.md) lists the dates and missing texts.
+
+| Sample | Result |
+|---|---|
+| Development | 243 of 400 exact criterion matches. This includes abstentions and failures in the denominator. |
+| Unseen published rulings | 633 positive rulings, 251 abstentions before a call and 382 HTTP 403 responses. The attempt produced no model predictions. |
+| Fictional negative cases | Eight requests, each HTTP 403. The attempt produced no model predictions. |
+
+The development baseline and the rule-grounded candidate use different criteria for when they answer. The public test cohort covers qualifying goods only. No held-out accuracy or refusal rate is available. The [results record](../eval/RESULTS.md) links every run and summary, including the interrupted development attempt.
