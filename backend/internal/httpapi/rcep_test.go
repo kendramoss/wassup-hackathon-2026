@@ -92,3 +92,18 @@ func TestRCEPCheckShortGoodNeverDropsConnection(t *testing.T) {
 		t.Fatalf("check_rcep_preference: %s %v", text(res), out)
 	}
 }
+
+// #672: finite but overflowing inputs used to encode Inf and get a 500.
+func TestRCEPCheckRejectsNonFiniteComputedShares(t *testing.T) {
+	hs := newHarness(t, "substantial_transformation")
+	for _, body := range []string{
+		`{"hs":"8471.30","produced_in":"Japan","fob":1e-300,"materials":[{"hs":"8471.30","value":1e10,"status":"non_originating"}]}`,
+		`{"hs":"8471.30","produced_in":"Japan","fob":1e308,"materials":[{"hs":"8471.30","value":1e308,"status":"non_originating"},{"hs":"8471.30","value":1e308,"status":"non_originating"}]}`,
+		`{"hs":"8471.30","produced_in":"Japan","fob":100,"costs":{"labour":1e308,"overhead":1e308,"profit":1e308,"other":1e308},"materials":[{"hs":"8471.50","value":10,"status":"non_originating"}]}`,
+	} {
+		code, out := hs.do(t, "POST", "/v1/rcep/check", body)
+		if code != http.StatusBadRequest || out["code"] != "invalid_input" {
+			t.Errorf("%s: got %d %v", body, code, out)
+		}
+	}
+}
