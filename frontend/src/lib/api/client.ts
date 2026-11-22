@@ -28,6 +28,8 @@ export type MoveRef = S["MoveRef"];
 export type EvalSummary = S["EvalSummary"];
 export type Ruling = S["Ruling"];
 export type ApiErrorBody = S["Error"];
+// Canada's marking-rule check (D720): POST /v1/rules/canada-marking.
+export type CanadaMarking = paths["/v1/rules/canada-marking"]["post"]["responses"]["200"]["content"]["application/json"];
 export type Scenario = NonNullable<CaseResponse["scenarios"]>[number];
 export type Watch = NonNullable<CaseResponse["watch"]>;
 
@@ -352,6 +354,8 @@ export const api = {
   deleteCase: (id: string) => call<void>(`/cases/${enc(id)}`, { method: "DELETE" }),
   putEconomics: (id: string, economics: Economics) => post<EconomicsResponse>(`/cases/${enc(id)}/economics`, economicsOnWire(economics), undefined, "PUT"),
   htsSuggest: (body: { facts: string } | { product: Product }, signal?: AbortSignal) => post<HtsSuggestResponse>("/products/hts-suggest", body, signal),
+  // Canada's marking rules from the product's codes (D720); no model call.
+  canadaMarking: (body: { product: Product }, signal?: AbortSignal) => post<CanadaMarking>("/rules/canada-marking", body, signal),
   // Codes for each part (D380): suggestions only, nothing is stored.
   partsHtsSuggest: (body: { product: Product }, signal?: AbortSignal) => post<PartsHtsSuggestResponse>("/products/parts-hts-suggest", body, signal),
   // The lookups price duty and group costs only: the operating-cost block is

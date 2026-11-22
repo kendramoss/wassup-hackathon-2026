@@ -1,8 +1,9 @@
 // Package jurisdiction is the market a case's origin question is asked for
 // (D680): the list of markets, a deterministic detector over the case text,
-// and the registry of markets that have an origin engine. Only the United
-// States is registered today. A case for any other market gets no prediction
-// and goes to review; a new authority is added by registering it.
+// and the registry of markets that have an origin engine. The United States
+// is registered, and the server adds Canada, whose engine is a rules check
+// (D725). A case for any other market gets no prediction and goes to
+// review; a new authority is added by registering it.
 package jurisdiction
 
 import (
@@ -146,7 +147,8 @@ var USAuthority = Authority{
 	Precedents: "CBP rulings",
 }
 
-// Default is the production registry: the United States only.
+// Default is the registry with the United States only. The server adds
+// Canada as a rules-only market when the rule check is on (D725).
 func Default() *Registry {
 	r, _ := NewRegistry(USAuthority)
 	return r

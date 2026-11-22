@@ -110,6 +110,18 @@ Recomputed by `cd backend && go run ./cmd/tariffshift eval -check` (in `make rep
 | Coverage from the full ruling text (CBP's own codes) | dev 8 of 72 (8 agree with CBP, 67.6-100%), final 4 of 32 (4 agree, 51.0-100%); differs from the model on 2 dev rulings, agreeing with CBP on both (N341152, N352059) | same | Encoding check, not product accuracy. Always with n; never as an accuracy figure. 7 chapters (D362): dev 2 of 72, final 2 of 32, all agree; same before and after the D412 fix. Without the five chapters kept from D460 (D560): final still 4 of 32 |
 | Extraction cost | $2.58 gateway-reported, seven runs | `eval/results/RUNLOG.jsonl` (`tariffshift-extract-*`) | Measured |
 
+### Canada marking rules, SOR/94-23 (D720-D725)
+
+Recomputed by `cd backend && go test ./internal/tariffshift -run 'RulesCAJSON|Parity'` (in `make reproduce`); no model calls. A rules check only: no accuracy figure exists (D725).
+
+| Number | Value | Source | Status |
+|---|---|---|---|
+| Rule rows and alternatives parsed | 572 rows (569 code rows, whole-chapter rows for 61 and 62, a note-only row for 63.09); 548 of 596 alternatives encoded (91.9%); 544 rows fully, 4 partly, 24 not; 40 written by goods description and 8 with a content or process proviso, never decided by code | `backend/internal/tariffshift/rules_ca.json` (Justice Laws XML, retrieved 22 Nov 2026), `TestRulesCAJSONMatchesParser` | Built; a test re-parses the committed text |
+| Alternatives allowing a change within the good's own subheading or heading (s. 12(2)) | 102 (88 encoded) | same | Built; a difference from 19 CFR 102.20 (D722) |
+| Rows whose note can set origin by a process (D723) | 57 | same | Built |
+| Parity with the U.S. check on identical rows | 116 rows with the same text; same answer on 2,094 of 2,094 inputs (1,029 decided by the U.S. rules) | `TestParityOnIdenticalRows` | Built, synthetic inputs; not an accuracy figure |
+| Published Canadian rulings to test against | about 11 origin and 3 marking rulings, none negative (CBSA list archived 2 Jul 2025) | day-0 check for #663, D725 | Too few for an accuracy figure; none shown |
+
 ### Per-part HTS suggestions (D380-D382)
 
 Recomputed by `cd backend && go run ./cmd/tariffshift parts-eval -check` (in `make reproduce`) from the committed rows; no model calls at scoring.

@@ -36,7 +36,7 @@ info:
     Rate limits (D45, D137): every `/v1` route has a rate class, keyed per client (the
     frontend forwards the browser's address as `X-Client-IP`; an API key has its own
     buckets). Cheap routes with no model call (case reads, rename, delete, economics,
-    export, demos, rulings, duty rates, RCEP check, eval summary, workspaces) 120 a minute; light model
+    export, demos, rulings, duty rates, RCEP check, Canada marking check, eval summary, workspaces) 120 a minute; light model
     routes (predict, answers, ask, extract, extract-media, import, money-prefill, hts-suggest,
     parts-hts-suggest, cost-estimate, family-check, scenarios, watch, bom-version) 20 a minute,
     and plan estimate and the audit reads take from the same bucket without a model call; heavy
@@ -1547,6 +1547,63 @@ paths:
                         name: { type: string }
                         supported: { type: boolean }
                   detector: { type: string, example: market-detect-v2, description: "Version of the deterministic market detector" }
+  /v1/rules/canada-marking:
+    post:
+      operationId: checkCanadaMarking
+      summary: Canada marking-origin rules check (SOR/94-23), from HTS codes; no model call (D720-D725)
+      description: >-
+        Applies Canada's Determination of Country of Origin for the Purpose of Marking Goods (CUSMA Countries)
+        Regulations (SOR/94-23): the Schedule III tariff-shift row for the good, then ss. 4, 5, 9 and 11. Same output
+        shape as a case's `rule_check.result`. A rules check only: Canada publishes too few origin rulings to test it,
+        so there is no accuracy figure, and every answer carries `label` saying so. Send either `product` (read like the
+        case's rule check: its HTS code, parts' codes and `made_in`, and the production country from its plants) or
+        `good_hts`, `country` and `materials`. Headings in Canada's text are written 84.73; send codes as usual
+        (8473.30). Nothing is stored. Served when RULE_CHECK is on (the default).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                product: { $ref: "#/components/schemas/Product" }
+                good_hts: { type: string, example: "6301.30" }
+                country: { type: string, description: "Where the good is produced", example: "Mexico" }
+                materials:
+                  type: array
+                  maxItems: 50
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      hts: { type: string }
+                      origin: { type: string }
+                      not_in: { type: string }
+                      value_share: { type: number, minimum: 0, maximum: 1 }
+                      weight_share: { type: number, minimum: 0, maximum: 1, description: "For de minimis by weight in chapters 50 to 63 (s. 11(1)(a))" }
+                simple_assembly: { type: boolean }
+                gri_2a: { type: boolean }
+                bending_to_shape: { type: boolean }
+      responses:
+        "200":
+          description: The check
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jurisdiction, rules, table_version, label, country, result, note]
+                properties:
+                  jurisdiction: { type: string, enum: [ca] }
+                  rules: { type: string, enum: ["SOR/94-23 Schedule III"] }
+                  table_version: { type: string, example: "ca-sor-94-23-v1" }
+                  label: { type: string, example: "Rules check only — no accuracy figure yet (no published rulings to test against)" }
+                  country: { type: string }
+                  country_from: { type: string }
+                  note: { type: string }
+                  result: { $ref: "#/components/schemas/RuleCheck/properties/result" }
+        "400": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
   /v1/demos:
     get:
       operationId: listDemos
